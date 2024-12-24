@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
-import 'package:flutter_gui/database/dao/account_book_dao.dart';
-import 'package:flutter_gui/database/dao/rel_accountbook_user_dao.dart';
-import 'package:flutter_gui/database/database.dart';
-import 'package:flutter_gui/database/database_service.dart';
-import 'package:flutter_gui/models/common.dart';
+import '../database/dao/account_book_dao.dart';
+import '../database/dao/rel_accountbook_user_dao.dart';
+import '../database/database.dart';
+import '../database/database_service.dart';
+import '../models/common.dart';
 import 'base_service.dart';
 
 class AccountBookService extends BaseService {

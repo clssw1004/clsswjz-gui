@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:flutter_gui/database/dao/user_dao.dart';
-import 'package:flutter_gui/database/database.dart';
-import 'package:flutter_gui/database/database_service.dart';
-import 'package:flutter_gui/models/common.dart';
+import '../database/dao/user_dao.dart';
+import '../database/database.dart';
+import '../database/database_service.dart';
+import '../models/common.dart';
 import 'base_service.dart';
 import '../utils/id.util.dart';
 

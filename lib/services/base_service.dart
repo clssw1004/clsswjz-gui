@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:flutter_gui/database/database_service.dart';
-import 'package:flutter_gui/database/database.dart';
+import '../database/database_service.dart';
+import '../database/database.dart';
 import '../utils/id.util.dart';
 
 abstract class BaseService {
