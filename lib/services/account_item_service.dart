@@ -1,11 +1,14 @@
-import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
 import '../database/dao/account_item_dao.dart';
+import '../database/dao/account_shop_dao.dart';
+import '../database/dao/account_symbol_dao.dart';
+import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../database/database_service.dart';
 import '../models/common.dart';
+import '../utils/collection.util.dart';
 import 'base_service.dart';
 import '../models/vo/account_item_vo.dart';
 
@@ -13,11 +16,17 @@ class AccountItemService extends BaseService {
   final AccountItemDao _accountItemDao;
   final AccountCategoryDao _accountCategoryDao;
   final AccountFundDao _accountFundDao;
+  final AccountSymbolDao _accountSymbolDao;
+  final AccountShopDao _accountShopDao;
+  final UserDao _userDao;
 
   AccountItemService()
       : _accountItemDao = AccountItemDao(DatabaseService.db),
         _accountCategoryDao = AccountCategoryDao(DatabaseService.db),
-        _accountFundDao = AccountFundDao(DatabaseService.db);
+        _accountFundDao = AccountFundDao(DatabaseService.db),
+        _accountSymbolDao = AccountSymbolDao(DatabaseService.db),
+        _accountShopDao = AccountShopDao(DatabaseService.db),
+        _userDao = UserDao(DatabaseService.db);
 
   /// 创建账目
   Future<OperateResult<String>> createAccountItem({
@@ -301,75 +310,39 @@ class AccountItemService extends BaseService {
     }.toList();
 
     // 3. 批量查询关联数据
-    final categories = categoryCodes.isEmpty
-        ? <AccountCategory>[]
-        : await (db.select(db.accountCategoryTable)
-              ..where((t) => t.code.isIn(categoryCodes)))
-            .get();
+    final categories = toMap(
+        await _accountCategoryDao.findByCodes(categoryCodes), (c) => c.code);
 
-    final funds = fundIds.isEmpty
-        ? <AccountFund>[]
-        : await (db.select(db.accountFundTable)
-              ..where((t) => t.id.isIn(fundIds)))
-            .get();
+    final funds = toMap(await _accountFundDao.findByIds(fundIds), (f) => f.id);
 
-    final shops = shopCodes.isEmpty
-        ? <AccountShop>[]
-        : await (db.select(db.accountShopTable)
-              ..where((t) => t.code.isIn(shopCodes)))
-            .get();
+    final shops =
+        toMap(await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
-    final symbols = [...tagCodes, ...projectCodes].isEmpty
-        ? <AccountSymbol>[]
-        : await (db.select(db.accountSymbolTable)
-              ..where((t) => t.code.isIn([...tagCodes, ...projectCodes])))
-            .get();
+    final symbolMap = groupBy(
+        await _accountSymbolDao.findByTypes(['TAG', 'PROJECT']),
+        (s) => s.symbolType);
 
-    final users = userIds.isEmpty
-        ? <User>[]
-        : await (db.select(db.userTable)..where((t) => t.id.isIn(userIds)))
-            .get();
+    final tags = toMap(symbolMap['TAG'] ?? [], (s) => s.code);
+    final projects = toMap(symbolMap['PROJECT'] ?? [], (s) => s.code);
+
+    final users = toMap(await _userDao.findByIds(userIds), (u) => u.id);
 
     // 4. 组装VO对象
     return items.map((item) {
       // 查找关联数据
-      final category = item.categoryCode == null
-          ? null
-          : categories.firstWhereOrNull(
-              (c) => c.code == item.categoryCode,
-            );
+      final category = categories[item.categoryCode];
 
-      final fund = item.fundId == null
-          ? null
-          : funds.firstWhereOrNull(
-              (f) => f.id == item.fundId,
-            );
+      final fund = funds[item.fundId];
 
-      final shop = item.shopCode == null
-          ? null
-          : shops.firstWhereOrNull(
-              (s) => s.code == item.shopCode,
-            );
+      final shop = shops[item.shopCode];
 
-      final tag = item.tagCode == null
-          ? null
-          : symbols.firstWhereOrNull(
-              (s) => s.code == item.tagCode && s.symbolType == 'TAG',
-            );
+      final tag = tags[item.tagCode];
 
-      final project = item.projectCode == null
-          ? null
-          : symbols.firstWhereOrNull(
-              (s) => s.code == item.projectCode && s.symbolType == 'PROJECT',
-            );
+      final project = projects[item.projectCode];
 
-      final createdByUser = users.firstWhereOrNull(
-        (u) => u.id == item.createdBy,
-      );
+      final createdByUser = users[item.createdBy];
 
-      final updatedByUser = users.firstWhereOrNull(
-        (u) => u.id == item.updatedBy,
-      );
+      final updatedByUser = users[item.updatedBy];
 
       return AccountItemVO.fromAccountItem(
         item: item,

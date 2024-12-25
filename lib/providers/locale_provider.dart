@@ -16,7 +16,6 @@ class LocaleProvider with ChangeNotifier {
 
   /// 初始化语言设置
   static Future<LocaleProvider> init() async {
-    await AppConfig.init();
     return LocaleProvider();
   }
 }

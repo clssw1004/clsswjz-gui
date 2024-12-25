@@ -36,6 +36,10 @@ class AccountFundDao {
         .getSingleOrNull();
   }
 
+  Future<List<AccountFund>> findByIds(List<String> ids) {
+    return (db.select(db.accountFundTable)..where((t) => t.id.isIn(ids))).get();
+  }
+
   Future<List<AccountFund>> findByAccountBookId(String accountBookId) {
     final query = db.select(db.accountFundTable).join([
       innerJoin(

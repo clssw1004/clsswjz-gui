@@ -36,6 +36,12 @@ class AccountCategoryDao {
         .getSingleOrNull();
   }
 
+  Future<List<AccountCategory>> findByCodes(List<String> codes) {
+    return (db.select(db.accountCategoryTable)
+          ..where((t) => t.code.isIn(codes)))
+        .get();
+  }
+
   Future<List<AccountCategory>> findByAccountBookId(String accountBookId) {
     return (db.select(db.accountCategoryTable)
           ..where((t) => t.accountBookId.equals(accountBookId)))

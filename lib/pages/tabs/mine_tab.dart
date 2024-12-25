@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../database/database_service.dart';
 import '../../providers/locale_provider.dart';
-import '../../theme/theme_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../settings/theme_settings_page.dart';
 import '../language_settings_page.dart';
 import '../../widgets/common_app_bar.dart';

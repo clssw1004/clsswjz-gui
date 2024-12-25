@@ -1,5 +1,9 @@
 import 'package:drift/drift.dart';
 import '../database/dao/account_book_dao.dart';
+import '../database/dao/account_category_dao.dart';
+import '../database/dao/account_fund_dao.dart';
+import '../database/dao/account_shop_dao.dart';
+import '../database/dao/account_symbol_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/database.dart';
 import '../database/database_service.dart';

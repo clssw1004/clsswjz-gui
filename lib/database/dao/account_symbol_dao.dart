@@ -48,6 +48,19 @@ class AccountSymbolDao {
         .get();
   }
 
+  Future<List<AccountSymbol>> findByTypes(List<String> symbolTypes) {
+    return (db.select(db.accountSymbolTable)
+          ..where((t) => t.symbolType.isIn(symbolTypes)))
+        .get();
+  }
+
+  Future<List<AccountSymbol>> findByTypeAndCodes(
+      String symbolType, List<String> codes) {
+    return (db.select(db.accountSymbolTable)
+          ..where((t) => t.symbolType.equals(symbolType) & t.code.isIn(codes)))
+        .get();
+  }
+
   Future<AccountSymbol?> findByCode(String code) {
     return (db.select(db.accountSymbolTable)..where((t) => t.code.equals(code)))
         .getSingleOrNull();

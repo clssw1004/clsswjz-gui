@@ -35,6 +35,10 @@ class UserDao {
         .getSingleOrNull();
   }
 
+  Future<List<User>> findByIds(List<String> ids) {
+    return (db.select(db.userTable)..where((t) => t.id.isIn(ids))).get();
+  }
+
   Future<User?> findByUsername(String username) {
     return (db.select(db.userTable)..where((t) => t.username.equals(username)))
         .getSingleOrNull();

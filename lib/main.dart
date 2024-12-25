@@ -1,3 +1,4 @@
+import 'package:clsswjz/services/service_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'models/app_config.dart';
 import 'providers/locale_provider.dart';
 import 'pages/home_page.dart';
-import 'theme/theme_provider.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +16,7 @@ void main() async {
 
   // 初始化语言设置
   final localeProvider = await LocaleProvider.init();
-
+  await ServiceManager.instance;
   runApp(
     MultiProvider(
       providers: [
