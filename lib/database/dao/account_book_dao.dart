@@ -73,4 +73,9 @@ class AccountBookDao {
       ),
     );
   }
+
+  /// 根据ID列表查询多个账本
+  Future<List<AccountBook>> findByIds(List<String> ids) {
+    return (db.select(db.accountBookTable)..where((t) => t.id.isIn(ids))).get();
+  }
 }

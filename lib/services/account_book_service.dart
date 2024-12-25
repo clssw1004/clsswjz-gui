@@ -4,6 +4,8 @@ import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/database.dart';
 import '../database/database_service.dart';
 import '../models/common.dart';
+import '../models/account_book_permission.dart';
+import '../models/vo/user_book_vo.dart';
 import 'base_service.dart';
 
 class AccountBookService extends BaseService {
@@ -171,6 +173,44 @@ class AccountBookService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.fail('添加成员失败：$e', e as Exception);
+    }
+  }
+
+  /// 获取用户的账本列表及权限
+  Future<OperateResult<List<UserBookVO>>> getAccountsByUserId(
+      String userId) async {
+    try {
+      // 1. 从关联表中查询用户的账本权限
+      final userBooks = await (db.select(db.relAccountbookUserTable)
+            ..where((tbl) => tbl.userId.equals(userId)))
+          .get();
+
+      if (userBooks.isEmpty) {
+        return OperateResult.success([]);
+      }
+
+      // 2. 获取所有账本ID
+      final bookIds = userBooks.map((e) => e.accountBookId).toList();
+
+      // 3. 查询账本详细信息
+      final books = await _accountBookDao.findByIds(bookIds);
+
+      // 4. 组装VO对象
+      final result = books.map((book) {
+        // 找到对应的权限记录
+        final userBook = userBooks.firstWhere(
+          (ub) => ub.accountBookId == book.id,
+        );
+
+        return UserBookVO(
+          accountBook: book,
+          permission: AccountBookPermission.fromRelAccountbookUser(userBook),
+        );
+      }).toList();
+
+      return OperateResult.success(result);
+    } catch (e) {
+      return OperateResult.fail('获取账本列表失败：$e', e as Exception);
     }
   }
 }

@@ -1,4 +1,7 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../database/database_service.dart';
 import '../settings/theme_settings_page.dart';
 
 class MineTab extends StatelessWidget {
@@ -8,10 +11,11 @@ class MineTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('设置'),
+        title: Text(l10n.settings),
         backgroundColor: colorScheme.surface,
       ),
       body: SingleChildScrollView(
@@ -35,7 +39,7 @@ class MineTab extends StatelessWidget {
                   ),
                 ),
                 title: Text(
-                  '未登录',
+                  l10n.notLoggedIn,
                   style: theme.textTheme.titleMedium,
                 ),
                 trailing: Icon(
@@ -62,7 +66,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.book,
-                    text: '账本',
+                    text: l10n.accountBook,
                     onPressed: () {
                       // TODO: 跳转到账本管理页面
                     },
@@ -70,7 +74,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.category,
-                    text: '分类',
+                    text: l10n.category,
                     onPressed: () {
                       // TODO: 跳转到分类管理页面
                     },
@@ -78,7 +82,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.account_balance_wallet,
-                    text: '账户',
+                    text: l10n.account,
                     onPressed: () {
                       // TODO: 跳转到账户管理页面
                     },
@@ -86,7 +90,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.store,
-                    text: '商家',
+                    text: l10n.merchant,
                     onPressed: () {
                       // TODO: 跳转到商家管理页面
                     },
@@ -94,7 +98,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.tag,
-                    text: '标签',
+                    text: l10n.tag,
                     onPressed: () {
                       // TODO: 跳转到标签管理页面
                     },
@@ -102,7 +106,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.folder,
-                    text: '项目',
+                    text: l10n.project,
                     onPressed: () {
                       // TODO: 跳转到项目管理页面
                     },
@@ -110,7 +114,7 @@ class MineTab extends StatelessWidget {
                   _buildGridButton(
                     context,
                     icon: Icons.file_download,
-                    text: '导入',
+                    text: l10n.import,
                     onPressed: () {
                       // TODO: 跳转到导入页面
                     },
@@ -123,7 +127,7 @@ class MineTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                '系统设置',
+                l10n.systemSettings,
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -134,21 +138,13 @@ class MineTab extends StatelessWidget {
               color: colorScheme.surface,
               child: Column(
                 children: [
-                  SwitchListTile(
-                    value:
-                        const bool.fromEnvironment('DEBUG', defaultValue: true),
-                    onChanged: (value) {
-                      // TODO: 切换开发者模式
-                    },
-                    secondary:
-                        Icon(Icons.developer_mode, color: colorScheme.primary),
-                    title: const Text('开发者模式'),
-                  ),
-                  Divider(
-                      height: 1, indent: 56, color: colorScheme.outlineVariant),
                   ListTile(
                     leading: Icon(Icons.color_lens, color: colorScheme.primary),
-                    title: const Text('主题设置'),
+                    title: Text(l10n.themeSettings),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const ThemeSettingsPage(),
@@ -159,15 +155,19 @@ class MineTab extends StatelessWidget {
                       height: 1, indent: 56, color: colorScheme.outlineVariant),
                   ListTile(
                     leading: Icon(Icons.language, color: colorScheme.primary),
-                    title: const Text('语言设置'),
+                    title: Text(l10n.languageSettings),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '简体中文',
+                          l10n.simplifiedChinese,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -179,7 +179,11 @@ class MineTab extends StatelessWidget {
                       height: 1, indent: 56, color: colorScheme.outlineVariant),
                   ListTile(
                     leading: Icon(Icons.settings, color: colorScheme.primary),
-                    title: const Text('后台服务设置'),
+                    title: Text(l10n.backendSettings),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     onTap: () {
                       // TODO: 跳转到后台服务设置页面
                     },
@@ -187,9 +191,28 @@ class MineTab extends StatelessWidget {
                   Divider(
                       height: 1, indent: 56, color: colorScheme.outlineVariant),
                   ListTile(
+                    leading: Icon(Icons.storage, color: colorScheme.primary),
+                    title: Text(l10n.database),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => DriftDbViewer(DatabaseService.db),
+                      ));
+                    },
+                  ),
+                  Divider(
+                      height: 1, indent: 56, color: colorScheme.outlineVariant),
+                  ListTile(
                     leading:
                         Icon(Icons.info_outline, color: colorScheme.primary),
-                    title: const Text('关于'),
+                    title: Text(l10n.about),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     onTap: () {
                       // TODO: 跳转到关于页面
                     },

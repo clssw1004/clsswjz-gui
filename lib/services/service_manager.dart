@@ -66,20 +66,12 @@ class ServiceManager extends BaseService {
       await _instance!._initializeSyncData();
     }
     print("all books---------------");
-    final books =
-        await _accountBookService.getAll().then((value) => value.data);
-    print("all items---------------");
-    final items =
-        await _accountItemService.getAll().then((value) => value.data);
-    print(items);
-    print(books);
-    for (var book in books ?? []) {
-      print(book.id);
-      print(await _accountItemService
-          .getByAccountBookId(book.id!)
-          .then((value) => value.data));
-    }
-
+    final books = await _accountBookService
+        .getAccountsByUserId('iy6dnir1k359j47yna16d538q88zqppn')
+        .then((value) => value.data);
+    books?.forEach((book) {
+      print(book.permission);
+    });
     return _instance!;
   }
 

@@ -61,16 +61,10 @@ class SyncService extends BaseService {
 
   /// 应用服务器变更
   Future<void> applyServerChanges(SyncChanges changes) async {
-    print("applyServerChanges---------------");
-    print(changes.accountBooks);
-    print(changes.accountCategories);
-    print(changes.accountItems);
-    print(changes.accountShops);
-    print(changes.accountSymbols);
-    print(changes.accountFunds);
-    print(changes.accountBookFunds);
-    print(changes.accountBookUsers);
     await db.transaction(() async {
+      if (changes.users != null) {
+        await batchInsert(db.userTable, changes.users!);
+      }
       // 应用账本变更
       if (changes.accountBooks != null) {
         await batchInsert(db.accountBookTable, changes.accountBooks!);

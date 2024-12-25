@@ -28,6 +28,7 @@ class SyncDataDto {
 
 /// 同步变更数据
 class SyncChanges {
+  final List<User>? users;
   final List<AccountBook>? accountBooks;
   final List<AccountCategory>? accountCategories;
   final List<AccountItem>? accountItems;
@@ -38,6 +39,7 @@ class SyncChanges {
   final List<RelAccountbookUser>? accountBookUsers;
 
   SyncChanges({
+    this.users,
     this.accountBooks,
     this.accountCategories,
     this.accountItems,
@@ -50,6 +52,7 @@ class SyncChanges {
 
   Map<String, dynamic> toJson() {
     return {
+      if (users != null) 'users': users!.map((e) => e.toJson()).toList(),
       if (accountBooks != null)
         'accountBooks': accountBooks!.map((e) => e.toJson()).toList(),
       if (accountCategories != null)
@@ -71,6 +74,9 @@ class SyncChanges {
 
   factory SyncChanges.fromJson(Map<String, dynamic> json) {
     return SyncChanges(
+      users: (json['users'] as List<dynamic>?)
+          ?.map((e) => User.fromJson(e as Map<String, dynamic>))
+          .toList(),
       accountBooks: (json['accountBooks'] as List<dynamic>?)
           ?.map((e) => AccountBook.fromJson(e as Map<String, dynamic>))
           .toList(),
