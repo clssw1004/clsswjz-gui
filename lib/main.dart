@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'services/service_manager.dart';
 import 'pages/home_page.dart';
+import 'providers/account_items_provider.dart';
 import 'theme/theme_provider.dart';
 
 void main() async {
@@ -13,8 +14,11 @@ void main() async {
   await ServiceManager.instance;
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AccountItemsProvider()),
+      ],
       child: const MainApp(),
     ),
   );
@@ -36,6 +40,8 @@ class MainApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('zh', ''),
+        Locale('en'),
+        Locale('zh', 'Hant'),
       ],
       theme: themeProvider.lightTheme,
       darkTheme: themeProvider.darkTheme,

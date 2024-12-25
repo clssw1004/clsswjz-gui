@@ -21,5 +21,9 @@
     "loading": "Loading",
     "loadFailed": "Load Failed",
     "noAccountBooks": "No Account Books",
-    "simplifiedChinese": "Simplified Chinese"
+    "simplifiedChinese": "Simplified Chinese",
+    "noAccountItems": "No account items",
+    "@noAccountItems": {
+        "description": "Text to show when account item list is empty"
+    }
 } 

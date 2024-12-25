@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../database/database.dart';
 import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_book_service.dart';
@@ -12,10 +11,10 @@ class AccountBookSelector extends StatefulWidget {
   final String userId;
 
   /// 选中的账本
-  final AccountBook? selectedBook;
+  final UserBookVO? selectedBook;
 
   /// 选中账本回调
-  final void Function(AccountBook book)? onSelected;
+  final void Function(UserBookVO book)? onSelected;
 
   const AccountBookSelector({
     super.key,
@@ -33,7 +32,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
   final _accountBookService = AccountBookService();
 
   /// 当前选中的账本
-  AccountBook? _selectedBook;
+  UserBookVO? _selectedBook;
 
   @override
   void initState() {
@@ -49,7 +48,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
           await _accountBookService.getAccountsByUserId(widget.userId);
       if (result.ok && result.data!.isNotEmpty) {
         setState(() {
-          _selectedBook = result.data!.first.accountBook;
+          _selectedBook = result.data!.first;
         });
         widget.onSelected?.call(_selectedBook!);
       }
@@ -58,7 +57,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
 
   /// 显示账本选择弹窗
   Future<void> _showBookSelector() async {
-    final result = await CommonDialog.show<AccountBook>(
+    final result = await CommonDialog.show<UserBookVO>(
       context: context,
       title: AppLocalizations.of(context)!.selectAccountBook,
       width: 320,
@@ -159,13 +158,13 @@ class _AccountBookList extends StatelessWidget {
                   Icons.book,
                   color: colorScheme.primary,
                 ),
-                title: Text(book.accountBook.name),
+                title: Text(book.name),
                 subtitle: Text(
-                  book.accountBook.description ?? '',
+                  book.description ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                onTap: () => Navigator.of(context).pop(book.accountBook),
+                onTap: () => Navigator.of(context).pop(book),
               );
             },
           );

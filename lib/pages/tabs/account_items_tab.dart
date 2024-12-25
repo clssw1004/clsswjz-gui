@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/account_items_provider.dart';
 import '../../widgets/account_book_selector.dart';
+import '../../widgets/account_item_list.dart';
 import '../../widgets/common_app_bar.dart';
 
 class AccountItemsTab extends StatelessWidget {
@@ -10,20 +13,39 @@ class AccountItemsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => AccountItemsProvider(),
+      child: const _AccountItemsTabView(),
+    );
+  }
+}
+
+class _AccountItemsTabView extends StatelessWidget {
+  const _AccountItemsTabView();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AccountItemsProvider>();
+
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
         title: AccountBookSelector(
-          userId: _userId,
-          onSelected: (book) {
-            // TODO: 处理账本选择
-            debugPrint('Selected book: ${book.name}');
-          },
+          userId: AccountItemsTab._userId,
+          selectedBook: provider.selectedBook,
+          onSelected: provider.setSelectedBook,
         ),
       ),
-      body: const Center(
-        child: Text('账目列表'),
-      ),
+      body: provider.selectedBook == null
+          ? const SizedBox.shrink()
+          : AccountItemList(
+              accountBookId: provider.selectedBook!.id,
+              initialItems: provider.items,
+              onItemTap: (item) {
+                // TODO: 处理账目点击
+                debugPrint('Tapped item: ${item.id}');
+              },
+            ),
     );
   }
 }

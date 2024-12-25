@@ -202,7 +202,7 @@ class AccountBookService extends BaseService {
           (ub) => ub.accountBookId == book.id,
         );
 
-        return UserBookVO(
+        return UserBookVO.fromAccountBook(
           accountBook: book,
           permission: AccountBookPermission.fromRelAccountbookUser(userBook),
         );

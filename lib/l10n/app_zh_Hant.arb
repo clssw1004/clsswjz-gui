@@ -21,5 +21,9 @@
     "loading": "加載中",
     "loadFailed": "加載失敗",
     "noAccountBooks": "暫無賬本",
-    "simplifiedChinese": "繁體中文"
+    "simplifiedChinese": "繁體中文",
+    "noAccountItems": "暫無賬目記錄",
+    "@noAccountItems": {
+        "description": "當賬目列表為空時顯示的文本"
+    }
 } 

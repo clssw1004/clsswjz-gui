@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
@@ -6,6 +7,7 @@ import '../database/database.dart';
 import '../database/database_service.dart';
 import '../models/common.dart';
 import 'base_service.dart';
+import '../models/vo/account_item_vo.dart';
 
 class AccountItemService extends BaseService {
   final AccountItemDao _accountItemDao;
@@ -232,11 +234,18 @@ class AccountItemService extends BaseService {
     }
   }
 
-  Future<OperateResult<List<AccountItem>>> getByAccountBookId(
+  /// 获取账本的账目列表（包含关联信息）
+  Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(
       String accountBookId) async {
     try {
+      // 1. 获取账目列表
+      final items = await _accountItemDao.findByAccountBookId(accountBookId);
+      if (items.isEmpty) {
+        return OperateResult.success([]);
+      }
       return OperateResult.success(
-          await _accountItemDao.findByAccountBookId(accountBookId));
+        await toVos(items),
+      );
     } catch (e) {
       return OperateResult.fail('获取账目列表失败：$e', e as Exception);
     }
@@ -248,5 +257,131 @@ class AccountItemService extends BaseService {
     } catch (e) {
       return OperateResult.fail('获取账目列表失败：$e', e as Exception);
     }
+  }
+
+  Future<List<AccountItemVO>> toVos(List<AccountItem> items) async {
+    if (items.isEmpty) {
+      return [];
+    }
+
+    // 2. 获取所有需要查询的ID和代码
+    final categoryCodes = items
+        .where((item) => item.categoryCode != null)
+        .map((item) => item.categoryCode!)
+        .toSet()
+        .toList();
+
+    final fundIds = items
+        .where((item) => item.fundId != null)
+        .map((item) => item.fundId!)
+        .toSet()
+        .toList();
+
+    final shopCodes = items
+        .where((item) => item.shopCode != null)
+        .map((item) => item.shopCode!)
+        .toSet()
+        .toList();
+
+    final tagCodes = items
+        .where((item) => item.tagCode != null)
+        .map((item) => item.tagCode!)
+        .toSet()
+        .toList();
+
+    final projectCodes = items
+        .where((item) => item.projectCode != null)
+        .map((item) => item.projectCode!)
+        .toSet()
+        .toList();
+
+    // 获取所有用户ID
+    final userIds = {
+      ...items.map((item) => item.createdBy),
+      ...items.map((item) => item.updatedBy),
+    }.toList();
+
+    // 3. 批量查询关联数据
+    final categories = categoryCodes.isEmpty
+        ? <AccountCategory>[]
+        : await (db.select(db.accountCategoryTable)
+              ..where((t) => t.code.isIn(categoryCodes)))
+            .get();
+
+    final funds = fundIds.isEmpty
+        ? <AccountFund>[]
+        : await (db.select(db.accountFundTable)
+              ..where((t) => t.id.isIn(fundIds)))
+            .get();
+
+    final shops = shopCodes.isEmpty
+        ? <AccountShop>[]
+        : await (db.select(db.accountShopTable)
+              ..where((t) => t.code.isIn(shopCodes)))
+            .get();
+
+    final symbols = [...tagCodes, ...projectCodes].isEmpty
+        ? <AccountSymbol>[]
+        : await (db.select(db.accountSymbolTable)
+              ..where((t) => t.code.isIn([...tagCodes, ...projectCodes])))
+            .get();
+
+    final users = userIds.isEmpty
+        ? <User>[]
+        : await (db.select(db.userTable)..where((t) => t.id.isIn(userIds)))
+            .get();
+
+    // 4. 组装VO对象
+    return items.map((item) {
+      // 查找关联数据
+      final category = item.categoryCode == null
+          ? null
+          : categories.firstWhereOrNull(
+              (c) => c.code == item.categoryCode,
+            );
+
+      final fund = item.fundId == null
+          ? null
+          : funds.firstWhereOrNull(
+              (f) => f.id == item.fundId,
+            );
+
+      final shop = item.shopCode == null
+          ? null
+          : shops.firstWhereOrNull(
+              (s) => s.code == item.shopCode,
+            );
+
+      final tag = item.tagCode == null
+          ? null
+          : symbols.firstWhereOrNull(
+              (s) => s.code == item.tagCode && s.symbolType == 'TAG',
+            );
+
+      final project = item.projectCode == null
+          ? null
+          : symbols.firstWhereOrNull(
+              (s) => s.code == item.projectCode && s.symbolType == 'PROJECT',
+            );
+
+      final createdByUser = users.firstWhereOrNull(
+        (u) => u.id == item.createdBy,
+      );
+
+      final updatedByUser = users.firstWhereOrNull(
+        (u) => u.id == item.updatedBy,
+      );
+
+      return AccountItemVO.fromAccountItem(
+        item: item,
+        categoryName: category?.name,
+        fundName: fund?.name,
+        shopName: shop?.name,
+        tagName: tag?.name,
+        projectName: project?.name,
+        createdByName: createdByUser?.nickname,
+        updatedByName: updatedByUser?.nickname,
+      );
+    }).toList();
   }
 }
