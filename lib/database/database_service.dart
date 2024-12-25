@@ -1,8 +1,5 @@
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
-import 'dart:io';
-
+import '../constants/constant.dart';
 import 'database.dart';
 
 class DatabaseService {
@@ -12,8 +9,8 @@ class DatabaseService {
   DatabaseService._();
 
   static Future<DatabaseService> get instance async {
-    _instance ??= DatabaseService._();
     await _initDatabase();
+    _instance ??= DatabaseService._();
     return _instance!;
   }
 
@@ -22,8 +19,7 @@ class DatabaseService {
   static Future<void> _initDatabase() async {
     if (_instance != null) return;
 
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    final file = await getDatabaseFile();
     _db = AppDatabase(NativeDatabase(file));
   }
 

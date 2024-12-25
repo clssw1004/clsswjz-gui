@@ -231,4 +231,22 @@ class AccountItemService extends BaseService {
       return OperateResult.fail('获取账目列表失败：$e', e as Exception);
     }
   }
+
+  Future<OperateResult<List<AccountItem>>> getByAccountBookId(
+      String accountBookId) async {
+    try {
+      return OperateResult.success(
+          await _accountItemDao.findByAccountBookId(accountBookId));
+    } catch (e) {
+      return OperateResult.fail('获取账目列表失败：$e', e as Exception);
+    }
+  }
+
+  Future<OperateResult<List<AccountItem>>> getAll() async {
+    try {
+      return OperateResult.success(await _accountItemDao.findAll());
+    } catch (e) {
+      return OperateResult.fail('获取账目列表失败：$e', e as Exception);
+    }
+  }
 }

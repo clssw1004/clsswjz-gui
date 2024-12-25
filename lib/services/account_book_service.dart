@@ -93,6 +93,14 @@ class AccountBookService extends BaseService {
     }
   }
 
+  Future<OperateResult<List<AccountBook>>> getAll() async {
+    try {
+      return OperateResult.success(await _accountBookDao.findAll());
+    } catch (e) {
+      return OperateResult.fail('获取所有账本失败：$e', e as Exception);
+    }
+  }
+
   /// 获取账本信息
   Future<OperateResult<AccountBook>> getAccountBook(String id) async {
     try {
