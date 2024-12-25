@@ -1,8 +1,13 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import '../../database/database_service.dart';
+import '../../providers/locale_provider.dart';
+import '../../theme/theme_provider.dart';
 import '../settings/theme_settings_page.dart';
+import '../language_settings_page.dart';
+import '../../widgets/common_app_bar.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
@@ -12,11 +17,23 @@ class MineTab extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final localeProvider = context.watch<LocaleProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
+
+    // 获取当前语言显示文本
+    String getCurrentLanguage() {
+      final locale = localeProvider.locale;
+      if (locale.languageCode == 'en') return 'English';
+      if (locale.languageCode == 'zh' && locale.countryCode == 'Hant') {
+        return l10n.traditionalChinese;
+      }
+      return l10n.simplifiedChinese;
+    }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CommonAppBar(
+        showBackButton: false,
         title: Text(l10n.settings),
-        backgroundColor: colorScheme.surface,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -139,11 +156,44 @@ class MineTab extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.color_lens, color: colorScheme.primary),
+                    leading: Icon(Icons.language, color: colorScheme.primary),
+                    title: Text(l10n.languageSettings),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          getCurrentLanguage(),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const LanguageSettingsPage(),
+                      ));
+                    },
+                  ),
+                  Divider(
+                      height: 1, indent: 20, color: colorScheme.outlineVariant),
+                  ListTile(
+                    leading: Icon(Icons.palette, color: colorScheme.primary),
                     title: Text(l10n.themeSettings),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.onSurfaceVariant,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                     ),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
@@ -152,51 +202,10 @@ class MineTab extends StatelessWidget {
                     },
                   ),
                   Divider(
-                      height: 1, indent: 56, color: colorScheme.outlineVariant),
-                  ListTile(
-                    leading: Icon(Icons.language, color: colorScheme.primary),
-                    title: Text(l10n.languageSettings),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.simplifiedChinese,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      // TODO: 切换语言
-                    },
-                  ),
-                  Divider(
-                      height: 1, indent: 56, color: colorScheme.outlineVariant),
-                  ListTile(
-                    leading: Icon(Icons.settings, color: colorScheme.primary),
-                    title: Text(l10n.backendSettings),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    onTap: () {
-                      // TODO: 跳转到后台服务设置页面
-                    },
-                  ),
-                  Divider(
-                      height: 1, indent: 56, color: colorScheme.outlineVariant),
+                      height: 1, indent: 20, color: colorScheme.outlineVariant),
                   ListTile(
                     leading: Icon(Icons.storage, color: colorScheme.primary),
                     title: Text(l10n.database),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => DriftDbViewer(DatabaseService.db),
@@ -204,15 +213,11 @@ class MineTab extends StatelessWidget {
                     },
                   ),
                   Divider(
-                      height: 1, indent: 56, color: colorScheme.outlineVariant),
+                      height: 1, indent: 20, color: colorScheme.outlineVariant),
                   ListTile(
                     leading:
                         Icon(Icons.info_outline, color: colorScheme.primary),
                     title: Text(l10n.about),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
                     onTap: () {
                       // TODO: 跳转到关于页面
                     },

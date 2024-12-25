@@ -25,5 +25,25 @@
     "noAccountItems": "No account items",
     "@noAccountItems": {
         "description": "Text to show when account item list is empty"
-    }
+    },
+    "traditionalChinese": "Traditional Chinese",
+    "@traditionalChinese": {
+        "description": "Traditional Chinese option"
+    },
+    "themeMode": "Theme Mode",
+    "followSystem": "Follow System",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "themeColor": "Theme Color",
+    "fontSize": "Font Size",
+    "radius": "Corner Radius",
+    "useMaterial3": "Use Material 3",
+    "fontSizeSmaller": "Smaller",
+    "fontSizeNormal": "Normal",
+    "fontSizeLarger": "Larger",
+    "fontSizeLargest": "Largest",
+    "radiusNone": "None",
+    "radiusSmall": "Small",
+    "radiusMedium": "Medium",
+    "radiusLarge": "Large"
 } 

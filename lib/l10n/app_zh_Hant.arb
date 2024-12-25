@@ -21,9 +21,29 @@
     "loading": "加載中",
     "loadFailed": "加載失敗",
     "noAccountBooks": "暫無賬本",
-    "simplifiedChinese": "繁體中文",
+    "traditionalChinese": "繁體中文",
+    "@traditionalChinese": {
+        "description": "繁體中文選項"
+    },
     "noAccountItems": "暫無賬目記錄",
     "@noAccountItems": {
         "description": "當賬目列表為空時顯示的文本"
-    }
+    },
+    "themeSettings": "主題設定",
+    "themeMode": "主題模式",
+    "followSystem": "跟隨系統",
+    "lightMode": "淺色模式",
+    "darkMode": "深色模式",
+    "themeColor": "主題顏色",
+    "fontSize": "字體大小",
+    "radius": "圓角大小",
+    "useMaterial3": "使用 Material 3",
+    "fontSizeSmaller": "較小",
+    "fontSizeNormal": "預設",
+    "fontSizeLarger": "較大",
+    "fontSizeLargest": "最大",
+    "radiusNone": "無",
+    "radiusSmall": "小",
+    "radiusMedium": "中",
+    "radiusLarge": "大"
 } 

@@ -238,7 +238,6 @@ class AccountItemService extends BaseService {
   Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(
       String accountBookId) async {
     try {
-      // 1. 获取账目列表
       final items = await _accountItemDao.findByAccountBookId(accountBookId);
       if (items.isEmpty) {
         return OperateResult.success([]);

@@ -37,9 +37,10 @@ class AccountItemDao {
   }
 
   Future<List<AccountItem>> findByAccountBookId(String accountBookId) {
-    return (db.select(db.accountItemTable)
-          ..where((t) => t.accountBookId.equals(accountBookId)))
-        .get();
+    final query = db.select(db.accountItemTable)
+      ..where((t) => t.accountBookId.equals(accountBookId))
+      ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]);
+    return query.get();
   }
 
   Future<List<AccountItem>> findByDateRange(

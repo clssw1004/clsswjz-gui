@@ -1,3 +1,4 @@
+import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/vo/account_item_vo.dart';
@@ -6,8 +7,8 @@ import 'account_item_list_tile.dart';
 
 /// 账目列表
 class AccountItemList extends StatefulWidget {
-  /// 账本ID
-  final String accountBookId;
+  /// 账本
+  final UserBookVO accountBook;
 
   /// 初始账目列表
   final List<AccountItemVO>? initialItems;
@@ -17,7 +18,7 @@ class AccountItemList extends StatefulWidget {
 
   const AccountItemList({
     super.key,
-    required this.accountBookId,
+    required this.accountBook,
     this.initialItems,
     this.onItemTap,
   });
@@ -45,7 +46,7 @@ class _AccountItemListState extends State<AccountItemList> {
   @override
   void didUpdateWidget(AccountItemList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.accountBookId != widget.accountBookId) {
+    if (oldWidget.accountBook.id != widget.accountBook.id) {
       _loadItems();
     }
   }
@@ -53,7 +54,7 @@ class _AccountItemListState extends State<AccountItemList> {
   /// 加载账目列表
   Future<void> _loadItems() async {
     final result = await _accountItemService.getByAccountBookId(
-      widget.accountBookId,
+      widget.accountBook.id,
     );
     if (result.ok && mounted) {
       setState(() {
@@ -103,7 +104,10 @@ class _AccountItemListState extends State<AccountItemList> {
         return InkWell(
           onTap:
               widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-          child: AccountItemListTile(item: item),
+          child: AccountItemListTile(
+            item: item,
+            currencySymbol: widget.accountBook.currencySymbol,
+          ),
         );
       },
     );

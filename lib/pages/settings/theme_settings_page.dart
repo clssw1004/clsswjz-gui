@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../theme/theme_provider.dart';
+import '../../providers/theme_provider.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
   const ThemeSettingsPage({super.key});
@@ -117,7 +117,7 @@ class ThemeSettingsPage extends StatelessWidget {
                     Wrap(
                       spacing: 12.0,
                       runSpacing: 12.0,
-                      children: ThemeProvider.availableColors.map((color) {
+                      children: themeProvider.availableColors.map((color) {
                         return _ColorButton(
                           color: color,
                           isSelected: themeProvider.themeColor == color,

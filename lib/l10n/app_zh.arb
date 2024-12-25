@@ -25,5 +25,25 @@
     "noAccountItems": "暂无账目记录",
     "@noAccountItems": {
         "description": "当账目列表为空时显示的文本"
-    }
+    },
+    "traditionalChinese": "繁体中文",
+    "@traditionalChinese": {
+        "description": "繁体中文选项"
+    },
+    "themeMode": "主题模式",
+    "followSystem": "跟随系统",
+    "lightMode": "浅色模式",
+    "darkMode": "深色模式",
+    "themeColor": "主题颜色",
+    "fontSize": "字体大小",
+    "radius": "圆角大小",
+    "useMaterial3": "使用 Material 3",
+    "fontSizeSmaller": "较小",
+    "fontSizeNormal": "默认",
+    "fontSizeLarger": "较大",
+    "fontSizeLargest": "最大",
+    "radiusNone": "无",
+    "radiusSmall": "小",
+    "radiusMedium": "中",
+    "radiusLarge": "大"
 }

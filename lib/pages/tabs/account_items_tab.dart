@@ -39,7 +39,7 @@ class _AccountItemsTabView extends StatelessWidget {
       body: provider.selectedBook == null
           ? const SizedBox.shrink()
           : AccountItemList(
-              accountBookId: provider.selectedBook!.id,
+              accountBook: provider.selectedBook!,
               initialItems: provider.items,
               onItemTap: (item) {
                 // TODO: 处理账目点击
