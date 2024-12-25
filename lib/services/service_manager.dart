@@ -67,7 +67,7 @@ class ServiceManager extends BaseService {
     }
     print("all books---------------");
     final books = await _accountBookService
-        .getAccountsByUserId('iy6dnir1k359j47yna16d538q88zqppn')
+        .getBooksByUserId('iy6dnir1k359j47yna16d538q88zqppn')
         .then((value) => value.data);
     books?.forEach((book) {
       print(book.permission);

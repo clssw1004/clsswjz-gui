@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/app_config.dart';
 import '../../providers/account_items_provider.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
@@ -8,8 +9,6 @@ import '../../widgets/common_app_bar.dart';
 
 class AccountItemsTab extends StatelessWidget {
   const AccountItemsTab({super.key});
-  // TODO: 这里暂时写死用户ID，后续需要从用户系统获取
-  static const _userId = 'iy6dnir1k359j47yna16d538q88zqppn';
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class _AccountItemsTabView extends StatelessWidget {
       appBar: CommonAppBar(
         showBackButton: false,
         title: AccountBookSelector(
-          userId: AccountItemsTab._userId,
+          userId: AppConfig.instance.currentUserId,
           selectedBook: provider.selectedBook,
           onSelected: provider.setSelectedBook,
         ),

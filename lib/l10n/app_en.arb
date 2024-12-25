@@ -1,5 +1,6 @@
 {
     "@@locale": "en",
+    "appName": "Clsswjz",
     "tabAccountItems": "Account Items",
     "tabMine": "Mine",
     "settings": "Settings",
@@ -45,5 +46,9 @@
     "radiusNone": "None",
     "radiusSmall": "Small",
     "radiusMedium": "Medium",
-    "radiusLarge": "Large"
+    "radiusLarge": "Large",
+    "language": "Language",
+    "chinese": "Chinese",
+    "english": "English",
+    "accountBooks": "Account Books"
 } 

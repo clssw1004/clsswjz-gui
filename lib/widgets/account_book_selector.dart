@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../models/app_config.dart';
 import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_book_service.dart';
@@ -44,15 +45,38 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
   /// 加载初始账本
   Future<void> _loadInitialBook() async {
     if (_selectedBook == null) {
-      final result =
-          await _accountBookService.getAccountsByUserId(widget.userId);
-      if (result.ok && result.data!.isNotEmpty) {
+      final result = await _accountBookService.getBooksByUserId(widget.userId);
+      if (!result.ok || result.data!.isEmpty) return;
+
+      final books = result.data!;
+      final defaultBookId = AppConfig.instance.defaultBookId;
+
+      UserBookVO? selectedBook;
+      if (defaultBookId != null) {
+        // 尝试加载默认账本
+        selectedBook = books.firstWhere(
+          (book) => book.id == defaultBookId,
+          orElse: () => _findDefaultBook(books),
+        );
+      } else {
+        selectedBook = _findDefaultBook(books);
+      }
+
+      if (selectedBook != null && mounted) {
         setState(() {
-          _selectedBook = result.data!.first;
+          _selectedBook = selectedBook;
         });
-        widget.onSelected?.call(_selectedBook!);
+        widget.onSelected?.call(selectedBook);
       }
     }
+  }
+
+  /// 查找默认账本（第一个创建人是自己的账本）
+  UserBookVO _findDefaultBook(List<UserBookVO> books) {
+    return books.firstWhere(
+      (book) => book.createdBy == widget.userId,
+      orElse: () => books.first,
+    );
   }
 
   /// 显示账本选择弹窗
@@ -65,6 +89,9 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     );
 
     if (result != null && mounted) {
+      // 保存选中的账本ID
+      await AppConfig.instance.setDefaultBookId(result.id);
+
       setState(() {
         _selectedBook = result;
       });
@@ -78,28 +105,45 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    if (_selectedBook == null) {
+      return Text(l10n.loading);
+    }
+
+    final isOwner = _selectedBook!.createdBy == widget.userId;
+    final bookName = isOwner
+        ? _selectedBook!.name
+        : '${_selectedBook!.name} (${_selectedBook!.createdByName})';
+
     return InkWell(
       onTap: _showBookSelector,
       borderRadius: BorderRadius.circular(8),
-      child: Padding(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 200),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_selectedBook != null) ...[
-              Text(
-                _selectedBook!.name,
+            Icon(
+              _getBookIcon(_selectedBook!.icon),
+              size: 20,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                bookName,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurface,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.arrow_drop_down,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ] else
-              Text(l10n.loading),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.arrow_drop_down,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -126,7 +170,7 @@ class _AccountBookList extends StatelessWidget {
         maxHeight: 400,
       ),
       child: FutureBuilder<OperateResult<List<UserBookVO>>>(
-        future: AccountBookService().getAccountsByUserId(userId),
+        future: AccountBookService().getBooksByUserId(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: Text(l10n.loading));
@@ -155,15 +199,51 @@ class _AccountBookList extends StatelessWidget {
               final book = books[index];
               return ListTile(
                 leading: Icon(
-                  Icons.book,
+                  _getBookIcon(book.icon),
                   color: colorScheme.primary,
                 ),
-                title: Text(book.name),
-                subtitle: Text(
-                  book.description ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(book.name),
+                    ),
+                    if (book.createdBy != userId && book.createdByName != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.share_outlined,
+                              size: 12,
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              book.createdByName!,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
+                subtitle: book.description?.isNotEmpty == true
+                    ? Text(
+                        book.description!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
                 onTap: () => Navigator.of(context).pop(book),
               );
             },
@@ -172,4 +252,13 @@ class _AccountBookList extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 获取账本图标
+IconData _getBookIcon(String? icon) {
+  if (icon == null || icon.isEmpty) {
+    return Icons.book;
+  }
+  // 这里可以根据icon字符串返回对应的图标
+  return IconData(int.parse(icon), fontFamily: 'MaterialIcons');
 }

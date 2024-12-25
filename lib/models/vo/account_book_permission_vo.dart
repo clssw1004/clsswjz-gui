@@ -1,5 +1,5 @@
 /// 账本权限数据类
-class AccountBookPermission {
+class AccountBookPermissionVO {
   /// 是否可以查看账本
   final bool canViewBook;
 
@@ -18,7 +18,7 @@ class AccountBookPermission {
   /// 是否可以删除账目
   final bool canDeleteItem;
 
-  const AccountBookPermission({
+  const AccountBookPermissionVO({
     required this.canViewBook,
     required this.canEditBook,
     required this.canDeleteBook,
@@ -28,8 +28,8 @@ class AccountBookPermission {
   });
 
   /// 从 RelAccountbookUser 创建权限对象
-  factory AccountBookPermission.fromRelAccountbookUser(dynamic user) {
-    return AccountBookPermission(
+  factory AccountBookPermissionVO.fromRelAccountbookUser(dynamic user) {
+    return AccountBookPermissionVO(
       canViewBook: user.canViewBook,
       canEditBook: user.canEditBook,
       canDeleteBook: user.canDeleteBook,

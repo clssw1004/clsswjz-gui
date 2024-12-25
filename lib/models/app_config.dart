@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../database/database.dart';
+import '../services/service_manager.dart';
+
 /// 应用配置管理
 class AppConfig {
   static const String _localeKey = 'locale';
@@ -9,6 +12,7 @@ class AppConfig {
   static const String _fontSizeKey = 'font_size';
   static const String _radiusKey = 'radius';
   static const String _useMaterial3Key = 'use_material3';
+  static const String _defaultBookIdKey = 'default_book_id';
 
   static late final AppConfig _instance;
   static AppConfig get instance => _instance;
@@ -39,6 +43,17 @@ class AppConfig {
   late bool _useMaterial3;
   bool get useMaterial3 => _useMaterial3;
 
+  /// 默认账本ID
+  String? _defaultBookId;
+  String? get defaultBookId => _defaultBookId;
+
+  /// 当前用户ID（临时写死）
+  String? _currentUserId = 'iy6dnir1k359j47yna16d538q88zqppn';
+  String get currentUserId => 'iy6dnir1k359j47yna16d538q88zqppn';
+
+  User? _currentUser;
+  User? get currentUser => _currentUser;
+
   AppConfig._(this._prefs) {
     // 初始化语言
     final languageCode = _prefs.getString(_localeKey) ?? 'zh';
@@ -67,6 +82,9 @@ class AppConfig {
 
     // 初始化 Material 3 设置
     _useMaterial3 = _prefs.getBool(_useMaterial3Key) ?? true;
+
+    // 初始化默认账本ID
+    _defaultBookId = _prefs.getString(_defaultBookIdKey);
   }
 
   /// 初始化
@@ -114,5 +132,22 @@ class AppConfig {
   Future<void> setUseMaterial3(bool use) async {
     _useMaterial3 = use;
     await _prefs.setBool(_useMaterial3Key, use);
+  }
+
+  /// 设置默认账本ID
+  Future<void> setDefaultBookId(String? bookId) async {
+    _defaultBookId = bookId;
+    if (bookId != null) {
+      await _prefs.setString(_defaultBookIdKey, bookId);
+    } else {
+      await _prefs.remove(_defaultBookIdKey);
+    }
+  }
+
+  Future<void> setCurrentUser(String userId) async {
+    _currentUser = await ServiceManager.userService
+        .getUserInfo(userId)
+        .then((value) => value.data);
+    _currentUserId = userId;
   }
 }

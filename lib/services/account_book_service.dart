@@ -1,24 +1,25 @@
+import 'package:clsswjz/utils/collection.util.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_book_dao.dart';
-import '../database/dao/account_category_dao.dart';
-import '../database/dao/account_fund_dao.dart';
-import '../database/dao/account_shop_dao.dart';
-import '../database/dao/account_symbol_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
+import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../database/database_service.dart';
 import '../models/common.dart';
-import '../models/account_book_permission.dart';
+import '../models/vo/account_book_permission_vo.dart';
+import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import 'base_service.dart';
 
 class AccountBookService extends BaseService {
   final AccountBookDao _accountBookDao;
   final RelAccountbookUserDao _relAccountbookUserDao;
+  final UserDao _userDao;
 
   AccountBookService()
       : _accountBookDao = AccountBookDao(DatabaseService.db),
-        _relAccountbookUserDao = RelAccountbookUserDao(DatabaseService.db);
+        _relAccountbookUserDao = RelAccountbookUserDao(DatabaseService.db),
+        _userDao = UserDao(DatabaseService.db);
 
   /// 创建账本
   Future<OperateResult<String>> createAccountBook({
@@ -181,7 +182,7 @@ class AccountBookService extends BaseService {
   }
 
   /// 获取用户的账本列表及权限
-  Future<OperateResult<List<UserBookVO>>> getAccountsByUserId(
+  Future<OperateResult<List<UserBookVO>>> getBooksByUserId(
       String userId) async {
     try {
       // 1. 从关联表中查询用户的账本权限
@@ -199,16 +200,48 @@ class AccountBookService extends BaseService {
       // 3. 查询账本详细信息
       final books = await _accountBookDao.findByIds(bookIds);
 
-      // 4. 组装VO对象
+      // 4. 查询所有账本的成员关系
+      final allBookMembers = await (db.select(db.relAccountbookUserTable)
+            ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
+          .get();
+
+      // 5. 获取所有用户ID（包括创建者、更新者和成员）
+      final userIds = {
+        ...books.map((e) => e.createdBy),
+        ...books.map((e) => e.updatedBy),
+        ...allBookMembers.map((e) => e.userId),
+      };
+
+      // 6. 查询所有用户信息
+      final userMap = toMap(
+        await _userDao.findByIds(userIds.toList()),
+        (e) => e.id,
+      );
+
+      // 7. 组装VO对象
       final result = books.map((book) {
         // 找到对应的权限记录
         final userBook = userBooks.firstWhere(
           (ub) => ub.accountBookId == book.id,
         );
 
+        // 获取账本成员（排除创建者）
+        final members = allBookMembers
+            .where(
+                (m) => m.accountBookId == book.id && m.userId != book.createdBy)
+            .map((m) => BookMemberVO(
+                  userId: m.userId,
+                  nickname: userMap[m.userId]?.nickname,
+                  permission: AccountBookPermissionVO.fromRelAccountbookUser(m),
+                ))
+            .toList();
+
         return UserBookVO.fromAccountBook(
           accountBook: book,
-          permission: AccountBookPermission.fromRelAccountbookUser(userBook),
+          permission: AccountBookPermissionVO.fromRelAccountbookUser(userBook),
+          updatedByName: userMap[book.updatedBy]?.nickname,
+          createdByName: userMap[book.createdBy]?.nickname,
+          members: members,
         );
       }).toList();
 

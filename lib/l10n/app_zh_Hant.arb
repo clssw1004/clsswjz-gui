@@ -1,5 +1,6 @@
 {
     "@@locale": "zh_Hant",
+    "appName": "Clsswjz",
     "tabAccountItems": "賬目",
     "tabMine": "我的",
     "settings": "設置",
@@ -45,5 +46,9 @@
     "radiusNone": "無",
     "radiusSmall": "小",
     "radiusMedium": "中",
-    "radiusLarge": "大"
-} 
+    "radiusLarge": "大",
+    "language": "語言",
+    "chinese": "簡體中文",
+    "english": "英文",
+    "accountBooks": "賬本列表"
+}
