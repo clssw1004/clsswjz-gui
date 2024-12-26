@@ -3,27 +3,33 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_book_vo.dart';
 import '../providers/account_item_form_provider.dart';
 import '../widgets/amount_input.dart';
 import '../widgets/common_app_bar.dart';
 import '../widgets/common_select_form_field.dart';
 import '../widgets/common_text_form_field.dart';
 import '../database/database.dart';
+import '../constants/enums.dart';
 
 /// 账目详情表单页面
 class AccountItemFormPage extends StatelessWidget {
   /// 账目数据
   final AccountItemVO item;
 
+  /// 账本数据
+  final UserBookVO accountBook;
+
   const AccountItemFormPage({
     super.key,
     required this.item,
+    required this.accountBook,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AccountItemFormProvider(item),
+      create: (_) => AccountItemFormProvider(accountBook, item),
       child: const _AccountItemFormView(),
     );
   }
@@ -62,11 +68,13 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
     final theme = Theme.of(context);
     final provider = context.watch<AccountItemFormProvider>();
     final item = provider.item;
+    final accountBook = provider.accountBook;
+    final colorScheme = theme.colorScheme;
 
     if (provider.loading) {
       return Scaffold(
         appBar: CommonAppBar(
-          title: Text(item.type == 'EXPENSE' ? l10n.expense : l10n.income),
+          title: Text(accountBook.name),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -74,9 +82,13 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
       );
     }
 
+    // 获取当前账目类型
+    final currentType =
+        AccountItemType.fromCode(item.type) ?? AccountItemType.expense;
+
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(item.type == 'EXPENSE' ? l10n.expense : l10n.income),
+        title: Text(accountBook.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -106,6 +118,47 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // 账目类型选择
+            SegmentedButton<AccountItemType>(
+              segments: [
+                ButtonSegment<AccountItemType>(
+                  value: AccountItemType.expense,
+                  label: Text(l10n.expense),
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                ButtonSegment<AccountItemType>(
+                  value: AccountItemType.income,
+                  label: Text(l10n.income),
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+              ],
+              selected: {currentType},
+              onSelectionChanged: (Set<AccountItemType> selected) {
+                if (selected.isNotEmpty) {
+                  provider.updateType(selected.first.code);
+                }
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return currentType == AccountItemType.expense
+                        ? colorScheme.errorContainer
+                        : colorScheme.primaryContainer;
+                  }
+                  return null;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return currentType == AccountItemType.expense
+                        ? colorScheme.onErrorContainer
+                        : colorScheme.onPrimaryContainer;
+                  }
+                  return null;
+                }),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // 金额输入
             AmountInput(
               type: item.type,
@@ -116,7 +169,10 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
 
             // 分类选择
             CommonSelectFormField<AccountCategory>(
-              items: provider.categories.cast<AccountCategory>(),
+              items: provider.categories
+                  .where((category) => category.categoryType == item.type)
+                  .toList()
+                  .cast<AccountCategory>(),
               value: item.categoryCode,
               displayMode: DisplayMode.expand,
               displayField: (item) => item.name,
@@ -237,8 +293,8 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
             // 描述输入
             CommonTextFormField(
               initialValue: _descriptionController.text,
-              labelText: '描述',
-              hintText: '请输入描述',
+              labelText: l10n.description,
+              hintText: l10n.descriptionHint,
               prefixIcon: const Icon(Icons.description_outlined),
               onChanged: provider.updateDescription,
               keyboardType: TextInputType.multiline,

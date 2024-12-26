@@ -45,7 +45,10 @@ class _AccountItemsTabView extends StatelessWidget {
                 final result = await Navigator.pushNamed(
                   context,
                   AppRoutes.accountItemForm,
-                  arguments: item,
+                  arguments: [
+                    provider.selectedBook!,
+                    item,
+                  ],
                 );
                 if (result == true) {
                   provider.refresh();

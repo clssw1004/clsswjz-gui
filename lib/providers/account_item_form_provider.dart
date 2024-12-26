@@ -1,4 +1,5 @@
 import 'package:clsswjz/manager/service_manager.dart';
+import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
@@ -9,6 +10,10 @@ import '../services/account_item_service.dart';
 /// 账目表单状态管理
 class AccountItemFormProvider extends ChangeNotifier {
   final AccountItemService _accountItemService = AccountItemService();
+
+  /// 账本数据
+  UserBookVO _accountBook;
+  UserBookVO get accountBook => _accountBook;
 
   /// 账目数据
   AccountItemVO _item;
@@ -46,7 +51,9 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  AccountItemFormProvider(AccountItemVO item) : _item = item {
+  AccountItemFormProvider(UserBookVO accountBook, AccountItemVO item)
+      : _accountBook = accountBook,
+        _item = item {
     _loadData();
   }
 
@@ -91,6 +98,12 @@ class AccountItemFormProvider extends ChangeNotifier {
   /// 更新金额
   void updateAmount(double amount) {
     _item.amount = amount;
+    notifyListeners();
+  }
+
+  /// 更新类型
+  void updateType(String type) {
+    _item.type = type;
     notifyListeners();
   }
 

@@ -1,3 +1,4 @@
+import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
 import '../manager/database_manager.dart';
@@ -38,8 +39,10 @@ class AppRoutes {
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
     accountBooks: (context) => const AccountBooksPage(),
     accountItemForm: (context) {
-      final item = ModalRoute.of(context)!.settings.arguments as AccountItemVO;
-      return AccountItemFormPage(item: item);
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as UserBookVO;
+      final item = args[1] as AccountItemVO;
+      return AccountItemFormPage(accountBook: accountBook, item: item);
     },
   };
 }

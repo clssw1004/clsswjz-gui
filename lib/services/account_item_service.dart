@@ -141,21 +141,34 @@ class AccountItemService extends BaseService {
           } else if (item.type == 'EXPENSE') {
             oldBalance += item.amount;
           }
-          await _accountFundDao.updateBalance(item.fundId!, oldBalance);
+          await _accountFundDao.update(AccountFundTableCompanion(
+            id: Value(item.fundId!),
+            fundBalance: Value(oldBalance),
+            name: Value(oldFund.name),
+            fundType: Value(oldFund.fundType),
+            fundRemark: Value(oldFund.fundRemark),
+            createdBy: Value(oldFund.createdBy),
+            createdAt: Value(oldFund.createdAt),
+            updatedBy: Value(userId),
+            updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+          ));
         }
       }
 
       await _accountItemDao.update(AccountItemTableCompanion(
         id: Value(id),
-        amount: absentIfNull(amount),
-        type: absentIfNull(type),
-        accountDate: absentIfNull(accountDate),
-        description: absentIfNull(description),
-        categoryCode: absentIfNull(categoryCode),
-        fundId: absentIfNull(fundId),
-        shopCode: absentIfNull(shopCode),
-        tagCode: absentIfNull(tagCode),
-        projectCode: absentIfNull(projectCode),
+        amount: Value(amount ?? item.amount),
+        type: Value(type ?? item.type),
+        accountDate: Value(accountDate ?? item.accountDate),
+        description: Value(description ?? item.description ?? ''),
+        categoryCode: Value(categoryCode ?? item.categoryCode ?? ''),
+        fundId: Value(fundId ?? item.fundId ?? ''),
+        shopCode: Value(shopCode ?? item.shopCode ?? ''),
+        tagCode: Value(tagCode ?? item.tagCode ?? ''),
+        projectCode: Value(projectCode ?? item.projectCode ?? ''),
+        accountBookId: Value(item.accountBookId),
+        createdBy: Value(item.createdBy),
+        createdAt: Value(item.createdAt),
         updatedBy: Value(userId),
         updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
       ));
@@ -174,7 +187,17 @@ class AccountItemService extends BaseService {
             } else if (targetType == 'EXPENSE') {
               newBalance -= targetAmount;
             }
-            await _accountFundDao.updateBalance(targetFundId, newBalance);
+            await _accountFundDao.update(AccountFundTableCompanion(
+              id: Value(targetFundId),
+              fundBalance: Value(newBalance),
+              name: Value(fund.name),
+              fundType: Value(fund.fundType),
+              fundRemark: Value(fund.fundRemark),
+              createdBy: Value(fund.createdBy),
+              createdAt: Value(fund.createdAt),
+              updatedBy: Value(userId),
+              updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+            ));
           }
         }
       }

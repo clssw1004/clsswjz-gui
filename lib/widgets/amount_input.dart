@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './calculator_panel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../constants/enums.dart';
+import '../utils/color_util.dart';
 
 class AmountInput extends StatefulWidget {
   final double? initialValue;
@@ -55,7 +57,8 @@ class _AmountInputState extends State<AmountInput> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final typeColor = colorScheme.error;
+    // 获取金额颜色
+    final amountColor = ColorUtil.getAmountColor(context, widget.type);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +66,7 @@ class _AmountInputState extends State<AmountInput> {
         InkWell(
           onTap: _showCalculator,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
@@ -74,7 +77,7 @@ class _AmountInputState extends State<AmountInput> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +88,7 @@ class _AmountInputState extends State<AmountInput> {
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         widget.controller.text.isEmpty
                             ? l10n.amountHint
@@ -93,7 +96,7 @@ class _AmountInputState extends State<AmountInput> {
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: widget.controller.text.isEmpty
                               ? colorScheme.onSurfaceVariant
-                              : typeColor,
+                              : amountColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -104,7 +107,7 @@ class _AmountInputState extends State<AmountInput> {
                   Icons.calculate_outlined,
                   color: colorScheme.onSurfaceVariant,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
               ],
             ),
           ),

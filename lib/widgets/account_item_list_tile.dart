@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/vo/account_item_vo.dart';
+import '../utils/color_util.dart';
 
 /// 账目列表项
 class AccountItemListTile extends StatelessWidget {
@@ -63,9 +64,7 @@ class AccountItemListTile extends StatelessWidget {
           Text(
             '${item.type == 'EXPENSE' ? '-' : '+'}${currencySymbol}${item.amount.toStringAsFixed(2)}',
             style: theme.textTheme.titleMedium?.copyWith(
-              color: item.type == 'EXPENSE'
-                  ? colorScheme.error
-                  : colorScheme.primary,
+              color: ColorUtil.getAmountColor(context, item.type),
               fontWeight: FontWeight.bold,
             ),
           ),
