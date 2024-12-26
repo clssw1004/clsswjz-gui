@@ -117,3 +117,9 @@ coverage/
 *.config.dart
 *.gr.dart
 *.gen.dart
+
+
+
+# Android key properties
+**/android/key.properties
+**/android/*.keystore
