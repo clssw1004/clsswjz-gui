@@ -1,3 +1,4 @@
+import 'package:clsswjz/constants/constant.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
@@ -320,12 +321,14 @@ class AccountItemService extends BaseService {
         await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
     final symbolMap = CollectionUtils.groupBy(
-        await _accountSymbolDao.findByTypes(['TAG', 'PROJECT']),
+        await _accountSymbolDao
+            .findByTypes([SYMBOL_TYPE_TAG, SYMBOL_TYPE_PROJECT]),
         (s) => s.symbolType);
 
-    final tags = CollectionUtils.toMap(symbolMap['TAG'] ?? [], (s) => s.code);
-    final projects =
-        CollectionUtils.toMap(symbolMap['PROJECT'] ?? [], (s) => s.code);
+    final tags =
+        CollectionUtils.toMap(symbolMap[SYMBOL_TYPE_TAG] ?? [], (s) => s.code);
+    final projects = CollectionUtils.toMap(
+        symbolMap[SYMBOL_TYPE_PROJECT] ?? [], (s) => s.code);
 
     final users =
         CollectionUtils.toMap(await _userDao.findByIds(userIds), (u) => u.id);

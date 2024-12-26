@@ -76,5 +76,35 @@
     "accountDayCount": "Days",
     "@accountDayCount": {
         "description": "Number of days with records"
+    },
+    "search": "Search",
+    "@search": {
+        "description": "Search text"
+    },
+    "addNew": "Add \"{value}\"",
+    "@addNew": {
+        "description": "Add new item text",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "Category"
+            }
+        }
+    },
+    "amountLabel": "Amount",
+    "amountHint": "Please input amount",
+    "expense": "Expense",
+    "income": "Income",
+    "description": "Description",
+    "descriptionHint": "Please input description",
+    "saveFailed": "Save failed: {message}",
+    "@saveFailed": {
+        "description": "Save failed message",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "Network error"
+            }
+        }
     }
-} 
+}

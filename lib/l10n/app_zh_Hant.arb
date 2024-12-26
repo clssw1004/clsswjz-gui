@@ -62,5 +62,35 @@
     "accountDayCount": "記賬天數",
     "@accountDayCount": {
         "description": "統計用戶記賬的天數"
+    },
+    "search": "搜索",
+    "@search": {
+        "description": "搜索文本"
+    },
+    "addNew": "新增「{value}」",
+    "@addNew": {
+        "description": "新增選項文本",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "分類"
+            }
+        }
+    },
+    "amountLabel": "金額",
+    "amountHint": "請輸入金額",
+    "expense": "支出",
+    "income": "收入",
+    "description": "描述",
+    "descriptionHint": "請輸入描述",
+    "saveFailed": "保存失敗：{message}",
+    "@saveFailed": {
+        "description": "保存失敗消息",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "網絡錯誤"
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ class AccountItemVO {
   final String id;
 
   /// 金额
-  final double amount;
+  double amount;
 
   /// 描述
   String? description;

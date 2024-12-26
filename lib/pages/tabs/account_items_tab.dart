@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_items_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
 import '../../widgets/common_app_bar.dart';
@@ -40,9 +41,15 @@ class _AccountItemsTabView extends StatelessWidget {
           : AccountItemList(
               accountBook: provider.selectedBook!,
               initialItems: provider.items,
-              onItemTap: (item) {
-                // TODO: 处理账目点击
-                debugPrint('Tapped item: ${item.id}');
+              onItemTap: (item) async {
+                final result = await Navigator.pushNamed(
+                  context,
+                  AppRoutes.accountItemForm,
+                  arguments: item,
+                );
+                if (result == true) {
+                  provider.refresh();
+                }
               },
             ),
     );

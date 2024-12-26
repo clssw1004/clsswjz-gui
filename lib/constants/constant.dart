@@ -8,3 +8,6 @@ Future<File> getDatabaseFile() async {
   final file = File(path.join(dbFolder.path, dbName));
   return file;
 }
+
+const SYMBOL_TYPE_TAG = 'TAG';
+const SYMBOL_TYPE_PROJECT = 'PROJECT';

@@ -75,5 +75,35 @@
     "accountDayCount": "记账天数",
     "@accountDayCount": {
         "description": "统计用户记账的天数"
+    },
+    "search": "搜索",
+    "@search": {
+        "description": "搜索文本"
+    },
+    "addNew": "新增\"{value}\"",
+    "@addNew": {
+        "description": "新增选项文本",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "分类"
+            }
+        }
+    },
+    "amountLabel": "金额",
+    "amountHint": "请输入金额",
+    "expense": "支出",
+    "income": "收入",
+    "description": "描述",
+    "descriptionHint": "请输入描述",
+    "saveFailed": "保存失败：{message}",
+    "@saveFailed": {
+        "description": "保存失败消息",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
     }
 }
