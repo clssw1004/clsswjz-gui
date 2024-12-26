@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/database.dart';
-import '../database/database_service.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
 
@@ -10,7 +10,7 @@ class AccountCategoryService extends BaseService {
   final AccountCategoryDao _accountCategoryDao;
 
   AccountCategoryService()
-      : _accountCategoryDao = AccountCategoryDao(DatabaseService.db);
+      : _accountCategoryDao = AccountCategoryDao(DatabaseManager.db);
 
   /// 批量插入分类
   Future<OperateResult<void>> batchInsertCategories(

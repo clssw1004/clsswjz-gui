@@ -1,4 +1,6 @@
-/// 账本权限数据类
+import '../../database/database.dart';
+
+/// 账本权限VO
 class AccountBookPermissionVO {
   /// 是否可以查看账本
   final bool canViewBook;
@@ -18,7 +20,7 @@ class AccountBookPermissionVO {
   /// 是否可以删除账目
   final bool canDeleteItem;
 
-  const AccountBookPermissionVO({
+  AccountBookPermissionVO({
     required this.canViewBook,
     required this.canEditBook,
     required this.canDeleteBook,
@@ -27,15 +29,28 @@ class AccountBookPermissionVO {
     required this.canDeleteItem,
   });
 
-  /// 从 RelAccountbookUser 创建权限对象
-  factory AccountBookPermissionVO.fromRelAccountbookUser(dynamic user) {
+  /// 从账本用户关系表记录创建
+  factory AccountBookPermissionVO.fromRelAccountbookUser(
+      RelAccountbookUser relAccountbookUser) {
     return AccountBookPermissionVO(
-      canViewBook: user.canViewBook,
-      canEditBook: user.canEditBook,
-      canDeleteBook: user.canDeleteBook,
-      canViewItem: user.canViewItem,
-      canEditItem: user.canEditItem,
-      canDeleteItem: user.canDeleteItem,
+      canViewBook: relAccountbookUser.canViewBook,
+      canEditBook: relAccountbookUser.canEditBook,
+      canDeleteBook: relAccountbookUser.canDeleteBook,
+      canViewItem: relAccountbookUser.canViewItem,
+      canEditItem: relAccountbookUser.canEditItem,
+      canDeleteItem: relAccountbookUser.canDeleteItem,
     );
+  }
+
+  @override
+  String toString() {
+    return 'AccountBookPermissionVO{'
+        'canViewBook: $canViewBook, '
+        'canEditBook: $canEditBook, '
+        'canDeleteBook: $canDeleteBook, '
+        'canViewItem: $canViewItem, '
+        'canEditItem: $canEditItem, '
+        'canDeleteItem: $canDeleteItem'
+        '}';
   }
 }

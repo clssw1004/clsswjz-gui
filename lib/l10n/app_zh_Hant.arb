@@ -50,5 +50,17 @@
     "language": "語言",
     "chinese": "簡體中文",
     "english": "英文",
-    "accountBooks": "賬本列表"
+    "accountBooks": "賬本列表",
+    "userInfo": "用戶信息",
+    "retry": "重試",
+    "noData": "暫無數據",
+    "username": "用戶名",
+    "nickname": "暱稱",
+    "email": "郵箱",
+    "avatar": "頭像",
+    "accountItemCount": "記賬數",
+    "accountDayCount": "記賬天數",
+    "@accountDayCount": {
+        "description": "統計用戶記賬的天數"
+    }
 }

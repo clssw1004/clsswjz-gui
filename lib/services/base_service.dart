@@ -1,17 +1,17 @@
 import 'package:drift/drift.dart';
-import '../database/database_service.dart';
+import '../manager/database_manager.dart';
 import '../database/database.dart';
-import '../utils/id.util.dart';
+import '../utils/id_util.dart';
 
 abstract class BaseService {
-  final AppDatabase db = DatabaseService.db;
+  final AppDatabase db = DatabaseManager.db;
 
   /// 生成UUID
   String generateUuid() {
-    return genId();
+    return IdUtils.genId();
   }
 
-  dynamic absentIfNull(dynamic value) {
+  Value<T> absentIfNull<T>(T? value) {
     return value != null ? Value(value) : const Value.absent();
   }
 

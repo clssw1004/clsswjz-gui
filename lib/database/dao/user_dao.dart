@@ -44,13 +44,6 @@ class UserDao {
         .getSingleOrNull();
   }
 
-  Future<User?> verifyUser(String username, String password) {
-    return (db.select(db.userTable)
-          ..where(
-              (t) => t.username.equals(username) & t.password.equals(password)))
-        .getSingleOrNull();
-  }
-
   Future<bool> isUsernameExists(String username) async {
     final user = await findByUsername(username);
     return user != null;

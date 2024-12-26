@@ -1,263 +1,175 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../models/app_config.dart';
-import '../../pages/account_books_page.dart';
-import '../../pages/language_settings_page.dart';
-import '../../pages/theme_settings_page.dart';
+import 'package:provider/provider.dart';
 
-/// 我的页面
+import '../../providers/user_provider.dart';
+import '../../widgets/common_app_bar.dart';
+import '../../widgets/user_info_card.dart';
+
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => UserProvider()..getUserInfo(),
+      child: const _MineTabView(),
+    );
+  }
+}
+
+class _MineTabView extends StatelessWidget {
+  const _MineTabView();
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final currentUser = AppConfig.instance.currentUser;
+    final provider = context.watch<UserProvider>();
 
-    return ListView(
-      children: [
-        // 用户信息区域
-        Container(
-          color: colorScheme.surface,
-          padding: const EdgeInsets.all(24),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              // TODO: 跳转到用户信息页面
-            },
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: Icon(
-                    Icons.person_outline,
-                    size: 32,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        currentUser?.nickname ?? l10n.notLoggedIn,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      if (currentUser?.email != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          currentUser!.email!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
+    return Scaffold(
+      appBar: CommonAppBar(
+        title: Text(l10n.tabMine),
+      ),
+      body: ListView(
+        children: [
+          // 用户信息区域
+          UserInfoCard(
+            user: provider.user,
+            statistic: provider.statistic,
+            onTap: () => Navigator.pushNamed(context, '/user_info'),
           ),
-        ),
-        const SizedBox(height: 8),
-
-        // 功能按钮区域
-        Container(
-          color: colorScheme.surface,
-          padding: const EdgeInsets.all(16),
-          child: GridView.count(
+          const Divider(height: 1),
+          // 功能按钮区域
+          GridView.count(
+            padding: const EdgeInsets.all(16),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 4,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             children: [
-              _buildGridButton(
-                context: context,
+              _buildGridItem(
+                context,
                 icon: Icons.book_outlined,
                 label: l10n.accountBook,
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AccountBooksPage(
-                      userId: AppConfig.instance.currentUserId,
-                    ),
-                  ));
+                  Navigator.pushNamed(context, '/account_books');
                 },
               ),
-              _buildGridButton(
-                context: context,
+              _buildGridItem(
+                context,
                 icon: Icons.category_outlined,
                 label: l10n.category,
                 onTap: () {
-                  // TODO: 跳转到分类管理页面
+                  Navigator.pushNamed(context, '/categories');
                 },
               ),
-              _buildGridButton(
-                context: context,
-                icon: Icons.account_balance_outlined,
+              _buildGridItem(
+                context,
+                icon: Icons.account_balance_wallet_outlined,
                 label: l10n.account,
                 onTap: () {
-                  // TODO: 跳转到账户管理页面
+                  Navigator.pushNamed(context, '/accounts');
                 },
               ),
-              _buildGridButton(
-                context: context,
+              _buildGridItem(
+                context,
                 icon: Icons.store_outlined,
                 label: l10n.merchant,
                 onTap: () {
-                  // TODO: 跳转到商家管理页面
+                  Navigator.pushNamed(context, '/merchants');
                 },
               ),
-              _buildGridButton(
-                context: context,
-                icon: Icons.label_outline,
+              _buildGridItem(
+                context,
+                icon: Icons.local_offer_outlined,
                 label: l10n.tag,
                 onTap: () {
-                  // TODO: 跳转到标签管理页面
+                  Navigator.pushNamed(context, '/tags');
                 },
               ),
-              _buildGridButton(
-                context: context,
+              _buildGridItem(
+                context,
                 icon: Icons.folder_outlined,
                 label: l10n.project,
                 onTap: () {
-                  // TODO: 跳转到项目管理页面
+                  Navigator.pushNamed(context, '/projects');
                 },
               ),
-              _buildGridButton(
-                context: context,
-                icon: Icons.download_outlined,
+              _buildGridItem(
+                context,
+                icon: Icons.file_upload_outlined,
                 label: l10n.import,
                 onTap: () {
-                  // TODO: 跳转到导入页面
+                  Navigator.pushNamed(context, '/import');
                 },
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 8),
-
-        // 系统设置区域
-        Container(
-          color: colorScheme.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  l10n.systemSettings,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: colorScheme.primary,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.palette_outlined,
-                  color: colorScheme.primary,
-                ),
-                title: Text(l10n.themeSettings),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const ThemeSettingsPage(),
-                  ));
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.language_outlined,
-                  color: colorScheme.primary,
-                ),
-                title: Text(l10n.languageSettings),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const LanguageSettingsPage(),
-                  ));
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.storage_outlined,
-                  color: colorScheme.primary,
-                ),
-                title: Text(l10n.database),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                onTap: () {
-                  // TODO: 跳转到数据库查看器页面
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.info_outline,
-                  color: colorScheme.primary,
-                ),
-                title: Text(l10n.about),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                onTap: () {
-                  // TODO: 跳转到关于页面
-                },
-              ),
-            ],
+          const Divider(height: 1),
+          // 系统设置区域
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              l10n.systemSettings,
+              style: theme.textTheme.titleMedium,
+            ),
           ),
-        ),
-      ],
+          ListTile(
+            leading: const Icon(Icons.palette_outlined),
+            title: Text(l10n.themeSettings),
+            onTap: () {
+              Navigator.pushNamed(context, '/theme_settings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.language_outlined),
+            title: Text(l10n.languageSettings),
+            onTap: () {
+              Navigator.pushNamed(context, '/language_settings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.storage_outlined),
+            title: Text(l10n.database),
+            onTap: () {
+              Navigator.pushNamed(context, '/database_viewer');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(l10n.about),
+            onTap: () {
+              Navigator.pushNamed(context, '/about');
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildGridButton({
-    required BuildContext context,
+  Widget _buildGridItem(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Material(
-      color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: colorScheme.primary,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

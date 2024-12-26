@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import '../models/app_config.dart';
+import '../manager/app_config_manager.dart';
 
 /// 主题管理器
 class ThemeProvider extends ChangeNotifier {
   /// 当前主题模式
-  ThemeMode get themeMode => AppConfig.instance.themeMode;
+  ThemeMode get themeMode => AppConfigManager.instance.themeMode;
 
   /// 当前主题颜色
-  Color get themeColor => AppConfig.instance.themeColor;
+  Color get themeColor => AppConfigManager.instance.themeColor;
 
   /// 当前字体大小
-  double get fontSize => AppConfig.instance.fontSize;
+  double get fontSize => AppConfigManager.instance.fontSize;
 
   /// 当前圆角大小
-  double get radius => AppConfig.instance.radius;
+  double get radius => AppConfigManager.instance.radius;
 
   /// 是否使用 Material 3
-  bool get useMaterial3 => AppConfig.instance.useMaterial3;
+  bool get useMaterial3 => AppConfigManager.instance.useMaterial3;
 
   /// 获取所有可用的主题颜色
   List<MaterialColor> get availableColors => Colors.primaries;
@@ -25,7 +25,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setThemeMode(ThemeMode mode) async {
     if (themeMode == mode) return;
 
-    await AppConfig.instance.setThemeMode(mode);
+    await AppConfigManager.instance.setThemeMode(mode);
     notifyListeners();
   }
 
@@ -33,7 +33,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setThemeColor(Color color) async {
     if (themeColor.value == color.value) return;
 
-    await AppConfig.instance.setThemeColor(color);
+    await AppConfigManager.instance.setThemeColor(color);
     notifyListeners();
   }
 
@@ -41,7 +41,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setFontSize(double size) async {
     if (fontSize == size) return;
 
-    await AppConfig.instance.setFontSize(size);
+    await AppConfigManager.instance.setFontSize(size);
     notifyListeners();
   }
 
@@ -49,7 +49,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setRadius(double radius) async {
     if (this.radius == radius) return;
 
-    await AppConfig.instance.setRadius(radius);
+    await AppConfigManager.instance.setRadius(radius);
     notifyListeners();
   }
 
@@ -57,7 +57,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setUseMaterial3(bool use) async {
     if (useMaterial3 == use) return;
 
-    await AppConfig.instance.setUseMaterial3(use);
+    await AppConfigManager.instance.setUseMaterial3(use);
     notifyListeners();
   }
 

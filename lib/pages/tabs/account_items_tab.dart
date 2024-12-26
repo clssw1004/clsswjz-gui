@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/app_config.dart';
+import '../../manager/user_config_manager.dart';
 import '../../providers/account_items_provider.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
@@ -30,7 +30,7 @@ class _AccountItemsTabView extends StatelessWidget {
       appBar: CommonAppBar(
         showBackButton: false,
         title: AccountBookSelector(
-          userId: AppConfig.instance.currentUserId,
+          userId: UserConfigManager.currentUserId,
           selectedBook: provider.selectedBook,
           onSelected: provider.setSelectedBook,
         ),

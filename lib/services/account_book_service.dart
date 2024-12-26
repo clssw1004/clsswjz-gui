@@ -1,10 +1,10 @@
-import 'package:clsswjz/utils/collection.util.dart';
+import 'package:clsswjz/utils/collection_util.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_book_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
-import '../database/database_service.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/account_book_permission_vo.dart';
 import '../models/vo/book_member_vo.dart';
@@ -17,9 +17,9 @@ class AccountBookService extends BaseService {
   final UserDao _userDao;
 
   AccountBookService()
-      : _accountBookDao = AccountBookDao(DatabaseService.db),
-        _relAccountbookUserDao = RelAccountbookUserDao(DatabaseService.db),
-        _userDao = UserDao(DatabaseService.db);
+      : _accountBookDao = AccountBookDao(DatabaseManager.db),
+        _relAccountbookUserDao = RelAccountbookUserDao(DatabaseManager.db),
+        _userDao = UserDao(DatabaseManager.db);
 
   /// 创建账本
   Future<OperateResult<String>> createAccountBook({
@@ -213,7 +213,7 @@ class AccountBookService extends BaseService {
       };
 
       // 6. 查询所有用户信息
-      final userMap = toMap(
+      final userMap = CollectionUtils.toMap(
         await _userDao.findByIds(userIds.toList()),
         (e) => e.id,
       );

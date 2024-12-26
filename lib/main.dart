@@ -1,38 +1,28 @@
-import 'package:clsswjz/services/service_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'models/app_config.dart';
-import 'providers/account_books_provider.dart';
-import 'providers/account_items_provider.dart';
-import 'providers/locale_provider.dart';
 import 'pages/home_page.dart';
+import 'providers/locale_provider.dart';
+import 'manager/provider_manager.dart';
 import 'providers/theme_provider.dart';
+import 'app_init.dart';
+import 'routes/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化语言设置
-  await AppConfig.init();
-  await LocaleProvider.init();
-  await ServiceManager.instance;
+  await init();
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => AccountItemsProvider()),
-        ChangeNotifierProvider(create: (_) => AccountBooksProvider()),
-      ],
-      child: const MyApp(),
+    ProviderManager.init(
+      child: const ClsswjzApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ClsswjzApp extends StatelessWidget {
+  const ClsswjzApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +47,7 @@ class MyApp extends StatelessWidget {
         Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
       ],
       home: const HomePage(),
+      routes: AppRoutes.routes,
     );
   }
 }

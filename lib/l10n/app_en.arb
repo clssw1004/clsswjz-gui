@@ -50,5 +50,31 @@
     "language": "Language",
     "chinese": "Chinese",
     "english": "English",
-    "accountBooks": "Account Books"
+    "accountBooks": "Account Books",
+    "userInfo": "User Info",
+    "retry": "Retry",
+    "noData": "No Data",
+    "username": "Username",
+    "nickname": "Nickname",
+    "email": "Email",
+    "avatar": "Avatar",
+    "phone": "Phone",
+    "timezone": "Timezone",
+    "editUserInfo": "Edit User Info",
+    "save": "Save",
+    "updateFailed": "Update Failed",
+    "required": "This field is required",
+    "invalidEmail": "Invalid Email",
+    "changePassword": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordChanged": "Password changed successfully",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordNotMatch": "Passwords do not match",
+    "accountItemCount": "Records",
+    "accountDayCount": "Days",
+    "@accountDayCount": {
+        "description": "Number of days with records"
+    }
 } 

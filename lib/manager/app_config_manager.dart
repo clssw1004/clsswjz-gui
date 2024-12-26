@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../database/database.dart';
-import '../services/service_manager.dart';
+import '../utils/cache_util.dart';
 
 /// 应用配置管理
-class AppConfig {
+class AppConfigManager {
   static const String _localeKey = 'locale';
   static const String _themeColorKey = 'theme_color';
   static const String _themeModeKey = 'theme_mode';
@@ -14,10 +11,8 @@ class AppConfig {
   static const String _useMaterial3Key = 'use_material3';
   static const String _defaultBookIdKey = 'default_book_id';
 
-  static late final AppConfig _instance;
-  static AppConfig get instance => _instance;
-
-  final SharedPreferences _prefs;
+  static late final AppConfigManager _instance;
+  static AppConfigManager get instance => _instance;
 
   /// 当前语言
   late Locale _locale;
@@ -47,26 +42,20 @@ class AppConfig {
   String? _defaultBookId;
   String? get defaultBookId => _defaultBookId;
 
-  /// 当前用户ID（临时写死）
-  String? _currentUserId = 'iy6dnir1k359j47yna16d538q88zqppn';
-  String get currentUserId => 'iy6dnir1k359j47yna16d538q88zqppn';
-
-  User? _currentUser;
-  User? get currentUser => _currentUser;
-
-  AppConfig._(this._prefs) {
+  AppConfigManager._() {
     // 初始化语言
-    final languageCode = _prefs.getString(_localeKey) ?? 'zh';
-    final countryCode = _prefs.getString('${_localeKey}_country');
+    final languageCode = CacheUtil.instance.getString(_localeKey) ?? 'zh';
+    final countryCode = CacheUtil.instance.getString('${_localeKey}_country');
     _locale = countryCode != null
         ? Locale(languageCode, countryCode)
         : Locale(languageCode);
 
     // 初始化主题色
-    _themeColor = Color(_prefs.getInt(_themeColorKey) ?? Colors.blue.value);
+    _themeColor =
+        Color(CacheUtil.instance.getInt(_themeColorKey) ?? Colors.blue.value);
 
     // 初始化主题模式
-    final themeModeString = _prefs.getString(_themeModeKey);
+    final themeModeString = CacheUtil.instance.getString(_themeModeKey);
     _themeMode = themeModeString != null
         ? ThemeMode.values.firstWhere(
             (mode) => mode.toString() == themeModeString,
@@ -75,79 +64,72 @@ class AppConfig {
         : ThemeMode.system;
 
     // 初始化字体大小
-    _fontSize = _prefs.getDouble(_fontSizeKey) ?? 1.0;
+    _fontSize = CacheUtil.instance.getDouble(_fontSizeKey) ?? 1.0;
 
     // 初始化圆角大小
-    _radius = _prefs.getDouble(_radiusKey) ?? 8.0;
+    _radius = CacheUtil.instance.getDouble(_radiusKey) ?? 8.0;
 
     // 初始化 Material 3 设置
-    _useMaterial3 = _prefs.getBool(_useMaterial3Key) ?? true;
+    _useMaterial3 = CacheUtil.instance.getBool(_useMaterial3Key) ?? true;
 
     // 初始化默认账本ID
-    _defaultBookId = _prefs.getString(_defaultBookIdKey);
+    _defaultBookId = CacheUtil.instance.getString(_defaultBookIdKey);
   }
 
   /// 初始化
   static Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    _instance = AppConfig._(prefs);
+    _instance = AppConfigManager._();
   }
 
   /// 设置语言
   Future<void> setLocale(Locale locale) async {
     _locale = locale;
-    await _prefs.setString(_localeKey, locale.languageCode);
+    await CacheUtil.instance.setString(_localeKey, locale.languageCode);
     if (locale.countryCode != null) {
-      await _prefs.setString('${_localeKey}_country', locale.countryCode!);
+      await CacheUtil.instance
+          .setString('${_localeKey}_country', locale.countryCode!);
     } else {
-      await _prefs.remove('${_localeKey}_country');
+      await CacheUtil.instance.remove('${_localeKey}_country');
     }
   }
 
   /// 设置主题色
   Future<void> setThemeColor(Color color) async {
     _themeColor = color;
-    await _prefs.setInt(_themeColorKey, color.value);
+    await CacheUtil.instance.setInt(_themeColorKey, color.value);
   }
 
   /// 设置主题模式
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
-    await _prefs.setString(_themeModeKey, mode.toString());
+    await CacheUtil.instance.setString(_themeModeKey, mode.toString());
   }
 
   /// 设置字体大小
   Future<void> setFontSize(double size) async {
     _fontSize = size;
-    await _prefs.setDouble(_fontSizeKey, size);
+    await CacheUtil.instance.setDouble(_fontSizeKey, size);
   }
 
   /// 设置圆角大小
   Future<void> setRadius(double radius) async {
     _radius = radius;
-    await _prefs.setDouble(_radiusKey, radius);
+    await CacheUtil.instance.setDouble(_radiusKey, radius);
   }
 
   /// 设置是否使用 Material 3
   Future<void> setUseMaterial3(bool use) async {
     _useMaterial3 = use;
-    await _prefs.setBool(_useMaterial3Key, use);
+    await CacheUtil.instance.setBool(_useMaterial3Key, use);
   }
 
   /// 设置默认账本ID
   Future<void> setDefaultBookId(String? bookId) async {
     _defaultBookId = bookId;
     if (bookId != null) {
-      await _prefs.setString(_defaultBookIdKey, bookId);
+      await CacheUtil.instance.setString(_defaultBookIdKey, bookId);
     } else {
-      await _prefs.remove(_defaultBookIdKey);
+      await CacheUtil.instance.remove(_defaultBookIdKey);
     }
-  }
-
-  Future<void> setCurrentUser(String userId) async {
-    _currentUser = await ServiceManager.userService
-        .getUserInfo(userId)
-        .then((value) => value.data);
-    _currentUserId = userId;
   }
 }

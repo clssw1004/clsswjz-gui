@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../manager/user_config_manager.dart';
 import '../models/vo/user_book_vo.dart';
 import '../providers/account_books_provider.dart';
 import '../widgets/common_app_bar.dart';
 
 /// 账本列表页面
 class AccountBooksPage extends StatefulWidget {
-  /// 用户ID
-  final String userId;
-
   const AccountBooksPage({
     super.key,
-    required this.userId,
   });
 
   @override
@@ -24,7 +21,9 @@ class _AccountBooksPageState extends State<AccountBooksPage> {
   void initState() {
     super.initState();
     // 加载账本列表
-    context.read<AccountBooksProvider>().loadBooks(widget.userId);
+    context
+        .read<AccountBooksProvider>()
+        .loadBooks(UserConfigManager.currentUserId);
   }
 
   @override
@@ -53,7 +52,7 @@ class _AccountBooksPageState extends State<AccountBooksPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () => provider.refresh(widget.userId),
+            onRefresh: () => provider.refresh(UserConfigManager.currentUserId),
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: provider.books.length,
@@ -61,7 +60,7 @@ class _AccountBooksPageState extends State<AccountBooksPage> {
                 final book = provider.books[index];
                 return _AccountBookCard(
                   book: book,
-                  userId: widget.userId,
+                  userId: UserConfigManager.currentUserId,
                 );
               },
             ),

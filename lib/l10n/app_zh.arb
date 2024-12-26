@@ -49,5 +49,31 @@
     "language": "语言",
     "english": "英文",
     "chinese": "简体中文",
-    "accountBooks": "账本列表"
+    "accountBooks": "账本列表",
+    "userInfo": "用户信息",
+    "retry": "重试",
+    "noData": "暂无数据",
+    "username": "用户名",
+    "nickname": "昵称",
+    "email": "邮箱",
+    "avatar": "头像",
+    "editUserInfo": "编辑用户信息",
+    "save": "保存",
+    "updateFailed": "更新失败",
+    "required": "必填",
+    "invalidEmail": "邮箱格式不正确",
+    "phone": "手机号",
+    "timezone": "时区",
+    "changePassword": "修改密码",
+    "oldPassword": "旧密码",
+    "newPassword": "新密码",
+    "confirmPassword": "确认密码",
+    "passwordChanged": "密码修改成功",
+    "passwordTooShort": "密码至少需要6个字符",
+    "passwordNotMatch": "两次输入的密码不一致",
+    "accountItemCount": "账目数",
+    "accountDayCount": "记账天数",
+    "@accountDayCount": {
+        "description": "统计用户记账的天数"
+    }
 }

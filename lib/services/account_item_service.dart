@@ -6,9 +6,9 @@ import '../database/dao/account_shop_dao.dart';
 import '../database/dao/account_symbol_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
-import '../database/database_service.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
-import '../utils/collection.util.dart';
+import '../utils/collection_util.dart';
 import 'base_service.dart';
 import '../models/vo/account_item_vo.dart';
 
@@ -21,12 +21,12 @@ class AccountItemService extends BaseService {
   final UserDao _userDao;
 
   AccountItemService()
-      : _accountItemDao = AccountItemDao(DatabaseService.db),
-        _accountCategoryDao = AccountCategoryDao(DatabaseService.db),
-        _accountFundDao = AccountFundDao(DatabaseService.db),
-        _accountSymbolDao = AccountSymbolDao(DatabaseService.db),
-        _accountShopDao = AccountShopDao(DatabaseService.db),
-        _userDao = UserDao(DatabaseService.db);
+      : _accountItemDao = AccountItemDao(DatabaseManager.db),
+        _accountCategoryDao = AccountCategoryDao(DatabaseManager.db),
+        _accountFundDao = AccountFundDao(DatabaseManager.db),
+        _accountSymbolDao = AccountSymbolDao(DatabaseManager.db),
+        _accountShopDao = AccountShopDao(DatabaseManager.db),
+        _userDao = UserDao(DatabaseManager.db);
 
   /// 创建账目
   Future<OperateResult<String>> createAccountItem({
@@ -310,22 +310,25 @@ class AccountItemService extends BaseService {
     }.toList();
 
     // 3. 批量查询关联数据
-    final categories = toMap(
+    final categories = CollectionUtils.toMap(
         await _accountCategoryDao.findByCodes(categoryCodes), (c) => c.code);
 
-    final funds = toMap(await _accountFundDao.findByIds(fundIds), (f) => f.id);
+    final funds = CollectionUtils.toMap(
+        await _accountFundDao.findByIds(fundIds), (f) => f.id);
 
-    final shops =
-        toMap(await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
+    final shops = CollectionUtils.toMap(
+        await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
-    final symbolMap = groupBy(
+    final symbolMap = CollectionUtils.groupBy(
         await _accountSymbolDao.findByTypes(['TAG', 'PROJECT']),
         (s) => s.symbolType);
 
-    final tags = toMap(symbolMap['TAG'] ?? [], (s) => s.code);
-    final projects = toMap(symbolMap['PROJECT'] ?? [], (s) => s.code);
+    final tags = CollectionUtils.toMap(symbolMap['TAG'] ?? [], (s) => s.code);
+    final projects =
+        CollectionUtils.toMap(symbolMap['PROJECT'] ?? [], (s) => s.code);
 
-    final users = toMap(await _userDao.findByIds(userIds), (u) => u.id);
+    final users =
+        CollectionUtils.toMap(await _userDao.findByIds(userIds), (u) => u.id);
 
     // 4. 组装VO对象
     return items.map((item) {

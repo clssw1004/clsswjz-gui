@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../models/app_config.dart';
+import '../manager/app_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_book_service.dart';
@@ -49,7 +49,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
       if (!result.ok || result.data!.isEmpty) return;
 
       final books = result.data!;
-      final defaultBookId = AppConfig.instance.defaultBookId;
+      final defaultBookId = AppConfigManager.instance.defaultBookId;
 
       UserBookVO? selectedBook;
       if (defaultBookId != null) {
@@ -90,7 +90,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
 
     if (result != null && mounted) {
       // 保存选中的账本ID
-      await AppConfig.instance.setDefaultBookId(result.id);
+      await AppConfigManager.instance.setDefaultBookId(result.id);
 
       setState(() {
         _selectedBook = result;
