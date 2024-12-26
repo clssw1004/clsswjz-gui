@@ -96,5 +96,20 @@
     "more": "更多",
     "@more": {
         "description": "更多選項按鈕文本"
-    }
+    },
+    "serverConfig": "伺服器配置",
+    "serverAddress": "伺服器地址",
+    "username": "用戶名",
+    "password": "密碼",
+    "login": "登入",
+    "checkServer": "檢查伺服器",
+    "pleaseInputServerAddress": "請輸入伺服器地址",
+    "pleaseInputUsername": "請輸入用戶名",
+    "pleaseInputPassword": "請輸入密碼",
+    "pleaseCheckServerFirst": "請先檢查伺服器連接",
+    "serverConnectionSuccess": "伺服器連接成功",
+    "serverConnectionFailed": "伺服器連接失敗",
+    "serverConnectionError": "伺服器連接錯誤",
+    "loginFailed": "登入失敗",
+    "loginError": "登入錯誤"
 }

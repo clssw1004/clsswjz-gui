@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../database/database.dart';
+import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
+import '../utils/http_client.dart';
 
 /// 用户信息状态管理
 class UserProvider extends ChangeNotifier {
@@ -58,7 +60,7 @@ class UserProvider extends ChangeNotifier {
     String? timezone,
   }) async {
     if (_loading) {
-      return OperateResult.fail('正在处理中', null);
+      return OperateResult.failWithMessage('正在处理中', null);
     }
 
     _loading = true;
@@ -91,7 +93,7 @@ class UserProvider extends ChangeNotifier {
     required String newPassword,
   }) async {
     if (_loading) {
-      return OperateResult.fail('正在处理中', null);
+      return OperateResult.failWithMessage('正在处理中', null);
     }
 
     _loading = true;

@@ -10,6 +10,9 @@ class AppConfigManager {
   static const String _radiusKey = 'radius';
   static const String _useMaterial3Key = 'use_material3';
   static const String _defaultBookIdKey = 'default_book_id';
+  static const String _serverUrlKey = 'server_url';
+  static const String _accessTokenKey = 'access_token';
+  static const String _userIdKey = 'user_id';
 
   static late final AppConfigManager _instance;
   static AppConfigManager get instance => _instance;
@@ -41,6 +44,18 @@ class AppConfigManager {
   /// 默认账本ID
   String? _defaultBookId;
   String? get defaultBookId => _defaultBookId;
+
+  /// 当前用户ID
+  String? _userId;
+  String? get userId => _userId;
+
+  /// 服务器地址
+  String? _serverUrl;
+  String? get serverUrl => _serverUrl;
+
+  /// 访问令牌
+  String? _accessToken;
+  String? get accessToken => _accessToken;
 
   AppConfigManager._() {
     // 初始化语言
@@ -74,6 +89,15 @@ class AppConfigManager {
 
     // 初始化默认账本ID
     _defaultBookId = CacheUtil.instance.getString(_defaultBookIdKey);
+
+    // 初始化服务器地址
+    _serverUrl = CacheUtil.instance.getString(_serverUrlKey);
+
+    // 初始化访问令牌
+    _accessToken = CacheUtil.instance.getString(_accessTokenKey);
+
+    // 初始化用户ID
+    _userId = CacheUtil.instance.getString(_userIdKey);
   }
 
   /// 初始化
@@ -131,5 +155,36 @@ class AppConfigManager {
     } else {
       await CacheUtil.instance.remove(_defaultBookIdKey);
     }
+  }
+
+  /// 设置服务器地址
+  Future<void> setServerUrl(String url) async {
+    _serverUrl = url;
+    await CacheUtil.instance.setString(_serverUrlKey, url);
+  }
+
+  /// 设置访问令牌
+  Future<void> setAccessToken(String token) async {
+    _accessToken = token;
+    await CacheUtil.instance.setString(_accessTokenKey, token);
+  }
+
+  /// 设置用户ID
+  Future<void> setUserId(String userId) async {
+    _userId = userId;
+    await CacheUtil.instance.setString(_userIdKey, userId);
+  }
+
+  /// 是否已经配置过后台服务
+  static bool isConfigServer() {
+    return _instance.serverUrl != null || _instance.accessToken != null;
+  }
+
+  /// 设置服务器信息
+  static Future<void> setServerInfo(
+      String serverUrl, String userId, String accessToken) async {
+    await _instance.setServerUrl(serverUrl);
+    await _instance.setAccessToken(accessToken);
+    await _instance.setUserId(userId);
   }
 }

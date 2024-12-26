@@ -30,7 +30,7 @@ class AccountShopService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '批量插入商家失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -46,7 +46,7 @@ class AccountShopService extends BaseService {
           .get();
       return OperateResult.success(shops);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '获取账本商家失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -77,7 +77,7 @@ class AccountShopService extends BaseService {
           );
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '创建商家失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -90,7 +90,7 @@ class AccountShopService extends BaseService {
       await db.update(db.accountShopTable).replace(shop);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '更新商家失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -104,7 +104,7 @@ class AccountShopService extends BaseService {
           .go();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '删除商家失败',
         e is Exception ? e : Exception(e.toString()),
       );

@@ -31,7 +31,7 @@ class AccountFundService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '批量插入资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -55,7 +55,7 @@ class AccountFundService extends BaseService {
           results.map((row) => row.readTable(db.accountFundTable)).toList();
       return OperateResult.success(funds);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '获取账本资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -88,7 +88,7 @@ class AccountFundService extends BaseService {
           );
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '创建资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -101,7 +101,7 @@ class AccountFundService extends BaseService {
       await db.update(db.accountFundTable).replace(fund);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '更新资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -122,7 +122,7 @@ class AccountFundService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '删除资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -146,7 +146,7 @@ class AccountFundService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '更新资金账户余额失败',
         e is Exception ? e : Exception(e.toString()),
       );

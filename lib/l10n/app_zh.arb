@@ -109,5 +109,20 @@
     "more": "更多",
     "@more": {
         "description": "更多选项按钮文本"
-    }
+    },
+    "serverConfig": "服务器配置",
+    "serverAddress": "服务器地址",
+    "username": "用户名",
+    "password": "密码",
+    "login": "登录",
+    "checkServer": "检查服务器",
+    "pleaseInputServerAddress": "请输入服务器地址",
+    "pleaseInputUsername": "请输入用户名",
+    "pleaseInputPassword": "请输入密码",
+    "pleaseCheckServerFirst": "请先检查服务器连接",
+    "serverConnectionSuccess": "服务器连接成功",
+    "serverConnectionFailed": "服务器连接失败",
+    "serverConnectionError": "服务器连接错误",
+    "loginFailed": "登录失败",
+    "loginError": "登录错误"
 }

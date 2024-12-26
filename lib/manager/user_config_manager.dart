@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/utils/cache_util.dart';
 
 import '../database/database.dart';
@@ -23,7 +24,7 @@ class UserConfigManager {
 
   UserConfigManager._();
 
-  static Future<void> init(String userId) async {
+  static Future<void> refresh(String userId) async {
     print('init:$userId');
     _instance = UserConfigManager._();
     _userService = ServiceManager.userService;
@@ -37,5 +38,15 @@ class UserConfigManager {
   static setCurrentUser(User user) {
     _currentUser = user;
     CacheUtil.instance.setString(_currentUserIdKey, user.id);
+  }
+
+  static setUserServerInfo({
+    required String serverUrl,
+    required String userId,
+    required String accessToken,
+  }) {
+    refresh(userId);
+    AppConfigManager.instance.setServerUrl(serverUrl);
+    AppConfigManager.instance.setAccessToken(accessToken);
   }
 }

@@ -162,10 +162,33 @@ class AuthInterceptor implements HttpInterceptor {
 class HttpClient {
   final HttpConfig config;
   final http.Client _client;
+  static late final HttpClient _instance;
+
+  static HttpClient get instance => _instance;
 
   HttpClient({
     required this.config,
   }) : _client = http.Client();
+
+  static refresh({serverUrl, accessToken}) {
+    _instance = HttpClient(
+      config: HttpConfig(
+        baseUrl: serverUrl,
+        timeout: const Duration(seconds: 30),
+        defaultHeaders: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        interceptors: [
+          AuthInterceptor(
+            getToken: () {
+              return accessToken;
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   /// 发送请求
   Future<HttpResponse<T>> request<T>({

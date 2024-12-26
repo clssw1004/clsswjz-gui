@@ -49,7 +49,7 @@ class AccountItemService extends BaseService {
         final categories = await _accountCategoryDao.findByAccountBookIdAndType(
             accountBookId, type);
         if (!categories.any((c) => c.code == categoryCode)) {
-          return OperateResult.fail('无效的分类代码', null);
+          return OperateResult.failWithMessage('无效的分类代码', null);
         }
       }
 
@@ -57,7 +57,7 @@ class AccountItemService extends BaseService {
       if (fundId != null) {
         final fund = await _accountFundDao.findById(fundId);
         if (fund == null) {
-          return OperateResult.fail('无效的资金账户', null);
+          return OperateResult.failWithMessage('无效的资金账户', null);
         }
       }
 
@@ -107,7 +107,7 @@ class AccountItemService extends BaseService {
 
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail('创建账目失败：$e', e as Exception);
+      return OperateResult.failWithMessage('创建账目失败：$e', e as Exception);
     }
   }
 
@@ -128,7 +128,7 @@ class AccountItemService extends BaseService {
     try {
       final item = await _accountItemDao.findById(id);
       if (item == null) {
-        return OperateResult.fail('账目不存在', null);
+        return OperateResult.failWithMessage('账目不存在', null);
       }
 
       // 如果修改了资金账户，先恢复原账户余额
@@ -204,7 +204,7 @@ class AccountItemService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('更新账目失败：$e', e as Exception);
+      return OperateResult.failWithMessage('更新账目失败：$e', e as Exception);
     }
   }
 
@@ -213,7 +213,7 @@ class AccountItemService extends BaseService {
     try {
       final item = await _accountItemDao.findById(id);
       if (item == null) {
-        return OperateResult.fail('账目不存在', null);
+        return OperateResult.failWithMessage('账目不存在', null);
       }
 
       // 如果有关联资金账户，恢复账户余额
@@ -233,7 +233,7 @@ class AccountItemService extends BaseService {
       await _accountItemDao.delete(item);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('删除账目失败：$e', e as Exception);
+      return OperateResult.failWithMessage('删除账目失败：$e', e as Exception);
     }
   }
 
@@ -263,7 +263,7 @@ class AccountItemService extends BaseService {
       );
       return OperateResult.success(items);
     } catch (e) {
-      return OperateResult.fail('获取账目列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账目列表失败：$e', e as Exception);
     }
   }
 
@@ -279,7 +279,7 @@ class AccountItemService extends BaseService {
         await toVos(items),
       );
     } catch (e) {
-      return OperateResult.fail('获取账目列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账目列表失败：$e', e as Exception);
     }
   }
 
@@ -287,7 +287,7 @@ class AccountItemService extends BaseService {
     try {
       return OperateResult.success(await _accountItemDao.findAll());
     } catch (e) {
-      return OperateResult.fail('获取账目列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账目列表失败：$e', e as Exception);
     }
   }
 

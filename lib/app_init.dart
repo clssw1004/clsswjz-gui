@@ -4,27 +4,36 @@ import 'manager/database_manager.dart';
 import 'manager/service_manager.dart';
 import 'manager/user_config_manager.dart';
 import 'utils/cache_util.dart';
+import 'utils/http_client.dart';
 
 /// 应用初始化
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 1. 初始化缓存工具
+  //  初始化缓存工具
   await CacheUtil.init();
 
-  final currentUserId =
-      CacheUtil.instance.getString(UserConfigManager.currentUserIdKey) ??
-          'iy6dnir1k359j47yna16d538q88zqppn';
-
-  // 2. 初始化配置管理器
+  //  初始化配置管理器
   await AppConfigManager.init();
+  if (AppConfigManager.isConfigServer()) {
+    //  初始化HTTP客户端
+    HttpClient.refresh(
+      serverUrl: AppConfigManager.instance.serverUrl,
+      accessToken: AppConfigManager.instance.accessToken,
+    );
+    // 初始化数据库管理器
+    await DatabaseManager.init();
+    // 初始化服务管理器
+    await ServiceManager.init();
+    // 初始化用户配置管理器
+    await UserConfigManager.refresh(AppConfigManager.instance.userId!);
 
-  // 3. 初始化数据库管理器
-  await DatabaseManager.init();
+    await ServiceManager.syncService.syncInit();
+  }
+}
 
-  // 4. 初始化服务管理器
-  await ServiceManager.init();
-
-  // 5. 初始化用户配置管理器
-  await UserConfigManager.init(currentUserId!);
+setServerInfo(String serverUrl, String userId, String accessToken) async {
+  await AppConfigManager.instance.setServerUrl(serverUrl);
+  await AppConfigManager.instance.setAccessToken(accessToken);
+  await AppConfigManager.instance.setUserId(userId);
+  await HttpClient.refresh(serverUrl: serverUrl, accessToken: accessToken);
 }

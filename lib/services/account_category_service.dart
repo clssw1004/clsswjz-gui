@@ -40,7 +40,8 @@ class AccountCategoryService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('批量插入分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '批量插入分类失败: ${e.toString()}', e as Exception);
     }
   }
 
@@ -53,7 +54,8 @@ class AccountCategoryService extends BaseService {
           .get();
       return OperateResult.success(categories);
     } catch (e) {
-      return OperateResult.fail('获取账本分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '获取账本分类失败: ${e.toString()}', e as Exception);
     }
   }
 
@@ -68,7 +70,8 @@ class AccountCategoryService extends BaseService {
           .get();
       return OperateResult.success(categories);
     } catch (e) {
-      return OperateResult.fail('获取账本分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '获取账本分类失败: ${e.toString()}', e as Exception);
     }
   }
 
@@ -96,7 +99,8 @@ class AccountCategoryService extends BaseService {
       );
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail('创建分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '创建分类失败: ${e.toString()}', e as Exception);
     }
   }
 
@@ -106,7 +110,8 @@ class AccountCategoryService extends BaseService {
       await db.update(db.accountCategoryTable).replace(category);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('更新分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '更新分类失败: ${e.toString()}', e as Exception);
     }
   }
 
@@ -117,7 +122,8 @@ class AccountCategoryService extends BaseService {
           .go();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('删除分类失败: ${e.toString()}', e as Exception);
+      return OperateResult.failWithMessage(
+          '删除分类失败: ${e.toString()}', e as Exception);
     }
   }
 }

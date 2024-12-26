@@ -34,7 +34,7 @@ class AttachmentService extends BaseService {
       });
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '批量插入附件失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -52,7 +52,7 @@ class AttachmentService extends BaseService {
           .get();
       return OperateResult.success(attachments);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '获取业务附件失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -89,7 +89,7 @@ class AttachmentService extends BaseService {
           );
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '创建附件失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -102,7 +102,7 @@ class AttachmentService extends BaseService {
       await db.update(db.attachmentTable).replace(attachment);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '更新附件失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -115,7 +115,7 @@ class AttachmentService extends BaseService {
       await (db.delete(db.attachmentTable)..where((t) => t.id.equals(id))).go();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '删除附件失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -133,7 +133,7 @@ class AttachmentService extends BaseService {
           .go();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '删除业务附件失败',
         e is Exception ? e : Exception(e.toString()),
       );

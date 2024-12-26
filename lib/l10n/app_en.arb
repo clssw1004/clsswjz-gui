@@ -110,5 +110,20 @@
     "more": "More",
     "@more": {
         "description": "More options button text"
-    }
+    },
+    "serverConfig": "Server Configuration",
+    "serverAddress": "Server Address",
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "checkServer": "Check Server",
+    "pleaseInputServerAddress": "Please input server address",
+    "pleaseInputUsername": "Please input username",
+    "pleaseInputPassword": "Please input password",
+    "pleaseCheckServerFirst": "Please check server connection first",
+    "serverConnectionSuccess": "Server connection successful",
+    "serverConnectionFailed": "Server connection failed",
+    "serverConnectionError": "Server connection error",
+    "loginFailed": "Login failed",
+    "loginError": "Login error"
 }

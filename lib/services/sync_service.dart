@@ -10,8 +10,20 @@ class SyncService extends BaseService {
 
   SyncService({required HttpClient httpClient}) : _httpClient = httpClient;
 
+  Future<OperateResult<void>> syncInit() async {
+    try {
+      final result = await _getInitialData();
+      if (result.ok && result.data != null) {
+        await _applyServerChanges(result.data!.data);
+      }
+      return OperateResult.success({});
+    } catch (e) {
+      return OperateResult.failWithMessage('初始化同步数据失败', e as Exception);
+    }
+  }
+
   /// 获取初始数据
-  Future<OperateResult<SyncInitResponse>> getInitialData() async {
+  Future<OperateResult<SyncInitResponse>> _getInitialData() async {
     try {
       final response = await _httpClient.get<SyncInitResponse>(
         path: '/api/sync/initial',
@@ -21,13 +33,13 @@ class SyncService extends BaseService {
       if (response.success) {
         return OperateResult.success(response.data!);
       } else {
-        return OperateResult.fail(
+        return OperateResult.failWithMessage(
           response.message ?? '获取初始数据失败',
           response.message != null ? Exception(response.message) : null,
         );
       }
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '获取初始数据失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -46,13 +58,13 @@ class SyncService extends BaseService {
       if (response.success) {
         return OperateResult.success(response.data!);
       } else {
-        return OperateResult.fail(
+        return OperateResult.failWithMessage(
           response.message ?? '同步数据失败',
           response.message != null ? Exception(response.message) : null,
         );
       }
     } catch (e) {
-      return OperateResult.fail(
+      return OperateResult.failWithMessage(
         '同步数据失败',
         e is Exception ? e : Exception(e.toString()),
       );
@@ -60,7 +72,7 @@ class SyncService extends BaseService {
   }
 
   /// 应用服务器变更
-  Future<void> applyServerChanges(SyncChanges changes) async {
+  Future<void> _applyServerChanges(SyncChanges changes) async {
     await db.transaction(() async {
       if (changes.users != null) {
         await batchInsert(db.userTable, changes.users!);

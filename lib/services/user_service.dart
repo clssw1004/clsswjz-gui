@@ -18,10 +18,10 @@ class UserService extends BaseService {
   Future<OperateResult<User>> login(String username, String password) async {
     User? user = await _userDao.findByUsername(username);
     if (user == null) {
-      return OperateResult.fail('用户名或密码错误', null);
+      return OperateResult.failWithMessage('用户名或密码错误', null);
     }
     if (!await verifyPassword(user, password)) {
-      return OperateResult.fail('用户名或密码错误', null);
+      return OperateResult.failWithMessage('用户名或密码错误', null);
     }
     return OperateResult.success(user);
   }
@@ -37,7 +37,7 @@ class UserService extends BaseService {
     try {
       // 检查用户名是否已存在
       if (await _userDao.isUsernameExists(username)) {
-        return OperateResult.fail('用户名已存在', null);
+        return OperateResult.failWithMessage('用户名已存在', null);
       }
 
       final userId = generateUuid();
@@ -54,7 +54,7 @@ class UserService extends BaseService {
       );
       return OperateResult.success(userId);
     } catch (e) {
-      return OperateResult.fail('注册失败：$e', e as Exception);
+      return OperateResult.failWithMessage('注册失败：$e', e as Exception);
     }
   }
 
@@ -63,11 +63,11 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.fail('用户不存在', null);
+        return OperateResult.failWithMessage('用户不存在', null);
       }
       return OperateResult.success(user);
     } catch (e) {
-      return OperateResult.fail('获取用户信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取用户信息失败：$e', e as Exception);
     }
   }
 
@@ -82,7 +82,7 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.fail('用户不存在', null);
+        return OperateResult.failWithMessage('用户不存在', null);
       }
 
       await _userDao.update(UserTableCompanion(
@@ -100,7 +100,7 @@ class UserService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('更新用户信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage('更新用户信息失败：$e', e as Exception);
     }
   }
 
@@ -119,12 +119,12 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.fail('用户不存在', null);
+        return OperateResult.failWithMessage('用户不存在', null);
       }
 
       // 验证旧密码
       if (!await verifyPassword(user, oldPassword)) {
-        return OperateResult.fail('旧密码错误', null);
+        return OperateResult.failWithMessage('旧密码错误', null);
       }
 
       // 对新密码进行哈希
@@ -139,7 +139,7 @@ class UserService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('修改密码失败：$e', e as Exception);
+      return OperateResult.failWithMessage('修改密码失败：$e', e as Exception);
     }
   }
 

@@ -62,7 +62,7 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.fail('创建账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage('创建账本失败：$e', e as Exception);
     }
   }
 
@@ -78,7 +78,7 @@ class AccountBookService extends BaseService {
     try {
       final book = await _accountBookDao.findById(id);
       if (book == null) {
-        return OperateResult.fail('账本不存在', null);
+        return OperateResult.failWithMessage('账本不存在', null);
       }
 
       await _accountBookDao.update(AccountBookTableCompanion(
@@ -96,7 +96,7 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('更新账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage('更新账本失败：$e', e as Exception);
     }
   }
 
@@ -104,7 +104,7 @@ class AccountBookService extends BaseService {
     try {
       return OperateResult.success(await _accountBookDao.findAll());
     } catch (e) {
-      return OperateResult.fail('获取所有账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取所有账本失败：$e', e as Exception);
     }
   }
 
@@ -113,11 +113,11 @@ class AccountBookService extends BaseService {
     try {
       final book = await _accountBookDao.findById(id);
       if (book == null) {
-        return OperateResult.fail('账本不存在', null);
+        return OperateResult.failWithMessage('账本不存在', null);
       }
       return OperateResult.success(book);
     } catch (e) {
-      return OperateResult.fail('获取账本信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账本信息失败：$e', e as Exception);
     }
   }
 
@@ -128,7 +128,7 @@ class AccountBookService extends BaseService {
       final books = await _accountBookDao.findByUserId(userId);
       return OperateResult.success(books);
     } catch (e) {
-      return OperateResult.fail('获取账本列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
     }
   }
 
@@ -137,13 +137,13 @@ class AccountBookService extends BaseService {
     try {
       final book = await _accountBookDao.findById(id);
       if (book == null) {
-        return OperateResult.fail('账本不存在', null);
+        return OperateResult.failWithMessage('账本不存在', null);
       }
 
       await _accountBookDao.delete(book);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('删除账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage('删除账本失败：$e', e as Exception);
     }
   }
 
@@ -177,7 +177,7 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.fail('添加成员失败：$e', e as Exception);
+      return OperateResult.failWithMessage('添加成员失败：$e', e as Exception);
     }
   }
 
@@ -247,7 +247,7 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(result);
     } catch (e) {
-      return OperateResult.fail('获取账本列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
     }
   }
 }

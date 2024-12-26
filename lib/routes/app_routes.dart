@@ -5,7 +5,9 @@ import '../manager/database_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../pages/account_books_page.dart';
 import '../pages/account_item_form_page.dart';
+import '../pages/home_page.dart';
 import '../pages/language_settings_page.dart';
+import '../pages/server_config_page.dart';
 import '../pages/theme_settings_page.dart';
 import '../pages/user_info_page.dart';
 import '../models/vo/account_item_vo.dart';
@@ -13,6 +15,8 @@ import 'package:drift_db_viewer/drift_db_viewer.dart';
 
 /// 应用路由配置
 class AppRoutes {
+  static const String home = '/home';
+
   /// 用户信息页面
   static const String userInfo = '/user_info';
 
@@ -30,9 +34,17 @@ class AppRoutes {
 
   /// 账目详情表单页面
   static const String accountItemForm = '/account_item_form';
+  static const String serverConfig = '/server-config';
+
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (context) => const ServerConfigPage(),
+    );
+  }
 
   /// 路由表
   static Map<String, WidgetBuilder> routes = {
+    home: (context) => const HomePage(),
     userInfo: (context) => const UserInfoPage(),
     themeSettings: (context) => const ThemeSettingsPage(),
     languageSettings: (context) => const LanguageSettingsPage(),
@@ -44,5 +56,6 @@ class AppRoutes {
       final item = args[1] as AccountItemVO;
       return AccountItemFormPage(accountBook: accountBook, item: item);
     },
+    serverConfig: (context) => const ServerConfigPage(),
   };
 }

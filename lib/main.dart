@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -43,8 +44,12 @@ class ClsswjzApp extends StatelessWidget {
         Locale('zh'),
         Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
       ],
-      home: const HomePage(),
+      // home: const HomePage(),
       routes: AppRoutes.routes,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
+      initialRoute: AppConfigManager.isConfigServer()
+          ? AppRoutes.home
+          : AppRoutes.serverConfig,
     );
   }
 }

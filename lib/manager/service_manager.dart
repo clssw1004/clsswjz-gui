@@ -1,7 +1,4 @@
-import 'package:clsswjz/manager/user_config_manager.dart';
-
 import '../services/statistic_service.dart';
-import 'database_manager.dart';
 import '../services/account_book_service.dart';
 import '../services/account_item_service.dart';
 import '../services/user_service.dart';
@@ -35,25 +32,7 @@ class ServiceManager extends BaseService {
     _userService = UserService();
     _accountBookService = AccountBookService();
     _accountItemService = AccountItemService();
-    _syncService = SyncService(
-      httpClient: HttpClient(
-        config: HttpConfig(
-          baseUrl: 'http://192.168.2.147:3000',
-          timeout: const Duration(seconds: 30),
-          defaultHeaders: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          interceptors: [
-            AuthInterceptor(
-              getToken: () {
-                return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpeTZkbmlyMWszNTlqNDd5bmExNmQ1MzhxODh6cXBwbiIsInVzZXJuYW1lIjoiY3Vpd2VpIiwibmlja25hbWUiOiJjbHNzdyIsImlhdCI6MTczNTAyODkyOCwiZXhwIjoxNzM3NjIwOTI4fQ.CXK6f6I6wv8JdxHh_f_b0vaYweFHQwI70_CuyrCTsRs';
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+    _syncService = SyncService(httpClient: HttpClient.instance);
     _accountCategoryService = AccountCategoryService();
     _accountFundService = AccountFundService();
     _accountShopService = AccountShopService();
@@ -61,9 +40,6 @@ class ServiceManager extends BaseService {
     _attachmentService = AttachmentService();
     _statisticService = StatisticService();
     _instance = ServiceManager._();
-
-    // 初始化同步数据
-    await _instance!._initializeSyncData();
   }
 
   static Future<ServiceManager> get instance async {
@@ -75,18 +51,6 @@ class ServiceManager extends BaseService {
       print(book.permission);
     });
     return _instance!;
-  }
-
-  /// 初始化同步数据
-  Future<void> _initializeSyncData() async {
-    try {
-      final result = await _syncService.getInitialData();
-      if (result.ok && result.data != null) {
-        await _syncService.applyServerChanges(result.data!.data);
-      }
-    } catch (e) {
-      print('初始化同步数据失败: ${e.toString()}');
-    }
   }
 
   /// 获取用户服务
