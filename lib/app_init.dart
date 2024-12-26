@@ -22,9 +22,9 @@ Future<void> init() async {
   // 3. 初始化数据库管理器
   await DatabaseManager.init();
 
-  // 4. 初始化用户配置管理器
-  await UserConfigManager.init(currentUserId!);
-
-  // 5. 初始化服务管理器
+  // 4. 初始化服务管理器
   await ServiceManager.init();
+
+  // 5. 初始化用户配置管理器
+  await UserConfigManager.init(currentUserId!);
 }

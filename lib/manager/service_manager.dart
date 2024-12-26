@@ -32,7 +32,7 @@ class ServiceManager extends BaseService {
 
   static init() async {
     // 初始化所有服务
-    _userService = UserConfigManager.userService;
+    _userService = UserService();
     _accountBookService = AccountBookService();
     _accountItemService = AccountItemService();
     _syncService = SyncService(

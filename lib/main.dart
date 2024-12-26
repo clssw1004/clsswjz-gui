@@ -10,10 +10,7 @@ import 'app_init.dart';
 import 'routes/app_routes.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   await init();
-
   runApp(
     ProviderManager.init(
       child: const ClsswjzApp(),

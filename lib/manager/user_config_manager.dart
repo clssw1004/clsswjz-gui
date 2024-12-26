@@ -2,6 +2,7 @@ import 'package:clsswjz/utils/cache_util.dart';
 
 import '../database/database.dart';
 import '../services/user_service.dart';
+import 'service_manager.dart';
 
 class UserConfigManager {
   static const _currentUserIdKey = 'current_user_id';
@@ -23,11 +24,13 @@ class UserConfigManager {
   UserConfigManager._();
 
   static Future<void> init(String userId) async {
+    print('init:$userId');
     _instance = UserConfigManager._();
-    _userService = UserService();
+    _userService = ServiceManager.userService;
     _currentUserId = userId;
     final user =
         await _userService.getUserInfo(userId).then((value) => value.data);
+    print('user: $user');
     setCurrentUser(user!);
   }
 
