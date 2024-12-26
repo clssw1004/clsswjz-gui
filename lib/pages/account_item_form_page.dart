@@ -117,20 +117,19 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
             // 分类选择
             CommonSelectFormField<AccountCategory>(
               items: provider.categories.cast<AccountCategory>(),
-              value: item.categoryCode == null
-                  ? null
-                  : provider.categories.cast<AccountCategory>().firstWhere(
-                        (category) => category.code == item.categoryCode,
-                      ),
-              displayMode: DisplayMode.iconText,
+              value: item.categoryCode,
+              displayMode: DisplayMode.expand,
               displayField: (item) => item.name,
               keyField: (item) => item.code,
               icon: Icons.category_outlined,
               label: l10n.category,
               required: true,
+              expandCount: 8,
+              expandRows: 3,
               onChanged: (value) {
-                if (value != null) {
-                  provider.updateCategory(value.code, value.name);
+                final category = value as AccountCategory?;
+                if (category != null) {
+                  provider.updateCategory(category.code, category.name);
                 } else {
                   provider.updateCategory(null, null);
                 }
@@ -147,11 +146,7 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
             // 账户选择
             CommonSelectFormField<AccountFund>(
               items: provider.funds.cast<AccountFund>(),
-              value: item.fundId == null
-                  ? null
-                  : provider.funds.cast<AccountFund>().firstWhere(
-                        (fund) => fund.id == item.fundId,
-                      ),
+              value: item.fundId,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.name,
               keyField: (item) => item.id,
@@ -159,8 +154,9 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
               label: l10n.account,
               required: true,
               onChanged: (value) {
-                if (value != null) {
-                  provider.updateFund(value.id, value.name);
+                final fund = value as AccountFund?;
+                if (fund != null) {
+                  provider.updateFund(fund.id, fund.name);
                 } else {
                   provider.updateFund(null, null);
                 }
@@ -177,19 +173,16 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
             // 商户选择
             CommonSelectFormField<AccountShop>(
               items: provider.shops.cast<AccountShop>(),
-              value: item.shopCode == null || item.shopCode == 'NO_SHOP'
-                  ? null
-                  : provider.shops.cast<AccountShop>().firstWhere(
-                        (shop) => shop.code == item.shopCode,
-                      ),
+              value: item.shopCode == 'NO_SHOP' ? null : item.shopCode,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.name,
               keyField: (item) => item.code,
               icon: Icons.store_outlined,
               label: l10n.merchant,
               onChanged: (value) {
-                if (value != null) {
-                  provider.updateShop(value.code, value.name);
+                final shop = value as AccountShop?;
+                if (shop != null) {
+                  provider.updateShop(shop.code, shop.name);
                 } else {
                   provider.updateShop(null, null);
                 }
@@ -197,49 +190,47 @@ class _AccountItemFormViewState extends State<_AccountItemFormView> {
             ),
             const SizedBox(height: 16),
 
-            // 标签选择
-            CommonSelectFormField<AccountSymbol>(
-              items: provider.tags.cast<AccountSymbol>(),
-              value: item.tagCode == null
-                  ? null
-                  : provider.tags.cast<AccountSymbol>().firstWhere(
-                        (tag) => tag.code == item.tagCode,
-                      ),
-              displayMode: DisplayMode.expand,
-              displayField: (item) => item.name,
-              keyField: (item) => item.code,
-              icon: Icons.local_offer_outlined,
-              label: l10n.tag,
-              onChanged: (value) {
-                if (value != null) {
-                  provider.updateTag(value.code, value.name);
-                } else {
-                  provider.updateTag(null, null);
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // 项目选择
-            CommonSelectFormField<AccountSymbol>(
-              items: provider.projects.cast<AccountSymbol>(),
-              value: item.projectCode == null
-                  ? null
-                  : provider.projects.cast<AccountSymbol>().firstWhere(
-                        (project) => project.code == item.projectCode,
-                      ),
-              displayMode: DisplayMode.badge,
-              displayField: (item) => item.name,
-              keyField: (item) => item.code,
-              icon: Icons.folder_outlined,
-              label: l10n.project,
-              onChanged: (value) {
-                if (value != null) {
-                  provider.updateProject(value.code, value.name);
-                } else {
-                  provider.updateProject(null, null);
-                }
-              },
+            // 标签和项目选择
+            Wrap(
+              spacing: 8,
+              children: [
+                CommonSelectFormField<AccountSymbol>(
+                  items: provider.tags.cast<AccountSymbol>(),
+                  value: item.tagCode,
+                  label: l10n.tag,
+                  displayMode: DisplayMode.badge,
+                  displayField: (item) => item.name,
+                  keyField: (item) => item.code,
+                  icon: Icons.local_offer_outlined,
+                  hint: l10n.tag,
+                  onChanged: (value) {
+                    final tag = value as AccountSymbol?;
+                    if (tag != null) {
+                      provider.updateTag(tag.code, tag.name);
+                    } else {
+                      provider.updateTag(null, null);
+                    }
+                  },
+                ),
+                CommonSelectFormField<AccountSymbol>(
+                  items: provider.projects.cast<AccountSymbol>(),
+                  value: item.projectCode,
+                  label: l10n.project,
+                  displayMode: DisplayMode.badge,
+                  displayField: (item) => item.name,
+                  keyField: (item) => item.code,
+                  icon: Icons.folder_outlined,
+                  hint: l10n.project,
+                  onChanged: (value) {
+                    final project = value as AccountSymbol?;
+                    if (project != null) {
+                      provider.updateProject(project.code, project.name);
+                    } else {
+                      provider.updateProject(null, null);
+                    }
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 

@@ -106,5 +106,9 @@
                 "example": "Network error"
             }
         }
+    },
+    "more": "More",
+    "@more": {
+        "description": "More options button text"
     }
 }

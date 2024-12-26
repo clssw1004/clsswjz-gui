@@ -92,5 +92,9 @@
                 "example": "網絡錯誤"
             }
         }
+    },
+    "more": "更多",
+    "@more": {
+        "description": "更多選項按鈕文本"
     }
 }
