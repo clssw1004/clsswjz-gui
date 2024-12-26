@@ -59,6 +59,13 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Generate code
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+
       - name: Setup signing config
         if: matrix.platform == 'android'
         run: |
