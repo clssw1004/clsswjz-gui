@@ -52,5 +52,9 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>需要访问网络以同步数据</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>
