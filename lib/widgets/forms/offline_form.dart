@@ -40,7 +40,7 @@ class OfflineForm extends StatelessWidget {
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInputUsername;
+              return l10n.pleaseInput(l10n.username);
             }
             return null;
           },

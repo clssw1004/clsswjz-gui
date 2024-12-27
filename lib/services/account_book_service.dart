@@ -10,6 +10,7 @@ import '../models/vo/account_book_permission_vo.dart';
 import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import 'base_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountBookService extends BaseService {
   final AccountBookDao _accountBookDao;
@@ -225,7 +226,7 @@ class AccountBookService extends BaseService {
           (ub) => ub.accountBookId == book.id,
         );
 
-        // 获取账本成员（排除创建者）
+        // 获取账本成员（排除创���者）
         final members = allBookMembers
             .where(
                 (m) => m.accountBookId == book.id && m.userId != book.createdBy)

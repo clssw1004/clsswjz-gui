@@ -242,11 +242,11 @@ class _UserInfoPageView extends StatelessWidget {
         if (context.mounted) {
           if (result.ok) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.passwordChanged)),
+              SnackBar(content: Text(l10n.modifySuccess(l10n.password))),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result.message ?? l10n.updateFailed)),
+              SnackBar(content: Text(result.message ?? l10n.modifyFailed(l10n.password, ''))),
             );
           }
         }

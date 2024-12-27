@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../theme/theme_radius.dart';
 
 /// 通用文本输入框表单组件
 class CommonTextFormField extends StatefulWidget {
@@ -13,10 +14,10 @@ class CommonTextFormField extends StatefulWidget {
   final String? hintText;
 
   /// 前缀图标
-  final Widget? prefixIcon;
+  final dynamic prefixIcon;
 
   /// 后缀图标
-  final Widget? suffixIcon;
+  final dynamic suffixIcon;
 
   /// 是否禁用
   final bool enabled;
@@ -69,6 +70,14 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
     super.dispose();
   }
 
+  Widget? _buildIcon(dynamic icon) {
+    if (icon == null) return null;
+    if (icon is Widget) return icon;
+    if (icon is IconData) return Icon(icon);
+    if (icon is Icon) return icon;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -93,22 +102,25 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.4),
             ),
-            prefixIcon: widget.prefixIcon,
-            suffixIcon: widget.suffixIcon,
+            prefixIcon: _buildIcon(widget.prefixIcon),
+            suffixIcon: _buildIcon(widget.suffixIcon),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.all(16),
-            border: UnderlineInputBorder(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
               borderSide: BorderSide(color: theme.colorScheme.outline),
             ),
-            enabledBorder: UnderlineInputBorder(
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
               borderSide: BorderSide(color: theme.colorScheme.outline),
             ),
-            focusedBorder: UnderlineInputBorder(
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
               borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
-            disabledBorder: UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
+              borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
             ),
           ),
           style: theme.textTheme.bodyLarge,

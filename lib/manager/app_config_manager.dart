@@ -85,7 +85,8 @@ class AppConfigManager {
     _databaseName = CacheManager.instance.getString(_databaseNameKey);
 
     // 初始化存储模式
-    final String? storageTypeString = CacheManager.instance.getString(_storageTypeKey);
+    final String? storageTypeString =
+        CacheManager.instance.getString(_storageTypeKey);
     _storageType = string2StorageMode(storageTypeString);
 
     // 初始化语言
@@ -247,8 +248,8 @@ class AppConfigManager {
             username: username,
             password: DEFAULT_PASSWORD,
             nickname: nickname,
-            email: userId,
-            phone: userId)
+            email: email,
+            phone: phone)
         .then((value) => value.data);
   }
 

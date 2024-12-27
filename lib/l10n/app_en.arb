@@ -80,7 +80,7 @@
     "@search": {
         "description": "Search text"
     },
-    "addNew": "Add \"{value}\"",
+    "addNew": "Add {value}",
     "@addNew": {
         "description": "Add new item text",
         "placeholders": {
@@ -90,12 +90,18 @@
             }
         }
     },
+    "editTo": "Edit {value}",
     "amountLabel": "Amount",
-    "amountHint": "Please input amount",
+    "amount": "Amount",
+    "@amount": {
+        "description": "Amount label"
+    },
     "expense": "Expense",
     "income": "Income",
     "description": "Description",
-    "descriptionHint": "Please input description",
+    "@description": {
+        "description": "Description label"
+    },
     "saveFailed": "Save failed: {message}",
     "@saveFailed": {
         "description": "Save failed message",
@@ -112,8 +118,17 @@
     },
     "serverConfig": "Server Configuration",
     "serverAddress": "Server Address",
+    "@serverAddress": {
+        "description": "Server address label"
+    },
     "username": "Username",
+    "@username": {
+        "description": "Username label"
+    },
     "password": "Password",
+    "@password": {
+        "description": "Password label"
+    },
     "login": "Login",
     "checkServer": "Check Server",
     "pleaseInputServerAddress": "Please input server address",
@@ -164,5 +179,101 @@
     "name": "Name",
     "@name": {
         "description": "Name input label"
+    },
+    "useMaterial3Description": "Use Material Design 3 theme",
+    "@useMaterial3Description": {
+        "description": "Material Design 3 theme switch description"
+    },
+    "themePreview": "Theme Preview",
+    "@themePreview": {
+        "description": "Theme preview title"
+    },
+    "pleaseInput": "Please input {value}",
+    "@pleaseInput": {
+        "description": "Input hint text",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "username"
+            }
+        }
+    },
+    "delete": "Delete {value}",
+    "@delete": {
+        "description": "Delete something",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "account book"
+            }
+        }
+    },
+    "deleteFailed": "Failed to delete {value}: {message}",
+    "@deleteFailed": {
+        "description": "Delete failed message",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "account book"
+            },
+            "message": {
+                "type": "String",
+                "example": "network error"
+            }
+        }
+    },
+    "modify": "Modify {value}",
+    "@modify": {
+        "description": "Modify something",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "password"
+            }
+        }
+    },
+    "modifySuccess": "{value} modified successfully",
+    "@modifySuccess": {
+        "description": "Modify success message",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "password"
+            }
+        }
+    },
+    "modifyFailed": "Failed to modify {value}: {message}",
+    "@modifyFailed": {
+        "description": "Modify failed message",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "password"
+            },
+            "message": {
+                "type": "String",
+                "example": "network error"
+            }
+        }
+    },
+    "select": "Select {value}",
+    "@select": {
+        "description": "Select something",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "account book"
+            }
+        }
+    },
+    "pleaseSelect": "Please select {value}",
+    "@pleaseSelect": {
+        "description": "Please select something",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "account book"
+            }
+        }
     }
 }

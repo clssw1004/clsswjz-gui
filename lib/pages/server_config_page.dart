@@ -44,7 +44,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   Future<void> _checkServer() async {
     final l10n = AppLocalizations.of(context)!;
     if (_serverUrl.isEmpty) {
-      ToastUtil.showError(l10n.pleaseInputServerAddress);
+      ToastUtil.showError(l10n.pleaseInput(l10n.serverAddress));
       return;
     }
     setState(() => _isChecking = true);

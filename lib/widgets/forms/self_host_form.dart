@@ -36,48 +36,48 @@ class SelfHostForm extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: CommonTextFormField(
-                labelText: l10n.serverAddress,
-                hintText: 'http://example.com',
-                prefixIcon: const Icon(Icons.computer),
-                suffixIcon: isChecking
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        serverValid ? Icons.check_circle : Icons.error,
-                        color: serverValid ? Colors.green : Colors.red,
-                      ),
-                required: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return l10n.pleaseInputServerAddress;
-                  }
-                  return null;
-                },
-                onChanged: onServerUrlChanged,
+        CommonTextFormField(
+          labelText: l10n.serverAddress,
+          hintText: 'http://example.com',
+          prefixIcon: Icons.computer,
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isChecking)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(
+                  serverValid ? Icons.check_circle : Icons.error,
+                  color: serverValid ? Colors.green : Colors.red,
+                ),
+              IconButton(
+                onPressed: isChecking ? null : onCheckServer,
+                icon: const Icon(Icons.refresh),
+                tooltip: l10n.checkServer,
               ),
-            ),
-            IconButton(
-              onPressed: isChecking ? null : onCheckServer,
-              icon: const Icon(Icons.refresh),
-              tooltip: l10n.checkServer,
-            ),
-          ],
+            ],
+          ),
+          required: true,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return l10n.pleaseInput(l10n.serverAddress);
+            }
+            return null;
+          },
+          onChanged: onServerUrlChanged,
         ),
         const SizedBox(height: 16),
         CommonTextFormField(
           labelText: l10n.username,
-          prefixIcon: const Icon(Icons.person),
+          prefixIcon: Icons.person,
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInputUsername;
+              return l10n.pleaseInput(l10n.username);
             }
             return null;
           },
@@ -86,12 +86,12 @@ class SelfHostForm extends StatelessWidget {
         const SizedBox(height: 16),
         CommonTextFormField(
           labelText: l10n.password,
-          prefixIcon: const Icon(Icons.lock),
+          prefixIcon: Icons.lock,
           obscureText: true,
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInputPassword;
+              return l10n.pleaseInput(l10n.password);
             }
             return null;
           },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/common/common_app_bar.dart';
 
 /// 语言设置页面
 class LanguageSettingsPage extends StatelessWidget {
@@ -14,7 +15,7 @@ class LanguageSettingsPage extends StatelessWidget {
     final currentLocale = localeProvider.locale;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CommonAppBar(
         title: Text(l10n.languageSettings),
       ),
       body: ListView(

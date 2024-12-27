@@ -31,7 +31,7 @@
     "@traditionalChinese": {
         "description": "繁體中文選項"
     },
-    "themeMode": "題模式",
+    "themeMode": "主題模式",
     "followSystem": "跟隨系統",
     "lightMode": "淺色模式",
     "darkMode": "深色模式",
@@ -80,7 +80,7 @@
     "@search": {
         "description": "搜索文本"
     },
-    "addNew": "新增\"{value}\"",
+    "addNew": "新增{value}",
     "@addNew": {
         "description": "新增選項文本",
         "placeholders": {
@@ -90,12 +90,27 @@
             }
         }
     },
+    "editTo": "編輯{value}",
+    "@editTo": {
+        "description": "編輯某項內容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "分類"
+            }
+        }
+    },
     "amountLabel": "金額",
-    "amountHint": "請輸入金額",
+    "amount": "金額",
+    "@amount": {
+        "description": "金額標籤"
+    },
     "expense": "支出",
     "income": "收入",
     "description": "描述",
-    "descriptionHint": "請輸入描述",
+    "@description": {
+        "description": "描述標籤"
+    },
     "saveFailed": "保存失敗：{message}",
     "@saveFailed": {
         "description": "保存失敗消息",
@@ -112,13 +127,19 @@
     },
     "serverConfig": "服務器配置",
     "serverAddress": "服務器地址",
+    "@serverAddress": {
+        "description": "服務器地址標籤"
+    },
     "username": "用戶名",
+    "@username": {
+        "description": "用戶名標籤"
+    },
     "password": "密碼",
+    "@password": {
+        "description": "密碼標籤"
+    },
     "login": "登錄",
     "checkServer": "檢查服務器",
-    "pleaseInputServerAddress": "請輸入服務器地址",
-    "pleaseInputUsername": "請輸入用戶名",
-    "pleaseInputPassword": "請輸入密碼",
     "pleaseCheckServerFirst": "請先檢查服務器連接",
     "serverConnectionSuccess": "服務器連接成功",
     "serverConnectionFailed": "服務器連接失敗",
@@ -164,5 +185,101 @@
     "name": "名稱",
     "@name": {
         "description": "名稱輸入標籤"
+    },
+    "useMaterial3Description": "使用 Material Design 3 主題",
+    "@useMaterial3Description": {
+        "description": "Material Design 3 主題開關的描述文本"
+    },
+    "themePreview": "主題預覽",
+    "@themePreview": {
+        "description": "主題預覽標題"
+    },
+    "pleaseInput": "請輸入{value}",
+    "@pleaseInput": {
+        "description": "輸入提示文本",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "用戶名"
+            }
+        }
+    },
+    "delete": "刪除{value}",
+    "@delete": {
+        "description": "刪除某項內容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "賬本"
+            }
+        }
+    },
+    "deleteFailed": "刪除{value}失敗：{message}",
+    "@deleteFailed": {
+        "description": "刪除失敗消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "賬本"
+            },
+            "message": {
+                "type": "String",
+                "example": "網絡錯誤"
+            }
+        }
+    },
+    "modify": "修改{value}",
+    "@modify": {
+        "description": "修改某項內容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密碼"
+            }
+        }
+    },
+    "modifySuccess": "{value}修改成功",
+    "@modifySuccess": {
+        "description": "修改成功消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密碼"
+            }
+        }
+    },
+    "modifyFailed": "修改{value}失敗：{message}",
+    "@modifyFailed": {
+        "description": "修改失敗消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密碼"
+            },
+            "message": {
+                "type": "String",
+                "example": "網絡錯誤"
+            }
+        }
+    },
+    "select": "選擇{value}",
+    "@select": {
+        "description": "選擇某項內容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "賬本"
+            }
+        }
+    },
+    "pleaseSelect": "請選擇{value}",
+    "@pleaseSelect": {
+        "description": "請選擇某項內容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "賬本"
+            }
+        }
     }
 }

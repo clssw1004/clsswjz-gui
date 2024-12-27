@@ -91,7 +91,7 @@ class _AmountInputState extends State<AmountInput> {
                       const SizedBox(height: 4),
                       Text(
                         widget.controller.text.isEmpty
-                            ? l10n.amountHint
+                            ? l10n.pleaseInput(l10n.amount)
                             : widget.controller.text,
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: widget.controller.text.isEmpty

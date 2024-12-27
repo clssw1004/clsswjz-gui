@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../theme/theme_radius.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -167,6 +168,11 @@ class _CommonSelectFormFieldWidgetState<T>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  Theme.of(context).extension<ThemeRadius>()?.radius ?? 16,
+                ),
+              ),
               title: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -174,6 +180,7 @@ class _CommonSelectFormFieldWidgetState<T>
                     if (_showSearch)
                       TextField(
                         controller: _searchController,
+                        style: Theme.of(context).textTheme.bodyLarge,
                         decoration: InputDecoration(
                           hintText: AppLocalizations.of(context)!.search,
                           prefixIcon: const Icon(Icons.search),
@@ -187,6 +194,11 @@ class _CommonSelectFormFieldWidgetState<T>
                               });
                             },
                           ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              Theme.of(context).extension<ThemeRadius>()?.radius ?? 4,
+                            ),
+                          ),
                         ),
                         onChanged: (value) {
                           setState(() {
@@ -198,7 +210,10 @@ class _CommonSelectFormFieldWidgetState<T>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(widget.label ?? ''),
+                          Text(
+                            widget.label ?? '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           IconButton(
                             icon: const Icon(Icons.search),
                             onPressed: () {
@@ -210,7 +225,10 @@ class _CommonSelectFormFieldWidgetState<T>
                         ],
                       ),
                   ] else
-                    Text(widget.label ?? ''),
+                    Text(
+                      widget.label ?? '',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                 ],
               ),
               content: SizedBox(
@@ -224,7 +242,7 @@ class _CommonSelectFormFieldWidgetState<T>
                       // 显示新增选项
                       return ListTile(
                         leading: const Icon(Icons.add),
-                        title: Text('新增"$_searchText"'),
+                        title: Text(AppLocalizations.of(context)!.addNew(_searchText)),
                         onTap: () async {
                           if (widget.onCreateItem != null) {
                             final newItem =

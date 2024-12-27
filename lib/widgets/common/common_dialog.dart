@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/theme_radius.dart';
 
 /// 通用弹窗组件
 class CommonDialog extends StatelessWidget {
@@ -30,7 +31,7 @@ class CommonDialog extends StatelessWidget {
   final Color? backgroundColor;
 
   /// 圆角半径
-  final double borderRadius;
+  final double? borderRadius;
 
   const CommonDialog({
     super.key,
@@ -44,13 +45,14 @@ class CommonDialog extends StatelessWidget {
     this.titlePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     this.titleStyle,
     this.backgroundColor,
-    this.borderRadius = 16,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 16;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -59,7 +61,7 @@ class CommonDialog extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           color: backgroundColor ?? colorScheme.surface,
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(borderRadius ?? radius),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

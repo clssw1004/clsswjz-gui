@@ -2,14 +2,13 @@ import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
 import '../manager/database_manager.dart';
-import '../manager/user_config_manager.dart';
 import '../pages/account_books_page.dart';
 import '../pages/account_item_form_page.dart';
 import '../pages/account_book_form_page.dart';
 import '../pages/home_page.dart';
 import '../pages/language_settings_page.dart';
 import '../pages/server_config_page.dart';
-import '../pages/theme_settings_page.dart';
+import '../pages/settings/theme_settings_page.dart';
 import '../pages/user_info_page.dart';
 import '../models/vo/account_item_vo.dart';
 import 'package:drift_db_viewer/drift_db_viewer.dart';

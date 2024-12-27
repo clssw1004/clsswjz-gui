@@ -1,6 +1,6 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
-import 'package:clsswjz/utils/collection_util.dart';
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
 import '../database/database.dart';
@@ -18,6 +18,9 @@ class AccountItemFormProvider extends ChangeNotifier {
   /// 账目数据
   AccountItemVO _item;
   AccountItemVO get item => _item;
+
+  /// 是否为新增
+  bool get isNew => _item.id.isEmpty;
 
   /// 是否正在保存
   bool _saving = false;
@@ -51,9 +54,22 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  AccountItemFormProvider(UserBookVO accountBook, AccountItemVO item)
+  AccountItemFormProvider(UserBookVO accountBook, AccountItemVO? item)
       : _accountBook = accountBook,
-        _item = item {
+        _item = item ??
+            AccountItemVO(
+              id: '',
+              accountBookId: accountBook.id,
+              type: 'expense',
+              amount: 0,
+              accountDate: DateTime.now().toString().substring(0, 10),
+              createdBy: AppConfigManager.instance.userId!,
+              updatedBy: AppConfigManager.instance.userId!,
+              createdAt: DateTime.now().millisecondsSinceEpoch,
+              updatedAt: DateTime.now().millisecondsSinceEpoch,
+              createdAtString: DateTime.now().toString(),
+              updatedAtString: DateTime.now().toString(),
+            ) {
     _loadData();
   }
 
@@ -95,59 +111,6 @@ class AccountItemFormProvider extends ChangeNotifier {
     }
   }
 
-  /// 更新金额
-  void updateAmount(double amount) {
-    _item.amount = amount;
-    notifyListeners();
-  }
-
-  /// 更新类型
-  void updateType(String type) {
-    _item.type = type;
-    notifyListeners();
-  }
-
-  /// 更新描述
-  void updateDescription(String? description) {
-    _item.description = description;
-    notifyListeners();
-  }
-
-  /// 更新分类
-  void updateCategory(String? categoryCode, String? categoryName) {
-    _item.categoryCode = categoryCode;
-    _item.categoryName = categoryName;
-    notifyListeners();
-  }
-
-  /// 更新账户
-  void updateFund(String? fundId, String? fundName) {
-    _item.fundId = fundId;
-    _item.fundName = fundName;
-    notifyListeners();
-  }
-
-  /// 更新商户
-  void updateShop(String? shopCode, String? shopName) {
-    _item.shopCode = shopCode;
-    _item.shopName = shopName;
-    notifyListeners();
-  }
-
-  /// 更新标签
-  void updateTag(String? tagCode, String? tagName) {
-    _item.tagCode = tagCode;
-    _item.tagName = tagName;
-    notifyListeners();
-  }
-
-  /// 更新项目
-  void updateProject(String? projectCode, String? projectName) {
-    _item.projectCode = projectCode;
-    _item.projectName = projectName;
-    notifyListeners();
-  }
-
   /// 保存账目
   Future<bool> save() async {
     if (_saving) return false;
@@ -157,17 +120,32 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await _accountItemService.updateAccountItem(
-        id: _item.id,
-        userId: _item.updatedBy,
-        amount: _item.amount,
-        description: _item.description,
-        categoryCode: _item.categoryCode,
-        fundId: _item.fundId,
-        shopCode: _item.shopCode,
-        tagCode: _item.tagCode,
-        projectCode: _item.projectCode,
-      );
+      final result = isNew
+          ? await _accountItemService.createAccountItem(
+              accountBookId: _item.accountBookId,
+              userId: _item.updatedBy,
+              type: _item.type,
+              amount: _item.amount,
+              description: _item.description,
+              categoryCode: _item.categoryCode,
+              fundId: _item.fundId,
+              shopCode: _item.shopCode,
+              tagCode: _item.tagCode,
+              projectCode: _item.projectCode,
+              accountDate: _item.accountDate,
+            )
+          : await _accountItemService.updateAccountItem(
+              id: _item.id,
+              userId: _item.updatedBy,
+              amount: _item.amount,
+              description: _item.description,
+              categoryCode: _item.categoryCode,
+              fundId: _item.fundId,
+              shopCode: _item.shopCode,
+              tagCode: _item.tagCode,
+              projectCode: _item.projectCode,
+              accountDate: _item.accountDate,
+            );
 
       if (result.ok) {
         return true;
@@ -184,6 +162,210 @@ class AccountItemFormProvider extends ChangeNotifier {
     }
   }
 
-  /// 重新加载数据
-  Future<void> reload() => _loadData();
+  /// 更新类型
+  void updateType(String type) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: null,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新金额
+  void updateAmount(double amount) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新描述
+  void updateDescription(String? description) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: description,
+      categoryCode: _item.categoryCode,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新分类
+  void updateCategory(String? code, String? name) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: code,
+      categoryName: name,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新账户
+  void updateFund(String? id, String? name) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      categoryName: _item.categoryName,
+      accountDate: _item.accountDate,
+      fundId: id,
+      fundName: name,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新商户
+  void updateShop(String? code, String? name) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      categoryName: _item.categoryName,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      fundName: _item.fundName,
+      shopCode: code,
+      shopName: name,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新标签
+  void updateTag(String? code, String? name) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      categoryName: _item.categoryName,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      fundName: _item.fundName,
+      shopCode: _item.shopCode,
+      shopName: _item.shopName,
+      tagCode: code,
+      tagName: name,
+      projectCode: _item.projectCode,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
+
+  /// 更新项目
+  void updateProject(String? code, String? name) {
+    _item = AccountItemVO(
+      id: _item.id,
+      accountBookId: _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      categoryName: _item.categoryName,
+      accountDate: _item.accountDate,
+      fundId: _item.fundId,
+      fundName: _item.fundName,
+      shopCode: _item.shopCode,
+      shopName: _item.shopName,
+      tagCode: _item.tagCode,
+      tagName: _item.tagName,
+      projectCode: code,
+      projectName: name,
+      createdBy: _item.createdBy,
+      updatedBy: _item.updatedBy,
+      createdAt: _item.createdAt,
+      updatedAt: _item.updatedAt,
+      createdAtString: _item.createdAtString,
+      updatedAtString: _item.updatedAtString,
+    );
+    notifyListeners();
+  }
 }

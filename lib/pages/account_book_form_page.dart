@@ -1,5 +1,8 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
+import 'package:clsswjz/manager/service_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../constants/account_book_icons.dart';
 import '../widgets/common/common_app_bar.dart';
 import '../widgets/common/common_text_form_field.dart';
 import '../widgets/common/common_select_form_field.dart';
@@ -16,11 +19,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   String _name = '';
   String _description = '';
   String _currency = 'CNY';
-  IconData _icon = Icons.account_balance_wallet;
+  IconData _icon = accountBookIcons[0];
   bool _isLoading = false;
 
   void _selectIcon() {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) {
@@ -28,23 +33,29 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
           title: Text(l10n.selectIcon),
           content: SizedBox(
             width: double.maxFinite,
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 4,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              children: [
-                Icons.account_balance_wallet,
-                Icons.savings,
-                Icons.credit_card,
-                Icons.monetization_on,
-                Icons.currency_exchange,
-                Icons.account_balance,
-                Icons.payments,
-                Icons.receipt_long,
-              ].map((icon) => _buildIconItem(icon)).toList(),
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+              ),
+              itemCount: accountBookIcons.length,
+              itemBuilder: (context, index) {
+                final icon = accountBookIcons[index];
+                return _buildIconItem(icon);
+              },
             ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                MaterialLocalizations.of(context).cancelButtonLabel,
+                style: TextStyle(color: theme.colorScheme.primary),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -79,16 +90,43 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
 
     setState(() => _isLoading = true);
     try {
-      // TODO: 实现创建账本逻辑
-      await Future.delayed(const Duration(seconds: 1));
+      final result = await ServiceManager.accountBookService.createAccountBook(
+        name: _name,
+        description: _description,
+        userId: AppConfigManager.instance.userId!,
+        currencySymbol: _currency,
+        icon: _icon.codePoint.toString(),
+      );
+      
       if (mounted) {
-        Navigator.of(context).pop(true);
+        if (result.ok) {
+          Navigator.of(context).pop(result.data);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.saveFailed(result.message ?? '')),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.saveFailed(e.toString())),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -107,41 +145,33 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: _selectIcon,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outline),
-                    ),
-                    child: Icon(
-                      _icon,
-                      color: colorScheme.primary,
-                    ),
+            CommonTextFormField(
+              labelText: '${l10n.accountBook}${l10n.name}',
+              prefixIcon: InkWell(
+                onTap: _selectIcon,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: colorScheme.outline),
+                  ),
+                  child: Icon(
+                    _icon,
+                    color: colorScheme.primary,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: CommonTextFormField(
-                    labelText: '${l10n.accountBook}${l10n.name}',
-                    prefixIcon: const Icon(Icons.edit),
-                    required: true,
-                    onChanged: (value) => _name = value,
-                  ),
-                ),
-              ],
+              ),
+              required: true,
+              onSaved: (value) => _name = value ?? '',
             ),
             const SizedBox(height: 16),
             CommonTextFormField(
               labelText: '${l10n.accountBook}${l10n.description}',
-              prefixIcon: const Icon(Icons.description),
+              prefixIcon: Icons.description,
               onChanged: (value) => _description = value,
+              onSaved: (value) => _description = value ?? '',
             ),
             const SizedBox(height: 16),
             CommonSelectFormField<String>(
@@ -171,4 +201,4 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       ),
     );
   }
-} 
+}

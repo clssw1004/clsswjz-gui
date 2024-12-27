@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import '../database/database.dart';
-import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
-import '../utils/http_client.dart';
 
 /// 用户信息状态管理
 class UserProvider extends ChangeNotifier {

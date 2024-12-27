@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_items_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
+import '../account_item_form_page.dart';
 
 class AccountItemsTab extends StatelessWidget {
-  const AccountItemsTab({super.key});
+  const AccountItemsTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,20 +40,13 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
   Future<void> _checkAccountBooks() async {
     final provider = context.read<AccountItemsProvider>();
     await provider.init(UserConfigManager.currentUserId);
-    if (provider.selectedBook == null) {
-      final result = await Navigator.pushNamed(
-        context,
-        AppRoutes.accountBookForm,
-      );
-      if (result == true) {
-        provider.refresh();
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<AccountItemsProvider>();
+    final accountBook = provider.selectedBook;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -63,25 +57,68 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
           onSelected: provider.setSelectedBook,
         ),
       ),
-      body: provider.selectedBook == null
-          ? const SizedBox.shrink()
-          : AccountItemList(
-              accountBook: provider.selectedBook!,
-              initialItems: provider.items,
-              onItemTap: (item) async {
-                final result = await Navigator.pushNamed(
-                  context,
-                  AppRoutes.accountItemForm,
-                  arguments: [
-                    provider.selectedBook!,
-                    item,
+      body: provider.loading
+          ? const Center(child: CircularProgressIndicator())
+          : accountBook == null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(l10n.noAccountBooks),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.pushNamed(
+                            context,
+                            AppRoutes.accountBookForm,
+                          );
+                          if (result == true) {
+                            provider.refresh();
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.addNew(l10n.accountBook)),
+                      ),
+                    ],
+                  ),
+                )
+              : Stack(
+                  children: [
+                    AccountItemList(
+                      accountBook: accountBook,
+                      initialItems: provider.items,
+                      onItemTap: (item) async {
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AccountItemFormPage(
+                              accountBook: accountBook,
+                              item: item,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          provider.refresh();
+                        }
+                      },
+                    ),
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AccountItemFormPage(
+                                accountBook: accountBook,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.add),
+                      ),
+                    ),
                   ],
-                );
-                if (result == true) {
-                  provider.refresh();
-                }
-              },
-            ),
+                ),
     );
   }
 }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/common/common_app_bar.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
   const ThemeSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('主题设置'),
+      appBar: CommonAppBar(
+        title: Text(l10n.themeSettings),
       ),
       body: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -22,7 +26,7 @@ class ThemeSettingsPage extends StatelessWidget {
               // 主题模式选择
               ListTile(
                 leading: const Icon(Icons.brightness_medium),
-                title: const Text('主题模式'),
+                title: Text(l10n.themeMode),
                 trailing: DropdownButton<ThemeMode>(
                   value: themeProvider.themeMode,
                   onChanged: (ThemeMode? newMode) {
@@ -30,18 +34,18 @@ class ThemeSettingsPage extends StatelessWidget {
                       themeProvider.setThemeMode(newMode);
                     }
                   },
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: ThemeMode.system,
-                      child: Text('跟随系统'),
+                      child: Text(l10n.followSystem),
                     ),
                     DropdownMenuItem(
                       value: ThemeMode.light,
-                      child: Text('浅色'),
+                      child: Text(l10n.lightMode),
                     ),
                     DropdownMenuItem(
                       value: ThemeMode.dark,
-                      child: Text('深色'),
+                      child: Text(l10n.darkMode),
                     ),
                   ],
                 ),
@@ -50,8 +54,8 @@ class ThemeSettingsPage extends StatelessWidget {
               // Material 3 开关
               SwitchListTile(
                 secondary: const Icon(Icons.style),
-                title: const Text('Material You'),
-                subtitle: const Text('使用 Material Design 3'),
+                title: Text(l10n.useMaterial3),
+                subtitle: Text(l10n.useMaterial3Description),
                 value: themeProvider.useMaterial3,
                 onChanged: (bool value) {
                   themeProvider.setUseMaterial3(value);
@@ -61,7 +65,7 @@ class ThemeSettingsPage extends StatelessWidget {
               // 字体大小选择
               ListTile(
                 leading: const Icon(Icons.format_size),
-                title: const Text('字体大小'),
+                title: Text(l10n.fontSize),
                 trailing: DropdownButton<double>(
                   value: themeProvider.fontSize,
                   onChanged: (double? newSize) {
@@ -69,19 +73,31 @@ class ThemeSettingsPage extends StatelessWidget {
                       themeProvider.setFontSize(newSize);
                     }
                   },
-                  items: FontSize.options
-                      .map((option) => DropdownMenuItem(
-                            value: option['value'] as double,
-                            child: Text(option['label'] as String),
-                          ))
-                      .toList(),
+                  items: [
+                    DropdownMenuItem(
+                      value: FontSize.smaller,
+                      child: Text(l10n.fontSizeSmaller),
+                    ),
+                    DropdownMenuItem(
+                      value: FontSize.normal,
+                      child: Text(l10n.fontSizeNormal),
+                    ),
+                    DropdownMenuItem(
+                      value: FontSize.larger,
+                      child: Text(l10n.fontSizeLarger),
+                    ),
+                    DropdownMenuItem(
+                      value: FontSize.largest,
+                      child: Text(l10n.fontSizeLargest),
+                    ),
+                  ],
                 ),
               ),
 
               // 圆角大小选择
               ListTile(
                 leading: const Icon(Icons.rounded_corner),
-                title: const Text('圆角大小'),
+                title: Text(l10n.radius),
                 trailing: DropdownButton<double>(
                   value: themeProvider.radius,
                   onChanged: (double? newRadius) {
@@ -89,12 +105,24 @@ class ThemeSettingsPage extends StatelessWidget {
                       themeProvider.setRadius(newRadius);
                     }
                   },
-                  items: Radius.options
-                      .map((option) => DropdownMenuItem(
-                            value: option['value'] as double,
-                            child: Text(option['label'] as String),
-                          ))
-                      .toList(),
+                  items: [
+                    DropdownMenuItem(
+                      value: Radius.none,
+                      child: Text(l10n.radiusNone),
+                    ),
+                    DropdownMenuItem(
+                      value: Radius.small,
+                      child: Text(l10n.radiusSmall),
+                    ),
+                    DropdownMenuItem(
+                      value: Radius.medium,
+                      child: Text(l10n.radiusMedium),
+                    ),
+                    DropdownMenuItem(
+                      value: Radius.large,
+                      child: Text(l10n.radiusLarge),
+                    ),
+                  ],
                 ),
               ),
 
@@ -106,9 +134,9 @@ class ThemeSettingsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '主题颜色',
-                      style: TextStyle(
+                    Text(
+                      l10n.themeColor,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -136,6 +164,8 @@ class ThemeSettingsPage extends StatelessWidget {
   }
 
   Widget _buildPreviewCard(BuildContext context, ThemeProvider themeProvider) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -145,30 +175,30 @@ class ThemeSettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '主题预览',
+                l10n.themePreview,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
+                    child: FilledButton(
                       onPressed: () {},
-                      child: const Text('主要按钮'),
+                      child: Text(l10n.save),
                     ),
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: () {},
-                    child: const Text('次要按钮'),
+                    child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               TextField(
-                decoration: const InputDecoration(
-                  labelText: '输入框示例',
-                  hintText: '请输入内容',
+                decoration: InputDecoration(
+                  labelText: l10n.description,
+                  hintText: l10n.pleaseInput(l10n.description),
                 ),
                 controller: TextEditingController(text: '示例文本'),
               ),

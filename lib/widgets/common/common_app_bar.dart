@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../theme/theme_radius.dart';
 
 /// 通用导航栏组件
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -140,10 +141,18 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => Navigator.of(context).pop(),
             )
           : null,
-      title: title,
+      title: DefaultTextStyle(
+        style: theme.textTheme.titleLarge ?? const TextStyle(),
+        child: title ?? const SizedBox(),
+      ),
       actions: finalActions,
       bottom: bottom,
       leadingWidth: showBackButton ? null : 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0),
+        ),
+      ),
     );
   }
 

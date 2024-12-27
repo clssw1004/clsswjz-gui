@@ -79,7 +79,7 @@
     "@search": {
         "description": "搜索文本"
     },
-    "addNew": "新增\"{value}\"",
+    "addNew": "新增{value}",
     "@addNew": {
         "description": "新增选项文本",
         "placeholders": {
@@ -89,12 +89,27 @@
             }
         }
     },
+    "editTo": "编辑{value}",
+    "@editTo": {
+        "description": "编辑某项内容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "分类"
+            }
+        }
+    },
     "amountLabel": "金额",
-    "amountHint": "请输入金额",
+    "amount": "金额",
+    "@amount": {
+        "description": "金额标签"
+    },
     "expense": "支出",
     "income": "收入",
     "description": "描述",
-    "descriptionHint": "请输入描述",
+    "@description": {
+        "description": "描述标签"
+    },
     "saveFailed": "保存失败：{message}",
     "@saveFailed": {
         "description": "保存失败消息",
@@ -112,6 +127,9 @@
     "serverConfig": "服务器配置",
     "serverAddress": "服务器地址",
     "username": "用户名",
+    "@username": {
+        "description": "用户名标签"
+    },
     "password": "密码",
     "login": "登录",
     "checkServer": "检查服务器",
@@ -163,5 +181,107 @@
     "name": "名称",
     "@name": {
         "description": "名称输入标签"
+    },
+    "useMaterial3Description": "使用 Material Design 3 主题",
+    "@useMaterial3Description": {
+        "description": "Material Design 3 主题开关的描述文本"
+    },
+    "themePreview": "主题预览",
+    "@themePreview": {
+        "description": "主题预览标题"
+    },
+    "pleaseInput": "请输入{value}",
+    "@pleaseInput": {
+        "description": "输入提示文本",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "用户名"
+            }
+        }
+    },
+    "@serverAddress": {
+        "description": "服务器地址标签"
+    },
+    "@password": {
+        "description": "密码标签"
+    },
+    "delete": "删除{value}",
+    "@delete": {
+        "description": "删除某项内容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "账本"
+            }
+        }
+    },
+    "deleteFailed": "删除{value}失败：{message}",
+    "@deleteFailed": {
+        "description": "删除失败消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "账本"
+            },
+            "message": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
+    },
+    "modify": "修改{value}",
+    "@modify": {
+        "description": "修改某项内容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密码"
+            }
+        }
+    },
+    "modifySuccess": "{value}修改成功",
+    "@modifySuccess": {
+        "description": "修改成功消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密码"
+            }
+        }
+    },
+    "modifyFailed": "修改{value}失败：{message}",
+    "@modifyFailed": {
+        "description": "修改失败消息",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "密码"
+            },
+            "message": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
+    },
+    "select": "选择{value}",
+    "@select": {
+        "description": "选择某项内容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "账本"
+            }
+        }
+    },
+    "pleaseSelect": "请选择{value}",
+    "@pleaseSelect": {
+        "description": "请选择某项内容",
+        "placeholders": {
+            "value": {
+                "type": "String",
+                "example": "账本"
+            }
+        }
     }
 }

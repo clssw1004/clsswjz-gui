@@ -106,7 +106,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     final l10n = AppLocalizations.of(context)!;
 
     if (_selectedBook == null) {
-      return Text(l10n.loading);
+      return Text(l10n.noAccountBooks);
     }
 
     final isOwner = _selectedBook!.createdBy == widget.userId;
