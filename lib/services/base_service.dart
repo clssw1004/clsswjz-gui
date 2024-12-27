@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import '../manager/database_manager.dart';
 import '../database/database.dart';
+import '../utils/digest_util.dart';
 import '../utils/id_util.dart';
 
 abstract class BaseService {
@@ -31,5 +32,9 @@ abstract class BaseService {
         }
       });
     }
+  }
+
+  String encryptPassword(String data) {
+    return DigestUtil.toSha256(data);
   }
 }

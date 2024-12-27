@@ -1,10 +1,20 @@
 import 'package:clsswjz/app_init.dart';
+import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
+import 'package:clsswjz/manager/database_manager.dart';
+import 'package:clsswjz/utils/id_util.dart';
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/health_service.dart';
 import '../utils/toast_util.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../widgets/common/common_text_form_field.dart';
+import '../widgets/common/common_select_form_field.dart';
+import '../widgets/common/common_app_bar.dart';
+import '../widgets/common/restart_widget.dart';
+import '../widgets/forms/offline_form.dart';
+import '../widgets/forms/self_host_form.dart';
 
 class ServerConfigPage extends StatefulWidget {
   const ServerConfigPage({super.key});
@@ -15,30 +25,31 @@ class ServerConfigPage extends StatefulWidget {
 
 class _ServerConfigPageState extends State<ServerConfigPage> {
   final _formKey = GlobalKey<FormState>();
-  final _serverController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  String _serverUrl = '';
+  String _username = '';
+  String _password = '';
+  String _nickname = '';
+  String _email = '';
+  String _phone = '';
   bool _isLoading = false;
   bool _isChecking = false;
   bool _serverValid = false;
+  StorageMode _storageMode = StorageMode.offline;
 
   @override
   void dispose() {
-    _serverController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _checkServer() async {
     final l10n = AppLocalizations.of(context)!;
-    if (_serverController.text.isEmpty) {
-      ToastUtil.showError(l10n!.pleaseInputServerAddress);
+    if (_serverUrl.isEmpty) {
+      ToastUtil.showError(l10n.pleaseInputServerAddress);
       return;
     }
     setState(() => _isChecking = true);
     try {
-      final healthService = HealthService(_serverController.text);
+      final healthService = HealthService(_serverUrl);
       final result = await healthService.checkHealth();
       if (result.ok && result.data?.status == 'ok') {
         setState(() => _serverValid = true);
@@ -55,7 +66,25 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     }
   }
 
-  Future<void> _login() async {
+  Future<void> _initOffline() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      await AppConfigManager.storageOfflineMode(
+          username: _username,
+          nickname: _nickname,
+          email: _email,
+          phone: _phone);
+      RestartWidget.restartApp(context);
+    } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
+      ToastUtil.showError(l10n.initializationFailed);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _initSelfhost() async {
     final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (!_serverValid) {
@@ -65,20 +94,17 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
 
     setState(() => _isLoading = true);
     try {
-      final authService = AuthService(_serverController.text);
+      final authService = AuthService(_serverUrl);
       final result = await authService.login(
-        _usernameController.text,
-        _passwordController.text,
+        _username,
+        _password,
       );
-
       if (result.ok && result.data != null) {
-        // 设置用户信息和token
-        await AppConfigManager.setServerInfo(
-          _serverController.text,
+        await AppConfigManager.storgeSelfhostMode(
+          _serverUrl,
           result.data!.userId,
           result.data!.accessToken,
         );
-        await init();
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/home');
         }
@@ -95,92 +121,59 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CommonAppBar(
         title: Text(l10n.serverConfig),
+        showLanguageSelector: true,
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _serverController,
-                    decoration: InputDecoration(
-                      labelText: l10n.serverAddress,
-                      hintText: 'http://example.com',
-                      prefixIcon: const Icon(Icons.computer),
-                      suffixIcon: _isChecking
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              _serverValid ? Icons.check_circle : Icons.error,
-                              color: _serverValid ? Colors.green : Colors.red,
-                            ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.pleaseInputServerAddress;
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                IconButton(
-                  onPressed: _isChecking ? null : _checkServer,
-                  icon: const Icon(Icons.refresh),
-                  tooltip: l10n.checkServer,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: l10n.username,
-                prefixIcon: const Icon(Icons.person),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return l10n.pleaseInputUsername;
-                }
-                return null;
+            CommonSelectFormField<StorageMode>(
+              items: StorageMode.values.toList(),
+              value: _storageMode,
+              displayMode: DisplayMode.iconText,
+              displayField: (item) => item.displayName(context),
+              keyField: (item) => item,
+              label: l10n.storageMode,
+              icon: Icons.storage,
+              onChanged: (value) {
+                setState(() {
+                  _storageMode = value;
+                });
               },
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: l10n.password,
-                prefixIcon: const Icon(Icons.lock),
+            if (_storageMode == StorageMode.selfHost)
+              SelfHostForm(
+                serverUrl: _serverUrl,
+                username: _username,
+                password: _password,
+                isChecking: _isChecking,
+                serverValid: _serverValid,
+                isLoading: _isLoading,
+                onServerUrlChanged: (value) =>
+                    setState(() => _serverUrl = value),
+                onUsernameChanged: (value) => setState(() => _username = value),
+                onPasswordChanged: (value) => setState(() => _password = value),
+                onCheckServer: _checkServer,
+                onSubmit: _initSelfhost,
               ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return l10n.pleaseInputPassword;
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 32),
-            FilledButton(
-              onPressed: _isLoading ? null : _login,
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.login),
-            ),
+            if (_storageMode == StorageMode.offline)
+              OfflineForm(
+                username: _username,
+                nickname: _nickname,
+                email: _email,
+                phone: _phone,
+                isLoading: _isLoading,
+                onUsernameChanged: (value) => setState(() => _username = value),
+                onNicknameChanged: (value) => setState(() => _nickname = value),
+                onEmailChanged: (value) => setState(() => _email = value),
+                onPhoneChanged: (value) => setState(() => _phone = value),
+                onSubmit: _initOffline,
+              ),
           ],
         ),
       ),

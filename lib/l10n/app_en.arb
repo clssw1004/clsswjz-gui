@@ -54,7 +54,6 @@
     "userInfo": "User Info",
     "retry": "Retry",
     "noData": "No Data",
-    "username": "Username",
     "nickname": "Nickname",
     "email": "Email",
     "avatar": "Avatar",
@@ -125,5 +124,45 @@
     "serverConnectionFailed": "Server connection failed",
     "serverConnectionError": "Server connection error",
     "loginFailed": "Login failed",
-    "loginError": "Login error"
+    "loginError": "Login error",
+    "initializationFailed": "Initialization failed",
+    "@initializationFailed": {
+        "description": "Initialization failed message"
+    },
+    "storageMode": "Storage Mode",
+    "@storageMode": {
+        "description": "Storage mode selection label"
+    },
+    "createLocalDatabase": "Create Local Database",
+    "@createLocalDatabase": {
+        "description": "Create local database button text"
+    },
+    "offlineStorage": "Local Storage",
+    "@offlineStorage": {
+        "description": "Local storage mode"
+    },
+    "selfHostStorage": "Self-hosted Server",
+    "@selfHostStorage": {
+        "description": "Self-hosted server mode"
+    },
+    "connectServer": "Connect Server",
+    "@connectServer": {
+        "description": "Connect server button text"
+    },
+    "optional": "Optional",
+    "@optional": {
+        "description": "Form field optional hint text"
+    },
+    "selectIcon": "Select Icon",
+    "@selectIcon": {
+        "description": "Select icon dialog title"
+    },
+    "currency": "Currency",
+    "@currency": {
+        "description": "Currency selection label"
+    },
+    "name": "Name",
+    "@name": {
+        "description": "Name input label"
+    }
 }

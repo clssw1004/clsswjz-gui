@@ -22,16 +22,16 @@
     "loading": "加載中",
     "loadFailed": "加載失敗",
     "noAccountBooks": "暫無賬本",
-    "traditionalChinese": "繁體中文",
-    "@traditionalChinese": {
-        "description": "繁體中文選項"
-    },
+    "simplifiedChinese": "簡體中文",
     "noAccountItems": "暫無賬目記錄",
     "@noAccountItems": {
         "description": "當賬目列表為空時顯示的文本"
     },
-    "themeSettings": "主題設定",
-    "themeMode": "主題模式",
+    "traditionalChinese": "繁體中文",
+    "@traditionalChinese": {
+        "description": "繁體中文選項"
+    },
+    "themeMode": "題模式",
     "followSystem": "跟隨系統",
     "lightMode": "淺色模式",
     "darkMode": "深色模式",
@@ -40,7 +40,7 @@
     "radius": "圓角大小",
     "useMaterial3": "使用 Material 3",
     "fontSizeSmaller": "較小",
-    "fontSizeNormal": "預設",
+    "fontSizeNormal": "默認",
     "fontSizeLarger": "較大",
     "fontSizeLargest": "最大",
     "radiusNone": "無",
@@ -48,17 +48,30 @@
     "radiusMedium": "中",
     "radiusLarge": "大",
     "language": "語言",
-    "chinese": "簡體中文",
     "english": "英文",
+    "chinese": "簡體中文",
     "accountBooks": "賬本列表",
     "userInfo": "用戶信息",
     "retry": "重試",
     "noData": "暫無數據",
-    "username": "用戶名",
     "nickname": "暱稱",
     "email": "郵箱",
     "avatar": "頭像",
-    "accountItemCount": "記賬數",
+    "editUserInfo": "編輯用戶信息",
+    "save": "保存",
+    "updateFailed": "更新失敗",
+    "required": "必填",
+    "invalidEmail": "郵箱格式不正確",
+    "phone": "手機號",
+    "timezone": "時區",
+    "changePassword": "修改密碼",
+    "oldPassword": "舊密碼",
+    "newPassword": "新密碼",
+    "confirmPassword": "確認密碼",
+    "passwordChanged": "密碼修改成功",
+    "passwordTooShort": "密碼至少需要6個字符",
+    "passwordNotMatch": "兩次輸入的密碼不一致",
+    "accountItemCount": "賬目數",
     "accountDayCount": "記賬天數",
     "@accountDayCount": {
         "description": "統計用戶記賬的天數"
@@ -67,7 +80,7 @@
     "@search": {
         "description": "搜索文本"
     },
-    "addNew": "新增「{value}」",
+    "addNew": "新增\"{value}\"",
     "@addNew": {
         "description": "新增選項文本",
         "placeholders": {
@@ -97,19 +110,59 @@
     "@more": {
         "description": "更多選項按鈕文本"
     },
-    "serverConfig": "伺服器配置",
-    "serverAddress": "伺服器地址",
+    "serverConfig": "服務器配置",
+    "serverAddress": "服務器地址",
     "username": "用戶名",
     "password": "密碼",
-    "login": "登入",
-    "checkServer": "檢查伺服器",
-    "pleaseInputServerAddress": "請輸入伺服器地址",
+    "login": "登錄",
+    "checkServer": "檢查服務器",
+    "pleaseInputServerAddress": "請輸入服務器地址",
     "pleaseInputUsername": "請輸入用戶名",
     "pleaseInputPassword": "請輸入密碼",
-    "pleaseCheckServerFirst": "請先檢查伺服器連接",
-    "serverConnectionSuccess": "伺服器連接成功",
-    "serverConnectionFailed": "伺服器連接失敗",
-    "serverConnectionError": "伺服器連接錯誤",
-    "loginFailed": "登入失敗",
-    "loginError": "登入錯誤"
+    "pleaseCheckServerFirst": "請先檢查服務器連接",
+    "serverConnectionSuccess": "服務器連接成功",
+    "serverConnectionFailed": "服務器連接失敗",
+    "serverConnectionError": "服務器連接錯誤",
+    "loginFailed": "登錄失敗",
+    "loginError": "登錄錯誤",
+    "initializationFailed": "初始化失敗",
+    "@initializationFailed": {
+        "description": "初始化失敗消息"
+    },
+    "storageMode": "數據存儲方式",
+    "@storageMode": {
+        "description": "數據存儲方式選擇標籤"
+    },
+    "createLocalDatabase": "創建本地數據庫",
+    "@createLocalDatabase": {
+        "description": "創建本地數據庫按鈕文本"
+    },
+    "offlineStorage": "本地存儲",
+    "@offlineStorage": {
+        "description": "本地存儲模式"
+    },
+    "selfHostStorage": "私有服務器",
+    "@selfHostStorage": {
+        "description": "私有服務器模式"
+    },
+    "connectServer": "連接服務器",
+    "@connectServer": {
+        "description": "連接服務器按鈕文本"
+    },
+    "optional": "可選",
+    "@optional": {
+        "description": "表單字段可選提示文本"
+    },
+    "selectIcon": "選擇圖標",
+    "@selectIcon": {
+        "description": "選擇圖標對話框標題"
+    },
+    "currency": "幣種",
+    "@currency": {
+        "description": "幣種選擇標籤"
+    },
+    "name": "名稱",
+    "@name": {
+        "description": "名稱輸入標籤"
+    }
 }

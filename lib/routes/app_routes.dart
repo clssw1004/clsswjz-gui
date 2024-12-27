@@ -5,6 +5,7 @@ import '../manager/database_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../pages/account_books_page.dart';
 import '../pages/account_item_form_page.dart';
+import '../pages/account_book_form_page.dart';
 import '../pages/home_page.dart';
 import '../pages/language_settings_page.dart';
 import '../pages/server_config_page.dart';
@@ -34,6 +35,10 @@ class AppRoutes {
 
   /// 账目详情表单页面
   static const String accountItemForm = '/account_item_form';
+
+  /// 账本创建页面
+  static const String accountBookForm = '/account_book_form';
+
   static const String serverConfig = '/server-config';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -50,6 +55,7 @@ class AppRoutes {
     languageSettings: (context) => const LanguageSettingsPage(),
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
     accountBooks: (context) => const AccountBooksPage(),
+    accountBookForm: (context) => const AccountBookFormPage(),
     accountItemForm: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as UserBookVO;

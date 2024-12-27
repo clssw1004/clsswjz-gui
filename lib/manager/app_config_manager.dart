@@ -1,5 +1,10 @@
+import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter/material.dart';
-import '../utils/cache_util.dart';
+import '../enums/storage_mode.dart';
+import '../utils/id_util.dart';
+import 'cache_manager.dart';
+import 'database_manager.dart';
+import 'service_manager.dart';
 
 /// 应用配置管理
 class AppConfigManager {
@@ -13,6 +18,11 @@ class AppConfigManager {
   static const String _serverUrlKey = 'server_url';
   static const String _accessTokenKey = 'access_token';
   static const String _userIdKey = 'user_id';
+  static const String _storageTypeKey = 'storage_type';
+  static const String _isStorageInitKey = 'is_storage_init';
+  static const String _databaseNameKey = 'database_name';
+
+  static bool _isInit = false;
 
   static late final AppConfigManager _instance;
   static AppConfigManager get instance => _instance;
@@ -41,9 +51,16 @@ class AppConfigManager {
   late bool _useMaterial3;
   bool get useMaterial3 => _useMaterial3;
 
+  late StorageMode? _storageType;
+  StorageMode? get storageType => _storageType;
+
   /// 默认账本ID
   String? _defaultBookId;
   String? get defaultBookId => _defaultBookId;
+
+  /// 是否已初始化存储
+  late bool _isStorageInit;
+  bool get isStorageInit => _isStorageInit;
 
   /// 当前用户ID
   String? _userId;
@@ -57,20 +74,34 @@ class AppConfigManager {
   String? _accessToken;
   String? get accessToken => _accessToken;
 
+  /// 数据库名称
+  late String? _databaseName;
+  String? get databaseName => _databaseName;
+
   AppConfigManager._() {
+    _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
+
+    // 初始化数据库相关配置
+    _databaseName = CacheManager.instance.getString(_databaseNameKey);
+
+    // 初始化存储模式
+    final String? storageTypeString = CacheManager.instance.getString(_storageTypeKey);
+    _storageType = string2StorageMode(storageTypeString);
+
     // 初始化语言
-    final languageCode = CacheUtil.instance.getString(_localeKey) ?? 'zh';
-    final countryCode = CacheUtil.instance.getString('${_localeKey}_country');
+    final languageCode = CacheManager.instance.getString(_localeKey) ?? 'zh';
+    final countryCode =
+        CacheManager.instance.getString('${_localeKey}_country');
     _locale = countryCode != null
         ? Locale(languageCode, countryCode)
         : Locale(languageCode);
 
     // 初始化主题色
-    _themeColor =
-        Color(CacheUtil.instance.getInt(_themeColorKey) ?? Colors.blue.value);
+    _themeColor = Color(
+        CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
 
     // 初始化主题模式
-    final themeModeString = CacheUtil.instance.getString(_themeModeKey);
+    final themeModeString = CacheManager.instance.getString(_themeModeKey);
     _themeMode = themeModeString != null
         ? ThemeMode.values.firstWhere(
             (mode) => mode.toString() == themeModeString,
@@ -79,112 +110,155 @@ class AppConfigManager {
         : ThemeMode.system;
 
     // 初始化字体大小
-    _fontSize = CacheUtil.instance.getDouble(_fontSizeKey) ?? 1.0;
+    _fontSize = CacheManager.instance.getDouble(_fontSizeKey) ?? 1.0;
 
     // 初始化圆角大小
-    _radius = CacheUtil.instance.getDouble(_radiusKey) ?? 8.0;
+    _radius = CacheManager.instance.getDouble(_radiusKey) ?? 8.0;
 
     // 初始化 Material 3 设置
-    _useMaterial3 = CacheUtil.instance.getBool(_useMaterial3Key) ?? true;
+    _useMaterial3 = CacheManager.instance.getBool(_useMaterial3Key) ?? true;
 
     // 初始化默认账本ID
-    _defaultBookId = CacheUtil.instance.getString(_defaultBookIdKey);
+    _defaultBookId = CacheManager.instance.getString(_defaultBookIdKey);
 
     // 初始化服务器地址
-    _serverUrl = CacheUtil.instance.getString(_serverUrlKey);
+    _serverUrl = CacheManager.instance.getString(_serverUrlKey);
 
     // 初始化访问令牌
-    _accessToken = CacheUtil.instance.getString(_accessTokenKey);
+    _accessToken = CacheManager.instance.getString(_accessTokenKey);
 
     // 初始化用户ID
-    _userId = CacheUtil.instance.getString(_userIdKey);
+    _userId = CacheManager.instance.getString(_userIdKey);
   }
 
   /// 初始化
   static Future<void> init() async {
+    if (_isInit) return;
     _instance = AppConfigManager._();
+    _isInit = true;
   }
 
   /// 设置语言
   Future<void> setLocale(Locale locale) async {
     _locale = locale;
-    await CacheUtil.instance.setString(_localeKey, locale.languageCode);
+    await CacheManager.instance.setString(_localeKey, locale.languageCode);
     if (locale.countryCode != null) {
-      await CacheUtil.instance
+      await CacheManager.instance
           .setString('${_localeKey}_country', locale.countryCode!);
     } else {
-      await CacheUtil.instance.remove('${_localeKey}_country');
+      await CacheManager.instance.remove('${_localeKey}_country');
     }
   }
 
   /// 设置主题色
   Future<void> setThemeColor(Color color) async {
     _themeColor = color;
-    await CacheUtil.instance.setInt(_themeColorKey, color.value);
+    await CacheManager.instance.setInt(_themeColorKey, color.value);
   }
 
   /// 设置主题模式
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
-    await CacheUtil.instance.setString(_themeModeKey, mode.toString());
+    await CacheManager.instance.setString(_themeModeKey, mode.toString());
   }
 
   /// 设置字体大小
   Future<void> setFontSize(double size) async {
     _fontSize = size;
-    await CacheUtil.instance.setDouble(_fontSizeKey, size);
+    await CacheManager.instance.setDouble(_fontSizeKey, size);
   }
 
   /// 设置圆角大小
   Future<void> setRadius(double radius) async {
     _radius = radius;
-    await CacheUtil.instance.setDouble(_radiusKey, radius);
+    await CacheManager.instance.setDouble(_radiusKey, radius);
   }
 
   /// 设置是否使用 Material 3
   Future<void> setUseMaterial3(bool use) async {
     _useMaterial3 = use;
-    await CacheUtil.instance.setBool(_useMaterial3Key, use);
+    await CacheManager.instance.setBool(_useMaterial3Key, use);
   }
 
   /// 设置默认账本ID
   Future<void> setDefaultBookId(String? bookId) async {
     _defaultBookId = bookId;
     if (bookId != null) {
-      await CacheUtil.instance.setString(_defaultBookIdKey, bookId);
+      await CacheManager.instance.setString(_defaultBookIdKey, bookId);
     } else {
-      await CacheUtil.instance.remove(_defaultBookIdKey);
+      await CacheManager.instance.remove(_defaultBookIdKey);
     }
   }
 
   /// 设置服务器地址
   Future<void> setServerUrl(String url) async {
     _serverUrl = url;
-    await CacheUtil.instance.setString(_serverUrlKey, url);
+    await CacheManager.instance.setString(_serverUrlKey, url);
   }
 
   /// 设置访问令牌
   Future<void> setAccessToken(String token) async {
     _accessToken = token;
-    await CacheUtil.instance.setString(_accessTokenKey, token);
+    await CacheManager.instance.setString(_accessTokenKey, token);
   }
 
   /// 设置用户ID
   Future<void> setUserId(String userId) async {
     _userId = userId;
-    await CacheUtil.instance.setString(_userIdKey, userId);
+    await CacheManager.instance.setString(_userIdKey, userId);
+  }
+
+  /// 设置存储类型
+  Future<void> setStorageType(StorageMode mode) async {
+    _storageType = mode;
+    await CacheManager.instance.setString(_storageTypeKey, mode.toString());
+  }
+
+  Future<void> makeStorageInit() async {
+    _isStorageInit = true;
+    await CacheManager.instance.setBool(_isStorageInitKey, true);
+  }
+
+  Future<void> _setDatabaseName(String databaseName) async {
+    _databaseName = databaseName;
+    await CacheManager.instance.setString(_databaseNameKey, databaseName);
   }
 
   /// 是否已经配置过后台服务
-  static bool isConfigServer() {
-    return _instance.serverUrl != null || _instance.accessToken != null;
+  static bool isAppInit() {
+    return _instance.isStorageInit;
+  }
+
+  static Future<void> storageOfflineMode(
+      {required String username,
+      required String nickname,
+      String? email,
+      String? phone}) async {
+    final userId = IdUtils.genId();
+    await _instance.setStorageType(StorageMode.offline);
+    await _instance.makeStorageInit();
+    await _instance.setUserId(userId);
+    await _instance._setDatabaseName(userId);
+    await DatabaseManager.init();
+    await ServiceManager.init();
+    final user = await ServiceManager.userService
+        .register(
+            userId: userId,
+            username: username,
+            password: DEFAULT_PASSWORD,
+            nickname: nickname,
+            email: userId,
+            phone: userId)
+        .then((value) => value.data);
   }
 
   /// 设置服务器信息
-  static Future<void> setServerInfo(
+  static Future<void> storgeSelfhostMode(
       String serverUrl, String userId, String accessToken) async {
+    _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
     await _instance.setUserId(userId);
+    await _instance.makeStorageInit();
   }
 }

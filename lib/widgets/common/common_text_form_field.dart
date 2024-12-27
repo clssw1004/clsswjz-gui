@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// 通用文本输入框表单组件
 class CommonTextFormField extends StatefulWidget {
@@ -35,6 +36,9 @@ class CommonTextFormField extends StatefulWidget {
   /// 键盘类型
   final TextInputType? keyboardType;
 
+  /// 是否必填
+  final bool required;
+
   const CommonTextFormField({
     super.key,
     this.initialValue,
@@ -48,6 +52,7 @@ class CommonTextFormField extends StatefulWidget {
     this.onSaved,
     this.obscureText = false,
     this.keyboardType,
+    this.required = false,
   });
 
   @override
@@ -67,6 +72,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       color: theme.colorScheme.surface,
@@ -82,8 +88,11 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
           initialValue: widget.initialValue,
           enabled: widget.enabled,
           decoration: InputDecoration(
-            labelText: widget.labelText,
-            hintText: widget.hintText,
+            labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
+            hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.4),
+            ),
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.suffixIcon,
             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -104,7 +113,12 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
           ),
           style: theme.textTheme.bodyLarge,
           onChanged: widget.onChanged,
-          validator: widget.validator,
+          validator: widget.validator ?? (widget.required ? (value) {
+            if (value == null || value.isEmpty) {
+              return l10n.required;
+            }
+            return null;
+          } : null),
           onSaved: widget.onSaved,
           obscureText: widget.obscureText,
           keyboardType: widget.keyboardType,

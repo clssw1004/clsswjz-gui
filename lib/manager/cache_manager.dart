@@ -1,18 +1,22 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 缓存工具类
-class CacheUtil {
-  static late final CacheUtil _instance;
-  static CacheUtil get instance => _instance;
+class CacheManager {
+  static late final CacheManager _instance;
+  static CacheManager get instance => _instance;
 
   final SharedPreferences _prefs;
 
-  CacheUtil._(this._prefs);
+  CacheManager._(this._prefs);
+
+  static bool _isInit = false;
 
   /// 初始化
   static Future<void> init() async {
+    if (_isInit) return;
     final prefs = await SharedPreferences.getInstance();
-    _instance = CacheUtil._(prefs);
+    _instance = CacheManager._(prefs);
+    _isInit = true;
   }
 
   /// 获取字符串

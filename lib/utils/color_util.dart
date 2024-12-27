@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants/enums.dart';
+import '../enums/account_type.dart';
 
 /// 颜色工具类
 class ColorUtil {

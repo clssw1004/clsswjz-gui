@@ -4,7 +4,7 @@ import '../manager/app_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_book_service.dart';
-import 'common_dialog.dart';
+import 'common/common_dialog.dart';
 
 /// 账本选择组件
 class AccountBookSelector extends StatefulWidget {

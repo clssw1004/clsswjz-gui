@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_provider.dart';
-import '../../widgets/common_app_bar.dart';
+import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/user_info_card.dart';
 
 class MineTab extends StatelessWidget {

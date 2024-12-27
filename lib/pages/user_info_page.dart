@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../providers/locale_provider.dart';
 import '../providers/user_provider.dart';
-import '../widgets/common_app_bar.dart';
-import '../widgets/common_dialog.dart';
-import '../widgets/common_text_form_field.dart';
+import '../widgets/common/common_app_bar.dart';
+import '../widgets/common/common_dialog.dart';
+import '../widgets/common/common_text_form_field.dart';
 
 class UserInfoPage extends StatelessWidget {
   const UserInfoPage({super.key});

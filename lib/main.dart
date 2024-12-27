@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'pages/home_page.dart';
+import 'manager/cache_manager.dart';
 import 'providers/locale_provider.dart';
 import 'manager/provider_manager.dart';
 import 'providers/theme_provider.dart';
-import 'app_init.dart';
 import 'routes/app_routes.dart';
 
 void main() async {
-  await init();
+   WidgetsFlutterBinding.ensureInitialized();
+  //  初始化缓存工具
+  await CacheManager.init();
+  //  初始化配置管理器
+  await AppConfigManager.init();
   runApp(
     ProviderManager.init(
       child: const ClsswjzApp(),
@@ -47,7 +50,7 @@ class ClsswjzApp extends StatelessWidget {
       // home: const HomePage(),
       routes: AppRoutes.routes,
       onGenerateRoute: AppRoutes.onGenerateRoute,
-      initialRoute: AppConfigManager.isConfigServer()
+      initialRoute: AppConfigManager.isAppInit()
           ? AppRoutes.home
           : AppRoutes.serverConfig,
     );

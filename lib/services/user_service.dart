@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
@@ -27,7 +25,8 @@ class UserService extends BaseService {
   }
 
   /// 用户注册
-  Future<OperateResult<String>> register({
+  Future<OperateResult<User>> register({
+    String? userId,
     required String username,
     required String password,
     required String? nickname,
@@ -39,10 +38,8 @@ class UserService extends BaseService {
       if (await _userDao.isUsernameExists(username)) {
         return OperateResult.failWithMessage('用户名已存在', null);
       }
-
-      final userId = generateUuid();
-      final hashedPassword = sha256.convert(utf8.encode(password)).toString();
-
+      userId = userId ?? generateUuid();
+      final hashedPassword = encryptPassword(password);
       await _userDao.createUser(
         id: userId,
         username: username,
@@ -52,7 +49,7 @@ class UserService extends BaseService {
         email: email,
         phone: phone,
       );
-      return OperateResult.success(userId);
+      return await getUserInfo(userId);
     } catch (e) {
       return OperateResult.failWithMessage('注册失败：$e', e as Exception);
     }
@@ -106,7 +103,7 @@ class UserService extends BaseService {
 
   /// 验证密码
   Future<bool> verifyPassword(User user, String password) async {
-    final hashedPassword = sha256.convert(utf8.encode(password)).toString();
+    final hashedPassword = encryptPassword(password);
     return user.password == hashedPassword;
   }
 
@@ -128,8 +125,7 @@ class UserService extends BaseService {
       }
 
       // 对新密码进行哈希
-      final hashedNewPassword =
-          sha256.convert(utf8.encode(newPassword)).toString();
+      final hashedNewPassword = encryptPassword(newPassword);
 
       await _userDao.update(UserTableCompanion(
         id: Value(id),

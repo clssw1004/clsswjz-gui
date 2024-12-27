@@ -13,6 +13,7 @@ import '../services/base_service.dart';
 
 /// 服务管理类，用于集中管理和初始化所有服务
 class ServiceManager extends BaseService {
+  static bool _isInit = false;
   static ServiceManager? _instance;
   static late UserService _userService;
   static late AccountBookService _accountBookService;
@@ -27,12 +28,15 @@ class ServiceManager extends BaseService {
 
   ServiceManager._();
 
-  static init() async {
+  static Future<void> init({bool syncInit = false}) async {
+    if (_isInit) return;
     // 初始化所有服务
     _userService = UserService();
     _accountBookService = AccountBookService();
     _accountItemService = AccountItemService();
-    _syncService = SyncService(httpClient: HttpClient.instance);
+    if (syncInit) {
+      _syncService = SyncService(httpClient: HttpClient.instance);
+    }
     _accountCategoryService = AccountCategoryService();
     _accountFundService = AccountFundService();
     _accountShopService = AccountShopService();
@@ -40,6 +44,7 @@ class ServiceManager extends BaseService {
     _attachmentService = AttachmentService();
     _statisticService = StatisticService();
     _instance = ServiceManager._();
+    _isInit = true;
   }
 
   static Future<ServiceManager> get instance async {

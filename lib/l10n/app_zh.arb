@@ -53,7 +53,6 @@
     "userInfo": "用户信息",
     "retry": "重试",
     "noData": "暂无数据",
-    "username": "用户名",
     "nickname": "昵称",
     "email": "邮箱",
     "avatar": "头像",
@@ -124,5 +123,45 @@
     "serverConnectionFailed": "服务器连接失败",
     "serverConnectionError": "服务器连接错误",
     "loginFailed": "登录失败",
-    "loginError": "登录错误"
+    "loginError": "登录错误",
+    "initializationFailed": "初始化失败",
+    "@initializationFailed": {
+        "description": "初始化失败消息"
+    },
+    "storageMode": "数据存储方式",
+    "@storageMode": {
+        "description": "数据存储方式选择标签"
+    },
+    "createLocalDatabase": "创建本地数据库",
+    "@createLocalDatabase": {
+        "description": "创建本地数据库按钮文本"
+    },
+    "offlineStorage": "本地存储",
+    "@offlineStorage": {
+        "description": "本地存储模式"
+    },
+    "selfHostStorage": "私有服务器",
+    "@selfHostStorage": {
+        "description": "私有服务器模式"
+    },
+    "connectServer": "连接服务器",
+    "@connectServer": {
+        "description": "连接服务器按钮文本"
+    },
+    "optional": "可选",
+    "@optional": {
+        "description": "表单字段可选提示文本"
+    },
+    "selectIcon": "选择图标",
+    "@selectIcon": {
+        "description": "选择图标对话框标题"
+    },
+    "currency": "币种",
+    "@currency": {
+        "description": "币种选择标签"
+    },
+    "name": "名称",
+    "@name": {
+        "description": "名称输入标签"
+    }
 }

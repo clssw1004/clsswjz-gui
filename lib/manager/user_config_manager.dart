@@ -1,5 +1,5 @@
 import 'package:clsswjz/manager/app_config_manager.dart';
-import 'package:clsswjz/utils/cache_util.dart';
+import 'package:clsswjz/manager/cache_manager.dart';
 
 import '../database/database.dart';
 import '../services/user_service.dart';
@@ -37,7 +37,7 @@ class UserConfigManager {
 
   static setCurrentUser(User user) {
     _currentUser = user;
-    CacheUtil.instance.setString(_currentUserIdKey, user.id);
+    CacheManager.instance.setString(_currentUserIdKey, user.id);
   }
 
   static setUserServerInfo({

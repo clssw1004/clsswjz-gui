@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../manager/user_config_manager.dart';
 import '../models/vo/user_book_vo.dart';
 import '../providers/account_books_provider.dart';
-import '../widgets/common_app_bar.dart';
+import '../widgets/common/common_app_bar.dart';
 
 /// 账本列表页面
 class AccountBooksPage extends StatefulWidget {

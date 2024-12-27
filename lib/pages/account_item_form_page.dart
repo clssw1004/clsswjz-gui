@@ -6,11 +6,11 @@ import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../providers/account_item_form_provider.dart';
 import '../widgets/amount_input.dart';
-import '../widgets/common_app_bar.dart';
-import '../widgets/common_select_form_field.dart';
-import '../widgets/common_text_form_field.dart';
+import '../widgets/common/common_app_bar.dart';
+import '../widgets/common/common_select_form_field.dart';
+import '../widgets/common/common_text_form_field.dart';
 import '../database/database.dart';
-import '../constants/enums.dart';
+import '../enums/account_type.dart';
 
 /// 账目详情表单页面
 class AccountItemFormPage extends StatelessWidget {
