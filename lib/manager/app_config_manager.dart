@@ -1,6 +1,7 @@
 import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter/material.dart';
 import '../enums/storage_mode.dart';
+import '../utils/http_client.dart';
 import '../utils/id_util.dart';
 import 'cache_manager.dart';
 import 'database_manager.dart';
@@ -237,12 +238,13 @@ class AppConfigManager {
       String? phone}) async {
     final userId = IdUtils.genId();
     await _instance.setStorageType(StorageMode.offline);
-    await _instance.makeStorageInit();
     await _instance.setUserId(userId);
     await _instance._setDatabaseName(userId);
     await DatabaseManager.init();
     await ServiceManager.init();
-    final user = await ServiceManager.userService
+
+    /// 注册用户
+    await ServiceManager.userService
         .register(
             userId: userId,
             username: username,
@@ -251,6 +253,7 @@ class AppConfigManager {
             email: email,
             phone: phone)
         .then((value) => value.data);
+    await _instance.makeStorageInit();
   }
 
   /// 设置服务器信息
@@ -260,6 +263,15 @@ class AppConfigManager {
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
     await _instance.setUserId(userId);
+    await HttpClient.refresh(
+      serverUrl: serverUrl,
+      accessToken: accessToken,
+    );
+    await DatabaseManager.init();
+    await ServiceManager.init(syncInit: true);
+
+    /// 初始化导入数据
+    await ServiceManager.syncService.syncInit();
     await _instance.makeStorageInit();
   }
 }

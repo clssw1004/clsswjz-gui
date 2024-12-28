@@ -8,6 +8,7 @@ import 'service_manager.dart';
 class UserConfigManager {
   static const _currentUserIdKey = 'current_user_id';
 
+  static bool isInited = false;
   static late final UserConfigManager _instance;
   static UserConfigManager get instance => _instance;
   static late UserService _userService;
@@ -26,8 +27,11 @@ class UserConfigManager {
 
   static Future<void> refresh(String userId) async {
     print('init:$userId');
-    _instance = UserConfigManager._();
-    _userService = ServiceManager.userService;
+    if (!isInited) {
+      _instance = UserConfigManager._();
+      _userService = ServiceManager.userService;
+      isInited = true;
+    }
     _currentUserId = userId;
     final user =
         await _userService.getUserInfo(userId).then((value) => value.data);
@@ -38,15 +42,5 @@ class UserConfigManager {
   static setCurrentUser(User user) {
     _currentUser = user;
     CacheManager.instance.setString(_currentUserIdKey, user.id);
-  }
-
-  static setUserServerInfo({
-    required String serverUrl,
-    required String userId,
-    required String accessToken,
-  }) {
-    refresh(userId);
-    AppConfigManager.instance.setServerUrl(serverUrl);
-    AppConfigManager.instance.setAccessToken(accessToken);
   }
 }

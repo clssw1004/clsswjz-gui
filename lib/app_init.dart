@@ -14,10 +14,11 @@ Future<void> initApp({
   String? userPhone,
 }) async {
   if (AppConfigManager.isAppInit()) {
-    bool needSync = AppConfigManager.instance.storageType == StorageMode.selfHost;
+    bool needSync =
+        AppConfigManager.instance.storageType == StorageMode.selfHost;
     if (needSync) {
       //  初始化HTTP客户端
-      HttpClient.refresh(
+      await HttpClient.refresh(
         serverUrl: AppConfigManager.instance.serverUrl,
         accessToken: AppConfigManager.instance.accessToken,
       );
@@ -28,6 +29,5 @@ Future<void> initApp({
     await ServiceManager.init(syncInit: needSync);
     // 初始化用户配置管理器
     await UserConfigManager.refresh(AppConfigManager.instance.userId!);
-
   }
 }

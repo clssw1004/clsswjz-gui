@@ -160,34 +160,48 @@ class AuthInterceptor implements HttpInterceptor {
 
 /// HTTP客户端
 class HttpClient {
-  final HttpConfig config;
+  static bool isInited = false;
+  late HttpConfig _config;
   final http.Client _client;
   static late final HttpClient _instance;
 
   static HttpClient get instance => _instance;
 
   HttpClient({
-    required this.config,
-  }) : _client = http.Client();
+    required HttpConfig config,
+  })  : _client = http.Client(),
+        _config = config;
+
+  set config(HttpConfig config) {
+    _config = config;
+  }
+
+  get cofig => _config;
 
   static refresh({serverUrl, accessToken}) {
-    _instance = HttpClient(
-      config: HttpConfig(
-        baseUrl: serverUrl,
-        timeout: const Duration(seconds: 30),
-        defaultHeaders: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        interceptors: [
-          AuthInterceptor(
-            getToken: () {
-              return accessToken;
-            },
-          ),
-        ],
-      ),
+    final httpConfig = HttpConfig(
+      baseUrl: serverUrl,
+      timeout: const Duration(seconds: 30),
+      defaultHeaders: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      interceptors: [
+        AuthInterceptor(
+          getToken: () {
+            return accessToken;
+          },
+        ),
+      ],
     );
+    if (!isInited) {
+      _instance = HttpClient(
+        config: httpConfig,
+      );
+      isInited = true;
+    } else {
+      _instance.config = httpConfig;
+    }
   }
 
   /// 发送请求
@@ -198,7 +212,7 @@ class HttpClient {
     try {
       // 应用请求拦截器
       var interceptedOptions = options;
-      for (var interceptor in config.interceptors) {
+      for (var interceptor in _config.interceptors) {
         interceptedOptions = await interceptor.onRequest(interceptedOptions);
       }
 
@@ -208,7 +222,7 @@ class HttpClient {
 
       // 构建请求头
       final headers = {
-        ...config.defaultHeaders,
+        ..._config.defaultHeaders,
         'Content-Type': interceptedOptions.contentType.value,
         ...?interceptedOptions.headers,
       };
@@ -219,7 +233,7 @@ class HttpClient {
         method: interceptedOptions.method,
         headers: headers,
         data: interceptedOptions.data,
-        timeout: interceptedOptions.timeout ?? config.timeout,
+        timeout: interceptedOptions.timeout ?? _config.timeout,
       );
 
       // 构建响应
@@ -227,7 +241,7 @@ class HttpClient {
 
       // 应用响应拦截器
       var interceptedResponse = httpResponse;
-      for (var interceptor in config.interceptors) {
+      for (var interceptor in _config.interceptors) {
         interceptedResponse =
             await interceptor.onResponse<T>(interceptedResponse);
       }
@@ -238,7 +252,7 @@ class HttpClient {
 
       // 应用错误拦截器
       var interceptedError = error;
-      for (var interceptor in config.interceptors) {
+      for (var interceptor in _config.interceptors) {
         interceptedError = await interceptor.onError(interceptedError);
       }
 
@@ -352,7 +366,7 @@ class HttpClient {
 
   /// 构建请求URI
   Uri _buildUri(String path, Map<String, String>? queryParameters) {
-    final uri = Uri.parse('${config.baseUrl}$path');
+    final uri = Uri.parse('${_config.baseUrl}$path');
     if (queryParameters == null || queryParameters.isEmpty) {
       return uri;
     }

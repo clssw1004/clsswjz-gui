@@ -101,9 +101,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           result.data!.userId,
           result.data!.accessToken,
         );
-        if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
-        }
+      RestartWidget.restartApp(context);
       } else {
         ToastUtil.showError(l10n.loginFailed);
       }
