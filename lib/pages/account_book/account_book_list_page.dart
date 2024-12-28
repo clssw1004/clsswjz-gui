@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../manager/user_config_manager.dart';
-import '../models/vo/user_book_vo.dart';
-import '../providers/account_books_provider.dart';
-import '../widgets/common/common_app_bar.dart';
+import '../../manager/user_config_manager.dart';
+import '../../models/vo/user_book_vo.dart';
+import '../../providers/account_books_provider.dart';
+import '../../widgets/common/common_app_bar.dart';
 
 /// 账本列表页面
-class AccountBooksPage extends StatefulWidget {
-  const AccountBooksPage({
+class AccountBookListPage extends StatefulWidget {
+  const AccountBookListPage({
     super.key,
   });
 
   @override
-  State<AccountBooksPage> createState() => _AccountBooksPageState();
+  State<AccountBookListPage> createState() => _AccountBookListPageState();
 }
 
-class _AccountBooksPageState extends State<AccountBooksPage> {
+class _AccountBookListPageState extends State<AccountBookListPage> {
   @override
   void initState() {
     super.initState();

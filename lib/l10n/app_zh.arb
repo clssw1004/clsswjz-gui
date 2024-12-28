@@ -240,7 +240,7 @@
             }
         }
     },
-    "modifySuccess": "{value}修改成功",
+    "modifySuccess": "{value}修改��功",
     "@modifySuccess": {
         "description": "修改成功消息",
         "placeholders": {
@@ -283,5 +283,14 @@
                 "example": "账本"
             }
         }
-    }
+    },
+    "create": "新建",
+    "edit": "编辑",
+    "type": "类型",
+    "cancel": "取消",
+    "confirm": "确定",
+    "confirmDelete": "确认删除",
+    "deleteConfirmMessage": "确定要删除[{name}]吗？",
+    "retry": "重试",
+    "noData": "暂无数据"
 }

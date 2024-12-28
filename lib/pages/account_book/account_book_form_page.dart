@@ -2,10 +2,10 @@ import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../constants/account_book_icons.dart';
-import '../widgets/common/common_app_bar.dart';
-import '../widgets/common/common_text_form_field.dart';
-import '../widgets/common/common_select_form_field.dart';
+import '../../constants/account_book_icons.dart';
+import '../../widgets/common/common_app_bar.dart';
+import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/common_select_form_field.dart';
 
 class AccountBookFormPage extends StatefulWidget {
   const AccountBookFormPage({super.key});

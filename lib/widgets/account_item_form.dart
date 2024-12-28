@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../providers/account_item_form_provider.dart';
@@ -12,9 +11,9 @@ class AccountItemForm extends StatefulWidget {
   final AccountItemFormProvider provider;
 
   const AccountItemForm({
-    Key? key,
+    super.key,
     required this.provider,
-  }) : super(key: key);
+  });
 
   @override
   State<AccountItemForm> createState() => _AccountItemFormState();

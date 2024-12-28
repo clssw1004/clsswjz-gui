@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/locale_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/common_app_bar.dart';
 import '../widgets/common/common_dialog.dart';
@@ -13,10 +12,7 @@ class UserInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => UserProvider()..getUserInfo(),
-      child: const _UserInfoPageView(),
-    );
+      return const _UserInfoPageView();
   }
 }
 
@@ -28,7 +24,6 @@ class _UserInfoPageView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<UserProvider>();
     final theme = Theme.of(context);
-    final localeProvider = context.watch<LocaleProvider>();
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

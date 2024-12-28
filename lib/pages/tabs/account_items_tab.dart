@@ -7,17 +7,14 @@ import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../account_item_form_page.dart';
+import '../account_book/account_item_form_page.dart';
 
 class AccountItemsTab extends StatelessWidget {
   const AccountItemsTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AccountItemsProvider(),
-      child: const _AccountItemsTabView(),
-    );
+    return const _AccountItemsTabView();
   }
 }
 

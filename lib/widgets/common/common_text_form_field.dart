@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../theme/theme_radius.dart';
 
 /// 通用文本输入框表单组件
 class CommonTextFormField extends StatefulWidget {

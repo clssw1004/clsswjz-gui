@@ -2,16 +2,20 @@ import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
 import '../manager/database_manager.dart';
-import '../pages/account_books_page.dart';
-import '../pages/account_item_form_page.dart';
-import '../pages/account_book_form_page.dart';
+import '../pages/account_book/account_book_list_page.dart';
+import '../pages/account_book/account_item_form_page.dart';
+import '../pages/account_book/account_book_form_page.dart';
+import '../pages/account_book/merchants_page.dart';
 import '../pages/home_page.dart';
-import '../pages/language_settings_page.dart';
-import '../pages/server_config_page.dart';
+import '../pages/settings/language_settings_page.dart';
+import '../pages/settings/server_config_page.dart';
 import '../pages/settings/theme_settings_page.dart';
 import '../pages/user_info_page.dart';
 import '../models/vo/account_item_vo.dart';
 import 'package:drift_db_viewer/drift_db_viewer.dart';
+import '../pages/account_book/tags_page.dart';
+import '../pages/account_book/projects_page.dart';
+import '../pages/account_book/account_categories_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -40,6 +44,14 @@ class AppRoutes {
 
   static const String serverConfig = '/server-config';
 
+  static const String merchants = '/merchants';
+
+  static const String tags = '/tags';
+
+  static const String projects = '/projects';
+
+  static const String categories = '/categories';
+
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
       builder: (context) => const ServerConfigPage(),
@@ -53,7 +65,7 @@ class AppRoutes {
     themeSettings: (context) => const ThemeSettingsPage(),
     languageSettings: (context) => const LanguageSettingsPage(),
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
-    accountBooks: (context) => const AccountBooksPage(),
+    accountBooks: (context) => const AccountBookListPage(),
     accountBookForm: (context) => const AccountBookFormPage(),
     accountItemForm: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -62,5 +74,21 @@ class AppRoutes {
       return AccountItemFormPage(accountBook: accountBook, item: item);
     },
     serverConfig: (context) => const ServerConfigPage(),
+    merchants: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return MerchantsPage(accountBook: args);
+    },
+    tags: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return TagsPage(accountBook: args);
+    },
+    projects: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return ProjectsPage(accountBook: args);
+    },
+    categories: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return AccountCategoriesPage(accountBook: args);
+    },
   };
 }

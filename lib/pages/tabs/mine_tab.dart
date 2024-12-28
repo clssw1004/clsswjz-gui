@@ -3,18 +3,16 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_provider.dart';
-import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/user_info_card.dart';
+import '../../routes/app_routes.dart';
+import '../../providers/account_items_provider.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => UserProvider()..getUserInfo(),
-      child: const _MineTabView(),
-    );
+    return const _MineTabView();
   }
 }
 
@@ -26,12 +24,12 @@ class _MineTabView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final provider = context.watch<UserProvider>();
-
+    // 获取当前选中的账本
+    final accountItemsProvider = context.read<AccountItemsProvider>();
+    final accountBook = accountItemsProvider.selectedBook;
     return Scaffold(
-      appBar: CommonAppBar(
-        title: Text(l10n.tabMine),
-      ),
       body: ListView(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         children: [
           // 用户信息区域
           UserInfoCard(
@@ -62,7 +60,11 @@ class _MineTabView extends StatelessWidget {
                 icon: Icons.category_outlined,
                 label: l10n.category,
                 onTap: () {
-                  Navigator.pushNamed(context, '/categories');
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.categories,
+                    arguments: accountBook,
+                  );
                 },
               ),
               _buildGridItem(
@@ -77,8 +79,9 @@ class _MineTabView extends StatelessWidget {
                 context,
                 icon: Icons.store_outlined,
                 label: l10n.merchant,
-                onTap: () {
-                  Navigator.pushNamed(context, '/merchants');
+                onTap: () async {
+                  Navigator.pushNamed(context, AppRoutes.merchants,
+                      arguments: accountBook);
                 },
               ),
               _buildGridItem(
@@ -86,7 +89,11 @@ class _MineTabView extends StatelessWidget {
                 icon: Icons.local_offer_outlined,
                 label: l10n.tag,
                 onTap: () {
-                  Navigator.pushNamed(context, '/tags');
+                  Navigator.pushNamed(
+                    context, 
+                    AppRoutes.tags,
+                    arguments: accountBook,
+                  );
                 },
               ),
               _buildGridItem(
@@ -94,7 +101,11 @@ class _MineTabView extends StatelessWidget {
                 icon: Icons.folder_outlined,
                 label: l10n.project,
                 onTap: () {
-                  Navigator.pushNamed(context, '/projects');
+                  Navigator.pushNamed(
+                    context, 
+                    AppRoutes.projects,
+                    arguments: accountBook,
+                  );
                 },
               ),
               _buildGridItem(
