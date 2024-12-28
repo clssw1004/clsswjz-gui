@@ -97,9 +97,6 @@ jobs:
           path: ${{ matrix.artifact-path }}
           compression-level: 0
 
-      - name: Debug Artifact Path
-        run: echo "Artifact path: ${{ matrix.artifact-path }}"
-
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
