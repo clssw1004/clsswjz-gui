@@ -42,6 +42,22 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     _loadInitialBook();
   }
 
+  /// 添加 didUpdateWidget 生命周期方法来处理外部属性更新
+  @override
+  void didUpdateWidget(AccountBookSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当 selectedBook 发生变化时更新内部状态
+    if (widget.selectedBook?.id != oldWidget.selectedBook?.id) {
+      setState(() {
+        _selectedBook = widget.selectedBook;
+      });
+      // 如果没有选中的账本，尝试加载初始账本
+      if (_selectedBook == null) {
+        _loadInitialBook();
+      }
+    }
+  }
+
   /// 加载初始账本
   Future<void> _loadInitialBook() async {
     if (_selectedBook == null) {

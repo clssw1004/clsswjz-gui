@@ -104,7 +104,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       
       if (mounted) {
         if (result.ok) {
-          Navigator.of(context).pop(result.data);
+          Navigator.of(context).pop(true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -153,10 +153,6 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                 child: Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colorScheme.outline),
-                  ),
                   child: Icon(
                     _icon,
                     color: colorScheme.primary,

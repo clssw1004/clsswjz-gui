@@ -73,7 +73,7 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
                             AppRoutes.accountBookForm,
                           );
                           if (result == true) {
-                            provider.refresh();
+                            await provider.init(UserConfigManager.currentUserId);
                           }
                         },
                         icon: const Icon(Icons.add),

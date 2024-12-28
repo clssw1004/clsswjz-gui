@@ -85,6 +85,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
 
     return Container(
       color: theme.colorScheme.surface,
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
       child: Focus(
         onFocusChange: (hasFocus) {
           if (!hasFocus) {
@@ -106,20 +107,16 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             suffixIcon: _buildIcon(widget.suffixIcon),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             contentPadding: const EdgeInsets.all(16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
+            border: UnderlineInputBorder(
               borderSide: BorderSide(color: theme.colorScheme.outline),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
+            enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: theme.colorScheme.outline),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
+            focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(theme.extension<ThemeRadius>()?.radius ?? 4),
+            disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
             ),
           ),
