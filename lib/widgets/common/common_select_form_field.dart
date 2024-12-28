@@ -120,8 +120,7 @@ class _CommonSelectFormFieldWidgetState<T>
   /// 搜索控制器
   final TextEditingController _searchController = TextEditingController();
 
-  /// 是否显示搜索框
-  bool _showSearch = false;
+
 
   /// 搜索关键字
   String _searchText = '';
@@ -176,55 +175,37 @@ class _CommonSelectFormFieldWidgetState<T>
               title: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.searchable) ...[
-                    if (_showSearch)
-                      TextField(
-                        controller: _searchController,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.search,
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                _searchController.clear();
-                                _searchText = '';
-                                _showSearch = false;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              Theme.of(context).extension<ThemeRadius>()?.radius ?? 4,
-                            ),
+                  if (widget.searchable)
+                    TextField(
+                      controller: _searchController,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.search,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchText.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchText = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            Theme.of(context).extension<ThemeRadius>()?.radius ?? 4,
                           ),
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            _searchText = value;
-                          });
-                        },
-                      )
-                    else
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            widget.label ?? '',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: () {
-                              setState(() {
-                                _showSearch = true;
-                              });
-                            },
-                          ),
-                        ],
                       ),
-                  ] else
+                      onChanged: (value) {
+                        setState(() {
+                          _searchText = value;
+                        });
+                      },
+                    )
+                  else
                     Text(
                       widget.label ?? '',
                       style: Theme.of(context).textTheme.titleMedium,
@@ -242,12 +223,17 @@ class _CommonSelectFormFieldWidgetState<T>
                       // 显示新增选项
                       return ListTile(
                         leading: const Icon(Icons.add),
-                        title: Text(AppLocalizations.of(context)!.addNew(_searchText)),
+                        title: Text(
+                            AppLocalizations.of(context)!.addNew(_searchText)),
                         onTap: () async {
                           if (widget.onCreateItem != null) {
                             final newItem =
                                 await widget.onCreateItem!(_searchText);
                             if (newItem != null) {
+                              setState(() {
+                                _searchController.clear();
+                                _searchText = '';
+                              });
                               Navigator.of(context).pop(newItem);
                             }
                           }
@@ -400,94 +386,87 @@ class _CommonSelectFormFieldWidgetState<T>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null)
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Text(
-              widget.required ? '${widget.label} *' : widget.label!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            ...displayItems.map((item) {
-              final isSelected =
-                  widget.value != null && widget.keyField(item) == widget.value;
+        SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ...displayItems.map((item) {
+                final isSelected = widget.value != null &&
+                    widget.keyField(item) == widget.value;
 
-              return SizedBox(
-                width: buttonWidth,
-                child: Center(
-                  child: ChoiceChip(
-                    showCheckmark: false,
-                    elevation: 0,
-                    pressElevation: 0,
-                    selectedColor: theme.colorScheme.primaryContainer,
-                    side: BorderSide(
-                      color: isSelected
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.outline,
-                      width: 1,
-                    ),
-                    labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimaryContainer
-                          : theme.colorScheme.onSurface,
-                    ),
-                    labelPadding: EdgeInsets.zero,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    label: SizedBox(
-                      width: buttonWidth - 32,
-                      child: Text(
-                        widget.displayField(item),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
+                return SizedBox(
+                  width: buttonWidth,
+                  child: Center(
+                    child: ChoiceChip(
+                      showCheckmark: false,
+                      elevation: 0,
+                      pressElevation: 0,
+                      selectedColor: theme.colorScheme.primaryContainer,
+                      side: BorderSide(
+                        color: isSelected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outline,
+                        width: 1,
                       ),
+                      labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: isSelected
+                            ? theme.colorScheme.onPrimaryContainer
+                            : theme.colorScheme.onSurface,
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      label: SizedBox(
+                        width: buttonWidth - 32,
+                        child: Text(
+                          widget.displayField(item),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        _handleItemChanged(selected ? item : null);
+                      },
                     ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      _handleItemChanged(selected ? item : null);
-                    },
+                  ),
+                );
+              }),
+              if (showMore)
+                SizedBox(
+                  width: buttonWidth,
+                  child: Center(
+                    child: ActionChip(
+                      elevation: 0,
+                      pressElevation: 0,
+                      side: BorderSide(
+                        color: theme.colorScheme.outline,
+                        width: 1,
+                      ),
+                      labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      label: SizedBox(
+                        width: buttonWidth - 32,
+                        child: Text(
+                          AppLocalizations.of(context)!.more,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      onPressed: _showSelectDialog,
+                    ),
                   ),
                 ),
-              );
-            }),
-            if (showMore)
-              SizedBox(
-                width: buttonWidth,
-                child: Center(
-                  child: ActionChip(
-                    elevation: 0,
-                    pressElevation: 0,
-                    side: BorderSide(
-                      color: theme.colorScheme.outline,
-                      width: 1,
-                    ),
-                    labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    labelPadding: EdgeInsets.zero,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    label: SizedBox(
-                      width: buttonWidth - 32,
-                      child: Text(
-                        AppLocalizations.of(context)!.more,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    onPressed: _showSelectDialog,
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
         if (widget.errorText != null)
           Padding(

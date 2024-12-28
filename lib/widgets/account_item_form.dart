@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../constants/constant.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
+import '../manager/app_config_manager.dart';
+import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
+import '../services/account_category_service.dart';
+import '../services/account_shop_service.dart';
+import '../services/account_symbol_service.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
@@ -75,16 +81,16 @@ class _AccountItemFormState extends State<AccountItemForm> {
               }
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.errorContainer
                       : colorScheme.primaryContainer;
                 }
                 return null;
               }),
-              foregroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.onErrorContainer
                       : colorScheme.onPrimaryContainer;
@@ -118,6 +124,25 @@ class _AccountItemFormState extends State<AccountItemForm> {
             required: true,
             expandCount: 8,
             expandRows: 3,
+            onCreateItem: (value) async {
+              final service = ServiceManager.accountCategoryService;
+              final userId = AppConfigManager.instance.userId!;
+              final result = await service.createCategory(
+                name: value,
+                code: value,
+                accountBookId: provider.accountBook.id,
+                categoryType: item.type,
+                createdBy: userId,
+                updatedBy: userId,
+              );
+              if (result.data != null) {
+                await provider.loadCategories();
+                return provider.categories
+                    .cast<AccountCategory>()
+                    .firstWhere((category) => category.code == value);
+              }
+              return null;
+            },
             onChanged: (value) {
               final category = value as AccountCategory?;
               if (category != null) {
@@ -171,6 +196,24 @@ class _AccountItemFormState extends State<AccountItemForm> {
             keyField: (item) => item.code,
             icon: Icons.store_outlined,
             label: l10n.merchant,
+            onCreateItem: (value) async {
+              final service = ServiceManager.accountShopService;
+              final userId = AppConfigManager.instance.userId!;
+              final result = await service.createShop(
+                name: value,
+                code: value,
+                accountBookId: provider.accountBook.id,
+                createdBy: userId,
+                updatedBy: userId,
+              );
+              if (result.data != null) {
+                await provider.loadShops();
+                return provider.shops
+                    .cast<AccountShop>()
+                    .firstWhere((shop) => shop.code == value);
+              }
+              return null;
+            },
             onChanged: (value) {
               final shop = value as AccountShop?;
               if (shop != null) {
@@ -183,46 +226,88 @@ class _AccountItemFormState extends State<AccountItemForm> {
           const SizedBox(height: 16),
 
           // 标签和项目选择
-          Wrap(
-            spacing: 8,
-            children: [
-              CommonSelectFormField<AccountSymbol>(
-                items: provider.tags.cast<AccountSymbol>(),
-                value: item.tagCode,
-                label: l10n.tag,
-                displayMode: DisplayMode.badge,
-                displayField: (item) => item.name,
-                keyField: (item) => item.code,
-                icon: Icons.local_offer_outlined,
-                hint: l10n.tag,
-                onChanged: (value) {
-                  final tag = value as AccountSymbol?;
-                  if (tag != null) {
-                    provider.updateTag(tag.code, tag.name);
-                  } else {
-                    provider.updateTag(null, null);
-                  }
-                },
-              ),
-              CommonSelectFormField<AccountSymbol>(
-                items: provider.projects.cast<AccountSymbol>(),
-                value: item.projectCode,
-                label: l10n.project,
-                displayMode: DisplayMode.badge,
-                displayField: (item) => item.name,
-                keyField: (item) => item.code,
-                icon: Icons.folder_outlined,
-                hint: l10n.project,
-                onChanged: (value) {
-                  final project = value as AccountSymbol?;
-                  if (project != null) {
-                    provider.updateProject(project.code, project.name);
-                  } else {
-                    provider.updateProject(null, null);
-                  }
-                },
-              ),
-            ],
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              spacing: 8,
+              alignment: WrapAlignment.start,
+              children: [
+                CommonSelectFormField<AccountSymbol>(
+                  items: provider.tags.cast<AccountSymbol>(),
+                  value: item.tagCode,
+                  label: l10n.tag,
+                  displayMode: DisplayMode.badge,
+                  displayField: (item) => item.name,
+                  keyField: (item) => item.code,
+                  icon: Icons.local_offer_outlined,
+                  hint: l10n.tag,
+                  onCreateItem: (value) async {
+                    final service = ServiceManager.accountSymbolService;
+                    final userId = AppConfigManager.instance.userId!;
+                    final result = await service.createSymbol(
+                      name: value,
+                      code: value,
+                      accountBookId: provider.accountBook.id,
+                      symbolType: SYMBOL_TYPE_TAG,
+                      createdBy: userId,
+                      updatedBy: userId,
+                    );
+                    if (result.data != null) {
+                      await provider.loadTags();
+                      return provider.tags
+                          .cast<AccountSymbol>()
+                          .firstWhere((tag) => tag.code == value);
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    final tag = value as AccountSymbol?;
+                    if (tag != null) {
+                      provider.updateTag(tag.code, tag.name);
+                    } else {
+                      provider.updateTag(null, null);
+                    }
+                  },
+                ),
+                CommonSelectFormField<AccountSymbol>(
+                  items: provider.projects.cast<AccountSymbol>(),
+                  value: item.projectCode,
+                  label: l10n.project,
+                  displayMode: DisplayMode.badge,
+                  displayField: (item) => item.name,
+                  keyField: (item) => item.code,
+                  icon: Icons.folder_outlined,
+                  hint: l10n.project,
+                  onCreateItem: (value) async {
+                    final service = ServiceManager.accountSymbolService;
+                    final userId = AppConfigManager.instance.userId!;
+                    final result = await service.createSymbol(
+                      name: value,
+                      code: value,
+                      accountBookId: provider.accountBook.id,
+                      symbolType: SYMBOL_TYPE_PROJECT,
+                      createdBy: userId,
+                      updatedBy: userId,
+                    );
+                    if (result.data != null) {
+                      await provider.loadProjects();
+                      return provider.projects
+                          .cast<AccountSymbol>()
+                          .firstWhere((project) => project.code == value);
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    final project = value as AccountSymbol?;
+                    if (project != null) {
+                      provider.updateProject(project.code, project.name);
+                    } else {
+                      provider.updateProject(null, null);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
 

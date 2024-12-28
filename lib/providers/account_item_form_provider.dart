@@ -4,6 +4,7 @@ import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
 import '../database/database.dart';
+import '../enums/account_type.dart';
 import '../models/vo/account_item_vo.dart';
 import '../services/account_item_service.dart';
 
@@ -60,7 +61,7 @@ class AccountItemFormProvider extends ChangeNotifier {
             AccountItemVO(
               id: '',
               accountBookId: accountBook.id,
-              type: 'expense',
+              type: AccountItemType.expense.code,
               amount: 0,
               accountDate: DateTime.now().toString().substring(0, 10),
               createdBy: AppConfigManager.instance.userId!,
@@ -82,33 +83,72 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final results = await Future.wait([
-        ServiceManager.accountCategoryService
-            .getCategoriesByAccountBook(item.accountBookId),
-        ServiceManager.accountFundService
-            .getFundsByAccountBook(item.accountBookId),
-        ServiceManager.accountShopService
-            .getShopsByAccountBook(item.accountBookId),
-        ServiceManager.accountSymbolService
-            .getSymbolsByAccountBook(item.accountBookId),
+      await Future.wait([
+        loadCategories(),
+        loadFunds(),
+        loadShops(),
+        loadSymbols(),
       ]);
-
-      _categories = results[0].data ?? [];
-      _funds = results[1].data ?? [];
-      _shops = results[2].data ?? [];
-      final symbols = results[3].data as List<AccountSymbol>;
-      _tags = symbols
-          .where((symbol) => symbol.symbolType == SYMBOL_TYPE_TAG)
-          .toList();
-      _projects = symbols
-          .where((symbol) => symbol.symbolType == SYMBOL_TYPE_PROJECT)
-          .toList();
     } catch (e) {
       _error = '加载数据失败：$e';
     } finally {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  /// 加载分类
+  Future<void> loadCategories() async {
+    final result = await ServiceManager.accountCategoryService
+        .getCategoriesByAccountBook(item.accountBookId);
+    _categories = result.data ?? [];
+    notifyListeners();
+  }
+
+  /// 加载账户
+  Future<void> loadFunds() async {
+    final result = await ServiceManager.accountFundService
+        .getFundsByAccountBook(item.accountBookId);
+    _funds = result.data ?? [];
+    notifyListeners();
+  }
+
+  /// 加载商户
+  Future<void> loadShops() async {
+    final result = await ServiceManager.accountShopService
+        .getShopsByAccountBook(item.accountBookId);
+    _shops = result.data ?? [];
+    notifyListeners();
+  }
+
+  /// 加载标签和项目
+  Future<void> loadSymbols() async {
+    final result = await ServiceManager.accountSymbolService
+        .getSymbolsByAccountBook(item.accountBookId);
+    final symbols = result.data as List<AccountSymbol>;
+    _tags = symbols
+        .where((symbol) => symbol.symbolType == SYMBOL_TYPE_TAG)
+        .toList();
+    _projects = symbols
+        .where((symbol) => symbol.symbolType == SYMBOL_TYPE_PROJECT)
+        .toList();
+    notifyListeners();
+  }
+
+  /// 加载标签
+  Future<void> loadTags() async {
+    final result = await ServiceManager.accountSymbolService
+        .getSymbolsByType(item.accountBookId, SYMBOL_TYPE_TAG);
+    _tags = result.data ?? [];
+    notifyListeners();
+  }
+
+  /// 加载项目
+  Future<void> loadProjects() async {
+    final result = await ServiceManager.accountSymbolService
+        .getSymbolsByType(item.accountBookId, SYMBOL_TYPE_PROJECT);
+    _projects = result.data ?? [];
+    notifyListeners();
   }
 
   /// 保存账目
