@@ -72,7 +72,7 @@ class _MineTabView extends StatelessWidget {
                 icon: Icons.account_balance_wallet_outlined,
                 label: l10n.account,
                 onTap: () {
-                  Navigator.pushNamed(context, '/accounts');
+                  Navigator.pushNamed(context, AppRoutes.funds);
                 },
               ),
               _buildGridItem(

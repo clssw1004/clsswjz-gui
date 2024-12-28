@@ -5,7 +5,7 @@ import '../../database/database.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../widgets/common/common_list_page.dart';
+import '../../widgets/common/common_simple_crud_list.dart';
 
 class ProjectsPage extends StatelessWidget {
   const ProjectsPage({super.key, required this.accountBook});
@@ -16,8 +16,8 @@ class ProjectsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
     
-    return CommonListPage<AccountSymbol>(
-      config: CommonListConfig(
+    return CommonSimpleCrudList<AccountSymbol>(
+      config: CommonSimpleCrudListConfig(
         title: l10n.project,
         getName: (item) => item.name,
         loadData: () => ServiceManager.accountSymbolService.getSymbolsByType(

@@ -275,5 +275,20 @@
                 "example": "account book"
             }
         }
-    }
+    },
+    "tabFunds": "Funds",
+    "balance": "Balance",
+    "defaultBook": "Default Book",
+    "fundTypeCash": "Cash",
+    "fundTypeDebitCard": "Debit Card",
+    "fundTypeCreditCard": "Credit Card",
+    "fundTypePrepaidCard": "Prepaid Card",
+    "fundTypeAlipay": "Alipay",
+    "fundTypeWechat": "WeChat",
+    "fundTypeDebt": "Debt",
+    "fundTypeInvestment": "Investment",
+    "fundTypeEWallet": "E-Wallet",
+    "fundTypeOther": "Other",
+    "invalidNumber": "Please enter a valid number",
+    "remark": "Remark"
 }

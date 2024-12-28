@@ -16,6 +16,7 @@ import 'package:drift_db_viewer/drift_db_viewer.dart';
 import '../pages/account_book/tags_page.dart';
 import '../pages/account_book/projects_page.dart';
 import '../pages/account_book/account_categories_page.dart';
+import '../pages/fund/fund_list_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -51,6 +52,9 @@ class AppRoutes {
   static const String projects = '/projects';
 
   static const String categories = '/categories';
+
+  /// 资金账户列表页面
+  static const String funds = '/funds';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -90,5 +94,6 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
       return AccountCategoriesPage(accountBook: args);
     },
+    funds: (context) => const FundListPage(),
   };
 }

@@ -192,7 +192,7 @@
     },
     "pleaseInput": "请输入{value}",
     "@pleaseInput": {
-        "description": "输入提示文本",
+        "description": "��入提示文本",
         "placeholders": {
             "value": {
                 "type": "String",
@@ -240,7 +240,7 @@
             }
         }
     },
-    "modifySuccess": "{value}修改��功",
+    "modifySuccess": "{value}修改成功",
     "@modifySuccess": {
         "description": "修改成功消息",
         "placeholders": {
@@ -292,5 +292,20 @@
     "confirmDelete": "确认删除",
     "deleteConfirmMessage": "确定要删除[{name}]吗？",
     "retry": "重试",
-    "noData": "暂无数据"
+    "noData": "暂无数据",
+    "tabFunds": "资金账户",
+    "balance": "余额",
+    "defaultBook": "默认账本",
+    "fundTypeCash": "现金",
+    "fundTypeDebitCard": "储蓄卡",
+    "fundTypeCreditCard": "信用卡",
+    "fundTypePrepaidCard": "充值卡",
+    "fundTypeAlipay": "支付宝",
+    "fundTypeWechat": "微信",
+    "fundTypeDebt": "欠款",
+    "fundTypeInvestment": "投资",
+    "fundTypeEWallet": "网络钱包",
+    "fundTypeOther": "其他",
+    "invalidNumber": "请输入有效的数字",
+    "remark": "备注"
 }

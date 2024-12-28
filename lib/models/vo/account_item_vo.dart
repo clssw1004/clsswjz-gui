@@ -195,4 +195,59 @@ class AccountItemVO {
         '${dateTime.minute.toString().padLeft(2, '0')}:'
         '${dateTime.second.toString().padLeft(2, '0')}';
   }
+
+  /// 创建一个新的实例，只更新指定的属性
+  AccountItemVO copyWith({
+    String? id,
+    double? amount,
+    String? description,
+    String? type,
+    String? categoryCode,
+    String? categoryName,
+    String? accountDate,
+    String? accountBookId,
+    String? fundId,
+    String? fundName,
+    String? shopCode,
+    String? shopName,
+    String? tagCode,
+    String? tagName,
+    String? projectCode,
+    String? projectName,
+    String? createdBy,
+    String? updatedBy,
+    int? createdAt,
+    int? updatedAt,
+    String? createdByName,
+    String? updatedByName,
+    String? createdAtString,
+    String? updatedAtString,
+  }) {
+    return AccountItemVO(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      categoryCode: categoryCode ?? this.categoryCode,
+      categoryName: categoryName ?? this.categoryName,
+      accountDate: accountDate ?? this.accountDate,
+      accountBookId: accountBookId ?? this.accountBookId,
+      fundId: fundId ?? this.fundId,
+      fundName: fundName ?? this.fundName,
+      shopCode: shopCode ?? this.shopCode,
+      shopName: shopName ?? this.shopName,
+      tagCode: tagCode ?? this.tagCode,
+      tagName: tagName ?? this.tagName,
+      projectCode: projectCode ?? this.projectCode,
+      projectName: projectName ?? this.projectName,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdByName: createdByName ?? this.createdByName,
+      updatedByName: updatedByName ?? this.updatedByName,
+      createdAtString: createdAtString ?? this.createdAtString,
+      updatedAtString: updatedAtString ?? this.updatedAtString,
+    );
+  }
 }

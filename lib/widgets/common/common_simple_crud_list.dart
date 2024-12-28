@@ -6,7 +6,7 @@ import 'common_dialog.dart';
 import 'common_text_form_field.dart';
 
 /// 通用列表页面配置
-class CommonListConfig<T> {
+class CommonSimpleCrudListConfig<T> {
   /// 页面标题
   final String title;
   
@@ -40,7 +40,7 @@ class CommonListConfig<T> {
   /// 筛选区域组件（可选）
   final PreferredSizeWidget? filterWidget;
 
-  const CommonListConfig({
+  const CommonSimpleCrudListConfig({
     required this.title,
     this.showType = false,
     this.typeOptions,
@@ -55,21 +55,21 @@ class CommonListConfig<T> {
   });
 }
 
-class CommonListPage<T> extends StatefulWidget {
-  final CommonListConfig<T> config;
+class CommonSimpleCrudList<T> extends StatefulWidget {
+  final CommonSimpleCrudListConfig<T> config;
   final VoidCallback? onFilterChanged;
 
-  const CommonListPage({
+  const CommonSimpleCrudList({
     super.key,
     required this.config,
     this.onFilterChanged,
   });
 
   @override
-  State<CommonListPage<T>> createState() => CommonListPageState<T>();
+  State<CommonSimpleCrudList<T>> createState() => CommonSimpleCrudListState<T>();
 }
 
-class CommonListPageState<T> extends State<CommonListPage<T>> {
+class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   List<T>? _items;
   bool _loading = false;
   String? _error;

@@ -4,7 +4,7 @@ import '../../database/database.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../widgets/common/common_list_page.dart';
+import '../../widgets/common/common_simple_crud_list.dart';
 
 class MerchantsPage extends StatelessWidget {
   const MerchantsPage({super.key, required this.accountBook});
@@ -15,8 +15,8 @@ class MerchantsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
     
-    return CommonListPage<AccountShop>(
-      config: CommonListConfig(
+    return CommonSimpleCrudList<AccountShop>(
+      config: CommonSimpleCrudListConfig(
         title: l10n.merchant,
         getName: (item) => item.name,
         loadData: () => ServiceManager.accountShopService.getShopsByAccountBook(accountBook.id),

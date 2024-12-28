@@ -204,207 +204,66 @@ class AccountItemFormProvider extends ChangeNotifier {
 
   /// 更新类型
   void updateType(String type) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
+    _item = _item.copyWith(
       type: type,
-      amount: _item.amount,
-      description: _item.description,
       categoryCode: null,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }
 
   /// 更新金额
   void updateAmount(double amount) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: amount,
-      description: _item.description,
-      categoryCode: _item.categoryCode,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
-    );
+    _item = _item.copyWith(amount: amount);
     notifyListeners();
   }
 
   /// 更新描述
   void updateDescription(String? description) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: description,
-      categoryCode: _item.categoryCode,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
-    );
+    _item = _item.copyWith(description: description);
     notifyListeners();
   }
 
   /// 更新分类
   void updateCategory(String? code, String? name) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: _item.description,
+    _item = _item.copyWith(
       categoryCode: code,
       categoryName: name,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }
 
   /// 更新账户
   void updateFund(String? id, String? name) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: _item.description,
-      categoryCode: _item.categoryCode,
-      categoryName: _item.categoryName,
-      accountDate: _item.accountDate,
+    _item = _item.copyWith(
       fundId: id,
       fundName: name,
-      shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }
 
   /// 更新商户
   void updateShop(String? code, String? name) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: _item.description,
-      categoryCode: _item.categoryCode,
-      categoryName: _item.categoryName,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      fundName: _item.fundName,
+    _item = _item.copyWith(
       shopCode: code,
       shopName: name,
-      tagCode: _item.tagCode,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }
 
   /// 更新标签
   void updateTag(String? code, String? name) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: _item.description,
-      categoryCode: _item.categoryCode,
-      categoryName: _item.categoryName,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      fundName: _item.fundName,
-      shopCode: _item.shopCode,
-      shopName: _item.shopName,
+    _item = _item.copyWith(
       tagCode: code,
       tagName: name,
-      projectCode: _item.projectCode,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }
 
   /// 更新项目
   void updateProject(String? code, String? name) {
-    _item = AccountItemVO(
-      id: _item.id,
-      accountBookId: _item.accountBookId,
-      type: _item.type,
-      amount: _item.amount,
-      description: _item.description,
-      categoryCode: _item.categoryCode,
-      categoryName: _item.categoryName,
-      accountDate: _item.accountDate,
-      fundId: _item.fundId,
-      fundName: _item.fundName,
-      shopCode: _item.shopCode,
-      shopName: _item.shopName,
-      tagCode: _item.tagCode,
-      tagName: _item.tagName,
+    _item = _item.copyWith(
       projectCode: code,
       projectName: name,
-      createdBy: _item.createdBy,
-      updatedBy: _item.updatedBy,
-      createdAt: _item.createdAt,
-      updatedAt: _item.updatedAt,
-      createdAtString: _item.createdAtString,
-      updatedAtString: _item.updatedAtString,
     );
     notifyListeners();
   }

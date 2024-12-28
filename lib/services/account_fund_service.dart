@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import '../database/database.dart';
 import '../models/common.dart';
+import '../models/vo/user_fund_vo.dart';
 import 'base_service.dart';
 
 /// 资金账户服务
@@ -148,6 +149,61 @@ class AccountFundService extends BaseService {
     } catch (e) {
       return OperateResult.failWithMessage(
         '更新资金账户余额失败',
+        e is Exception ? e : Exception(e.toString()),
+      );
+    }
+  }
+
+  /// 获取用户的所有资金账户
+  Future<OperateResult<List<UserFundVO>>> getFundsByUser(String userId) async {
+    try {
+      // 1. 查询用户创建的所有资金账户
+      final fundsQuery = db.select(db.accountFundTable)
+        ..where((t) => t.createdBy.equals(userId));
+      final funds = await fundsQuery.get();
+
+      if (funds.isEmpty) {
+        return OperateResult.success([]);
+      }
+
+      // 2. 查询资金账户关联的账本信息
+      final relQuery = db.select(db.relAccountbookFundTable).join([
+        innerJoin(
+          db.accountBookTable,
+          db.relAccountbookFundTable.accountBookId.equalsExp(db.accountBookTable.id),
+        ),
+      ])..where(db.relAccountbookFundTable.fundId.isIn(funds.map((f) => f.id)));
+
+      final relResults = await relQuery.get();
+
+      // 3. 组装视图对象
+      final result = funds.map((fund) {
+        final relatedBooks = relResults
+            .where((row) => row.readTable(db.relAccountbookFundTable).fundId == fund.id)
+            .map((row) {
+          final rel = row.readTable(db.relAccountbookFundTable);
+          final book = row.readTable(db.accountBookTable);
+          return RelatedAccountBook(
+            id: book.id,
+            name: book.name,
+            description: book.description,
+            icon: book.icon,
+            fundIn: rel.fundIn,
+            fundOut: rel.fundOut,
+            isDefault: rel.isDefault,
+          );
+        }).toList();
+
+        return UserFundVO(
+          fund: fund,
+          relatedBooks: relatedBooks,
+        );
+      }).toList();
+
+      return OperateResult.success(result);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        '获取用户资金账户失败',
         e is Exception ? e : Exception(e.toString()),
       );
     }

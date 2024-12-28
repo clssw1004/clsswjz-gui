@@ -5,7 +5,7 @@ import '../../enums/account_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../widgets/common/common_list_page.dart';
+import '../../widgets/common/common_simple_crud_list.dart';
 
 class AccountCategoriesPage extends StatefulWidget {
   const AccountCategoriesPage({super.key, required this.accountBook});
@@ -17,16 +17,16 @@ class AccountCategoriesPage extends StatefulWidget {
 
 class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
   String _selectedType = AccountItemType.expense.code;
-  final _listKey = GlobalKey<CommonListPageState<AccountCategory>>();
+  final _listKey = GlobalKey<CommonSimpleCrudListState<AccountCategory>>();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
     
-    return CommonListPage<AccountCategory>(
+    return CommonSimpleCrudList<AccountCategory>(
       key: _listKey,
-      config: CommonListConfig(
+      config: CommonSimpleCrudListConfig(
         title: l10n.category,
         getName: (item) => item.name,
         loadData: () => ServiceManager.accountCategoryService.getCategoriesByType(
