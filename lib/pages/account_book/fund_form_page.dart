@@ -1,11 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../database/database.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
-import '../../models/vo/user_book_vo.dart';
+import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
@@ -13,7 +12,7 @@ import '../../widgets/common/common_text_form_field.dart';
 /// 资金账户表单页面
 class FundFormPage extends StatefulWidget {
   /// 资金账户
-  final AccountFund? fund;
+  final UserFundVO? fund;
 
   const FundFormPage({super.key, this.fund});
 
@@ -38,13 +37,12 @@ class _FundFormPageState extends State<FundFormPage> {
   FundType _fundType = FundType.cash;
 
   /// 关联的账本列表
-  List<UserBookVO> _relatedBooks = [];
+  List<RelatedAccountBook> _relatedBooks = [];
 
   /// 是否正在保存
   bool _saving = false;
 
   /// 是否正在加载账本
-  bool _loadingBooks = false;
 
   @override
   void initState() {
@@ -53,9 +51,15 @@ class _FundFormPageState extends State<FundFormPage> {
       _nameController.text = widget.fund!.name;
       _remarkController.text = widget.fund!.fundRemark ?? '';
       _balanceController.text = widget.fund!.fundBalance.toString();
-      _fundType = FundType.fromCode(widget.fund!.fundType);
+      _fundType = widget.fund!.fundType;
+      _relatedBooks = widget.fund!.relatedBooks;
+    } else {
+        ServiceManager.accountFundService.getDefaultRelatedBooks().then((result) {
+        if (result.ok) {
+          _relatedBooks = result.data!;
+        }
+      });
     }
-    _loadRelatedBooks();
   }
 
   @override
@@ -66,31 +70,7 @@ class _FundFormPageState extends State<FundFormPage> {
     super.dispose();
   }
 
-  /// 加载关联账本
-  Future<void> _loadRelatedBooks() async {
-    if (_loadingBooks) return;
-    if (widget.fund == null) return;
 
-    setState(() {
-      _loadingBooks = true;
-    });
-
-    try {
-      // TODO: 调用服务加载关联账本
-      // final result = await ServiceManager.accountFundService.getRelatedBooks(widget.fund!.id);
-      // if (result.ok) {
-      //   setState(() {
-      //     _relatedBooks = result.data!;
-      //   });
-      // }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loadingBooks = false;
-        });
-      }
-    }
-  }
 
   /// 选择账本
   Future<void> _selectBook() async {
@@ -111,7 +91,7 @@ class _FundFormPageState extends State<FundFormPage> {
   }
 
   /// 删除关联账本
-  Future<void> _removeBook(UserBookVO book) async {
+  Future<void> _removeBook(RelatedAccountBook book) async {
     // TODO: 调用服务删除关联账本
     // if (widget.fund != null) {
     //   final result = await ServiceManager.accountFundService.removeRelatedBook(
@@ -151,7 +131,7 @@ class _FundFormPageState extends State<FundFormPage> {
               updatedBy: userId,
             )
           : await ServiceManager.accountFundService.updateFund(
-              widget.fund!.copyWith(
+              widget.fund!.toAccountFund().copyWith(
                 name: _nameController.text,
                 fundType: _fundType.code,
                 fundRemark: Value(_remarkController.text.isEmpty ? null : _remarkController.text),
@@ -250,7 +230,7 @@ class _FundFormPageState extends State<FundFormPage> {
               label: l10n.type,
               required: true,
               expandCount: 10,
-              expandRows: 2,
+              expandRows: 4,
               onChanged: (value) {
                 setState(() {
                   _fundType = value as FundType;
@@ -298,14 +278,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 ),
               ],
             ),
-            if (_loadingBooks)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (_relatedBooks.isEmpty)
+        if (_relatedBooks.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),

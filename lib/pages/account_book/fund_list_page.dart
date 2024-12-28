@@ -5,7 +5,7 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_data_list_page.dart';
-import '../account_book/fund_form_page.dart';
+import 'fund_form_page.dart';
 
 /// 资金账户列表页面
 class FundListPage extends StatelessWidget {

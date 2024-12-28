@@ -15,8 +15,8 @@ import '../models/vo/account_item_vo.dart';
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import '../pages/account_book/tags_page.dart';
 import '../pages/account_book/projects_page.dart';
-import '../pages/account_book/account_categories_page.dart';
-import '../pages/fund/fund_list_page.dart';
+import '../pages/account_book/categories_page.dart';
+import '../pages/account_book/fund_list_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
