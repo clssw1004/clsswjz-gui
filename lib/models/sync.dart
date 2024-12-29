@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import '../database/database.dart';
 
 /// 同步数据传输对象

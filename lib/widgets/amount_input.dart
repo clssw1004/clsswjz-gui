@@ -11,13 +11,13 @@ class AmountInput extends StatefulWidget {
   final TextEditingController controller;
 
   const AmountInput({
-    Key? key,
+    super.key,
     this.initialValue,
     required this.onChanged,
     required this.type,
     this.focusNode,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<AmountInput> createState() => _AmountInputState();

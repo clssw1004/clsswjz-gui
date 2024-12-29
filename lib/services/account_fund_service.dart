@@ -166,7 +166,7 @@ class AccountFundService extends BaseService {
 
     // 查询出所有关联记录中包含该资金账户的记录
     final relGroupMap = CollectionUtils.groupBy(rels, (e) => e.fundId);
-    funds.forEach((fund) {
+    for (var fund in funds) {
       if (fundMap.containsKey(fund.id)) {
         final relMap = CollectionUtils.toMap(
             relGroupMap[fund.id] ?? [], (e) => e.accountBookId);
@@ -186,11 +186,11 @@ class AccountFundService extends BaseService {
         }).toList();
 
         result.add(UserFundVO.fromFundAndBooks(
-          fund: fund!,
+          fund: fund,
           books: relatedBooks,
         ));
       }
-    });
+    }
 
     return OperateResult.success(result);
   }

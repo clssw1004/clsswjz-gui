@@ -13,7 +13,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   final AccountItemService _accountItemService = AccountItemService();
 
   /// 账本数据
-  UserBookVO _accountBook;
+  final UserBookVO _accountBook;
   UserBookVO get accountBook => _accountBook;
 
   /// 账目数据

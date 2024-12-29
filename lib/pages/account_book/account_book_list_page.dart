@@ -70,6 +70,25 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push<bool>(
+            MaterialPageRoute(
+              builder: (context) => const AccountBookEditPage(),
+            ),
+          )
+              .then((created) {
+            if (created == true) {
+              context
+                  .read<AccountBooksProvider>()
+                  .refresh(UserConfigManager.currentUserId);
+            }
+          });
+        },
+        tooltip: l10n.addNew(l10n.accountBook),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

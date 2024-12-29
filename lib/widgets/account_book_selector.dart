@@ -61,31 +61,26 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
 
   /// 加载初始账本
   Future<void> _loadInitialBook() async {
-    if (_selectedBook == null) {
-      final result = await _accountBookService.getBooksByUserId(widget.userId);
-      if (!result.ok || result.data!.isEmpty) return;
+    final result = await _accountBookService.getBooksByUserId(widget.userId);
+    if (!mounted || !result.ok || result.data!.isEmpty) return;
 
-      final books = result.data!;
-      final defaultBookId = AppConfigManager.instance.defaultBookId;
+    final books = result.data!;
+    final defaultBookId = AppConfigManager.instance.defaultBookId;
 
-      UserBookVO? selectedBook;
-      if (defaultBookId != null) {
-        // 尝试加载默认账本
-        selectedBook = books.firstWhere(
-          (book) => book.id == defaultBookId,
-          orElse: () => _findDefaultBook(books),
-        );
-      } else {
-        selectedBook = _findDefaultBook(books);
-      }
-
-      if (selectedBook != null && mounted) {
-        setState(() {
-          _selectedBook = selectedBook;
-        });
-        widget.onSelected?.call(selectedBook);
-      }
+    UserBookVO selectedBook;
+    if (defaultBookId != null) {
+      selectedBook = books.firstWhere(
+        (book) => book.id == defaultBookId,
+        orElse: () => _findDefaultBook(books),
+      );
+    } else {
+      selectedBook = _findDefaultBook(books);
     }
+
+    setState(() {
+      _selectedBook = selectedBook;
+    });
+    widget.onSelected?.call(selectedBook);
   }
 
   /// 查找默认账本（第一个创建人是自己的账本）
@@ -235,7 +230,10 @@ class _AccountBookList extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       )
                     : null,
-                onTap: () => Navigator.of(context).pop(book),
+                onTap: () async {
+                  await AppConfigManager.instance.setDefaultBookId(book.id);
+                  Navigator.of(context).pop(book);
+                },
               );
             },
           );

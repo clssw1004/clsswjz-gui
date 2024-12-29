@@ -6,10 +6,10 @@ class CalculatorPanel extends StatefulWidget {
   final ValueChanged<double> onConfirm;
 
   const CalculatorPanel({
-    Key? key,
+    super.key,
     this.initialValue,
     required this.onConfirm,
-  }) : super(key: key);
+  });
 
   @override
   State<CalculatorPanel> createState() => _CalculatorPanelState();
@@ -231,7 +231,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
           // 显示区域
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -243,7 +243,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     _displayText.isEmpty ? '0' : _displayText,
@@ -278,28 +278,28 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                             child: Row(
                               children: [
                                 _buildCalculatorButton(
-                                  child: Text('C'),
+                                  child: const Text('C'),
                                   onPressed: _clear,
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: true,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('÷'),
+                                  child: const Text('÷'),
                                   onPressed: () => _addOperator('/'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: true,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('×'),
+                                  child: const Text('×'),
                                   onPressed: () => _addOperator('*'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: true,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Icon(Icons.backspace_outlined),
+                                  child: const Icon(Icons.backspace_outlined),
                                   onPressed: _backspace,
                                   width: buttonWidth,
                                   height: buttonHeight,
@@ -314,28 +314,28 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                             child: Row(
                               children: [
                                 _buildCalculatorButton(
-                                  child: Text('7'),
+                                  child: const Text('7'),
                                   onPressed: () => _addNumber('7'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('8'),
+                                  child: const Text('8'),
                                   onPressed: () => _addNumber('8'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('9'),
+                                  child: const Text('9'),
                                   onPressed: () => _addNumber('9'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('-'),
+                                  child: const Text('-'),
                                   onPressed: () => _addOperator('-'),
                                   width: buttonWidth,
                                   height: buttonHeight,
@@ -350,28 +350,28 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                             child: Row(
                               children: [
                                 _buildCalculatorButton(
-                                  child: Text('4'),
+                                  child: const Text('4'),
                                   onPressed: () => _addNumber('4'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('5'),
+                                  child: const Text('5'),
                                   onPressed: () => _addNumber('5'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('6'),
+                                  child: const Text('6'),
                                   onPressed: () => _addNumber('6'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('+'),
+                                  child: const Text('+'),
                                   onPressed: () => _addOperator('+'),
                                   width: buttonWidth,
                                   height: buttonHeight,
@@ -386,21 +386,21 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                             child: Row(
                               children: [
                                 _buildCalculatorButton(
-                                  child: Text('1'),
+                                  child: const Text('1'),
                                   onPressed: () => _addNumber('1'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('2'),
+                                  child: const Text('2'),
                                   onPressed: () => _addNumber('2'),
                                   width: buttonWidth,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('3'),
+                                  child: const Text('3'),
                                   onPressed: () => _addNumber('3'),
                                   width: buttonWidth,
                                   height: buttonHeight,
@@ -416,14 +416,14 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                             child: Row(
                               children: [
                                 _buildCalculatorButton(
-                                  child: Text('0'),
+                                  child: const Text('0'),
                                   onPressed: () => _addNumber('0'),
                                   width: buttonWidth * 2,
                                   height: buttonHeight,
                                   isOperator: false,
                                 ),
                                 _buildCalculatorButton(
-                                  child: Text('.'),
+                                  child: const Text('.'),
                                   onPressed: () => _addNumber('.'),
                                   width: buttonWidth,
                                   height: buttonHeight,

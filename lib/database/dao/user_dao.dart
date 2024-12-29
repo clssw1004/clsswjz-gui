@@ -76,4 +76,10 @@ class UserDao {
       ),
     );
   }
+
+  Future<User?> findByInviteCode(String inviteCode) {
+    return (db.select(db.userTable)
+          ..where((t) => t.inviteCode.equals(inviteCode)))
+        .getSingleOrNull();
+  }
 }

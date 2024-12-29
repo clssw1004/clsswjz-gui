@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
+import '../../manager/service_manager.dart';
+import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
 import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/common/common_card_container.dart';
+import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
 
 /// 账本详情编辑页面
 class AccountBookEditPage extends StatefulWidget {
-  /// 账本信息
-  final UserBookVO book;
+  /// 账本信息（编辑模式时必传）
+  final UserBookVO? book;
 
   const AccountBookEditPage({
     super.key,
-    required this.book,
+    this.book,
   });
 
   @override
@@ -45,14 +47,21 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
   /// 是否正在保存
   bool _saving = false;
 
+  /// 是否为新增模式
+  bool get isCreateMode => widget.book == null;
+
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.book.name;
-    _descriptionController.text = widget.book.description ?? '';
-    _icon = widget.book.icon;
-    _currencySymbol = widget.book.currencySymbol;
-    _members = List.from(widget.book.members);
+    if (!isCreateMode) {
+      _nameController.text = widget.book!.name;
+      _descriptionController.text = widget.book!.description ?? '';
+      _icon = widget.book!.icon;
+      _currencySymbol = widget.book!.currencySymbol;
+      _members = List.from(widget.book!.members);
+    } else {
+      _members = [];
+    }
   }
 
   @override
@@ -72,7 +81,41 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
     });
 
     try {
-      // TODO: 调用服务层方法保存账本信息
+      final result = isCreateMode
+          ? await ServiceManager.accountBookService.createAccountBook(
+              name: _nameController.text,
+              description: _descriptionController.text,
+              userId: UserConfigManager.currentUserId,
+              currencySymbol: _currencySymbol,
+              icon: _icon,
+            )
+          : await ServiceManager.accountBookService.updateAccountBook(
+              id: widget.book!.id,
+              userId: UserConfigManager.currentUserId,
+              name: _nameController.text,
+              description: _descriptionController.text,
+              currencySymbol: _currencySymbol,
+              icon: _icon,
+            );
+
+      if (!result.ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .saveFailed(result.message ?? '')),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 如果是编辑模式，还需要更新成员
+      if (!isCreateMode) {
+        // TODO: 更新成员列表
+      }
+
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -155,7 +198,140 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
 
   /// 添加成员
   Future<void> _addMember() async {
-    // TODO: 实现添加成员
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    String inviteCode = '';
+    BookMemberVO? foundMember;
+    bool isSearching = false;
+    bool hasSearched = false;
+
+    await CommonDialog.show(
+      context: context,
+      title: l10n.findUserByInviteCode,
+      width: 320,
+      height: 400,
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          final bool isMemberExists = foundMember != null &&
+              (_members.any((m) => m.userId == foundMember!.userId) ||
+                  foundMember!.userId == widget.book!.createdBy);
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommonTextFormField(
+                labelText: l10n.inviteCode,
+                required: true,
+                onChanged: (value) {
+                  inviteCode = value;
+                  if (hasSearched) {
+                    setState(() {
+                      foundMember = null;
+                      hasSearched = false;
+                    });
+                  }
+                },
+                suffixIcon: IconButton(
+                  icon: isSearching
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.search),
+                  onPressed: inviteCode.isEmpty || isSearching
+                      ? null
+                      : () async {
+                          setState(() {
+                            isSearching = true;
+                            hasSearched = true;
+                          });
+                          try {
+                            final result = await ServiceManager
+                                .accountBookService
+                                .gernerateDefaultMemberByInviteCode(inviteCode);
+                            setState(() {
+                              foundMember = result.ok ? result.data : null;
+                            });
+                          } finally {
+                            setState(() {
+                              isSearching = false;
+                            });
+                          }
+                        },
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (foundMember != null)
+                InkWell(
+                  onTap: isMemberExists
+                      ? null
+                      : () {
+                          this.setState(() {
+                            _members = [..._members, foundMember!];
+                          });
+                          Navigator.of(context).pop();
+                        },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isMemberExists
+                          ? colorScheme.outline
+                          : colorScheme.primaryContainer.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person_outline),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                foundMember!.nickname ?? l10n.unknownUser,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                              if (isMemberExists)
+                                Text(
+                                  foundMember!.userId == widget.book!.createdBy
+                                      ? l10n.bookCreator
+                                      : l10n.memberAlreadyExists,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.outline,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (!isMemberExists)
+                          Icon(
+                            Icons.person_add_outlined,
+                            color: colorScheme.primary,
+                          ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (hasSearched && !isSearching)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    l10n.userNotFound,
+                    style: TextStyle(color: colorScheme.error),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   /// 删除成员
@@ -209,7 +385,9 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.editTo(l10n.accountBook)),
+        title: Text(isCreateMode
+            ? l10n.addNew(l10n.accountBook)
+            : l10n.editTo(l10n.accountBook)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -232,7 +410,6 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
               l10n.basicInfo,
               style: theme.textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
             CommonTextFormField(
               initialValue: _nameController.text,
               labelText: l10n.name,
@@ -240,7 +417,7 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
               prefixIcon: InkWell(
                 onTap: _selectIcon,
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: SizedBox(
                   width: 48,
                   height: 48,
                   child: Icon(
@@ -260,7 +437,6 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
               },
               onChanged: (value) => _nameController.text = value,
             ),
-            const SizedBox(height: 16),
             CommonTextFormField(
               initialValue: _descriptionController.text,
               labelText: l10n.description,
@@ -269,7 +445,7 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
             ),
             const SizedBox(height: 16),
             CommonSelectFormField<String>(
-              items: const ['CNY', 'USD', 'EUR', 'GBP', 'JPY'],
+              items: const ['¥', '\$', '€', '£', '¥'],
               value: _currencySymbol,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item,
@@ -279,48 +455,51 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
               required: true,
               onChanged: (value) => setState(() => _currencySymbol = value),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.members,
-                    style: theme.textTheme.titleMedium,
+            if (!isCreateMode) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.members,
+                      style: theme.textTheme.titleMedium,
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: _addMember,
-                  icon: const Icon(Icons.person_add_outlined),
-                ),
-              ],
-            ),
-            if (_members.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: Text(
-                    l10n.noMembers,
-                    style: TextStyle(color: colorScheme.outline),
+                  IconButton(
+                    onPressed: _addMember,
+                    icon: const Icon(Icons.person_add_outlined),
                   ),
-                ),
-              )
-            else
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _members.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final member = _members[index];
-                  return _MemberItem(
-                    member: member,
-                    onRemove: () => _removeMember(member),
-                    onPermissionChanged: (key, value) =>
-                        _updateMemberPermission(member, key, value),
-                  );
-                },
+                ],
               ),
+              if (_members.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: Text(
+                      l10n.noMembers,
+                      style: TextStyle(color: colorScheme.outline),
+                    ),
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: _members.length,
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final member = _members[index];
+                    return _MemberItem(
+                      member: member,
+                      onRemove: () => _removeMember(member),
+                      onPermissionChanged: (key, value) =>
+                          _updateMemberPermission(member, key, value),
+                    );
+                  },
+                ),
+            ],
           ],
         ),
       ),

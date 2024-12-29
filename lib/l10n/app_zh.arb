@@ -361,5 +361,25 @@
     "canDeleteItem": "删除账目",
     "@canDeleteItem": {
         "description": "删除账目权限"
+    },
+    "findUserByInviteCode": "根据邀请码添加账本成员",
+    "@findUserByInviteCode": {
+        "description": "查找用户对话框标题"
+    },
+    "inviteCode": "邀请码",
+    "@inviteCode": {
+        "description": "邀请码输入框标签"
+    },
+    "memberAlreadyExists": "该成员已在列表中",
+    "@memberAlreadyExists": {
+        "description": "成员已存在提示"
+    },
+    "userNotFound": "未查找到用户，请稍后再输入",
+    "@userNotFound": {
+        "description": "未找到用户提示"
+    },
+    "bookCreator": "账本创建人",
+    "@bookCreator": {
+        "description": "账本创建人提示文本"
     }
 }

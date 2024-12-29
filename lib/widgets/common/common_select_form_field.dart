@@ -120,8 +120,6 @@ class _CommonSelectFormFieldWidgetState<T>
   /// 搜索控制器
   final TextEditingController _searchController = TextEditingController();
 
-
-
   /// 搜索关键字
   String _searchText = '';
 
@@ -195,7 +193,10 @@ class _CommonSelectFormFieldWidgetState<T>
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                            Theme.of(context).extension<ThemeRadius>()?.radius ?? 4,
+                            Theme.of(context)
+                                    .extension<ThemeRadius>()
+                                    ?.radius ??
+                                4,
                           ),
                         ),
                       ),
@@ -292,7 +293,9 @@ class _CommonSelectFormFieldWidgetState<T>
         ),
       ),
       controller: TextEditingController(
-        text: _selectedItem != null ? widget.displayField(_selectedItem!) : '',
+        text: _selectedItem != null
+            ? widget.displayField(_selectedItem as T)
+            : '',
       ),
       style: theme.textTheme.bodyLarge,
     );
@@ -341,7 +344,7 @@ class _CommonSelectFormFieldWidgetState<T>
                   ],
                   Text(
                     _selectedItem != null
-                        ? widget.displayField(_selectedItem!)
+                        ? widget.displayField(_selectedItem as T)
                         : widget.hint ?? widget.label ?? '',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: _selectedItem != null
@@ -376,7 +379,7 @@ class _CommonSelectFormFieldWidgetState<T>
     // 如果选中项不在显示列表中，替换最后一个选项
     if (_selectedItem != null && !displayItems.contains(_selectedItem)) {
       if (displayItems.isNotEmpty) {
-        displayItems[displayItems.length - 1] = _selectedItem!;
+        displayItems[displayItems.length - 1] = _selectedItem as T;
       }
     }
 

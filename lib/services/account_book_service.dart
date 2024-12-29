@@ -147,6 +147,28 @@ class AccountBookService extends BaseService {
     }
   }
 
+  /// 根据邀请码生成默认成员
+  Future<OperateResult<BookMemberVO>> gernerateDefaultMemberByInviteCode(
+      String inviteCode) async {
+    final user = await _userDao.findByInviteCode(inviteCode);
+    if (user == null) {
+      return OperateResult.failWithMessage('用户不存在', null);
+    }
+
+    return OperateResult.success(BookMemberVO(
+      userId: user.id,
+      nickname: user.nickname,
+      permission: AccountBookPermissionVO(
+        canViewBook: true,
+        canEditBook: false,
+        canDeleteBook: false,
+        canViewItem: true,
+        canEditItem: false,
+        canDeleteItem: false,
+      ),
+    ));
+  }
+
   /// 添加账本成员
   Future<OperateResult<void>> addMember({
     required String accountBookId,

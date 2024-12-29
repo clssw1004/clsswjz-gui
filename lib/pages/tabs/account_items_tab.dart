@@ -10,7 +10,7 @@ import '../../widgets/common/common_app_bar.dart';
 import '../account_book/account_item_form_page.dart';
 
 class AccountItemsTab extends StatelessWidget {
-  const AccountItemsTab({Key? key}) : super(key: key);
+  const AccountItemsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,8 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
                             AppRoutes.accountBookForm,
                           );
                           if (result == true) {
-                            await provider.init(UserConfigManager.currentUserId);
+                            await provider
+                                .init(UserConfigManager.currentUserId);
                           }
                         },
                         icon: const Icon(Icons.add),

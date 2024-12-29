@@ -152,7 +152,7 @@ class _AddAccountBookFormPageState extends State<AddAccountBookFormPage> {
               prefixIcon: InkWell(
                 onTap: _selectIcon,
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: SizedBox(
                   width: 48,
                   height: 48,
                   child: Icon(

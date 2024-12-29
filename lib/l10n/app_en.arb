@@ -344,5 +344,25 @@
     "canDeleteItem": "Delete Items",
     "@canDeleteItem": {
         "description": "Delete items permission"
+    },
+    "findUserByInviteCode": "Find User By Invite Code",
+    "@findUserByInviteCode": {
+        "description": "Find user dialog title"
+    },
+    "inviteCode": "Invite Code",
+    "@inviteCode": {
+        "description": "Invite code input label"
+    },
+    "memberAlreadyExists": "Member already exists",
+    "@memberAlreadyExists": {
+        "description": "Member exists prompt"
+    },
+    "userNotFound": "User not found, please try again later",
+    "@userNotFound": {
+        "description": "User not found prompt"
+    },
+    "bookCreator": "Book Creator",
+    "@bookCreator": {
+        "description": "Book creator prompt text"
     }
 }

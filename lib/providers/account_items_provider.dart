@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_item_service.dart';
@@ -26,7 +27,9 @@ class AccountItemsProvider with ChangeNotifier {
   Future<void> init(String userId) async {
     final result = await _accountBookService.getBooksByUserId(userId);
     if (result.ok && result.data != null && result.data!.isNotEmpty) {
-      await setSelectedBook(result.data!.first);
+      final defaultBookId = AppConfigManager.instance.defaultBookId;
+      await setSelectedBook(
+          result.data!.firstWhere((element) => element.id == defaultBookId));
     }
   }
 
