@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import './calculator_panel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../enums/account_type.dart';
 import '../utils/color_util.dart';
 
 class AmountInput extends StatefulWidget {
@@ -58,7 +57,7 @@ class _AmountInputState extends State<AmountInput> {
     final l10n = AppLocalizations.of(context)!;
 
     // 获取金额颜色
-    final amountColor = ColorUtil.getAmountColor(context, widget.type);
+    final amountColor = ColorUtil.getAmountColor(widget.type);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

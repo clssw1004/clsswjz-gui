@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../database/database.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
@@ -85,40 +86,38 @@ class _FundFormPageState extends State<FundFormPage> {
       final userId = AppConfigManager.instance.userId!;
       final result = widget.fund == null
           ? await ServiceManager.accountFundService.createFund(
-              name: _nameController.text,
-              fundType: _fundType.code,
-              fundRemark: _remarkController.text.isEmpty
-                  ? null
-                  : _remarkController.text,
-              fundBalance: double.parse(_balanceController.text),
-              createdBy: userId,
-              updatedBy: userId,
-            )
+              AccountFund(
+                id: '',
+                name: _nameController.text,
+                fundType: _fundType.code,
+                fundBalance: double.parse(_balanceController.text),
+                fundRemark: _remarkController.text.isEmpty
+                    ? null
+                    : _remarkController.text,
+                createdBy: userId,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                updatedBy: userId,
+                updatedAt: DateTime.now().millisecondsSinceEpoch,
+              ),
+              _relatedBooks,
+              userId)
           : await ServiceManager.accountFundService.updateFund(
-              widget.fund!.toAccountFund().copyWith(
-                    name: _nameController.text,
-                    fundType: _fundType.code,
-                    fundRemark: Value(_remarkController.text.isEmpty
-                        ? null
-                        : _remarkController.text),
-                    fundBalance: double.parse(_balanceController.text),
-                    updatedBy: userId,
-                    updatedAt: DateTime.now().millisecondsSinceEpoch,
-                  ),
+              AccountFund(
+                createdBy: widget.fund!.createdBy,
+                updatedBy: userId,
+                id: widget.fund!.id,
+                createdAt: widget.fund!.createdAt,
+                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                name: _nameController.text,
+                fundType: _fundType.code,
+                fundBalance: double.parse(_balanceController.text),
+              ),
+              _relatedBooks,
+              userId,
             );
 
-      if (result.ok) {
-        // TODO: 保存关联账本
-        // if (_relatedBooks.isNotEmpty) {
-        //   await ServiceManager.accountFundService.updateRelatedBooks(
-        //     result.data!.id,
-        //     _relatedBooks.map((e) => e.id).toList(),
-        //   );
-        // }
-
-        if (mounted) {
-          Navigator.of(context).pop(true);
-        }
+      if (result.ok && mounted) {
+        Navigator.of(context).pop(true);
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

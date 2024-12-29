@@ -64,7 +64,7 @@ class AccountItemListTile extends StatelessWidget {
           Text(
             '${item.type == 'EXPENSE' ? '-' : '+'}${currencySymbol}${item.amount.toStringAsFixed(2)}',
             style: theme.textTheme.titleMedium?.copyWith(
-              color: ColorUtil.getAmountColor(context, item.type),
+              color: ColorUtil.getAmountColor(item.type),
               fontWeight: FontWeight.bold,
             ),
           ),

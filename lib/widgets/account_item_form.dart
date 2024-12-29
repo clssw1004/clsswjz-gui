@@ -6,9 +6,6 @@ import '../enums/account_type.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
-import '../services/account_category_service.dart';
-import '../services/account_shop_service.dart';
-import '../services/account_symbol_service.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
@@ -349,4 +346,4 @@ class _AccountItemFormState extends State<AccountItemForm> {
       ),
     );
   }
-} 
+}

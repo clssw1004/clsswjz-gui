@@ -36,6 +36,12 @@ class CommonDataListPage<T> extends StatefulWidget {
 
   @override
   State<CommonDataListPage<T>> createState() => _CommonDataListPageState<T>();
+
+  /// 刷新列表数据
+  static void refresh(BuildContext context) {
+    final state = context.findAncestorStateOfType<_CommonDataListPageState>();
+    state?._loadData();
+  }
 }
 
 class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
@@ -117,7 +123,8 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
                       itemCount: _items?.length ?? 0,
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
-                        return widget.config.itemBuilder(context, _items![index]);
+                        return widget.config
+                            .itemBuilder(context, _items![index]);
                       },
                     ),
       floatingActionButton: widget.config.onAdd != null
@@ -128,4 +135,4 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
           : null,
     );
   }
-} 
+}

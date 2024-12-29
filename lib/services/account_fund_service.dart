@@ -64,52 +64,6 @@ class AccountFundService extends BaseService {
     }
   }
 
-  /// 创建资金账户
-  Future<OperateResult<String>> createFund({
-    required String name,
-    required String fundType,
-    String? fundRemark,
-    double fundBalance = 0.0,
-    required String createdBy,
-    required String updatedBy,
-  }) async {
-    try {
-      final id = generateUuid();
-      await db.into(db.accountFundTable).insert(
-            AccountFundTableCompanion.insert(
-              id: id,
-              name: name,
-              fundType: fundType,
-              fundRemark: Value(fundRemark),
-              fundBalance: Value(fundBalance),
-              createdBy: createdBy,
-              updatedBy: updatedBy,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
-            ),
-          );
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        '创建资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
-  /// 更新资金账户
-  Future<OperateResult<void>> updateFund(AccountFund fund) async {
-    try {
-      await db.update(db.accountFundTable).replace(fund);
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        '更新资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 删除资金账户
   Future<OperateResult<void>> deleteFund(String id) async {
     try {
@@ -159,7 +113,8 @@ class AccountFundService extends BaseService {
   Future<OperateResult<List<UserFundVO>>> getFundsByUser(String userId) async {
     try {
       final funds = await (db.select(db.accountFundTable)
-            ..where((t) => t.createdBy.equals(userId)))
+            ..where((t) => t.createdBy.equals(userId))
+            ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
           .get();
 
       return toUserFundVO(funds);
@@ -211,10 +166,10 @@ class AccountFundService extends BaseService {
 
     // 查询出所有关联记录中包含该资金账户的记录
     final relGroupMap = CollectionUtils.groupBy(rels, (e) => e.fundId);
-    relGroupMap.forEach((key, value) {
-      if (fundMap.containsKey(key)) {
-        final fund = fundMap[key];
-        final relMap = CollectionUtils.toMap(value, (e) => e.accountBookId);
+    funds.forEach((fund) {
+      if (fundMap.containsKey(fund.id)) {
+        final relMap = CollectionUtils.toMap(
+            relGroupMap[fund.id] ?? [], (e) => e.accountBookId);
         final relatedBooks = books.map((e) {
           final rel = relMap[e.id];
           return RelatedAccountBook(
@@ -238,5 +193,109 @@ class AccountFundService extends BaseService {
     });
 
     return OperateResult.success(result);
+  }
+
+  /// 更新账户及其关联账户数据
+  Future<OperateResult<void>> updateFund(AccountFund fund,
+      List<RelatedAccountBook> relatedBooks, String userId) async {
+    try {
+      await db.transaction(() async {
+        // 更新资金账户基本信息
+        await (db.update(db.accountFundTable)
+              ..where((t) => t.id.equals(fund.id)))
+            .write(AccountFundTableCompanion(
+          name: Value(fund.name),
+          fundType: Value(fund.fundType),
+          fundRemark: Value(fund.fundRemark),
+          fundBalance: Value(fund.fundBalance),
+          updatedBy: Value(userId),
+          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        ));
+
+        // 删除原有关联关系
+        await (db.delete(db.relAccountbookFundTable)
+              ..where((t) => t.fundId.equals(fund.id)))
+            .go();
+
+        // 插入新的关联关系
+        if (relatedBooks.isNotEmpty) {
+          await db.batch((batch) {
+            for (final book in relatedBooks) {
+              batch.insert(
+                db.relAccountbookFundTable,
+                RelAccountbookFundTableCompanion.insert(
+                  id: generateUuid(),
+                  accountBookId: book.accountBookId,
+                  fundId: fund.id,
+                  fundIn: Value(book.fundIn),
+                  fundOut: Value(book.fundOut),
+                  isDefault: Value(book.isDefault),
+                  createdAt: DateTime.now().millisecondsSinceEpoch,
+                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                ),
+                mode: InsertMode.insertOrReplace,
+              );
+            }
+          });
+        }
+      });
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        '更新资金账户失败',
+        e is Exception ? e : Exception(e.toString()),
+      );
+    }
+  }
+
+  /// 创建资金账户及其关联账本
+  Future<OperateResult<void>> createFund(AccountFund fund,
+      List<RelatedAccountBook> relatedBooks, String userId) async {
+    try {
+      await db.transaction(() async {
+        // 插入资金账户基本信息
+        await db.into(db.accountFundTable).insert(
+              AccountFundTableCompanion.insert(
+                id: fund.id,
+                name: fund.name,
+                fundType: fund.fundType,
+                fundRemark: Value(fund.fundRemark),
+                fundBalance: Value(fund.fundBalance),
+                createdBy: userId,
+                updatedBy: userId,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                updatedAt: DateTime.now().millisecondsSinceEpoch,
+              ),
+            );
+
+        // 插入关联关系
+        if (relatedBooks.isNotEmpty) {
+          await db.batch((batch) {
+            for (final book in relatedBooks) {
+              batch.insert(
+                db.relAccountbookFundTable,
+                RelAccountbookFundTableCompanion.insert(
+                  id: generateUuid(),
+                  accountBookId: book.accountBookId,
+                  fundId: fund.id,
+                  fundIn: Value(book.fundIn),
+                  fundOut: Value(book.fundOut),
+                  isDefault: Value(book.isDefault),
+                  createdAt: DateTime.now().millisecondsSinceEpoch,
+                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                ),
+                mode: InsertMode.insertOrReplace,
+              );
+            }
+          });
+        }
+      });
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        '创建资金账户失败',
+        e is Exception ? e : Exception(e.toString()),
+      );
+    }
   }
 }
