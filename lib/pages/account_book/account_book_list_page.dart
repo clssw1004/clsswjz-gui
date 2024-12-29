@@ -5,6 +5,9 @@ import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
+import '../../widgets/common/common_card_container.dart';
+import '../../widgets/common/shared_badge.dart';
+import 'account_book_edit_page.dart';
 
 /// 账本列表页面
 class AccountBookListPage extends StatefulWidget {
@@ -88,124 +91,110 @@ class _AccountBookCard extends StatelessWidget {
 
     final isShared = book.createdBy != userId;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // TODO: 跳转到账本详情页
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return CommonCardContainer(
+      onTap: () {
+        Navigator.of(context)
+            .push<bool>(
+          MaterialPageRoute(
+            builder: (context) => AccountBookEditPage(book: book),
+          ),
+        )
+            .then((updated) {
+          if (updated == true) {
+            context
+                .read<AccountBooksProvider>()
+                .refresh(UserConfigManager.currentUserId);
+          }
+        });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    _getBookIcon(book.icon),
-                    size: 24,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  _getBookIcon(book.icon),
+                  size: 20,
+                  color: colorScheme.onSecondaryContainer,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                book.name,
-                                style: theme.textTheme.titleMedium,
-                              ),
-                            ),
-                            if (isShared)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.share_outlined,
-                                      size: 14,
-                                      color: colorScheme.onPrimaryContainer,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      book.createdByName!,
-                                      style:
-                                          theme.textTheme.labelSmall?.copyWith(
-                                        color: colorScheme.onPrimaryContainer,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                        if (book.description?.isNotEmpty == true) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            book.description!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Text(
+                            book.name,
+                            style: theme.textTheme.titleMedium,
                           ),
-                        ],
+                        ),
+                        if (isShared && book.createdByName != null)
+                          SharedBadge(name: book.createdByName!),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      book.currencySymbol,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                    if (book.description?.isNotEmpty == true) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        book.description!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ),
-                  if (book.members.isNotEmpty) ...[
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.people_outline,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${book.members.length}',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.outline.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  book.currencySymbol,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              if (book.members.isNotEmpty) ...[
+                const SizedBox(width: 12),
+                Icon(
+                  Icons.people_outline,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${book.members.length}',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_book_service.dart';
 import 'common/common_dialog.dart';
+import 'common/shared_badge.dart';
 
 /// 账本选择组件
 class AccountBookSelector extends StatefulWidget {
@@ -224,33 +225,7 @@ class _AccountBookList extends StatelessWidget {
                       child: Text(book.name),
                     ),
                     if (book.createdBy != userId && book.createdByName != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.share_outlined,
-                              size: 12,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              book.createdByName!,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      SharedBadge(name: book.createdByName!),
                   ],
                 ),
                 subtitle: book.description?.isNotEmpty == true

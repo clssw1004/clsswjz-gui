@@ -304,5 +304,45 @@
     "relatedBooks": "Related Books",
     "@relatedBooks": {
         "description": "Related books list title"
+    },
+    "basicInfo": "Basic Information",
+    "@basicInfo": {
+        "description": "Basic information title"
+    },
+    "members": "Members",
+    "@members": {
+        "description": "Members title"
+    },
+    "noMembers": "No Members",
+    "@noMembers": {
+        "description": "No members prompt"
+    },
+    "unknownUser": "Unknown User",
+    "@unknownUser": {
+        "description": "Unknown user name"
+    },
+    "canViewBook": "View Book",
+    "@canViewBook": {
+        "description": "View book permission"
+    },
+    "canEditBook": "Edit Book",
+    "@canEditBook": {
+        "description": "Edit book permission"
+    },
+    "canDeleteBook": "Delete Book",
+    "@canDeleteBook": {
+        "description": "Delete book permission"
+    },
+    "canViewItem": "View Items",
+    "@canViewItem": {
+        "description": "View items permission"
+    },
+    "canEditItem": "Edit Items",
+    "@canEditItem": {
+        "description": "Edit items permission"
+    },
+    "canDeleteItem": "Delete Items",
+    "@canDeleteItem": {
+        "description": "Delete items permission"
     }
 }

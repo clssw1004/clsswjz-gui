@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../manager/database_manager.dart';
 import '../pages/account_book/account_book_list_page.dart';
 import '../pages/account_book/account_item_form_page.dart';
-import '../pages/account_book/account_book_form_page.dart';
+import '../pages/account_book/add_account_book_form_page.dart';
 import '../pages/account_book/merchants_page.dart';
 import '../pages/home_page.dart';
 import '../pages/settings/language_settings_page.dart';
@@ -41,7 +41,7 @@ class AppRoutes {
   static const String accountItemForm = '/account_item_form';
 
   /// 账本创建页面
-  static const String accountBookForm = '/account_book_form';
+  static const String accountBookForm = '/add_account_book_form';
 
   static const String serverConfig = '/server-config';
 
@@ -70,7 +70,7 @@ class AppRoutes {
     languageSettings: (context) => const LanguageSettingsPage(),
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
     accountBooks: (context) => const AccountBookListPage(),
-    accountBookForm: (context) => const AccountBookFormPage(),
+    accountBookForm: (context) => const AddAccountBookFormPage(),
     accountItemForm: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as UserBookVO;

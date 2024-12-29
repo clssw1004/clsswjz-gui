@@ -9,6 +9,8 @@ import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/common_card_container.dart';
+import '../../widgets/common/shared_badge.dart';
 
 /// 资金账户表单页面
 class FundFormPage extends StatefulWidget {
@@ -299,156 +301,105 @@ class _FundFormPageState extends State<FundFormPage> {
                     padding: const EdgeInsets.only(
                       left: 4,
                       right: 4,
-                      bottom: 12,
                     ),
-                    child: Card(
-                      elevation: 0,
-                      margin: EdgeInsets.zero,
-                      color: colorScheme.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: colorScheme.outline.withOpacity(0.18),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                book.icon != null
-                                    ? IconData(int.parse(book.icon!),
-                                        fontFamily: 'MaterialIcons')
-                                    : Icons.book_outlined,
-                                color: colorScheme.onSecondaryContainer,
-                                size: 20,
-                              ),
+                    child: CommonCardContainer(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 2),
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: colorScheme.secondaryContainer,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            book.name,
-                                            style: theme.textTheme.titleMedium
-                                                ?.copyWith(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          if (book.description?.isNotEmpty ==
-                                              true) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              book.description!,
-                                              style: theme.textTheme.bodySmall
-                                                  ?.copyWith(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                                height: 1.2,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              _buildActionChip(
-                                                label: l10n.income,
-                                                selected: book.fundIn,
-                                                onSelected: (value) {
-                                                  setState(() {
-                                                    _relatedBooks[index] =
-                                                        book.copyWith(
-                                                            fundIn: value);
-                                                  });
-                                                },
-                                                colorScheme: colorScheme,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              _buildActionChip(
-                                                label: l10n.expense,
-                                                selected: book.fundOut,
-                                                onSelected: (value) {
-                                                  setState(() {
-                                                    _relatedBooks[index] =
-                                                        book.copyWith(
-                                                            fundOut: value);
-                                                  });
-                                                },
-                                                colorScheme: colorScheme,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      if (isShared)
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: colorScheme
-                                                  .primaryContainer
-                                                  .withOpacity(0.8),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.share_outlined,
-                                                  size: 12,
-                                                  color: colorScheme
-                                                      .onPrimaryContainer,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  l10n.sharedFrom(
-                                                      book.fromName),
-                                                  style: theme
-                                                      .textTheme.labelSmall
-                                                      ?.copyWith(
-                                                    color: colorScheme
-                                                        .onPrimaryContainer,
-                                                    fontSize: 11,
-                                                    height: 1.2,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                            child: Icon(
+                              book.icon != null
+                                  ? IconData(int.parse(book.icon!),
+                                      fontFamily: 'MaterialIcons')
+                                  : Icons.book_outlined,
+                              color: colorScheme.onSecondaryContainer,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          book.name,
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                        if (book.description?.isNotEmpty ==
+                                            true) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            book.description!,
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                              color:
+                                                  colorScheme.onSurfaceVariant,
+                                              height: 1.2,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            _buildActionChip(
+                                              label: l10n.income,
+                                              selected: book.fundIn,
+                                              onSelected: (value) {
+                                                setState(() {
+                                                  _relatedBooks[index] = book
+                                                      .copyWith(fundIn: value);
+                                                });
+                                              },
+                                              colorScheme: colorScheme,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            _buildActionChip(
+                                              label: l10n.expense,
+                                              selected: book.fundOut,
+                                              onSelected: (value) {
+                                                setState(() {
+                                                  _relatedBooks[index] = book
+                                                      .copyWith(fundOut: value);
+                                                });
+                                              },
+                                              colorScheme: colorScheme,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    if (isShared)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: SharedBadge(name: book.fromName),
+                                      ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   );

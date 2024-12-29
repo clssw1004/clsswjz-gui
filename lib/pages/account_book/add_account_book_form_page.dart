@@ -7,14 +7,14 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
 
-class AccountBookFormPage extends StatefulWidget {
-  const AccountBookFormPage({super.key});
+class AddAccountBookFormPage extends StatefulWidget {
+  const AddAccountBookFormPage({super.key});
 
   @override
-  State<AccountBookFormPage> createState() => _AccountBookFormPageState();
+  State<AddAccountBookFormPage> createState() => _AddAccountBookFormPageState();
 }
 
-class _AccountBookFormPageState extends State<AccountBookFormPage> {
+class _AddAccountBookFormPageState extends State<AddAccountBookFormPage> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _description = '';
@@ -101,14 +101,15 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         currencySymbol: _currency,
         icon: _icon.codePoint.toString(),
       );
-      
+
       if (mounted) {
         if (result.ok) {
           Navigator.of(context).pop(true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.saveFailed(result.message ?? '')),
+              content: Text(AppLocalizations.of(context)!
+                  .saveFailed(result.message ?? '')),
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
@@ -118,7 +119,8 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.saveFailed(e.toString())),
+            content:
+                Text(AppLocalizations.of(context)!.saveFailed(e.toString())),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

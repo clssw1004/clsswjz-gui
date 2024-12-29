@@ -321,5 +321,45 @@
     "relatedBooks": "关联账本",
     "@relatedBooks": {
         "description": "关联账本列表标题"
+    },
+    "basicInfo": "基本信息",
+    "@basicInfo": {
+        "description": "基本信息标题"
+    },
+    "members": "成员",
+    "@members": {
+        "description": "成员标题"
+    },
+    "noMembers": "暂无成员",
+    "@noMembers": {
+        "description": "无成员提示"
+    },
+    "unknownUser": "未知用户",
+    "@unknownUser": {
+        "description": "未知用户名称"
+    },
+    "canViewBook": "查看账本",
+    "@canViewBook": {
+        "description": "查看账本权限"
+    },
+    "canEditBook": "编辑账本",
+    "@canEditBook": {
+        "description": "编辑账本权限"
+    },
+    "canDeleteBook": "删除账本",
+    "@canDeleteBook": {
+        "description": "删除账本权限"
+    },
+    "canViewItem": "查看账目",
+    "@canViewItem": {
+        "description": "查看账目权限"
+    },
+    "canEditItem": "编辑账目",
+    "@canEditItem": {
+        "description": "编辑账目权限"
+    },
+    "canDeleteItem": "删除账目",
+    "@canDeleteItem": {
+        "description": "删除账目权限"
     }
 }
