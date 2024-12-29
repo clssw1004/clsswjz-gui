@@ -192,7 +192,7 @@
     },
     "pleaseInput": "请输入{value}",
     "@pleaseInput": {
-        "description": "��入提示文本",
+        "description": "输入提示文本",
         "placeholders": {
             "value": {
                 "type": "String",
@@ -307,5 +307,19 @@
     "fundTypeEWallet": "网络钱包",
     "fundTypeOther": "其他",
     "invalidNumber": "请输入有效的数字",
-    "remark": "备注"
+    "remark": "备注",
+    "sharedFrom": "共享自{name}",
+    "@sharedFrom": {
+        "description": "账本共享来源",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "张三"
+            }
+        }
+    },
+    "relatedBooks": "关联账本",
+    "@relatedBooks": {
+        "description": "关联账本列表标题"
+    }
 }

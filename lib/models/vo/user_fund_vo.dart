@@ -92,6 +92,12 @@ class RelatedAccountBook {
   /// 账本图标
   final String? icon;
 
+  /// 来源ID
+  final String fromId;
+
+  /// 来源名称
+  final String fromName;
+
   /// 是否允许转入
   final bool fundIn;
 
@@ -104,10 +110,37 @@ class RelatedAccountBook {
   const RelatedAccountBook({
     required this.accountBookId,
     required this.name,
-    this.description,
+    required this.description,
     this.icon,
+    required this.fromId,
+    required this.fromName,
     required this.fundIn,
     required this.fundOut,
     required this.isDefault,
   });
+
+  /// 创建一个新的 RelatedAccountBook 实例，可选择性地更新某些字段
+  RelatedAccountBook copyWith({
+    String? accountBookId,
+    String? name,
+    String? description,
+    String? icon,
+    String? fromId,
+    String? fromName,
+    bool? fundIn,
+    bool? fundOut,
+    bool? isDefault,
+  }) {
+    return RelatedAccountBook(
+      accountBookId: accountBookId ?? this.accountBookId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      icon: icon ?? this.icon,
+      fromId: fromId ?? this.fromId,
+      fromName: fromName ?? this.fromName,
+      fundIn: fundIn ?? this.fundIn,
+      fundOut: fundOut ?? this.fundOut,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
 }

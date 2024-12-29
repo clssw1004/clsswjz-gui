@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../enums/fund_type.dart';
@@ -54,9 +54,11 @@ class _FundFormPageState extends State<FundFormPage> {
       _fundType = widget.fund!.fundType;
       _relatedBooks = widget.fund!.relatedBooks;
     } else {
-        ServiceManager.accountFundService.getDefaultRelatedBooks().then((result) {
+      ServiceManager.accountFundService.getDefaultRelatedBooks().then((result) {
         if (result.ok) {
-          _relatedBooks = result.data!;
+          setState(() {
+            _relatedBooks = result.data!;
+          });
         }
       });
     }
@@ -68,46 +70,6 @@ class _FundFormPageState extends State<FundFormPage> {
     _remarkController.dispose();
     _balanceController.dispose();
     super.dispose();
-  }
-
-
-
-  /// 选择账本
-  Future<void> _selectBook() async {
-    // TODO: 调用账本选择页面
-    // final book = await Navigator.push<UserBookVO>(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => AccountBookSelectPage(
-    //       selectedBooks: _relatedBooks,
-    //     ),
-    //   ),
-    // );
-    // if (book != null) {
-    //   setState(() {
-    //     _relatedBooks.add(book);
-    //   });
-    // }
-  }
-
-  /// 删除关联账本
-  Future<void> _removeBook(RelatedAccountBook book) async {
-    // TODO: 调用服务删除关联账本
-    // if (widget.fund != null) {
-    //   final result = await ServiceManager.accountFundService.removeRelatedBook(
-    //     widget.fund!.id,
-    //     book.id,
-    //   );
-    //   if (result.ok) {
-    //     setState(() {
-    //       _relatedBooks.remove(book);
-    //     });
-    //   }
-    // } else {
-    setState(() {
-      _relatedBooks.remove(book);
-    });
-    // }
   }
 
   /// 保存
@@ -125,20 +87,24 @@ class _FundFormPageState extends State<FundFormPage> {
           ? await ServiceManager.accountFundService.createFund(
               name: _nameController.text,
               fundType: _fundType.code,
-              fundRemark: _remarkController.text.isEmpty ? null : _remarkController.text,
+              fundRemark: _remarkController.text.isEmpty
+                  ? null
+                  : _remarkController.text,
               fundBalance: double.parse(_balanceController.text),
               createdBy: userId,
               updatedBy: userId,
             )
           : await ServiceManager.accountFundService.updateFund(
               widget.fund!.toAccountFund().copyWith(
-                name: _nameController.text,
-                fundType: _fundType.code,
-                fundRemark: Value(_remarkController.text.isEmpty ? null : _remarkController.text),
-                fundBalance: double.parse(_balanceController.text),
-                updatedBy: userId,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
-              ),
+                    name: _nameController.text,
+                    fundType: _fundType.code,
+                    fundRemark: Value(_remarkController.text.isEmpty
+                        ? null
+                        : _remarkController.text),
+                    fundBalance: double.parse(_balanceController.text),
+                    updatedBy: userId,
+                    updatedAt: DateTime.now().millisecondsSinceEpoch,
+                  ),
             );
 
       if (result.ok) {
@@ -169,6 +135,42 @@ class _FundFormPageState extends State<FundFormPage> {
     }
   }
 
+  /// 构建操作按钮
+  Widget _buildActionChip({
+    required String label,
+    required bool selected,
+    required ValueChanged<bool> onSelected,
+    required ColorScheme colorScheme,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onSelected(!selected),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: selected ? colorScheme.primaryContainer : Colors.transparent,
+            border: Border.all(
+              color:
+                  selected ? colorScheme.primaryContainer : colorScheme.outline,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurface,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -177,7 +179,9 @@ class _FundFormPageState extends State<FundFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(widget.fund == null ? l10n.addNew(l10n.tabFunds) : l10n.editTo(l10n.tabFunds)),
+        title: Text(widget.fund == null
+            ? l10n.addNew(l10n.tabFunds)
+            : l10n.editTo(l10n.tabFunds)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -267,18 +271,12 @@ class _FundFormPageState extends State<FundFormPage> {
             Row(
               children: [
                 Text(
-                  l10n.accountBook,
+                  l10n.relatedBooks,
                   style: theme.textTheme.titleMedium,
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: _selectBook,
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.addNew(l10n.accountBook)),
                 ),
               ],
             ),
-        if (_relatedBooks.isEmpty)
+            if (_relatedBooks.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -292,14 +290,167 @@ class _FundFormPageState extends State<FundFormPage> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: _relatedBooks.length,
                 itemBuilder: (context, index) {
                   final book = _relatedBooks[index];
-                  return ListTile(
-                    title: Text(book.name),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () => _removeBook(book),
+                  final isShared =
+                      book.fromId != AppConfigManager.instance.userId;
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 4,
+                      right: 4,
+                      bottom: 12,
+                    ),
+                    child: Card(
+                      elevation: 0,
+                      margin: EdgeInsets.zero,
+                      color: colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: colorScheme.outline.withOpacity(0.18),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 2),
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                book.icon != null
+                                    ? IconData(int.parse(book.icon!),
+                                        fontFamily: 'MaterialIcons')
+                                    : Icons.book_outlined,
+                                color: colorScheme.onSecondaryContainer,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            book.name,
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          if (book.description?.isNotEmpty ==
+                                              true) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              book.description!,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
+                                                height: 1.2,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              _buildActionChip(
+                                                label: l10n.income,
+                                                selected: book.fundIn,
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    _relatedBooks[index] =
+                                                        book.copyWith(
+                                                            fundIn: value);
+                                                  });
+                                                },
+                                                colorScheme: colorScheme,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              _buildActionChip(
+                                                label: l10n.expense,
+                                                selected: book.fundOut,
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    _relatedBooks[index] =
+                                                        book.copyWith(
+                                                            fundOut: value);
+                                                  });
+                                                },
+                                                colorScheme: colorScheme,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      if (isShared)
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: colorScheme
+                                                  .primaryContainer
+                                                  .withOpacity(0.8),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.share_outlined,
+                                                  size: 12,
+                                                  color: colorScheme
+                                                      .onPrimaryContainer,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  l10n.sharedFrom(
+                                                      book.fromName),
+                                                  style: theme
+                                                      .textTheme.labelSmall
+                                                      ?.copyWith(
+                                                    color: colorScheme
+                                                        .onPrimaryContainer,
+                                                    fontSize: 11,
+                                                    height: 1.2,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -309,4 +460,4 @@ class _FundFormPageState extends State<FundFormPage> {
       ),
     );
   }
-} 
+}

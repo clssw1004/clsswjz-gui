@@ -172,18 +172,26 @@ class AccountFundService extends BaseService {
   }
 
   /// 获取资金账户关联的账本
-  Future<OperateResult<List<RelatedAccountBook>>> getDefaultRelatedBooks() async {
+  Future<OperateResult<List<RelatedAccountBook>>>
+      getDefaultRelatedBooks() async {
     final books = await db.select(db.accountBookTable).get();
+
+    final users = await db.select(db.userTable).get();
+    final userMap = CollectionUtils.toMap(users, (e) => e.id);
     // 生成默认的RelatedAccountBook 对象
-    return OperateResult.success(books.map((e) => RelatedAccountBook(
-          accountBookId: e.id,
-          name: e.name,
-          description: e.description,
-          icon: e.icon,
-          fundIn: false,
-          fundOut: false,
-          isDefault: false,
-        )).toList());
+    return OperateResult.success(books
+        .map((e) => RelatedAccountBook(
+              accountBookId: e.id,
+              name: e.name,
+              description: e.description,
+              fromId: e.createdBy,
+              fromName: userMap[e.createdBy]?.nickname ?? '',
+              icon: e.icon,
+              fundIn: false,
+              fundOut: false,
+              isDefault: false,
+            ))
+        .toList());
   }
 
   /// 将资金账户转换为视图对象
@@ -198,6 +206,9 @@ class AccountFundService extends BaseService {
           ..where((t) => t.fundId.isIn(funds.map((e) => e.id))))
         .get();
 
+    final users = await db.select(db.userTable).get();
+    final userMap = CollectionUtils.toMap(users, (e) => e.id);
+
     // 查询出所有关联记录中包含该资金账户的记录
     final relGroupMap = CollectionUtils.groupBy(rels, (e) => e.fundId);
     relGroupMap.forEach((key, value) {
@@ -209,6 +220,10 @@ class AccountFundService extends BaseService {
           return RelatedAccountBook(
             accountBookId: e.id,
             name: e.name,
+            description: e.description,
+            icon: e.icon,
+            fromId: e.createdBy,
+            fromName: userMap[e.createdBy]?.nickname ?? '',
             fundIn: rel?.fundIn ?? false,
             fundOut: rel?.fundOut ?? false,
             isDefault: rel?.isDefault ?? false,

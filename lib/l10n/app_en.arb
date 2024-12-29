@@ -290,5 +290,19 @@
     "fundTypeEWallet": "E-Wallet",
     "fundTypeOther": "Other",
     "invalidNumber": "Please enter a valid number",
-    "remark": "Remark"
+    "remark": "Remark",
+    "sharedFrom": "Shared from {name}",
+    "@sharedFrom": {
+        "description": "Book sharing source",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "John"
+            }
+        }
+    },
+    "relatedBooks": "Related Books",
+    "@relatedBooks": {
+        "description": "Related books list title"
+    }
 }

@@ -281,5 +281,23 @@
                 "example": "賬本"
             }
         }
+    },
+    "fundTypeEWallet": "網絡錢包",
+    "fundTypeOther": "其他",
+    "invalidNumber": "請輸入有效的數字",
+    "remark": "備註",
+    "sharedFrom": "共享自{name}",
+    "@sharedFrom": {
+        "description": "賬本共享來源",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "張三"
+            }
+        }
+    },
+    "relatedBooks": "關聯賬本",
+    "@relatedBooks": {
+        "description": "關聯賬本列表標題"
     }
 }

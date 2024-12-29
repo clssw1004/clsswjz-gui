@@ -150,7 +150,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: showBackButton ? null : 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0),
+          bottom: bottom == null
+              ? Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0)
+              : Radius.zero,
         ),
       ),
     );

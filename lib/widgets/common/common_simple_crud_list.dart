@@ -9,31 +9,33 @@ import 'common_text_form_field.dart';
 class CommonSimpleCrudListConfig<T> {
   /// 页面标题
   final String title;
-  
+
   /// 是否显示类型
   final bool showType;
-  
+
   /// 类型选项（如果 showType 为 true，则必须提供）
   final List<String>? typeOptions;
-  
+
   /// 获取类型显示文本
   final String Function(String type)? getTypeText;
 
   /// 获取项目名称
   final String Function(T item) getName;
-  
+
   /// 获取项目类型
   final String? Function(T item)? getType;
-  
+
   /// 数据加载方法
   final Future<OperateResult<List<T>>> Function() loadData;
-  
+
   /// 创建项目方法
-  final Future<OperateResult<String>> Function(String name, String code, String? type) createItem;
-  
+  final Future<OperateResult<String>> Function(
+      String name, String code, String? type) createItem;
+
   /// 更新项目方法
-  final Future<OperateResult<void>> Function(T item, {required String name, String? type}) updateItem;
-  
+  final Future<OperateResult<void>> Function(T item,
+      {required String name, String? type}) updateItem;
+
   /// 删除项目方法
   final Future<OperateResult<void>> Function(T item) deleteItem;
 
@@ -66,7 +68,8 @@ class CommonSimpleCrudList<T> extends StatefulWidget {
   });
 
   @override
-  State<CommonSimpleCrudList<T>> createState() => CommonSimpleCrudListState<T>();
+  State<CommonSimpleCrudList<T>> createState() =>
+      CommonSimpleCrudListState<T>();
 }
 
 class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
@@ -177,7 +180,8 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
         if (item == null) {
           // 创建
           final code = inputName.toLowerCase().replaceAll(' ', '_');
-          final result = await widget.config.createItem(inputName, code, selectedType);
+          final result =
+              await widget.config.createItem(inputName, code, selectedType);
           if (result.ok) {
             await _loadData();
           } else {
@@ -271,14 +275,10 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: widget.config.filterWidget != null
-          ? AppBar(
-              title: Text(widget.config.title),
-              bottom: widget.config.filterWidget,
-            )
-          : CommonAppBar(
-              title: Text(widget.config.title),
-            ),
+      appBar: CommonAppBar(
+        title: Text(widget.config.title),
+        bottom: widget.config.filterWidget,
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -286,7 +286,8 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+                      Text(_error!,
+                          style: TextStyle(color: theme.colorScheme.error)),
                       TextButton(
                         onPressed: _loadData,
                         child: Text(l10n.retry),
@@ -305,7 +306,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
                       itemBuilder: (context, index) {
                         final item = _items![index];
                         final type = widget.config.getType?.call(item);
-                        
+
                         return ListTile(
                           title: Text(widget.config.getName(item)),
                           subtitle: widget.config.showType && type != null
@@ -333,4 +334,4 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
       ),
     );
   }
-} 
+}
