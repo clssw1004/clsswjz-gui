@@ -53,25 +53,35 @@ class FundListPage extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
+            subtitle: Text(
+              switch (type) {
+                FundType.cash => l10n.fundTypeCash,
+                FundType.debitCard => l10n.fundTypeDebitCard,
+                FundType.creditCard => l10n.fundTypeCreditCard,
+                FundType.prepaidCard => l10n.fundTypePrepaidCard,
+                FundType.alipay => l10n.fundTypeAlipay,
+                FundType.wechat => l10n.fundTypeWechat,
+                FundType.debt => l10n.fundTypeDebt,
+                FundType.investment => l10n.fundTypeInvestment,
+                FundType.eWallet => l10n.fundTypeEWallet,
+                FundType.other => l10n.fundTypeOther,
+              },
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.outline,
+              ),
+            ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  switch (type) {
-                    FundType.cash => l10n.fundTypeCash,
-                    FundType.debitCard => l10n.fundTypeDebitCard,
-                    FundType.creditCard => l10n.fundTypeCreditCard,
-                    FundType.prepaidCard => l10n.fundTypePrepaidCard,
-                    FundType.alipay => l10n.fundTypeAlipay,
-                    FundType.wechat => l10n.fundTypeWechat,
-                    FundType.debt => l10n.fundTypeDebt,
-                    FundType.investment => l10n.fundTypeInvestment,
-                    FundType.eWallet => l10n.fundTypeEWallet,
-                    FundType.other => l10n.fundTypeOther,
-                  },
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.outline,
+                  item.fundBalance.toString(),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: item.fundBalance >= 0
+                        ? ColorUtil.INCOME
+                        : ColorUtil.EXPENSE,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -81,19 +91,6 @@ class FundListPage extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.outline,
                     fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ' ${item.fundBalance}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: item.fundBalance >= 0
-                        ? ColorUtil.INCOME
-                        : ColorUtil.EXPENSE,
                   ),
                 ),
               ],
