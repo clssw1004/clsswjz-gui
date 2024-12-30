@@ -23,33 +23,35 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
-    
+
     return CommonSimpleCrudList<AccountCategory>(
       key: _listKey,
       config: CommonSimpleCrudListConfig(
         title: l10n.category,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountCategoryService.getCategoriesByType(
+        loadData: () =>
+            ServiceManager.accountCategoryService.getCategoriesByType(
           widget.accountBook.id,
           _selectedType,
         ),
-        createItem: (name, code, _) => ServiceManager.accountCategoryService.createCategory(
+        createItem: (name, code, _) =>
+            ServiceManager.accountCategoryService.createCategory(
           name: name,
           code: code,
           accountBookId: widget.accountBook.id,
           categoryType: _selectedType,
           createdBy: userId,
-          updatedBy: userId,
         ),
-        updateItem: (item, {required String name, String? type}) => 
-          ServiceManager.accountCategoryService.updateCategory(
-            item.copyWith(
-              name: name,
-              updatedBy: userId,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
-            ),
+        updateItem: (item, {required String name, String? type}) =>
+            ServiceManager.accountCategoryService.updateCategory(
+          item.copyWith(
+            name: name,
+            updatedBy: userId,
+            updatedAt: DateTime.now().millisecondsSinceEpoch,
           ),
-        deleteItem: (item) => ServiceManager.accountCategoryService.deleteCategory(item.id),
+        ),
+        deleteItem: (item) =>
+            ServiceManager.accountCategoryService.deleteCategory(item.id),
         filterWidget: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Padding(
@@ -78,4 +80,4 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
       ),
     );
   }
-} 
+}

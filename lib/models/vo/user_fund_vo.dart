@@ -30,6 +30,9 @@ class UserFundVO {
   /// 更新人
   final String updatedBy;
 
+  /// 是否为默认账户
+  final bool isDefault;
+
   /// 关联的账本信息
   final List<RelatedAccountBook> relatedBooks;
 
@@ -43,6 +46,7 @@ class UserFundVO {
     required this.updatedAt,
     required this.createdBy,
     required this.updatedBy,
+    this.isDefault = false,
     this.relatedBooks = const [],
   });
 
@@ -58,6 +62,7 @@ class UserFundVO {
       updatedBy: updatedBy,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isDefault: isDefault,
     );
   }
 

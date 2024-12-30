@@ -299,5 +299,34 @@
     "relatedBooks": "關聯賬本",
     "@relatedBooks": {
         "description": "關聯賬本列表標題"
-    }
+    },
+    "features": "功能特點",
+    "featureMultiUser": "多用戶支持",
+    "featureMultiBook": "多賬本管理",
+    "featureMultiCurrency": "多幣種支持",
+    "featureDataBackup": "數據備份與恢復",
+    "featureDataSync": "數據同步",
+    "featureCustomTheme": "自定義主題",
+    "featureMultiLanguage": "多語言支持",
+    "technology": "技術棧",
+    "openSource": "開源地址",
+    "frontendProject": "本項目",
+    "backendProject": "後端同步項目",
+    "copyLink": "複製連結",
+    "linkCopied": "連結已複製到剪貼簿",
+    "cannotOpenLink": "無法開啟連結：{message}",
+    "@cannotOpenLink": {
+        "description": "無法開啟連結時的錯誤訊息",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "網路錯誤"
+            }
+        }
+    },
+    "unsupportedLinkType": "不支援的連結類型",
+    "version": "版本",
+    "noCategory": "未分類",
+    "cash": "現金",
+    "noShop": "無商戶"
 }

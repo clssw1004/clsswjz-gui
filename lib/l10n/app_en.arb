@@ -364,5 +364,34 @@
     "bookCreator": "Book Creator",
     "@bookCreator": {
         "description": "Book creator prompt text"
-    }
+    },
+    "features": "Features",
+    "featureMultiUser": "Multi-user support",
+    "featureMultiBook": "Multiple account books",
+    "featureMultiCurrency": "Multiple currency support",
+    "featureDataBackup": "Data backup and restore",
+    "featureDataSync": "Data synchronization",
+    "featureCustomTheme": "Custom theme",
+    "featureMultiLanguage": "Multiple language support",
+    "technology": "Technology Stack",
+    "openSource": "Open Source",
+    "frontendProject": "Current Project",
+    "backendProject": "Backend Self-hosted sync Project",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied to clipboard",
+    "cannotOpenLink": "Cannot open link: {message}",
+    "@cannotOpenLink": {
+        "description": "Error message when unable to open a link",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "network error"
+            }
+        }
+    },
+    "unsupportedLinkType": "Unsupported link type",
+    "version": "Version",
+    "noCategory": "Uncategorized",
+    "cash": "Cash",
+    "noShop": "No Merchant"
 }

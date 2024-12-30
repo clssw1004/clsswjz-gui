@@ -1,8 +1,11 @@
-import 'dart:ffi';
-
+import 'package:clsswjz/enums/account_type.dart';
+import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import '../database/dao/account_book_dao.dart';
+import '../database/dao/account_category_dao.dart';
+import '../database/dao/account_fund_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
@@ -24,7 +27,7 @@ class AccountBookService extends BaseService {
         _userDao = UserDao(DatabaseManager.db);
 
   /// 创建账本
-  Future<OperateResult<void>> createAccountBook({
+  Future<OperateResult<String>> createAccountBook({
     required AccountBook accountBook,
     List<BookMemberVO>? members,
     required String userId,
@@ -37,7 +40,7 @@ class AccountBookService extends BaseService {
         bookId: null,
       );
       if (!result.ok) {
-        return result;
+        return OperateResult.failWithMessage(result.message, result.exception);
       }
 
       // 2. 生成账本ID
@@ -93,8 +96,8 @@ class AccountBookService extends BaseService {
               .toList(),
         );
       }
-
-      return OperateResult.success(null);
+      ServiceManager.accountFundService.addBookToDefaultFund(bookId, userId);
+      return OperateResult.success(bookId);
     } catch (e) {
       return OperateResult.failWithMessage(e.toString(), null);
     }
@@ -384,6 +387,29 @@ class AccountBookService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage('检查账本名称失败：$e', e as Exception);
+    }
+  }
+
+  Future<OperateResult<String>> createDefaultBook(
+      String bookName, String userId) async {
+    try {
+      final bookId = generateUuid();
+      await createAccountBook(
+        accountBook: AccountBook(
+          id: bookId,
+          name: bookName,
+          createdBy: userId,
+          updatedBy: userId,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          updatedAt: DateTime.now().millisecondsSinceEpoch,
+          currencySymbol: 'CNY',
+          icon: null,
+        ),
+        userId: userId,
+      );
+      return OperateResult.success(bookId);
+    } catch (e) {
+      return OperateResult.failWithMessage('创建默认账本失败：$e', e as Exception);
     }
   }
 }

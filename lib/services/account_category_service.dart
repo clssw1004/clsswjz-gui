@@ -82,7 +82,6 @@ class AccountCategoryService extends BaseService {
     required String accountBookId,
     required String categoryType,
     required String createdBy,
-    required String updatedBy,
     DateTime? lastAccountItemAt,
   }) async {
     try {
@@ -94,7 +93,7 @@ class AccountCategoryService extends BaseService {
         accountBookId: accountBookId,
         categoryType: categoryType,
         createdBy: createdBy,
-        updatedBy: updatedBy,
+        updatedBy: createdBy,
         lastAccountItemAt: lastAccountItemAt,
       );
       return OperateResult.success(id);

@@ -82,35 +82,42 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
                 )
               : Stack(
                   children: [
-                    AccountItemList(
-                      accountBook: accountBook,
-                      initialItems: provider.items,
-                      onItemTap: (item) async {
-                        final result = await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AccountItemFormPage(
-                              accountBook: accountBook,
-                              item: item,
-                            ),
-                          ),
+                    Consumer<AccountItemsProvider>(
+                      builder: (context, provider, child) {
+                        return AccountItemList(
+                          accountBook: accountBook,
+                          initialItems: provider.items,
+                          onItemTap: (item) async {
+                            final result = await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AccountItemFormPage(
+                                  accountBook: accountBook,
+                                  item: item,
+                                ),
+                              ),
+                            );
+                            if (result == true) {
+                              provider.refresh();
+                            }
+                          },
                         );
-                        if (result == true) {
-                          provider.refresh();
-                        }
                       },
                     ),
                     Positioned(
                       right: 16,
                       bottom: 16,
                       child: FloatingActionButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
+                        onPressed: () async {
+                          final result = await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AccountItemFormPage(
                                 accountBook: accountBook,
                               ),
                             ),
                           );
+                          if (result == true) {
+                            provider.refresh();
+                          }
                         },
                         child: const Icon(Icons.add),
                       ),

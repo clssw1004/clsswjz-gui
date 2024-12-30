@@ -12,7 +12,7 @@ class UserInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return const _UserInfoPageView();
+    return const _UserInfoPageView();
   }
 }
 
@@ -81,7 +81,6 @@ class _UserInfoPageView extends StatelessWidget {
                                 color: theme.colorScheme.primary,
                               ),
                             ),
-                            const SizedBox(height: 24),
                             // 昵称
                             CommonTextFormField(
                               initialValue: provider.user?.nickname,
@@ -96,7 +95,6 @@ class _UserInfoPageView extends StatelessWidget {
                                 }
                               },
                             ),
-                            const SizedBox(height: 24),
                             // 邮箱
                             CommonTextFormField(
                               initialValue: provider.user?.email,
@@ -111,7 +109,6 @@ class _UserInfoPageView extends StatelessWidget {
                                 }
                               },
                             ),
-                            const SizedBox(height: 24),
                             // 手机号
                             CommonTextFormField(
                               initialValue: provider.user?.phone,
@@ -241,7 +238,9 @@ class _UserInfoPageView extends StatelessWidget {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result.message ?? l10n.modifyFailed(l10n.password, ''))),
+              SnackBar(
+                  content: Text(
+                      result.message ?? l10n.modifyFailed(l10n.password, ''))),
             );
           }
         }

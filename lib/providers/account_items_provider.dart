@@ -73,6 +73,23 @@ class AccountItemsProvider with ChangeNotifier {
 
   /// 刷新数据
   Future<void> refresh() async {
-    await loadItems();
+    if (_selectedBook == null) return;
+
+    _loading = true;
+    _items = null; // 清空当前数据，触发UI更新
+    notifyListeners();
+
+    try {
+      final result = await _accountItemService.getByAccountBookId(
+        _selectedBook!.id,
+      );
+
+      if (result.ok) {
+        _items = result.data;
+      }
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 }

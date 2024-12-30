@@ -17,6 +17,7 @@ import '../pages/account_book/tags_page.dart';
 import '../pages/account_book/projects_page.dart';
 import '../pages/account_book/categories_page.dart';
 import '../pages/account_book/fund_list_page.dart';
+import '../pages/settings/about_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -55,6 +56,8 @@ class AppRoutes {
 
   /// 资金账户列表页面
   static const String funds = '/funds';
+
+  static const String about = '/about';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -95,5 +98,6 @@ class AppRoutes {
       return AccountCategoriesPage(accountBook: args);
     },
     funds: (context) => const FundListPage(),
+    about: (context) => const AboutPage(),
   };
 }

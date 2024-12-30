@@ -63,12 +63,21 @@ class ThemeProvider extends ChangeNotifier {
 
   /// 获取亮色主题
   ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: themeColor,
+      brightness: Brightness.light,
+      surface: Colors.white,
+      surfaceContainerHighest: Colors.white,
+      surfaceTint: Colors.white,
+    );
+
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: themeColor,
-        brightness: Brightness.light,
-      ),
+      colorScheme: colorScheme,
       useMaterial3: useMaterial3,
+      scaffoldBackgroundColor: Colors.white,
+      canvasColor: Colors.white,
+      cardColor: Colors.white,
+      dialogBackgroundColor: Colors.white,
       textTheme: _getTextTheme(Brightness.light),
       cardTheme: _getCardTheme(),
       inputDecorationTheme: _getInputDecorationTheme(),
@@ -76,6 +85,27 @@ class ThemeProvider extends ChangeNotifier {
       elevatedButtonTheme: _getElevatedButtonTheme(Brightness.light),
       outlinedButtonTheme: _getOutlinedButtonTheme(Brightness.light),
       textButtonTheme: _getTextButtonTheme(Brightness.light),
+      popupMenuTheme: const PopupMenuThemeData(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        indicatorColor: colorScheme.primaryContainer,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.inverseSurface,
+        contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
+      ),
     );
   }
 

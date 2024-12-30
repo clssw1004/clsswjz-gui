@@ -8,4 +8,6 @@ class AccountFundTable extends BaseBusinessTable {
   TextColumn get fundRemark => text().nullable().named('fund_remark')();
   RealColumn get fundBalance =>
       real().named('fund_balance').withDefault(const Constant(0.00))();
+  BoolColumn get isDefault =>
+      boolean().named('is_default').withDefault(const Constant(false))();
 }

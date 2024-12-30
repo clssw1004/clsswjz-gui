@@ -1,4 +1,4 @@
-import 'package:clsswjz/manager/app_config_manager.dart';
+import './manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,7 +10,7 @@ import 'providers/theme_provider.dart';
 import 'routes/app_routes.dart';
 
 void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   //  初始化缓存工具
   await CacheManager.init();
   //  初始化配置管理器

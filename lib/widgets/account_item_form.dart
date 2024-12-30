@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import '../constants/constant.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
@@ -9,13 +10,16 @@ import '../providers/account_item_form_provider.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
+import 'common/common_badge.dart';
 
 class AccountItemForm extends StatefulWidget {
   final AccountItemFormProvider provider;
+  final VoidCallback? onSaved;
 
   const AccountItemForm({
     super.key,
     required this.provider,
+    this.onSaved,
   });
 
   @override
@@ -26,12 +30,28 @@ class _AccountItemFormState extends State<AccountItemForm> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
+  late String _selectedDate;
+  late String _selectedTime;
 
   @override
   void initState() {
     super.initState();
     _amountController.text = widget.provider.item.amount.toString();
     _descriptionController.text = widget.provider.item.description ?? '';
+
+    // 初始化日期和时间
+    if (widget.provider.item.id.isEmpty) {
+      // 新建账目，使用当前时间
+      final now = DateTime.now();
+      _selectedDate = DateFormat('yyyy-MM-dd').format(now);
+      _selectedTime = DateFormat('HH:mm').format(now);
+      widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+    } else {
+      // 编辑账目，使用已有时间
+      _selectedDate = widget.provider.item.accountDateOnly;
+      _selectedTime =
+          widget.provider.item.accountTimeOnly.substring(0, 5); // 只显示HH:mm
+    }
   }
 
   @override
@@ -39,6 +59,41 @@ class _AccountItemFormState extends State<AccountItemForm> {
     _amountController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  /// 选择日期
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateFormat('yyyy-MM-dd').parse(_selectedDate),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateFormat('yyyy-MM-dd').format(picked);
+        widget.provider.item.updateDateTime(_selectedDate, _selectedTime);
+      });
+    }
+  }
+
+  /// 选择时间
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(
+        DateFormat('HH:mm').parse(_selectedTime),
+      ),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = '${picked.hour.toString().padLeft(2, '0')}:'
+            '${picked.minute.toString().padLeft(2, '0')}';
+        widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+      });
+    }
   }
 
   @override
@@ -129,7 +184,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
                 accountBookId: provider.accountBook.id,
                 categoryType: item.type,
                 createdBy: userId,
-                updatedBy: userId,
               );
               if (result.data != null) {
                 await provider.loadCategories();
@@ -225,6 +279,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
             width: double.infinity,
             child: Wrap(
               spacing: 8,
+              runSpacing: 8,
               alignment: WrapAlignment.start,
               children: [
                 CommonSelectFormField<AccountSymbol>(
@@ -301,6 +356,20 @@ class _AccountItemFormState extends State<AccountItemForm> {
                     }
                   },
                 ),
+                // 日期选择徽章
+                CommonBadge(
+                  icon: Icons.calendar_today_outlined,
+                  text: _selectedDate,
+                  onTap: _selectDate,
+                  borderColor: colorScheme.outline.withAlpha(51),
+                ),
+                // 时间选择徽章
+                CommonBadge(
+                  icon: Icons.access_time_outlined,
+                  text: _selectedTime,
+                  onTap: _selectTime,
+                  borderColor: colorScheme.outline.withAlpha(51),
+                ),
               ],
             ),
           ),
@@ -317,27 +386,46 @@ class _AccountItemFormState extends State<AccountItemForm> {
 
           // 保存按钮
           const SizedBox(height: 32),
-          FilledButton.icon(
-            onPressed: provider.saving
-                ? null
-                : () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      if (await provider.save()) {
-                        if (context.mounted) {
-                          Navigator.of(context).pop(true);
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: provider.saving
+                  ? null
+                  : () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (await provider.save()) {
+                          if (context.mounted) {
+                            if (widget.onSaved != null) {
+                              widget.onSaved!();
+                            } else {
+                              Navigator.of(context).pop(true);
+                            }
+                          }
+                        } else if (context.mounted && provider.error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(provider.error!),
+                              backgroundColor: theme.colorScheme.error,
+                            ),
+                          );
                         }
-                      } else if (context.mounted && provider.error != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(provider.error!),
-                            backgroundColor: theme.colorScheme.error,
-                          ),
-                        );
                       }
-                    }
-                  },
-            icon: const Icon(Icons.save),
-            label: Text(l10n.save),
+                    },
+              icon: provider.saving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.save),
+              label: Text(l10n.save),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
           ),
         ],
       ),

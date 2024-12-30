@@ -99,6 +99,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 createdAt: DateTime.now().millisecondsSinceEpoch,
                 updatedBy: userId,
                 updatedAt: DateTime.now().millisecondsSinceEpoch,
+                isDefault: false,
               ),
               _relatedBooks,
               userId)
@@ -112,6 +113,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 name: _nameController.text,
                 fundType: _fundType.code,
                 fundBalance: double.parse(_balanceController.text),
+                isDefault: false,
               ),
               _relatedBooks,
               userId,

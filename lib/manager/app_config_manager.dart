@@ -1,5 +1,7 @@
 import 'package:clsswjz/constants/default-constant.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import '../database/database.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -231,11 +233,13 @@ class AppConfigManager {
     return _instance.isStorageInit;
   }
 
-  static Future<void> storageOfflineMode(
+  static Future<void> storageOfflineMode(BuildContext context,
       {required String username,
       required String nickname,
       String? email,
-      String? phone}) async {
+      String? phone,
+      required String bookName,
+      required String bookIcon}) async {
     final userId = IdUtils.genId();
     await _instance.setStorageType(StorageMode.offline);
     await _instance.setUserId(userId);
@@ -244,7 +248,7 @@ class AppConfigManager {
     await ServiceManager.init();
 
     /// 注册用户
-    await ServiceManager.userService
+    final user = await ServiceManager.userService
         .register(
             userId: userId,
             username: username,
@@ -253,6 +257,28 @@ class AppConfigManager {
             email: email,
             phone: phone)
         .then((value) => value.data);
+
+    /// 创建默认资金账户
+    await ServiceManager.accountFundService
+        .createDefaultFund(AppLocalizations.of(context)!.cash, userId);
+
+    /// 创建账本
+    final bookId = await ServiceManager.accountBookService
+        .createAccountBook(
+          accountBook: AccountBook(
+            id: IdUtils.genId(),
+            name: bookName,
+            createdBy: userId,
+            updatedBy: userId,
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+            updatedAt: DateTime.now().millisecondsSinceEpoch,
+            currencySymbol: 'CNY',
+            icon: bookIcon,
+          ),
+          userId: userId,
+        )
+        .then((value) => value.data);
+    await _instance.setDefaultBookId(bookId);
     await _instance.makeStorageInit();
   }
 

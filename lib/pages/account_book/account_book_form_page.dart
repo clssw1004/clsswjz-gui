@@ -1,7 +1,9 @@
+import 'package:clsswjz/models/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../../database/database.dart';
+import '../../enums/account_type.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
@@ -72,6 +74,60 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
     super.dispose();
   }
 
+  Future<OperateResult<void>> create() async {
+    final userId = UserConfigManager.currentUserId;
+    final l10n = AppLocalizations.of(context)!;
+    final result = await ServiceManager.accountBookService.createAccountBook(
+      accountBook: AccountBook(
+        id: '',
+        name: _nameController.text,
+        description: _descriptionController.text,
+        createdBy: userId,
+        updatedBy: userId,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        currencySymbol: _currencySymbol,
+        icon: _icon,
+      ),
+      members: _members,
+      userId: UserConfigManager.currentUserId,
+    );
+    if (result.ok) {
+      final bookId = result.data!;
+
+      /// 创建默认分类
+      await ServiceManager.accountCategoryService.createCategory(
+        name: AppLocalizations.of(context)!.noCategory,
+        code: 'NONE',
+        createdBy: userId,
+        accountBookId: bookId,
+        categoryType: AccountItemType.expense.code,
+      );
+
+      return OperateResult.success(null);
+    } else {
+      return OperateResult.failWithMessage(result.message, result.exception);
+    }
+  }
+
+  Future<OperateResult<void>> update() async {
+    return await ServiceManager.accountBookService.updateAccountBook(
+      accountBook: AccountBook(
+        createdBy: widget.book!.createdBy,
+        updatedBy: UserConfigManager.currentUserId,
+        id: widget.book!.id,
+        createdAt: widget.book!.createdAt,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        name: _nameController.text,
+        currencySymbol: _currencySymbol,
+        icon: _icon,
+        description: _descriptionController.text,
+      ),
+      members: _members,
+      userId: UserConfigManager.currentUserId,
+    );
+  }
+
   /// 保存
   Future<void> _save() async {
     if (_saving) return;
@@ -82,37 +138,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
     });
 
     try {
-      final result = isCreateMode
-          ? await ServiceManager.accountBookService.createAccountBook(
-              accountBook: AccountBook(
-                id: '',
-                name: _nameController.text,
-                description: _descriptionController.text,
-                createdBy: UserConfigManager.currentUserId,
-                updatedBy: UserConfigManager.currentUserId,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
-                currencySymbol: _currencySymbol,
-                icon: _icon,
-              ),
-              members: _members,
-              userId: UserConfigManager.currentUserId,
-            )
-          : await ServiceManager.accountBookService.updateAccountBook(
-              accountBook: AccountBook(
-                createdBy: widget.book!.createdBy,
-                updatedBy: UserConfigManager.currentUserId,
-                id: widget.book!.id,
-                createdAt: widget.book!.createdAt,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
-                name: _nameController.text,
-                currencySymbol: _currencySymbol,
-                icon: _icon,
-                description: _descriptionController.text,
-              ),
-              members: _members,
-              userId: UserConfigManager.currentUserId,
-            );
+      final result = await (isCreateMode ? create() : update());
 
       if (!result.ok) {
         if (mounted) {

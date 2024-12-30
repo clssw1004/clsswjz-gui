@@ -10,6 +10,11 @@ class OperateResult<T> {
     return OperateResult(ok: true, data: data, message: 'ok', exception: null);
   }
 
+  static OperateResult<T> failed<T>() {
+    return OperateResult(
+        ok: false, data: null, message: 'failed', exception: null);
+  }
+
   static OperateResult<T> fail<T>(Exception? exception) {
     if (exception != null) {
       print(exception.toString());
@@ -19,7 +24,7 @@ class OperateResult<T> {
   }
 
   static OperateResult<T> failWithMessage<T>(
-      String message, Exception? exception) {
+      String? message, Exception? exception) {
     if (exception != null) {
       print(exception.toString());
     }

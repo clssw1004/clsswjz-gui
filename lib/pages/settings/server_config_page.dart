@@ -1,6 +1,7 @@
 import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
+import '../../constants/account_book_icons.dart';
 import '../../services/auth_service.dart';
 import '../../services/health_service.dart';
 import '../../utils/toast_util.dart';
@@ -27,6 +28,8 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   String _nickname = '';
   String _email = '';
   String _phone = '';
+  String _bookName = '';
+  String _bookIcon = Icons.book_outlined.codePoint.toString();
   bool _isLoading = false;
   bool _isChecking = false;
   bool _serverValid = false;
@@ -66,11 +69,13 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      await AppConfigManager.storageOfflineMode(
+      await AppConfigManager.storageOfflineMode(context,
           username: _username,
           nickname: _nickname,
           email: _email,
-          phone: _phone);
+          phone: _phone,
+          bookName: _bookName,
+          bookIcon: _bookIcon ?? Icons.book_outlined.codePoint.toString());
       RestartWidget.restartApp(context);
     } catch (e) {
       final l10n = AppLocalizations.of(context)!;
@@ -101,7 +106,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           result.data!.userId,
           result.data!.accessToken,
         );
-      RestartWidget.restartApp(context);
+        RestartWidget.restartApp(context);
       } else {
         ToastUtil.showError(l10n.loginFailed);
       }
@@ -161,11 +166,15 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
                 nickname: _nickname,
                 email: _email,
                 phone: _phone,
+                bookName: _bookName,
+                bookIcon: _bookIcon,
                 isLoading: _isLoading,
                 onUsernameChanged: (value) => setState(() => _username = value),
                 onNicknameChanged: (value) => setState(() => _nickname = value),
                 onEmailChanged: (value) => setState(() => _email = value),
                 onPhoneChanged: (value) => setState(() => _phone = value),
+                onBookNameChanged: (value) => setState(() => _bookName = value),
+                onBookIconChanged: (value) => setState(() => _bookIcon = value),
                 onSubmit: _initOffline,
               ),
           ],

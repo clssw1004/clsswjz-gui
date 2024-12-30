@@ -27,15 +27,19 @@ class AccountItemFormPage extends StatelessWidget {
         builder: (context, provider, child) {
           return Scaffold(
             appBar: CommonAppBar(
-              title: Text(
-                  provider.isNew ? l10n.addNew(l10n.tabAccountItems) : l10n.editTo(l10n.tabAccountItems)),
+              title: Text(provider.isNew
+                  ? l10n.addNew(l10n.tabAccountItems)
+                  : l10n.editTo(l10n.tabAccountItems)),
             ),
             body: provider.loading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: AccountItemForm(provider: provider),
+                      child: AccountItemForm(
+                        provider: provider,
+                        onSaved: () => Navigator.of(context).pop(true),
+                      ),
                     ),
                   ),
           );

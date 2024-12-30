@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../database/database.dart';
+import '../enums/fund_type.dart';
 import '../models/common.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../utils/collection_util.dart';
@@ -297,5 +298,45 @@ class AccountFundService extends BaseService {
         e is Exception ? e : Exception(e.toString()),
       );
     }
+  }
+
+  /// 设置默认资金账户
+  Future<OperateResult<void>> createDefaultFund(
+      String fundName, String userId) async {
+    final fund = AccountFund(
+      id: generateUuid(),
+      name: fundName,
+      fundType: FundType.cash.code,
+      createdBy: userId,
+      updatedBy: userId,
+      fundBalance: 0.00,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      updatedAt: DateTime.now().millisecondsSinceEpoch,
+      isDefault: true,
+    );
+    db.into(db.accountFundTable).insert(fund);
+    return OperateResult.success(null);
+  }
+
+  Future<OperateResult<void>> addBookToDefaultFund(
+      String bookId, String userId) async {
+    final fund = await (db.select(db.accountFundTable)
+          ..where((t) => t.createdBy.equals(userId) & t.isDefault.equals(true)))
+        .getSingleOrNull();
+    if (fund != null) {
+      await db.into(db.relAccountbookFundTable).insert(
+            RelAccountbookFundTableCompanion.insert(
+              id: generateUuid(),
+              accountBookId: bookId,
+              fundId: fund.id,
+              fundIn: const Value(true),
+              fundOut: const Value(true),
+              isDefault: const Value(false),
+              createdAt: DateTime.now().millisecondsSinceEpoch,
+              updatedAt: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
+    }
+    return OperateResult.success(null);
   }
 }

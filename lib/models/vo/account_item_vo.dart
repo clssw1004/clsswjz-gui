@@ -17,8 +17,14 @@ class AccountItemVO {
   /// 分类代码
   String? categoryCode;
 
-  /// 账目日期
+  /// 账目日期时间（格式：yyyy-MM-dd HH:mm:ss）
   String accountDate;
+
+  /// 账目日期（格式：yyyy-MM-dd）
+  String get accountDateOnly => accountDate.split(' ')[0];
+
+  /// 账目时间（格式：HH:mm:ss）
+  String get accountTimeOnly => accountDate.split(' ')[1];
 
   /// 账本ID
   String accountBookId;
@@ -249,5 +255,10 @@ class AccountItemVO {
       createdAtString: createdAtString ?? this.createdAtString,
       updatedAtString: updatedAtString ?? this.updatedAtString,
     );
+  }
+
+  /// 更新账目日期时间
+  void updateDateTime(String date, String time) {
+    accountDate = '$date $time';
   }
 }

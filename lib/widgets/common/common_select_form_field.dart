@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../theme/theme_radius.dart';
+import 'common_badge.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -306,56 +307,29 @@ class _CommonSelectFormFieldWidgetState<T>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final badgeColor = widget.badgeColor ?? colorScheme.secondaryContainer;
-    final badgeTextColor = widget.badgeColor != null
-        ? theme.colorScheme.onSurface
-        : colorScheme.onSecondaryContainer;
-
     return Wrap(
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: _showSelectDialog,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: _selectedItem != null
-                    ? badgeColor
-                    : colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.icon != null) ...[
-                    Icon(
-                      widget.icon,
-                      size: 16,
-                      color: _selectedItem != null
-                          ? badgeTextColor
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                  ],
-                  Text(
-                    _selectedItem != null
-                        ? widget.displayField(_selectedItem as T)
-                        : widget.hint ?? widget.label ?? '',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: _selectedItem != null
-                          ? badgeTextColor
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        CommonBadge(
+          icon: widget.icon,
+          text: _selectedItem != null
+              ? widget.displayField(_selectedItem as T)
+              : widget.hint ?? widget.label ?? '',
+          onTap: _showSelectDialog,
+          selected: _selectedItem != null,
+          backgroundColor: _selectedItem != null
+              ? (widget.badgeColor ?? colorScheme.secondaryContainer)
+              : null,
+          textColor: _selectedItem != null
+              ? (widget.badgeColor != null
+                  ? theme.colorScheme.onSurface
+                  : colorScheme.onSecondaryContainer)
+              : null,
+          iconColor: _selectedItem != null
+              ? (widget.badgeColor != null
+                  ? theme.colorScheme.onSurface
+                  : colorScheme.onSecondaryContainer)
+              : null,
+          borderColor: colorScheme.outline.withAlpha(51),
         ),
       ],
     );

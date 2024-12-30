@@ -381,5 +381,35 @@
     "bookCreator": "账本创建人",
     "@bookCreator": {
         "description": "账本创建人提示文本"
-    }
+    },
+    "appName": "Clsswjz",
+    "features": "功能特点",
+    "featureMultiUser": "多用户支持",
+    "featureMultiBook": "多账本管理",
+    "featureMultiCurrency": "多币种支持",
+    "featureDataBackup": "数据备份与恢复",
+    "featureDataSync": "数据同步",
+    "featureCustomTheme": "自定义主题",
+    "featureMultiLanguage": "多语言支持",
+    "technology": "技术栈",
+    "openSource": "开源地址",
+    "frontendProject": "本项目",
+    "backendProject": "后端同步项目",
+    "copyLink": "复制链接",
+    "linkCopied": "链接已复制到剪贴板",
+    "cannotOpenLink": "无法打开链接：{message}",
+    "@cannotOpenLink": {
+        "description": "无法打开链接时的错误消息",
+        "placeholders": {
+            "message": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
+    },
+    "unsupportedLinkType": "不支持的链接类型",
+    "version": "版本",
+    "noCategory": "未分类",
+    "cash": "现金",
+    "noShop": "无商户"
 }

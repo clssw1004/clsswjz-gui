@@ -31,35 +31,17 @@ class _AccountItemListState extends State<AccountItemList> {
   /// 账目列表
   List<AccountItemVO>? _items;
 
-  /// 账目服务
-  final _accountItemService = AccountItemService();
-
   @override
   void initState() {
     super.initState();
     _items = widget.initialItems;
-    if (_items == null) {
-      _loadItems();
-    }
   }
 
   @override
   void didUpdateWidget(AccountItemList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.accountBook.id != widget.accountBook.id) {
-      _loadItems();
-    }
-  }
-
-  /// 加载账目列表
-  Future<void> _loadItems() async {
-    final result = await _accountItemService.getByAccountBookId(
-      widget.accountBook.id,
-    );
-    if (result.ok && mounted) {
-      setState(() {
-        _items = result.data;
-      });
+    if (oldWidget.initialItems != widget.initialItems) {
+      _items = widget.initialItems;
     }
   }
 

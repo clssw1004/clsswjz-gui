@@ -90,7 +90,7 @@ class _MineTabView extends StatelessWidget {
                 label: l10n.tag,
                 onTap: () {
                   Navigator.pushNamed(
-                    context, 
+                    context,
                     AppRoutes.tags,
                     arguments: accountBook,
                   );
@@ -102,7 +102,7 @@ class _MineTabView extends StatelessWidget {
                 label: l10n.project,
                 onTap: () {
                   Navigator.pushNamed(
-                    context, 
+                    context,
                     AppRoutes.projects,
                     arguments: accountBook,
                   );
@@ -152,7 +152,7 @@ class _MineTabView extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.about),
             onTap: () {
-              Navigator.pushNamed(context, '/about');
+              Navigator.pushNamed(context, AppRoutes.about);
             },
           ),
         ],
