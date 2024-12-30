@@ -48,13 +48,6 @@ class ServiceManager extends BaseService {
   }
 
   static Future<ServiceManager> get instance async {
-    print("all books---------------");
-    final books = await _accountBookService
-        .getBooksByUserId('iy6dnir1k359j47yna16d538q88zqppn')
-        .then((value) => value.data);
-    books?.forEach((book) {
-      print(book.permission);
-    });
     return _instance!;
   }
 

@@ -104,6 +104,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         categoryType: AccountItemType.expense.code,
       );
 
+      await ServiceManager.accountBookService.initBookDefaultData(
+        bookId: bookId,
+        userId: userId,
+        defaultCategoryName: AppLocalizations.of(context)!.noCategory,
+        defaultShopName: AppLocalizations.of(context)!.noShop,
+      );
+
       return OperateResult.success(null);
     } else {
       return OperateResult.failWithMessage(result.message, result.exception);

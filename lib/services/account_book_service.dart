@@ -402,7 +402,7 @@ class AccountBookService extends BaseService {
           updatedBy: userId,
           createdAt: DateTime.now().millisecondsSinceEpoch,
           updatedAt: DateTime.now().millisecondsSinceEpoch,
-          currencySymbol: 'CNY',
+          currencySymbol: '¥',
           icon: null,
         ),
         userId: userId,
@@ -411,5 +411,28 @@ class AccountBookService extends BaseService {
     } catch (e) {
       return OperateResult.failWithMessage('创建默认账本失败：$e', e as Exception);
     }
+  }
+
+  Future<void> initBookDefaultData(
+      {required String bookId,
+      required String userId,
+      required String defaultCategoryName,
+      required String defaultShopName}) async {
+    // 1. 创建默认分类
+    await ServiceManager.accountCategoryService.createCategory(
+      name: defaultCategoryName,
+      code: 'NONE',
+      createdBy: userId,
+      accountBookId: bookId,
+      categoryType: AccountItemType.expense.code,
+    );
+    // 2. 创建默认商户
+    await ServiceManager.accountShopService.createShop(
+      name: defaultShopName,
+      code: 'NONE',
+      accountBookId: bookId,
+      createdBy: userId,
+      updatedBy: userId,
+    );
   }
 }
