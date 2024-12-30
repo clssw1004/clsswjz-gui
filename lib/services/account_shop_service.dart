@@ -59,7 +59,6 @@ class AccountShopService extends BaseService {
     required String code,
     required String accountBookId,
     required String createdBy,
-    required String updatedBy,
   }) async {
     try {
       final id = generateUuid();
@@ -70,7 +69,7 @@ class AccountShopService extends BaseService {
               code: code,
               accountBookId: accountBookId,
               createdBy: createdBy,
-              updatedBy: updatedBy,
+              updatedBy: createdBy,
               createdAt: DateTime.now().millisecondsSinceEpoch,
               updatedAt: DateTime.now().millisecondsSinceEpoch,
             ),

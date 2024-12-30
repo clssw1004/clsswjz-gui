@@ -253,7 +253,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
                 code: value,
                 accountBookId: provider.accountBook.id,
                 createdBy: userId,
-                updatedBy: userId,
               );
               if (result.data != null) {
                 await provider.loadShops();

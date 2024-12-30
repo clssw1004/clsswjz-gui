@@ -94,16 +94,6 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
     );
     if (result.ok) {
       final bookId = result.data!;
-
-      /// 创建默认分类
-      await ServiceManager.accountCategoryService.createCategory(
-        name: AppLocalizations.of(context)!.noCategory,
-        code: 'NONE',
-        createdBy: userId,
-        accountBookId: bookId,
-        categoryType: AccountItemType.expense.code,
-      );
-
       await ServiceManager.accountBookService.initBookDefaultData(
         bookId: bookId,
         userId: userId,

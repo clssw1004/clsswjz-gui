@@ -432,7 +432,6 @@ class AccountBookService extends BaseService {
       code: 'NONE',
       accountBookId: bookId,
       createdBy: userId,
-      updatedBy: userId,
     );
   }
 }

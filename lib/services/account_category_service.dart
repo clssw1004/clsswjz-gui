@@ -125,4 +125,18 @@ class AccountCategoryService extends BaseService {
           '删除分类失败: ${e.toString()}', e as Exception);
     }
   }
+
+  Future<OperateResult<bool>> checkCategoryName(
+      String bookId, String categoryType, String name) async {
+    final categories = await (db.select(db.accountCategoryTable)
+          ..where((t) =>
+              t.accountBookId.equals(bookId) &
+              t.categoryType.equals(categoryType) &
+              t.name.equals(name)))
+        .get();
+    if (categories.isNotEmpty) {
+      return OperateResult.failWithMessage('分类名称已存在');
+    }
+    return OperateResult.success(true);
+  }
 }

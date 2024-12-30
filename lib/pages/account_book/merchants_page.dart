@@ -14,29 +14,31 @@ class MerchantsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
-    
+
     return CommonSimpleCrudList<AccountShop>(
       config: CommonSimpleCrudListConfig(
         title: l10n.merchant,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountShopService.getShopsByAccountBook(accountBook.id),
-        createItem: (name, code, _) => ServiceManager.accountShopService.createShop(
+        loadData: () => ServiceManager.accountShopService
+            .getShopsByAccountBook(accountBook.id),
+        createItem: (name, code, _) =>
+            ServiceManager.accountShopService.createShop(
           name: name,
           code: code,
           accountBookId: accountBook.id,
           createdBy: userId,
-          updatedBy: userId,
         ),
-        updateItem: (item, {required String name, String? type}) => 
-          ServiceManager.accountShopService.updateShop(
-            item.copyWith(
-              name: name,
-              updatedBy: userId,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
-            ),
+        updateItem: (item, {required String name, String? type}) =>
+            ServiceManager.accountShopService.updateShop(
+          item.copyWith(
+            name: name,
+            updatedBy: userId,
+            updatedAt: DateTime.now().millisecondsSinceEpoch,
           ),
-        deleteItem: (item) => ServiceManager.accountShopService.deleteShop(item.id),
+        ),
+        deleteItem: (item) =>
+            ServiceManager.accountShopService.deleteShop(item.id),
       ),
     );
   }
-} 
+}
