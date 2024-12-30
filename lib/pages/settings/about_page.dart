@@ -14,7 +14,6 @@ class AboutPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: CommonAppBar(
         title: Text(l10n.about),
       ),
@@ -24,7 +23,6 @@ class AboutPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 48),
             decoration: BoxDecoration(
-              color: Colors.white,
               border: Border(
                 bottom: BorderSide(
                   color: colorScheme.outlineVariant.withOpacity(0.2),
@@ -38,7 +36,7 @@ class AboutPage extends StatelessWidget {
                   width: 96,
                   height: 96,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -71,7 +69,7 @@ class AboutPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: colorScheme.outlineVariant.withOpacity(0.2),
@@ -192,7 +190,7 @@ class AboutPage extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: colorScheme.primary.withOpacity(0.2),
@@ -234,7 +232,7 @@ class AboutPage extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
@@ -252,7 +250,7 @@ class AboutPage extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: colorScheme.primary.withOpacity(0.2),
