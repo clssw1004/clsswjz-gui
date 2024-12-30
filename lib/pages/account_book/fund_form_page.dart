@@ -241,7 +241,6 @@ class _FundFormPageState extends State<FundFormPage> {
                 });
               },
             ),
-            const SizedBox(height: 16),
             CommonTextFormField(
               initialValue: _balanceController.text,
               labelText: l10n.balance,
@@ -261,7 +260,6 @@ class _FundFormPageState extends State<FundFormPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
             CommonTextFormField(
               initialValue: _remarkController.text,
               labelText: l10n.remark,

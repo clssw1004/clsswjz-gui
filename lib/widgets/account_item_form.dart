@@ -104,7 +104,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
             controller: _amountController,
             onChanged: (value) => provider.updateAmount(value),
           ),
-          const SizedBox(height: 16),
 
           // 分类选择
           CommonSelectFormField<AccountCategory>(
@@ -182,7 +181,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
 
           // 商户选择
           CommonSelectFormField<AccountShop>(
@@ -306,7 +304,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
 
           // 描述输入
           CommonTextFormField(

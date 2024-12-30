@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
+import '../../database/database.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
@@ -12,20 +13,20 @@ import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
 
 /// 账本详情编辑页面
-class AccountBookEditPage extends StatefulWidget {
+class AccountBookFormPage extends StatefulWidget {
   /// 账本信息（编辑模式时必传）
   final UserBookVO? book;
 
-  const AccountBookEditPage({
+  const AccountBookFormPage({
     super.key,
     this.book,
   });
 
   @override
-  State<AccountBookEditPage> createState() => _AccountBookEditPageState();
+  State<AccountBookFormPage> createState() => _AccountBookFormPageState();
 }
 
-class _AccountBookEditPageState extends State<AccountBookEditPage> {
+class _AccountBookFormPageState extends State<AccountBookFormPage> {
   /// 表单Key
   final _formKey = GlobalKey<FormState>();
 
@@ -83,19 +84,34 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
     try {
       final result = isCreateMode
           ? await ServiceManager.accountBookService.createAccountBook(
-              name: _nameController.text,
-              description: _descriptionController.text,
+              accountBook: AccountBook(
+                id: '',
+                name: _nameController.text,
+                description: _descriptionController.text,
+                createdBy: UserConfigManager.currentUserId,
+                updatedBy: UserConfigManager.currentUserId,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                currencySymbol: _currencySymbol,
+                icon: _icon,
+              ),
+              members: _members,
               userId: UserConfigManager.currentUserId,
-              currencySymbol: _currencySymbol,
-              icon: _icon,
             )
           : await ServiceManager.accountBookService.updateAccountBook(
-              id: widget.book!.id,
+              accountBook: AccountBook(
+                createdBy: widget.book!.createdBy,
+                updatedBy: UserConfigManager.currentUserId,
+                id: widget.book!.id,
+                createdAt: widget.book!.createdAt,
+                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                name: _nameController.text,
+                currencySymbol: _currencySymbol,
+                icon: _icon,
+                description: _descriptionController.text,
+              ),
+              members: _members,
               userId: UserConfigManager.currentUserId,
-              name: _nameController.text,
-              description: _descriptionController.text,
-              currencySymbol: _currencySymbol,
-              icon: _icon,
             );
 
       if (!result.ok) {
@@ -109,11 +125,6 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
           );
         }
         return;
-      }
-
-      // 如果是编辑模式，还需要更新成员
-      if (!isCreateMode) {
-        // TODO: 更新成员列表
       }
 
       if (mounted) {
@@ -211,7 +222,7 @@ class _AccountBookEditPageState extends State<AccountBookEditPage> {
       context: context,
       title: l10n.findUserByInviteCode,
       width: 320,
-      height: 400,
+      height: 250,
       content: StatefulBuilder(
         builder: (context, setState) {
           final bool isMemberExists = foundMember != null &&

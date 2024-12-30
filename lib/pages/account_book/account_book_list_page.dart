@@ -7,7 +7,7 @@ import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/shared_badge.dart';
-import 'account_book_edit_page.dart';
+import 'account_book_form_page.dart';
 
 /// 账本列表页面
 class AccountBookListPage extends StatefulWidget {
@@ -75,7 +75,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
           Navigator.of(context)
               .push<bool>(
             MaterialPageRoute(
-              builder: (context) => const AccountBookEditPage(),
+              builder: (context) => const AccountBookFormPage(),
             ),
           )
               .then((created) {
@@ -115,7 +115,7 @@ class _AccountBookCard extends StatelessWidget {
         Navigator.of(context)
             .push<bool>(
           MaterialPageRoute(
-            builder: (context) => AccountBookEditPage(book: book),
+            builder: (context) => AccountBookFormPage(book: book),
           ),
         )
             .then((updated) {

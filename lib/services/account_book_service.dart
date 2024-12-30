@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:drift/drift.dart';
 import '../database/dao/account_book_dao.dart';
@@ -22,33 +24,44 @@ class AccountBookService extends BaseService {
         _userDao = UserDao(DatabaseManager.db);
 
   /// 创建账本
-  Future<OperateResult<String>> createAccountBook({
-    required String name,
-    required String description,
+  Future<OperateResult<void>> createAccountBook({
+    required AccountBook accountBook,
+    List<BookMemberVO>? members,
     required String userId,
-    String currencySymbol = '¥',
-    String? icon,
   }) async {
     try {
-      final id = generateUuid();
+      // 1. 检查账本名称是否重复
+      final result = await checkBookName(
+        bookName: accountBook.name,
+        userId: userId,
+        bookId: null,
+      );
+      if (!result.ok) {
+        return result;
+      }
+
+      // 2. 生成账本ID
+      final bookId = generateUuid();
 
       // 创建账本
-      await _accountBookDao.createAccountBook(
-        id: id,
-        name: name,
-        description: description,
+      await _accountBookDao.insert(AccountBookTableCompanion.insert(
+        id: bookId,
+        name: accountBook.name,
+        description: Value(accountBook.description),
+        currencySymbol: Value(accountBook.currencySymbol),
+        icon: Value(accountBook.icon),
         createdBy: userId,
         updatedBy: userId,
-        currencySymbol: currencySymbol,
-        icon: icon,
-      );
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      ));
 
-      // 创建账本用户关系（创建者拥有所有权限）
+      // 添加创建人为成员，并赋予所有权限
       await _relAccountbookUserDao.insert(
         RelAccountbookUserTableCompanion.insert(
           id: generateUuid(),
+          accountBookId: bookId,
           userId: userId,
-          accountBookId: id,
           canViewBook: const Value(true),
           canEditBook: const Value(true),
           canDeleteBook: const Value(true),
@@ -60,39 +73,100 @@ class AccountBookService extends BaseService {
         ),
       );
 
-      return OperateResult.success(id);
+      // 添加其他成员
+      if (members != null && members.isNotEmpty) {
+        await _relAccountbookUserDao.batchInsert(
+          members
+              .map((member) => RelAccountbookUserTableCompanion.insert(
+                    id: generateUuid(),
+                    accountBookId: bookId,
+                    userId: member.userId,
+                    canViewBook: Value(member.permission.canViewBook),
+                    canEditBook: Value(member.permission.canEditBook),
+                    canDeleteBook: Value(member.permission.canDeleteBook),
+                    canViewItem: Value(member.permission.canViewItem),
+                    canEditItem: Value(member.permission.canEditItem),
+                    canDeleteItem: Value(member.permission.canDeleteItem),
+                    createdAt: DateTime.now().millisecondsSinceEpoch,
+                    updatedAt: DateTime.now().millisecondsSinceEpoch,
+                  ))
+              .toList(),
+        );
+      }
+
+      return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('创建账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage(e.toString(), null);
     }
   }
 
   /// 更新账本信息
   Future<OperateResult<void>> updateAccountBook({
-    required String id,
+    required AccountBook accountBook,
+    List<BookMemberVO>? members,
     required String userId,
-    String? name,
-    String? description,
-    String? currencySymbol,
-    String? icon,
   }) async {
     try {
-      final book = await _accountBookDao.findById(id);
-      if (book == null) {
+      // 1. 验证账本是否存在
+      final existingBook = await _accountBookDao.findById(accountBook.id);
+      if (existingBook == null) {
         return OperateResult.failWithMessage('账本不存在', null);
       }
 
+      // 2. 检查账本名称是否重复
+      final result = await checkBookName(
+        bookName: accountBook.name,
+        userId: userId,
+        bookId: accountBook.id,
+      );
+      if (!result.ok) {
+        return result;
+      }
+
+      // 3. 更新账本基本信息
       await _accountBookDao.update(AccountBookTableCompanion(
-        id: Value(id),
-        name: name != null ? Value(name) : const Value.absent(),
-        description:
-            description != null ? Value(description) : const Value.absent(),
-        currencySymbol: currencySymbol != null
-            ? Value(currencySymbol)
-            : const Value.absent(),
-        icon: icon != null ? Value(icon) : const Value.absent(),
+        id: Value(accountBook.id),
+        name: Value(accountBook.name),
+        description: Value(accountBook.description),
+        currencySymbol: Value(accountBook.currencySymbol),
+        icon: Value(accountBook.icon),
         updatedBy: Value(userId),
         updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        createdAt: Value(existingBook.createdAt),
+        createdBy: Value(existingBook.createdBy),
       ));
+
+      // 3. 如果提供了成员列表，则更新成员
+      if (members != null) {
+        // 3.3 删除现有的非创建者成员
+        await (db.delete(db.relAccountbookUserTable)
+              ..where((t) =>
+                  t.accountBookId.equals(accountBook.id) &
+                  t.userId.isNotValue(existingBook.createdBy)))
+            .go();
+
+        // 3.4 添加新的成员（排除创建者）
+        final newMembers = members
+            .where((m) => m.userId != existingBook.createdBy)
+            .map((member) => RelAccountbookUserTableCompanion.insert(
+                  id: generateUuid(),
+                  accountBookId: accountBook.id,
+                  userId: member.userId,
+                  canViewBook: Value(member.permission.canViewBook),
+                  canEditBook: Value(member.permission.canEditBook),
+                  canDeleteBook: Value(member.permission.canDeleteBook),
+                  canViewItem: Value(member.permission.canViewItem),
+                  canEditItem: Value(member.permission.canEditItem),
+                  canDeleteItem: Value(member.permission.canDeleteItem),
+                  createdAt: DateTime.now().millisecondsSinceEpoch,
+                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                ))
+            .toList();
+
+        if (newMembers.isNotEmpty) {
+          await _relAccountbookUserDao.batchInsert(newMembers);
+        }
+      }
 
       return OperateResult.success(null);
     } catch (e) {
@@ -121,11 +195,11 @@ class AccountBookService extends BaseService {
     }
   }
 
-  /// 获取用户的账本列表
-  Future<OperateResult<List<AccountBook>>> getUserAccountBooks(
+  /// 获取用户有权限的账本列表
+  Future<OperateResult<List<AccountBook>>> getUserPermissionedAccountBooks(
       String userId) async {
     try {
-      final books = await _accountBookDao.findByUserId(userId);
+      final books = await _accountBookDao.findPermissionedByUserId(userId);
       return OperateResult.success(books);
     } catch (e) {
       return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
@@ -247,7 +321,7 @@ class AccountBookService extends BaseService {
           (ub) => ub.accountBookId == book.id,
         );
 
-        // 获取账本成员（排除创���者）
+        // 获取账本成员（排除创建者）
         final members = allBookMembers
             .where(
                 (m) => m.accountBookId == book.id && m.userId != book.createdBy)
@@ -270,6 +344,46 @@ class AccountBookService extends BaseService {
       return OperateResult.success(result);
     } catch (e) {
       return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
+    }
+  }
+
+  /// 检查账本名称是否重复
+  /// [bookName] 账本名称
+  /// [userId] 用户ID
+  /// [bookId] 账本ID（更新时传入，新增时不传）
+  Future<OperateResult<void>> checkBookName({
+    required String bookName,
+    required String userId,
+    String? bookId,
+  }) async {
+    try {
+      String checkUserId = userId;
+      if (bookId != null) {
+        // 1. 获取用户的所有账本
+        final book = await _accountBookDao.findById(bookId);
+        if (book != null) {
+          checkUserId = book.createdBy;
+        } else {
+          return OperateResult.failWithMessage('账本不存在', null);
+        }
+      }
+
+      final books = await _accountBookDao.findByCreatedBy(checkUserId);
+
+      // 2. 检查是否存在同名账本（只检查当前用户创建的账本）
+      final existingBook = books
+          .where((book) =>
+              book.name == bookName &&
+              book.createdBy == userId &&
+              (bookId == null || book.id != bookId))
+          .toList();
+
+      if (existingBook.isNotEmpty) {
+        return OperateResult.failWithMessage('您已创建过同名账本', null);
+      }
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage('检查账本名称失败：$e', e as Exception);
     }
   }
 }

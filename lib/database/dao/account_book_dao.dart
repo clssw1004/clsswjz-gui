@@ -36,7 +36,7 @@ class AccountBookDao {
         .getSingleOrNull();
   }
 
-  Future<List<AccountBook>> findByUserId(String userId) {
+  Future<List<AccountBook>> findPermissionedByUserId(String userId) {
     final query = db.select(db.accountBookTable).join([
       innerJoin(
         db.relAccountbookUserTable,
@@ -45,9 +45,16 @@ class AccountBookDao {
         ),
       ),
     ])
-      ..where(db.relAccountbookUserTable.userId.equals(userId));
+      ..where(db.relAccountbookUserTable.userId.equals(userId) &
+          db.relAccountbookUserTable.canViewBook.equals(true));
 
     return query.map((row) => row.readTable(db.accountBookTable)).get();
+  }
+
+  Future<List<AccountBook>> findByCreatedBy(String userId) {
+    return (db.select(db.accountBookTable)
+          ..where((t) => t.createdBy.equals(userId)))
+        .get();
   }
 
   Future<int> createAccountBook({
