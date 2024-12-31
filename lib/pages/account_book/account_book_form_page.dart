@@ -15,6 +15,7 @@ import '../../widgets/common/common_select_form_field.dart';
 import '../../constants/currency_symbol.dart';
 import '../../widgets/common/common_icon_picker.dart';
 import '../../utils/date_util.dart';
+import '../../theme/theme_spacing.dart';
 
 /// 账本详情编辑页面
 class AccountBookFormPage extends StatefulWidget {
@@ -363,6 +364,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -385,12 +387,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.formPadding,
           children: [
             Text(
               l10n.basicInfo,
               style: theme.textTheme.titleMedium,
             ),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _nameController.text,
               labelText: l10n.name,
@@ -418,26 +421,31 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
               },
               onChanged: (value) => _nameController.text = value,
             ),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _descriptionController.text,
               labelText: l10n.description,
               prefixIcon: Icons.description_outlined,
               onChanged: (value) => _descriptionController.text = value,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.formItemSpacing),
             CommonSelectFormField<CurrencySymbol>(
               items: CurrencySymbol.values,
               value: CurrencySymbol.fromSymbol(_currencySymbol),
               displayMode: DisplayMode.iconText,
               displayField: (item) => '${item.symbol} - ${item.code}',
               keyField: (item) => item.symbol,
-              label: l10n.currency,
               icon: Icons.currency_exchange,
+              label: l10n.currency,
               required: true,
-              onChanged: (value) => setState(() => _currencySymbol = value),
+              onChanged: (value) {
+                setState(() {
+                  _currencySymbol = value;
+                });
+              },
             ),
             if (!isCreateMode) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: spacing.formItemSpacing),
               Row(
                 children: [
                   Expanded(

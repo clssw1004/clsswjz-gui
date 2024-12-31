@@ -416,5 +416,9 @@
     "noAttachments": "暂无附件",
     "addAttachment": "添加附件",
     "deleteAttachment": "删除附件",
-    "uploadAttachment": "上传附件"
+    "uploadAttachment": "上传附件",
+    "addAnother": "再记一笔",
+    "@addAnother": {
+        "description": "继续记录下一笔账目的按钮文本"
+    }
 }

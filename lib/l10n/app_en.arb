@@ -398,5 +398,9 @@
     "noAttachments": "No attachments",
     "addAttachment": "Add attachment",
     "deleteAttachment": "Delete attachment",
-    "uploadAttachment": "Upload attachment"
+    "uploadAttachment": "Upload attachment",
+    "addAnother": "Add Another",
+    "@addAnother": {
+        "description": "Button text for adding another account item"
+    }
 }

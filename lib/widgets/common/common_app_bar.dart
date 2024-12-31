@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../theme/theme_radius.dart';
 
 /// 通用导航栏组件
@@ -27,6 +28,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// 是否显示语言选择
   final bool showLanguageSelector;
 
+  /// 是否显示主题模式选择
+  final bool showThemeSelector;
+
   const CommonAppBar({
     super.key,
     this.title,
@@ -36,6 +40,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.showBackButton = true,
     this.showLanguageSelector = false,
+    this.showThemeSelector = false,
   });
 
   /// 切换语言
@@ -57,6 +62,15 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
+  /// 切换主题模式
+  void _changeThemeMode(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final currentMode = themeProvider.themeMode;
+    final newMode =
+        currentMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    themeProvider.setThemeMode(newMode);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -68,6 +82,20 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     final List<Widget> finalActions = [
       ...?actions,
+      if (showThemeSelector)
+        Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final isDark = themeProvider.themeMode == ThemeMode.dark;
+            return IconButton(
+              icon: Icon(
+                isDark ? Icons.dark_mode : Icons.light_mode,
+                color: colorScheme.onSurface,
+              ),
+              tooltip: isDark ? l10n.lightMode : l10n.darkMode,
+              onPressed: () => _changeThemeMode(context),
+            );
+          },
+        ),
       if (showLanguageSelector)
         PopupMenuButton<String>(
           icon: Icon(

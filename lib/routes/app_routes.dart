@@ -76,8 +76,10 @@ class AppRoutes {
     accountBookForm: (context) => const AccountBookFormPage(),
     accountItemForm: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
       final accountBook = args[0] as UserBookVO;
-      final item = args[1] as AccountItemVO;
+      final item =
+          args.length > 1 && args[1] != null ? args[1] as AccountItemVO : null;
       return AccountItemFormPage(accountBook: accountBook, item: item);
     },
     serverConfig: (context) => const ServerConfigPage(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../common/common_text_form_field.dart';
+import '../../theme/theme_spacing.dart';
 
 class SelfHostForm extends StatelessWidget {
   final String serverUrl;
@@ -33,6 +34,7 @@ class SelfHostForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final spacing = Theme.of(context).spacing;
 
     return Column(
       children: [
@@ -70,7 +72,7 @@ class SelfHostForm extends StatelessWidget {
           },
           onChanged: onServerUrlChanged,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           labelText: l10n.username,
           prefixIcon: Icons.person,
@@ -83,7 +85,7 @@ class SelfHostForm extends StatelessWidget {
           },
           onChanged: onUsernameChanged,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           labelText: l10n.password,
           prefixIcon: Icons.lock,
@@ -97,7 +99,7 @@ class SelfHostForm extends StatelessWidget {
           },
           onChanged: onPasswordChanged,
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: spacing.formGroupSpacing),
         FilledButton(
           onPressed: isLoading ? null : onSubmit,
           child: isLoading

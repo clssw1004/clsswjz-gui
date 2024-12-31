@@ -354,10 +354,97 @@ class _CommonSelectFormFieldWidgetState<T>
     );
   }
 
+  /// 构建更多按钮
+  Widget _buildMoreButton(
+      double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+    return SizedBox(
+      width: buttonWidth,
+      child: Center(
+        child: ActionChip(
+          elevation: 0,
+          pressElevation: 0,
+          side: BorderSide(
+            color: theme.colorScheme.outline,
+            width: 1,
+          ),
+          backgroundColor: theme.colorScheme.surface,
+          labelStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
+          labelPadding: EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          label: SizedBox(
+            width: buttonWidth - 32,
+            child: Text(
+              l10n.more,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          onPressed: _showSelectDialog,
+        ),
+      ),
+    );
+  }
+
+  /// 构建新增按钮
+  Widget _buildAddButton(
+      double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+    return SizedBox(
+      width: buttonWidth,
+      child: Center(
+        child: ActionChip(
+          elevation: 0,
+          pressElevation: 0,
+          side: BorderSide(
+            color: theme.colorScheme.primary.withAlpha(50),
+            width: 1,
+          ),
+          backgroundColor: theme.colorScheme.primary.withAlpha(5),
+          labelStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
+          avatar: null,
+          labelPadding: EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          label: SizedBox(
+            width: buttonWidth - 32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  size: 18,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    l10n.addNew(widget.label ?? ''),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          onPressed: () {
+            _searchController.clear();
+            _searchText = '';
+            _showSelectDialog();
+          },
+        ),
+      ),
+    );
+  }
+
   /// 构建展开模式
   Widget _buildExpandMode() {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
     // 计算每行显示的数量
@@ -387,104 +474,57 @@ class _CommonSelectFormFieldWidgetState<T>
       children: [
         SizedBox(
           width: double.infinity,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ...displayItems.map((item) {
-                final isSelected = widget.value != null &&
-                    widget.keyField(item) == widget.value;
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ...displayItems.map((item) {
+                  final isSelected = widget.value != null &&
+                      widget.keyField(item) == widget.value;
 
-                return SizedBox(
-                  width: buttonWidth,
-                  child: Center(
-                    child: ChoiceChip(
-                      showCheckmark: false,
-                      elevation: 0,
-                      pressElevation: 0,
-                      selectedColor: theme.colorScheme.primaryContainer,
-                      side: BorderSide(
-                        color: isSelected
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.outline,
-                        width: 1,
-                      ),
-                      labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                        color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer
-                            : theme.colorScheme.onSurface,
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      label: SizedBox(
-                        width: buttonWidth - 32,
-                        child: Text(
-                          widget.displayField(item),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
+                  return SizedBox(
+                    width: buttonWidth,
+                    child: Center(
+                      child: ChoiceChip(
+                        showCheckmark: false,
+                        elevation: 0,
+                        pressElevation: 0,
+                        selectedColor: theme.colorScheme.primaryContainer,
+                        side: BorderSide(
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outline,
+                          width: 1,
                         ),
-                      ),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        _handleItemChanged(selected ? item : null);
-                      },
-                    ),
-                  ),
-                );
-              }),
-              if (showMore || showAdd)
-                SizedBox(
-                  width: buttonWidth,
-                  child: Center(
-                    child: ActionChip(
-                      elevation: 0,
-                      pressElevation: 0,
-                      side: BorderSide(
-                        color: showAdd
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.outline,
-                        width: 1,
-                      ),
-                      backgroundColor: showAdd
-                          ? theme.colorScheme.primaryContainer
-                          : theme.colorScheme.surface,
-                      labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                        color: showAdd
-                            ? theme.colorScheme.onPrimaryContainer
-                            : theme.colorScheme.onSurface,
-                      ),
-                      avatar: showAdd
-                          ? Icon(
-                              Icons.add,
-                              size: 18,
-                              color: theme.colorScheme.onPrimaryContainer,
-                            )
-                          : null,
-                      labelPadding: EdgeInsets.zero,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      label: SizedBox(
-                        width: buttonWidth - (showAdd ? 44 : 32),
-                        child: Text(
-                          showAdd ? l10n.addNew(widget.label ?? '') : l10n.more,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
+                        labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                          color: isSelected
+                              ? theme.colorScheme.onPrimaryContainer
+                              : theme.colorScheme.onSurface,
                         ),
+                        labelPadding: EdgeInsets.zero,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        label: SizedBox(
+                          width: buttonWidth - 32,
+                          child: Text(
+                            widget.displayField(item),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          _handleItemChanged(selected ? item : null);
+                        },
                       ),
-                      onPressed: () {
-                        if (showAdd) {
-                          _searchController.clear();
-                          _searchText = '';
-                        }
-                        _showSelectDialog();
-                      },
                     ),
-                  ),
-                ),
-            ],
+                  );
+                }),
+                if (showMore) _buildMoreButton(buttonWidth, theme, l10n),
+                if (showAdd) _buildAddButton(buttonWidth, theme, l10n),
+              ],
+            ),
           ),
         ),
         if (widget.errorText != null)
@@ -493,7 +533,7 @@ class _CommonSelectFormFieldWidgetState<T>
             child: Text(
               widget.errorText!,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.error,
+                color: theme.colorScheme.error,
               ),
             ),
           ),

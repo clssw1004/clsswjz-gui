@@ -32,8 +32,8 @@ class ClsswjzApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Clsswjz',
-      theme: themeProvider.lightTheme,
-      darkTheme: themeProvider.darkTheme,
+      theme: themeProvider.getLightTheme(context),
+      darkTheme: themeProvider.getDarkTheme(context),
       themeMode: themeProvider.themeMode,
       locale: localeProvider.locale,
       localizationsDelegates: const [

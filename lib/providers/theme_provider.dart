@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../manager/app_config_manager.dart';
+import '../theme/theme_spacing.dart';
 
 /// 主题管理器
 class ThemeProvider extends ChangeNotifier {
@@ -62,7 +63,7 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   /// 获取亮色主题
-  ThemeData get lightTheme {
+  ThemeData getLightTheme(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: themeColor,
       brightness: Brightness.light,
@@ -106,11 +107,14 @@ class ThemeProvider extends ChangeNotifier {
         backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
       ),
+      extensions: [
+        ThemeSpacing.fromScreenSize(context),
+      ],
     );
   }
 
   /// 获取暗色主题
-  ThemeData get darkTheme {
+  ThemeData getDarkTheme(BuildContext context) {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: themeColor,
@@ -124,6 +128,9 @@ class ThemeProvider extends ChangeNotifier {
       elevatedButtonTheme: _getElevatedButtonTheme(Brightness.dark),
       outlinedButtonTheme: _getOutlinedButtonTheme(Brightness.dark),
       textButtonTheme: _getTextButtonTheme(Brightness.dark),
+      extensions: [
+        ThemeSpacing.fromScreenSize(context),
+      ],
     );
   }
 
@@ -231,7 +238,7 @@ class FontSize {
 }
 
 /// 圆角大小常量
-class Radius {
+class RadiusSize {
   static const double none = 0.0;
   static const double small = 4.0;
   static const double medium = 8.0;

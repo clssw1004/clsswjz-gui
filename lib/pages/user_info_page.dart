@@ -6,6 +6,7 @@ import '../providers/user_provider.dart';
 import '../widgets/common/common_app_bar.dart';
 import '../widgets/common/common_dialog.dart';
 import '../widgets/common/common_text_form_field.dart';
+import '../theme/theme_spacing.dart';
 
 class UserInfoPage extends StatelessWidget {
   const UserInfoPage({super.key});
@@ -24,6 +25,7 @@ class _UserInfoPageView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<UserProvider>();
     final theme = Theme.of(context);
+    final spacing = theme.spacing;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -52,7 +54,7 @@ class _UserInfoPageView extends StatelessWidget {
                             color: theme.colorScheme.error,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: spacing.formItemSpacing),
                         FilledButton(
                           onPressed: provider.getUserInfo,
                           child: Text(l10n.retry),
@@ -65,10 +67,7 @@ class _UserInfoPageView extends StatelessWidget {
                         child: Text(l10n.noData),
                       )
                     : SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 24,
-                        ),
+                        padding: spacing.formPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -81,6 +80,7 @@ class _UserInfoPageView extends StatelessWidget {
                                 color: theme.colorScheme.primary,
                               ),
                             ),
+                            SizedBox(height: spacing.formItemSpacing),
                             // 昵称
                             CommonTextFormField(
                               initialValue: provider.user?.nickname,
@@ -95,6 +95,7 @@ class _UserInfoPageView extends StatelessWidget {
                                 }
                               },
                             ),
+                            SizedBox(height: spacing.formItemSpacing),
                             // 邮箱
                             CommonTextFormField(
                               initialValue: provider.user?.email,
@@ -109,6 +110,7 @@ class _UserInfoPageView extends StatelessWidget {
                                 }
                               },
                             ),
+                            SizedBox(height: spacing.formItemSpacing),
                             // 手机号
                             CommonTextFormField(
                               initialValue: provider.user?.phone,
@@ -133,6 +135,7 @@ class _UserInfoPageView extends StatelessWidget {
   Future<void> _showChangePasswordDialog(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final spacing = theme.spacing;
     final formKey = GlobalKey<FormState>();
     String oldPassword = '';
     String newPassword = '';
@@ -161,7 +164,7 @@ class _UserInfoPageView extends StatelessWidget {
               },
               onSaved: (value) => oldPassword = value ?? '',
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               labelText: l10n.newPassword,
               prefixIcon: Icon(
@@ -180,7 +183,7 @@ class _UserInfoPageView extends StatelessWidget {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               labelText: l10n.confirmPassword,
               prefixIcon: Icon(
@@ -198,7 +201,7 @@ class _UserInfoPageView extends StatelessWidget {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: spacing.formGroupSpacing),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

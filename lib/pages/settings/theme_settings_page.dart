@@ -10,7 +10,7 @@ class ThemeSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(l10n.themeSettings),
@@ -107,19 +107,19 @@ class ThemeSettingsPage extends StatelessWidget {
                   },
                   items: [
                     DropdownMenuItem(
-                      value: Radius.none,
+                      value: RadiusSize.none,
                       child: Text(l10n.radiusNone),
                     ),
                     DropdownMenuItem(
-                      value: Radius.small,
+                      value: RadiusSize.small,
                       child: Text(l10n.radiusSmall),
                     ),
                     DropdownMenuItem(
-                      value: Radius.medium,
+                      value: RadiusSize.medium,
                       child: Text(l10n.radiusMedium),
                     ),
                     DropdownMenuItem(
-                      value: Radius.large,
+                      value: RadiusSize.large,
                       child: Text(l10n.radiusLarge),
                     ),
                   ],
@@ -165,7 +165,7 @@ class ThemeSettingsPage extends StatelessWidget {
 
   Widget _buildPreviewCard(BuildContext context, ThemeProvider themeProvider) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -190,7 +190,8 @@ class ThemeSettingsPage extends StatelessWidget {
                   const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: () {},
-                    child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                    child: Text(
+                        MaterialLocalizations.of(context).cancelButtonLabel),
                   ),
                 ],
               ),

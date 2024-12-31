@@ -11,6 +11,7 @@ import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/shared_badge.dart';
 import '../../utils/date_util.dart';
+import '../../theme/theme_spacing.dart';
 
 /// 资金账户表单页面
 class FundFormPage extends StatefulWidget {
@@ -179,6 +180,7 @@ class _FundFormPageState extends State<FundFormPage> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -201,7 +203,7 @@ class _FundFormPageState extends State<FundFormPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.formPadding,
           children: [
             CommonTextFormField(
               initialValue: _nameController.text,
@@ -215,7 +217,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.formItemSpacing),
             CommonSelectFormField<FundType>(
               items: FundType.values,
               value: _fundType,
@@ -244,6 +246,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 });
               },
             ),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _balanceController.text,
               labelText: l10n.balance,
@@ -263,12 +266,13 @@ class _FundFormPageState extends State<FundFormPage> {
                 return null;
               },
             ),
+            SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _remarkController.text,
               labelText: l10n.remark,
               onChanged: (value) => _remarkController.text = value,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.formGroupSpacing),
             Row(
               children: [
                 Text(

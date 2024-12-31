@@ -131,8 +131,9 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
         if (widget.attachments.isEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
+              color: colorScheme.surface,
               border: Border.all(color: colorScheme.outline.withAlpha(20)),
               borderRadius: BorderRadius.circular(
                 theme.extension<ThemeRadius>()?.radius ?? 8,
@@ -160,6 +161,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
+              color: colorScheme.surface,
               border: Border.all(color: colorScheme.outline.withAlpha(20)),
               borderRadius: BorderRadius.circular(
                 theme.extension<ThemeRadius>()?.radius ?? 8,
@@ -172,14 +174,15 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
               child: Material(
                 color: Colors.transparent,
                 child: Padding(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(8),
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: widget.attachments.map((attachment) {
                       return Container(
+                        constraints: const BoxConstraints(maxWidth: 200),
                         decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
+                          color: colorScheme.outline.withAlpha(30),
                           borderRadius: BorderRadius.circular(
                             theme.extension<ThemeRadius>()?.radius ?? 8,
                           ),
@@ -195,42 +198,42 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                             ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 4,
+                                horizontal: 4,
+                                vertical: 3,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.attachment_outlined,
-                                    size: 18,
-                                    color: colorScheme.onSecondaryContainer,
+                                    size: 16,
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
                                       attachment.originName,
                                       style:
-                                          theme.textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSecondaryContainer,
+                                          theme.textTheme.bodySmall?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   if (widget.onDelete != null) ...[
-                                    const SizedBox(width: 2),
+                                    const SizedBox(width: 4),
                                     InkWell(
-                                      onTap: () => widget.onDelete!(attachment),
+                                      onTap: () =>
+                                          _deleteAttachment(attachment),
                                       customBorder: const CircleBorder(),
                                       child: Padding(
-                                        padding: const EdgeInsets.all(2),
+                                        padding: const EdgeInsets.all(4),
                                         child: Icon(
                                           Icons.close,
-                                          size: 12,
-                                          color: colorScheme
-                                              .onSecondaryContainer
-                                              .withAlpha(80),
+                                          size: 14,
+                                          color: colorScheme.onSurfaceVariant
+                                              .withAlpha(60),
                                         ),
                                       ),
                                     ),

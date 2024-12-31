@@ -9,6 +9,8 @@ import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
 import '../utils/file_util.dart';
+import '../theme/theme_spacing.dart';
+import '../routes/app_routes.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
@@ -109,6 +111,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
     final provider = widget.provider;
     final item = provider.item;
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     // 获取当前账目类型
     final currentType =
@@ -139,16 +142,16 @@ class _AccountItemFormState extends State<AccountItemForm> {
               }
             },
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
+              backgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.errorContainer
                       : colorScheme.primaryContainer;
                 }
                 return null;
               }),
-              foregroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
+              foregroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.onErrorContainer
                       : colorScheme.onPrimaryContainer;
@@ -157,7 +160,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               }),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 金额输入
           AmountInput(
@@ -165,6 +168,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
             controller: _amountController,
             onChanged: (value) => provider.updateAmount(value),
           ),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 分类选择
           CommonSelectFormField<AccountCategory>(
@@ -214,7 +218,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 账户选择
           CommonSelectFormField<AccountFund>(
@@ -241,6 +245,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               return null;
             },
           ),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 商户选择
           CommonSelectFormField<AccountShop>(
@@ -277,7 +282,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               }
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 标签和项目选择
           SizedBox(
@@ -378,6 +383,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               ],
             ),
           ),
+          SizedBox(height: spacing.formItemSpacing),
 
           // 描述输入
           CommonTextFormField(
@@ -390,7 +396,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
           ),
 
           // 附件上传
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.formItemSpacing),
           CommonAttachmentField(
             attachments: provider.attachments,
             label: l10n.attachments,
@@ -432,47 +438,50 @@ class _AccountItemFormState extends State<AccountItemForm> {
           ),
 
           // 保存按钮
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: provider.saving
-                  ? null
-                  : () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        if (await provider.save()) {
-                          if (context.mounted) {
-                            if (widget.onSaved != null) {
-                              widget.onSaved!();
-                            } else {
+          SizedBox(height: spacing.formGroupSpacing),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton.icon(
+                onPressed: provider.saving
+                    ? null
+                    : () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          if (await provider.save()) {
+                            if (context.mounted) {
+                              if (widget.onSaved != null) {
+                                widget.onSaved!();
+                              }
                               Navigator.of(context).pop(true);
                             }
+                          } else if (context.mounted &&
+                              provider.error != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.error!),
+                                backgroundColor: theme.colorScheme.error,
+                              ),
+                            );
                           }
-                        } else if (context.mounted && provider.error != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(provider.error!),
-                              backgroundColor: theme.colorScheme.error,
-                            ),
-                          );
                         }
-                      }
-                    },
-              icon: provider.saving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.save),
-              label: Text(l10n.save),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                      },
+                icon: provider.saving
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(l10n.save),
+                style: FilledButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),

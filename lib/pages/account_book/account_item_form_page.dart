@@ -6,6 +6,7 @@ import '../../providers/account_item_form_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/account_item_form.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../theme/theme_spacing.dart';
 
 class AccountItemFormPage extends StatelessWidget {
   final UserBookVO accountBook;
@@ -20,6 +21,7 @@ class AccountItemFormPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final spacing = Theme.of(context).spacing;
 
     return ChangeNotifierProvider(
       create: (context) => AccountItemFormProvider(accountBook, item),
@@ -35,7 +37,7 @@ class AccountItemFormPage extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: spacing.formPadding,
                       child: AccountItemForm(
                         provider: provider,
                         onSaved: () => Navigator.of(context).pop(true),

@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../common/common_text_form_field.dart';
 import '../common/common_icon_picker.dart';
+import '../../theme/theme_spacing.dart';
 
 class OfflineForm extends StatefulWidget {
   final String username;
@@ -63,6 +64,7 @@ class _OfflineFormState extends State<OfflineForm> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Column(
       children: [
@@ -78,6 +80,7 @@ class _OfflineFormState extends State<OfflineForm> {
           },
           onChanged: widget.onUsernameChanged,
         ),
+        SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           labelText: l10n.nickname,
           prefixIcon: const Icon(Icons.face),
@@ -85,6 +88,7 @@ class _OfflineFormState extends State<OfflineForm> {
           onChanged: widget.onNicknameChanged,
         ),
         if (widget.onEmailChanged != null) ...[
+          SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
             labelText: l10n.email,
             prefixIcon: const Icon(Icons.email),
@@ -99,6 +103,7 @@ class _OfflineFormState extends State<OfflineForm> {
           ),
         ],
         if (widget.onPhoneChanged != null) ...[
+          SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
             labelText: l10n.phone,
             prefixIcon: const Icon(Icons.phone),
@@ -106,6 +111,7 @@ class _OfflineFormState extends State<OfflineForm> {
             onChanged: widget.onPhoneChanged,
           ),
         ],
+        SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           labelText: '${l10n.accountBook}${l10n.name}',
           prefixIcon: InkWell(
@@ -132,7 +138,7 @@ class _OfflineFormState extends State<OfflineForm> {
           },
           onChanged: widget.onBookNameChanged,
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: spacing.formGroupSpacing),
         FilledButton(
           onPressed: widget.isLoading ? null : widget.onSubmit,
           child: widget.isLoading

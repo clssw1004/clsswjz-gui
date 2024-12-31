@@ -11,6 +11,7 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/restart_widget.dart';
 import '../../widgets/forms/offline_form.dart';
 import '../../widgets/forms/self_host_form.dart';
+import '../../theme/theme_spacing.dart';
 
 class ServerConfigPage extends StatefulWidget {
   const ServerConfigPage({super.key});
@@ -74,7 +75,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           email: _email,
           phone: _phone,
           bookName: _bookName,
-          bookIcon: _bookIcon ?? Icons.book_outlined.codePoint.toString());
+          bookIcon: _bookIcon);
       RestartWidget.restartApp(context);
     } catch (e) {
       final l10n = AppLocalizations.of(context)!;
@@ -119,16 +120,18 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(l10n.serverConfig),
         showLanguageSelector: true,
+        showThemeSelector: true,
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          padding: spacing.formPadding,
           children: [
             CommonSelectFormField<StorageMode>(
               items: StorageMode.values.toList(),
@@ -144,6 +147,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
                 });
               },
             ),
+            SizedBox(height: spacing.formItemSpacing),
             if (_storageMode == StorageMode.selfHost)
               SelfHostForm(
                 serverUrl: _serverUrl,
