@@ -5,6 +5,7 @@ import '../models/common.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../utils/collection_util.dart';
 import 'base_service.dart';
+import '../utils/date_util.dart';
 
 /// 资金账户服务
 class AccountFundService extends BaseService {
@@ -35,8 +36,8 @@ class AccountFundService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '批量插入资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '批量插入资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -59,8 +60,8 @@ class AccountFundService extends BaseService {
       return OperateResult.success(funds);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取账本资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取账本资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -80,8 +81,8 @@ class AccountFundService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '删除资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '删除资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -97,15 +98,15 @@ class AccountFundService extends BaseService {
         await db.update(db.accountFundTable).replace(
               fund.copyWith(
                 fundBalance: fund.fundBalance + balanceChange,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                updatedAt: DateUtil.now(),
               ),
             );
       });
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '更新资金账户余额失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '更新资金账户余额失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -121,8 +122,8 @@ class AccountFundService extends BaseService {
       return toUserFundVO(funds);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取用户资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取用户资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -210,7 +211,7 @@ class AccountFundService extends BaseService {
           fundRemark: Value(fund.fundRemark),
           fundBalance: Value(fund.fundBalance),
           updatedBy: Value(userId),
-          updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+          updatedAt: Value(DateUtil.now()),
         ));
 
         // 删除原有关联关系
@@ -231,8 +232,8 @@ class AccountFundService extends BaseService {
                   fundIn: Value(book.fundIn),
                   fundOut: Value(book.fundOut),
                   isDefault: Value(book.isDefault),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                  createdAt: DateUtil.now(),
+                  updatedAt: DateUtil.now(),
                 ),
                 mode: InsertMode.insertOrReplace,
               );
@@ -243,8 +244,8 @@ class AccountFundService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '更新资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '更新资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -264,8 +265,8 @@ class AccountFundService extends BaseService {
                 fundBalance: Value(fund.fundBalance),
                 createdBy: userId,
                 updatedBy: userId,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                createdAt: DateUtil.now(),
+                updatedAt: DateUtil.now(),
               ),
             );
 
@@ -282,8 +283,8 @@ class AccountFundService extends BaseService {
                   fundIn: Value(book.fundIn),
                   fundOut: Value(book.fundOut),
                   isDefault: Value(book.isDefault),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                  createdAt: DateUtil.now(),
+                  updatedAt: DateUtil.now(),
                 ),
                 mode: InsertMode.insertOrReplace,
               );
@@ -294,8 +295,8 @@ class AccountFundService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '创建资金账户失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '创建资金账户失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -310,8 +311,8 @@ class AccountFundService extends BaseService {
       createdBy: userId,
       updatedBy: userId,
       fundBalance: 0.00,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      updatedAt: DateTime.now().millisecondsSinceEpoch,
+      createdAt: DateUtil.now(),
+      updatedAt: DateUtil.now(),
       isDefault: true,
     );
     db.into(db.accountFundTable).insert(fund);
@@ -332,8 +333,8 @@ class AccountFundService extends BaseService {
               fundIn: const Value(true),
               fundOut: const Value(true),
               isDefault: const Value(false),
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
+              createdAt: DateUtil.now(),
+              updatedAt: DateUtil.now(),
             ),
           );
     }

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import '../database/database.dart';
 import '../models/common.dart';
 import 'base_service.dart';
+import '../utils/date_util.dart';
 
 /// 商家服务
 class AccountShopService extends BaseService {
@@ -31,8 +32,8 @@ class AccountShopService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '批量插入商家失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '批量插入商家失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -47,8 +48,8 @@ class AccountShopService extends BaseService {
       return OperateResult.success(shops);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取账本商家失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取账本商家失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -70,15 +71,15 @@ class AccountShopService extends BaseService {
               accountBookId: accountBookId,
               createdBy: createdBy,
               updatedBy: createdBy,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
+              createdAt: DateUtil.now(),
+              updatedAt: DateUtil.now(),
             ),
           );
       return OperateResult.success(id);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '创建商家失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '创建商家失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -90,8 +91,8 @@ class AccountShopService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '更新商家失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '更新商家失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -104,8 +105,8 @@ class AccountShopService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '删除商家失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '删除商家失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }

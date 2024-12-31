@@ -2,10 +2,7 @@ import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter/material.dart';
 import '../database/dao/account_book_dao.dart';
-import '../database/dao/account_category_dao.dart';
-import '../database/dao/account_fund_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
@@ -15,6 +12,7 @@ import '../models/vo/account_book_permission_vo.dart';
 import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import 'base_service.dart';
+import '../utils/date_util.dart';
 
 class AccountBookService extends BaseService {
   final AccountBookDao _accountBookDao;
@@ -40,7 +38,8 @@ class AccountBookService extends BaseService {
         bookId: null,
       );
       if (!result.ok) {
-        return OperateResult.failWithMessage(result.message, result.exception);
+        return OperateResult.failWithMessage(
+            message: result.message, exception: result.exception);
       }
 
       // 2. 生成账本ID
@@ -55,8 +54,8 @@ class AccountBookService extends BaseService {
         icon: Value(accountBook.icon),
         createdBy: userId,
         updatedBy: userId,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
       ));
 
       // 添加创建人为成员，并赋予所有权限
@@ -71,8 +70,8 @@ class AccountBookService extends BaseService {
           canViewItem: const Value(true),
           canEditItem: const Value(true),
           canDeleteItem: const Value(true),
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
+          createdAt: DateUtil.now(),
+          updatedAt: DateUtil.now(),
         ),
       );
 
@@ -90,8 +89,8 @@ class AccountBookService extends BaseService {
                     canViewItem: Value(member.permission.canViewItem),
                     canEditItem: Value(member.permission.canEditItem),
                     canDeleteItem: Value(member.permission.canDeleteItem),
-                    createdAt: DateTime.now().millisecondsSinceEpoch,
-                    updatedAt: DateTime.now().millisecondsSinceEpoch,
+                    createdAt: DateUtil.now(),
+                    updatedAt: DateUtil.now(),
                   ))
               .toList(),
         );
@@ -99,7 +98,9 @@ class AccountBookService extends BaseService {
       ServiceManager.accountFundService.addBookToDefaultFund(bookId, userId);
       return OperateResult.success(bookId);
     } catch (e) {
-      return OperateResult.failWithMessage(e.toString(), null);
+      return OperateResult.failWithMessage(
+        message: e.toString(),
+      );
     }
   }
 
@@ -113,7 +114,7 @@ class AccountBookService extends BaseService {
       // 1. 验证账本是否存在
       final existingBook = await _accountBookDao.findById(accountBook.id);
       if (existingBook == null) {
-        return OperateResult.failWithMessage('账本不存在', null);
+        return OperateResult.failWithMessage(message: '账本不存在');
       }
 
       // 2. 检查账本名称是否重复
@@ -134,7 +135,7 @@ class AccountBookService extends BaseService {
         currencySymbol: Value(accountBook.currencySymbol),
         icon: Value(accountBook.icon),
         updatedBy: Value(userId),
-        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        updatedAt: Value(DateUtil.now()),
         createdAt: Value(existingBook.createdAt),
         createdBy: Value(existingBook.createdBy),
       ));
@@ -161,8 +162,8 @@ class AccountBookService extends BaseService {
                   canViewItem: Value(member.permission.canViewItem),
                   canEditItem: Value(member.permission.canEditItem),
                   canDeleteItem: Value(member.permission.canDeleteItem),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                  updatedAt: DateTime.now().millisecondsSinceEpoch,
+                  createdAt: DateUtil.now(),
+                  updatedAt: DateUtil.now(),
                 ))
             .toList();
 
@@ -173,7 +174,8 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('更新账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '更新账本失败：$e', exception: e as Exception);
     }
   }
 
@@ -181,7 +183,8 @@ class AccountBookService extends BaseService {
     try {
       return OperateResult.success(await _accountBookDao.findAll());
     } catch (e) {
-      return OperateResult.failWithMessage('获取所有账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取所有账本失败：$e', exception: e as Exception);
     }
   }
 
@@ -190,11 +193,12 @@ class AccountBookService extends BaseService {
     try {
       final book = await _accountBookDao.findById(id);
       if (book == null) {
-        return OperateResult.failWithMessage('账本不存在', null);
+        return OperateResult.failWithMessage(message: '账本不存在');
       }
       return OperateResult.success(book);
     } catch (e) {
-      return OperateResult.failWithMessage('获取账本信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取账本信息失败：$e', exception: e as Exception);
     }
   }
 
@@ -205,7 +209,8 @@ class AccountBookService extends BaseService {
       final books = await _accountBookDao.findPermissionedByUserId(userId);
       return OperateResult.success(books);
     } catch (e) {
-      return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取账本列表失败：$e', exception: e as Exception);
     }
   }
 
@@ -214,13 +219,14 @@ class AccountBookService extends BaseService {
     try {
       final book = await _accountBookDao.findById(id);
       if (book == null) {
-        return OperateResult.failWithMessage('账本不存在', null);
+        return OperateResult.failWithMessage(message: '账本不存在');
       }
 
       await _accountBookDao.delete(book);
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('删除账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '删除账本失败：$e', exception: e as Exception);
     }
   }
 
@@ -229,7 +235,7 @@ class AccountBookService extends BaseService {
       String inviteCode) async {
     final user = await _userDao.findByInviteCode(inviteCode);
     if (user == null) {
-      return OperateResult.failWithMessage('用户不存在', null);
+      return OperateResult.failWithMessage(message: '用户不存在');
     }
 
     return OperateResult.success(BookMemberVO(
@@ -269,14 +275,15 @@ class AccountBookService extends BaseService {
           canViewItem: Value(canViewItem),
           canEditItem: Value(canEditItem),
           canDeleteItem: Value(canDeleteItem),
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
+          createdAt: DateUtil.now(),
+          updatedAt: DateUtil.now(),
         ),
       );
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('添加成员失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '添加成员失败：$e', exception: e as Exception);
     }
   }
 
@@ -346,7 +353,8 @@ class AccountBookService extends BaseService {
 
       return OperateResult.success(result);
     } catch (e) {
-      return OperateResult.failWithMessage('获取账本列表失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取账本列表失败：$e', exception: e as Exception);
     }
   }
 
@@ -367,7 +375,7 @@ class AccountBookService extends BaseService {
         if (book != null) {
           checkUserId = book.createdBy;
         } else {
-          return OperateResult.failWithMessage('账本不存在', null);
+          return OperateResult.failWithMessage(message: '账本不存在');
         }
       }
 
@@ -382,11 +390,12 @@ class AccountBookService extends BaseService {
           .toList();
 
       if (existingBook.isNotEmpty) {
-        return OperateResult.failWithMessage('您已创建过同名账本', null);
+        return OperateResult.failWithMessage(message: '您已创建过同名账本');
       }
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('检查账本名称失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '检查账本名称失败：$e', exception: e as Exception);
     }
   }
 
@@ -400,8 +409,8 @@ class AccountBookService extends BaseService {
           name: bookName,
           createdBy: userId,
           updatedBy: userId,
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
+          createdAt: DateUtil.now(),
+          updatedAt: DateUtil.now(),
           currencySymbol: '¥',
           icon: null,
         ),
@@ -409,7 +418,8 @@ class AccountBookService extends BaseService {
       );
       return OperateResult.success(bookId);
     } catch (e) {
-      return OperateResult.failWithMessage('创建默认账本失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '创建默认账本失败：$e', exception: e as Exception);
     }
   }
 

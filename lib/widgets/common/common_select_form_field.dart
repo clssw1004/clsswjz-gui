@@ -165,6 +165,9 @@ class _CommonSelectFormFieldWidgetState<T>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final theme = Theme.of(context);
+            final l10n = AppLocalizations.of(context)!;
+
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
@@ -174,13 +177,20 @@ class _CommonSelectFormFieldWidgetState<T>
               title: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.searchable)
+                  // 当没有选项时，始终显示搜索框
+                  if (widget.items.isEmpty || widget.searchable)
                     TextField(
                       controller: _searchController,
+                      autofocus: widget.items.isEmpty, // 当没有选项时自动获取焦点
                       style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.search,
-                        prefixIcon: const Icon(Icons.search),
+                        hintText: widget.items.isEmpty
+                            ? l10n.addNew(widget.label ?? '')
+                            : l10n.search,
+                        prefixIcon: Icon(
+                          widget.items.isEmpty ? Icons.add : Icons.search,
+                          color: theme.colorScheme.primary,
+                        ),
                         suffixIcon: _searchText.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.close),
@@ -216,47 +226,56 @@ class _CommonSelectFormFieldWidgetState<T>
               ),
               content: SizedBox(
                 width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _filteredItems.length +
-                      (_searchText.isNotEmpty && widget.allowCreate ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == _filteredItems.length) {
-                      // 显示新增选项
-                      return ListTile(
-                        leading: const Icon(Icons.add),
-                        title: Text(
-                            AppLocalizations.of(context)!.addNew(_searchText)),
-                        onTap: () async {
-                          if (widget.onCreateItem != null) {
-                            final newItem =
-                                await widget.onCreateItem!(_searchText);
-                            if (newItem != null) {
-                              setState(() {
-                                _searchController.clear();
-                                _searchText = '';
-                              });
-                              Navigator.of(context).pop(newItem);
-                            }
+                child: widget.items.isEmpty && _searchText.isEmpty
+                    ? Center(
+                        child: Text(
+                          l10n.noData,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(60),
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _filteredItems.length +
+                            (_searchText.isNotEmpty && widget.allowCreate
+                                ? 1
+                                : 0),
+                        itemBuilder: (context, index) {
+                          if (index == _filteredItems.length) {
+                            // 显示新增选项
+                            return ListTile(
+                              leading: const Icon(Icons.add),
+                              title: Text(l10n.addNew(_searchText)),
+                              onTap: () async {
+                                if (widget.onCreateItem != null) {
+                                  final newItem =
+                                      await widget.onCreateItem!(_searchText);
+                                  if (newItem != null && mounted) {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchText = '';
+                                    });
+                                    Navigator.of(context).pop(newItem);
+                                  }
+                                }
+                              },
+                            );
                           }
+
+                          final item = _filteredItems[index];
+                          final isSelected = widget.value != null &&
+                              widget.keyField(item) == widget.value;
+
+                          return ListTile(
+                            title: Text(widget.displayField(item)),
+                            selected: isSelected,
+                            onTap: () {
+                              Navigator.of(context).pop(item);
+                            },
+                          );
                         },
-                      );
-                    }
-
-                    final item = _filteredItems[index];
-                    final isSelected = widget.value != null &&
-                        widget.keyField(item) == widget.value;
-
-                    return ListTile(
-                      leading: widget.icon != null ? Icon(widget.icon) : null,
-                      title: Text(widget.displayField(item)),
-                      selected: isSelected,
-                      onTap: () {
-                        Navigator.of(context).pop(item);
-                      },
-                    );
-                  },
-                ),
+                      ),
               ),
             );
           },
@@ -339,6 +358,7 @@ class _CommonSelectFormFieldWidgetState<T>
   Widget _buildExpandMode() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // 计算每行显示的数量
     final itemsPerRow = (widget.expandCount / widget.expandRows).ceil();
@@ -359,6 +379,8 @@ class _CommonSelectFormFieldWidgetState<T>
 
     // 是否需要显示更多按钮
     final showMore = widget.items.length > widget.expandCount;
+    // 是否显示新增按钮（当项目数量少于展开数量且允许创建时）
+    final showAdd = !showMore && widget.allowCreate;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +434,7 @@ class _CommonSelectFormFieldWidgetState<T>
                   ),
                 );
               }),
-              if (showMore)
+              if (showMore || showAdd)
                 SizedBox(
                   width: buttonWidth,
                   child: Center(
@@ -420,25 +442,45 @@ class _CommonSelectFormFieldWidgetState<T>
                       elevation: 0,
                       pressElevation: 0,
                       side: BorderSide(
-                        color: theme.colorScheme.outline,
+                        color: showAdd
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outline,
                         width: 1,
                       ),
+                      backgroundColor: showAdd
+                          ? theme.colorScheme.primaryContainer
+                          : theme.colorScheme.surface,
                       labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface,
+                        color: showAdd
+                            ? theme.colorScheme.onPrimaryContainer
+                            : theme.colorScheme.onSurface,
                       ),
+                      avatar: showAdd
+                          ? Icon(
+                              Icons.add,
+                              size: 18,
+                              color: theme.colorScheme.onPrimaryContainer,
+                            )
+                          : null,
                       labelPadding: EdgeInsets.zero,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       label: SizedBox(
-                        width: buttonWidth - 32,
+                        width: buttonWidth - (showAdd ? 44 : 32),
                         child: Text(
-                          AppLocalizations.of(context)!.more,
+                          showAdd ? l10n.addNew(widget.label ?? '') : l10n.more,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      onPressed: _showSelectDialog,
+                      onPressed: () {
+                        if (showAdd) {
+                          _searchController.clear();
+                          _searchText = '';
+                        }
+                        _showSelectDialog();
+                      },
                     ),
                   ),
                 ),

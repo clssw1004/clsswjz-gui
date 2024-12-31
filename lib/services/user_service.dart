@@ -5,6 +5,7 @@ import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
 import '../utils/id_util.dart';
+import '../utils/date_util.dart';
 
 /// 用户服务
 class UserService extends BaseService {
@@ -16,10 +17,12 @@ class UserService extends BaseService {
   Future<OperateResult<User>> login(String username, String password) async {
     User? user = await _userDao.findByUsername(username);
     if (user == null) {
-      return OperateResult.failWithMessage('用户名或密码错误', null);
+      return OperateResult.failWithMessage(message: '用户名或密码错误');
     }
     if (!await verifyPassword(user, password)) {
-      return OperateResult.failWithMessage('用户名或密码错误', null);
+      return OperateResult.failWithMessage(
+        message: '用户名或密码错误',
+      );
     }
     return OperateResult.success(user);
   }
@@ -36,7 +39,7 @@ class UserService extends BaseService {
     try {
       // 检查用户名是否已存在
       if (await _userDao.isUsernameExists(username)) {
-        return OperateResult.failWithMessage('用户名已存在', null);
+        return OperateResult.failWithMessage(message: '用户名已存在');
       }
       userId = userId ?? generateUuid();
       final hashedPassword = encryptPassword(password);
@@ -51,7 +54,10 @@ class UserService extends BaseService {
       );
       return await getUserInfo(userId);
     } catch (e) {
-      return OperateResult.failWithMessage('注册失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+        message: '注册失败：$e',
+        exception: e is Exception ? e : Exception(e.toString()),
+      );
     }
   }
 
@@ -60,11 +66,14 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.failWithMessage('用户不存在', null);
+        return OperateResult.failWithMessage(message: '用户不存在');
       }
       return OperateResult.success(user);
     } catch (e) {
-      return OperateResult.failWithMessage('获取用户信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+        message: '获取用户信息失败：$e',
+        exception: e is Exception ? e : Exception(e.toString()),
+      );
     }
   }
 
@@ -79,13 +88,13 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.failWithMessage('用户不存在', null);
+        return OperateResult.failWithMessage(message: '用户不存在');
       }
 
       await _userDao.update(UserTableCompanion(
         id: Value(id),
         createdAt: Value(user.createdAt),
-        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        updatedAt: Value(DateUtil.now()),
         username: Value(user.username),
         nickname: Value(nickname ?? user.nickname),
         password: Value(user.password),
@@ -97,7 +106,10 @@ class UserService extends BaseService {
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('更新用户信息失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+        message: '更新用户信息失败：$e',
+        exception: e is Exception ? e : Exception(e.toString()),
+      );
     }
   }
 
@@ -116,12 +128,12 @@ class UserService extends BaseService {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
-        return OperateResult.failWithMessage('用户不存在', null);
+        return OperateResult.failWithMessage(message: '用户不存在');
       }
 
       // 验证旧密码
       if (!await verifyPassword(user, oldPassword)) {
-        return OperateResult.failWithMessage('旧密码错误', null);
+        return OperateResult.failWithMessage(message: '旧密码错误');
       }
 
       // 对新密码进行哈希
@@ -130,12 +142,15 @@ class UserService extends BaseService {
       await _userDao.update(UserTableCompanion(
         id: Value(id),
         password: Value(hashedNewPassword),
-        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
+        updatedAt: Value(DateUtil.now()),
       ));
 
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage('修改密码失败：$e', e as Exception);
+      return OperateResult.failWithMessage(
+        message: '修改密码失败：$e',
+        exception: e is Exception ? e : Exception(e.toString()),
+      );
     }
   }
 

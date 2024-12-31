@@ -7,6 +7,9 @@ import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../models/vo/account_item_vo.dart';
 import '../services/account_item_service.dart';
+import '../utils/date_util.dart';
+import '../models/vo/attachment_vo.dart';
+import '../constants/business_code.dart';
 
 /// 账目表单状态管理
 class AccountItemFormProvider extends ChangeNotifier {
@@ -51,6 +54,10 @@ class AccountItemFormProvider extends ChangeNotifier {
   List<dynamic> _projects = [];
   List<dynamic> get projects => _projects;
 
+  /// 附件列表
+  List<AttachmentVO> _attachments = [];
+  List<AttachmentVO> get attachments => _attachments;
+
   /// 是否正在加载数据
   bool _loading = false;
   bool get loading => _loading;
@@ -66,8 +73,8 @@ class AccountItemFormProvider extends ChangeNotifier {
               accountDate: DateTime.now().toString().substring(0, 10),
               createdBy: AppConfigManager.instance.userId!,
               updatedBy: AppConfigManager.instance.userId!,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
+              createdAt: DateUtil.now(),
+              updatedAt: DateUtil.now(),
               createdAtString: DateTime.now().toString(),
               updatedAtString: DateTime.now().toString(),
             ) {
@@ -88,6 +95,7 @@ class AccountItemFormProvider extends ChangeNotifier {
         loadFunds(),
         loadShops(),
         loadSymbols(),
+        loadAttachments(),
       ]);
     } catch (e) {
       _error = '加载数据失败：$e';
@@ -151,6 +159,22 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 加载附件列表
+  Future<void> loadAttachments() async {
+    if (item.id.isEmpty) return;
+
+    final result =
+        await ServiceManager.attachmentService.getAttachmentsByBusiness(
+      BusinessCode.item.code,
+      item.id,
+    );
+
+    if (result.ok) {
+      _attachments = result.data!;
+      notifyListeners();
+    }
+  }
+
   /// 保存账目
   Future<bool> save() async {
     if (_saving) return false;
@@ -160,6 +184,7 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // 保存账目信息
       final result = isNew
           ? await _accountItemService.createAccountItem(
               accountBookId: _item.accountBookId,
@@ -187,12 +212,46 @@ class AccountItemFormProvider extends ChangeNotifier {
               accountDate: _item.accountDate,
             );
 
-      if (result.ok) {
-        return true;
-      } else {
+      if (!result.ok) {
         _error = result.message;
         return false;
       }
+
+      // 如果是新建账目，需要更新账目ID
+      if (isNew) {
+        _item = _item.copyWith(id: result.data);
+      }
+
+      // 保存附件
+      final attachmentResult =
+          await ServiceManager.attachmentService.saveAttachments(
+        businessCode: BusinessCode.item,
+        businessId: _item.id,
+        attachments: _attachments
+            .map((attachment) => AttachmentVO(
+                  id: attachment.id,
+                  originName: attachment.originName,
+                  fileLength: attachment.fileLength,
+                  extension: attachment.extension,
+                  contentType: attachment.contentType,
+                  businessCode: BusinessCode.item.code,
+                  businessId: _item.id,
+                  createdBy: attachment.createdBy,
+                  updatedBy: attachment.updatedBy,
+                  createdAt: attachment.createdAt,
+                  updatedAt: attachment.updatedAt,
+                  file: attachment.file,
+                ))
+            .toList(),
+        userId: _item.updatedBy,
+      );
+
+      if (!attachmentResult.ok) {
+        _error = '保存附件失败：${attachmentResult.message}';
+        return false;
+      }
+
+      return true;
     } catch (e) {
       _error = '保存失败：$e';
       return false;
@@ -265,6 +324,12 @@ class AccountItemFormProvider extends ChangeNotifier {
       projectCode: code,
       projectName: name,
     );
+    notifyListeners();
+  }
+
+  /// 更新附件列表
+  void updateAttachments(List<AttachmentVO> attachments) {
+    _attachments = attachments;
     notifyListeners();
   }
 }

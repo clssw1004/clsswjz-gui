@@ -41,7 +41,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '批量插入分类失败: ${e.toString()}', e as Exception);
+          message: '批量插入分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -55,7 +55,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(categories);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '获取账本分类失败: ${e.toString()}', e as Exception);
+          message: '获取账本分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -71,7 +71,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(categories);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '获取账本分类失败: ${e.toString()}', e as Exception);
+          message: '获取账本分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -99,7 +99,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(id);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '创建分类失败: ${e.toString()}', e as Exception);
+          message: '创建分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -110,7 +110,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '更新分类失败: ${e.toString()}', e as Exception);
+          message: '更新分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -122,7 +122,7 @@ class AccountCategoryService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-          '删除分类失败: ${e.toString()}', e as Exception);
+          message: '删除分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 
@@ -135,7 +135,7 @@ class AccountCategoryService extends BaseService {
               t.name.equals(name)))
         .get();
     if (categories.isNotEmpty) {
-      return OperateResult.failWithMessage('分类名称已存在');
+      return OperateResult.failWithMessage(message: '分类名称已存在');
     }
     return OperateResult.success(true);
   }

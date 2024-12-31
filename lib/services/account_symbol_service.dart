@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import '../database/database.dart';
 import '../models/common.dart';
 import 'base_service.dart';
+import '../utils/date_util.dart';
 
 /// 标签服务
 class AccountSymbolService extends BaseService {
@@ -33,8 +34,8 @@ class AccountSymbolService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '批量插入标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '批量插入标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -49,8 +50,8 @@ class AccountSymbolService extends BaseService {
       return OperateResult.success(symbols);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取账本标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取账本标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -67,8 +68,8 @@ class AccountSymbolService extends BaseService {
       return OperateResult.success(symbols);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取账本标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取账本标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -93,15 +94,15 @@ class AccountSymbolService extends BaseService {
               symbolType: symbolType,
               createdBy: createdBy,
               updatedBy: updatedBy,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
+              createdAt: DateUtil.now(),
+              updatedAt: DateUtil.now(),
             ),
           );
       return OperateResult.success(id);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '创建标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '创建标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -113,8 +114,8 @@ class AccountSymbolService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '更新标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '更新标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -127,8 +128,8 @@ class AccountSymbolService extends BaseService {
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-        '删除标签失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '删除标签失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }

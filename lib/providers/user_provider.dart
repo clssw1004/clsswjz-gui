@@ -58,7 +58,7 @@ class UserProvider extends ChangeNotifier {
     String? timezone,
   }) async {
     if (_loading) {
-      return OperateResult.failWithMessage('正在处理中', null);
+      return OperateResult.failWithMessage(message: '正在处理中', exception: null);
     }
 
     _loading = true;
@@ -91,7 +91,7 @@ class UserProvider extends ChangeNotifier {
     required String newPassword,
   }) async {
     if (_loading) {
-      return OperateResult.failWithMessage('正在处理中', null);
+      return OperateResult.failWithMessage(message: '正在处理中', exception: null);
     }
 
     _loading = true;

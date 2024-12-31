@@ -6,6 +6,7 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_simple_crud_list.dart';
+import '../../utils/date_util.dart';
 
 class ProjectsPage extends StatelessWidget {
   const ProjectsPage({super.key, required this.accountBook});
@@ -15,7 +16,7 @@ class ProjectsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final userId = AppConfigManager.instance.userId!;
-    
+
     return CommonSimpleCrudList<AccountSymbol>(
       config: CommonSimpleCrudListConfig(
         title: l10n.project,
@@ -24,7 +25,8 @@ class ProjectsPage extends StatelessWidget {
           accountBook.id,
           SYMBOL_TYPE_PROJECT,
         ),
-        createItem: (name, code, _) => ServiceManager.accountSymbolService.createSymbol(
+        createItem: (name, code, _) =>
+            ServiceManager.accountSymbolService.createSymbol(
           name: name,
           code: code,
           accountBookId: accountBook.id,
@@ -32,16 +34,17 @@ class ProjectsPage extends StatelessWidget {
           createdBy: userId,
           updatedBy: userId,
         ),
-        updateItem: (item, {required String name, String? type}) => 
-          ServiceManager.accountSymbolService.updateSymbol(
-            item.copyWith(
-              name: name,
-              updatedBy: userId,
-              updatedAt: DateTime.now().millisecondsSinceEpoch,
-            ),
+        updateItem: (item, {required String name, String? type}) =>
+            ServiceManager.accountSymbolService.updateSymbol(
+          item.copyWith(
+            name: name,
+            updatedBy: userId,
+            updatedAt: DateUtil.now(),
           ),
-        deleteItem: (item) => ServiceManager.accountSymbolService.deleteSymbol(item.id),
+        ),
+        deleteItem: (item) =>
+            ServiceManager.accountSymbolService.deleteSymbol(item.id),
       ),
     );
   }
-} 
+}

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
+import '../../utils/date_util.dart';
 
 class UserDao {
   final AppDatabase db;
@@ -71,8 +72,8 @@ class UserDao {
         phone: Value(phone),
         language: Value(language),
         timezone: Value(timezone),
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
       ),
     );
   }

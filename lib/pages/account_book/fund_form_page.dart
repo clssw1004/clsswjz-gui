@@ -10,6 +10,7 @@ import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/shared_badge.dart';
+import '../../utils/date_util.dart';
 
 /// 资金账户表单页面
 class FundFormPage extends StatefulWidget {
@@ -96,9 +97,9 @@ class _FundFormPageState extends State<FundFormPage> {
                     ? null
                     : _remarkController.text,
                 createdBy: userId,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
+                createdAt: DateUtil.now(),
                 updatedBy: userId,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                updatedAt: DateUtil.now(),
                 isDefault: false,
               ),
               _relatedBooks,
@@ -109,7 +110,7 @@ class _FundFormPageState extends State<FundFormPage> {
                 updatedBy: userId,
                 id: widget.fund!.id,
                 createdAt: widget.fund!.createdAt,
-                updatedAt: DateTime.now().millisecondsSinceEpoch,
+                updatedAt: DateUtil.now(),
                 name: _nameController.text,
                 fundType: _fundType.code,
                 fundBalance: double.parse(_balanceController.text),

@@ -393,5 +393,10 @@
     "version": "Version",
     "noCategory": "Uncategorized",
     "cash": "Cash",
-    "noShop": "No Merchant"
+    "noShop": "No Merchant",
+    "attachments": "Attachments",
+    "noAttachments": "No attachments",
+    "addAttachment": "Add attachment",
+    "deleteAttachment": "Delete attachment",
+    "uploadAttachment": "Upload attachment"
 }

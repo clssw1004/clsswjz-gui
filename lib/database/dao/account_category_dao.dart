@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
+import '../../utils/date_util.dart';
 
 class AccountCategoryDao {
   final AppDatabase db;
@@ -77,8 +78,8 @@ class AccountCategoryDao {
         lastAccountItemAt: Value(lastAccountItemAt),
         createdBy: createdBy,
         updatedBy: updatedBy,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
       ),
     );
   }

@@ -25,6 +25,9 @@ dependencies:
   provider: ^6.1.2
   crypto: ^3.0.6
   url_launcher: ^6.3.1
+  mime: ^2.0.0
+  open_filex: ^4.6.0
+  file_picker: ^8.1.7
 
 dev_dependencies:
   flutter_test:

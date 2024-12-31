@@ -24,7 +24,7 @@ class OperateResult<T> {
   }
 
   static OperateResult<T> failWithMessage<T>(
-      String? message, Exception? exception) {
+      {String? message, Exception? exception}) {
     if (exception != null) {
       print(exception.toString());
     }

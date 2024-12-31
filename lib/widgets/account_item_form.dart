@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../constants/constant.dart';
+import '../constants/business_code.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
+import '../utils/file_util.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
 import 'common/common_badge.dart';
+import 'common/common_attachment_field.dart';
 
 class AccountItemForm extends StatefulWidget {
   final AccountItemFormProvider provider;
@@ -51,6 +54,9 @@ class _AccountItemFormState extends State<AccountItemForm> {
       _selectedDate = widget.provider.item.accountDateOnly;
       _selectedTime =
           widget.provider.item.accountTimeOnly.substring(0, 5); // 只显示HH:mm
+
+      // 加载附件
+      widget.provider.loadAttachments();
     }
   }
 
@@ -381,6 +387,48 @@ class _AccountItemFormState extends State<AccountItemForm> {
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: provider.updateDescription,
             keyboardType: TextInputType.multiline,
+          ),
+
+          // 附件上传
+          const SizedBox(height: 16),
+          CommonAttachmentField(
+            attachments: provider.attachments,
+            label: l10n.attachments,
+            onUpload: (files) async {
+              final userId = provider.item.updatedBy;
+              final attachments = files
+                  .map((file) =>
+                      ServiceManager.attachmentService.generateVoFromFile(
+                        BusinessCode.item.code,
+                        provider.item.id,
+                        file,
+                        userId,
+                      ))
+                  .toList();
+
+              // 只更新provider中的附件列表，不保存到数据库
+              provider
+                  .updateAttachments([...provider.attachments, ...attachments]);
+            },
+            onDelete: (attachment) async {
+              // 只从provider中移除附件，不从数据库中删除
+              provider.updateAttachments(
+                provider.attachments
+                    .where((a) => a.id != attachment.id)
+                    .toList(),
+              );
+            },
+            onTap: (attachment) async {
+              final result = await FileUtil.openFile(attachment);
+              if (!result.ok && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result.message ?? '打开文件失败'),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                );
+              }
+            },
           ),
 
           // 保存按钮

@@ -9,7 +9,7 @@ import 'tables/rel_accountbook_fund_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
-
+import '../../utils/date_util.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
@@ -86,8 +86,8 @@ class AppDatabase extends _$AppDatabase {
         phone: Value(phone),
         language: Value(language),
         timezone: Value(timezone),
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
       ),
     );
   }

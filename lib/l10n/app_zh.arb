@@ -411,5 +411,10 @@
     "version": "版本",
     "noCategory": "未分类",
     "cash": "现金",
-    "noShop": "无商户"
+    "noShop": "无商户",
+    "attachments": "附件",
+    "noAttachments": "暂无附件",
+    "addAttachment": "添加附件",
+    "deleteAttachment": "删除附件",
+    "uploadAttachment": "上传附件"
 }

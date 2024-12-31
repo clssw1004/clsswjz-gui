@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
+import '../../utils/date_util.dart';
 
 class AccountFundDao {
   final AppDatabase db;
@@ -78,19 +79,31 @@ class AccountFundDao {
         fundBalance: Value(fundBalance),
         createdBy: createdBy,
         updatedBy: updatedBy,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
       ),
     );
   }
 
-  Future<bool> updateBalance(String id, double newBalance) {
-    return update(
-      AccountFundTableCompanion(
-        id: Value(id),
-        fundBalance: Value(newBalance),
-        updatedAt: Value(DateTime.now().millisecondsSinceEpoch),
-      ),
-    );
+  Future<bool> updateBalance(AccountFund fund, double newBalance) async {
+    try {
+      await db.update(db.accountFundTable).replace(
+            AccountFundTableCompanion(
+              id: Value(fund.id),
+              fundBalance: Value(newBalance),
+              updatedAt: Value(DateUtil.now()),
+              name: Value(fund.name),
+              fundType: Value(fund.fundType),
+              fundRemark: Value(fund.fundRemark ?? ''),
+              isDefault: Value(fund.isDefault),
+              createdAt: Value(fund.createdAt),
+              createdBy: Value(fund.createdBy),
+              updatedBy: Value(fund.updatedBy),
+            ),
+          );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

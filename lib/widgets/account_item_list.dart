@@ -2,7 +2,6 @@ import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/vo/account_item_vo.dart';
-import '../services/account_item_service.dart';
 import 'account_item_list_tile.dart';
 
 /// 账目列表

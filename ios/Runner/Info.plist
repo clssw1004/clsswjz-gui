@@ -56,5 +56,14 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>需要访问文档文件夹以打开文件</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>需要访问下载文件夹以打开文件</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>file</string>
+		<string>https</string>
+	</array>
 </dict>
 </plist>

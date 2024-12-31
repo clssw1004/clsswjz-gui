@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../../database/database.dart';
-import '../../enums/account_type.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
@@ -13,6 +12,9 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
+import '../../constants/currency_symbol.dart';
+import '../../widgets/common/common_icon_picker.dart';
+import '../../utils/date_util.dart';
 
 /// 账本详情编辑页面
 class AccountBookFormPage extends StatefulWidget {
@@ -84,8 +86,8 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         description: _descriptionController.text,
         createdBy: userId,
         updatedBy: userId,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateUtil.now(),
+        updatedAt: DateUtil.now(),
         currencySymbol: _currencySymbol,
         icon: _icon,
       ),
@@ -103,7 +105,8 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
       return OperateResult.success(null);
     } else {
-      return OperateResult.failWithMessage(result.message, result.exception);
+      return OperateResult.failWithMessage(
+          message: result.message, exception: result.exception);
     }
   }
 
@@ -114,7 +117,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         updatedBy: UserConfigManager.currentUserId,
         id: widget.book!.id,
         createdAt: widget.book!.createdAt,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        updatedAt: DateUtil.now(),
         name: _nameController.text,
         currencySymbol: _currencySymbol,
         icon: _icon,
@@ -164,69 +167,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
   /// 选择图标
   Future<void> _selectIcon() async {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    showDialog(
+    await CommonIconPicker.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.selectIcon),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-              ),
-              itemCount: accountBookIcons.length,
-              itemBuilder: (context, index) {
-                final icon = accountBookIcons[index];
-                return _buildIconItem(icon);
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                MaterialLocalizations.of(context).cancelButtonLabel,
-                style: TextStyle(color: colorScheme.primary),
-              ),
-            ),
-          ],
-        );
+      icons: accountBookIcons,
+      selectedIconCode: _icon,
+      onIconSelected: (iconCode) {
+        setState(() => _icon = iconCode);
       },
-    );
-  }
-
-  Widget _buildIconItem(IconData icon) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final selected = icon.codePoint.toString() == _icon;
-
-    return InkWell(
-      onTap: () {
-        setState(() => _icon = icon.codePoint.toString());
-        Navigator.of(context).pop();
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? colorScheme.primaryContainer : null,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: selected ? colorScheme.primary : colorScheme.outline,
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: selected ? colorScheme.primary : colorScheme.onSurface,
-        ),
-      ),
     );
   }
 
@@ -478,12 +425,12 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
               onChanged: (value) => _descriptionController.text = value,
             ),
             const SizedBox(height: 16),
-            CommonSelectFormField<String>(
-              items: const ['¥', '\$', '€', '£', '¥'],
-              value: _currencySymbol,
+            CommonSelectFormField<CurrencySymbol>(
+              items: CurrencySymbol.values,
+              value: CurrencySymbol.fromSymbol(_currencySymbol),
               displayMode: DisplayMode.iconText,
-              displayField: (item) => item,
-              keyField: (item) => item,
+              displayField: (item) => '${item.symbol} - ${item.code}',
+              keyField: (item) => item.symbol,
               label: l10n.currency,
               icon: Icons.currency_exchange,
               required: true,

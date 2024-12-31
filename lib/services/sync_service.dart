@@ -18,7 +18,8 @@ class SyncService extends BaseService {
       }
       return OperateResult.success({});
     } catch (e) {
-      return OperateResult.failWithMessage('初始化同步数据失败', e as Exception);
+      return OperateResult.failWithMessage(
+          message: '初始化同步数据失败', exception: e as Exception);
     }
   }
 
@@ -34,14 +35,15 @@ class SyncService extends BaseService {
         return OperateResult.success(response.data!);
       } else {
         return OperateResult.failWithMessage(
-          response.message ?? '获取初始数据失败',
-          response.message != null ? Exception(response.message) : null,
+          message: response.message ?? '获取初始数据失败',
+          exception:
+              response.message != null ? Exception(response.message) : null,
         );
       }
     } catch (e) {
       return OperateResult.failWithMessage(
-        '获取初始数据失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '获取初始数据失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
@@ -59,14 +61,13 @@ class SyncService extends BaseService {
         return OperateResult.success(response.data!);
       } else {
         return OperateResult.failWithMessage(
-          response.message ?? '同步数据失败',
-          response.message != null ? Exception(response.message) : null,
+          message: response.message ?? '同步数据失败',
         );
       }
     } catch (e) {
       return OperateResult.failWithMessage(
-        '同步数据失败',
-        e is Exception ? e : Exception(e.toString()),
+        message: '同步数据失败',
+        exception: e is Exception ? e : Exception(e.toString()),
       );
     }
   }

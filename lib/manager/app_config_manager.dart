@@ -1,6 +1,7 @@
 import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import '../constants/currency_symbol.dart';
 import '../database/database.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
@@ -8,6 +9,7 @@ import '../utils/id_util.dart';
 import 'cache_manager.dart';
 import 'database_manager.dart';
 import 'service_manager.dart';
+import '../utils/date_util.dart';
 
 /// 应用配置管理
 class AppConfigManager {
@@ -270,9 +272,9 @@ class AppConfigManager {
             name: bookName,
             createdBy: userId,
             updatedBy: userId,
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-            updatedAt: DateTime.now().millisecondsSinceEpoch,
-            currencySymbol: 'CNY',
+            createdAt: DateUtil.now(),
+            updatedAt: DateUtil.now(),
+            currencySymbol: CurrencySymbol.cny.symbol,
             icon: bookIcon,
           ),
           userId: userId,

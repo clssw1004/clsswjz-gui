@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../common/common_text_form_field.dart';
+import '../common/common_icon_picker.dart';
 
 class OfflineForm extends StatefulWidget {
   final String username;
@@ -46,70 +47,14 @@ class _OfflineFormState extends State<OfflineForm> {
 
   /// 选择图标
   Future<void> _selectIcon() async {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    showDialog(
+    await CommonIconPicker.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.selectIcon),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-              ),
-              itemCount: accountBookIcons.length,
-              itemBuilder: (context, index) {
-                final icon = accountBookIcons[index];
-                return _buildIconItem(icon);
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                MaterialLocalizations.of(context).cancelButtonLabel,
-                style: TextStyle(color: colorScheme.primary),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildIconItem(IconData icon) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final selected = icon.codePoint.toString() == _selectedIcon;
-
-    return InkWell(
-      onTap: () {
-        setState(() => _selectedIcon = icon.codePoint.toString());
+      icons: accountBookIcons,
+      selectedIconCode: _selectedIcon,
+      onIconSelected: (iconCode) {
+        setState(() => _selectedIcon = iconCode);
         widget.onBookIconChanged(_selectedIcon!);
-        Navigator.of(context).pop();
       },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? colorScheme.primaryContainer : null,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: selected ? colorScheme.primary : colorScheme.outline,
-          ),
-        ),
-        child: Icon(
-          icon,
-          color: selected ? colorScheme.primary : colorScheme.onSurface,
-        ),
-      ),
     );
   }
 
