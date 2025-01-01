@@ -3,6 +3,7 @@ import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
+import '../models/vo/user_vo.dart';
 import 'base_service.dart';
 import '../utils/id_util.dart';
 import '../utils/date_util.dart';
@@ -14,7 +15,7 @@ class UserService extends BaseService {
   UserService() : _userDao = UserDao(DatabaseManager.db);
 
   /// 用户登录
-  Future<OperateResult<User>> login(String username, String password) async {
+  Future<OperateResult<UserVO>> login(String username, String password) async {
     User? user = await _userDao.findByUsername(username);
     if (user == null) {
       return OperateResult.failWithMessage(message: '用户名或密码错误');
@@ -24,11 +25,11 @@ class UserService extends BaseService {
         message: '用户名或密码错误',
       );
     }
-    return OperateResult.success(user);
+    return OperateResult.success(UserVO.fromUser(user: user));
   }
 
   /// 用户注册
-  Future<OperateResult<User>> register({
+  Future<OperateResult<UserVO>> register({
     String? userId,
     required String username,
     required String password,
@@ -62,13 +63,13 @@ class UserService extends BaseService {
   }
 
   /// 获取用户信息
-  Future<OperateResult<User>> getUserInfo(String id) async {
+  Future<OperateResult<UserVO>> getUserInfo(String id) async {
     try {
       final user = await _userDao.findById(id);
       if (user == null) {
         return OperateResult.failWithMessage(message: '用户不存在');
       }
-      return OperateResult.success(user);
+      return OperateResult.success(UserVO.fromUser(user: user));
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取用户信息失败：$e',

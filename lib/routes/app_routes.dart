@@ -1,6 +1,7 @@
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
+import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../pages/account_book/account_book_list_page.dart';
 import '../pages/account_book/account_item_form_page.dart';
@@ -61,7 +62,9 @@ class AppRoutes {
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
-      builder: (context) => const ServerConfigPage(),
+      builder: (context) => AppConfigManager.isAppInit()
+          ? const HomePage()
+          : const ServerConfigPage(),
     );
   }
 

@@ -402,5 +402,15 @@
     "addAnother": "Add Another",
     "@addAnother": {
         "description": "Button text for adding another account item"
+    },
+    "attachNum": "共{num}个",
+    "@attachNum": {
+        "description": "Attachment number",
+        "placeholders": {
+            "num": {
+                "type": "int",
+                "example": "10"
+            }
+        }
     }
 }

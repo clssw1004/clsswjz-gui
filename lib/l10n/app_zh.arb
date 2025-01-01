@@ -420,5 +420,15 @@
     "addAnother": "再记一笔",
     "@addAnother": {
         "description": "继续记录下一笔账目的按钮文本"
+    },
+    "attachNum": "共{num}个",
+    "@attachNum": {
+        "description": "附件数量",
+        "placeholders": {
+            "num": {
+                "type": "int",
+                "example": "10"
+            }
+        }
     }
 }

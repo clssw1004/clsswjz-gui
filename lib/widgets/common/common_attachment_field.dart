@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
+import 'common_dialog.dart';
 
 /// 通用附件组件
 class CommonAttachmentField extends StatefulWidget {
@@ -64,6 +65,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.any,
+        dialogTitle: AppLocalizations.of(context)!.addAttachment,
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -90,6 +92,52 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     }
   }
 
+  /// 弹出附件列表对话框
+  void _showAttachmentDialog() {
+    CommonDialog.show(
+      context: context,
+      title: AppLocalizations.of(context)!.attachments,
+      width: 400,
+      content: Container(
+        constraints: const BoxConstraints(maxHeight: 400),
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: widget.attachments.length,
+          separatorBuilder: (context, index) => const Divider(height: 1),
+          itemBuilder: (context, index) {
+            final attachment = widget.attachments[index];
+            return ListTile(
+              dense: true,
+              horizontalTitleGap: 0,
+              leading: const Icon(Icons.attachment_outlined, size: 20),
+              title: Text(
+                attachment.originName,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              trailing: widget.onDelete != null
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _deleteAttachment(attachment);
+                      },
+                    )
+                  : null,
+              onTap:
+                  widget.onTap != null ? () => widget.onTap!(attachment) : null,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -99,160 +147,88 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null)
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Row(
-              children: [
-                Text(
-                  widget.required ? '${widget.label} *' : widget.label!,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: widget.errorText != null
-                        ? colorScheme.error
-                        : colorScheme.onSurface,
-                  ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surface.withAlpha(60),
+                borderRadius: BorderRadius.circular(
+                  theme.extension<ThemeRadius>()?.radius ?? 8,
                 ),
-                if (widget.canUpload) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _isUploading ? null : _pickFiles,
-                    icon: _isUploading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.add_circle_outline),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: widget.attachments.isNotEmpty
+                        ? _showAttachmentDialog
+                        : null,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      foregroundColor: colorScheme.primary,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.attachment_rounded, size: 20),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.attachNum(widget.attachments.length),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  if (widget.canUpload) ...[
+                    Container(
+                      width: 1,
+                      height: 20,
+                      color: colorScheme.onSurface.withAlpha(20),
+                    ),
+                    Tooltip(
+                      message: l10n.addAttachment,
+                      child: TextButton.icon(
+                        onPressed: _isUploading ? null : _pickFiles,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          foregroundColor: colorScheme.primary,
+                        ),
+                        icon: _isUploading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.primary,
+                                ),
+                              )
+                            : const Icon(Icons.add_circle_outline, size: 20),
+                        label: Text(
+                          l10n.uploadAttachment,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            ),
-          ),
-        if (widget.attachments.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              border: Border.all(color: colorScheme.outline.withAlpha(20)),
-              borderRadius: BorderRadius.circular(
-                theme.extension<ThemeRadius>()?.radius ?? 8,
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.attachment_outlined,
-                  size: 48,
-                  color: colorScheme.outline.withAlpha(50),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.hint ?? l10n.noData,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.outline.withAlpha(50),
-                  ),
-                ),
-              ],
-            ),
-          )
-        else
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              border: Border.all(color: colorScheme.outline.withAlpha(20)),
-              borderRadius: BorderRadius.circular(
-                theme.extension<ThemeRadius>()?.radius ?? 8,
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(
-                theme.extension<ThemeRadius>()?.radius ?? 8,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: widget.attachments.map((attachment) {
-                      return Container(
-                        constraints: const BoxConstraints(maxWidth: 200),
-                        decoration: BoxDecoration(
-                          color: colorScheme.outline.withAlpha(30),
-                          borderRadius: BorderRadius.circular(
-                            theme.extension<ThemeRadius>()?.radius ?? 8,
-                          ),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: widget.onTap != null
-                                ? () => widget.onTap!(attachment)
-                                : null,
-                            borderRadius: BorderRadius.circular(
-                              theme.extension<ThemeRadius>()?.radius ?? 8,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 3,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.attachment_outlined,
-                                    size: 16,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      attachment.originName,
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (widget.onDelete != null) ...[
-                                    const SizedBox(width: 4),
-                                    InkWell(
-                                      onTap: () =>
-                                          _deleteAttachment(attachment),
-                                      customBorder: const CircleBorder(),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Icon(
-                                          Icons.close,
-                                          size: 14,
-                                          color: colorScheme.onSurfaceVariant
-                                              .withAlpha(60),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          ],
+        ),
         if (widget.errorText != null)
           Padding(
-            padding: const EdgeInsets.only(left: 4, top: 8),
+            padding: const EdgeInsets.only(left: 4, top: 4),
             child: Text(
               widget.errorText!,
               style: theme.textTheme.bodySmall?.copyWith(

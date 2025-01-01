@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../database/database.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
+import '../models/vo/user_vo.dart';
 
 /// 用户信息状态管理
 class UserProvider extends ChangeNotifier {
@@ -13,8 +13,8 @@ class UserProvider extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  User? _user;
-  User? get user => _user;
+  UserVO? _user;
+  UserVO? get user => _user;
 
   UserStatisticVO? _statistic;
   UserStatisticVO? get statistic => _statistic;

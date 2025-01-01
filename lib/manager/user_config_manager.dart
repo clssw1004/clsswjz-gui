@@ -1,6 +1,6 @@
 import 'package:clsswjz/manager/cache_manager.dart';
 
-import '../database/database.dart';
+import '../models/vo/user_vo.dart';
 import '../services/user_service.dart';
 import 'service_manager.dart';
 
@@ -19,8 +19,8 @@ class UserConfigManager {
   static late String _currentUserId;
   static String get currentUserId => _currentUserId;
 
-  static late User _currentUser;
-  User get currentUser => _currentUser;
+  static late UserVO _currentUser;
+  UserVO get currentUser => _currentUser;
 
   UserConfigManager._();
 
@@ -38,7 +38,7 @@ class UserConfigManager {
     setCurrentUser(user!);
   }
 
-  static setCurrentUser(User user) {
+  static setCurrentUser(UserVO user) {
     _currentUser = user;
     CacheManager.instance.setString(_currentUserIdKey, user.id);
   }

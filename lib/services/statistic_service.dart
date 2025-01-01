@@ -1,4 +1,5 @@
-import '../database/database.dart';
+import 'package:clsswjz/models/vo/user_vo.dart';
+
 import '../manager/database_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
@@ -8,7 +9,7 @@ class StatisticService {
   // 统计当前用户的账本数、账目数、记账天数
   Future<OperateResult<UserStatisticVO>> getUserStatisticInfo(
       String userId) async {
-    User user = UserConfigManager.instance.currentUser;
+    UserVO user = UserConfigManager.instance.currentUser;
     final db = DatabaseManager.db;
     // 1. 统计账本数量
     final bookCount = await (db.select(db.relAccountbookUserTable)

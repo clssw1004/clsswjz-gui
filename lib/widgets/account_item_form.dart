@@ -10,7 +10,6 @@ import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
 import '../utils/file_util.dart';
 import '../theme/theme_spacing.dart';
-import '../routes/app_routes.dart';
 import 'amount_input.dart';
 import 'common/common_select_form_field.dart';
 import 'common/common_text_form_field.dart';
@@ -142,16 +141,16 @@ class _AccountItemFormState extends State<AccountItemForm> {
               }
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.errorContainer
                       : colorScheme.primaryContainer;
                 }
                 return null;
               }),
-              foregroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return currentType == AccountItemType.expense
                       ? colorScheme.onErrorContainer
                       : colorScheme.onPrimaryContainer;
@@ -452,7 +451,6 @@ class _AccountItemFormState extends State<AccountItemForm> {
                               if (widget.onSaved != null) {
                                 widget.onSaved!();
                               }
-                              Navigator.of(context).pop(true);
                             }
                           } else if (context.mounted &&
                               provider.error != null) {

@@ -332,5 +332,15 @@
     "addAnother": "再記一筆",
     "@addAnother": {
         "description": "繼續記錄下一筆賬目的按鈕文本"
+    },
+    "attachNum": "共{num}個",
+    "@attachNum": {
+        "description": "附件數量",
+        "placeholders": {
+            "num": {
+                "type": "int",
+                "example": "10"
+            }
+        }
     }
 }
