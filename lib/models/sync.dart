@@ -2,7 +2,7 @@ import '../database/database.dart';
 
 /// 同步数据传输对象
 class SyncDataDto {
-  final String lastSyncTime;
+  final int lastSyncTime;
   final SyncChanges changes;
 
   SyncDataDto({
@@ -19,7 +19,7 @@ class SyncDataDto {
 
   factory SyncDataDto.fromJson(Map<String, dynamic> json) {
     return SyncDataDto(
-      lastSyncTime: json['lastSyncTime'] as String,
+      lastSyncTime: json['lastSyncTime'] as int,
       changes: SyncChanges.fromJson(json['changes'] as Map<String, dynamic>),
     );
   }
@@ -106,24 +106,24 @@ class SyncChanges {
 
 class SyncInitResponse {
   SyncChanges data;
-  String serverTime;
+  int lasySyncTime;
 
   SyncInitResponse({
     required this.data,
-    required this.serverTime,
+    required this.lasySyncTime,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'data': data.toJson(),
-      'serverTime': serverTime,
+      'serverTime': lasySyncTime,
     };
   }
 
   factory SyncInitResponse.fromJson(Map<String, dynamic> json) {
     return SyncInitResponse(
       data: SyncChanges.fromJson(json['data'] as Map<String, dynamic>),
-      serverTime: json['serverTime'] as String,
+      lasySyncTime: json['lasySyncTime'] as int,
     );
   }
 }

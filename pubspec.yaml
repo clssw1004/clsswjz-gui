@@ -28,6 +28,7 @@ dependencies:
   mime: ^2.0.0
   open_filex: ^4.6.0
   file_picker: ^8.1.7
+  pull_to_refresh: ^2.0.0
 
 dev_dependencies:
   flutter_test:

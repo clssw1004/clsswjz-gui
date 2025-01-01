@@ -10,16 +10,45 @@ class SyncService extends BaseService {
 
   SyncService({required HttpClient httpClient}) : _httpClient = httpClient;
 
-  Future<OperateResult<void>> syncInit() async {
+  Future<OperateResult<int>> syncInit() async {
     try {
       final result = await _getInitialData();
       if (result.ok && result.data != null) {
         await _applyServerChanges(result.data!.data);
       }
-      return OperateResult.success({});
+      return OperateResult.success(result.data!.lasySyncTime);
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '初始化同步数据失败', exception: e as Exception);
+    }
+  }
+
+  /// 批量同步数据
+  Future<OperateResult<SyncResponse>> syncChange(int lastSyncTime) async {
+    try {
+      final changes = await getLocalChanges(lastSyncTime);
+      final data = SyncDataDto(
+        lastSyncTime: lastSyncTime,
+        changes: changes,
+      );
+      final response = await _httpClient.post<SyncResponse>(
+        path: '/api/sync/batch',
+        data: data.toJson(),
+        transform: (json) => SyncResponse.fromJson(json['data']),
+      );
+
+      if (response.success) {
+        return OperateResult.success(response.data!);
+      } else {
+        return OperateResult.failWithMessage(
+          message: response.message ?? '同步数据失败',
+        );
+      }
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '同步数据失败',
+        exception: e is Exception ? e : Exception(e.toString()),
+      );
     }
   }
 
@@ -43,30 +72,6 @@ class SyncService extends BaseService {
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取初始数据失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
-  /// 批量同步数据
-  Future<OperateResult<SyncResponse>> batchSync(SyncDataDto data) async {
-    try {
-      final response = await _httpClient.post<SyncResponse>(
-        path: '/api/sync/batch',
-        data: data.toJson(),
-        transform: (json) => SyncResponse.fromJson(json['data']),
-      );
-
-      if (response.success) {
-        return OperateResult.success(response.data!);
-      } else {
-        return OperateResult.failWithMessage(
-          message: response.message ?? '同步数据失败',
-        );
-      }
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '同步数据失败',
         exception: e is Exception ? e : Exception(e.toString()),
       );
     }
@@ -131,9 +136,7 @@ class SyncService extends BaseService {
   }
 
   /// 获取本地变更
-  Future<SyncChanges> getLocalChanges(String lastSyncTime) async {
-    final timestamp = DateTime.parse(lastSyncTime).millisecondsSinceEpoch;
-
+  Future<SyncChanges> getLocalChanges(int timestamp) async {
     return SyncChanges(
       accountBooks: await (db.select(db.accountBookTable)
             ..where((t) => t.updatedAt.isBiggerThan(Variable(timestamp))))

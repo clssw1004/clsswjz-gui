@@ -237,6 +237,7 @@ class _FundFormPageState extends State<FundFormPage> {
               keyField: (item) => item,
               icon: Icons.account_balance_outlined,
               label: l10n.type,
+              allowCreate: false,
               required: true,
               expandCount: 10,
               expandRows: 4,

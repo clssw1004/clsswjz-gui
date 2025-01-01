@@ -107,7 +107,7 @@ class UserInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SizedBox(
-      width: 90, // 减小整体宽度
+      width: 100, // 减小整体宽度
       child: Row(
         mainAxisAlignment:
             MainAxisAlignment.spaceBetween, // 使用spaceBetween替代Expanded

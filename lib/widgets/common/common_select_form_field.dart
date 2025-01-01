@@ -159,7 +159,7 @@ class _CommonSelectFormFieldWidgetState<T>
   }
 
   /// 显示选择弹窗
-  Future<void> _showSelectDialog() async {
+  Future<void> _showSelectDialog({bool isAddMode = false}) async {
     final result = await showDialog<T>(
       context: context,
       builder: (context) {
@@ -178,17 +178,20 @@ class _CommonSelectFormFieldWidgetState<T>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // 当没有选项时，始终显示搜索框
-                  if (widget.items.isEmpty || widget.searchable)
+                  if (widget.items.isEmpty || widget.searchable || isAddMode)
                     TextField(
                       controller: _searchController,
-                      autofocus: widget.items.isEmpty, // 当没有选项时自动获取焦点
+                      autofocus: widget.items.isEmpty ||
+                          isAddMode, // 当没有选项或新增模式时自动获取焦点
                       style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: widget.items.isEmpty
+                        hintText: widget.items.isEmpty || isAddMode
                             ? l10n.addNew(widget.label ?? '')
                             : l10n.search,
                         prefixIcon: Icon(
-                          widget.items.isEmpty ? Icons.add : Icons.search,
+                          widget.items.isEmpty || isAddMode
+                              ? Icons.add
+                              : Icons.search,
                           color: theme.colorScheme.primary,
                         ),
                         suffixIcon: _searchText.isNotEmpty
@@ -435,7 +438,7 @@ class _CommonSelectFormFieldWidgetState<T>
           onPressed: () {
             _searchController.clear();
             _searchText = '';
-            _showSelectDialog();
+            _showSelectDialog(isAddMode: true);
           },
         ),
       ),
@@ -449,13 +452,25 @@ class _CommonSelectFormFieldWidgetState<T>
 
     // 计算每行显示的数量
     final itemsPerRow = (widget.expandCount / widget.expandRows).ceil();
-    // 计算按钮宽度
+    // 计算按钮宽度（减去padding和spacing的空间）
     final buttonWidth =
         (MediaQuery.of(context).size.width - 32 - (itemsPerRow - 1) * 8) /
             itemsPerRow;
 
+    // 是否需要显示更多按钮
+    final showMore = widget.items.length > widget.expandCount;
+    // 是否显示新增按钮（当项目数量少于展开数量且允许创建时）
+    final showAdd = !showMore && widget.allowCreate;
+
     // 获取要显示的选项
-    List<T> displayItems = List.from(widget.items.take(widget.expandCount));
+    List<T> displayItems = [];
+    if (showMore) {
+      // 如果需要显示更多按钮，则显示expandCount-1个选项
+      displayItems = List.from(widget.items.take(widget.expandCount));
+    } else {
+      // 否则显示所有选项
+      displayItems = List.from(widget.items);
+    }
 
     // 如果选中项不在显示列表中，替换最后一个选项
     if (_selectedItem != null && !displayItems.contains(_selectedItem)) {
@@ -464,68 +479,97 @@ class _CommonSelectFormFieldWidgetState<T>
       }
     }
 
-    // 是否需要显示更多按钮
-    final showMore = widget.items.length > widget.expandCount;
-    // 是否显示新增按钮（当项目数量少于展开数量且允许创建时）
-    final showAdd = !showMore && widget.allowCreate;
+    // 将选项按行分组
+    final rows = <List<T>>[];
+    for (var i = 0; i < displayItems.length; i += itemsPerRow) {
+      final endIndex = i + itemsPerRow;
+      // 如果是最后一行且需要显示更多或新增按钮，则少显示一个选项
+      final actualEndIndex = endIndex > displayItems.length
+          ? displayItems.length
+          : (i + itemsPerRow == displayItems.length &&
+                  (showMore || showAdd) &&
+                  displayItems.length % itemsPerRow == 0)
+              ? endIndex - 1
+              : endIndex;
+      rows.add(displayItems.sublist(i, actualEndIndex));
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ...displayItems.map((item) {
-                  final isSelected = widget.value != null &&
-                      widget.keyField(item) == widget.value;
+        Column(
+          children: [
+            ...rows.map((rowItems) {
+              final isLastRow = rows.indexOf(rowItems) == rows.length - 1;
+              final showButton = isLastRow && (showMore || showAdd);
 
-                  return SizedBox(
-                    width: buttonWidth,
-                    child: Center(
-                      child: ChoiceChip(
-                        showCheckmark: false,
-                        elevation: 0,
-                        pressElevation: 0,
-                        selectedColor: theme.colorScheme.primaryContainer,
-                        side: BorderSide(
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.outline,
-                          width: 1,
-                        ),
-                        labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                          color: isSelected
-                              ? theme.colorScheme.onPrimaryContainer
-                              : theme.colorScheme.onSurface,
-                        ),
-                        labelPadding: EdgeInsets.zero,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        label: SizedBox(
-                          width: buttonWidth - 32,
-                          child: Text(
-                            widget.displayField(item),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...rowItems.map((item) {
+                        final isSelected = widget.value != null &&
+                            widget.keyField(item) == widget.value;
+
+                        return Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          width: buttonWidth,
+                          child: Center(
+                            child: ChoiceChip(
+                              showCheckmark: false,
+                              elevation: 0,
+                              pressElevation: 0,
+                              selectedColor: theme.colorScheme.primaryContainer,
+                              side: BorderSide(
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.outline,
+                                width: 1,
+                              ),
+                              labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : theme.colorScheme.onSurface,
+                              ),
+                              labelPadding: EdgeInsets.zero,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              label: SizedBox(
+                                width: buttonWidth - 32,
+                                child: Text(
+                                  widget.displayField(item),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                _handleItemChanged(selected ? item : null);
+                              },
+                            ),
                           ),
+                        );
+                      }),
+                      if (showButton)
+                        Container(
+                          width: buttonWidth,
+                          child: showMore
+                              ? _buildMoreButton(buttonWidth, theme, l10n)
+                              : _buildAddButton(buttonWidth, theme, l10n),
                         ),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          _handleItemChanged(selected ? item : null);
-                        },
-                      ),
-                    ),
-                  );
-                }),
-                if (showMore) _buildMoreButton(buttonWidth, theme, l10n),
-                if (showAdd) _buildAddButton(buttonWidth, theme, l10n),
-              ],
-            ),
-          ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
         if (widget.errorText != null)
           Padding(

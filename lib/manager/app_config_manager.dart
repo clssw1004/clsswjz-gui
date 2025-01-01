@@ -26,6 +26,7 @@ class AppConfigManager {
   static const String _storageTypeKey = 'storage_type';
   static const String _isStorageInitKey = 'is_storage_init';
   static const String _databaseNameKey = 'database_name';
+  static const String _lastSyncTimeKey = 'last_sync_time';
 
   static bool _isInit = false;
 
@@ -83,6 +84,9 @@ class AppConfigManager {
   late String? _databaseName;
   String? get databaseName => _databaseName;
 
+  late int? _lastSyncTime;
+  int? get lastSyncTime => _lastSyncTime;
+
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
 
@@ -135,6 +139,9 @@ class AppConfigManager {
 
     // 初始化用户ID
     _userId = CacheManager.instance.getString(_userIdKey);
+
+    // 初始化上次同步时间
+    _lastSyncTime = CacheManager.instance.getInt(_lastSyncTimeKey);
   }
 
   /// 初始化
@@ -230,6 +237,11 @@ class AppConfigManager {
     await CacheManager.instance.setString(_databaseNameKey, databaseName);
   }
 
+  Future<void> setLastSyncTime(int time) async {
+    _lastSyncTime = time;
+    await CacheManager.instance.setInt(_lastSyncTimeKey, time);
+  }
+
   /// 是否已经配置过后台服务
   static bool isAppInit() {
     return _instance.isStorageInit;
@@ -280,6 +292,11 @@ class AppConfigManager {
           userId: userId,
         )
         .then((value) => value.data);
+    await ServiceManager.accountBookService.initBookDefaultData(
+        bookId: bookId!,
+        userId: userId,
+        defaultCategoryName: AppLocalizations.of(context)!.noCategory,
+        defaultShopName: AppLocalizations.of(context)!.noShop);
     await _instance.setDefaultBookId(bookId);
     await _instance.makeStorageInit();
   }
@@ -299,7 +316,10 @@ class AppConfigManager {
     await ServiceManager.init(syncInit: true);
 
     /// 初始化导入数据
-    await ServiceManager.syncService.syncInit();
+    final result = await ServiceManager.syncService.syncInit();
+    if (result.ok) {
+      await _instance.setLastSyncTime(result.data!);
+    }
     await _instance.makeStorageInit();
   }
 }

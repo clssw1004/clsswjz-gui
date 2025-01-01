@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
@@ -6,7 +6,7 @@ import '../services/account_item_service.dart';
 import '../services/account_book_service.dart';
 
 /// 账目列表状态管理
-class AccountItemsProvider with ChangeNotifier {
+class AccountItemsProvider extends ChangeNotifier {
   /// 账目服务
   final _accountItemService = AccountItemService();
   final _accountBookService = AccountBookService();

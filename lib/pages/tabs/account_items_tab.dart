@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../enums/storage_mode.dart';
+import '../../manager/app_config_manager.dart';
+import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
+import '../../models/common.dart';
 import '../../providers/account_items_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
@@ -9,23 +14,17 @@ import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../account_book/account_item_form_page.dart';
 
-class AccountItemsTab extends StatelessWidget {
+class AccountItemsTab extends StatefulWidget {
   const AccountItemsTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const _AccountItemsTabView();
-  }
+  State<AccountItemsTab> createState() => _AccountItemsTabState();
 }
 
-class _AccountItemsTabView extends StatefulWidget {
-  const _AccountItemsTabView();
+class _AccountItemsTabState extends State<AccountItemsTab> {
+  /// 刷新控制器
+  final _refreshController = RefreshController();
 
-  @override
-  State<_AccountItemsTabView> createState() => _AccountItemsTabViewState();
-}
-
-class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
   @override
   void initState() {
     super.initState();
@@ -34,9 +33,56 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
     });
   }
 
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAccountBooks() async {
     final provider = context.read<AccountItemsProvider>();
     await provider.init(UserConfigManager.currentUserId);
+  }
+
+  /// 刷新数据
+  Future<void> _onRefresh() async {
+    final provider = context.read<AccountItemsProvider>();
+    final storageType = AppConfigManager.instance.storageType;
+
+    try {
+      if (storageType == StorageMode.selfHost) {
+        // 如果是自托管模式，先同步数据
+        final syncService = ServiceManager.syncService;
+        final result = await syncService
+            .syncChange(AppConfigManager.instance.lastSyncTime!);
+        if (!result.ok) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(result.message ?? '同步数据失败'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
+          }
+          _refreshController.refreshFailed();
+          return;
+        }
+      }
+
+      // 刷新数据
+      await provider.refresh();
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+      _refreshController.refreshFailed();
+    }
   }
 
   @override
@@ -82,26 +128,26 @@ class _AccountItemsTabViewState extends State<_AccountItemsTabView> {
                 )
               : Stack(
                   children: [
-                    Consumer<AccountItemsProvider>(
-                      builder: (context, provider, child) {
-                        return AccountItemList(
-                          accountBook: accountBook,
-                          initialItems: provider.items,
-                          onItemTap: (item) async {
-                            final result = await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => AccountItemFormPage(
-                                  accountBook: accountBook,
-                                  item: item,
-                                ),
+                    SmartRefresher(
+                      controller: _refreshController,
+                      onRefresh: _onRefresh,
+                      child: AccountItemList(
+                        accountBook: accountBook,
+                        initialItems: provider.items,
+                        onItemTap: (item) async {
+                          final result = await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AccountItemFormPage(
+                                accountBook: accountBook,
+                                item: item,
                               ),
-                            );
-                            if (result == true) {
-                              provider.refresh();
-                            }
-                          },
-                        );
-                      },
+                            ),
+                          );
+                          if (result == true) {
+                            provider.refresh();
+                          }
+                        },
+                      ),
                     ),
                     Positioned(
                       right: 16,
