@@ -1,34 +1,13 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
+import '../tables/rel_accountbook_user_table.dart';
+import 'base_dao.dart';
 
-class RelAccountbookUserDao {
-  final AppDatabase db;
+class RelAccountbookUserDao
+    extends BaseDao<RelAccountbookUserTable, RelAccountbookUser> {
+  RelAccountbookUserDao(super.db);
 
-  RelAccountbookUserDao(this.db);
-
-  Future<int> insert(RelAccountbookUserTableCompanion entity) {
-    return db.into(db.relAccountbookUserTable).insert(entity);
-  }
-
-  Future<void> batchInsert(
-      List<RelAccountbookUserTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.relAccountbookUserTable, entity,
-            mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(RelAccountbookUserTableCompanion entity) {
-    return db.update(db.relAccountbookUserTable).replace(entity);
-  }
-
-  Future<int> delete(RelAccountbookUser entity) {
-    return db.delete(db.relAccountbookUserTable).delete(entity);
-  }
-
-  Future<List<RelAccountbookUser>> findAll() {
-    return db.select(db.relAccountbookUserTable).get();
-  }
+  @override
+  TableInfo<RelAccountbookUserTable, RelAccountbookUser> get table =>
+      db.relAccountbookUserTable;
 }

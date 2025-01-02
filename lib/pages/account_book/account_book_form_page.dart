@@ -2,7 +2,7 @@ import 'package:clsswjz/models/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
-import '../../database/database.dart';
+import '../../drivers/driver_factory.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
@@ -14,7 +14,6 @@ import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../enums/currency_symbol.dart';
 import '../../widgets/common/common_icon_picker.dart';
-import '../../utils/date_util.dart';
 import '../../theme/theme_spacing.dart';
 
 /// 账本详情编辑页面
@@ -45,7 +44,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   String? _icon;
 
   /// 货币符号
-  String _currencySymbol = '¥';
+  CurrencySymbol _currencySymbol = CurrencySymbol.cny;
 
   /// 成员列表
   late List<BookMemberVO> _members;
@@ -80,20 +79,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   Future<OperateResult<void>> create() async {
     final userId = UserConfigManager.currentUserId;
     final l10n = AppLocalizations.of(context)!;
-    final result = await ServiceManager.accountBookService.createAccountBook(
-      accountBook: AccountBook(
-        id: '',
-        name: _nameController.text,
-        description: _descriptionController.text,
-        createdBy: userId,
-        updatedBy: userId,
-        createdAt: DateUtil.now(),
-        updatedAt: DateUtil.now(),
-        currencySymbol: _currencySymbol,
-        icon: _icon,
-      ),
+    final result = await DriverFactory.bookDataDriver.createBook(
+      userId,
+      name: _nameController.text,
+      description: _descriptionController.text,
+      currencySymbol: _currencySymbol,
+      icon: _icon,
       members: _members,
-      userId: UserConfigManager.currentUserId,
     );
     if (result.ok) {
       final bookId = result.data!;
@@ -112,20 +104,16 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   }
 
   Future<OperateResult<void>> update() async {
-    return await ServiceManager.accountBookService.updateAccountBook(
-      accountBook: AccountBook(
-        createdBy: widget.book!.createdBy,
-        updatedBy: UserConfigManager.currentUserId,
-        id: widget.book!.id,
-        createdAt: widget.book!.createdAt,
-        updatedAt: DateUtil.now(),
-        name: _nameController.text,
-        currencySymbol: _currencySymbol,
-        icon: _icon,
-        description: _descriptionController.text,
-      ),
+    final userId = UserConfigManager.currentUserId;
+
+    return await DriverFactory.bookDataDriver.updateBook(
+      userId,
+      widget.book!.id,
+      name: _nameController.text,
+      currencySymbol: _currencySymbol,
+      icon: _icon,
+      description: _descriptionController.text,
       members: _members,
-      userId: UserConfigManager.currentUserId,
     );
   }
 
@@ -431,7 +419,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             CommonSelectFormField<CurrencySymbol>(
               items: CurrencySymbol.values,
-              value: CurrencySymbol.fromSymbol(_currencySymbol),
+              value: _currencySymbol,
               displayMode: DisplayMode.iconText,
               displayField: (item) => '${item.symbol} - ${item.code}',
               keyField: (item) => item.symbol,

@@ -97,7 +97,7 @@ class _AccountItemListState extends State<AccountItemList> {
                 widget.onItemTap == null ? null : () => widget.onItemTap!(item),
             child: AccountItemListTile(
               item: item,
-              currencySymbol: widget.accountBook.currencySymbol,
+              currencySymbol: widget.accountBook.currencySymbol.symbol,
             ),
           );
         },

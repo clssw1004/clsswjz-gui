@@ -1,4 +1,5 @@
 import '../../database/database.dart';
+import '../../enums/currency_symbol.dart';
 import 'account_book_permission_vo.dart';
 import 'book_member_vo.dart';
 
@@ -17,7 +18,7 @@ class UserBookVO {
   final String? icon;
 
   /// 货币符号
-  final String currencySymbol;
+  final CurrencySymbol currencySymbol;
 
   /// 创建人ID
   final String createdBy;
@@ -72,7 +73,7 @@ class UserBookVO {
       name: accountBook.name,
       description: accountBook.description,
       icon: accountBook.icon,
-      currencySymbol: accountBook.currencySymbol,
+      currencySymbol: CurrencySymbol.fromSymbol(accountBook.currencySymbol)!,
       createdBy: accountBook.createdBy,
       createdByName: createdByName,
       updatedBy: accountBook.updatedBy,
@@ -91,7 +92,7 @@ class UserBookVO {
       name: name,
       description: description,
       icon: icon,
-      currencySymbol: currencySymbol,
+      currencySymbol: currencySymbol!.symbol,
       createdBy: createdBy,
       updatedBy: updatedBy,
       createdAt: createdAt,

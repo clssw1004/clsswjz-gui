@@ -1,13 +1,11 @@
 import 'dart:convert';
-
 import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/utils/date_util.dart';
 import 'package:clsswjz/utils/id_util.dart';
 import 'package:drift/drift.dart';
-
-import '../../enums/business_type.dart';
-import '../../enums/operate_type.dart';
+import '../../../enums/business_type.dart';
+import '../../../enums/operate_type.dart';
 
 abstract class AbstraceLog<T, RunResult> {
   final String? _id;
@@ -77,7 +75,6 @@ abstract class AbstraceLog<T, RunResult> {
   Future<RunResult> execute() async {
     final result = await _executeLog();
     await DaoManager.accountBookLogDao.insert(toAccountBookLog());
-    DaoManager.accountBookLogDao.insert(toAccountBookLog());
     return result;
   }
 
@@ -92,12 +89,23 @@ abstract class AbstraceLog<T, RunResult> {
       businessType: _businessType!.name,
       operateType: _operateType!.name,
       businessId: _businessId!,
-      operateData: jsonEncode(_data),
+      operateData: toJson(_data!),
     );
+  }
+
+  String toJson(T t);
+}
+
+abstract class AbstraceBookLog<T, RunResult> extends AbstraceLog<T, RunResult> {
+  @override
+  AbstraceLog<T, RunResult> inBook(String bookId) {
+    _businessId = bookId;
+    _accountBookId = bookId;
+    return this;
   }
 }
 
-class DeleteLog extends AbstraceLog<String, void> {
+class DeleteLog extends AbstraceBookLog<String, void> {
   @override
   Future<void> _executeLog() {
     switch (_businessType) {
@@ -115,9 +123,14 @@ class DeleteLog extends AbstraceLog<String, void> {
         throw UnimplementedError('未实现的操作类型：$_businessType');
     }
   }
+
+  @override
+  String toJson(String t) {
+    return t;
+  }
 }
 
-class CreateBookLog extends AbstraceLog<AccountBookTableCompanion, String> {
+class CreateBookLog extends AbstraceBookLog<AccountBookTableCompanion, String> {
   CreateBookLog() : super() {
     _operateType = OperateType.create;
   }
@@ -125,6 +138,7 @@ class CreateBookLog extends AbstraceLog<AccountBookTableCompanion, String> {
   @override
   Future<String> _executeLog() async {
     final id = IdUtils.genId();
+    inBook(id);
     final newDate = _data!.copyWith(
       id: Value(id),
       createdAt: Value(DateUtil.now()),
@@ -135,9 +149,19 @@ class CreateBookLog extends AbstraceLog<AccountBookTableCompanion, String> {
     await DaoManager.accountBookDao.insert(newDate);
     return id;
   }
+
+  @override
+  String toJson(AccountBookTableCompanion t) {
+    return jsonEncode(t.to);
+  }
 }
 
-class UpdateBookLog extends AbstraceLog<AccountBookTableCompanion, void> {
+class UpdateBookLog extends AbstraceBookLog<AccountBookTableCompanion, void> {
+  UpdateBookLog() : super() {
+    _operateType = OperateType.update;
+    _businessType = BusinessType.book;
+  }
+
   @override
   Future<void> _executeLog() {
     final newData = _data!.copyWith(
@@ -184,5 +208,41 @@ class UpdateCategoryLog
       updatedBy: Value(_operatorId!),
     );
     await DaoManager.accountCategoryDao.update(_businessId!, newData);
+  }
+}
+
+class CreateMemberLog
+    extends AbstraceLog<RelAccountbookUserTableCompanion, String> {
+  CreateMemberLog() : super() {
+    _operateType = OperateType.create;
+    _businessType = BusinessType.bookMember;
+  }
+
+  @override
+  Future<String> _executeLog() async {
+    final id = IdUtils.genId();
+    final newData = _data!.copyWith(
+      id: Value(id),
+      createdAt: Value(DateUtil.now()),
+      updatedAt: Value(DateUtil.now()),
+    );
+    await DaoManager.relAccountbookUserDao.insert(newData);
+    return id;
+  }
+}
+
+class UpdateMemberLog
+    extends AbstraceLog<RelAccountbookUserTableCompanion, void> {
+  UpdateMemberLog() : super() {
+    _operateType = OperateType.update;
+    _businessType = BusinessType.bookMember;
+  }
+
+  @override
+  Future<void> _executeLog() async {
+    final newData = _data!.copyWith(
+      updatedAt: Value(DateUtil.now()),
+    );
+    await DaoManager.relAccountbookUserDao.update(_businessId!, newData);
   }
 }

@@ -383,30 +383,6 @@ class AccountBookService extends BaseService {
     }
   }
 
-  Future<OperateResult<String>> createDefaultBook(
-      String bookName, String userId) async {
-    try {
-      final bookId = generateUuid();
-      await createAccountBook(
-        accountBook: AccountBook(
-          id: bookId,
-          name: bookName,
-          createdBy: userId,
-          updatedBy: userId,
-          createdAt: DateUtil.now(),
-          updatedAt: DateUtil.now(),
-          currencySymbol: '¥',
-          icon: null,
-        ),
-        userId: userId,
-      );
-      return OperateResult.success(bookId);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '创建默认账本失败：$e', exception: e as Exception);
-    }
-  }
-
   Future<void> initBookDefaultData(
       {required String bookId,
       required String userId,

@@ -1,6 +1,7 @@
 import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import '../drivers/driver_factory.dart';
 import '../enums/currency_symbol.dart';
 import '../database/database.dart';
 import '../enums/storage_mode.dart';
@@ -277,20 +278,8 @@ class AppConfigManager {
         .createDefaultFund(AppLocalizations.of(context)!.cash, userId);
 
     /// 创建账本
-    final bookId = await ServiceManager.accountBookService
-        .createAccountBook(
-          accountBook: AccountBook(
-            id: IdUtils.genId(),
-            name: bookName,
-            createdBy: userId,
-            updatedBy: userId,
-            createdAt: DateUtil.now(),
-            updatedAt: DateUtil.now(),
-            currencySymbol: CurrencySymbol.cny.symbol,
-            icon: bookIcon,
-          ),
-          userId: userId,
-        )
+    final bookId = await DriverFactory.bookDataDriver
+        .createBook(userId, name: bookName)
         .then((value) => value.data);
     await ServiceManager.accountBookService.initBookDefaultData(
         bookId: bookId!,

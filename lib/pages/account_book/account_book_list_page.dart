@@ -171,7 +171,7 @@ class _AccountBookCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  book.currencySymbol,
+                  book.currencySymbol.symbol,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
