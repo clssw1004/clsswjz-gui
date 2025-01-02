@@ -430,5 +430,9 @@
                 "example": "10"
             }
         }
+    },
+    "accountItem": "账目",
+    "@accountItem": {
+        "description": "Account item"
     }
 }

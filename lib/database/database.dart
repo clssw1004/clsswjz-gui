@@ -10,7 +10,6 @@ import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
 import 'tables/account_book_log_table.dart';
-import '../../utils/date_util.dart';
 part 'database.g.dart';
 
 @DriftDatabase(

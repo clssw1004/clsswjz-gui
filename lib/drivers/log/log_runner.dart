@@ -10,7 +10,7 @@ import '../../enums/business_type.dart';
 import '../../enums/operate_type.dart';
 
 abstract class AbstraceLog<T, RunResult> {
-  String? _id;
+  final String? _id;
 
   /// 账本ID
   String? _accountBookId;
@@ -19,7 +19,7 @@ abstract class AbstraceLog<T, RunResult> {
   String? _operatorId;
 
   /// 操作时间戳
-  int? _operatedAt;
+  final int? _operatedAt;
 
   /// 操作业务
   /// item-账目、book-账本、fund-账户、category-分类、shop-商家、symbol-标识、user-用户，attachment-附件
@@ -112,7 +112,7 @@ class DeleteLog extends AbstraceLog<String, void> {
       case BusinessType.shop:
         return DaoManager.accountShopDao.delete(_businessId!);
       default:
-        throw UnimplementedError('未实现的操作类型：${_businessType}');
+        throw UnimplementedError('未实现的操作类型：$_businessType');
     }
   }
 }

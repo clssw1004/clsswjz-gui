@@ -1,7 +1,7 @@
-import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_book_vo.dart';
 import 'account_item_list_tile.dart';
 
 /// 账目列表
@@ -12,6 +12,12 @@ class AccountItemList extends StatefulWidget {
   /// 初始账目列表
   final List<AccountItemVO>? initialItems;
 
+  /// 是否加载中
+  final bool loading;
+
+  /// 刷新回调
+  final Future<void> Function()? onRefresh;
+
   /// 点击账目回调
   final void Function(AccountItemVO item)? onItemTap;
 
@@ -19,6 +25,8 @@ class AccountItemList extends StatefulWidget {
     super.key,
     required this.accountBook,
     this.initialItems,
+    this.loading = false,
+    this.onRefresh,
     this.onItemTap,
   });
 
@@ -50,11 +58,11 @@ class _AccountItemListState extends State<AccountItemList> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    if (_items == null) {
+    if (widget.loading && (_items == null || _items!.isEmpty)) {
       return Center(child: Text(l10n.loading));
     }
 
-    if (_items!.isEmpty) {
+    if (_items == null || _items!.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -76,21 +84,24 @@ class _AccountItemListState extends State<AccountItemList> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _items!.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final item = _items![index];
-        return InkWell(
-          onTap:
-              widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-          child: AccountItemListTile(
-            item: item,
-            currencySymbol: widget.accountBook.currencySymbol,
-          ),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: widget.onRefresh ?? () async {},
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _items!.length,
+        separatorBuilder: (context, index) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final item = _items![index];
+          return InkWell(
+            onTap:
+                widget.onItemTap == null ? null : () => widget.onItemTap!(item),
+            child: AccountItemListTile(
+              item: item,
+              currencySymbol: widget.accountBook.currencySymbol,
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -558,7 +558,7 @@ class _CommonSelectFormFieldWidgetState<T>
                         );
                       }),
                       if (showButton)
-                        Container(
+                        SizedBox(
                           width: buttonWidth,
                           child: showMore
                               ? _buildMoreButton(buttonWidth, theme, l10n)

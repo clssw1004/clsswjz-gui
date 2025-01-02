@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_books_provider.dart';
@@ -30,7 +31,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
       ),
       body: Consumer<AccountBooksProvider>(
         builder: (context, provider, child) {
-          if (provider.loading && provider.books.isEmpty) {
+          if (provider.loadingBooks && provider.books.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
           return RefreshIndicator(

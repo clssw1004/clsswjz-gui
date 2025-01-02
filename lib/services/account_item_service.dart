@@ -258,9 +258,12 @@ class AccountItemService extends BaseService {
 
   /// 获取账本的账目列表（包含关联信息）
   Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(
-      String accountBookId) async {
+      String accountBookId,
+      {int limit = 20,
+      int offset = 0}) async {
     try {
-      final items = await _accountItemDao.findByAccountBookId(accountBookId);
+      final items = await _accountItemDao.findByAccountBookId(accountBookId,
+          limit: limit, offset: offset);
       if (items.isEmpty) {
         return OperateResult.success([]);
       }

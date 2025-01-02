@@ -7,10 +7,12 @@ import 'base_dao.dart';
 class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
   AccountItemDao(super.db);
 
-  Future<List<AccountItem>> findByAccountBookId(String accountBookId) {
+  Future<List<AccountItem>> findByAccountBookId(String accountBookId,
+      {int limit = 20, int offset = 0}) {
     final query = db.select(db.accountItemTable)
       ..where((t) => t.accountBookId.equals(accountBookId))
-      ..orderBy([(t) => OrderingTerm.desc(t.accountDate)]);
+      ..orderBy([(t) => OrderingTerm.desc(t.accountDate)])
+      ..limit(limit, offset: offset);
     return query.get();
   }
 

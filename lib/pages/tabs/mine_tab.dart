@@ -1,3 +1,4 @@
+import 'package:clsswjz/providers/account_books_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -5,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/user_info_card.dart';
 import '../../routes/app_routes.dart';
-import '../../providers/account_items_provider.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
@@ -25,8 +25,8 @@ class _MineTabView extends StatelessWidget {
     final theme = Theme.of(context);
     final provider = context.watch<UserProvider>();
     // 获取当前选中的账本
-    final accountItemsProvider = context.read<AccountItemsProvider>();
-    final accountBook = accountItemsProvider.selectedBook;
+    final bookProvider = context.read<AccountBooksProvider>();
+    final accountBook = bookProvider.selectedBook;
     return Scaffold(
       body: ListView(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),

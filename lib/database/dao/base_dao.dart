@@ -1,4 +1,3 @@
-import 'package:clsswjz/utils/id_util.dart';
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/base_table.dart';

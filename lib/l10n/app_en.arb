@@ -412,5 +412,9 @@
                 "example": "10"
             }
         }
+    },
+    "accountItem": "Account Item",
+    "@accountItem": {
+        "description": "Account item"
     }
 }
