@@ -1,41 +1,11 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
+import '../tables/account_symbol_table.dart';
+import 'base_dao.dart';
 
-class AccountSymbolDao {
-  final AppDatabase db;
-
-  AccountSymbolDao(this.db);
-
-  Future<int> insert(AccountSymbolTableCompanion entity) {
-    return db.into(db.accountSymbolTable).insert(entity);
-  }
-
-  Future<void> batchInsert(List<AccountSymbolTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.accountSymbolTable, entity,
-            mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(AccountSymbolTableCompanion entity) {
-    return db.update(db.accountSymbolTable).replace(entity);
-  }
-
-  Future<int> delete(AccountSymbol entity) {
-    return db.delete(db.accountSymbolTable).delete(entity);
-  }
-
-  Future<List<AccountSymbol>> findAll() {
-    return db.select(db.accountSymbolTable).get();
-  }
-
-  Future<AccountSymbol?> findById(String id) {
-    return (db.select(db.accountSymbolTable)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
-  }
+class AccountSymbolDao extends BaseDao<AccountSymbolTable, AccountSymbol> {
+  AccountSymbolDao(super.db);
 
   Future<List<AccountSymbol>> findByAccountBookId(String accountBookId) {
     return (db.select(db.accountSymbolTable)
@@ -76,7 +46,7 @@ class AccountSymbolDao {
         .get();
   }
 
-  Future<int> createSymbol({
+  Future<void> createSymbol({
     required String id,
     required String name,
     required String code,
@@ -99,4 +69,8 @@ class AccountSymbolDao {
       ),
     );
   }
+
+  @override
+  TableInfo<AccountSymbolTable, AccountSymbol> get table =>
+      db.accountSymbolTable;
 }

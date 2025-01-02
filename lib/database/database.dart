@@ -9,12 +9,14 @@ import 'tables/rel_accountbook_fund_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
+import 'tables/account_book_log_table.dart';
 import '../../utils/date_util.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
   tables: [
     AccountBookTable,
+    AccountBookLogTable,
     AccountCategoryTable,
     AccountFundTable,
     AccountItemTable,
@@ -41,54 +43,4 @@ class AppDatabase extends _$AppDatabase {
           // 处理数据库升级
         },
       );
-
-  // 根据用户名查询用户
-  Future<User?> findUserByUsername(String username) async {
-    return (select(userTable)..where((t) => t.username.equals(username)))
-        .getSingleOrNull();
-  }
-
-  // 用户登录验证
-  Future<User?> verifyUser(String username, String password) async {
-    return (select(userTable)
-          ..where(
-              (t) => t.username.equals(username) & t.password.equals(password)))
-        .getSingleOrNull();
-  }
-
-  // 检查用户名是否已存在
-  Future<bool> isUsernameExists(String username) async {
-    final query = select(userTable)..where((t) => t.username.equals(username));
-    final user = await query.getSingleOrNull();
-    return user != null;
-  }
-
-  // 创建新用户
-  Future<int> createUser({
-    required String id,
-    required String username,
-    required String nickname,
-    required String password,
-    required String inviteCode,
-    String? email,
-    String? phone,
-    String language = 'zh-CN',
-    String timezone = 'Asia/Shanghai',
-  }) {
-    return into(userTable).insert(
-      UserTableCompanion.insert(
-        id: id,
-        username: username,
-        nickname: nickname,
-        password: password,
-        inviteCode: inviteCode,
-        email: Value(email),
-        phone: Value(phone),
-        language: Value(language),
-        timezone: Value(timezone),
-        createdAt: DateUtil.now(),
-        updatedAt: DateUtil.now(),
-      ),
-    );
-  }
 }

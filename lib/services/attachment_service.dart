@@ -3,7 +3,9 @@ import 'package:drift/drift.dart';
 import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
+import '../database/dao/attachment_dao.dart';
 import '../database/database.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
 import '../constants/business_code.dart';
@@ -13,6 +15,10 @@ import '../utils/date_util.dart';
 
 /// 附件服务
 class AttachmentService extends BaseService {
+  final AttachmentDao _attachmentDao;
+
+  AttachmentService() : _attachmentDao = AttachmentDao(DatabaseManager.db);
+
   /// 获取附件存储目录
   Future<Directory> get _attachmentDir async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -264,9 +270,8 @@ class AttachmentService extends BaseService {
   /// 删除附件（包括文件）
   Future<OperateResult<void>> deleteAttachment(String id) async {
     try {
-      final attachment = await (db.select(db.attachmentTable)
-            ..where((t) => t.id.equals(id)))
-          .getSingleOrNull();
+      final attachment = await _attachmentDao.findById(id);
+      await _attachmentDao.delete(id);
       if (attachment != null) {
         // 删除文件
         final filePath = await getAttachmentPath(id, attachment.extension);

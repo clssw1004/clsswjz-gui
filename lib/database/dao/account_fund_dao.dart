@@ -1,45 +1,11 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
+import '../tables/account_fund_table.dart';
+import 'base_dao.dart';
 
-class AccountFundDao {
-  final AppDatabase db;
-
-  AccountFundDao(this.db);
-
-  Future<int> insert(AccountFundTableCompanion entity) {
-    return db.into(db.accountFundTable).insert(entity);
-  }
-
-  Future<void> batchInsert(List<AccountFundTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.accountFundTable, entity,
-            mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(AccountFundTableCompanion entity) {
-    return db.update(db.accountFundTable).replace(entity);
-  }
-
-  Future<int> delete(AccountFund entity) {
-    return db.delete(db.accountFundTable).delete(entity);
-  }
-
-  Future<List<AccountFund>> findAll() {
-    return db.select(db.accountFundTable).get();
-  }
-
-  Future<AccountFund?> findById(String id) {
-    return (db.select(db.accountFundTable)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
-  }
-
-  Future<List<AccountFund>> findByIds(List<String> ids) {
-    return (db.select(db.accountFundTable)..where((t) => t.id.isIn(ids))).get();
-  }
+class AccountFundDao extends BaseDao<AccountFundTable, AccountFund> {
+  AccountFundDao(super.db);
 
   Future<List<AccountFund>> findByAccountBookId(String accountBookId) {
     final query = db.select(db.accountFundTable).join([
@@ -61,7 +27,7 @@ class AccountFundDao {
         .get();
   }
 
-  Future<int> createFund({
+  Future<void> createFund({
     required String id,
     required String name,
     required String fundType,
@@ -85,25 +51,14 @@ class AccountFundDao {
     );
   }
 
-  Future<bool> updateBalance(AccountFund fund, double newBalance) async {
-    try {
-      await db.update(db.accountFundTable).replace(
-            AccountFundTableCompanion(
-              id: Value(fund.id),
-              fundBalance: Value(newBalance),
-              updatedAt: Value(DateUtil.now()),
-              name: Value(fund.name),
-              fundType: Value(fund.fundType),
-              fundRemark: Value(fund.fundRemark ?? ''),
-              isDefault: Value(fund.isDefault),
-              createdAt: Value(fund.createdAt),
-              createdBy: Value(fund.createdBy),
-              updatedBy: Value(fund.updatedBy),
-            ),
-          );
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<void> updateBalance(AccountFund fund, double newBalance) async {
+    await update(
+        fund.id,
+        AccountFundTableCompanion(
+          fundBalance: Value(newBalance),
+        ));
   }
+
+  @override
+  TableInfo<AccountFundTable, AccountFund> get table => db.accountFundTable;
 }

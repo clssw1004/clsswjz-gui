@@ -9,39 +9,6 @@ import '../utils/date_util.dart';
 
 /// 资金账户服务
 class AccountFundService extends BaseService {
-  /// 批量插入资金账户
-  Future<OperateResult<void>> batchInsertFunds(List<AccountFund> funds) async {
-    try {
-      await db.transaction(() async {
-        await db.batch((batch) {
-          for (var fund in funds) {
-            batch.insert(
-              db.accountFundTable,
-              AccountFundTableCompanion.insert(
-                id: fund.id,
-                name: fund.name,
-                fundType: fund.fundType,
-                fundRemark: Value(fund.fundRemark),
-                fundBalance: Value(fund.fundBalance),
-                createdBy: fund.createdBy,
-                updatedBy: fund.updatedBy,
-                createdAt: fund.createdAt,
-                updatedAt: fund.updatedAt,
-              ),
-              mode: InsertMode.insertOrReplace,
-            );
-          }
-        });
-      });
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '批量插入资金账户失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 获取账本下的所有资金账户
   Future<OperateResult<List<AccountFund>>> getFundsByAccountBook(
       String accountBookId) async {

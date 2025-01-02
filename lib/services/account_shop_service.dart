@@ -1,42 +1,16 @@
 import 'package:drift/drift.dart';
+import '../database/dao/account_shop_dao.dart';
 import '../database/database.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
 import '../utils/date_util.dart';
 
 /// 商家服务
 class AccountShopService extends BaseService {
-  /// 批量插入商家
-  Future<OperateResult<void>> batchInsertShops(List<AccountShop> shops) async {
-    try {
-      await db.transaction(() async {
-        await db.batch((batch) {
-          for (var shop in shops) {
-            batch.insert(
-              db.accountShopTable,
-              AccountShopTableCompanion.insert(
-                id: shop.id,
-                name: shop.name,
-                code: shop.code,
-                accountBookId: shop.accountBookId,
-                createdBy: shop.createdBy,
-                updatedBy: shop.updatedBy,
-                createdAt: shop.createdAt,
-                updatedAt: shop.updatedAt,
-              ),
-              mode: InsertMode.insertOrReplace,
-            );
-          }
-        });
-      });
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '批量插入商家失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
+  final AccountShopDao _accountShopDao;
+
+  AccountShopService() : _accountShopDao = AccountShopDao(DatabaseManager.db);
 
   /// 获取账本下的所有商家
   Future<OperateResult<List<AccountShop>>> getShopsByAccountBook(
@@ -87,7 +61,11 @@ class AccountShopService extends BaseService {
   /// 更新商家
   Future<OperateResult<void>> updateShop(AccountShop shop) async {
     try {
-      await db.update(db.accountShopTable).replace(shop);
+      await _accountShopDao.update(
+          shop.id,
+          AccountShopTableCompanion(
+            name: Value(shop.name),
+          ));
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
@@ -100,8 +78,7 @@ class AccountShopService extends BaseService {
   /// 删除商家
   Future<OperateResult<void>> deleteShop(String id) async {
     try {
-      await (db.delete(db.accountShopTable)..where((t) => t.id.equals(id)))
-          .go();
+      await _accountShopDao.delete(id);
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(

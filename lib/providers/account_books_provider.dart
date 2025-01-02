@@ -1,11 +1,9 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:flutter/foundation.dart';
 import '../models/vo/user_book_vo.dart';
-import '../services/account_book_service.dart';
 
 /// 账本列表状态管理
 class AccountBooksProvider extends ChangeNotifier {
-  final AccountBookService _accountBookService = AccountBookService();
-
   /// 账本列表
   List<UserBookVO>? _books;
   List<UserBookVO> get books => _books ?? const [];
@@ -20,10 +18,6 @@ class AccountBooksProvider extends ChangeNotifier {
 
   /// 是否已销毁
   bool _disposed = false;
-
-  /// 是否已初始化
-  bool _initialized = false;
-  bool get initialized => _initialized;
 
   @override
   void dispose() {
@@ -42,41 +36,31 @@ class AccountBooksProvider extends ChangeNotifier {
   Future<void> loadBooks(String userId) async {
     if (_loading || _disposed) return;
 
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
     try {
-      final result = await _accountBookService.getBooksByUserId(userId);
+      _loading = true;
+      _error = null;
+      notifyListeners();
+
+      final result = await DriverFactory.bookDataDriver.listBooksByUser(userId);
 
       if (_disposed) return;
 
-      _loading = false;
-      _initialized = true;
       if (result.ok) {
         _books = result.data ?? const [];
       } else {
         _error = result.message;
         _books = const [];
       }
+
+      _loading = false;
       notifyListeners();
     } catch (e) {
       if (_disposed) return;
 
       _loading = false;
-      _initialized = true;
       _error = e.toString();
       _books = const [];
       notifyListeners();
     }
-  }
-
-  /// 刷新账本列表
-  Future<void> refresh(String userId) async {
-    if (_disposed) return;
-    _books = null;
-    _initialized = false;
-    notifyListeners();
-    await loadBooks(userId);
   }
 }

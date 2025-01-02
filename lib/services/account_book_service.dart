@@ -128,17 +128,16 @@ class AccountBookService extends BaseService {
       }
 
       // 3. 更新账本基本信息
-      await _accountBookDao.update(AccountBookTableCompanion(
-        id: Value(accountBook.id),
-        name: Value(accountBook.name),
-        description: Value(accountBook.description),
-        currencySymbol: Value(accountBook.currencySymbol),
-        icon: Value(accountBook.icon),
-        updatedBy: Value(userId),
-        updatedAt: Value(DateUtil.now()),
-        createdAt: Value(existingBook.createdAt),
-        createdBy: Value(existingBook.createdBy),
-      ));
+      await _accountBookDao.update(
+          accountBook.id,
+          AccountBookTableCompanion(
+            name: Value(accountBook.name),
+            description: Value(accountBook.description),
+            currencySymbol: Value(accountBook.currencySymbol),
+            icon: Value(accountBook.icon),
+            updatedBy: Value(userId),
+            updatedAt: Value(DateUtil.now()),
+          ));
 
       // 3. 如果提供了成员列表，则更新成员
       if (members != null) {
@@ -179,15 +178,6 @@ class AccountBookService extends BaseService {
     }
   }
 
-  Future<OperateResult<List<AccountBook>>> getAll() async {
-    try {
-      return OperateResult.success(await _accountBookDao.findAll());
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取所有账本失败：$e', exception: e as Exception);
-    }
-  }
-
   /// 获取账本信息
   Future<OperateResult<AccountBook>> getAccountBook(String id) async {
     try {
@@ -222,7 +212,7 @@ class AccountBookService extends BaseService {
         return OperateResult.failWithMessage(message: '账本不存在');
       }
 
-      await _accountBookDao.delete(book);
+      await _accountBookDao.delete(book.id);
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
@@ -288,74 +278,68 @@ class AccountBookService extends BaseService {
   }
 
   /// 获取用户的账本列表及权限
-  Future<OperateResult<List<UserBookVO>>> getBooksByUserId(
-      String userId) async {
-    try {
-      // 1. 从关联表中查询用户的账本权限
-      final userBooks = await (db.select(db.relAccountbookUserTable)
-            ..where((tbl) => tbl.userId.equals(userId)))
-          .get();
+  Future<List<UserBookVO>> getBooksByUserId(String userId) async {
+    // 1. 从关联表中查询用户的账本权限
+    final userBooks = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.userId.equals(userId)))
+        .get();
 
-      if (userBooks.isEmpty) {
-        return OperateResult.success([]);
-      }
+    if (userBooks.isEmpty) {
+      return [];
+    }
 
-      // 2. 获取所有账本ID
-      final bookIds = userBooks.map((e) => e.accountBookId).toList();
+    // 2. 获取所有账本ID
+    final bookIds = userBooks.map((e) => e.accountBookId).toList();
 
-      // 3. 查询账本详细信息
-      final books = await _accountBookDao.findByIds(bookIds);
+    // 3. 查询账本详细信息
+    final books = await _accountBookDao.findByIds(bookIds);
 
-      // 4. 查询所有账本的成员关系
-      final allBookMembers = await (db.select(db.relAccountbookUserTable)
-            ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
-          .get();
+    // 4. 查询所有账本的成员关系
+    final allBookMembers = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
+        .get();
 
-      // 5. 获取所有用户ID（包括创建者、更新者和成员）
-      final userIds = {
-        ...books.map((e) => e.createdBy),
-        ...books.map((e) => e.updatedBy),
-        ...allBookMembers.map((e) => e.userId),
-      };
+    // 5. 获取所有用户ID（包括创建者、更新者和成员）
+    final userIds = {
+      ...books.map((e) => e.createdBy),
+      ...books.map((e) => e.updatedBy),
+      ...allBookMembers.map((e) => e.userId),
+    };
 
-      // 6. 查询所有用户信息
-      final userMap = CollectionUtils.toMap(
-        await _userDao.findByIds(userIds.toList()),
-        (e) => e.id,
+    // 6. 查询所有用户信息
+    final userMap = CollectionUtils.toMap(
+      await _userDao.findByIds(userIds.toList()),
+      (e) => e.id,
+    );
+
+    // 7. 组装VO对象
+    final result = books.map((book) {
+      // 找到对应的权限记录
+      final userBook = userBooks.firstWhere(
+        (ub) => ub.accountBookId == book.id,
       );
 
-      // 7. 组装VO对象
-      final result = books.map((book) {
-        // 找到对应的权限记录
-        final userBook = userBooks.firstWhere(
-          (ub) => ub.accountBookId == book.id,
-        );
+      // 获取账本成员（排除创建者）
+      final members = allBookMembers
+          .where(
+              (m) => m.accountBookId == book.id && m.userId != book.createdBy)
+          .map((m) => BookMemberVO(
+                userId: m.userId,
+                nickname: userMap[m.userId]?.nickname,
+                permission: AccountBookPermissionVO.fromRelAccountbookUser(m),
+              ))
+          .toList();
 
-        // 获取账本成员（排除创建者）
-        final members = allBookMembers
-            .where(
-                (m) => m.accountBookId == book.id && m.userId != book.createdBy)
-            .map((m) => BookMemberVO(
-                  userId: m.userId,
-                  nickname: userMap[m.userId]?.nickname,
-                  permission: AccountBookPermissionVO.fromRelAccountbookUser(m),
-                ))
-            .toList();
+      return UserBookVO.fromAccountBook(
+        accountBook: book,
+        permission: AccountBookPermissionVO.fromRelAccountbookUser(userBook),
+        updatedByName: userMap[book.updatedBy]?.nickname,
+        createdByName: userMap[book.createdBy]?.nickname,
+        members: members,
+      );
+    }).toList();
 
-        return UserBookVO.fromAccountBook(
-          accountBook: book,
-          permission: AccountBookPermissionVO.fromRelAccountbookUser(userBook),
-          updatedByName: userMap[book.updatedBy]?.nickname,
-          createdByName: userMap[book.createdBy]?.nickname,
-          members: members,
-        );
-      }).toList();
-
-      return OperateResult.success(result);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取账本列表失败：$e', exception: e as Exception);
-    }
+    return result;
   }
 
   /// 检查账本名称是否重复

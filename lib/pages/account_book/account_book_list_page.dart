@@ -21,19 +21,8 @@ class AccountBookListPage extends StatefulWidget {
 
 class _AccountBookListPageState extends State<AccountBookListPage> {
   @override
-  void initState() {
-    super.initState();
-    // 加载账本列表
-    context
-        .read<AccountBooksProvider>()
-        .loadBooks(UserConfigManager.currentUserId);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -44,18 +33,9 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
           if (provider.loading && provider.books.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          if (provider.error != null && provider.books.isEmpty) {
-            return Center(
-              child: Text(
-                provider.error!,
-                style: TextStyle(color: colorScheme.error),
-              ),
-            );
-          }
-
           return RefreshIndicator(
-            onRefresh: () => provider.refresh(UserConfigManager.currentUserId),
+            onRefresh: () =>
+                provider.loadBooks(UserConfigManager.currentUserId),
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: provider.books.length,
@@ -82,7 +62,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
             if (created == true) {
               context
                   .read<AccountBooksProvider>()
-                  .refresh(UserConfigManager.currentUserId);
+                  .loadBooks(UserConfigManager.currentUserId);
             }
           });
         },
@@ -122,7 +102,7 @@ class _AccountBookCard extends StatelessWidget {
           if (updated == true) {
             context
                 .read<AccountBooksProvider>()
-                .refresh(UserConfigManager.currentUserId);
+                .loadBooks(UserConfigManager.currentUserId);
           }
         });
       },

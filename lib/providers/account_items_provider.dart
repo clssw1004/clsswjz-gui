@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_item_service.dart';
-import '../services/account_book_service.dart';
 
 /// 账目列表状态管理
 class AccountItemsProvider extends ChangeNotifier {
   /// 账目服务
   final _accountItemService = AccountItemService();
-  final _accountBookService = AccountBookService();
 
   /// 当前选中的账本
   UserBookVO? _selectedBook;
@@ -25,7 +24,7 @@ class AccountItemsProvider extends ChangeNotifier {
 
   /// 初始化
   Future<void> init(String userId) async {
-    final result = await _accountBookService.getBooksByUserId(userId);
+    final result = await DriverFactory.bookDataDriver.listBooksByUser(userId);
     if (result.ok && result.data != null && result.data!.isNotEmpty) {
       final defaultBookId = AppConfigManager.instance.defaultBookId;
       await setSelectedBook(
@@ -38,11 +37,14 @@ class AccountItemsProvider extends ChangeNotifier {
     if (_selectedBook?.id == book?.id) {
       return;
     }
+    // 保存选中的账本ID
+
     _selectedBook = book;
     notifyListeners();
 
     if (book != null) {
       await loadItems();
+      await AppConfigManager.instance.setDefaultBookId(book.id);
     } else {
       _items = null;
       notifyListeners();
@@ -69,27 +71,5 @@ class AccountItemsProvider extends ChangeNotifier {
       _items = null;
     }
     notifyListeners();
-  }
-
-  /// 刷新数据
-  Future<void> refresh() async {
-    if (_selectedBook == null) return;
-
-    _loading = true;
-    _items = null; // 清空当前数据，触发UI更新
-    notifyListeners();
-
-    try {
-      final result = await _accountItemService.getByAccountBookId(
-        _selectedBook!.id,
-      );
-
-      if (result.ok) {
-        _items = result.data;
-      }
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
   }
 }

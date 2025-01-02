@@ -8,12 +8,13 @@ import '../providers/locale_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/restart_widget.dart';
+import 'app_config_manager.dart';
+import 'user_config_manager.dart';
 
 /// Provider 管理器
 class ProviderManager {
   /// 初始化所有 Provider
   static Widget init({required Widget child}) {
-    
     return RestartWidget(
       initFunction: initApp,
       child: MultiProvider(
@@ -28,7 +29,8 @@ class ProviderManager {
             create: (_) => UserProvider()..getUserInfo(),
           ),
           ChangeNotifierProvider<AccountBooksProvider>(
-            create: (_) => AccountBooksProvider(),
+            create: (_) => AccountBooksProvider()
+              ..loadBooks(AppConfigManager.instance.userId!),
           ),
           ChangeNotifierProvider<AccountItemsProvider>(
             create: (_) => AccountItemsProvider(),

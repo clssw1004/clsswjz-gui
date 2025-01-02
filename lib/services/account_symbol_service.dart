@@ -1,44 +1,17 @@
 import 'package:drift/drift.dart';
+import '../database/dao/account_symbol_dao.dart';
 import '../database/database.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
 import '../utils/date_util.dart';
 
 /// 标签服务
 class AccountSymbolService extends BaseService {
-  /// 批量插入标签
-  Future<OperateResult<void>> batchInsertSymbols(
-      List<AccountSymbol> symbols) async {
-    try {
-      await db.transaction(() async {
-        await db.batch((batch) {
-          for (var symbol in symbols) {
-            batch.insert(
-              db.accountSymbolTable,
-              AccountSymbolTableCompanion.insert(
-                id: symbol.id,
-                name: symbol.name,
-                code: symbol.code,
-                accountBookId: symbol.accountBookId,
-                symbolType: symbol.symbolType,
-                createdBy: symbol.createdBy,
-                updatedBy: symbol.updatedBy,
-                createdAt: symbol.createdAt,
-                updatedAt: symbol.updatedAt,
-              ),
-              mode: InsertMode.insertOrReplace,
-            );
-          }
-        });
-      });
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '批量插入标签失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
+  final AccountSymbolDao _accountSymbolDao;
+
+  AccountSymbolService()
+      : _accountSymbolDao = AccountSymbolDao(DatabaseManager.db);
 
   /// 获取账本下的所有标签
   Future<OperateResult<List<AccountSymbol>>> getSymbolsByAccountBook(
@@ -85,19 +58,19 @@ class AccountSymbolService extends BaseService {
   }) async {
     try {
       final id = generateUuid();
-      await db.into(db.accountSymbolTable).insert(
-            AccountSymbolTableCompanion.insert(
-              id: id,
-              name: name,
-              code: code,
-              accountBookId: accountBookId,
-              symbolType: symbolType,
-              createdBy: createdBy,
-              updatedBy: updatedBy,
-              createdAt: DateUtil.now(),
-              updatedAt: DateUtil.now(),
-            ),
-          );
+      await _accountSymbolDao.insert(
+        AccountSymbolTableCompanion.insert(
+          id: id,
+          name: name,
+          code: code,
+          accountBookId: accountBookId,
+          symbolType: symbolType,
+          createdBy: createdBy,
+          updatedBy: updatedBy,
+          createdAt: DateUtil.now(),
+          updatedAt: DateUtil.now(),
+        ),
+      );
       return OperateResult.success(id);
     } catch (e) {
       return OperateResult.failWithMessage(
@@ -110,7 +83,13 @@ class AccountSymbolService extends BaseService {
   /// 更新标签
   Future<OperateResult<void>> updateSymbol(AccountSymbol symbol) async {
     try {
-      await db.update(db.accountSymbolTable).replace(symbol);
+      await _accountSymbolDao.update(
+          symbol.id,
+          AccountSymbolTableCompanion(
+            name: Value(symbol.name),
+            updatedBy: Value(symbol.updatedBy),
+            updatedAt: Value(DateUtil.now()),
+          ));
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(

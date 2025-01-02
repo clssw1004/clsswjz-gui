@@ -1,41 +1,11 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
+import '../tables/account_item_table.dart';
+import 'base_dao.dart';
 
-class AccountItemDao {
-  final AppDatabase db;
-
-  AccountItemDao(this.db);
-
-  Future<int> insert(AccountItemTableCompanion entity) {
-    return db.into(db.accountItemTable).insert(entity);
-  }
-
-  Future<void> batchInsert(List<AccountItemTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.accountItemTable, entity,
-            mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(AccountItemTableCompanion entity) {
-    return db.update(db.accountItemTable).replace(entity);
-  }
-
-  Future<int> delete(AccountItem entity) {
-    return db.delete(db.accountItemTable).delete(entity);
-  }
-
-  Future<List<AccountItem>> findAll() {
-    return db.select(db.accountItemTable).get();
-  }
-
-  Future<AccountItem?> findById(String id) {
-    return (db.select(db.accountItemTable)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
-  }
+class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
+  AccountItemDao(super.db);
 
   Future<List<AccountItem>> findByAccountBookId(String accountBookId) {
     final query = db.select(db.accountItemTable)
@@ -65,7 +35,7 @@ class AccountItemDao {
         .get();
   }
 
-  Future<int> createAccountItem({
+  Future<void> createAccountItem({
     required String id,
     required double amount,
     required String type,
@@ -152,4 +122,7 @@ class AccountItemDao {
 
     return query.get();
   }
+
+  @override
+  TableInfo<AccountItemTable, AccountItem> get table => db.accountItemTable;
 }

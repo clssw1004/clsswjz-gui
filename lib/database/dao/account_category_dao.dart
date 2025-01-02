@@ -1,41 +1,12 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
+import '../tables/account_category_table.dart';
+import 'base_dao.dart';
 
-class AccountCategoryDao {
-  final AppDatabase db;
-
-  AccountCategoryDao(this.db);
-
-  Future<int> insert(AccountCategoryTableCompanion entity) {
-    return db.into(db.accountCategoryTable).insert(entity);
-  }
-
-  Future<void> batchInsert(List<AccountCategoryTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.accountCategoryTable, entity,
-            mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(AccountCategoryTableCompanion entity) {
-    return db.update(db.accountCategoryTable).replace(entity);
-  }
-
-  Future<int> delete(AccountCategory entity) {
-    return db.delete(db.accountCategoryTable).delete(entity);
-  }
-
-  Future<List<AccountCategory>> findAll() {
-    return db.select(db.accountCategoryTable).get();
-  }
-
-  Future<AccountCategory?> findById(String id) {
-    return (db.select(db.accountCategoryTable)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
-  }
+class AccountCategoryDao
+    extends BaseDao<AccountCategoryTable, AccountCategory> {
+  AccountCategoryDao(super.db);
 
   Future<List<AccountCategory>> findByCodes(List<String> codes) {
     return (db.select(db.accountCategoryTable)
@@ -58,7 +29,7 @@ class AccountCategoryDao {
         .get();
   }
 
-  Future<int> createCategory({
+  Future<void> createCategory({
     required String id,
     required String name,
     required String code,
@@ -83,4 +54,8 @@ class AccountCategoryDao {
       ),
     );
   }
+
+  @override
+  TableInfo<AccountCategoryTable, AccountCategory> get table =>
+      db.accountCategoryTable;
 }

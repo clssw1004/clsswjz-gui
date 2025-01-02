@@ -12,7 +12,7 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
-import '../../constants/currency_symbol.dart';
+import '../../enums/currency_symbol.dart';
 import '../../widgets/common/common_icon_picker.dart';
 import '../../utils/date_util.dart';
 import '../../theme/theme_spacing.dart';
@@ -100,8 +100,8 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       await ServiceManager.accountBookService.initBookDefaultData(
         bookId: bookId,
         userId: userId,
-        defaultCategoryName: AppLocalizations.of(context)!.noCategory,
-        defaultShopName: AppLocalizations.of(context)!.noShop,
+        defaultCategoryName: l10n.noCategory,
+        defaultShopName: l10n.noShop,
       );
 
       return OperateResult.success(null);

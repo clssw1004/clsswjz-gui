@@ -15,7 +15,7 @@ class OperateResult<T> {
         ok: false, data: null, message: 'failed', exception: null);
   }
 
-  static OperateResult<T> fail<T>(Exception? exception) {
+  static OperateResult<T> fail<T>({Exception? exception}) {
     if (exception != null) {
       print(exception.toString());
     }

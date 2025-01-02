@@ -1,7 +1,7 @@
 import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import '../constants/currency_symbol.dart';
+import '../enums/currency_symbol.dart';
 import '../database/database.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';

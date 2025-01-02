@@ -1,13 +1,17 @@
 import 'package:drift/drift.dart';
 
-@DataClassName('BaseEntity')
-class BaseTable extends Table {
+@DataClassName('StringIdEntity')
+class StringIdTable extends Table {
   TextColumn get id => text().named('id')();
-  IntColumn get createdAt => integer().named('created_at')();
-  IntColumn get updatedAt => integer().named('updated_at')();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('BaseEntity')
+class BaseTable extends StringIdTable {
+  IntColumn get createdAt => integer().named('created_at')();
+  IntColumn get updatedAt => integer().named('updated_at')();
 }
 
 @DataClassName('BaseBusinessEntity')

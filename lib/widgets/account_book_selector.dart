@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../manager/app_config_manager.dart';
-import '../models/common.dart';
 import '../models/vo/user_book_vo.dart';
-import '../services/account_book_service.dart';
 import 'common/common_dialog.dart';
 import 'common/shared_badge.dart';
 
@@ -15,14 +13,26 @@ class AccountBookSelector extends StatefulWidget {
   /// 选中的账本
   final UserBookVO? selectedBook;
 
+  /// 账本列表
+  final List<UserBookVO> books;
+
   /// 选中账本回调
   final void Function(UserBookVO book)? onSelected;
+
+  /// 是否正在加载
+  final bool loading;
+
+  /// 错误信息
+  final String? error;
 
   const AccountBookSelector({
     super.key,
     required this.userId,
+    required this.books,
     this.selectedBook,
     this.onSelected,
+    this.loading = false,
+    this.error,
   });
 
   @override
@@ -30,9 +40,6 @@ class AccountBookSelector extends StatefulWidget {
 }
 
 class _AccountBookSelectorState extends State<AccountBookSelector> {
-  /// 账本服务
-  final _accountBookService = AccountBookService();
-
   /// 当前选中的账本
   UserBookVO? _selectedBook;
 
@@ -40,7 +47,6 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
   void initState() {
     super.initState();
     _selectedBook = widget.selectedBook;
-    _loadInitialBook();
   }
 
   /// 添加 didUpdateWidget 生命周期方法来处理外部属性更新
@@ -52,43 +58,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
       setState(() {
         _selectedBook = widget.selectedBook;
       });
-      // 如果没有选中的账本，尝试加载初始账本
-      if (_selectedBook == null) {
-        _loadInitialBook();
-      }
     }
-  }
-
-  /// 加载初始账本
-  Future<void> _loadInitialBook() async {
-    final result = await _accountBookService.getBooksByUserId(widget.userId);
-    if (!mounted || !result.ok || result.data!.isEmpty) return;
-
-    final books = result.data!;
-    final defaultBookId = AppConfigManager.instance.defaultBookId;
-
-    UserBookVO selectedBook;
-    if (defaultBookId != null) {
-      selectedBook = books.firstWhere(
-        (book) => book.id == defaultBookId,
-        orElse: () => _findDefaultBook(books),
-      );
-    } else {
-      selectedBook = _findDefaultBook(books);
-    }
-
-    setState(() {
-      _selectedBook = selectedBook;
-    });
-    widget.onSelected?.call(selectedBook);
-  }
-
-  /// 查找默认账本（第一个创建人是自己的账本）
-  UserBookVO _findDefaultBook(List<UserBookVO> books) {
-    return books.firstWhere(
-      (book) => book.createdBy == widget.userId,
-      orElse: () => books.first,
-    );
   }
 
   /// 显示账本选择弹窗
@@ -97,13 +67,15 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
       context: context,
       title: AppLocalizations.of(context)!.selectAccountBook,
       width: 320,
-      content: _AccountBookList(userId: widget.userId),
+      content: _AccountBookList(
+        userId: widget.userId,
+        books: widget.books,
+        loading: widget.loading,
+        error: widget.error,
+      ),
     );
 
     if (result != null && mounted) {
-      // 保存选中的账本ID
-      await AppConfigManager.instance.setDefaultBookId(result.id);
-
       setState(() {
         _selectedBook = result;
       });
@@ -166,9 +138,15 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
 /// 账本列表
 class _AccountBookList extends StatelessWidget {
   final String userId;
+  final List<UserBookVO> books;
+  final bool loading;
+  final String? error;
 
   const _AccountBookList({
     required this.userId,
+    required this.books,
+    this.loading = false,
+    this.error,
   });
 
   @override
@@ -181,64 +159,54 @@ class _AccountBookList extends StatelessWidget {
       constraints: const BoxConstraints(
         maxHeight: 400,
       ),
-      child: FutureBuilder<OperateResult<List<UserBookVO>>>(
-        future: AccountBookService().getBooksByUserId(userId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text(l10n.loading));
-          }
-
-          if (!snapshot.hasData || !snapshot.data!.ok) {
-            return Center(
-              child: Text(
-                snapshot.data?.message ?? l10n.loadFailed,
-                style: TextStyle(color: colorScheme.error),
-              ),
-            );
-          }
-
-          final books = snapshot.data!.data!;
-          if (books.isEmpty) {
-            return Center(child: Text(l10n.noAccountBooks));
-          }
-
-          return ListView.separated(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            itemCount: books.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final book = books[index];
-              return ListTile(
-                leading: Icon(
-                  _getBookIcon(book.icon),
-                  color: colorScheme.primary,
-                ),
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Text(book.name),
+      child: loading
+          ? Center(child: Text(l10n.loading))
+          : error != null
+              ? Center(
+                  child: Text(
+                    error ?? l10n.loadFailed,
+                    style: TextStyle(color: colorScheme.error),
+                  ),
+                )
+              : books.isEmpty
+                  ? Center(child: Text(l10n.noAccountBooks))
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      itemCount: books.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final book = books[index];
+                        return ListTile(
+                          leading: Icon(
+                            _getBookIcon(book.icon),
+                            color: colorScheme.primary,
+                          ),
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(book.name),
+                              ),
+                              if (book.createdBy != userId &&
+                                  book.createdByName != null)
+                                SharedBadge(name: book.createdByName!),
+                            ],
+                          ),
+                          subtitle: book.description?.isNotEmpty == true
+                              ? Text(
+                                  book.description!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                )
+                              : null,
+                          onTap: () async {
+                            await AppConfigManager.instance
+                                .setDefaultBookId(book.id);
+                            Navigator.of(context).pop(book);
+                          },
+                        );
+                      },
                     ),
-                    if (book.createdBy != userId && book.createdByName != null)
-                      SharedBadge(name: book.createdByName!),
-                  ],
-                ),
-                subtitle: book.description?.isNotEmpty == true
-                    ? Text(
-                        book.description!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )
-                    : null,
-                onTap: () async {
-                  await AppConfigManager.instance.setDefaultBookId(book.id);
-                  Navigator.of(context).pop(book);
-                },
-              );
-            },
-          );
-        },
-      ),
     );
   }
 }

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../enums/storage_mode.dart';
 import '../../manager/app_config_manager.dart';
-import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
-import '../../models/common.dart';
+import '../../providers/account_books_provider.dart';
 import '../../providers/account_items_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
@@ -50,27 +48,27 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
     final storageType = AppConfigManager.instance.storageType;
 
     try {
-      if (storageType == StorageMode.selfHost) {
-        // 如果是自托管模式，先同步数据
-        final syncService = ServiceManager.syncService;
-        final result = await syncService
-            .syncChange(AppConfigManager.instance.lastSyncTime!);
-        if (!result.ok) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(result.message ?? '同步数据失败'),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
-          _refreshController.refreshFailed();
-          return;
-        }
-      }
+      // if (storageType == StorageMode.selfHost) {
+      //   // 如果是自托管模式，先同步数据
+      //   final syncService = ServiceManager.syncService;
+      //   final result = await syncService
+      //       .syncChange(AppConfigManager.instance.lastSyncTime!);
+      //   if (!result.ok) {
+      //     if (mounted) {
+      //       ScaffoldMessenger.of(context).showSnackBar(
+      //         SnackBar(
+      //           content: Text(result.message ?? '同步数据失败'),
+      //           backgroundColor: Theme.of(context).colorScheme.error,
+      //         ),
+      //       );
+      //     }
+      //     _refreshController.refreshFailed();
+      //     return;
+      //   }
+      // }
 
       // 刷新数据
-      await provider.refresh();
+      await provider.loadItems();
       _refreshController.refreshCompleted();
     } catch (e) {
       if (mounted) {
@@ -88,19 +86,21 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final provider = context.watch<AccountItemsProvider>();
-    final accountBook = provider.selectedBook;
+    final itemProvider = context.watch<AccountItemsProvider>();
+    final booksProvider = context.watch<AccountBooksProvider>();
+    final accountBook = itemProvider.selectedBook;
 
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
         title: AccountBookSelector(
+          books: booksProvider.books,
           userId: UserConfigManager.currentUserId,
-          selectedBook: provider.selectedBook,
-          onSelected: provider.setSelectedBook,
+          selectedBook: itemProvider.selectedBook,
+          onSelected: itemProvider.setSelectedBook,
         ),
       ),
-      body: provider.loading
+      body: itemProvider.loading
           ? const Center(child: CircularProgressIndicator())
           : accountBook == null
               ? Center(
@@ -116,7 +116,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                             AppRoutes.accountBookForm,
                           );
                           if (result == true) {
-                            await provider
+                            await itemProvider
                                 .init(UserConfigManager.currentUserId);
                           }
                         },
@@ -133,7 +133,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                       onRefresh: _onRefresh,
                       child: AccountItemList(
                         accountBook: accountBook,
-                        initialItems: provider.items,
+                        initialItems: itemProvider.items,
                         onItemTap: (item) async {
                           final result = await Navigator.of(context).push(
                             MaterialPageRoute(
@@ -144,7 +144,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                             ),
                           );
                           if (result == true) {
-                            provider.refresh();
+                            itemProvider.loadItems();
                           }
                         },
                       ),
@@ -162,7 +162,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                             ),
                           );
                           if (result == true) {
-                            provider.refresh();
+                            itemProvider.loadItems();
                           }
                         },
                         child: const Icon(Icons.add),
