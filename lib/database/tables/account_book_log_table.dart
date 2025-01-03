@@ -30,6 +30,6 @@ class AccountBookLogTable extends StringIdTable {
 
   @override
   List<String> get customConstraints => [
-        'UNIQUE (account_book_id, business_type, business_id,operatorId, operated_at)',
+        'UNIQUE (account_book_id, business_type, business_id,operator_id, operated_at)',
       ];
 }

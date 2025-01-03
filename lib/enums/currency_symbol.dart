@@ -47,13 +47,13 @@ enum CurrencySymbol {
   }
 
   /// 根据货币符号获取货币枚举
-  static CurrencySymbol? fromSymbol(String symbol) {
+  static CurrencySymbol fromSymbol(String symbol) {
     try {
       return CurrencySymbol.values.firstWhere(
         (currency) => currency.symbol == symbol,
       );
     } catch (e) {
-      return null;
+      return CurrencySymbol.cny;
     }
   }
 }

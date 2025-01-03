@@ -4,7 +4,8 @@ import '../../models/vo/user_book_vo.dart';
 import '../../enums/currency_symbol.dart';
 import '../../models/common.dart';
 import '../book_data_driver.dart';
-import 'log/log_runner_builder.dart';
+import 'log/builder.dart';
+import '../../constants/account_book_icons.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
@@ -13,12 +14,12 @@ class LogDataDriver implements BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
-      List<BookMemberVO>? members}) async {
+      List<BookMemberVO> members = const []}) async {
     final id = await LogRunnerBuilder.createBook(userId,
             name: name,
             description: description,
-            currencySymbol: currencySymbol,
-            icon: icon)
+            currencySymbol: currencySymbol ?? CurrencySymbol.cny,
+            icon: icon ?? defaultIcon())
         .execute();
 
     await LogRunnerBuilder.addMember(userId,
@@ -31,7 +32,7 @@ class LogDataDriver implements BookDataDriver {
             canEditItem: true,
             canDeleteItem: true)
         .execute();
-    for (var member in members!) {
+    for (var member in members) {
       await LogRunnerBuilder.addMember(userId,
               accountBookId: id,
               userId: member.userId,
@@ -70,7 +71,7 @@ class LogDataDriver implements BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
-      List<BookMemberVO>? members}) async {
+      List<BookMemberVO> members = const []}) async {
     await LogRunnerBuilder.updateBook(userId, bookId,
             name: name,
             description: description,

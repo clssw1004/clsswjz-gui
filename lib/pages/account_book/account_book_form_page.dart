@@ -419,7 +419,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             CommonSelectFormField<CurrencySymbol>(
               items: CurrencySymbol.values,
-              value: _currencySymbol,
+              value: _currencySymbol.symbol,
               displayMode: DisplayMode.iconText,
               displayField: (item) => '${item.symbol} - ${item.code}',
               keyField: (item) => item.symbol,

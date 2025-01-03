@@ -3,9 +3,13 @@ import 'package:clsswjz/enums/currency_symbol.dart';
 import 'package:drift/drift.dart';
 
 import '../../../constants/account_book_icons.dart';
+import '../../../database/tables/account_book_table.dart';
+import '../../../database/tables/rel_accountbook_user_table.dart';
 import '../../../enums/business_type.dart';
 import '../../../models/vo/book_member_vo.dart';
-import 'log_runner.dart';
+import '../../../utils/date_util.dart';
+import 'builder/book.builder.dart';
+import 'builder/book_member.builder.dart';
 
 class LogRunnerBuilder {
   static Value<T> absentIfNull<T>(T? value) {
@@ -17,12 +21,11 @@ class LogRunnerBuilder {
       String? description,
       CurrencySymbol? currencySymbol = CurrencySymbol.cny,
       String? icon}) {
-    return CreateBookLog().who(who).withData({
-      'name': name,
-      'description': description,
-      'currencySymbol': currencySymbol?.symbol,
-      'icon': icon ?? accountBookIcons.first.toString()
-    }) as CreateBookLog;
+    return CreateBookLog().who(who).withData(AccountBook.withUser(who,
+        name: name,
+        description: description,
+        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+        icon: icon ?? accountBookIcons.first.toString())) as CreateBookLog;
   }
 
   static UpdateBookLog updateBook(String who, String bookId,
@@ -39,6 +42,8 @@ class LogRunnerBuilder {
           description: absentIfNull(description),
           currencySymbol: absentIfNull(currencySymbol?.symbol),
           icon: absentIfNull(icon),
+          updatedBy: Value(who),
+          updatedAt: Value(DateUtil.now()),
         )) as UpdateBookLog;
   }
 
@@ -56,15 +61,15 @@ class LogRunnerBuilder {
       bool canViewItem = true,
       bool canEditItem = false,
       bool canDeleteItem = false}) {
-    return CreateMemberLog().who(who).withData({
-      'accountBookId': accountBookId,
-      'userId': userId,
-      'canViewBook': canViewBook,
-      'canEditBook': canEditBook,
-      'canDeleteBook': canDeleteBook,
-      'canViewItem': canViewItem,
-      'canEditItem': canEditItem,
-      'canDeleteItem': canDeleteItem,
-    }) as CreateMemberLog;
+    return CreateMemberLog().who(who).inBook(accountBookId).withData(
+        RelAccountbookUser.withBookPermission(
+            accountBookId: accountBookId,
+            userId: userId,
+            canViewBook: canViewBook,
+            canEditBook: canEditBook,
+            canDeleteBook: canDeleteBook,
+            canViewItem: canViewItem,
+            canEditItem: canEditItem,
+            canDeleteItem: canDeleteItem)) as CreateMemberLog;
   }
 }

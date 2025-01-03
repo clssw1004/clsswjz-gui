@@ -1,4 +1,4 @@
-import '../../database/database.dart';
+import '../../database/tables/rel_accountbook_user_table.dart';
 
 /// 账本权限VO
 class AccountBookPermissionVO {

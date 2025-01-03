@@ -35,11 +35,10 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
     ValueChanged<dynamic>? onChanged,
     Future<T?> Function(String value)? onCreateItem,
     bool? required,
-    String? Function(dynamic)? validator,
+    super.validator,
     Color? badgeColor,
   }) : super(
           initialValue: value,
-          validator: validator,
           builder: (state) {
             return _CommonSelectFormFieldWidget<T>(
               items: items,

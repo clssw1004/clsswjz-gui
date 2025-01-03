@@ -1,5 +1,4 @@
 import 'package:clsswjz/models/vo/user_book_vo.dart';
-
 import '../enums/currency_symbol.dart';
 import '../models/common.dart';
 import '../models/vo/book_member_vo.dart';
@@ -10,14 +9,14 @@ abstract class BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
-      List<BookMemberVO>? members});
+      List<BookMemberVO> members = const []});
 
   Future<OperateResult<void>> updateBook(String userId, String bookId,
       {String? name,
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
-      List<BookMemberVO>? members});
+      List<BookMemberVO> members = const []});
 
   Future<OperateResult<void>> deleteBook(String userId, String bookId);
 
