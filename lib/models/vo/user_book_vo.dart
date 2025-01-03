@@ -1,3 +1,4 @@
+import '../../database/database.dart';
 import '../../database/tables/account_book_table.dart';
 import '../../enums/currency_symbol.dart';
 import 'account_book_permission_vo.dart';

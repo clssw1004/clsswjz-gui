@@ -1,4 +1,6 @@
+import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:drift/drift.dart';
+import '../database/tables/account_book_table.dart';
 import '../models/common.dart';
 import '../models/sync.dart';
 import '../utils/http_client.dart';
@@ -85,7 +87,12 @@ class SyncService extends BaseService {
       }
       // 应用账本变更
       if (changes.accountBooks != null) {
-        await batchInsert(db.accountBookTable, changes.accountBooks!);
+        DaoManager.accountBookDao.batchInsert(changes.accountBooks!
+            .map((book) => AccountBookTable.toCreateCompanion(book.createdBy,
+                name: book.name,
+                currencySymbol: book.currencySymbol,
+                icon: book.icon))
+            .toList());
       }
 
       // 应用分类变更

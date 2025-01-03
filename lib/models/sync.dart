@@ -1,5 +1,4 @@
 import '../database/database.dart';
-import '../database/tables/account_book_table.dart';
 import '../database/tables/rel_accountbook_user_table.dart';
 
 /// 同步数据传输对象

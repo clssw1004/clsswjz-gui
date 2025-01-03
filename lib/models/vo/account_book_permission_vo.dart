@@ -1,4 +1,4 @@
-import '../../database/tables/rel_accountbook_user_table.dart';
+import '../../database/database.dart';
 
 /// 账本权限VO
 class AccountBookPermissionVO {
@@ -40,17 +40,5 @@ class AccountBookPermissionVO {
       canEditItem: relAccountbookUser.canEditItem,
       canDeleteItem: relAccountbookUser.canDeleteItem,
     );
-  }
-
-  @override
-  String toString() {
-    return 'AccountBookPermissionVO{'
-        'canViewBook: $canViewBook, '
-        'canEditBook: $canEditBook, '
-        'canDeleteBook: $canDeleteBook, '
-        'canViewItem: $canViewItem, '
-        'canEditItem: $canEditItem, '
-        'canDeleteItem: $canDeleteItem'
-        '}';
   }
 }

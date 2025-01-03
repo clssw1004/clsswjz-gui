@@ -1,12 +1,13 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
-import 'package:json_annotation/json_annotation.dart';
+import '../../utils/date_util.dart';
+import '../../utils/map_util.dart';
 import '../base_entity.dart';
 import '../database.dart';
 import 'base_table.dart';
 
-part 'rel_accountbook_user_table.g.dart';
-
-@UseRowClass(RelAccountbookUser)
+@DataClassName('RelAccountbookUser')
 class RelAccountbookUserTable extends BaseTable {
   TextColumn get userId => text().named('user_id')();
   TextColumn get accountBookId => text().named('account_book_id')();
@@ -22,64 +23,62 @@ class RelAccountbookUserTable extends BaseTable {
       boolean().named('can_edit_item').withDefault(const Constant(false))();
   BoolColumn get canDeleteItem =>
       boolean().named('can_delete_item').withDefault(const Constant(false))();
-}
 
-@JsonSerializable()
-class RelAccountbookUser extends DateEntity implements Insertable<RelAccountbookUser> {
-  final String userId;
-  final String accountBookId;
-  final bool canViewBook;
-  final bool canEditBook;
-  final bool canDeleteBook;
-  final bool canViewItem;
-  final bool canEditItem;
-  final bool canDeleteItem;
-
-  RelAccountbookUser({
-    required super.id,
-    required super.createdAt,
-    required super.updatedAt,
-    required this.userId,
-    required this.accountBookId,
-    this.canViewBook = true,
-    this.canEditBook = false,
-    this.canDeleteBook = false,
-    this.canViewItem = true,
-    this.canEditItem = false,
-    this.canDeleteItem = false,
-  });
-
-  RelAccountbookUser.withBookPermission( {
-    required this.userId,
-    required this.accountBookId,
-    this.canViewBook = true,
-    this.canEditBook = false,
-    this.canDeleteBook = false,
-    this.canViewItem = true,
-    this.canEditItem = false,
-    this.canDeleteItem = false,
-  }) : super.now();
-
-  // JSON序列化方法
-  factory RelAccountbookUser.fromJson(Map<String, dynamic> json) =>
-      _$RelAccountbookUserFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RelAccountbookUserToJson(this);
-
-  @override
-  Map<String, Expression<Object>> toColumns(bool nullToAbsent) {
+  static RelAccountbookUserTableCompanion toUpdateCompanion({
+    bool? canViewBook,
+    bool? canEditBook,
+    bool? canDeleteBook,
+    bool? canViewItem,
+    bool? canEditItem,
+    bool? canDeleteItem,
+  }) {
     return RelAccountbookUserTableCompanion(
-      id: Value(id),
-      userId: Value(userId),
-      accountBookId: Value(accountBookId),
-      canViewBook: Value(canViewBook),
-      canEditBook: Value(canEditBook),
-      canDeleteBook: Value(canDeleteBook),
-      canViewItem: Value(canViewItem),
-      canEditItem: Value(canEditItem),
-      canDeleteItem: Value(canDeleteItem),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    ).toColumns(nullToAbsent);
+      updatedAt: Value(DateUtil.now()),
+      canViewBook: nullIfAbsent(canViewBook),
+      canEditBook: nullIfAbsent(canEditBook),
+      canDeleteBook: nullIfAbsent(canDeleteBook),
+      canViewItem: nullIfAbsent(canViewItem),
+      canEditItem: nullIfAbsent(canEditItem),
+      canDeleteItem: nullIfAbsent(canDeleteItem),
+    );
+  }
+
+  static RelAccountbookUserTableCompanion toCreateCompanion({
+    required String userId,
+    required String accountBookId,
+    bool canViewBook = true,
+    bool canEditBook = false,
+    bool canDeleteBook = false,
+    bool canViewItem = true,
+    bool canEditItem = false,
+    bool canDeleteItem = false,
+  }) =>
+      RelAccountbookUserTableCompanion(
+        userId: Value(userId),
+        accountBookId: Value(accountBookId),
+        canViewBook: Value(canViewBook),
+        canEditBook: Value(canEditBook),
+        canDeleteBook: Value(canDeleteBook),
+        canViewItem: Value(canViewItem),
+        canEditItem: Value(canEditItem),
+        canDeleteItem: Value(canDeleteItem),
+        createdAt: Value(DateUtil.now()),
+        updatedAt: Value(DateUtil.now()),
+      );
+
+  static String toJsonString(RelAccountbookUserTableCompanion companion) {
+    final Map<String, dynamic> map = {};
+    MapUtil.setIfPresent(map, 'id', companion.id);
+    MapUtil.setIfPresent(map, 'userId', companion.userId);
+    MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
+    MapUtil.setIfPresent(map, 'canViewBook', companion.canViewBook);
+    MapUtil.setIfPresent(map, 'canEditBook', companion.canEditBook);
+    MapUtil.setIfPresent(map, 'canDeleteBook', companion.canDeleteBook);
+    MapUtil.setIfPresent(map, 'canViewItem', companion.canViewItem);
+    MapUtil.setIfPresent(map, 'canEditItem', companion.canEditItem);
+    MapUtil.setIfPresent(map, 'canDeleteItem', companion.canDeleteItem);
+    MapUtil.setIfPresent(map, 'createdAt', companion.createdAt);
+    MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
+    return jsonEncode(map);
   }
 }

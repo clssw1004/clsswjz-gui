@@ -1,3 +1,6 @@
+import 'package:drift/drift.dart';
+
+import '../../../../database/base_entity.dart';
 import '../../../../database/database.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
@@ -110,5 +113,38 @@ abstract class AbstraceLog<T, RunResult> {
 
   String data2Json() {
     return _data.toString();
+  }
+
+  static copyWithCreated<T>(
+      T Function({
+        required Value<String> id,
+        required Value<int> createdAt,
+        required Value<int> updatedAt,
+        required Value<String> createdBy,
+        required Value<String> updatedBy,
+      }) copyWith,
+      String operatorId) {
+    final now = DateUtil.now();
+    final id = IdUtils.genId();
+    return copyWith(
+      id: Value(id),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      createdBy: Value(operatorId),
+      updatedBy: Value(operatorId),
+    );
+  }
+
+  static copyWithUpdate<T>(
+      T Function({
+        required Value<int> updatedAt,
+        required Value<String> updatedBy,
+      }) copyWith,
+      String operatorId) {
+    final now = DateUtil.now();
+    return copyWith(
+      updatedAt: Value(now),
+      updatedBy: Value(operatorId),
+    );
   }
 }

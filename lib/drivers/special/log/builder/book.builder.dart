@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:clsswjz/database/database.dart';
-import 'package:clsswjz/database/tables/account_book_table.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
-import 'package:clsswjz/utils/date_util.dart';
-import 'package:drift/drift.dart';
+import '../../../../database/tables/account_book_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import 'base.builder.dart';
@@ -17,6 +15,17 @@ abstract class AbstraceBookLog<T, RunResult> extends AbstraceLog<T, RunResult> {
   AbstraceLog<T, RunResult> inBook(String bookId) {
     super.inBook(bookId).subject(bookId);
     return this;
+  }
+
+  @override
+  String data2Json() {
+    if (data == null) return '';
+    if (operateType == OperateType.delete) {
+      return data!.toString();
+    } else {
+      return jsonEncode(
+          AccountBookTable.toJsonString(data as AccountBookTableCompanion));
+    }
   }
 }
 
@@ -40,21 +49,17 @@ class DeleteLog extends AbstraceBookLog<String, void> {
   }
 }
 
-class CreateBookLog extends AbstraceBookLog<AccountBook, String> {
+class CreateBookLog extends AbstraceBookLog<AccountBookTableCompanion, String> {
   CreateBookLog() : super() {
     operate(OperateType.create);
   }
 
   @override
   Future<String> executeLog() async {
-    inBook(data!.id);
-    await DaoManager.accountBookDao.insert(data!);
-    return data!.id;
-  }
-
-  @override
-  String data2Json() {
-    return jsonEncode(data!.toJson());
+    final newData = AbstraceLog.copyWithCreated(data!.copyWith, operatorId!);
+    await DaoManager.accountBookDao.insert(newData);
+    inBook(newData.id.value).withData(newData);
+    return newData.id.value;
   }
 }
 
@@ -64,20 +69,9 @@ class UpdateBookLog extends AbstraceBookLog<AccountBookTableCompanion, void> {
   }
 
   @override
-  Future<void> executeLog() {
-    return DaoManager.accountBookDao.update(accountBookId!, data!);
-  }
-
-  @override
-  String data2Json() {
-    Map<String, dynamic> map = {};
-    map['name'] = data!.name.present ? data!.name.value : '';
-    map['description'] = data!.description.present ? data!.description.value : '';
-    map['currencySymbol'] = data!.currencySymbol.present ? data!.currencySymbol.value : '';
-    map['icon'] = data!.icon.present ? data!.icon.value : '';
-    map['updatedAt'] = DateUtil.now();
-    map['updatedBy'] = operatorId;
-    return jsonEncode(map);
+  Future<void> executeLog() async {
+    final newData = AbstraceLog.copyWithUpdate(data!.copyWith, operatorId!);
+    DaoManager.accountBookDao.update(accountBookId!, newData);
+    withData(newData);
   }
 }
-

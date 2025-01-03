@@ -21,11 +21,12 @@ class LogRunnerBuilder {
       String? description,
       CurrencySymbol? currencySymbol = CurrencySymbol.cny,
       String? icon}) {
-    return CreateBookLog().who(who).withData(AccountBook.withUser(who,
+    return CreateBookLog().who(who).withData(AccountBookTable.toCreateCompanion(
+        who,
         name: name,
         description: description,
         currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-        icon: icon ?? accountBookIcons.first.toString())) as CreateBookLog;
+        icon: icon)) as CreateBookLog;
   }
 
   static UpdateBookLog updateBook(String who, String bookId,
@@ -34,17 +35,12 @@ class LogRunnerBuilder {
       CurrencySymbol? currencySymbol,
       String? icon,
       List<BookMemberVO>? members}) {
-    return UpdateBookLog()
-        .inBook(bookId)
-        .who(who)
-        .withData(AccountBookTableCompanion(
-          name: absentIfNull(name),
-          description: absentIfNull(description),
-          currencySymbol: absentIfNull(currencySymbol?.symbol),
-          icon: absentIfNull(icon),
-          updatedBy: Value(who),
-          updatedAt: Value(DateUtil.now()),
-        )) as UpdateBookLog;
+    return UpdateBookLog().inBook(bookId).who(who).withData(
+        AccountBookTable.toUpdateCompanion(who,
+            name: name,
+            description: description,
+            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+            icon: icon)) as UpdateBookLog;
   }
 
   static DeleteLog deleteBook(String who, String bookId) {
@@ -62,7 +58,7 @@ class LogRunnerBuilder {
       bool canEditItem = false,
       bool canDeleteItem = false}) {
     return CreateMemberLog().who(who).inBook(accountBookId).withData(
-        RelAccountbookUser.withBookPermission(
+        RelAccountbookUserTable.toCreateCompanion(
             accountBookId: accountBookId,
             userId: userId,
             canViewBook: canViewBook,
