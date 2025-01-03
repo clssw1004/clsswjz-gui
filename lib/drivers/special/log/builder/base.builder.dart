@@ -148,3 +148,23 @@ abstract class AbstraceLog<T, RunResult> {
     );
   }
 }
+
+class DeleteLog extends AbstraceLog<String, void> {
+  @override
+  Future<void> executeLog() {
+    switch (businessType) {
+      case BusinessType.book:
+        return DaoManager.accountBookDao.delete(businessId!);
+      case BusinessType.category:
+        return DaoManager.accountCategoryDao.delete(businessId!);
+      case BusinessType.item:
+        return DaoManager.accountItemDao.delete(businessId!);
+      case BusinessType.fund:
+        return DaoManager.accountFundDao.delete(businessId!);
+      case BusinessType.shop:
+        return DaoManager.accountShopDao.delete(businessId!);
+      default:
+        throw UnimplementedError('未实现的操作类型：${businessType}');
+    }
+  }
+}

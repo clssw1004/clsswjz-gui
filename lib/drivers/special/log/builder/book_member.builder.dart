@@ -8,21 +8,22 @@ import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import 'base.builder.dart';
 
-class CreateMemberLog extends AbstraceLog<RelAccountbookUser, String> {
+class CreateMemberLog
+    extends AbstraceLog<RelAccountbookUserTableCompanion, String> {
   CreateMemberLog() : super() {
     doWith(BusinessType.bookMember).operate(OperateType.create);
   }
 
   @override
   Future<String> executeLog() async {
-    subject(data!.id);
+    subject(data!.id.value);
     await DaoManager.relAccountbookUserDao.insert(data!);
-    return data!.id;
+    return data!.id.value;
   }
 
   @override
   String data2Json() {
-    return jsonEncode(data!.toJson());
+    return RelAccountbookUserTable.toJsonString(data!);
   }
 }
 

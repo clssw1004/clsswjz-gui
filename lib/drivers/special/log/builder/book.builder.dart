@@ -29,25 +29,6 @@ abstract class AbstraceBookLog<T, RunResult> extends AbstraceLog<T, RunResult> {
   }
 }
 
-class DeleteLog extends AbstraceBookLog<String, void> {
-  @override
-  Future<void> executeLog() {
-    switch (businessType) {
-      case BusinessType.book:
-        return DaoManager.accountBookDao.delete(businessId!);
-      case BusinessType.category:
-        return DaoManager.accountCategoryDao.delete(businessId!);
-      case BusinessType.item:
-        return DaoManager.accountItemDao.delete(businessId!);
-      case BusinessType.fund:
-        return DaoManager.accountFundDao.delete(businessId!);
-      case BusinessType.shop:
-        return DaoManager.accountShopDao.delete(businessId!);
-      default:
-        throw UnimplementedError('未实现的操作类型：${businessType}');
-    }
-  }
-}
 
 class CreateBookLog extends AbstraceBookLog<AccountBookTableCompanion, String> {
   CreateBookLog() : super() {
@@ -56,10 +37,9 @@ class CreateBookLog extends AbstraceBookLog<AccountBookTableCompanion, String> {
 
   @override
   Future<String> executeLog() async {
-    final newData = AbstraceLog.copyWithCreated(data!.copyWith, operatorId!);
-    await DaoManager.accountBookDao.insert(newData);
-    inBook(newData.id.value).withData(newData);
-    return newData.id.value;
+    await DaoManager.accountBookDao.insert(data!);
+    inBook(data!.id.value);
+    return data!.id.value;
   }
 }
 
@@ -70,8 +50,6 @@ class UpdateBookLog extends AbstraceBookLog<AccountBookTableCompanion, void> {
 
   @override
   Future<void> executeLog() async {
-    final newData = AbstraceLog.copyWithUpdate(data!.copyWith, operatorId!);
-    DaoManager.accountBookDao.update(accountBookId!, newData);
-    withData(newData);
+    DaoManager.accountBookDao.update(accountBookId!, data!);
   }
 }

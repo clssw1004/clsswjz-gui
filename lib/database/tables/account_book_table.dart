@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:clsswjz/utils/id_util.dart';
 import 'package:drift/drift.dart';
 import '../../utils/date_util.dart';
 import '../../utils/map_util.dart';
@@ -27,6 +28,7 @@ class AccountBookTable extends BaseBusinessTable {
       updatedAt: Value(DateUtil.now()),
       name: nullIfAbsent(name),
       description: nullIfAbsent(description),
+      icon: nullIfAbsent(icon),
       currencySymbol: nullIfAbsent(currencySymbol),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -39,6 +41,7 @@ class AccountBookTable extends BaseBusinessTable {
           required String currencySymbol,
           String? icon}) =>
       AccountBookTableCompanion(
+        id: Value(IdUtils.genId()),
         name: Value(name),
         description: nullIfAbsent(description),
         currencySymbol: Value(currencySymbol),
@@ -48,7 +51,6 @@ class AccountBookTable extends BaseBusinessTable {
         updatedBy: Value(who),
         updatedAt: Value(DateUtil.now()),
       );
-
 
   static String toJsonString(AccountBookTableCompanion companion) {
     final Map<String, dynamic> map = {};

@@ -1,14 +1,13 @@
-import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/enums/currency_symbol.dart';
 import 'package:drift/drift.dart';
-
-import '../../../constants/account_book_icons.dart';
 import '../../../database/tables/account_book_table.dart';
+import '../../../database/tables/account_item_table.dart';
 import '../../../database/tables/rel_accountbook_user_table.dart';
 import '../../../enums/business_type.dart';
 import '../../../models/vo/book_member_vo.dart';
-import '../../../utils/date_util.dart';
+import 'builder/base.builder.dart';
 import 'builder/book.builder.dart';
+import 'builder/book_item.builder.dart';
 import 'builder/book_member.builder.dart';
 
 class LogRunnerBuilder {
@@ -44,8 +43,25 @@ class LogRunnerBuilder {
   }
 
   static DeleteLog deleteBook(String who, String bookId) {
-    return DeleteLog().who(who).doWith(BusinessType.book).inBook(bookId)
-        as DeleteLog;
+    return DeleteLog()
+        .who(who)
+        .doWith(BusinessType.book)
+        .inBook(bookId)
+        .subject(bookId) as DeleteLog;
+  }
+
+  static CreateBookItemLog createBookItem(String who, String bookId, {
+    required String categoryCode,
+    required String fundCode,
+    required String shopCode,
+    required String name,
+    String? description,
+    String? icon,
+  }) {
+    return CreateBookItemLog().who(who).inBook(bookId).withData(AccountItemTable.toCreateCompanion(
+        who,
+        bookId: bookId,
+       )) as CreateBookItemLog;
   }
 
   static CreateMemberLog addMember(String who,

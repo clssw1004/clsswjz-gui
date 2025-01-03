@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import '../../utils/date_util.dart';
+import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
 import '../base_entity.dart';
 import '../database.dart';
@@ -54,6 +55,7 @@ class RelAccountbookUserTable extends BaseTable {
     bool canDeleteItem = false,
   }) =>
       RelAccountbookUserTableCompanion(
+        id: Value(IdUtils.genId()),
         userId: Value(userId),
         accountBookId: Value(accountBookId),
         canViewBook: Value(canViewBook),
