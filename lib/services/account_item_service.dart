@@ -30,170 +30,170 @@ class AccountItemService extends BaseService {
         _accountShopDao = AccountShopDao(DatabaseManager.db),
         _userDao = UserDao(DatabaseManager.db);
 
-  /// 创建账目
-  Future<OperateResult<String>> createAccountItem({
-    required double amount,
-    required String type,
-    required String accountDate,
-    required String accountBookId,
-    required String userId,
-    String? description,
-    String? categoryCode,
-    String? fundId,
-    String? shopCode,
-    String? tagCode,
-    String? projectCode,
-  }) async {
-    try {
-      // 验证分类是否存在
-      if (categoryCode != null) {
-        final categories = await _accountCategoryDao.findByAccountBookIdAndType(
-            accountBookId, type);
-        if (!categories.any((c) => c.code == categoryCode)) {
-          return OperateResult.failWithMessage(message: '无效的分类代码');
-        }
-      }
+  // /// 创建账目
+  // Future<OperateResult<String>> createAccountItem({
+  //   required double amount,
+  //   required String type,
+  //   required String accountDate,
+  //   required String accountBookId,
+  //   required String userId,
+  //   String? description,
+  //   String? categoryCode,
+  //   String? fundId,
+  //   String? shopCode,
+  //   String? tagCode,
+  //   String? projectCode,
+  // }) async {
+  //   try {
+  //     // 验证分类是否存在
+  //     if (categoryCode != null) {
+  //       final categories = await _accountCategoryDao.findByAccountBookIdAndType(
+  //           accountBookId, type);
+  //       if (!categories.any((c) => c.code == categoryCode)) {
+  //         return OperateResult.failWithMessage(message: '无效的分类代码');
+  //       }
+  //     }
 
-      // 验证资金账户是否存在
-      if (fundId != null) {
-        final fund = await _accountFundDao.findById(fundId);
-        if (fund == null) {
-          return OperateResult.failWithMessage(message: '无效的资金账户');
-        }
-      }
+  //     // 验证资金账户是否存在
+  //     if (fundId != null) {
+  //       final fund = await _accountFundDao.findById(fundId);
+  //       if (fund == null) {
+  //         return OperateResult.failWithMessage(message: '无效的资金账户');
+  //       }
+  //     }
 
-      final id = generateUuid();
-      await _accountItemDao.createAccountItem(
-        id: id,
-        amount: amount,
-        type: type,
-        accountDate: accountDate,
-        accountBookId: accountBookId,
-        description: description,
-        categoryCode: categoryCode,
-        fundId: fundId,
-        shopCode: shopCode,
-        tagCode: tagCode,
-        projectCode: projectCode,
-        createdBy: userId,
-        updatedBy: userId,
-      );
+  //     final id = generateUuid();
+  //     await _accountItemDao.createAccountItem(
+  //       id: id,
+  //       amount: amount,
+  //       type: type,
+  //       accountDate: accountDate,
+  //       accountBookId: accountBookId,
+  //       description: description,
+  //       categoryCode: categoryCode,
+  //       fundId: fundId,
+  //       shopCode: shopCode,
+  //       tagCode: tagCode,
+  //       projectCode: projectCode,
+  //       createdBy: userId,
+  //       updatedBy: userId,
+  //     );
 
-      // 如果指定了资金账户，更新账户余额
-      if (fundId != null) {
-        final fund = await _accountFundDao.findById(fundId);
-        if (fund != null) {
-          double newBalance = fund.fundBalance;
-          if (type == 'INCOME') {
-            newBalance += amount;
-          } else if (type == 'EXPENSE') {
-            newBalance -= amount;
-          }
-          await _accountFundDao.updateBalance(fund, newBalance);
-        }
-      }
+  //     // 如果指定了资金账户，更新账户余额
+  //     if (fundId != null) {
+  //       final fund = await _accountFundDao.findById(fundId);
+  //       if (fund != null) {
+  //         double newBalance = fund.fundBalance;
+  //         if (type == 'INCOME') {
+  //           newBalance += amount;
+  //         } else if (type == 'EXPENSE') {
+  //           newBalance -= amount;
+  //         }
+  //         await _accountFundDao.updateBalance(fund, newBalance);
+  //       }
+  //     }
 
-      // 更新分类的最后记账时间
-      if (categoryCode != null) {
-        final categories = await _accountCategoryDao.findByAccountBookIdAndType(
-            accountBookId, type);
-        final category = categories.firstWhere((c) => c.code == categoryCode);
-        await _accountCategoryDao.update(
-            category.id,
-            AccountCategoryTableCompanion(
-              lastAccountItemAt: Value(DateTime.now()),
-            ));
-      }
+  //     // 更新分类的最后记账时间
+  //     if (categoryCode != null) {
+  //       final categories = await _accountCategoryDao.findByAccountBookIdAndType(
+  //           accountBookId, type);
+  //       final category = categories.firstWhere((c) => c.code == categoryCode);
+  //       await _accountCategoryDao.update(
+  //           category.id,
+  //           AccountCategoryTableCompanion(
+  //             lastAccountItemAt: Value(DateTime.now()),
+  //           ));
+  //     }
 
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '创建账目失败：$e', exception: e as Exception);
-    }
-  }
+  //     return OperateResult.success(id);
+  //   } catch (e) {
+  //     return OperateResult.failWithMessage(
+  //         message: '创建账目失败：$e', exception: e as Exception);
+  //   }
+  // }
 
-  /// 更新账目
-  Future<OperateResult<String>> updateAccountItem({
-    required String id,
-    required String userId,
-    double? amount,
-    String? type,
-    String? accountDate,
-    String? description,
-    String? categoryCode,
-    String? fundId,
-    String? shopCode,
-    String? tagCode,
-    String? projectCode,
-  }) async {
-    try {
-      final item = await _accountItemDao.findById(id);
-      if (item == null) {
-        return OperateResult.failWithMessage(message: '账目不存在');
-      }
+  // /// 更新账目
+  // Future<OperateResult<String>> updateAccountItem({
+  //   required String id,
+  //   required String userId,
+  //   double? amount,
+  //   String? type,
+  //   String? accountDate,
+  //   String? description,
+  //   String? categoryCode,
+  //   String? fundId,
+  //   String? shopCode,
+  //   String? tagCode,
+  //   String? projectCode,
+  // }) async {
+  //   try {
+  //     final item = await _accountItemDao.findById(id);
+  //     if (item == null) {
+  //       return OperateResult.failWithMessage(message: '账目不存在');
+  //     }
 
-      // 如果修改了资金账户，先恢复原账户余额
-      if (item.fundId != null) {
-        final oldFund = await _accountFundDao.findById(item.fundId!);
-        if (oldFund != null) {
-          double oldBalance = oldFund.fundBalance;
-          if (item.type == 'INCOME') {
-            oldBalance -= item.amount;
-          } else if (item.type == 'EXPENSE') {
-            oldBalance += item.amount;
-          }
-          await _accountFundDao.update(
-              item.fundId!,
-              AccountFundTableCompanion(
-                fundBalance: Value(oldBalance),
-              ));
-        }
-      }
+  //     // 如果修改了资金账户，先恢复原账户余额
+  //     if (item.fundId != null) {
+  //       final oldFund = await _accountFundDao.findById(item.fundId!);
+  //       if (oldFund != null) {
+  //         double oldBalance = oldFund.fundBalance;
+  //         if (item.type == 'INCOME') {
+  //           oldBalance -= item.amount;
+  //         } else if (item.type == 'EXPENSE') {
+  //           oldBalance += item.amount;
+  //         }
+  //         await _accountFundDao.update(
+  //             item.fundId!,
+  //             AccountFundTableCompanion(
+  //               fundBalance: Value(oldBalance),
+  //             ));
+  //       }
+  //     }
 
-      await _accountItemDao.update(
-          id,
-          AccountItemTableCompanion(
-            amount: Value(amount ?? item.amount),
-            type: Value(type ?? item.type),
-            accountDate: Value(accountDate ?? item.accountDate),
-            description: Value(description ?? item.description ?? ''),
-            categoryCode: Value(categoryCode ?? item.categoryCode ?? ''),
-            fundId: Value(fundId ?? item.fundId ?? ''),
-            shopCode: Value(shopCode ?? item.shopCode ?? ''),
-            tagCode: Value(tagCode ?? item.tagCode ?? ''),
-            projectCode: Value(projectCode ?? item.projectCode ?? ''),
-            accountBookId: Value(item.accountBookId),
-            createdBy: Value(item.createdBy),
-            createdAt: Value(item.createdAt),
-            updatedBy: Value(userId),
-            updatedAt: Value(DateUtil.now()),
-          ));
+  //     await _accountItemDao.update(
+  //         id,
+  //         AccountItemTableCompanion(
+  //           amount: Value(amount ?? item.amount),
+  //           type: Value(type ?? item.type),
+  //           accountDate: Value(accountDate ?? item.accountDate),
+  //           description: Value(description ?? item.description ?? ''),
+  //           categoryCode: Value(categoryCode ?? item.categoryCode ?? ''),
+  //           fundId: Value(fundId ?? item.fundId ?? ''),
+  //           shopCode: Value(shopCode ?? item.shopCode ?? ''),
+  //           tagCode: Value(tagCode ?? item.tagCode ?? ''),
+  //           projectCode: Value(projectCode ?? item.projectCode ?? ''),
+  //           accountBookId: Value(item.accountBookId),
+  //           createdBy: Value(item.createdBy),
+  //           createdAt: Value(item.createdAt),
+  //           updatedBy: Value(userId),
+  //           updatedAt: Value(DateUtil.now()),
+  //         ));
 
-      // 如果修改了资金账户或金额，更新新账户余额
-      if (fundId != null || amount != null) {
-        final targetFundId = fundId ?? item.fundId;
-        if (targetFundId != null) {
-          final fund = await _accountFundDao.findById(targetFundId);
-          if (fund != null) {
-            double newBalance = fund.fundBalance;
-            final targetAmount = amount ?? item.amount;
-            final targetType = type ?? item.type;
-            if (targetType == 'INCOME') {
-              newBalance += targetAmount;
-            } else if (targetType == 'EXPENSE') {
-              newBalance -= targetAmount;
-            }
-            await _accountFundDao.updateBalance(fund, newBalance);
-          }
-        }
-      }
+  //     // 如果修改了资金账户或金额，更新新账户余额
+  //     if (fundId != null || amount != null) {
+  //       final targetFundId = fundId ?? item.fundId;
+  //       if (targetFundId != null) {
+  //         final fund = await _accountFundDao.findById(targetFundId);
+  //         if (fund != null) {
+  //           double newBalance = fund.fundBalance;
+  //           final targetAmount = amount ?? item.amount;
+  //           final targetType = type ?? item.type;
+  //           if (targetType == 'INCOME') {
+  //             newBalance += targetAmount;
+  //           } else if (targetType == 'EXPENSE') {
+  //             newBalance -= targetAmount;
+  //           }
+  //           await _accountFundDao.updateBalance(fund, newBalance);
+  //         }
+  //       }
+  //     }
 
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '更新账目失败：$e', exception: e as Exception);
-    }
-  }
+  //     return OperateResult.success(id);
+  //   } catch (e) {
+  //     return OperateResult.failWithMessage(
+  //         message: '更新账目失败：$e', exception: e as Exception);
+  //   }
+  // }
 
   /// 删除账目
   Future<OperateResult<void>> deleteAccountItem(String id) async {
@@ -222,37 +222,6 @@ class AccountItemService extends BaseService {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '删除账目失败：$e', exception: e as Exception);
-    }
-  }
-
-  /// 获取账目列表
-  Future<OperateResult<List<AccountItem>>> getAccountItems({
-    String? accountBookId,
-    String? type,
-    String? categoryCode,
-    String? fundId,
-    String? shopCode,
-    String? tagCode,
-    String? projectCode,
-    String? startDate,
-    String? endDate,
-  }) async {
-    try {
-      final items = await _accountItemDao.findByConditions(
-        accountBookId: accountBookId,
-        type: type,
-        categoryCode: categoryCode,
-        fundId: fundId,
-        shopCode: shopCode,
-        tagCode: tagCode,
-        projectCode: projectCode,
-        startDate: startDate,
-        endDate: endDate,
-      );
-      return OperateResult.success(items);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取账目列表失败：$e', exception: e as Exception);
     }
   }
 

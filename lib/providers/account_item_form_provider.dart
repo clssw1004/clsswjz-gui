@@ -1,3 +1,4 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
@@ -184,11 +185,12 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final userId = AppConfigManager.instance.userId!;
+      var result;
+      if (isNew) {
       // 保存账目信息
-      final result = isNew
-          ? await _accountItemService.createAccountItem(
-              accountBookId: _item.accountBookId,
-              userId: _item.updatedBy,
+       result = await DriverFactory.bookDataDriver.createBookItem(
+              userId,_item.accountBookId,
               type: _item.type,
               amount: _item.amount,
               description: _item.description,
@@ -198,12 +200,15 @@ class AccountItemFormProvider extends ChangeNotifier {
               tagCode: _item.tagCode,
               projectCode: _item.projectCode,
               accountDate: _item.accountDate,
-            )
-          : await _accountItemService.updateAccountItem(
-              id: _item.id,
-              userId: _item.updatedBy,
-              amount: _item.amount,
-              description: _item.description,
+            );
+        _item = _item.copyWith(id: result.data!);
+      } else {
+        await DriverFactory.bookDataDriver.updateBookItem(
+          userId,
+          _item.accountBookId,
+          _item.id,
+          amount: _item.amount,
+          description: _item.description,
               categoryCode: _item.categoryCode,
               fundId: _item.fundId,
               shopCode: _item.shopCode,
@@ -211,15 +216,11 @@ class AccountItemFormProvider extends ChangeNotifier {
               projectCode: _item.projectCode,
               accountDate: _item.accountDate,
             );
+          }
 
       if (!result.ok) {
         _error = result.message;
         return false;
-      }
-
-      // 如果是新建账目，需要更新账目ID
-      if (isNew) {
-        _item = _item.copyWith(id: result.data);
       }
 
       // 保存附件

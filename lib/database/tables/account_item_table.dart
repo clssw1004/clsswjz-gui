@@ -22,7 +22,7 @@ class AccountItemTable extends BaseBusinessTable {
   TextColumn get projectCode => text().nullable().named('project_code')();
 
   static AccountItemTableCompanion toUpdateCompanion(
-    String who, {
+    String who,{
     double? amount,
     String? description,
     String? type,

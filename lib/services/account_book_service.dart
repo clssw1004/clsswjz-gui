@@ -6,7 +6,6 @@ import '../database/dao/account_book_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
-import '../database/tables/account_book_table.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/account_book_permission_vo.dart';

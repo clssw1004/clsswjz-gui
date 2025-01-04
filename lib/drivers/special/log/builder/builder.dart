@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 
-import '../../../../database/base_entity.dart';
 import '../../../../database/database.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
@@ -8,7 +7,7 @@ import '../../../../manager/dao_manager.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
 
-abstract class AbstraceLog<T, RunResult> {
+abstract class LogBuilder<T, RunResult> {
   final String? _id;
   String? get id => _id;
 
@@ -41,51 +40,51 @@ abstract class AbstraceLog<T, RunResult> {
 
   T? _data;
   T? get data => _data;
-  AbstraceLog()
+  LogBuilder()
       : _id = IdUtils.genId(),
         _operatedAt = DateUtil.now();
 
-  AbstraceLog doWith(BusinessType businessType) {
+  LogBuilder doWith(BusinessType businessType) {
     _businessType = businessType;
     return this;
   }
 
-  AbstraceLog who(String operatorId) {
+  LogBuilder who(String operatorId) {
     _operatorId = operatorId;
     return this;
   }
 
-  AbstraceLog inBook(String bookId) {
+  LogBuilder inBook(String bookId) {
     _accountBookId = bookId;
     return this;
   }
 
-  AbstraceLog subject(String businessId) {
+  LogBuilder subject(String businessId) {
     _businessId = businessId;
     return this;
   }
 
-  AbstraceLog operate(OperateType operateType) {
+  LogBuilder operate(OperateType operateType) {
     _operateType = operateType;
     return this;
   }
 
-  AbstraceLog create() {
+  LogBuilder create() {
     _operateType = OperateType.create;
     return this;
   }
 
-  AbstraceLog update() {
+  LogBuilder update() {
     _operateType = OperateType.delete;
     return this;
   }
 
-  AbstraceLog delete() {
+  LogBuilder delete() {
     _operateType = OperateType.delete;
     return this;
   }
 
-  AbstraceLog withData(T data) {
+  LogBuilder withData(T data) {
     _data = data;
     return this;
   }
@@ -147,9 +146,15 @@ abstract class AbstraceLog<T, RunResult> {
       updatedBy: Value(operatorId),
     );
   }
+
 }
 
-class DeleteLog extends AbstraceLog<String, void> {
+class DeleteLog extends LogBuilder<String, void> {
+
+  DeleteLog() {
+    operate(OperateType.delete);
+  }
+
   @override
   Future<void> executeLog() {
     switch (businessType) {
@@ -164,7 +169,23 @@ class DeleteLog extends AbstraceLog<String, void> {
       case BusinessType.shop:
         return DaoManager.accountShopDao.delete(businessId!);
       default:
-        throw UnimplementedError('未实现的操作类型：${businessType}');
+        throw UnimplementedError('未实现的操作类型：$businessType');
     }
   }
+    static DeleteLog builderBook(String who, String bookId) {
+    return DeleteLog()
+        .who(who)
+        .doWith(BusinessType.book)
+        .inBook(bookId)
+        .subject(bookId) as DeleteLog;
+  }
+
+      static DeleteLog builder(String who, String bookId,BusinessType businessType,String subjectId) {
+    return DeleteLog()
+        .who(who)
+        .doWith(businessType)
+        .inBook(bookId)
+        .subject(subjectId) as DeleteLog;
+  }
+  
 }

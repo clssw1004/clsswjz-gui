@@ -1,5 +1,4 @@
 import '../../database/database.dart';
-import '../../database/tables/account_book_table.dart';
 import '../../enums/currency_symbol.dart';
 import 'account_book_permission_vo.dart';
 import 'book_member_vo.dart';
@@ -74,7 +73,7 @@ class UserBookVO {
       name: accountBook.name,
       description: accountBook.description,
       icon: accountBook.icon,
-      currencySymbol: CurrencySymbol.fromSymbol(accountBook.currencySymbol!),
+      currencySymbol: CurrencySymbol.fromSymbol(accountBook.currencySymbol),
       createdBy: accountBook.createdBy,
       createdByName: createdByName,
       updatedBy: accountBook.updatedBy,
