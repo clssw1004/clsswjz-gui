@@ -7,15 +7,12 @@ import '../constants/constant.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../models/vo/account_item_vo.dart';
-import '../services/account_item_service.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
 import '../constants/business_code.dart';
 
 /// 账目表单状态管理
 class AccountItemFormProvider extends ChangeNotifier {
-  final AccountItemService _accountItemService = AccountItemService();
-
   /// 账本数据
   final UserBookVO _accountBook;
   UserBookVO get accountBook => _accountBook;
@@ -184,39 +181,40 @@ class AccountItemFormProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    try {
+    // try {
       final userId = AppConfigManager.instance.userId!;
       var result;
       if (isNew) {
-      // 保存账目信息
-       result = await DriverFactory.bookDataDriver.createBookItem(
-              userId,_item.accountBookId,
-              type: _item.type,
-              amount: _item.amount,
-              description: _item.description,
-              categoryCode: _item.categoryCode,
-              fundId: _item.fundId,
-              shopCode: _item.shopCode,
-              tagCode: _item.tagCode,
-              projectCode: _item.projectCode,
-              accountDate: _item.accountDate,
-            );
+        // 保存账目信息
+        result = await DriverFactory.bookDataDriver.createBookItem(
+          userId,
+          _item.accountBookId,
+          type: _item.type,
+          amount: _item.amount,
+          description: _item.description,
+          categoryCode: _item.categoryCode,
+          fundId: _item.fundId,
+          shopCode: _item.shopCode,
+          tagCode: _item.tagCode,
+          projectCode: _item.projectCode,
+          accountDate: _item.accountDate,
+        );
         _item = _item.copyWith(id: result.data!);
       } else {
-        await DriverFactory.bookDataDriver.updateBookItem(
+        result = await DriverFactory.bookDataDriver.updateBookItem(
           userId,
           _item.accountBookId,
           _item.id,
           amount: _item.amount,
           description: _item.description,
-              categoryCode: _item.categoryCode,
-              fundId: _item.fundId,
-              shopCode: _item.shopCode,
-              tagCode: _item.tagCode,
-              projectCode: _item.projectCode,
-              accountDate: _item.accountDate,
-            );
-          }
+          categoryCode: _item.categoryCode,
+          fundId: _item.fundId,
+          shopCode: _item.shopCode,
+          tagCode: _item.tagCode,
+          projectCode: _item.projectCode,
+          accountDate: _item.accountDate,
+        );
+      }
 
       if (!result.ok) {
         _error = result.message;
@@ -253,13 +251,13 @@ class AccountItemFormProvider extends ChangeNotifier {
       }
 
       return true;
-    } catch (e) {
-      _error = '保存失败：$e';
-      return false;
-    } finally {
-      _saving = false;
-      notifyListeners();
-    }
+    // } catch (e) {
+    //   _error = '保存失败：$e';
+    //   return false;
+    // } finally {
+    //   _saving = false;
+    //   notifyListeners();
+    // }
   }
 
   /// 更新类型

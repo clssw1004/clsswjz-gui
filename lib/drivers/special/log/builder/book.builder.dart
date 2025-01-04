@@ -25,8 +25,7 @@ abstract class BookLogBuilder<T, RunResult> extends LogBuilder<T, RunResult> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return jsonEncode(
-          AccountBookTable.toJsonString(data as AccountBookTableCompanion));
+      return AccountBookTable.toJsonString(data as AccountBookTableCompanion);
     }
   }
 }

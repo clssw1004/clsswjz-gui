@@ -47,7 +47,6 @@ class ClsswjzApp extends StatelessWidget {
         Locale('zh'),
         Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
       ],
-      // home: const HomePage(),
       routes: AppRoutes.routes,
       onGenerateRoute: AppRoutes.onGenerateRoute,
       initialRoute: AppConfigManager.isAppInit()

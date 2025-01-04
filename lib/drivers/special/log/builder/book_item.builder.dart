@@ -31,7 +31,7 @@ class CreateBookItemLog
   @override
   Future<String> executeLog() async {
     await DaoManager.accountItemDao.insert(data!);
-    inBook(data!.accountBookId.value);
+    subject(data!.id.value);
     return data!.id.value;
   }
 
