@@ -67,7 +67,7 @@ class UpdateBookItemLog
 
   @override
   Future<void> executeLog() async {
-    await DaoManager.accountItemDao.update(accountBookId!, data!);
+    await DaoManager.accountItemDao.update(businessId!, data!);
   }
 
   static UpdateBookItemLog build(String userId, String bookId, String itemId,

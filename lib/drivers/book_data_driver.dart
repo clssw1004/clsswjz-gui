@@ -55,4 +55,13 @@ abstract class BookDataDriver {
       String? shopCode,
       String? tagCode,
       String? projectCode});
+
+  /// 分类相关
+  /// 创建分类  
+  Future<OperateResult<String>> createBookCategory(String userId, String bookId,
+      {required String name,required String categoryType});
+
+  /// 更新分类
+  Future<OperateResult<void>> updateBookCategory(String userId, String bookId, String categoryId,
+      {String? name, DateTime? lastAccountItemAt});   
 }

@@ -43,9 +43,9 @@ class AccountBookTable extends BaseBusinessTable {
       AccountBookTableCompanion(
         id: Value(IdUtils.genId()),
         name: Value(name),
-        description: nullIfAbsent(description),
+        description: Value.absentIfNull(description),
         currencySymbol: Value(currencySymbol),
-        icon: nullIfAbsent(icon),
+        icon: Value.absentIfNull(icon),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
