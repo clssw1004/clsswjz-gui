@@ -1,19 +1,24 @@
 import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
+import 'package:clsswjz/enums/fund_type.dart';
+import 'package:clsswjz/models/vo/user_fund_vo.dart';
 
+import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../enums/currency_symbol.dart';
 import '../../models/common.dart';
-import '../book_data_driver.dart';
+import '../data_driver.dart';
 import '../../constants/account_book_icons.dart';
 import 'log/builder/book_category.builder.dart';
+import 'log/builder/fund.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
 import 'log/builder/book_symbol.builder.dart';
+import 'log/builder/fund_relation.builder.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
@@ -57,7 +62,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<void>> deleteBook(String userId, String bookId) async {
-    await DeleteLog.builderBook(userId, bookId).execute();
+    await DeleteLog.buildBook(userId, bookId).execute();
     return OperateResult.success(null);
   }
 
@@ -193,5 +198,94 @@ class LogDataDriver implements BookDataDriver {
     await UpdateBookSymbolLog.build(userId, bookId, tagId, name: name)
         .execute();
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteBookCategory(
+      String userId, String bookId, String categoryId) async {
+    await DeleteLog.buildBookSub(
+            userId, bookId, BusinessType.category, categoryId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteBookItem(
+      String userId, String bookId, String itemId) async {
+    await DeleteLog.buildBookSub(userId, bookId, BusinessType.item, itemId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteBookShop(
+      String userId, String bookId, String shopId) async {
+    await DeleteLog.buildBookSub(userId, bookId, BusinessType.shop, shopId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteBookSymbol(
+      String userId, String bookId, String symbolId) async {
+    await DeleteLog.buildBookSub(userId, bookId, BusinessType.symbol, symbolId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<String>> createFund(
+    String userId, {
+    required String name,
+    required FundType fundType,
+    String? fundRemark,
+    double? fundBalance,
+    List<FundBookVO>? relatedBooks = const [],
+  }) async {
+    final id = await CreateFundLog.build(userId,
+            name: name,
+            fundType: fundType,
+            fundRemark: fundRemark,
+            fundBalance: fundBalance)
+        .execute();
+    if (relatedBooks != null) {
+      for (var book in relatedBooks) {
+        await CreateFundRelationLog.build(userId,
+                accountBookId: book.accountBookId,
+                fundId: id,
+                fundIn: book.fundIn,
+                fundOut: book.fundOut)
+            .execute();
+      }
+    }
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteFund(String userId, String fundId) async {
+    await DeleteLog.buildFund(userId, BusinessType.fund, fundId).execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> updateFund(String userId, String fundId,
+      {String? name,
+      FundType? fundType,
+      double? fundBalance,
+      String? fundRemark,
+      List<FundBookVO>? relatedBooks = const []}) async {
+    await UpdateFundLog.build(userId, fundId,
+            name: name,
+            fundType: fundType,
+            fundBalance: fundBalance,
+            fundRemark: fundRemark)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<UserFundVO>> getFund(
+      String userId, String bookId, String fundId) {
+    return ServiceManager.accountFundService.getFund(fundId);
   }
 }

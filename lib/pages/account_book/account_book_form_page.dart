@@ -79,7 +79,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   Future<OperateResult<void>> create() async {
     final userId = UserConfigManager.currentUserId;
     final l10n = AppLocalizations.of(context)!;
-    final result = await DriverFactory.bookDataDriver.createBook(
+    final result = await DriverFactory.driver.createBook(
       userId,
       name: _nameController.text,
       description: _descriptionController.text,
@@ -106,7 +106,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   Future<OperateResult<void>> update() async {
     final userId = UserConfigManager.currentUserId;
 
-    return await DriverFactory.bookDataDriver.updateBook(
+    return await DriverFactory.driver.updateBook(
       userId,
       widget.book!.id,
       name: _nameController.text,

@@ -23,17 +23,20 @@ class MerchantsPage extends StatelessWidget {
         getName: (item) => item.name,
         loadData: () => ServiceManager.accountShopService
             .getShopsByAccountBook(accountBook.id),
-        createItem: (name, _) => DriverFactory.bookDataDriver
+        createItem: (name, _) => DriverFactory.driver
             .createBookShop(userId, accountBook.id, name: name),
         updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.bookDataDriver.updateBookShop(
+            DriverFactory.driver.updateBookShop(
           userId,
           accountBook.id,
           item.id,
           name: name,
         ),
-        deleteItem: (item) =>
-            ServiceManager.accountShopService.deleteShop(item.id),
+        deleteItem: (item) => DriverFactory.driver.deleteBookShop(
+          userId,
+          accountBook.id,
+          item.id,
+        ),
       ),
     );
   }

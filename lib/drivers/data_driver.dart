@@ -1,8 +1,10 @@
 import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../enums/currency_symbol.dart';
+import '../enums/fund_type.dart';
 import '../models/common.dart';
 import '../models/vo/book_member_vo.dart';
+import '../models/vo/user_fund_vo.dart';
 
 abstract class BookDataDriver {
   /// 账本相关
@@ -57,6 +59,10 @@ abstract class BookDataDriver {
       String? tagCode,
       String? projectCode});
 
+  /// 删除账目
+  Future<OperateResult<void>> deleteBookItem(
+      String userId, String bookId, String itemId);
+
   /// 分类相关
   /// 创建分类
   Future<OperateResult<String>> createBookCategory(String userId, String bookId,
@@ -66,6 +72,10 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> updateBookCategory(
       String userId, String bookId, String categoryId,
       {String? name, DateTime? lastAccountItemAt});
+
+  /// 删除分类
+  Future<OperateResult<void>> deleteBookCategory(
+      String userId, String bookId, String categoryId);
 
   /// 商家相关
   /// 创建商家
@@ -77,6 +87,10 @@ abstract class BookDataDriver {
       String userId, String bookId, String shopId,
       {required String name});
 
+  /// 删除商家
+  Future<OperateResult<void>> deleteBookShop(
+      String userId, String bookId, String shopId);
+
   /// 其它账本标识
   /// 创建账本标识
   Future<OperateResult<String>> createBookSymbol(String userId, String bookId,
@@ -86,4 +100,34 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> updateBookSymbol(
       String userId, String bookId, String tagId,
       {required String name});
+
+  /// 删除账本标识
+  Future<OperateResult<void>> deleteBookSymbol(
+      String userId, String bookId, String symbolId);
+
+  /// 账本资金相关
+  /// 获取账本资金
+  Future<OperateResult<UserFundVO>> getFund(
+      String userId, String bookId, String fundId);
+
+  /// 创建账本资金
+  Future<OperateResult<String>> createFund(
+    String userId, {
+    required String name,
+    required FundType fundType,
+    String? fundRemark,
+    double? fundBalance,
+    List<FundBookVO>? relatedBooks = const [],
+  });
+
+  /// 更新账本资金
+  Future<OperateResult<void>> updateFund(String userId, String fundId,
+      {String? name,
+      FundType? fundType,
+      double? fundBalance,
+      String? fundRemark,
+      List<FundBookVO>? relatedBooks = const []});
+
+  /// 删除账本资金
+  Future<OperateResult<void>> deleteFund(String userId, String fundId);
 }

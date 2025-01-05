@@ -46,18 +46,4 @@ class AccountSymbolService extends BaseService {
       );
     }
   }
-
-  /// 删除标签
-  Future<OperateResult<void>> deleteSymbol(String id) async {
-    try {
-      await (db.delete(db.accountSymbolTable)..where((t) => t.id.equals(id)))
-          .go();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '删除标签失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
 }

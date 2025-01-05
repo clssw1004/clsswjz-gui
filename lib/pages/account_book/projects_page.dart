@@ -27,21 +27,24 @@ class ProjectsPage extends StatelessWidget {
           accountBook.id,
           SymbolType.project.name,
         ),
-        createItem: (name, _) => DriverFactory.bookDataDriver.createBookSymbol(
+        createItem: (name, _) => DriverFactory.driver.createBookSymbol(
           userId,
           accountBook.id,
           name: name,
           symbolType: SymbolType.project,
         ),
         updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.bookDataDriver.updateBookSymbol(
+            DriverFactory.driver.updateBookSymbol(
           userId,
           accountBook.id,
           item.id,
           name: name,
         ),
-        deleteItem: (item) =>
-            ServiceManager.accountSymbolService.deleteSymbol(item.id),
+        deleteItem: (item) => DriverFactory.driver.deleteBookSymbol(
+          userId,
+          accountBook.id,
+          item.id,
+        ),
       ),
     );
   }

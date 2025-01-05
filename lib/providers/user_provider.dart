@@ -21,8 +21,6 @@ class UserProvider extends ChangeNotifier {
 
   /// 获取用户信息
   Future<void> getUserInfo() async {
-    if (_loading) return;
-
     _loading = true;
     _error = null;
     notifyListeners();

@@ -194,36 +194,6 @@ class AccountItemService extends BaseService {
   //   }
   // }
 
-  /// 删除账目
-  Future<OperateResult<void>> deleteAccountItem(String id) async {
-    try {
-      final item = await _accountItemDao.findById(id);
-      if (item == null) {
-        return OperateResult.failWithMessage(message: '账目不存在');
-      }
-
-      // 如果有关联资金账户，恢复账户余额
-      if (item.fundId != null) {
-        final fund = await _accountFundDao.findById(item.fundId!);
-        if (fund != null) {
-          double newBalance = fund.fundBalance;
-          if (item.type == 'INCOME') {
-            newBalance -= item.amount;
-          } else if (item.type == 'EXPENSE') {
-            newBalance += item.amount;
-          }
-          await _accountFundDao.updateBalance(fund, newBalance);
-        }
-      }
-
-      await _accountItemDao.delete(item.id);
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '删除账目失败：$e', exception: e as Exception);
-    }
-  }
-
   /// 获取账本的账目列表（包含关联信息）
   Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(
       String accountBookId,

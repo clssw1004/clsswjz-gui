@@ -390,14 +390,14 @@ class AccountBookService extends BaseService {
       required String defaultCategoryName,
       required String defaultShopName}) async {
     // 1. 创建默认分类
-    await DriverFactory.bookDataDriver.createBookCategory(
+    await DriverFactory.driver.createBookCategory(
       userId,
       bookId,
       name: defaultCategoryName,
       categoryType: AccountItemType.expense.code,
     );
     // 2. 创建默认商户
-    await DriverFactory.bookDataDriver.createBookShop(
+    await DriverFactory.driver.createBookShop(
       userId,
       bookId,
       name: defaultShopName,

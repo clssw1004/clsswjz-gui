@@ -1,4 +1,4 @@
-import 'book_data_driver.dart';
+import 'data_driver.dart';
 import 'special/log.data_driver.dart';
 
 class DriverFactory {
@@ -6,9 +6,9 @@ class DriverFactory {
   factory DriverFactory() => _instance;
   DriverFactory._();
 
-  static final BookDataDriver _bookDataDriver = LogDataDriver();
+  static final BookDataDriver _driver = LogDataDriver();
 
-  static BookDataDriver get bookDataDriver {
-    return _bookDataDriver;
+  static BookDataDriver get driver {
+    return _driver;
   }
 }

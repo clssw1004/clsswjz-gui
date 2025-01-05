@@ -34,7 +34,7 @@ class UserFundVO {
   final bool isDefault;
 
   /// 关联的账本信息
-  final List<RelatedAccountBook> relatedBooks;
+  final List<FundBookVO> relatedBooks;
 
   const UserFundVO({
     required this.id,
@@ -67,7 +67,7 @@ class UserFundVO {
   }
 
   static UserFundVO fromFundAndBooks(
-      {required AccountFund fund, required List<RelatedAccountBook>? books}) {
+      {required AccountFund fund, required List<FundBookVO>? books}) {
     return UserFundVO(
       id: fund.id,
       name: fund.name,
@@ -84,7 +84,7 @@ class UserFundVO {
 }
 
 /// 关联的账本信息
-class RelatedAccountBook {
+class FundBookVO {
   /// 账本ID
   final String accountBookId;
 
@@ -112,7 +112,7 @@ class RelatedAccountBook {
   /// 是否为默认账户
   final bool isDefault;
 
-  const RelatedAccountBook({
+  const FundBookVO({
     required this.accountBookId,
     required this.name,
     required this.description,
@@ -125,7 +125,7 @@ class RelatedAccountBook {
   });
 
   /// 创建一个新的 RelatedAccountBook 实例，可选择性地更新某些字段
-  RelatedAccountBook copyWith({
+  FundBookVO copyWith({
     String? accountBookId,
     String? name,
     String? description,
@@ -136,7 +136,7 @@ class RelatedAccountBook {
     bool? fundOut,
     bool? isDefault,
   }) {
-    return RelatedAccountBook(
+    return FundBookVO(
       accountBookId: accountBookId ?? this.accountBookId,
       name: name ?? this.name,
       description: description ?? this.description,

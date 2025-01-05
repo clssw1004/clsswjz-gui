@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../constants/constant.dart';
 import '../../constants/symbol_type.dart';
 import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
@@ -8,7 +7,6 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_simple_crud_list.dart';
-import '../../utils/date_util.dart';
 
 class TagsPage extends StatelessWidget {
   const TagsPage({super.key, required this.accountBook});
@@ -27,18 +25,21 @@ class TagsPage extends StatelessWidget {
           accountBook.id,
           SymbolType.tag.name,
         ),
-        createItem: (name, _) => DriverFactory.bookDataDriver.createBookSymbol(
+        createItem: (name, _) => DriverFactory.driver.createBookSymbol(
             userId, accountBook.id,
             name: name, symbolType: SymbolType.tag),
         updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.bookDataDriver.updateBookSymbol(
+            DriverFactory.driver.updateBookSymbol(
           userId,
           accountBook.id,
           item.id,
           name: name,
         ),
-        deleteItem: (item) =>
-            ServiceManager.accountSymbolService.deleteSymbol(item.id),
+        deleteItem: (item) => DriverFactory.driver.deleteBookSymbol(
+          userId,
+          accountBook.id,
+          item.id,
+        ),
       ),
     );
   }

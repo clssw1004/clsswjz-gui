@@ -7,6 +7,8 @@ import '../../../../manager/dao_manager.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
 
+const NONE_BOOK = "NONE_BOOK";
+
 abstract class LogBuilder<T, RunResult> {
   final String? _id;
   String? get id => _id;
@@ -51,6 +53,11 @@ abstract class LogBuilder<T, RunResult> {
 
   LogBuilder who(String operatorId) {
     _operatorId = operatorId;
+    return this;
+  }
+
+  LogBuilder withOutBook() {
+    _accountBookId = NONE_BOOK;
     return this;
   }
 
@@ -146,11 +153,9 @@ abstract class LogBuilder<T, RunResult> {
       updatedBy: Value(operatorId),
     );
   }
-
 }
 
 class DeleteLog extends LogBuilder<String, void> {
-
   DeleteLog() {
     operate(OperateType.delete);
   }
@@ -172,7 +177,8 @@ class DeleteLog extends LogBuilder<String, void> {
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
   }
-    static DeleteLog builderBook(String who, String bookId) {
+
+  static DeleteLog buildBook(String who, String bookId) {
     return DeleteLog()
         .who(who)
         .doWith(BusinessType.book)
@@ -180,12 +186,21 @@ class DeleteLog extends LogBuilder<String, void> {
         .subject(bookId) as DeleteLog;
   }
 
-      static DeleteLog builder(String who, String bookId,BusinessType businessType,String subjectId) {
+  static DeleteLog buildBookSub(
+      String who, String bookId, BusinessType businessType, String subjectId) {
     return DeleteLog()
         .who(who)
         .doWith(businessType)
         .inBook(bookId)
         .subject(subjectId) as DeleteLog;
   }
-  
+
+  static DeleteLog buildFund(
+      String who, BusinessType businessType, String subjectId) {
+    return DeleteLog()
+        .who(who)
+        .doWith(businessType)
+        .withOutBook()
+        .subject(subjectId) as DeleteLog;
+  }
 }

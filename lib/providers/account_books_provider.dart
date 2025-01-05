@@ -63,7 +63,7 @@ class AccountBooksProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      final result = await DriverFactory.bookDataDriver.listBooksByUser(userId);
+      final result = await DriverFactory.driver.listBooksByUser(userId);
 
       if (_disposed) return;
 
@@ -107,7 +107,7 @@ class AccountBooksProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      final result = await DriverFactory.bookDataDriver.listBooksByUser(userId);
+      final result = await DriverFactory.driver.listBooksByUser(userId);
 
       if (_disposed) return;
 

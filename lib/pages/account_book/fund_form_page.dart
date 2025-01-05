@@ -1,3 +1,4 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../database/database.dart';
@@ -41,7 +42,7 @@ class _FundFormPageState extends State<FundFormPage> {
   FundType _fundType = FundType.cash;
 
   /// 关联的账本列表
-  List<RelatedAccountBook> _relatedBooks = [];
+  List<FundBookVO> _relatedBooks = [];
 
   /// 是否正在保存
   bool _saving = false;
@@ -88,39 +89,18 @@ class _FundFormPageState extends State<FundFormPage> {
     try {
       final userId = AppConfigManager.instance.userId!;
       final result = widget.fund == null
-          ? await ServiceManager.accountFundService.createFund(
-              AccountFund(
-                id: '',
-                name: _nameController.text,
-                fundType: _fundType.code,
-                fundBalance: double.parse(_balanceController.text),
-                fundRemark: _remarkController.text.isEmpty
-                    ? null
-                    : _remarkController.text,
-                createdBy: userId,
-                createdAt: DateUtil.now(),
-                updatedBy: userId,
-                updatedAt: DateUtil.now(),
-                isDefault: false,
-              ),
-              _relatedBooks,
-              userId)
-          : await ServiceManager.accountFundService.updateFund(
-              AccountFund(
-                createdBy: widget.fund!.createdBy,
-                updatedBy: userId,
-                id: widget.fund!.id,
-                createdAt: widget.fund!.createdAt,
-                updatedAt: DateUtil.now(),
-                name: _nameController.text,
-                fundType: _fundType.code,
-                fundBalance: double.parse(_balanceController.text),
-                isDefault: false,
-              ),
-              _relatedBooks,
-              userId,
-            );
-
+          ? await DriverFactory.driver.createFund(userId,
+              name: _nameController.text,
+              fundType: _fundType,
+              fundBalance: double.parse(_balanceController.text),
+              fundRemark: _remarkController.text,
+              relatedBooks: _relatedBooks)
+          : await DriverFactory.driver.updateFund(userId, widget.fund!.id,
+              name: _nameController.text,
+              fundType: _fundType,
+              fundBalance: double.parse(_balanceController.text),
+              fundRemark: _remarkController.text,
+              relatedBooks: _relatedBooks);
       if (result.ok && mounted) {
         Navigator.of(context).pop(true);
       } else {

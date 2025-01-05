@@ -39,6 +39,7 @@ class CommonTextFormField extends StatefulWidget {
   /// 是否必填
   final bool required;
 
+  /// 文本控制器
   final TextEditingController? controller;
 
   const CommonTextFormField({
@@ -65,9 +66,35 @@ class CommonTextFormField extends StatefulWidget {
 class _CommonTextFormFieldState extends State<CommonTextFormField> {
   final _formKey = GlobalKey<FormFieldState>();
   final _focusNode = FocusNode();
+  late TextEditingController _internalController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 如果外部提供了controller就使用外部的，否则创建内部的
+    _internalController = widget.controller ?? TextEditingController();
+    // 如果没有外部controller但有initialValue，设置initialValue
+    if (widget.controller == null && widget.initialValue != null) {
+      _internalController.text = widget.initialValue!;
+    }
+  }
+
+  @override
+  void didUpdateWidget(CommonTextFormField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 如果initialValue改变且没有外部controller，更新文本
+    if (widget.controller == null &&
+        widget.initialValue != oldWidget.initialValue) {
+      _internalController.text = widget.initialValue ?? '';
+    }
+  }
 
   @override
   void dispose() {
+    // 只有在使用内部controller时才dispose
+    if (widget.controller == null) {
+      _internalController.dispose();
+    }
     _focusNode.dispose();
     super.dispose();
   }
@@ -97,7 +124,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
         child: TextFormField(
           key: _formKey,
           focusNode: _focusNode,
-          controller: widget.controller,
+          controller: _internalController,
           enabled: widget.enabled,
           decoration: InputDecoration(
             labelText:
@@ -121,8 +148,9 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
               borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
             disabledBorder: UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withOpacity(0.5),
+              ),
             ),
           ),
           style: theme.textTheme.bodyLarge,

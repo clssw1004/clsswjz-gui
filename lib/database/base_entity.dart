@@ -48,6 +48,3 @@ class BaseEntity extends DateEntity {
         updatedBy = userId,
         super.now();
 }
-
-Value<T> nullIfAbsent<T>(T? value) =>
-    value == null ? const Value.absent() : Value(value);

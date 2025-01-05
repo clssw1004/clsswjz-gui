@@ -187,7 +187,7 @@ class AccountItemFormProvider extends ChangeNotifier {
     var result;
     if (isNew) {
       // 保存账目信息
-      result = await DriverFactory.bookDataDriver.createBookItem(
+      result = await DriverFactory.driver.createBookItem(
         userId,
         _item.accountBookId,
         type: _item.type,
@@ -202,7 +202,7 @@ class AccountItemFormProvider extends ChangeNotifier {
       );
       _item = _item.copyWith(id: result.data!);
     } else {
-      result = await DriverFactory.bookDataDriver.updateBookItem(
+      result = await DriverFactory.driver.updateBookItem(
         userId,
         _item.accountBookId,
         _item.id,

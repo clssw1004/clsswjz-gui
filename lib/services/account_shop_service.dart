@@ -27,17 +27,4 @@ class AccountShopService extends BaseService {
       );
     }
   }
-
-  /// 删除商家
-  Future<OperateResult<void>> deleteShop(String id) async {
-    try {
-      await _accountShopDao.delete(id);
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '删除商家失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
 }

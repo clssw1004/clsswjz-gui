@@ -26,10 +26,10 @@ class AccountBookTable extends BaseBusinessTable {
     return AccountBookTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
-      name: nullIfAbsent(name),
-      description: nullIfAbsent(description),
-      icon: nullIfAbsent(icon),
-      currencySymbol: nullIfAbsent(currencySymbol),
+      name: Value.absentIfNull(name),
+      description: Value.absentIfNull(description),
+      icon: Value.absentIfNull(icon),
+      currencySymbol: Value.absentIfNull(currencySymbol),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
     );

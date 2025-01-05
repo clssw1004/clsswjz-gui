@@ -3,13 +3,11 @@ import '../database/dao/account_category_dao.dart';
 import '../database/database.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
-import '../utils/date_util.dart';
 import 'base_service.dart';
 
 /// 账目分类服务
 class AccountCategoryService extends BaseService {
   final AccountCategoryDao _accountCategoryDao;
-
   AccountCategoryService()
       : _accountCategoryDao = AccountCategoryDao(DatabaseManager.db);
 
@@ -40,17 +38,6 @@ class AccountCategoryService extends BaseService {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取账本分类失败: ${e.toString()}', exception: e as Exception);
-    }
-  }
-
-  /// 删除分类
-  Future<OperateResult<void>> deleteCategory(String id) async {
-    try {
-      await _accountCategoryDao.delete(id);
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '删除分类失败: ${e.toString()}', exception: e as Exception);
     }
   }
 

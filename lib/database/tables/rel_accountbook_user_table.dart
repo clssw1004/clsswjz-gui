@@ -35,12 +35,12 @@ class RelAccountbookUserTable extends BaseTable {
   }) {
     return RelAccountbookUserTableCompanion(
       updatedAt: Value(DateUtil.now()),
-      canViewBook: nullIfAbsent(canViewBook),
-      canEditBook: nullIfAbsent(canEditBook),
-      canDeleteBook: nullIfAbsent(canDeleteBook),
-      canViewItem: nullIfAbsent(canViewItem),
-      canEditItem: nullIfAbsent(canEditItem),
-      canDeleteItem: nullIfAbsent(canDeleteItem),
+      canViewBook: Value.absentIfNull(canViewBook),
+      canEditBook: Value.absentIfNull(canEditBook),
+      canDeleteBook: Value.absentIfNull(canDeleteBook),
+      canViewItem: Value.absentIfNull(canViewItem),
+      canEditItem: Value.absentIfNull(canEditItem),
+      canDeleteItem: Value.absentIfNull(canDeleteItem),
     );
   }
 

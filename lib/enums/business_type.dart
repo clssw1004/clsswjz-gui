@@ -9,6 +9,9 @@ enum BusinessType {
   /// 账本成员
   bookMember('bookMember'),
 
+  /// 账本成员
+  funBook('fundBook'),
+
   /// 账户
   fund('fund'),
 

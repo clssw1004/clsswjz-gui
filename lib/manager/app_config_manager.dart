@@ -275,7 +275,7 @@ class AppConfigManager {
         .createDefaultFund(AppLocalizations.of(context)!.cash, userId);
 
     /// 创建账本
-    final bookId = await DriverFactory.bookDataDriver
+    final bookId = await DriverFactory.driver
         .createBook(userId, name: bookName)
         .then((value) => value.data);
     await ServiceManager.accountBookService.initBookDefaultData(
