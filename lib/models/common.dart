@@ -10,6 +10,11 @@ class OperateResult<T> {
     return OperateResult(ok: true, data: data, message: 'ok', exception: null);
   }
 
+  static OperateResult<T> successIfNotNull<T>(T? data) {
+    return OperateResult(
+        ok: data != null, data: data, message: 'ok', exception: null);
+  }
+
   static OperateResult<T> failed<T>() {
     return OperateResult(
         ok: false, data: null, message: 'failed', exception: null);
@@ -29,5 +34,12 @@ class OperateResult<T> {
       print(exception.toString());
     }
     return OperateResult(ok: false, message: message, exception: exception);
+  }
+
+  static T? getIfOk<T>(OperateResult<T> result) {
+    if (result.ok) {
+      return result.data;
+    }
+    return null;
   }
 }

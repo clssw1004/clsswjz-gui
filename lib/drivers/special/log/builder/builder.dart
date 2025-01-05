@@ -43,7 +43,7 @@ abstract class LogBuilder<T, RunResult> {
   T? _data;
   T? get data => _data;
   LogBuilder()
-      : _id = IdUtils.genId(),
+      : _id = IdUtil.genId(),
         _operatedAt = DateUtil.now();
 
   LogBuilder doWith(BusinessType businessType) {
@@ -131,7 +131,7 @@ abstract class LogBuilder<T, RunResult> {
       }) copyWith,
       String operatorId) {
     final now = DateUtil.now();
-    final id = IdUtils.genId();
+    final id = IdUtil.genId();
     return copyWith(
       id: Value(id),
       createdAt: Value(now),
@@ -173,6 +173,10 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.accountFundDao.delete(businessId!);
       case BusinessType.shop:
         return DaoManager.accountShopDao.delete(businessId!);
+      case BusinessType.bookMember:
+        return DaoManager.relAccountbookUserDao.delete(businessId!);
+      case BusinessType.funBook:
+        return DaoManager.relAccountbookFundDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
@@ -195,7 +199,7 @@ class DeleteLog extends LogBuilder<String, void> {
         .subject(subjectId) as DeleteLog;
   }
 
-  static DeleteLog buildFund(
+  static DeleteLog build(
       String who, BusinessType businessType, String subjectId) {
     return DeleteLog()
         .who(who)

@@ -27,12 +27,12 @@ class CreateFundRelationLog
   }
 
   static CreateFundRelationLog build(
-    String who, {
-    required String accountBookId,
-    required String fundId,
-    bool fundIn = true,
-    bool fundOut = true,
-    bool isDefault = false,
+    String who,
+    String accountBookId,
+    String fundId, {
+    bool? fundIn,
+    bool? fundOut,
+    bool? isDefault,
   }) {
     return CreateFundRelationLog()
         .who(who)
@@ -40,8 +40,8 @@ class CreateFundRelationLog
         .withData(RelAccountbookFundTable.toCreateCompanion(
           accountBookId: accountBookId,
           fundId: fundId,
-          fundIn: fundIn,
-          fundOut: fundOut,
+          fundIn: fundIn ?? true,
+          fundOut: fundOut ?? true,
         )) as CreateFundRelationLog;
   }
 }
@@ -63,16 +63,15 @@ class UpdateFundRelationLog
 
   static UpdateFundRelationLog build(
     String who,
-    String bookId,
-    String fundId, {
+    String relationId, {
     bool? fundIn,
     bool? fundOut,
     bool? isDefault,
   }) {
     return UpdateFundRelationLog()
         .who(who)
-        .inBook(bookId)
-        .subject(fundId)
+        .withOutBook()
+        .subject(relationId)
         .withData(RelAccountbookFundTable.toUpdateCompanion(
           fundIn: fundIn,
           fundOut: fundOut,

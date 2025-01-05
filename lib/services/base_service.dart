@@ -9,7 +9,7 @@ abstract class BaseService {
 
   /// 生成UUID
   String generateUuid() {
-    return IdUtils.genId();
+    return IdUtil.genId();
   }
 
   Value<T> absentIfNull<T>(T? value) {

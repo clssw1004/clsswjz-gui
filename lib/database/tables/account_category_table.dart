@@ -39,9 +39,9 @@ class AccountCategoryTable extends BaseBusinessTable {
     required String categoryType,
   }) =>
       AccountCategoryTableCompanion(
-        id: Value(IdUtils.genId()),
+        id: Value(IdUtil.genId()),
         name: Value(name),
-        code: Value(IdUtils.genNanoId8()),
+        code: Value(IdUtil.genNanoId8()),
         accountBookId: Value(accountBookId),
         categoryType: Value(categoryType),
         createdBy: Value(who),

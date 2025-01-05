@@ -25,9 +25,8 @@ class CreateMemberLog
     return RelAccountbookUserTable.toJsonString(data!);
   }
 
-    static CreateMemberLog builder(String who,
-      {required String accountBookId,
-      required String userId,
+  static CreateMemberLog build(String who, String accountBookId,
+      {required String userId,
       bool canViewBook = true,
       bool canEditBook = false,
       bool canDeleteBook = false,
@@ -59,5 +58,22 @@ class UpdateMemberLog
       updatedAt: Value(DateUtil.now()),
     );
     await DaoManager.relAccountbookUserDao.update(accountBookId!, newData);
+  }
+
+  static UpdateMemberLog build(String who, String accountBookId,
+      {bool? canViewBook,
+      bool? canEditBook,
+      bool? canDeleteBook,
+      bool? canViewItem,
+      bool? canEditItem,
+      bool? canDeleteItem}) {
+    return UpdateMemberLog().who(who).inBook(accountBookId).withData(
+        RelAccountbookUserTable.toUpdateCompanion(
+            canViewBook: canViewBook,
+            canEditBook: canEditBook,
+            canDeleteBook: canDeleteBook,
+            canViewItem: canViewItem,
+            canEditItem: canEditItem,
+            canDeleteItem: canDeleteItem)) as UpdateMemberLog;
   }
 }

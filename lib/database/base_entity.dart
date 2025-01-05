@@ -1,6 +1,5 @@
 import 'package:clsswjz/utils/date_util.dart';
 import 'package:clsswjz/utils/id_util.dart';
-import 'package:drift/drift.dart';
 
 class StringIdEntity {
   final String id;
@@ -9,7 +8,7 @@ class StringIdEntity {
     required this.id,
   });
 
-  StringIdEntity.gen() : id = IdUtils.genId();
+  StringIdEntity.gen() : id = IdUtil.genId();
 }
 
 class DateEntity extends StringIdEntity {

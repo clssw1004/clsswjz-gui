@@ -12,6 +12,7 @@ import '../models/common.dart';
 import '../models/vo/account_book_permission_vo.dart';
 import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_book_vo.dart';
+import '../utils/id_util.dart';
 import 'base_service.dart';
 import '../utils/date_util.dart';
 
@@ -180,17 +181,49 @@ class AccountBookService extends BaseService {
   }
 
   /// 获取账本信息
-  Future<OperateResult<AccountBook>> getAccountBook(String id) async {
-    try {
-      final book = await _accountBookDao.findById(id);
-      if (book == null) {
-        return OperateResult.failWithMessage(message: '账本不存在');
-      }
-      return OperateResult.success(book);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取账本信息失败：$e', exception: e as Exception);
+  Future<UserBookVO?> getAccountBook(String userId, String bookId) async {
+    // 1. 从关联表中查询用户的账本权限
+    final userBooks = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.accountBookId.equals(bookId)))
+        .get();
+
+    if (userBooks.isEmpty) {
+      return null;
     }
+
+    final book = await _accountBookDao.findById(bookId);
+    if (book == null) {
+      return null;
+    }
+
+    final userIds = userBooks.map((e) => e.userId).toList();
+
+    final userMap = CollectionUtil.toMap(
+      await _userDao.findByIds(userIds.toList()),
+      (e) => e.id,
+    );
+
+    final userBook = userBooks.firstWhere(
+      (ub) => ub.userId == book.createdBy,
+    );
+
+    final members = userBooks
+        .where((m) => m.accountBookId == book.id && m.userId != book.createdBy)
+        .map((m) => BookMemberVO(
+              id: m.id,
+              userId: m.userId,
+              nickname: userMap[m.userId]?.nickname,
+              permission: AccountBookPermissionVO.fromRelAccountbookUser(m),
+            ))
+        .toList();
+
+    return UserBookVO.fromAccountBook(
+      accountBook: book,
+      permission: AccountBookPermissionVO.fromRelAccountbookUser(userBook),
+      updatedByName: userMap[book.updatedBy]?.nickname,
+      createdByName: userMap[book.createdBy]?.nickname,
+      members: members,
+    );
   }
 
   /// 获取用户有权限的账本列表
@@ -230,6 +263,7 @@ class AccountBookService extends BaseService {
     }
 
     return OperateResult.success(BookMemberVO(
+      id: IdUtil.genId(),
       userId: user.id,
       nickname: user.nickname,
       permission: AccountBookPermissionVO(
@@ -308,7 +342,7 @@ class AccountBookService extends BaseService {
     };
 
     // 6. 查询所有用户信息
-    final userMap = CollectionUtils.toMap(
+    final userMap = CollectionUtil.toMap(
       await _userDao.findByIds(userIds.toList()),
       (e) => e.id,
     );
@@ -325,6 +359,7 @@ class AccountBookService extends BaseService {
           .where(
               (m) => m.accountBookId == book.id && m.userId != book.createdBy)
           .map((m) => BookMemberVO(
+                id: m.id,
                 userId: m.userId,
                 nickname: userMap[m.userId]?.nickname,
                 permission: AccountBookPermissionVO.fromRelAccountbookUser(m),

@@ -43,7 +43,7 @@ class CreateFundLog
     required FundType fundType,
     String? fundRemark,
     double? fundBalance,
-    bool? isDefault,
+    bool isDefault = false,
   }) {
     return CreateFundLog()
       ..who(who)

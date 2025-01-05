@@ -1,7 +1,7 @@
 import 'package:nanoid/nanoid.dart';
 import 'package:uuid/uuid.dart';
 
-class IdUtils {
+class IdUtil {
   static const _alphabet =
       '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   static const uuid = Uuid();

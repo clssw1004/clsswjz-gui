@@ -1,6 +1,7 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
+import 'package:clsswjz/models/common.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
@@ -184,7 +185,7 @@ class AccountItemFormProvider extends ChangeNotifier {
 
     // try {
     final userId = AppConfigManager.instance.userId!;
-    var result;
+    OperateResult result;
     if (isNew) {
       // 保存账目信息
       result = await DriverFactory.driver.createBookItem(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import '../constants/constant.dart';
 import '../constants/business_code.dart';
 import '../constants/symbol_type.dart';
 import '../database/database.dart';

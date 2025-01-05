@@ -106,6 +106,12 @@ abstract class BookDataDriver {
       String userId, String bookId, String symbolId);
 
   /// 账本资金相关
+  Future<OperateResult<List<UserFundVO>>> listFundsByUser(String userId);
+
+  /// 获取账本资金
+  Future<OperateResult<UserFundVO>> listFundsByBook(
+      String userId, String bookId);
+
   /// 获取账本资金
   Future<OperateResult<UserFundVO>> getFund(
       String userId, String bookId, String fundId);
@@ -117,6 +123,7 @@ abstract class BookDataDriver {
     required FundType fundType,
     String? fundRemark,
     double? fundBalance,
+    bool isDefault = false,
     List<FundBookVO>? relatedBooks = const [],
   });
 

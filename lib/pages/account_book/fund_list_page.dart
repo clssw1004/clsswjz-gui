@@ -1,9 +1,9 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
-import '../../manager/service_manager.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../utils/color_util.dart';
 import '../../widgets/common/common_data_list_page.dart';
@@ -24,28 +24,15 @@ class FundListPage extends StatelessWidget {
       config: CommonDataListPageConfig(
         title: l10n.tabFunds,
         onLoad: () async {
-          final result = await ServiceManager.accountFundService
-              .getFundsByUser(AppConfigManager.instance.userId!);
+          final result = await DriverFactory.driver
+              .listFundsByUser(AppConfigManager.instance.userId!);
           return result.ok ? result.data! : [];
         },
         itemBuilder: (context, item) {
           final type = item.fundType;
 
           return ListTile(
-            leading: Icon(
-              switch (type) {
-                FundType.cash => Icons.payments_outlined,
-                FundType.debitCard => Icons.credit_card_outlined,
-                FundType.creditCard => Icons.credit_score_outlined,
-                FundType.prepaidCard => Icons.card_giftcard_outlined,
-                FundType.alipay => Icons.account_balance_wallet_outlined,
-                FundType.wechat => Icons.chat_outlined,
-                FundType.debt => Icons.money_off_outlined,
-                FundType.investment => Icons.trending_up_outlined,
-                FundType.eWallet => Icons.account_balance_wallet_outlined,
-                FundType.other => Icons.account_balance_outlined,
-              },
-            ),
+            leading: Icon(type.icon),
             title: Text(
               item.name,
               style: theme.textTheme.titleMedium?.copyWith(

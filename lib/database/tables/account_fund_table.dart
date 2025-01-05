@@ -48,10 +48,10 @@ class AccountFundTable extends BaseBusinessTable {
     required FundType fundType,
     String? fundRemark,
     double? fundBalance,
-    bool? isDefault,
+    bool isDefault = false,
   }) =>
       AccountFundTableCompanion(
-        id: Value(IdUtils.genId()),
+        id: Value(IdUtil.genId()),
         name: Value(name),
         fundType: Value(fundType.code),
         fundRemark: Value.absentIfNull(fundRemark),

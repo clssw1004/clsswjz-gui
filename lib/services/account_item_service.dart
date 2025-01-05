@@ -1,4 +1,3 @@
-import 'package:clsswjz/constants/constant.dart';
 import '../constants/symbol_type.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
@@ -266,27 +265,27 @@ class AccountItemService extends BaseService {
     }.toList();
 
     // 3. 批量查询关联数据
-    final categories = CollectionUtils.toMap(
+    final categories = CollectionUtil.toMap(
         await _accountCategoryDao.findByCodes(categoryCodes), (c) => c.code);
 
-    final funds = CollectionUtils.toMap(
+    final funds = CollectionUtil.toMap(
         await _accountFundDao.findByIds(fundIds), (f) => f.id);
 
-    final shops = CollectionUtils.toMap(
+    final shops = CollectionUtil.toMap(
         await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
-    final symbolMap = CollectionUtils.groupBy(
+    final symbolMap = CollectionUtil.groupBy(
         await _accountSymbolDao
             .findByTypes([SymbolType.tag.name, SymbolType.project.name]),
         (s) => s.symbolType);
 
-    final tags = CollectionUtils.toMap(
+    final tags = CollectionUtil.toMap(
         symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
-    final projects = CollectionUtils.toMap(
+    final projects = CollectionUtil.toMap(
         symbolMap[SymbolType.project.name] ?? [], (s) => s.code);
 
     final users =
-        CollectionUtils.toMap(await _userDao.findByIds(userIds), (u) => u.id);
+        CollectionUtil.toMap(await _userDao.findByIds(userIds), (u) => u.id);
 
     // 4. 组装VO对象
     return items.map((item) {

@@ -5,6 +5,9 @@ import 'account_book_permission_vo.dart';
 
 /// 账本成员视图对象
 class BookMemberVO {
+  /// 成员ID
+  final String id;
+
   /// 用户ID
   final String userId;
 
@@ -15,6 +18,7 @@ class BookMemberVO {
   final AccountBookPermissionVO permission;
 
   const BookMemberVO({
+    required this.id,
     required this.userId,
     required this.nickname,
     required this.permission,

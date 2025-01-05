@@ -340,6 +340,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
     setState(() {
       _members[index] = BookMemberVO(
+        id: member.id,
         userId: member.userId,
         nickname: member.nickname,
         permission: newPermission,

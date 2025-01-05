@@ -85,6 +85,8 @@ class UserFundVO {
 
 /// 关联的账本信息
 class FundBookVO {
+  final String id;
+
   /// 账本ID
   final String accountBookId;
 
@@ -113,6 +115,7 @@ class FundBookVO {
   final bool isDefault;
 
   const FundBookVO({
+    required this.id,
     required this.accountBookId,
     required this.name,
     required this.description,
@@ -137,6 +140,7 @@ class FundBookVO {
     bool? isDefault,
   }) {
     return FundBookVO(
+      id: id,
       accountBookId: accountBookId ?? this.accountBookId,
       name: name ?? this.name,
       description: description ?? this.description,

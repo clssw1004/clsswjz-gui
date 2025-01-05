@@ -37,7 +37,7 @@ class RelAccountbookFundTable extends BaseTable {
     bool fundOut = true,
   }) =>
       RelAccountbookFundTableCompanion(
-        id: Value(IdUtils.genId()),
+        id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
         fundId: Value(fundId),
         fundIn: Value(fundIn),

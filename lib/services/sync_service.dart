@@ -1,6 +1,5 @@
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:drift/drift.dart';
-import '../database/tables/account_book_table.dart';
 import '../models/common.dart';
 import '../models/sync.dart';
 import '../utils/http_client.dart';

@@ -2,6 +2,7 @@ import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
+import '../enums/fund_type.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -252,7 +253,7 @@ class AppConfigManager {
       String? phone,
       required String bookName,
       required String bookIcon}) async {
-    final userId = IdUtils.genId();
+    final userId = IdUtil.genId();
     await _instance.setStorageType(StorageMode.offline);
     await _instance.setUserId(userId);
     await _instance._setDatabaseName(userId);
@@ -271,8 +272,8 @@ class AppConfigManager {
         .then((value) => value.data);
 
     /// 创建默认资金账户
-    await ServiceManager.accountFundService
-        .createDefaultFund(AppLocalizations.of(context)!.cash, userId);
+    await DriverFactory.driver.createFund(userId,
+        name: AppLocalizations.of(context)!.cash, fundType: FundType.cash);
 
     /// 创建账本
     final bookId = await DriverFactory.driver

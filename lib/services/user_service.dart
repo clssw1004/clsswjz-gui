@@ -157,11 +157,11 @@ class UserService extends BaseService {
 
   /// 生成邀请码
   String generateInviteCode() {
-    return IdUtils.genNanoId6();
+    return IdUtil.genNanoId6();
   }
 
   /// 生成昵称
   String generateNickname() {
-    return 'clsswjz_${IdUtils.genNanoId8()}';
+    return 'clsswjz_${IdUtil.genNanoId8()}';
   }
 }

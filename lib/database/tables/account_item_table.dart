@@ -65,7 +65,7 @@ class AccountItemTable extends BaseBusinessTable {
     String? projectCode,
   }) =>
       AccountItemTableCompanion(
-        id: Value(IdUtils.genId()),
+        id: Value(IdUtil.genId()),
         amount: Value(amount),
         description: Value.absentIfNull(description),
         type: Value(type),

@@ -1,6 +1,6 @@
+import 'package:clsswjz/utils/id_util.dart';
 import 'package:drift/drift.dart';
 import '../database/database.dart';
-import '../enums/fund_type.dart';
 import '../models/common.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../utils/collection_util.dart';
@@ -33,27 +33,6 @@ class AccountFundService extends BaseService {
     }
   }
 
-  /// 删除资金账户
-  Future<OperateResult<void>> deleteFund(String id) async {
-    try {
-      await db.transaction(() async {
-        // 删除资金账户与账本的关联
-        await (db.delete(db.relAccountbookFundTable)
-              ..where((t) => t.fundId.equals(id)))
-            .go();
-        // 删除资金账户
-        await (db.delete(db.accountFundTable)..where((t) => t.id.equals(id)))
-            .go();
-      });
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '删除资金账户失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 更新资金账户余额
   Future<OperateResult<void>> updateFundBalance(
       String id, double balanceChange) async {
@@ -79,36 +58,22 @@ class AccountFundService extends BaseService {
   }
 
   /// 获取用户的所有资金账户
-  Future<OperateResult<List<UserFundVO>>> getFundsByUser(String userId) async {
-    try {
-      final funds = await (db.select(db.accountFundTable)
-            ..where((t) => t.createdBy.equals(userId))
-            ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
-          .get();
+  Future<List<UserFundVO>> getFundsByUser(String userId) async {
+    final funds = await (db.select(db.accountFundTable)
+          ..where((t) => t.createdBy.equals(userId))
+          ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
+        .get();
 
-      return toUserFundVO(funds);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '获取用户资金账户失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
+    return await toUserFundVO(funds);
   }
 
   /// 获取资金账户
-  Future<OperateResult<UserFundVO>> getFund(String fundId) async {
-    try {
-      final funds = await (db.select(db.accountFundTable)
-            ..where((t) => t.id.equals(fundId)))
-          .getSingle();
-      final result = await toUserFundVO([funds]);
-      return OperateResult.success(result.data!.first);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '获取用户资金账户失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
+  Future<UserFundVO> getFund(String fundId) async {
+    final funds = await (db.select(db.accountFundTable)
+          ..where((t) => t.id.equals(fundId)))
+        .getSingle();
+    final result = await toUserFundVO([funds]);
+    return result.first;
   }
 
   /// 获取资金账户关联的账本
@@ -116,10 +81,11 @@ class AccountFundService extends BaseService {
     final books = await db.select(db.accountBookTable).get();
 
     final users = await db.select(db.userTable).get();
-    final userMap = CollectionUtils.toMap(users, (e) => e.id);
+    final userMap = CollectionUtil.toMap(users, (e) => e.id);
     // 生成默认的RelatedAccountBook 对象
     return OperateResult.success(books
         .map((e) => FundBookVO(
+              id: IdUtil.genId(),
               accountBookId: e.id,
               name: e.name,
               description: e.description,
@@ -134,10 +100,9 @@ class AccountFundService extends BaseService {
   }
 
   /// 将资金账户转换为视图对象
-  Future<OperateResult<List<UserFundVO>>> toUserFundVO(
-      List<AccountFund> funds) async {
+  Future<List<UserFundVO>> toUserFundVO(List<AccountFund> funds) async {
     final List<UserFundVO> result = [];
-    final fundMap = CollectionUtils.toMap(funds, (e) => e.id);
+    final fundMap = CollectionUtil.toMap(funds, (e) => e.id);
     // 查询出所有账本
     final books = await db.select(db.accountBookTable).get();
     // 查询出所有fundIds关联的记录
@@ -146,26 +111,28 @@ class AccountFundService extends BaseService {
         .get();
 
     final users = await db.select(db.userTable).get();
-    final userMap = CollectionUtils.toMap(users, (e) => e.id);
+    final userMap = CollectionUtil.toMap(users, (e) => e.id);
 
     // 查询出所有关联记录中包含该资金账户的记录
-    final relGroupMap = CollectionUtils.groupBy(rels, (e) => e.fundId);
+    final relGroupMap = CollectionUtil.groupBy(rels, (e) => e.fundId);
     for (var fund in funds) {
       if (fundMap.containsKey(fund.id)) {
-        final relMap = CollectionUtils.toMap(
+        final relMap = CollectionUtil.toMap(
             relGroupMap[fund.id] ?? [], (e) => e.accountBookId);
-        final relatedBooks = books.map((e) {
+        final relatedBooks =
+            books.where((e) => relMap.containsKey(e.id)).map((e) {
           final rel = relMap[e.id];
           return FundBookVO(
+            id: rel.id,
             accountBookId: e.id,
             name: e.name,
             description: e.description,
             icon: e.icon,
             fromId: e.createdBy,
             fromName: userMap[e.createdBy]?.nickname ?? '',
-            fundIn: rel?.fundIn ?? false,
-            fundOut: rel?.fundOut ?? false,
-            isDefault: rel?.isDefault ?? false,
+            fundIn: rel.fundIn,
+            fundOut: rel.fundOut,
+            isDefault: rel.isDefault,
           );
         }).toList();
 
@@ -176,129 +143,16 @@ class AccountFundService extends BaseService {
       }
     }
 
-    return OperateResult.success(result);
+    return result;
   }
 
-  // /// 更新账户及其关联账户数据
-  // Future<OperateResult<void>> updateFund(
-  //     AccountFund fund, List<FundBookVO> relatedBooks, String userId) async {
-  //   try {
-  //     await db.transaction(() async {
-  //       // 更新资金账户基本信息
-  //       await (db.update(db.accountFundTable)
-  //             ..where((t) => t.id.equals(fund.id)))
-  //           .write(AccountFundTableCompanion(
-  //         name: Value(fund.name),
-  //         fundType: Value(fund.fundType),
-  //         fundRemark: Value(fund.fundRemark),
-  //         fundBalance: Value(fund.fundBalance),
-  //         updatedBy: Value(userId),
-  //         updatedAt: Value(DateUtil.now()),
-  //       ));
-
-  //       // 删除原有关联关系
-  //       await (db.delete(db.relAccountbookFundTable)
-  //             ..where((t) => t.fundId.equals(fund.id)))
-  //           .go();
-
-  //       // 插入新的关联关系
-  //       if (relatedBooks.isNotEmpty) {
-  //         await db.batch((batch) {
-  //           for (final book in relatedBooks) {
-  //             batch.insert(
-  //               db.relAccountbookFundTable,
-  //               RelAccountbookFundTableCompanion.insert(
-  //                 id: generateUuid(),
-  //                 accountBookId: book.accountBookId,
-  //                 fundId: fund.id,
-  //                 fundIn: Value(book.fundIn),
-  //                 fundOut: Value(book.fundOut),
-  //                 isDefault: Value(book.isDefault),
-  //                 createdAt: DateUtil.now(),
-  //                 updatedAt: DateUtil.now(),
-  //               ),
-  //               mode: InsertMode.insertOrReplace,
-  //             );
-  //           }
-  //         });
-  //       }
-  //     });
-  //     return OperateResult.success(null);
-  //   } catch (e) {
-  //     return OperateResult.failWithMessage(
-  //       message: '更新资金账户失败',
-  //       exception: e is Exception ? e : Exception(e.toString()),
-  //     );
-  //   }
-  // }
-
-  // /// 创建资金账户及其关联账本
-  // Future<OperateResult<void>> createFund(
-  //     AccountFund fund, List<FundBookVO> relatedBooks, String userId) async {
-  //   try {
-  //     await db.transaction(() async {
-  //       // 插入资金账户基本信息
-  //       await db.into(db.accountFundTable).insert(
-  //             AccountFundTableCompanion.insert(
-  //               id: fund.id,
-  //               name: fund.name,
-  //               fundType: fund.fundType,
-  //               fundRemark: Value(fund.fundRemark),
-  //               fundBalance: Value(fund.fundBalance),
-  //               createdBy: userId,
-  //               updatedBy: userId,
-  //               createdAt: DateUtil.now(),
-  //               updatedAt: DateUtil.now(),
-  //             ),
-  //           );
-
-  //       // 插入关联关系
-  //       if (relatedBooks.isNotEmpty) {
-  //         await db.batch((batch) {
-  //           for (final book in relatedBooks) {
-  //             batch.insert(
-  //               db.relAccountbookFundTable,
-  //               RelAccountbookFundTableCompanion.insert(
-  //                 id: generateUuid(),
-  //                 accountBookId: book.accountBookId,
-  //                 fundId: fund.id,
-  //                 fundIn: Value(book.fundIn),
-  //                 fundOut: Value(book.fundOut),
-  //                 isDefault: Value(book.isDefault),
-  //                 createdAt: DateUtil.now(),
-  //                 updatedAt: DateUtil.now(),
-  //               ),
-  //               mode: InsertMode.insertOrReplace,
-  //             );
-  //           }
-  //         });
-  //       }
-  //     });
-  //     return OperateResult.success(null);
-  //   } catch (e) {
-  //     return OperateResult.failWithMessage(
-  //       message: '创建资金账户失败',
-  //       exception: e is Exception ? e : Exception(e.toString()),
-  //     );
-  //   }
-  // }
-
-  /// 设置默认资金账户
-  Future<OperateResult<void>> createDefaultFund(
-      String fundName, String userId) async {
-    final fund = AccountFund(
-      id: generateUuid(),
-      name: fundName,
-      fundType: FundType.cash.code,
-      createdBy: userId,
-      updatedBy: userId,
-      fundBalance: 0.00,
-      createdAt: DateUtil.now(),
-      updatedAt: DateUtil.now(),
-      isDefault: true,
-    );
-    db.into(db.accountFundTable).insert(fund);
-    return OperateResult.success(null);
+  /// 获取默认资金账户
+  Future<AccountFund?> getDefaultFund(String userId) async {
+    final fund = await (db.select(db.accountFundTable)
+          ..where((t) => t.createdBy.equals(userId) & t.isDefault.equals(true)))
+        .getSingleOrNull();
+    if (fund == null) {}
+    return fund;
   }
 
   Future<OperateResult<void>> addBookToDefaultFund(
