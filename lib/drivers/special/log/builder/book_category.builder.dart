@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_category_table.dart';
 import '../../../../enums/business_type.dart';
@@ -38,9 +37,7 @@ class CreateBookCategoryLog
   }
 
   static CreateBookCategoryLog build(String who, String bookId,
-      {required String name,
-      required String code,
-      required String categoryType}) {
+      {required String name, required String categoryType}) {
     return CreateBookCategoryLog()
         .who(who)
         .inBook(bookId)
@@ -48,7 +45,6 @@ class CreateBookCategoryLog
           who,
           bookId,
           name: name,
-          code: code,
           categoryType: categoryType,
         )) as CreateBookCategoryLog;
   }

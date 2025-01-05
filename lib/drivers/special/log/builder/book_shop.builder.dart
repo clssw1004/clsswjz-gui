@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_shop_table.dart';
 import '../../../../enums/business_type.dart';
@@ -37,8 +36,7 @@ class CreateBookShopLog
   }
 
   static CreateBookShopLog build(String who, String bookId,
-      {required String name,
-      required String code}) {
+      {required String name, required}) {
     return CreateBookShopLog()
         .who(who)
         .inBook(bookId)
@@ -46,7 +44,6 @@ class CreateBookShopLog
           who,
           bookId,
           name: name,
-          code: code,
         )) as CreateBookShopLog;
   }
 }
@@ -62,8 +59,12 @@ class UpdateBookShopLog
     await DaoManager.accountShopDao.update(businessId!, data!);
   }
 
-  static UpdateBookShopLog build(String userId, String bookId, String shopId,
-      { required String name,}) {
+  static UpdateBookShopLog build(
+    String userId,
+    String bookId,
+    String shopId, {
+    required String name,
+  }) {
     return UpdateBookShopLog()
         .who(userId)
         .inBook(bookId)
@@ -71,7 +72,6 @@ class UpdateBookShopLog
         .withData(AccountShopTable.toUpdateCompanion(
           userId,
           name: name,
-          code: code,
         )) as UpdateBookShopLog;
   }
-} 
+}

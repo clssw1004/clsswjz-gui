@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
-import '../base_entity.dart';
 import '../database.dart';
 import 'base_table.dart';
 
@@ -22,7 +21,7 @@ class AccountItemTable extends BaseBusinessTable {
   TextColumn get projectCode => text().nullable().named('project_code')();
 
   static AccountItemTableCompanion toUpdateCompanion(
-    String who,{
+    String who, {
     double? amount,
     String? description,
     String? type,

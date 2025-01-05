@@ -260,7 +260,7 @@ class AppConfigManager {
     await ServiceManager.init();
 
     /// 注册用户
-    final user = await ServiceManager.userService
+    await ServiceManager.userService
         .register(
             userId: userId,
             username: username,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CalculatorPanel extends StatefulWidget {
   final double? initialValue;
@@ -23,7 +22,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
   String _expression = '';
   bool _hasOperator = false;
   bool _isCalculated = false;
-  bool _canConfirm = false;
 
   @override
   void initState() {
@@ -32,7 +30,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       _displayText = widget.initialValue.toString();
       _expression = widget.initialValue.toString();
       _isCalculated = true;
-      _canConfirm = true;
     }
   }
 
@@ -59,9 +56,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       _expression += number;
       _displayText = _expression;
 
-      if (!_hasOperator) {
-        _canConfirm = true;
-      }
+      if (!_hasOperator) {}
     });
   }
 
@@ -78,7 +73,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
         setState(() {
           _expression = operator;
           _displayText = operator;
-          _canConfirm = false;
         });
       }
       return;
@@ -140,7 +134,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
               _expression = '';
               _hasOperator = false;
               _isCalculated = true;
-              _canConfirm = false;
             });
             return;
           }
@@ -153,7 +146,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
         _displayText = _expression;
         _hasOperator = false;
         _isCalculated = true;
-        _canConfirm = true;
       });
     } catch (e) {
       setState(() {
@@ -161,7 +153,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
         _expression = '';
         _hasOperator = false;
         _isCalculated = true;
-        _canConfirm = false;
       });
     }
   }
@@ -178,10 +169,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       _isCalculated = false;
 
       if (_expression.isNotEmpty && !_hasOperator) {
-        _canConfirm = true;
-      } else {
-        _canConfirm = false;
-      }
+      } else {}
     });
   }
 
@@ -191,7 +179,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       _displayText = '';
       _hasOperator = false;
       _isCalculated = false;
-      _canConfirm = false;
     });
   }
 
@@ -217,7 +204,6 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context);
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(

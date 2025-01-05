@@ -22,13 +22,20 @@ class ServerConfigPage extends StatefulWidget {
 
 class _ServerConfigPageState extends State<ServerConfigPage> {
   final _formKey = GlobalKey<FormState>();
-  String _serverUrl = '';
-  String _username = '';
-  String _password = '';
-  String _nickname = '';
-  String _email = '';
-  String _phone = '';
-  String _bookName = '';
+  late final TextEditingController _serverUrlController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _nicknameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _bookNameController;
+  String _serverUrl = 'http://192.168.2.147:3000';
+  String _username = 'cuiwei';
+  String _password = 'cuiwei';
+  String _nickname = '崔伟';
+  String _email = 'cuiwei@clsswjz.com';
+  String _phone = '13800138000';
+  String _bookName = '崔伟的账本';
   String _bookIcon = Icons.book_outlined.codePoint.toString();
   bool _isLoading = false;
   bool _isChecking = false;
@@ -36,7 +43,26 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   StorageMode _storageMode = StorageMode.offline;
 
   @override
+  void initState() {
+    super.initState();
+    _serverUrlController = TextEditingController(text: _serverUrl);
+    _usernameController = TextEditingController(text: _username);
+    _passwordController = TextEditingController(text: _password);
+    _nicknameController = TextEditingController(text: _nickname);
+    _emailController = TextEditingController(text: _email);
+    _phoneController = TextEditingController(text: _phone);
+    _bookNameController = TextEditingController(text: _bookName);
+  }
+
+  @override
   void dispose() {
+    _serverUrlController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _nicknameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _bookNameController.dispose();
     super.dispose();
   }
 
@@ -69,14 +95,14 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     // try {
-      await AppConfigManager.storageOfflineMode(context,
-          username: _username,
-          nickname: _nickname,
-          email: _email,
-          phone: _phone,
-          bookName: _bookName,
-          bookIcon: _bookIcon);
-      RestartWidget.restartApp(context);
+    await AppConfigManager.storageOfflineMode(context,
+        username: _username,
+        nickname: _nickname,
+        email: _email,
+        phone: _phone,
+        bookName: _bookName,
+        bookIcon: _bookIcon);
+    RestartWidget.restartApp(context);
     // } catch (e) {
     //   print(e);
     //   final l10n = AppLocalizations.of(context)!;
@@ -95,27 +121,27 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     }
 
     setState(() => _isLoading = true);
-    try {
-      final authService = AuthService(_serverUrl);
-      final result = await authService.login(
-        _username,
-        _password,
+    // try {
+    final authService = AuthService(_serverUrl);
+    final result = await authService.login(
+      _username,
+      _password,
+    );
+    if (result.ok && result.data != null) {
+      await AppConfigManager.storgeSelfhostMode(
+        _serverUrl,
+        result.data!.userId,
+        result.data!.accessToken,
       );
-      if (result.ok && result.data != null) {
-        await AppConfigManager.storgeSelfhostMode(
-          _serverUrl,
-          result.data!.userId,
-          result.data!.accessToken,
-        );
-        RestartWidget.restartApp(context);
-      } else {
-        ToastUtil.showError(l10n.loginFailed);
-      }
-    } catch (e) {
-      ToastUtil.showError(l10n.loginError);
-    } finally {
-      setState(() => _isLoading = false);
+      RestartWidget.restartApp(context);
+    } else {
+      ToastUtil.showError(l10n.loginFailed);
     }
+    // } catch (e) {
+    //   ToastUtil.showError(l10n.loginError);
+    // } finally {
+    //   setState(() => _isLoading = false);
+    // }
   }
 
   @override
@@ -151,9 +177,9 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
             SizedBox(height: spacing.formItemSpacing),
             if (_storageMode == StorageMode.selfHost)
               SelfHostForm(
-                serverUrl: _serverUrl,
-                username: _username,
-                password: _password,
+                serverUrlController: _serverUrlController,
+                usernameController: _usernameController,
+                passwordController: _passwordController,
                 isChecking: _isChecking,
                 serverValid: _serverValid,
                 isLoading: _isLoading,
@@ -166,11 +192,11 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
               ),
             if (_storageMode == StorageMode.offline)
               OfflineForm(
-                username: _username,
-                nickname: _nickname,
-                email: _email,
-                phone: _phone,
-                bookName: _bookName,
+                usernameController: _usernameController,
+                nicknameController: _nicknameController,
+                emailController: _emailController,
+                phoneController: _phoneController,
+                bookNameController: _bookNameController,
                 bookIcon: _bookIcon,
                 isLoading: _isLoading,
                 onUsernameChanged: (value) => setState(() => _username = value),

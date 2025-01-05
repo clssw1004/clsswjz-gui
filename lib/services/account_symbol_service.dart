@@ -47,58 +47,6 @@ class AccountSymbolService extends BaseService {
     }
   }
 
-  /// 创建标签
-  Future<OperateResult<String>> createSymbol({
-    required String name,
-    required String code,
-    required String accountBookId,
-    required String symbolType,
-    required String createdBy,
-    required String updatedBy,
-  }) async {
-    try {
-      final id = generateUuid();
-      await _accountSymbolDao.insert(
-        AccountSymbolTableCompanion.insert(
-          id: id,
-          name: name,
-          code: code,
-          accountBookId: accountBookId,
-          symbolType: symbolType,
-          createdBy: createdBy,
-          updatedBy: updatedBy,
-          createdAt: DateUtil.now(),
-          updatedAt: DateUtil.now(),
-        ),
-      );
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '创建标签失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
-  /// 更新标签
-  Future<OperateResult<void>> updateSymbol(AccountSymbol symbol) async {
-    try {
-      await _accountSymbolDao.update(
-          symbol.id,
-          AccountSymbolTableCompanion(
-            name: Value(symbol.name),
-            updatedBy: Value(symbol.updatedBy),
-            updatedAt: Value(DateUtil.now()),
-          ));
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '更新标签失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 删除标签
   Future<OperateResult<void>> deleteSymbol(String id) async {
     try {

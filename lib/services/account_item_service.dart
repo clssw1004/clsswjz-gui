@@ -1,5 +1,5 @@
 import 'package:clsswjz/constants/constant.dart';
-import 'package:drift/drift.dart';
+import '../constants/symbol_type.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
 import '../database/dao/account_item_dao.dart';
@@ -12,7 +12,6 @@ import '../models/common.dart';
 import '../utils/collection_util.dart';
 import 'base_service.dart';
 import '../models/vo/account_item_vo.dart';
-import '../utils/date_util.dart';
 
 class AccountItemService extends BaseService {
   final AccountItemDao _accountItemDao;
@@ -308,13 +307,13 @@ class AccountItemService extends BaseService {
 
     final symbolMap = CollectionUtils.groupBy(
         await _accountSymbolDao
-            .findByTypes([SYMBOL_TYPE_TAG, SYMBOL_TYPE_PROJECT]),
+            .findByTypes([SymbolType.tag.name, SymbolType.project.name]),
         (s) => s.symbolType);
 
-    final tags =
-        CollectionUtils.toMap(symbolMap[SYMBOL_TYPE_TAG] ?? [], (s) => s.code);
+    final tags = CollectionUtils.toMap(
+        symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
     final projects = CollectionUtils.toMap(
-        symbolMap[SYMBOL_TYPE_PROJECT] ?? [], (s) => s.code);
+        symbolMap[SymbolType.project.name] ?? [], (s) => s.code);
 
     final users =
         CollectionUtils.toMap(await _userDao.findByIds(userIds), (u) => u.id);

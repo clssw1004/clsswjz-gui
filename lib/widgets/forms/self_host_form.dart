@@ -4,31 +4,31 @@ import '../common/common_text_form_field.dart';
 import '../../theme/theme_spacing.dart';
 
 class SelfHostForm extends StatelessWidget {
-  final String serverUrl;
-  final String username;
-  final String password;
+  final TextEditingController serverUrlController;
+  final TextEditingController usernameController;
+  final TextEditingController passwordController;
   final bool isChecking;
   final bool serverValid;
   final bool isLoading;
-  final ValueChanged<String> onServerUrlChanged;
-  final ValueChanged<String> onUsernameChanged;
-  final ValueChanged<String> onPasswordChanged;
-  final VoidCallback onCheckServer;
-  final VoidCallback onSubmit;
+  final ValueChanged<String>? onServerUrlChanged;
+  final ValueChanged<String>? onUsernameChanged;
+  final ValueChanged<String>? onPasswordChanged;
+  final VoidCallback? onCheckServer;
+  final VoidCallback? onSubmit;
 
   const SelfHostForm({
     super.key,
-    required this.serverUrl,
-    required this.username,
-    required this.password,
-    required this.isChecking,
-    required this.serverValid,
-    required this.isLoading,
-    required this.onServerUrlChanged,
-    required this.onUsernameChanged,
-    required this.onPasswordChanged,
-    required this.onCheckServer,
-    required this.onSubmit,
+    required this.serverUrlController,
+    required this.usernameController,
+    required this.passwordController,
+    this.isChecking = false,
+    this.serverValid = false,
+    this.isLoading = false,
+    this.onServerUrlChanged,
+    this.onUsernameChanged,
+    this.onPasswordChanged,
+    this.onCheckServer,
+    this.onSubmit,
   });
 
   @override
@@ -39,6 +39,7 @@ class SelfHostForm extends StatelessWidget {
     return Column(
       children: [
         CommonTextFormField(
+          controller: serverUrlController,
           labelText: l10n.serverAddress,
           hintText: 'http://example.com',
           prefixIcon: Icons.computer,
@@ -74,6 +75,7 @@ class SelfHostForm extends StatelessWidget {
         ),
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
+          controller: usernameController,
           labelText: l10n.username,
           prefixIcon: Icons.person,
           required: true,
@@ -87,6 +89,7 @@ class SelfHostForm extends StatelessWidget {
         ),
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
+          controller: passwordController,
           labelText: l10n.password,
           prefixIcon: Icons.lock,
           obscureText: true,

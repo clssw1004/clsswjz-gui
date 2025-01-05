@@ -28,53 +28,6 @@ class AccountShopService extends BaseService {
     }
   }
 
-  /// 创建商家
-  Future<OperateResult<String>> createShop({
-    required String name,
-    required String code,
-    required String accountBookId,
-    required String createdBy,
-  }) async {
-    try {
-      final id = generateUuid();
-      await db.into(db.accountShopTable).insert(
-            AccountShopTableCompanion.insert(
-              id: id,
-              name: name,
-              code: code,
-              accountBookId: accountBookId,
-              createdBy: createdBy,
-              updatedBy: createdBy,
-              createdAt: DateUtil.now(),
-              updatedAt: DateUtil.now(),
-            ),
-          );
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '创建商家失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
-  /// 更新商家
-  Future<OperateResult<void>> updateShop(AccountShop shop) async {
-    try {
-      await _accountShopDao.update(
-          shop.id,
-          AccountShopTableCompanion(
-            name: Value(shop.name),
-          ));
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '更新商家失败',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 删除商家
   Future<OperateResult<void>> deleteShop(String id) async {
     try {

@@ -36,7 +36,6 @@ class AccountCategoryTable extends BaseBusinessTable {
     String who,
     String accountBookId, {
     required String name,
-    required String code,
     required String categoryType,
   }) =>
       AccountCategoryTableCompanion(

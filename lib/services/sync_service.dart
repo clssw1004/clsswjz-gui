@@ -13,16 +13,11 @@ class SyncService extends BaseService {
   SyncService({required HttpClient httpClient}) : _httpClient = httpClient;
 
   Future<OperateResult<int>> syncInit() async {
-    try {
-      final result = await _getInitialData();
-      if (result.ok && result.data != null) {
-        await _applyServerChanges(result.data!.data);
-      }
-      return OperateResult.success(result.data!.lasySyncTime);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '初始化同步数据失败', exception: e as Exception);
+    final result = await _getInitialData();
+    if (result.ok && result.data != null) {
+      await _applyServerChanges(result.data!.data);
     }
+    return OperateResult.success(result.data!.lasySyncTime);
   }
 
   /// 批量同步数据
@@ -56,25 +51,18 @@ class SyncService extends BaseService {
 
   /// 获取初始数据
   Future<OperateResult<SyncInitResponse>> _getInitialData() async {
-    try {
-      final response = await _httpClient.get<SyncInitResponse>(
-        path: '/api/sync/initial',
-        transform: (json) => SyncInitResponse.fromJson(json['data']),
-      );
+    final response = await _httpClient.get<SyncInitResponse>(
+      path: '/api/sync/initial',
+      transform: (json) => SyncInitResponse.fromJson(json['data']),
+    );
 
-      if (response.success) {
-        return OperateResult.success(response.data!);
-      } else {
-        return OperateResult.failWithMessage(
-          message: response.message ?? '获取初始数据失败',
-          exception:
-              response.message != null ? Exception(response.message) : null,
-        );
-      }
-    } catch (e) {
+    if (response.success) {
+      return OperateResult.success(response.data!);
+    } else {
       return OperateResult.failWithMessage(
-        message: '获取初始数据失败',
-        exception: e is Exception ? e : Exception(e.toString()),
+        message: response.message ?? '获取初始数据失败',
+        exception:
+            response.message != null ? Exception(response.message) : null,
       );
     }
   }
@@ -87,49 +75,45 @@ class SyncService extends BaseService {
       }
       // 应用账本变更
       if (changes.accountBooks != null) {
-        DaoManager.accountBookDao.batchInsert(changes.accountBooks!
-            .map((book) => AccountBookTable.toCreateCompanion(book.createdBy,
-                name: book.name,
-                currencySymbol: book.currencySymbol,
-                icon: book.icon))
-            .toList());
+        await DaoManager.accountBookDao.batchInsert(changes.accountBooks!);
       }
 
       // 应用分类变更
       if (changes.accountCategories != null) {
-        await batchInsert(db.accountCategoryTable, changes.accountCategories!);
+        await DaoManager.accountCategoryDao
+            .batchInsert(changes.accountCategories!);
       }
 
       // 应用账目变更
       if (changes.accountItems != null) {
-        await batchInsert(db.accountItemTable, changes.accountItems!);
+        await DaoManager.accountItemDao.batchInsert(changes.accountItems!);
       }
 
       // 应用商家变更
       if (changes.accountShops != null) {
-        await batchInsert(db.accountShopTable, changes.accountShops!);
+        await DaoManager.accountShopDao.batchInsert(changes.accountShops!);
       }
 
       // 应用标签变更
       if (changes.accountSymbols != null) {
-        await batchInsert(db.accountSymbolTable, changes.accountSymbols!);
+        await DaoManager.accountSymbolDao.batchInsert(changes.accountSymbols!);
       }
 
       // 应用资金账户变更
       if (changes.accountFunds != null) {
-        await batchInsert(db.accountFundTable, changes.accountFunds!);
+        await DaoManager.accountFundDao.batchInsert(changes.accountFunds!);
       }
 
       // 应用账本资金账户关联变更
       if (changes.accountBookFunds != null) {
-        await batchInsert(
-            db.relAccountbookFundTable, changes.accountBookFunds!);
+        await DaoManager.relAccountbookFundDao
+            .batchInsert(changes.accountBookFunds!);
       }
 
       // 应用账本用户关联变更
       if (changes.accountBookUsers != null) {
-        await batchInsert(
-            db.relAccountbookUserTable, changes.accountBookUsers!);
+        await DaoManager.relAccountbookUserDao
+            .batchInsert(changes.accountBookUsers!);
       }
     });
   }

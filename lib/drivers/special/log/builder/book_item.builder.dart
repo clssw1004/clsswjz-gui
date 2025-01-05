@@ -80,8 +80,11 @@ class UpdateBookItemLog
       String? shopCode,
       String? tagCode,
       String? projectCode}) {
-    return UpdateBookItemLog().who(userId).inBook(bookId).subject(itemId).withData(
-        AccountItemTable.toUpdateCompanion(userId,
+    return UpdateBookItemLog()
+        .who(userId)
+        .inBook(bookId)
+        .subject(itemId)
+        .withData(AccountItemTable.toUpdateCompanion(userId,
             amount: amount,
             description: description,
             type: type,

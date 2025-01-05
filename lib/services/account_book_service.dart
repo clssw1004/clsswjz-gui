@@ -6,6 +6,7 @@ import '../database/dao/account_book_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
+import '../drivers/driver_factory.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/account_book_permission_vo.dart';
@@ -389,19 +390,17 @@ class AccountBookService extends BaseService {
       required String defaultCategoryName,
       required String defaultShopName}) async {
     // 1. 创建默认分类
-    await ServiceManager.accountCategoryService.createCategory(
+    await DriverFactory.bookDataDriver.createBookCategory(
+      userId,
+      bookId,
       name: defaultCategoryName,
-      code: 'NONE',
-      createdBy: userId,
-      accountBookId: bookId,
       categoryType: AccountItemType.expense.code,
     );
     // 2. 创建默认商户
-    await ServiceManager.accountShopService.createShop(
+    await DriverFactory.bookDataDriver.createBookShop(
+      userId,
+      bookId,
       name: defaultShopName,
-      code: 'NONE',
-      accountBookId: bookId,
-      createdBy: userId,
     );
   }
 }

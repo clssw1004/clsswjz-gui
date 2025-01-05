@@ -6,37 +6,37 @@ import '../common/common_icon_picker.dart';
 import '../../theme/theme_spacing.dart';
 
 class OfflineForm extends StatefulWidget {
-  final String username;
-  final String nickname;
-  final String? email;
-  final String? phone;
-  final String bookName;
+  final TextEditingController usernameController;
+  final TextEditingController nicknameController;
+  final TextEditingController emailController;
+  final TextEditingController phoneController;
+  final TextEditingController bookNameController;
   final String bookIcon;
   final bool isLoading;
-  final ValueChanged<String> onUsernameChanged;
-  final ValueChanged<String> onNicknameChanged;
+  final ValueChanged<String>? onUsernameChanged;
+  final ValueChanged<String>? onNicknameChanged;
   final ValueChanged<String>? onEmailChanged;
   final ValueChanged<String>? onPhoneChanged;
-  final ValueChanged<String> onBookNameChanged;
-  final ValueChanged<String> onBookIconChanged;
-  final VoidCallback onSubmit;
+  final ValueChanged<String>? onBookNameChanged;
+  final ValueChanged<String>? onBookIconChanged;
+  final VoidCallback? onSubmit;
 
   const OfflineForm({
     super.key,
-    required this.username,
-    required this.nickname,
-    this.email,
-    this.phone,
-    required this.bookName,
+    required this.usernameController,
+    required this.nicknameController,
+    required this.emailController,
+    required this.phoneController,
+    required this.bookNameController,
     required this.bookIcon,
-    required this.isLoading,
-    required this.onUsernameChanged,
-    required this.onNicknameChanged,
+    this.isLoading = false,
+    this.onUsernameChanged,
+    this.onNicknameChanged,
     this.onEmailChanged,
     this.onPhoneChanged,
-    required this.onBookNameChanged,
-    required this.onBookIconChanged,
-    required this.onSubmit,
+    this.onBookNameChanged,
+    this.onBookIconChanged,
+    this.onSubmit,
   });
 
   @override
@@ -46,6 +46,12 @@ class OfflineForm extends StatefulWidget {
 class _OfflineFormState extends State<OfflineForm> {
   String? _selectedIcon;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedIcon = widget.bookIcon;
+  }
+
   /// 选择图标
   Future<void> _selectIcon() async {
     await CommonIconPicker.show(
@@ -53,8 +59,10 @@ class _OfflineFormState extends State<OfflineForm> {
       icons: accountBookIcons,
       selectedIconCode: _selectedIcon,
       onIconSelected: (iconCode) {
-        setState(() => _selectedIcon = iconCode);
-        widget.onBookIconChanged(_selectedIcon!);
+        setState(() {
+          _selectedIcon = iconCode;
+        });
+        widget.onBookIconChanged?.call(_selectedIcon!);
       },
     );
   }
@@ -69,6 +77,7 @@ class _OfflineFormState extends State<OfflineForm> {
     return Column(
       children: [
         CommonTextFormField(
+          controller: widget.usernameController,
           labelText: l10n.username,
           prefixIcon: const Icon(Icons.person),
           required: true,
@@ -82,6 +91,7 @@ class _OfflineFormState extends State<OfflineForm> {
         ),
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
+          controller: widget.nicknameController,
           labelText: l10n.nickname,
           prefixIcon: const Icon(Icons.face),
           required: true,
@@ -90,12 +100,16 @@ class _OfflineFormState extends State<OfflineForm> {
         if (widget.onEmailChanged != null) ...[
           SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
+            controller: widget.emailController,
             labelText: l10n.email,
             prefixIcon: const Icon(Icons.email),
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value != null && value.isNotEmpty) {
-                return l10n.invalidEmail;
+                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                if (!emailRegex.hasMatch(value)) {
+                  return l10n.invalidEmail;
+                }
               }
               return null;
             },
@@ -105,6 +119,7 @@ class _OfflineFormState extends State<OfflineForm> {
         if (widget.onPhoneChanged != null) ...[
           SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
+            controller: widget.phoneController,
             labelText: l10n.phone,
             prefixIcon: const Icon(Icons.phone),
             keyboardType: TextInputType.phone,
@@ -113,6 +128,7 @@ class _OfflineFormState extends State<OfflineForm> {
         ],
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
+          controller: widget.bookNameController,
           labelText: '${l10n.accountBook}${l10n.name}',
           prefixIcon: InkWell(
             onTap: _selectIcon,

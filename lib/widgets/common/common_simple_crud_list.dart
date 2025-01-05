@@ -29,8 +29,8 @@ class CommonSimpleCrudListConfig<T> {
   final Future<OperateResult<List<T>>> Function() loadData;
 
   /// 创建项目方法
-  final Future<OperateResult<String>> Function(
-      String name, String code, String? type) createItem;
+  final Future<OperateResult<String>> Function(String name, String? type)
+      createItem;
 
   /// 更新项目方法
   final Future<OperateResult<void>> Function(T item,
@@ -181,7 +181,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
           // 创建
           final code = inputName.toLowerCase().replaceAll(' ', '_');
           final result =
-              await widget.config.createItem(inputName, code, selectedType);
+              await widget.config.createItem(inputName, selectedType);
           if (result.ok) {
             await _loadData();
           } else {

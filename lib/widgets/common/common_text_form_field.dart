@@ -39,8 +39,11 @@ class CommonTextFormField extends StatefulWidget {
   /// 是否必填
   final bool required;
 
+  final TextEditingController? controller;
+
   const CommonTextFormField({
     super.key,
+    this.controller,
     this.initialValue,
     this.labelText,
     this.hintText,
@@ -94,11 +97,13 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
         child: TextFormField(
           key: _formKey,
           focusNode: _focusNode,
-          initialValue: widget.initialValue,
+          controller: widget.controller,
           enabled: widget.enabled,
           decoration: InputDecoration(
-            labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
-            hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
+            labelText:
+                widget.required ? '${widget.labelText} *' : widget.labelText,
+            hintText:
+                widget.hintText ?? (widget.required ? null : l10n.optional),
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.4),
             ),
@@ -116,17 +121,21 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
               borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
             disabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
+              borderSide:
+                  BorderSide(color: theme.colorScheme.outline.withOpacity(0.5)),
             ),
           ),
           style: theme.textTheme.bodyLarge,
           onChanged: widget.onChanged,
-          validator: widget.validator ?? (widget.required ? (value) {
-            if (value == null || value.isEmpty) {
-              return l10n.required;
-            }
-            return null;
-          } : null),
+          validator: widget.validator ??
+              (widget.required
+                  ? (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.required;
+                      }
+                      return null;
+                    }
+                  : null),
           onSaved: widget.onSaved,
           obscureText: widget.obscureText,
           keyboardType: widget.keyboardType,

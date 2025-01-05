@@ -3,7 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../constants/constant.dart';
 import '../constants/business_code.dart';
+import '../constants/symbol_type.dart';
 import '../database/database.dart';
+import '../drivers/driver_factory.dart';
 import '../enums/account_type.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
@@ -185,14 +187,12 @@ class _AccountItemFormState extends State<AccountItemForm> {
             expandCount: 8,
             expandRows: 3,
             onCreateItem: (value) async {
-              final service = ServiceManager.accountCategoryService;
-              final userId = AppConfigManager.instance.userId!;
-              final result = await service.createCategory(
+              final result =
+                  await DriverFactory.bookDataDriver.createBookCategory(
+                AppConfigManager.instance.userId!,
+                provider.accountBook.id,
                 name: value,
-                code: value,
-                accountBookId: provider.accountBook.id,
                 categoryType: item.type,
-                createdBy: userId,
               );
               if (result.data != null) {
                 await provider.loadCategories();
@@ -256,13 +256,10 @@ class _AccountItemFormState extends State<AccountItemForm> {
             icon: Icons.store_outlined,
             label: l10n.merchant,
             onCreateItem: (value) async {
-              final service = ServiceManager.accountShopService;
-              final userId = AppConfigManager.instance.userId!;
-              final result = await service.createShop(
+              final result = await DriverFactory.bookDataDriver.createBookShop(
+                AppConfigManager.instance.userId!,
+                provider.accountBook.id,
                 name: value,
-                code: value,
-                accountBookId: provider.accountBook.id,
-                createdBy: userId,
               );
               if (result.data != null) {
                 await provider.loadShops();
@@ -301,15 +298,12 @@ class _AccountItemFormState extends State<AccountItemForm> {
                   icon: Icons.local_offer_outlined,
                   hint: l10n.tag,
                   onCreateItem: (value) async {
-                    final service = ServiceManager.accountSymbolService;
-                    final userId = AppConfigManager.instance.userId!;
-                    final result = await service.createSymbol(
+                    final result =
+                        await DriverFactory.bookDataDriver.createBookSymbol(
+                      AppConfigManager.instance.userId!,
+                      provider.accountBook.id,
                       name: value,
-                      code: value,
-                      accountBookId: provider.accountBook.id,
-                      symbolType: SYMBOL_TYPE_TAG,
-                      createdBy: userId,
-                      updatedBy: userId,
+                      symbolType: SymbolType.tag,
                     );
                     if (result.data != null) {
                       await provider.loadTags();
@@ -338,15 +332,12 @@ class _AccountItemFormState extends State<AccountItemForm> {
                   icon: Icons.folder_outlined,
                   hint: l10n.project,
                   onCreateItem: (value) async {
-                    final service = ServiceManager.accountSymbolService;
-                    final userId = AppConfigManager.instance.userId!;
-                    final result = await service.createSymbol(
+                    final result =
+                        await DriverFactory.bookDataDriver.createBookSymbol(
+                      AppConfigManager.instance.userId!,
+                      provider.accountBook.id,
                       name: value,
-                      code: value,
-                      accountBookId: provider.accountBook.id,
-                      symbolType: SYMBOL_TYPE_PROJECT,
-                      createdBy: userId,
-                      updatedBy: userId,
+                      symbolType: SymbolType.project,
                     );
                     if (result.data != null) {
                       await provider.loadProjects();

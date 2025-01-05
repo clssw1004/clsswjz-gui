@@ -43,51 +43,6 @@ class AccountCategoryService extends BaseService {
     }
   }
 
-  /// 创建分类
-  Future<OperateResult<String>> createCategory({
-    required String name,
-    required String code,
-    required String accountBookId,
-    required String categoryType,
-    required String createdBy,
-    DateTime? lastAccountItemAt,
-  }) async {
-    try {
-      final id = generateUuid();
-      await _accountCategoryDao.createCategory(
-        id: id,
-        name: name,
-        code: code,
-        accountBookId: accountBookId,
-        categoryType: categoryType,
-        createdBy: createdBy,
-        updatedBy: createdBy,
-        lastAccountItemAt: lastAccountItemAt,
-      );
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '创建分类失败: ${e.toString()}', exception: e as Exception);
-    }
-  }
-
-  /// 更新分类
-  Future<OperateResult<void>> updateCategory(AccountCategory category) async {
-    try {
-      await _accountCategoryDao.update(
-          category.id,
-          AccountCategoryTableCompanion(
-            name: Value(category.name),
-            updatedBy: Value(category.updatedBy),
-            updatedAt: Value(DateUtil.now()),
-          ));
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '更新分类失败: ${e.toString()}', exception: e as Exception);
-    }
-  }
-
   /// 删除分类
   Future<OperateResult<void>> deleteCategory(String id) async {
     try {

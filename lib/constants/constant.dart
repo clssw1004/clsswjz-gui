@@ -8,6 +8,3 @@ Future<File> getDatabaseFile(String? fileName) async {
   final file = File(path.join(dbFolder.path, '${fileName ?? dbName}.sqlite'));
   return file;
 }
-
-const SYMBOL_TYPE_TAG = 'TAG';
-const SYMBOL_TYPE_PROJECT = 'PROJECT';

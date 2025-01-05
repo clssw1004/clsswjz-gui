@@ -1,3 +1,4 @@
+import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../enums/currency_symbol.dart';
 import '../models/common.dart';
@@ -57,11 +58,32 @@ abstract class BookDataDriver {
       String? projectCode});
 
   /// 分类相关
-  /// 创建分类  
+  /// 创建分类
   Future<OperateResult<String>> createBookCategory(String userId, String bookId,
-      {required String name,required String categoryType});
+      {required String name, required String categoryType});
 
   /// 更新分类
-  Future<OperateResult<void>> updateBookCategory(String userId, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt});   
+  Future<OperateResult<void>> updateBookCategory(
+      String userId, String bookId, String categoryId,
+      {String? name, DateTime? lastAccountItemAt});
+
+  /// 商家相关
+  /// 创建商家
+  Future<OperateResult<String>> createBookShop(String userId, String bookId,
+      {required String name});
+
+  /// 更新商家
+  Future<OperateResult<void>> updateBookShop(
+      String userId, String bookId, String shopId,
+      {required String name});
+
+  /// 其它账本标识
+  /// 创建账本标识
+  Future<OperateResult<String>> createBookSymbol(String userId, String bookId,
+      {required String name, required SymbolType symbolType});
+
+  /// 更新账本标识
+  Future<OperateResult<void>> updateBookSymbol(
+      String userId, String bookId, String tagId,
+      {required String name});
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import '../../constants/symbol_type.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
@@ -17,9 +18,7 @@ class AccountSymbolTable extends BaseBusinessTable {
   static AccountSymbolTableCompanion toUpdateCompanion(
     String who, {
     String? name,
-    String? code,
     String? accountBookId,
-    String? symbolType,
   }) {
     return AccountSymbolTableCompanion(
       updatedBy: Value(who),
@@ -35,15 +34,14 @@ class AccountSymbolTable extends BaseBusinessTable {
     String who,
     String accountBookId, {
     required String name,
-    required String code,
-    required String symbolType,
+    required SymbolType symbolType,
   }) =>
       AccountSymbolTableCompanion(
         id: Value(IdUtils.genId()),
         name: Value(name),
         code: Value(IdUtils.genNanoId8()),
         accountBookId: Value(accountBookId),
-        symbolType: Value(symbolType),
+        symbolType: Value(symbolType.name),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),

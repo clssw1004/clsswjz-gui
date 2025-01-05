@@ -31,7 +31,6 @@ class AccountShopTable extends BaseBusinessTable {
     String who,
     String accountBookId, {
     required String name,
-    required String code,
   }) =>
       AccountShopTableCompanion(
         id: Value(IdUtils.genId()),

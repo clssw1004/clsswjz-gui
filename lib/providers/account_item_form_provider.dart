@@ -4,6 +4,7 @@ import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
+import '../constants/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../models/vo/account_item_vo.dart';
@@ -133,10 +134,10 @@ class AccountItemFormProvider extends ChangeNotifier {
         .getSymbolsByAccountBook(item.accountBookId);
     final symbols = result.data as List<AccountSymbol>;
     _tags = symbols
-        .where((symbol) => symbol.symbolType == SYMBOL_TYPE_TAG)
+        .where((symbol) => symbol.symbolType == SymbolType.tag.name)
         .toList();
     _projects = symbols
-        .where((symbol) => symbol.symbolType == SYMBOL_TYPE_PROJECT)
+        .where((symbol) => symbol.symbolType == SymbolType.project.name)
         .toList();
     notifyListeners();
   }
@@ -144,7 +145,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   /// 加载标签
   Future<void> loadTags() async {
     final result = await ServiceManager.accountSymbolService
-        .getSymbolsByType(item.accountBookId, SYMBOL_TYPE_TAG);
+        .getSymbolsByType(item.accountBookId, SymbolType.tag.name);
     _tags = result.data ?? [];
     notifyListeners();
   }
@@ -152,7 +153,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   /// 加载项目
   Future<void> loadProjects() async {
     final result = await ServiceManager.accountSymbolService
-        .getSymbolsByType(item.accountBookId, SYMBOL_TYPE_PROJECT);
+        .getSymbolsByType(item.accountBookId, SymbolType.project.name);
     _projects = result.data ?? [];
     notifyListeners();
   }
@@ -182,75 +183,75 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     // try {
-      final userId = AppConfigManager.instance.userId!;
-      var result;
-      if (isNew) {
-        // 保存账目信息
-        result = await DriverFactory.bookDataDriver.createBookItem(
-          userId,
-          _item.accountBookId,
-          type: _item.type,
-          amount: _item.amount,
-          description: _item.description,
-          categoryCode: _item.categoryCode,
-          fundId: _item.fundId,
-          shopCode: _item.shopCode,
-          tagCode: _item.tagCode,
-          projectCode: _item.projectCode,
-          accountDate: _item.accountDate,
-        );
-        _item = _item.copyWith(id: result.data!);
-      } else {
-        result = await DriverFactory.bookDataDriver.updateBookItem(
-          userId,
-          _item.accountBookId,
-          _item.id,
-          amount: _item.amount,
-          description: _item.description,
-          categoryCode: _item.categoryCode,
-          fundId: _item.fundId,
-          shopCode: _item.shopCode,
-          tagCode: _item.tagCode,
-          projectCode: _item.projectCode,
-          accountDate: _item.accountDate,
-        );
-      }
-
-      if (!result.ok) {
-        _error = result.message;
-        return false;
-      }
-
-      // 保存附件
-      final attachmentResult =
-          await ServiceManager.attachmentService.saveAttachments(
-        businessCode: BusinessCode.item,
-        businessId: _item.id,
-        attachments: _attachments
-            .map((attachment) => AttachmentVO(
-                  id: attachment.id,
-                  originName: attachment.originName,
-                  fileLength: attachment.fileLength,
-                  extension: attachment.extension,
-                  contentType: attachment.contentType,
-                  businessCode: BusinessCode.item.code,
-                  businessId: _item.id,
-                  createdBy: attachment.createdBy,
-                  updatedBy: attachment.updatedBy,
-                  createdAt: attachment.createdAt,
-                  updatedAt: attachment.updatedAt,
-                  file: attachment.file,
-                ))
-            .toList(),
-        userId: _item.updatedBy,
+    final userId = AppConfigManager.instance.userId!;
+    var result;
+    if (isNew) {
+      // 保存账目信息
+      result = await DriverFactory.bookDataDriver.createBookItem(
+        userId,
+        _item.accountBookId,
+        type: _item.type,
+        amount: _item.amount,
+        description: _item.description,
+        categoryCode: _item.categoryCode,
+        fundId: _item.fundId,
+        shopCode: _item.shopCode,
+        tagCode: _item.tagCode,
+        projectCode: _item.projectCode,
+        accountDate: _item.accountDate,
       );
+      _item = _item.copyWith(id: result.data!);
+    } else {
+      result = await DriverFactory.bookDataDriver.updateBookItem(
+        userId,
+        _item.accountBookId,
+        _item.id,
+        amount: _item.amount,
+        description: _item.description,
+        categoryCode: _item.categoryCode,
+        fundId: _item.fundId,
+        shopCode: _item.shopCode,
+        tagCode: _item.tagCode,
+        projectCode: _item.projectCode,
+        accountDate: _item.accountDate,
+      );
+    }
 
-      if (!attachmentResult.ok) {
-        _error = '保存附件失败：${attachmentResult.message}';
-        return false;
-      }
+    if (!result.ok) {
+      _error = result.message;
+      return false;
+    }
 
-      return true;
+    // 保存附件
+    final attachmentResult =
+        await ServiceManager.attachmentService.saveAttachments(
+      businessCode: BusinessCode.item,
+      businessId: _item.id,
+      attachments: _attachments
+          .map((attachment) => AttachmentVO(
+                id: attachment.id,
+                originName: attachment.originName,
+                fileLength: attachment.fileLength,
+                extension: attachment.extension,
+                contentType: attachment.contentType,
+                businessCode: BusinessCode.item.code,
+                businessId: _item.id,
+                createdBy: attachment.createdBy,
+                updatedBy: attachment.updatedBy,
+                createdAt: attachment.createdAt,
+                updatedAt: attachment.updatedAt,
+                file: attachment.file,
+              ))
+          .toList(),
+      userId: _item.updatedBy,
+    );
+
+    if (!attachmentResult.ok) {
+      _error = '保存附件失败：${attachmentResult.message}';
+      return false;
+    }
+
+    return true;
     // } catch (e) {
     //   _error = '保存失败：$e';
     //   return false;

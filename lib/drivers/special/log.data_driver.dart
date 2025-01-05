@@ -1,3 +1,4 @@
+import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
 
@@ -8,8 +9,11 @@ import '../../enums/currency_symbol.dart';
 import '../../models/common.dart';
 import '../book_data_driver.dart';
 import '../../constants/account_book_icons.dart';
+import 'log/builder/book_category.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
+import 'log/builder/book_shop.builder.dart';
+import 'log/builder/book_symbol.builder.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
@@ -132,6 +136,61 @@ class LogDataDriver implements BookDataDriver {
             shopCode: shopCode,
             tagCode: tagCode,
             projectCode: projectCode)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<String>> createBookCategory(String userId, String bookId,
+      {required String name, required String categoryType}) async {
+    final id = await CreateBookCategoryLog.build(userId, bookId,
+            name: name, categoryType: categoryType)
+        .execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> updateBookCategory(
+      String userId, String bookId, String categoryId,
+      {String? name, DateTime? lastAccountItemAt}) async {
+    await UpdateBookCategoryLog.build(userId, bookId, categoryId,
+            name: name, lastAccountItemAt: lastAccountItemAt)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  // 创建商家
+  @override
+  Future<OperateResult<String>> createBookShop(String userId, String bookId,
+      {required String name}) async {
+    final id =
+        await CreateBookShopLog.build(userId, bookId, name: name).execute();
+    return OperateResult.success(id);
+  }
+
+  // 更新商家
+  @override
+  Future<OperateResult<void>> updateBookShop(
+      String userId, String bookId, String shopId,
+      {required String name}) async {
+    await UpdateBookShopLog.build(userId, bookId, shopId, name: name).execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<String>> createBookSymbol(String userId, String bookId,
+      {required String name, required SymbolType symbolType}) async {
+    final id = await CreateBookSymbolLog.build(userId, bookId,
+            name: name, symbolType: symbolType)
+        .execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> updateBookSymbol(
+      String userId, String bookId, String tagId,
+      {required String name}) async {
+    await UpdateBookSymbolLog.build(userId, bookId, tagId, name: name)
         .execute();
     return OperateResult.success(null);
   }

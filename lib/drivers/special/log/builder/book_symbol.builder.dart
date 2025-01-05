@@ -1,3 +1,4 @@
+import '../../../../constants/symbol_type.dart';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_symbol_table.dart';
 import '../../../../enums/business_type.dart';
@@ -17,7 +18,8 @@ abstract class AbstractBookSymbolLog<T, RunResult>
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return AccountSymbolTable.toJsonString(data as AccountSymbolTableCompanion);
+      return AccountSymbolTable.toJsonString(
+          data as AccountSymbolTableCompanion);
     }
   }
 }
@@ -36,9 +38,7 @@ class CreateBookSymbolLog
   }
 
   static CreateBookSymbolLog build(String who, String bookId,
-      {required String name,
-      required String code,
-      required String symbolType}) {
+      {required String name, required SymbolType symbolType}) {
     return CreateBookSymbolLog()
         .who(who)
         .inBook(bookId)
@@ -46,7 +46,6 @@ class CreateBookSymbolLog
           who,
           bookId,
           name: name,
-          code: code,
           symbolType: symbolType,
         )) as CreateBookSymbolLog;
   }
@@ -63,7 +62,8 @@ class UpdateBookSymbolLog
     await DaoManager.accountSymbolDao.update(businessId!, data!);
   }
 
-  static UpdateBookSymbolLog build(String userId, String bookId, String symbolId,
+  static UpdateBookSymbolLog build(
+      String userId, String bookId, String symbolId,
       {String? name}) {
     return UpdateBookSymbolLog()
         .who(userId)
@@ -74,4 +74,4 @@ class UpdateBookSymbolLog
           name: name,
         )) as UpdateBookSymbolLog;
   }
-} 
+}

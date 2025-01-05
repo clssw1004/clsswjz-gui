@@ -1,3 +1,4 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../database/database.dart';
@@ -35,21 +36,19 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           widget.accountBook.id,
           _selectedType,
         ),
-        createItem: (name, code, _) =>
-            ServiceManager.accountCategoryService.createCategory(
+        createItem: (name, _) =>
+            DriverFactory.bookDataDriver.createBookCategory(
+          userId,
+          widget.accountBook.id,
           name: name,
-          code: code,
-          accountBookId: widget.accountBook.id,
           categoryType: _selectedType,
-          createdBy: userId,
         ),
         updateItem: (item, {required String name, String? type}) =>
-            ServiceManager.accountCategoryService.updateCategory(
-          item.copyWith(
-            name: name,
-            updatedBy: userId,
-            updatedAt: DateUtil.now(),
-          ),
+            DriverFactory.bookDataDriver.updateBookCategory(
+          userId,
+          widget.accountBook.id,
+          item.id,
+          name: name,
         ),
         deleteItem: (item) =>
             ServiceManager.accountCategoryService.deleteCategory(item.id),

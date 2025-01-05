@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../database/database.dart';
+import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -22,20 +23,14 @@ class MerchantsPage extends StatelessWidget {
         getName: (item) => item.name,
         loadData: () => ServiceManager.accountShopService
             .getShopsByAccountBook(accountBook.id),
-        createItem: (name, code, _) =>
-            ServiceManager.accountShopService.createShop(
-          name: name,
-          code: code,
-          accountBookId: accountBook.id,
-          createdBy: userId,
-        ),
+        createItem: (name, _) => DriverFactory.bookDataDriver
+            .createBookShop(userId, accountBook.id, name: name),
         updateItem: (item, {required String name, String? type}) =>
-            ServiceManager.accountShopService.updateShop(
-          item.copyWith(
-            name: name,
-            updatedBy: userId,
-            updatedAt: DateUtil.now(),
-          ),
+            DriverFactory.bookDataDriver.updateBookShop(
+          userId,
+          accountBook.id,
+          item.id,
+          name: name,
         ),
         deleteItem: (item) =>
             ServiceManager.accountShopService.deleteShop(item.id),

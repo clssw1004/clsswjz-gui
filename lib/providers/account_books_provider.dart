@@ -74,13 +74,11 @@ class AccountBooksProvider extends ChangeNotifier {
         // 如果有账本，选择默认账本
         if (_books!.isNotEmpty) {
           final defaultBookId = AppConfigManager.instance.defaultBookId;
-          if (defaultBookId != null) {
-            final defaultBook = _books!.firstWhere(
-              (book) => book.id == defaultBookId,
-              orElse: () => _books!.first,
-            );
-            await setSelectedBook(defaultBook);
-          }
+          final defaultBook = _books!.firstWhere(
+            (book) => book.id == defaultBookId,
+            orElse: () => _books!.first,
+          );
+          await setSelectedBook(defaultBook);
         }
       } else {
         _error = result.message;
