@@ -416,5 +416,9 @@
     "accountItem": "Account Item",
     "@accountItem": {
         "description": "Account item"
-    }
+    },
+    "syncData": "Sync Data",
+    "syncing": "Syncing...",
+    "syncSuccess": "Sync successful",
+    "syncFailed": "Sync failed"
 }

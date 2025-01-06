@@ -4,7 +4,9 @@ import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
 import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/enums/fund_type.dart';
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
+import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/book_member_vo.dart';
@@ -57,19 +59,36 @@ class LogDataDriver implements BookDataDriver {
           canEditItem: member.permission.canEditItem,
           canDeleteItem: member.permission.canDeleteItem);
     }
-    if (defaultFundName != null) {
-      await createFund(userId, bookId,
-          name: defaultFundName, fundType: FundType.cash);
-    }
-    if (defaultCategoryName != null) {
-      await createBookCategory(userId, bookId,
-          name: defaultCategoryName,
-          categoryType: AccountItemType.expense.code);
-    }
-    if (defaultShopName != null) {
-      await createBookShop(userId, bookId, name: defaultShopName);
-    }
+    await initDefaultBookData(userId, bookId);
     return OperateResult.success(bookId);
+  }
+
+  Future<void> initDefaultBookData(String userId, String bookId) async {
+    DefaultBookData defaultData =
+        getDefaultDataByLocale(AppConfigManager.instance.locale);
+    if (defaultData.category.isNotEmpty) {
+      for (var category in defaultData.category) {
+        await createBookCategory(userId, bookId,
+            name: category.name, categoryType: category.categoryType.code);
+      }
+    }
+    if (defaultData.shop.isNotEmpty) {
+      for (var shop in defaultData.shop) {
+        await createBookShop(userId, bookId, name: shop);
+      }
+    }
+    if (defaultData.symbols.isNotEmpty) {
+      for (var symbol in defaultData.symbols) {
+        await createBookSymbol(userId, bookId,
+            name: symbol.name, symbolType: symbol.symbolType);
+      }
+    }
+    if (defaultData.funds.isNotEmpty) {
+      for (var fund in defaultData.funds) {
+        await createFund(userId, bookId,
+            name: fund.name, fundType: fund.fundType);
+      }
+    }
   }
 
   @override

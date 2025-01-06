@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../../database/database.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
+import '../../../../enums/sync_state.dart';
 import '../../../../manager/dao_manager.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
@@ -98,14 +99,14 @@ abstract class LogBuilder<T, RunResult> {
 
   Future<RunResult> execute() async {
     final result = await executeLog();
-    await DaoManager.accountBookLogDao.insert(toAccountBookLog());
+    await DaoManager.logSyncDao.insert(toSyncLog());
     return result;
   }
 
   Future<RunResult> executeLog();
 
-  AccountBookLog toAccountBookLog() {
-    return AccountBookLog(
+  LogSync toSyncLog() {
+    return LogSync(
       id: _id!,
       accountBookId: _accountBookId!,
       operatorId: _operatorId!,
@@ -114,6 +115,8 @@ abstract class LogBuilder<T, RunResult> {
       operateType: _operateType!.name,
       businessId: _businessId!,
       operateData: data2Json(),
+      syncState: SyncState.unsynced.value,
+      syncTime: -1,
     );
   }
 

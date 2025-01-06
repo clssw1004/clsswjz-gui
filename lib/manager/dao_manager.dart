@@ -1,5 +1,5 @@
 import '../database/dao/account_book_dao.dart';
-import '../database/dao/account_book_log_dao.dart';
+import '../database/dao/log_sync_dao.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
 import '../database/dao/account_item_dao.dart';
@@ -19,6 +19,5 @@ class DaoManager {
       AccountSymbolDao(DatabaseManager.db);
   static RelAccountbookUserDao relAccountbookUserDao =
       RelAccountbookUserDao(DatabaseManager.db);
-  static AccountBookLogDao accountBookLogDao =
-      AccountBookLogDao(DatabaseManager.db);
+  static LogSyncDao logSyncDao = LogSyncDao(DatabaseManager.db);
 }

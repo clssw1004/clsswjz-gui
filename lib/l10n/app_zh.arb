@@ -434,5 +434,9 @@
     "accountItem": "账目",
     "@accountItem": {
         "description": "Account item"
-    }
+    },
+    "syncData": "同步数据",
+    "syncing": "正在同步...",
+    "syncSuccess": "同步成功",
+    "syncFailed": "同步失败"
 }

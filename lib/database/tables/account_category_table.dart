@@ -16,7 +16,7 @@ class AccountCategoryTable extends BaseAccountBookTable {
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
-        {name, accountBookId},
+        {name, accountBookId, categoryType},
       ];
 
   /// 创建更新伴生对象

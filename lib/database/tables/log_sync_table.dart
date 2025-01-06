@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 import 'base_table.dart';
 
-/// 账本操作日志表
-@DataClassName('AccountBookLog')
-class AccountBookLogTable extends StringIdTable {
+/// 同步日志表
+@DataClassName('LogSync')
+class LogSyncTable extends StringIdTable {
   /// 账本ID
   TextColumn get accountBookId => text().named('account_book_id')();
 
@@ -27,6 +27,16 @@ class AccountBookLogTable extends StringIdTable {
 
   /// 操作数据json
   TextColumn get operateData => text().named('operate_data')();
+
+  /// 同步状态
+  /// unsynced-未同步、synced-已同步、syncing-同步中、failed-同步失败
+  TextColumn get syncState => text().named('sync_state')();
+
+  /// 同步时间
+  IntColumn get syncTime => integer().named('sync_time')();
+
+  /// 同步错误信息
+  TextColumn get syncError => text().nullable().named('sync_error')();
 
   @override
   List<String> get customConstraints => [

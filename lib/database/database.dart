@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../enums/sync_state.dart';
 import 'tables/account_book_table.dart';
 import 'tables/account_category_table.dart';
 import 'tables/account_fund_table.dart';
@@ -8,13 +9,13 @@ import 'tables/account_symbol_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
-import 'tables/account_book_log_table.dart';
+import 'tables/log_sync_table.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
   tables: [
     AccountBookTable,
-    AccountBookLogTable,
+    LogSyncTable,
     AccountCategoryTable,
     AccountFundTable,
     AccountItemTable,

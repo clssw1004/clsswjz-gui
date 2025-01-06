@@ -1,9 +1,8 @@
-import 'package:clsswjz/models/vo/user_vo.dart';
-
 import '../manager/database_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
+import '../models/vo/user_vo.dart';
 
 class StatisticService {
   // 统计当前用户的账本数、账目数、记账天数

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/user_info_card.dart';
 import '../../routes/app_routes.dart';
+import 'package:clsswjz/manager/service_manager.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
@@ -18,6 +19,49 @@ class MineTab extends StatelessWidget {
 
 class _MineTabView extends StatelessWidget {
   const _MineTabView();
+
+  Future<void> _syncData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(l10n.syncing),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await ServiceManager.syncService.pushAll();
+
+      Navigator.of(context).pop();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.syncSuccess)),
+        );
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.syncFailed}: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +185,11 @@ class _MineTabView extends StatelessWidget {
             onTap: () {
               Navigator.pushNamed(context, '/language_settings');
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sync_outlined),
+            title: Text(l10n.syncData),
+            onTap: () => _syncData(context),
           ),
           ListTile(
             leading: const Icon(Icons.storage_outlined),

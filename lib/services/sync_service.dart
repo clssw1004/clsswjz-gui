@@ -11,6 +11,21 @@ class SyncService extends BaseService {
 
   SyncService({required HttpClient httpClient}) : _httpClient = httpClient;
 
+  Future<Map<String, dynamic>> pushAll<T>() async {
+    final logs = await DaoManager.logSyncDao.findAll();
+    final response = await _httpClient.post<Map<String, dynamic>>(
+      path: '/api/sync/push/all',
+      data: {
+        'logs': logs.map((e) => e.toJson()).toList(),
+      },
+    );
+
+    if (response.success) {
+      return response.data!;
+    }
+    return {};
+  }
+
   Future<OperateResult<int>> syncInit() async {
     final result = await _getInitialData();
     if (result.ok && result.data != null) {

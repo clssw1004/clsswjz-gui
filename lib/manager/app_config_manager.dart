@@ -1,4 +1,4 @@
-import 'package:clsswjz/constants/default-constant.dart';
+import 'package:clsswjz/constants/default_constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
@@ -299,11 +299,22 @@ class AppConfigManager {
     await DatabaseManager.init();
     await ServiceManager.init(syncInit: true);
 
+    /// 注册用户
+    await ServiceManager.userService
+        .register(
+            userId: userId,
+            username: 'cuiwei',
+            password: 'cuiwei',
+            nickname: '崔伟',
+            email: 'cuiwei@clsswjz.com',
+            phone: '13800138000')
+        .then((value) => value.data);
+
     /// 初始化导入数据
-    final result = await ServiceManager.syncService.syncInit();
-    if (result.ok) {
-      await _instance.setLastSyncTime(result.data!);
-    }
+    // final result = await ServiceManager.syncService.syncInit();
+    // if (result.ok) {
+    //   await _instance.setLastSyncTime(result.data!);
+    // }
     await _instance.makeStorageInit();
   }
 }
