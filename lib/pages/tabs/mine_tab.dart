@@ -43,7 +43,7 @@ class _MineTabView extends StatelessWidget {
         ),
       );
 
-      await ServiceManager.syncService.pushAll();
+      await ServiceManager.syncService.syncChanges();
 
       Navigator.of(context).pop();
 
