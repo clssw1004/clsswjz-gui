@@ -34,7 +34,6 @@ class SyncChanges {
   final List<AccountShop>? accountShops;
   final List<AccountSymbol>? accountSymbols;
   final List<AccountFund>? accountFunds;
-  final List<RelAccountbookFund>? accountBookFunds;
   final List<RelAccountbookUser>? accountBookUsers;
 
   SyncChanges({
@@ -45,7 +44,6 @@ class SyncChanges {
     this.accountShops,
     this.accountSymbols,
     this.accountFunds,
-    this.accountBookFunds,
     this.accountBookUsers,
   });
 
@@ -64,8 +62,6 @@ class SyncChanges {
         'accountSymbols': accountSymbols!.map((e) => e.toJson()).toList(),
       if (accountFunds != null)
         'accountFunds': accountFunds!.map((e) => e.toJson()).toList(),
-      if (accountBookFunds != null)
-        'accountBookFunds': accountBookFunds!.map((e) => e.toJson()).toList(),
       if (accountBookUsers != null)
         'accountBookUsers': accountBookUsers!.map((e) => e.toJson()).toList(),
     };
@@ -93,9 +89,6 @@ class SyncChanges {
           .toList(),
       accountFunds: (json['accountFunds'] as List<dynamic>?)
           ?.map((e) => AccountFund.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      accountBookFunds: (json['accountBookFunds'] as List<dynamic>?)
-          ?.map((e) => RelAccountbookFund.fromJson(e as Map<String, dynamic>))
           .toList(),
       accountBookUsers: (json['accountBookUsers'] as List<dynamic>?)
           ?.map((e) => RelAccountbookUser.fromJson(e as Map<String, dynamic>))

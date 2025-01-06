@@ -2,7 +2,6 @@ import 'package:clsswjz/constants/default-constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
-import '../enums/fund_type.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -271,19 +270,17 @@ class AppConfigManager {
             phone: phone)
         .then((value) => value.data);
 
-    /// 创建默认资金账户
-    await DriverFactory.driver.createFund(userId,
-        name: AppLocalizations.of(context)!.cash, fundType: FundType.cash);
+    final l10n = AppLocalizations.of(context)!;
 
     /// 创建账本
     final bookId = await DriverFactory.driver
-        .createBook(userId, name: bookName)
+        .createBook(userId,
+            name: bookName,
+            defaultFundName: l10n.cash,
+            defaultCategoryName: l10n.noCategory,
+            defaultShopName: l10n.noShop)
         .then((value) => value.data);
-    await ServiceManager.accountBookService.initBookDefaultData(
-        bookId: bookId!,
-        userId: userId,
-        defaultCategoryName: AppLocalizations.of(context)!.noCategory,
-        defaultShopName: AppLocalizations.of(context)!.noShop);
+
     await _instance.setDefaultBookId(bookId);
     await _instance.makeStorageInit();
   }

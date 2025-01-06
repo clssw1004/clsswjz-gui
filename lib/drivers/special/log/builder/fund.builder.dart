@@ -38,7 +38,8 @@ class CreateFundLog
   }
 
   factory CreateFundLog.build(
-    String who, {
+    String who,
+    String bookId, {
     required String name,
     required FundType fundType,
     String? fundRemark,
@@ -47,9 +48,10 @@ class CreateFundLog
   }) {
     return CreateFundLog()
       ..who(who)
-      ..withOutBook()
+      ..inBook(bookId)
       ..withData(AccountFundTable.toCreateCompanion(
         who,
+        bookId,
         name: name,
         fundType: fundType,
         fundRemark: fundRemark,
@@ -72,6 +74,7 @@ class UpdateFundLog
 
   static UpdateFundLog build(
     String who,
+    String bookId,
     String fundId, {
     String? name,
     FundType? fundType,
@@ -81,7 +84,7 @@ class UpdateFundLog
   }) {
     return UpdateFundLog()
       ..who(who)
-      ..withOutBook()
+      ..inBook(bookId)
       ..subject(fundId)
       ..withData(AccountFundTable.toUpdateCompanion(
         who,

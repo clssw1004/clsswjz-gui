@@ -9,6 +9,9 @@ class UserFundVO {
   /// 资金账户名称
   final String name;
 
+  /// 账本ID
+  final String accountBookId;
+
   /// 资金账户类型
   final FundType fundType;
 
@@ -33,12 +36,10 @@ class UserFundVO {
   /// 是否为默认账户
   final bool isDefault;
 
-  /// 关联的账本信息
-  final List<FundBookVO> relatedBooks;
-
   const UserFundVO({
     required this.id,
     required this.name,
+    required this.accountBookId,
     required this.fundType,
     required this.fundBalance,
     this.fundRemark,
@@ -47,7 +48,6 @@ class UserFundVO {
     required this.createdBy,
     required this.updatedBy,
     this.isDefault = false,
-    this.relatedBooks = const [],
   });
 
   /// 转换为资金账户对象
@@ -55,6 +55,7 @@ class UserFundVO {
     return AccountFund(
       id: id,
       name: name,
+      accountBookId: accountBookId,
       fundType: fundType.code,
       fundBalance: fundBalance,
       fundRemark: fundRemark,
@@ -66,11 +67,11 @@ class UserFundVO {
     );
   }
 
-  static UserFundVO fromFundAndBooks(
-      {required AccountFund fund, required List<FundBookVO>? books}) {
+  static UserFundVO fromFundAndBooks(AccountFund fund) {
     return UserFundVO(
       id: fund.id,
       name: fund.name,
+      accountBookId: fund.accountBookId,
       fundType: FundType.fromCode(fund.fundType),
       fundBalance: fund.fundBalance,
       fundRemark: fund.fundRemark,
@@ -78,78 +79,6 @@ class UserFundVO {
       updatedAt: fund.updatedAt,
       createdBy: fund.createdBy,
       updatedBy: fund.updatedBy,
-      relatedBooks: books ?? [],
-    );
-  }
-}
-
-/// 关联的账本信息
-class FundBookVO {
-  final String id;
-
-  /// 账本ID
-  final String accountBookId;
-
-  /// 账本名称
-  final String name;
-
-  /// 账本描述
-  final String? description;
-
-  /// 账本图标
-  final String? icon;
-
-  /// 来源ID
-  final String fromId;
-
-  /// 来源名称
-  final String fromName;
-
-  /// 是否允许转入
-  final bool fundIn;
-
-  /// 是否允许转出
-  final bool fundOut;
-
-  /// 是否为默认账户
-  final bool isDefault;
-
-  const FundBookVO({
-    required this.id,
-    required this.accountBookId,
-    required this.name,
-    required this.description,
-    this.icon,
-    required this.fromId,
-    required this.fromName,
-    required this.fundIn,
-    required this.fundOut,
-    required this.isDefault,
-  });
-
-  /// 创建一个新的 RelatedAccountBook 实例，可选择性地更新某些字段
-  FundBookVO copyWith({
-    String? accountBookId,
-    String? name,
-    String? description,
-    String? icon,
-    String? fromId,
-    String? fromName,
-    bool? fundIn,
-    bool? fundOut,
-    bool? isDefault,
-  }) {
-    return FundBookVO(
-      id: id,
-      accountBookId: accountBookId ?? this.accountBookId,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      icon: icon ?? this.icon,
-      fromId: fromId ?? this.fromId,
-      fromName: fromName ?? this.fromName,
-      fundIn: fundIn ?? this.fundIn,
-      fundOut: fundOut ?? this.fundOut,
-      isDefault: isDefault ?? this.isDefault,
     );
   }
 }

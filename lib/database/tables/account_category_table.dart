@@ -7,13 +7,17 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountCategory')
-class AccountCategoryTable extends BaseBusinessTable {
+class AccountCategoryTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
-  TextColumn get accountBookId => text().named('account_book_id')();
   TextColumn get categoryType => text().named('category_type')();
   DateTimeColumn get lastAccountItemAt =>
       dateTime().nullable().named('last_account_item_at')();
+
+  @override
+  List<Set<Column<Object>>>? get uniqueKeys => [
+        {name, accountBookId},
+      ];
 
   /// 创建更新伴生对象
   static AccountCategoryTableCompanion toUpdateCompanion(

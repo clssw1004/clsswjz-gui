@@ -78,8 +78,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
   Future<OperateResult<void>> create() async {
     final userId = UserConfigManager.currentUserId;
-    final l10n = AppLocalizations.of(context)!;
-    final result = await DriverFactory.driver.createBook(
+    return await DriverFactory.driver.createBook(
       userId,
       name: _nameController.text,
       description: _descriptionController.text,
@@ -87,20 +86,6 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       icon: _icon,
       members: _members,
     );
-    if (result.ok) {
-      final bookId = result.data!;
-      await ServiceManager.accountBookService.initBookDefaultData(
-        bookId: bookId,
-        userId: userId,
-        defaultCategoryName: l10n.noCategory,
-        defaultShopName: l10n.noShop,
-      );
-
-      return OperateResult.success(null);
-    } else {
-      return OperateResult.failWithMessage(
-          message: result.message, exception: result.exception);
-    }
   }
 
   Future<OperateResult<void>> update() async {

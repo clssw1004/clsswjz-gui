@@ -7,10 +7,9 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountShop')
-class AccountShopTable extends BaseBusinessTable {
+class AccountShopTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
-  TextColumn get accountBookId => text().named('account_book_id')();
 
   /// 创建更新伴生对象
   static AccountShopTableCompanion toUpdateCompanion(

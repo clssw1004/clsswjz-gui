@@ -39,9 +39,6 @@ class _FundFormPageState extends State<FundFormPage> {
   /// 账户类型
   FundType _fundType = FundType.cash;
 
-  /// 关联的账本列表
-  List<FundBookVO> _relatedBooks = [];
-
   /// 是否正在保存
   bool _saving = false;
 
@@ -55,15 +52,6 @@ class _FundFormPageState extends State<FundFormPage> {
       _remarkController.text = widget.fund!.fundRemark ?? '';
       _balanceController.text = widget.fund!.fundBalance.toString();
       _fundType = widget.fund!.fundType;
-      _relatedBooks = widget.fund!.relatedBooks;
-    } else {
-      ServiceManager.accountFundService.getDefaultRelatedBooks().then((result) {
-        if (result.ok) {
-          setState(() {
-            _relatedBooks = result.data!;
-          });
-        }
-      });
     }
   }
 
@@ -87,18 +75,23 @@ class _FundFormPageState extends State<FundFormPage> {
     try {
       final userId = AppConfigManager.instance.userId!;
       final result = widget.fund == null
-          ? await DriverFactory.driver.createFund(userId,
+          ? await DriverFactory.driver.createFund(
+              userId,
+              widget.fund!.accountBookId,
               name: _nameController.text,
               fundType: _fundType,
               fundBalance: double.parse(_balanceController.text),
               fundRemark: _remarkController.text,
-              relatedBooks: _relatedBooks)
-          : await DriverFactory.driver.updateFund(userId, widget.fund!.id,
+            )
+          : await DriverFactory.driver.updateFund(
+              userId,
+              widget.fund!.accountBookId,
+              widget.fund!.id,
               name: _nameController.text,
               fundType: _fundType,
               fundBalance: double.parse(_balanceController.text),
               fundRemark: _remarkController.text,
-              relatedBooks: _relatedBooks);
+            );
       if (result.ok && mounted) {
         Navigator.of(context).pop(true);
       } else {
@@ -252,142 +245,6 @@ class _FundFormPageState extends State<FundFormPage> {
               onChanged: (value) => _remarkController.text = value,
             ),
             SizedBox(height: spacing.formGroupSpacing),
-            Row(
-              children: [
-                Text(
-                  l10n.relatedBooks,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ],
-            ),
-            if (_relatedBooks.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    l10n.noAccountBooks,
-                    style: TextStyle(color: colorScheme.outline),
-                  ),
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _relatedBooks.length,
-                itemBuilder: (context, index) {
-                  final book = _relatedBooks[index];
-                  final isShared =
-                      book.fromId != AppConfigManager.instance.userId;
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      left: 4,
-                      right: 4,
-                    ),
-                    child: CommonCardContainer(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 2),
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              book.icon != null
-                                  ? IconData(int.parse(book.icon!),
-                                      fontFamily: 'MaterialIcons')
-                                  : Icons.book_outlined,
-                              color: colorScheme.onSecondaryContainer,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          book.name,
-                                          style: theme.textTheme.titleMedium
-                                              ?.copyWith(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        if (book.description?.isNotEmpty ==
-                                            true) ...[
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            book.description!,
-                                            style: theme.textTheme.bodySmall
-                                                ?.copyWith(
-                                              color:
-                                                  colorScheme.onSurfaceVariant,
-                                              height: 1.2,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            _buildActionChip(
-                                              label: l10n.income,
-                                              selected: book.fundIn,
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  _relatedBooks[index] = book
-                                                      .copyWith(fundIn: value);
-                                                });
-                                              },
-                                              colorScheme: colorScheme,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            _buildActionChip(
-                                              label: l10n.expense,
-                                              selected: book.fundOut,
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  _relatedBooks[index] = book
-                                                      .copyWith(fundOut: value);
-                                                });
-                                              },
-                                              colorScheme: colorScheme,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    if (isShared)
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: SharedBadge(name: book.fromName),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
           ],
         ),
       ),

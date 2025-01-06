@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
+import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/enums/fund_type.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import '../../enums/business_type.dart';
@@ -19,7 +20,6 @@ import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
 import 'log/builder/book_symbol.builder.dart';
-import 'log/builder/fund_relation.builder.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
@@ -28,6 +28,9 @@ class LogDataDriver implements BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundName,
+      String? defaultCategoryName,
+      String? defaultShopName,
       List<BookMemberVO> members = const []}) async {
     final bookId = await CreateBookLog.builder(userId,
             name: name,
@@ -53,6 +56,18 @@ class LogDataDriver implements BookDataDriver {
           canViewItem: member.permission.canViewItem,
           canEditItem: member.permission.canEditItem,
           canDeleteItem: member.permission.canDeleteItem);
+    }
+    if (defaultFundName != null) {
+      await createFund(userId, bookId,
+          name: defaultFundName, fundType: FundType.cash);
+    }
+    if (defaultCategoryName != null) {
+      await createBookCategory(userId, bookId,
+          name: defaultCategoryName,
+          categoryType: AccountItemType.expense.code);
+    }
+    if (defaultShopName != null) {
+      await createBookShop(userId, bookId, name: defaultShopName);
     }
     return OperateResult.success(bookId);
   }
@@ -251,76 +266,48 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<String>> createFund(
-    String who, {
+    String who,
+    String bookId, {
     required String name,
     required FundType fundType,
     String? fundRemark,
     double? fundBalance,
     bool isDefault = false,
-    List<FundBookVO>? relatedBooks = const [],
   }) async {
-    final id = await CreateFundLog.build(who,
+    final id = await CreateFundLog.build(who, bookId,
             name: name,
             fundType: fundType,
             fundRemark: fundRemark,
             fundBalance: fundBalance,
             isDefault: isDefault)
         .execute();
-    if (relatedBooks != null) {
-      for (var book in relatedBooks) {
-        await createFundRelation(who, id, book.accountBookId,
-            fundIn: book.fundIn, fundOut: book.fundOut);
-      }
-    }
     return OperateResult.success(id);
   }
 
   @override
-  Future<OperateResult<void>> updateFund(String who, String fundId,
-      {String? name,
-      FundType? fundType,
-      double? fundBalance,
-      String? fundRemark,
-      List<FundBookVO>? relatedBooks = const []}) async {
-    await UpdateFundLog.build(who, fundId,
+  Future<OperateResult<void>> updateFund(
+    String who,
+    String bookId,
+    String fundId, {
+    String? name,
+    FundType? fundType,
+    double? fundBalance,
+    String? fundRemark,
+  }) async {
+    await UpdateFundLog.build(who, bookId, fundId,
             name: name,
             fundType: fundType,
             fundBalance: fundBalance,
             fundRemark: fundRemark)
         .execute();
-    final fund = await ServiceManager.accountFundService.getFund(fundId);
-    final diff = CollectionUtil.diff(
-        fund.relatedBooks, relatedBooks ?? [], (e) => e.accountBookId);
-
-    /// new relation
-    if (diff.added != null && diff.added!.isNotEmpty) {
-      for (var relation in diff.added!) {
-        await createFundRelation(who, fundId, relation.accountBookId,
-            fundIn: relation.fundIn, fundOut: relation.fundOut);
-      }
-    }
-
-    /// update relation
-    if (diff.updated != null && diff.updated!.isNotEmpty) {
-      for (var relation in diff.updated!) {
-        await updateFundRelation(who, relation.id,
-            fundIn: relation.fundIn, fundOut: relation.fundOut);
-      }
-    }
-
-    /// remove relation
-    if (diff.removed != null && diff.removed!.isNotEmpty) {
-      for (var relation in diff.removed!) {
-        await deleteFundRelation(who, relation.id);
-      }
-    }
-
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteFund(String who, String fundId) async {
-    await DeleteLog.build(who, BusinessType.fund, fundId).execute();
+  Future<OperateResult<void>> deleteFund(
+      String who, String bookId, String fundId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.fund, fundId)
+        .execute();
     return OperateResult.success(null);
   }
 
@@ -329,34 +316,6 @@ class LogDataDriver implements BookDataDriver {
       String who, String bookId, String fundId) async {
     final fund = await ServiceManager.accountFundService.getFund(fundId);
     return OperateResult.success(fund);
-  }
-
-  Future<OperateResult<String>> createFundRelation(
-    String who,
-    String fundId,
-    String accountBookId, {
-    bool fundIn = true,
-    bool fundOut = true,
-    bool isDefault = false,
-  }) async {
-    final id = await CreateFundRelationLog.build(who, accountBookId, fundId,
-            fundIn: fundIn, fundOut: fundOut)
-        .execute();
-    return OperateResult.success(id);
-  }
-
-  Future<OperateResult<void>> updateFundRelation(String who, String relationId,
-      {bool? fundIn, bool? fundOut}) async {
-    await UpdateFundRelationLog.build(who, relationId,
-            fundIn: fundIn, fundOut: fundOut)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  Future<OperateResult<void>> deleteFundRelation(
-      String who, String relationId) async {
-    await DeleteLog.build(who, BusinessType.funBook, relationId).execute();
-    return OperateResult.success(null);
   }
 
   Future<String> addBookMember(String who, String bookId,
@@ -401,16 +360,10 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<UserFundVO>>> listFundsByUser(String userId) async {
+  Future<OperateResult<List<UserFundVO>>> listFundsByBook(
+      String userId, String bookId) async {
     final funds =
-        await ServiceManager.accountFundService.getFundsByUser(userId);
+        await ServiceManager.accountFundService.getFundsByBook(bookId);
     return OperateResult.successIfNotNull(funds);
-  }
-
-  @override
-  Future<OperateResult<UserFundVO>> listFundsByBook(
-      String userId, String bookId) {
-    // TODO: implement listFundsByBook
-    throw UnimplementedError();
   }
 }

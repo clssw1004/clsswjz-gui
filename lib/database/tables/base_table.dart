@@ -19,3 +19,8 @@ class BaseBusinessTable extends BaseTable {
   TextColumn get createdBy => text().named('created_by')();
   TextColumn get updatedBy => text().named('updated_by')();
 }
+
+@DataClassName('BaseAccountBookTable')
+class BaseAccountBookTable extends BaseBusinessTable {
+  TextColumn get accountBookId => text().named('account_book_id')();
+}

@@ -5,7 +5,6 @@ import 'tables/account_fund_table.dart';
 import 'tables/account_item_table.dart';
 import 'tables/account_shop_table.dart';
 import 'tables/account_symbol_table.dart';
-import 'tables/rel_accountbook_fund_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
@@ -21,7 +20,6 @@ part 'database.g.dart';
     AccountItemTable,
     AccountShopTable,
     AccountSymbolTable,
-    RelAccountbookFundTable,
     RelAccountbookUserTable,
     UserTable,
     AttachmentTable,

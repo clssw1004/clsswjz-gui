@@ -102,7 +102,10 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
       return AccountCategoriesPage(accountBook: args);
     },
-    funds: (context) => const FundListPage(),
+    funds: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return FundListPage(accountBook: args);
+    },
     about: (context) => const AboutPage(),
   };
 }

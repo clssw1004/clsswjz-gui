@@ -1,44 +1,11 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
+import '../tables/user_table.dart';
+import 'base_dao.dart';
 
-class UserDao {
-  final AppDatabase db;
-
-  UserDao(this.db);
-
-  Future<int> insert(UserTableCompanion entity) {
-    return db.into(db.userTable).insert(entity);
-  }
-
-  Future<void> batchInsert(List<UserTableCompanion> entities) async {
-    await db.batch((batch) {
-      for (var entity in entities) {
-        batch.insert(db.userTable, entity, mode: InsertMode.insertOrReplace);
-      }
-    });
-  }
-
-  Future<bool> update(UserTableCompanion entity) {
-    return db.update(db.userTable).replace(entity);
-  }
-
-  Future<int> delete(User entity) {
-    return db.delete(db.userTable).delete(entity);
-  }
-
-  Future<List<User>> findAll() {
-    return db.select(db.userTable).get();
-  }
-
-  Future<User?> findById(String id) {
-    return (db.select(db.userTable)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
-  }
-
-  Future<List<User>> findByIds(List<String> ids) {
-    return (db.select(db.userTable)..where((t) => t.id.isIn(ids))).get();
-  }
+class UserDao extends BaseDao<UserTable, User> {
+  UserDao(super.db);
 
   Future<User?> findByUsername(String username) {
     return (db.select(db.userTable)..where((t) => t.username.equals(username)))
@@ -50,7 +17,7 @@ class UserDao {
     return user != null;
   }
 
-  Future<int> createUser({
+  Future<void> createUser({
     required String id,
     required String username,
     required String nickname,
@@ -83,4 +50,7 @@ class UserDao {
           ..where((t) => t.inviteCode.equals(inviteCode)))
         .getSingleOrNull();
   }
+
+  @override
+  TableInfo<UserTable, User> get table => db.userTable;
 }

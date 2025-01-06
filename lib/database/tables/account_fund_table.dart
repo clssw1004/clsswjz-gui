@@ -8,7 +8,7 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountFund')
-class AccountFundTable extends BaseBusinessTable {
+class AccountFundTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get fundType => text().named('fund_type')();
   TextColumn get fundRemark => text().nullable().named('fund_remark')();
@@ -43,7 +43,8 @@ class AccountFundTable extends BaseBusinessTable {
 
   /// 生成创建数据的伴生对象
   static AccountFundTableCompanion toCreateCompanion(
-    String who, {
+    String who,
+    String bookId, {
     required String name,
     required FundType fundType,
     String? fundRemark,
@@ -52,6 +53,7 @@ class AccountFundTable extends BaseBusinessTable {
   }) =>
       AccountFundTableCompanion(
         id: Value(IdUtil.genId()),
+        accountBookId: Value(bookId),
         name: Value(name),
         fundType: Value(fundType.code),
         fundRemark: Value.absentIfNull(fundRemark),
@@ -71,6 +73,7 @@ class AccountFundTable extends BaseBusinessTable {
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
     MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
+    MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'name', companion.name);
     MapUtil.setIfPresent(map, 'fundType', companion.fundType);
     MapUtil.setIfPresent(map, 'fundRemark', companion.fundRemark);

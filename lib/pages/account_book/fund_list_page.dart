@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
+import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../utils/color_util.dart';
 import '../../widgets/common/common_data_list_page.dart';
@@ -11,7 +12,8 @@ import 'fund_form_page.dart';
 
 /// 资金账户列表页面
 class FundListPage extends StatelessWidget {
-  const FundListPage({super.key});
+  const FundListPage({super.key, required this.accountBook});
+  final UserBookVO accountBook;
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,8 @@ class FundListPage extends StatelessWidget {
       config: CommonDataListPageConfig(
         title: l10n.tabFunds,
         onLoad: () async {
-          final result = await DriverFactory.driver
-              .listFundsByUser(AppConfigManager.instance.userId!);
+          final result = await DriverFactory.driver.listFundsByBook(
+              AppConfigManager.instance.userId!, accountBook.id);
           return result.ok ? result.data! : [];
         },
         itemBuilder: (context, item) {

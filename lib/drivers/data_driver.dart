@@ -14,6 +14,9 @@ abstract class BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundName,
+      String? defaultCategoryName,
+      String? defaultShopName,
       List<BookMemberVO> members = const []});
 
   /// 更新账本
@@ -106,10 +109,7 @@ abstract class BookDataDriver {
       String userId, String bookId, String symbolId);
 
   /// 账本资金相关
-  Future<OperateResult<List<UserFundVO>>> listFundsByUser(String userId);
-
-  /// 获取账本资金
-  Future<OperateResult<UserFundVO>> listFundsByBook(
+  Future<OperateResult<List<UserFundVO>>> listFundsByBook(
       String userId, String bookId);
 
   /// 获取账本资金
@@ -118,23 +118,24 @@ abstract class BookDataDriver {
 
   /// 创建账本资金
   Future<OperateResult<String>> createFund(
-    String userId, {
+    String userId,
+    String bookId, {
     required String name,
     required FundType fundType,
     String? fundRemark,
     double? fundBalance,
     bool isDefault = false,
-    List<FundBookVO>? relatedBooks = const [],
   });
 
   /// 更新账本资金
-  Future<OperateResult<void>> updateFund(String userId, String fundId,
+  Future<OperateResult<void>> updateFund(
+      String userId, String bookId, String fundId,
       {String? name,
       FundType? fundType,
       double? fundBalance,
-      String? fundRemark,
-      List<FundBookVO>? relatedBooks = const []});
+      String? fundRemark});
 
   /// 删除账本资金
-  Future<OperateResult<void>> deleteFund(String userId, String fundId);
+  Future<OperateResult<void>> deleteFund(
+      String userId, String bookId, String fundId);
 }

@@ -175,8 +175,6 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.accountShopDao.delete(businessId!);
       case BusinessType.bookMember:
         return DaoManager.relAccountbookUserDao.delete(businessId!);
-      case BusinessType.funBook:
-        return DaoManager.relAccountbookFundDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }

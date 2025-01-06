@@ -103,12 +103,6 @@ class SyncService extends BaseService {
         await DaoManager.accountFundDao.batchInsert(changes.accountFunds!);
       }
 
-      // 应用账本资金账户关联变更
-      if (changes.accountBookFunds != null) {
-        await DaoManager.relAccountbookFundDao
-            .batchInsert(changes.accountBookFunds!);
-      }
-
       // 应用账本用户关联变更
       if (changes.accountBookUsers != null) {
         await DaoManager.relAccountbookUserDao
@@ -144,9 +138,6 @@ class SyncService extends BaseService {
             ..where((t) => t.updatedAt.isBiggerThan(Variable(timestamp))))
           .get(),
       accountFunds: await (db.select(db.accountFundTable)
-            ..where((t) => t.updatedAt.isBiggerThan(Variable(timestamp))))
-          .get(),
-      accountBookFunds: await (db.select(db.relAccountbookFundTable)
             ..where((t) => t.updatedAt.isBiggerThan(Variable(timestamp))))
           .get(),
       accountBookUsers: await (db.select(db.relAccountbookUserTable)

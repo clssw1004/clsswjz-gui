@@ -192,11 +192,11 @@ class _AccountItemFormState extends State<AccountItemForm> {
                 name: value,
                 categoryType: item.type,
               );
-              if (result.data != null) {
+              if (result.ok) {
                 await provider.loadCategories();
                 return provider.categories
                     .cast<AccountCategory>()
-                    .firstWhere((category) => category.code == value);
+                    .firstWhere((category) => category.name == value);
               }
               return null;
             },

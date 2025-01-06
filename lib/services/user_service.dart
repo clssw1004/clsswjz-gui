@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
+import '../database/tables/user_table.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/user_vo.dart';
@@ -92,18 +93,14 @@ class UserService extends BaseService {
         return OperateResult.failWithMessage(message: '用户不存在');
       }
 
-      await _userDao.update(UserTableCompanion(
-        id: Value(id),
-        createdAt: Value(user.createdAt),
-        updatedAt: Value(DateUtil.now()),
-        username: Value(user.username),
-        nickname: Value(nickname ?? user.nickname),
-        password: Value(user.password),
-        email: absentIfNull(email),
-        phone: absentIfNull(phone),
-        inviteCode: Value(user.inviteCode),
-        timezone: absentIfNull(timezone),
-      ));
+      await _userDao.update(
+          id,
+          UserTable.toUpdateCompanion(
+            nickname: nickname,
+            email: email,
+            phone: phone,
+            timezone: timezone,
+          ));
 
       return OperateResult.success(null);
     } catch (e) {
@@ -140,11 +137,11 @@ class UserService extends BaseService {
       // 对新密码进行哈希
       final hashedNewPassword = encryptPassword(newPassword);
 
-      await _userDao.update(UserTableCompanion(
-        id: Value(id),
-        password: Value(hashedNewPassword),
-        updatedAt: Value(DateUtil.now()),
-      ));
+      await _userDao.update(
+          id,
+          UserTable.toUpdateCompanion(
+            password: hashedNewPassword,
+          ));
 
       return OperateResult.success(null);
     } catch (e) {
