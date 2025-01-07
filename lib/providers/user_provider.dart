@@ -20,11 +20,7 @@ class UserProvider extends ChangeNotifier {
   UserStatisticVO? get statistic => _statistic;
 
   /// 获取用户信息
-  Future<void> getUserInfo() async {
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
+  Future<void> refreshUserInfo() async {
     try {
       final result = await ServiceManager.userService
           .getUserInfo(UserConfigManager.currentUserId);
@@ -73,7 +69,7 @@ class UserProvider extends ChangeNotifier {
       );
 
       if (result.ok) {
-        await getUserInfo();
+        await refreshUserInfo();
       }
 
       return result;

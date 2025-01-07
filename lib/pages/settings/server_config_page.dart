@@ -94,7 +94,6 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   Future<void> _initOffline() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    // try {
     await AppConfigManager.storageOfflineMode(context,
         username: _username,
         nickname: _nickname,
@@ -103,13 +102,6 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
         bookName: _bookName,
         bookIcon: _bookIcon);
     RestartWidget.restartApp(context);
-    // } catch (e) {
-    //   print(e);
-    //   final l10n = AppLocalizations.of(context)!;
-    //   ToastUtil.showError(l10n.initializationFailed);
-    // } finally {
-    //   setState(() => _isLoading = false);
-    // }
   }
 
   Future<void> _initSelfhost() async {

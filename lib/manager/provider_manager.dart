@@ -24,7 +24,7 @@ class ProviderManager {
             create: (_) => ThemeProvider(),
           ),
           ChangeNotifierProvider<UserProvider>(
-            create: (_) => UserProvider()..getUserInfo(),
+            create: (_) => UserProvider()..refreshUserInfo(),
           ),
           ChangeNotifierProvider<AccountBooksProvider>(
             create: (_) =>

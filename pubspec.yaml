@@ -1,7 +1,7 @@
 name: clsswjz
 description: "GUI for clsswjz-server"
-publish_to: 'none'
-version: 0.1.0
+publish_to: "none"
+version: 0.0.1
 
 environment:
   sdk: ^3.5.4
@@ -45,4 +45,3 @@ flutter:
   generate: true
   assets:
     - assets/images/app_logo.png
-

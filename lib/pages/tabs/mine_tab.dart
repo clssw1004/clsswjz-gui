@@ -7,6 +7,7 @@ import '../../providers/user_provider.dart';
 import '../../widgets/user_info_card.dart';
 import '../../routes/app_routes.dart';
 import 'package:clsswjz/manager/service_manager.dart';
+import '../../widgets/common/sync_data_button.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});

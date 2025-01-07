@@ -76,7 +76,7 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '${l10n.version}: 1.0.0',
+                    '${l10n.version}: 0.0.1.4',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),

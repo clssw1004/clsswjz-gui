@@ -56,7 +56,7 @@ class _UserInfoPageView extends StatelessWidget {
                         ),
                         SizedBox(height: spacing.formItemSpacing),
                         FilledButton(
-                          onPressed: provider.getUserInfo,
+                          onPressed: provider.refreshUserInfo,
                           child: Text(l10n.retry),
                         ),
                       ],
