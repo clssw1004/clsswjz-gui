@@ -51,8 +51,8 @@ class CreateBookCategoryLog
         )) as CreateBookCategoryLog;
   }
 
-  @override
-  LogBuilder<AccountCategoryTableCompanion, String> fromLog(LogSync log) {
+  static LogBuilder<AccountCategoryTableCompanion, String> fromLog(
+      LogSync log) {
     return CreateBookCategoryLog()
         .who(log.operatorId)
         .inBook(log.accountBookId)
@@ -86,13 +86,10 @@ class UpdateBookCategoryLog
         )) as UpdateBookCategoryLog;
   }
 
-  @override
-  LogBuilder<AccountCategoryTableCompanion, void> fromLog(LogSync log) {
-    return UpdateBookCategoryLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .subject(log.businessId)
-        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as UpdateBookCategoryLog;
+  static LogBuilder<AccountCategoryTableCompanion, void> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateBookCategoryLog.build(
+        log.operatorId, log.accountBookId, log.businessId,
+        name: data['name'], lastAccountItemAt: data['lastAccountItemAt']);
   }
 }

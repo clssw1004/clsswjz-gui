@@ -51,13 +51,10 @@ class CreateBookSymbolLog
         )) as CreateBookSymbolLog;
   }
 
-  @override
-  LogBuilder<AccountSymbolTableCompanion, String> fromLog(LogSync log) {
-    return CreateBookSymbolLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateBookSymbolLog;
+  static LogBuilder<AccountSymbolTableCompanion, String> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return CreateBookSymbolLog.build(log.operatorId, log.accountBookId,
+        name: data['name'], symbolType: data['symbolType']);
   }
 }
 
@@ -85,13 +82,10 @@ class UpdateBookSymbolLog
         )) as UpdateBookSymbolLog;
   }
 
-  @override
-  LogBuilder<AccountSymbolTableCompanion, void> fromLog(LogSync log) {
-    return UpdateBookSymbolLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .subject(log.businessId)
-        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as UpdateBookSymbolLog;
+  static LogBuilder<AccountSymbolTableCompanion, void> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateBookSymbolLog.build(
+        log.operatorId, log.accountBookId, log.businessId,
+        name: data['name']);
   }
 }

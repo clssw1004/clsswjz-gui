@@ -56,8 +56,7 @@ class CreateBookLog extends BookLogBuilder<AccountBookTableCompanion, String> {
         icon: icon)) as CreateBookLog;
   }
 
-  @override
-  LogBuilder<AccountBookTableCompanion, String> fromLog(LogSync log) {
+  static CreateBookLog fromLog(LogSync log) {
     return CreateBookLog().who(log.operatorId).withData(
             AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
         as CreateBookLog;
@@ -88,10 +87,12 @@ class UpdateBookLog extends BookLogBuilder<AccountBookTableCompanion, void> {
             icon: icon)) as UpdateBookLog;
   }
 
-  @override
-  LogBuilder<AccountBookTableCompanion, void> fromLog(LogSync log) {
-    return UpdateBookLog().who(log.operatorId).withData(
-            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
-        as UpdateBookLog;
+  static UpdateBookLog fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateBookLog.build(log.operatorId, log.accountBookId,
+        name: data['name'],
+        description: data['description'],
+        currencySymbol: data['currencySymbol'],
+        icon: data['icon']);
   }
 }

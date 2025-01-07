@@ -47,8 +47,8 @@ class CreateMemberLog
             canDeleteItem: canDeleteItem)) as CreateMemberLog;
   }
 
-  @override
-  LogBuilder<RelAccountbookUserTableCompanion, String> fromLog(LogSync log) {
+  static LogBuilder<RelAccountbookUserTableCompanion, String> fromLog(
+      LogSync log) {
     return CreateMemberLog()
         .who(log.operatorId)
         .inBook(log.accountBookId)
@@ -89,13 +89,16 @@ class UpdateMemberLog
             canDeleteItem: canDeleteItem)) as UpdateMemberLog;
   }
 
-  @override
-  LogBuilder<RelAccountbookUserTableCompanion, void> fromLog(LogSync log) {
-    return UpdateMemberLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .subject(log.businessId)
-        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as UpdateMemberLog;
+  static LogBuilder<RelAccountbookUserTableCompanion, void> fromLog(
+      LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateMemberLog.build(
+        log.operatorId, log.accountBookId, log.businessId,
+        canViewBook: data['canViewBook'],
+        canEditBook: data['canEditBook'],
+        canDeleteBook: data['canDeleteBook'],
+        canViewItem: data['canViewItem'],
+        canEditItem: data['canEditItem'],
+        canDeleteItem: data['canDeleteItem']);
   }
 }

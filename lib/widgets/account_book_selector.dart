@@ -19,20 +19,12 @@ class AccountBookSelector extends StatefulWidget {
   /// 选中账本回调
   final void Function(UserBookVO book)? onSelected;
 
-  /// 是否正在加载
-  final bool loading;
-
-  /// 错误信息
-  final String? error;
-
   const AccountBookSelector({
     super.key,
     required this.userId,
     required this.books,
     this.selectedBook,
     this.onSelected,
-    this.loading = false,
-    this.error,
   });
 
   @override
@@ -70,8 +62,6 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
       content: _AccountBookList(
         userId: widget.userId,
         books: widget.books,
-        loading: widget.loading,
-        error: widget.error,
       ),
     );
 
@@ -139,14 +129,10 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
 class _AccountBookList extends StatelessWidget {
   final String userId;
   final List<UserBookVO> books;
-  final bool loading;
-  final String? error;
 
   const _AccountBookList({
     required this.userId,
     required this.books,
-    this.loading = false,
-    this.error,
   });
 
   @override
@@ -159,54 +145,44 @@ class _AccountBookList extends StatelessWidget {
       constraints: const BoxConstraints(
         maxHeight: 400,
       ),
-      child: loading
-          ? Center(child: Text(l10n.loading))
-          : error != null
-              ? Center(
-                  child: Text(
-                    error ?? l10n.loadFailed,
-                    style: TextStyle(color: colorScheme.error),
+      child: books.isEmpty
+          ? Center(child: Text(l10n.noAccountBooks))
+          : ListView.separated(
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              itemCount: books.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final book = books[index];
+                return ListTile(
+                  leading: Icon(
+                    _getBookIcon(book.icon),
+                    color: colorScheme.primary,
                   ),
-                )
-              : books.isEmpty
-                  ? Center(child: Text(l10n.noAccountBooks))
-                  : ListView.separated(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      itemCount: books.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final book = books[index];
-                        return ListTile(
-                          leading: Icon(
-                            _getBookIcon(book.icon),
-                            color: colorScheme.primary,
-                          ),
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(book.name),
-                              ),
-                              if (book.createdBy != userId &&
-                                  book.createdByName != null)
-                                SharedBadge(name: book.createdByName!),
-                            ],
-                          ),
-                          subtitle: book.description?.isNotEmpty == true
-                              ? Text(
-                                  book.description!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                )
-                              : null,
-                          onTap: () async {
-                            await AppConfigManager.instance
-                                .setDefaultBookId(book.id);
-                            Navigator.of(context).pop(book);
-                          },
-                        );
-                      },
-                    ),
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(book.name),
+                      ),
+                      if (book.createdBy != userId &&
+                          book.createdByName != null)
+                        SharedBadge(name: book.createdByName!),
+                    ],
+                  ),
+                  subtitle: book.description?.isNotEmpty == true
+                      ? Text(
+                          book.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                  onTap: () async {
+                    await AppConfigManager.instance.setDefaultBookId(book.id);
+                    Navigator.of(context).pop(book);
+                  },
+                );
+              },
+            ),
     );
   }
 }

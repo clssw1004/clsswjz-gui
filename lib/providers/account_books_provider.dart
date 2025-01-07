@@ -48,13 +48,6 @@ class AccountBooksProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  @override
-  void notifyListeners() {
-    if (!_disposed) {
-      super.notifyListeners();
-    }
-  }
-
   /// 初始化
   Future<void> init(String userId) async {
     if (_disposed || _initialized) return;
@@ -101,25 +94,28 @@ class AccountBooksProvider extends ChangeNotifier {
 
   /// 加载账本列表
   Future<void> loadBooks(String userId) async {
-    if (_loadingBooks || _disposed) return;
+    if (_disposed) return;
 
     try {
-      _loadingBooks = true;
-      _error = null;
-      notifyListeners();
-
       final result = await DriverFactory.driver.listBooksByUser(userId);
-
-      if (_disposed) return;
 
       if (result.ok) {
         _books = result.data ?? const [];
+
+        // 如果当前没有选中的账本，且有可用的账本，则自动选择一个账本
+        if (_selectedBook == null && _books!.isNotEmpty) {
+          final defaultBookId = AppConfigManager.instance.defaultBookId;
+          final defaultBook = _books!.firstWhere(
+            (book) => book.id == defaultBookId,
+            orElse: () => _books!.first,
+          );
+          await setSelectedBook(defaultBook);
+        }
       } else {
         _error = result.message;
         _books = const [];
       }
 
-      _loadingBooks = false;
       notifyListeners();
     } catch (e) {
       if (_disposed) return;

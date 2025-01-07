@@ -62,13 +62,14 @@ class CreateFundLog
       ));
   }
 
-  @override
-  LogBuilder<AccountFundTableCompanion, String> fromLog(LogSync log) {
-    return CreateFundLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateFundLog;
+  static LogBuilder<AccountFundTableCompanion, String> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return CreateFundLog.build(log.operatorId, log.accountBookId,
+        name: data['name'],
+        fundType: data['fundType'],
+        fundRemark: data['fundRemark'],
+        fundBalance: data['fundBalance'],
+        isDefault: data['isDefault']);
   }
 }
 
@@ -106,13 +107,14 @@ class UpdateFundLog
       ));
   }
 
-  @override
-  LogBuilder<AccountFundTableCompanion, void> fromLog(LogSync log) {
-    return UpdateFundLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .subject(log.businessId)
-        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as UpdateFundLog;
+  static UpdateFundLog fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateFundLog.build(
+        log.operatorId, log.accountBookId, log.businessId,
+        name: data['name'],
+        fundType: data['fundType'],
+        fundRemark: data['fundRemark'],
+        fundBalance: data['fundBalance'],
+        isDefault: data['isDefault']);
   }
 }

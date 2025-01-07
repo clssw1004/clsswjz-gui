@@ -122,8 +122,6 @@ abstract class LogBuilder<T, RunResult> {
     return result;
   }
 
-  LogBuilder<T, RunResult> fromLog(LogSync log);
-
   Future<RunResult> executeLog();
 
   LogSync toSyncLog() {
@@ -161,32 +159,32 @@ abstract class LogBuilder<T, RunResult> {
     switch (businessType) {
       case BusinessType.book:
         return (operateType == OperateType.create
-            ? CreateBookLog().fromLog(log)
-            : UpdateBookLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateBookLog.fromLog(log)
+            : UpdateBookLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.category:
         return (operateType == OperateType.create
-            ? CreateBookCategoryLog().fromLog(log)
-            : UpdateBookCategoryLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateBookCategoryLog.fromLog(log)
+            : UpdateBookCategoryLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.item:
         return (operateType == OperateType.create
-            ? CreateBookItemLog().fromLog(log)
-            : UpdateBookItemLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateBookItemLog.fromLog(log)
+            : UpdateBookItemLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.shop:
         return (operateType == OperateType.create
-            ? CreateBookShopLog().fromLog(log)
-            : UpdateBookShopLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateBookShopLog.fromLog(log)
+            : UpdateBookShopLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.symbol:
         return (operateType == OperateType.create
-            ? CreateBookSymbolLog().fromLog(log)
-            : UpdateBookSymbolLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateBookSymbolLog.fromLog(log)
+            : UpdateBookSymbolLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.fund:
         return (operateType == OperateType.create
-            ? CreateFundLog().fromLog(log)
-            : UpdateFundLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateFundLog.fromLog(log)
+            : UpdateFundLog.fromLog(log)) as LogBuilder<T, RunResult>;
       case BusinessType.bookMember:
         return (operateType == OperateType.create
-            ? CreateMemberLog().fromLog(log)
-            : UpdateMemberLog().fromLog(log)) as LogBuilder<T, RunResult>;
+            ? CreateMemberLog.fromLog(log)
+            : UpdateMemberLog.fromLog(log)) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
@@ -282,8 +280,7 @@ class DeleteLog extends LogBuilder<String, void> {
         .subject(subjectId) as DeleteLog;
   }
 
-  @override
-  LogBuilder<String, void> fromLog(LogSync log) {
+  static DeleteLog fromLog(LogSync log) {
     return DeleteLog()
         .who(log.operatorId)
         .inBook(log.accountBookId)

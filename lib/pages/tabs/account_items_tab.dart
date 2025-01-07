@@ -30,9 +30,10 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context
-        .read<AccountBooksProvider>()
-        .loadBooks(UserConfigManager.currentUserId);
+    final provider = context.read<AccountBooksProvider>();
+    if (provider.books.isEmpty && !provider.loadingBooks) {
+      provider.loadBooks(UserConfigManager.currentUserId);
+    }
   }
 
   @override
@@ -48,8 +49,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
               userId: UserConfigManager.currentUserId,
               books: provider.books,
               selectedBook: provider.selectedBook,
-              loading: provider.loadingBooks,
-              error: provider.error,
               onSelected: (book) {
                 provider.setSelectedBook(book);
               },

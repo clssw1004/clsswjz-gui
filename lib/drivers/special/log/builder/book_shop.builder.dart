@@ -49,13 +49,10 @@ class CreateBookShopLog
         )) as CreateBookShopLog;
   }
 
-  @override
-  LogBuilder<AccountShopTableCompanion, String> fromLog(LogSync log) {
-    return CreateBookShopLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateBookShopLog;
+  static LogBuilder<AccountShopTableCompanion, String> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return CreateBookShopLog.build(log.operatorId, log.accountBookId,
+        name: data['name']);
   }
 }
 
@@ -86,13 +83,10 @@ class UpdateBookShopLog
         )) as UpdateBookShopLog;
   }
 
-  @override
-  LogBuilder<AccountShopTableCompanion, void> fromLog(LogSync log) {
-    return UpdateBookShopLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .subject(log.businessId)
-        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as UpdateBookShopLog;
+  static LogBuilder<AccountShopTableCompanion, void> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateBookShopLog.build(
+        log.operatorId, log.accountBookId, log.businessId,
+        name: data['name']);
   }
 }

@@ -60,8 +60,7 @@ class CreateBookItemLog
             projectCode: projectCode)) as CreateBookItemLog;
   }
 
-  @override
-  LogBuilder<AccountItemTableCompanion, String> fromLog(LogSync log) {
+  static LogBuilder<AccountItemTableCompanion, String> fromLog(LogSync log) {
     return CreateBookItemLog()
         .who(log.operatorId)
         .inBook(log.accountBookId)
@@ -107,8 +106,7 @@ class UpdateBookItemLog
             projectCode: projectCode)) as UpdateBookItemLog;
   }
 
-  @override
-  LogBuilder<AccountItemTableCompanion, void> fromLog(LogSync log) {
+  static LogBuilder<AccountItemTableCompanion, void> fromLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return UpdateBookItemLog.build(
       log.operatorId,
