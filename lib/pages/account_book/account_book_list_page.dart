@@ -22,6 +22,16 @@ class AccountBookListPage extends StatefulWidget {
 
 class _AccountBookListPageState extends State<AccountBookListPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context
+          .read<AccountBooksProvider>()
+          .loadBooks(UserConfigManager.currentUserId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 

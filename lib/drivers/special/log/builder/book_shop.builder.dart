@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_shop_table.dart';
 import '../../../../enums/business_type.dart';
@@ -46,6 +48,15 @@ class CreateBookShopLog
           name: name,
         )) as CreateBookShopLog;
   }
+
+  @override
+  LogBuilder<AccountShopTableCompanion, String> fromLog(LogSync log) {
+    return CreateBookShopLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateBookShopLog;
+  }
 }
 
 class UpdateBookShopLog
@@ -73,5 +84,15 @@ class UpdateBookShopLog
           userId,
           name: name,
         )) as UpdateBookShopLog;
+  }
+
+  @override
+  LogBuilder<AccountShopTableCompanion, void> fromLog(LogSync log) {
+    return UpdateBookShopLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as UpdateBookShopLog;
   }
 }

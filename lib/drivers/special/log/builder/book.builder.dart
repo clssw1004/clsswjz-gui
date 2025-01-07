@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import '../../../../database/tables/account_book_table.dart';
@@ -41,18 +43,24 @@ class CreateBookLog extends BookLogBuilder<AccountBookTableCompanion, String> {
     return data!.id.value;
   }
 
-  factory CreateBookLog.builder(String who,
+  static CreateBookLog build(String who,
       {required String name,
       String? description,
       CurrencySymbol? currencySymbol = CurrencySymbol.cny,
       String? icon}) {
-    return CreateBookLog()
-      ..who(who)
-      ..withData(AccountBookTable.toCreateCompanion(who,
-          name: name,
-          description: description,
-          currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-          icon: icon));
+    return CreateBookLog().who(who).withData(AccountBookTable.toCreateCompanion(
+        who,
+        name: name,
+        description: description,
+        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+        icon: icon)) as CreateBookLog;
+  }
+
+  @override
+  LogBuilder<AccountBookTableCompanion, String> fromLog(LogSync log) {
+    return CreateBookLog().who(log.operatorId).withData(
+            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+        as CreateBookLog;
   }
 }
 
@@ -66,7 +74,7 @@ class UpdateBookLog extends BookLogBuilder<AccountBookTableCompanion, void> {
     DaoManager.accountBookDao.update(accountBookId!, data!);
   }
 
-  static UpdateBookLog updateBook(String who, String bookId,
+  static UpdateBookLog build(String who, String bookId,
       {String? name,
       String? description,
       CurrencySymbol? currencySymbol,
@@ -78,5 +86,12 @@ class UpdateBookLog extends BookLogBuilder<AccountBookTableCompanion, void> {
             description: description,
             currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
             icon: icon)) as UpdateBookLog;
+  }
+
+  @override
+  LogBuilder<AccountBookTableCompanion, void> fromLog(LogSync log) {
+    return UpdateBookLog().who(log.operatorId).withData(
+            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+        as UpdateBookLog;
   }
 }

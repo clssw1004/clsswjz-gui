@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_category_table.dart';
 import '../../../../enums/business_type.dart';
@@ -48,6 +50,15 @@ class CreateBookCategoryLog
           categoryType: categoryType,
         )) as CreateBookCategoryLog;
   }
+
+  @override
+  LogBuilder<AccountCategoryTableCompanion, String> fromLog(LogSync log) {
+    return CreateBookCategoryLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateBookCategoryLog;
+  }
 }
 
 class UpdateBookCategoryLog
@@ -73,5 +84,15 @@ class UpdateBookCategoryLog
           name: name,
           lastAccountItemAt: lastAccountItemAt,
         )) as UpdateBookCategoryLog;
+  }
+
+  @override
+  LogBuilder<AccountCategoryTableCompanion, void> fromLog(LogSync log) {
+    return UpdateBookCategoryLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as UpdateBookCategoryLog;
   }
 }

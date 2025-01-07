@@ -9,8 +9,31 @@ import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 
 /// 账目列表标签页
-class AccountItemsTab extends StatelessWidget {
+class AccountItemsTab extends StatefulWidget {
   const AccountItemsTab({super.key});
+
+  @override
+  State<AccountItemsTab> createState() => _AccountItemsTabState();
+}
+
+class _AccountItemsTabState extends State<AccountItemsTab> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context
+          .read<AccountBooksProvider>()
+          .loadBooks(UserConfigManager.currentUserId);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context
+        .read<AccountBooksProvider>()
+        .loadBooks(UserConfigManager.currentUserId);
+  }
 
   @override
   Widget build(BuildContext context) {

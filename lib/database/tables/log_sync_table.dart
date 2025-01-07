@@ -1,4 +1,6 @@
+import 'package:clsswjz/enums/sync_state.dart';
 import 'package:drift/drift.dart';
+import '../database.dart';
 import 'base_table.dart';
 
 /// 同步日志表
@@ -42,4 +44,17 @@ class LogSyncTable extends StringIdTable {
   List<String> get customConstraints => [
         'UNIQUE (account_book_id, business_type, business_id,operator_id, operated_at)',
       ];
+
+  /// 创建更新伴生对象
+  static LogSyncTableCompanion toUpdateCompanion(
+    SyncState syncState,
+    int syncTime,
+    String? syncError,
+  ) {
+    return LogSyncTableCompanion(
+      syncState: Value(syncState.name),
+      syncTime: Value(syncTime),
+      syncError: Value.absentIfNull(syncError),
+    );
+  }
 }

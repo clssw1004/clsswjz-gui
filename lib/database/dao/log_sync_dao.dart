@@ -1,3 +1,4 @@
+import 'package:clsswjz/enums/sync_state.dart';
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/log_sync_table.dart';
@@ -8,4 +9,10 @@ class LogSyncDao extends BaseDao<LogSyncTable, LogSync> {
 
   @override
   TableInfo<LogSyncTable, LogSync> get table => db.logSyncTable;
+
+  Future<List<LogSync>> listChangeLogs() async {
+    return await (db.select(db.logSyncTable)
+          ..where((tbl) => tbl.syncState.equals(SyncState.unsynced.value)))
+        .get();
+  }
 }

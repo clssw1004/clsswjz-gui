@@ -34,7 +34,7 @@ class LogDataDriver implements BookDataDriver {
       String? defaultCategoryName,
       String? defaultShopName,
       List<BookMemberVO> members = const []}) async {
-    final bookId = await CreateBookLog.builder(userId,
+    final bookId = await CreateBookLog.build(userId,
             name: name,
             description: description,
             currencySymbol: currencySymbol ?? CurrencySymbol.cny,
@@ -117,7 +117,7 @@ class LogDataDriver implements BookDataDriver {
       CurrencySymbol? currencySymbol,
       String? icon,
       List<BookMemberVO> members = const []}) async {
-    await UpdateBookLog.updateBook(who, bookId,
+    await UpdateBookLog.build(who, bookId,
             name: name,
             description: description,
             currencySymbol: currencySymbol,
@@ -140,7 +140,7 @@ class LogDataDriver implements BookDataDriver {
     }
     if (diff.removed != null && diff.removed!.isNotEmpty) {
       for (var member in diff.removed!) {
-        await deleteBookMember(who, member.id);
+        await deleteBookMember(who, bookId, member.id);
       }
     }
 
@@ -357,14 +357,14 @@ class LogDataDriver implements BookDataDriver {
     return id;
   }
 
-  Future<void> updateBookMember(String who, String bookId,
+  Future<void> updateBookMember(String who, String bookId, String memberId,
       {bool? canViewBook,
       bool? canEditBook,
       bool? canDeleteBook,
       bool? canViewItem,
       bool? canEditItem,
       bool? canDeleteItem}) async {
-    await UpdateMemberLog.build(who, bookId,
+    await UpdateMemberLog.build(who, bookId, memberId,
             canViewBook: canViewBook,
             canEditBook: canEditBook,
             canDeleteBook: canDeleteBook,
@@ -374,8 +374,10 @@ class LogDataDriver implements BookDataDriver {
         .execute();
   }
 
-  Future<void> deleteBookMember(String who, String memberId) async {
-    await DeleteLog.build(who, BusinessType.bookMember, memberId).execute();
+  Future<void> deleteBookMember(
+      String who, String bookId, String memberId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.bookMember, memberId)
+        .execute();
   }
 
   @override

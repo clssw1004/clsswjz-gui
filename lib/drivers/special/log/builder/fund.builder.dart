@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clsswjz/enums/fund_type.dart';
 
 import '../../../../database/database.dart';
@@ -59,6 +61,15 @@ class CreateFundLog
         isDefault: isDefault,
       ));
   }
+
+  @override
+  LogBuilder<AccountFundTableCompanion, String> fromLog(LogSync log) {
+    return CreateFundLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateFundLog;
+  }
 }
 
 class UpdateFundLog
@@ -93,5 +104,15 @@ class UpdateFundLog
         fundBalance: fundBalance,
         isDefault: isDefault,
       ));
+  }
+
+  @override
+  LogBuilder<AccountFundTableCompanion, void> fromLog(LogSync log) {
+    return UpdateFundLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as UpdateFundLog;
   }
 }

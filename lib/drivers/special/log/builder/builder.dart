@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:drift/drift.dart';
 
 import '../../../../database/database.dart';
@@ -7,8 +11,18 @@ import '../../../../enums/sync_state.dart';
 import '../../../../manager/dao_manager.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
+import 'book_category.builder.dart';
+import 'book_item.builder.dart';
+import 'book_member.builder.dart';
+import 'book_shop.builder.dart';
+import 'book_symbol.builder.dart';
+import 'fund.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
+
+abstract class DeserializerLog<T extends LogBuilder> {
+  T fromLog(LogSync log);
+}
 
 abstract class LogBuilder<T, RunResult> {
   final String? _id;
@@ -97,11 +111,18 @@ abstract class LogBuilder<T, RunResult> {
     return this;
   }
 
-  Future<RunResult> execute() async {
+  Future<RunResult> executeWithoutRecord() async {
     final result = await executeLog();
+    return result;
+  }
+
+  Future<RunResult> execute() async {
+    final result = await executeWithoutRecord();
     await DaoManager.logSyncDao.insert(toSyncLog());
     return result;
   }
+
+  LogBuilder<T, RunResult> fromLog(LogSync log);
 
   Future<RunResult> executeLog();
 
@@ -118,6 +139,58 @@ abstract class LogBuilder<T, RunResult> {
       syncState: SyncState.unsynced.value,
       syncTime: -1,
     );
+  }
+
+  factory LogBuilder.fromLog(LogSync log) {
+    final Map<String, dynamic> data = log.operateType == OperateType.delete.name
+        ? {}
+        : jsonDecode(log.operateData);
+    final businessType = BusinessType.fromCode(log.businessType);
+    final operateType = OperateType.fromCode(log.operateType);
+
+    if (operateType == OperateType.delete) {
+      if (businessType == BusinessType.book) {
+        return DeleteLog.buildBook(log.operatorId, log.businessId)
+            as LogBuilder<T, RunResult>;
+      } else {
+        return DeleteLog.buildBookSub(log.operatorId, log.accountBookId,
+            businessType!, log.businessId) as LogBuilder<T, RunResult>;
+      }
+    }
+
+    switch (businessType) {
+      case BusinessType.book:
+        return (operateType == OperateType.create
+            ? CreateBookLog().fromLog(log)
+            : UpdateBookLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.category:
+        return (operateType == OperateType.create
+            ? CreateBookCategoryLog().fromLog(log)
+            : UpdateBookCategoryLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.item:
+        return (operateType == OperateType.create
+            ? CreateBookItemLog().fromLog(log)
+            : UpdateBookItemLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.shop:
+        return (operateType == OperateType.create
+            ? CreateBookShopLog().fromLog(log)
+            : UpdateBookShopLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.symbol:
+        return (operateType == OperateType.create
+            ? CreateBookSymbolLog().fromLog(log)
+            : UpdateBookSymbolLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.fund:
+        return (operateType == OperateType.create
+            ? CreateFundLog().fromLog(log)
+            : UpdateFundLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      case BusinessType.bookMember:
+        return (operateType == OperateType.create
+            ? CreateMemberLog().fromLog(log)
+            : UpdateMemberLog().fromLog(log)) as LogBuilder<T, RunResult>;
+      default:
+        throw UnimplementedError(
+            'Unsupported business type: ${log.businessType}');
+    }
   }
 
   String data2Json() {
@@ -207,5 +280,14 @@ class DeleteLog extends LogBuilder<String, void> {
         .doWith(businessType)
         .withOutBook()
         .subject(subjectId) as DeleteLog;
+  }
+
+  @override
+  LogBuilder<String, void> fromLog(LogSync log) {
+    return DeleteLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doWith(BusinessType.fromCode(log.businessType)!)
+        .subject(log.businessId) as DeleteLog;
   }
 }

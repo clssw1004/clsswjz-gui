@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import '../../../../database/tables/account_item_table.dart';
@@ -57,6 +59,15 @@ class CreateBookItemLog
             tagCode: tagCode,
             projectCode: projectCode)) as CreateBookItemLog;
   }
+
+  @override
+  LogBuilder<AccountItemTableCompanion, String> fromLog(LogSync log) {
+    return CreateBookItemLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(AccountItem.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateBookItemLog;
+  }
 }
 
 class UpdateBookItemLog
@@ -94,5 +105,24 @@ class UpdateBookItemLog
             shopCode: shopCode,
             tagCode: tagCode,
             projectCode: projectCode)) as UpdateBookItemLog;
+  }
+
+  @override
+  LogBuilder<AccountItemTableCompanion, void> fromLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UpdateBookItemLog.build(
+      log.operatorId,
+      log.accountBookId,
+      log.businessId,
+      amount: data['amount'],
+      description: data['description'],
+      type: data['type'],
+      categoryCode: data['categoryCode'],
+      accountDate: data['accountDate'],
+      fundId: data['fundId'],
+      shopCode: data['shopCode'],
+      tagCode: data['tagCode'],
+      projectCode: data['projectCode'],
+    );
   }
 }

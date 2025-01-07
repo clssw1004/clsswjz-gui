@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/utils/date_util.dart';
@@ -44,6 +46,15 @@ class CreateMemberLog
             canEditItem: canEditItem,
             canDeleteItem: canDeleteItem)) as CreateMemberLog;
   }
+
+  @override
+  LogBuilder<RelAccountbookUserTableCompanion, String> fromLog(LogSync log) {
+    return CreateMemberLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateMemberLog;
+  }
 }
 
 class UpdateMemberLog
@@ -60,7 +71,8 @@ class UpdateMemberLog
     await DaoManager.relAccountbookUserDao.update(accountBookId!, newData);
   }
 
-  static UpdateMemberLog build(String who, String accountBookId,
+  static UpdateMemberLog build(
+      String who, String accountBookId, String memberId,
       {bool? canViewBook,
       bool? canEditBook,
       bool? canDeleteBook,
@@ -75,5 +87,15 @@ class UpdateMemberLog
             canViewItem: canViewItem,
             canEditItem: canEditItem,
             canDeleteItem: canDeleteItem)) as UpdateMemberLog;
+  }
+
+  @override
+  LogBuilder<RelAccountbookUserTableCompanion, void> fromLog(LogSync log) {
+    return UpdateMemberLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as UpdateMemberLog;
   }
 }

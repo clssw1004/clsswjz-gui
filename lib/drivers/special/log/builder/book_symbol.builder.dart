@@ -5,6 +5,7 @@ import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
+import 'dart:convert';
 
 abstract class AbstractBookSymbolLog<T, RunResult>
     extends LogBuilder<T, RunResult> {
@@ -49,6 +50,15 @@ class CreateBookSymbolLog
           symbolType: symbolType,
         )) as CreateBookSymbolLog;
   }
+
+  @override
+  LogBuilder<AccountSymbolTableCompanion, String> fromLog(LogSync log) {
+    return CreateBookSymbolLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CreateBookSymbolLog;
+  }
 }
 
 class UpdateBookSymbolLog
@@ -73,5 +83,15 @@ class UpdateBookSymbolLog
           userId,
           name: name,
         )) as UpdateBookSymbolLog;
+  }
+
+  @override
+  LogBuilder<AccountSymbolTableCompanion, void> fromLog(LogSync log) {
+    return UpdateBookSymbolLog()
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as UpdateBookSymbolLog;
   }
 }

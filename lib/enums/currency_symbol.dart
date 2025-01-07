@@ -56,4 +56,15 @@ enum CurrencySymbol {
       return CurrencySymbol.cny;
     }
   }
+
+  /// 根据货币符号获取货币枚举
+  static CurrencySymbol? fromSymbolOptional(String symbol) {
+    try {
+      return CurrencySymbol.values.firstWhere(
+        (currency) => currency.symbol == symbol,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }
