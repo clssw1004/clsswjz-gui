@@ -7,10 +7,21 @@ import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
 import 'dart:convert';
 
-abstract class AbstractBookSymbolLog<T, RunResult>
-    extends LogBuilder<T, RunResult> {
-  AbstractBookSymbolLog() {
+class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
+  SymbolCULog() : super() {
     doWith(BusinessType.symbol);
+  }
+
+  @override
+  Future<String> executeLog() async {
+    if (operateType == OperateType.create) {
+      await DaoManager.accountSymbolDao.insert(data!);
+      subject(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.accountSymbolDao.update(businessId!, data!);
+    }
+    return data!.id.value;
   }
 
   @override
@@ -23,69 +34,52 @@ abstract class AbstractBookSymbolLog<T, RunResult>
           data as AccountSymbolTableCompanion);
     }
   }
-}
 
-class CreateBookSymbolLog
-    extends AbstractBookSymbolLog<AccountSymbolTableCompanion, String> {
-  CreateBookSymbolLog() : super() {
-    operate(OperateType.create);
-  }
-
-  @override
-  Future<String> executeLog() async {
-    await DaoManager.accountSymbolDao.insert(data!);
-    subject(data!.id.value);
-    return data!.id.value;
-  }
-
-  static CreateBookSymbolLog build(String who, String bookId,
+  static SymbolCULog create(String who, String bookId,
       {required String name, required SymbolType symbolType}) {
-    return CreateBookSymbolLog()
+    return SymbolCULog()
         .who(who)
         .inBook(bookId)
+        .doCreate()
         .withData(AccountSymbolTable.toCreateCompanion(
           who,
           bookId,
           name: name,
           symbolType: symbolType,
-        )) as CreateBookSymbolLog;
+        )) as SymbolCULog;
   }
 
-  static LogBuilder<AccountSymbolTableCompanion, String> fromLog(LogSync log) {
-    Map<String, dynamic> data = jsonDecode(log.operateData);
-    return CreateBookSymbolLog.build(log.operatorId, log.accountBookId,
-        name: data['name'], symbolType: data['symbolType']);
-  }
-}
-
-class UpdateBookSymbolLog
-    extends AbstractBookSymbolLog<AccountSymbolTableCompanion, void> {
-  UpdateBookSymbolLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    await DaoManager.accountSymbolDao.update(businessId!, data!);
-  }
-
-  static UpdateBookSymbolLog build(
-      String userId, String bookId, String symbolId,
+  static SymbolCULog update(String userId, String bookId, String symbolId,
       {String? name}) {
-    return UpdateBookSymbolLog()
+    return SymbolCULog()
         .who(userId)
         .inBook(bookId)
         .subject(symbolId)
+        .doUpdate()
         .withData(AccountSymbolTable.toUpdateCompanion(
           userId,
           name: name,
-        )) as UpdateBookSymbolLog;
+        )) as SymbolCULog;
   }
 
-  static LogBuilder<AccountSymbolTableCompanion, void> fromLog(LogSync log) {
+  static SymbolCULog fromCreateLog(LogSync log) {
+    return SymbolCULog()
+            .who(log.operatorId)
+            .inBook(log.accountBookId)
+            .doCreate()
+            .withData(AccountSymbol.fromJson(jsonDecode(log.operateData)))
+        as SymbolCULog;
+  }
+
+  static SymbolCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateBookSymbolLog.build(
-        log.operatorId, log.accountBookId, log.businessId,
+    return SymbolCULog.update(log.operatorId, log.accountBookId, log.businessId,
         name: data['name']);
+  }
+
+  static SymbolCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? SymbolCULog.fromCreateLog(log)
+        : SymbolCULog.fromUpdateLog(log));
   }
 }

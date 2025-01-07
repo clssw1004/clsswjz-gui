@@ -7,10 +7,21 @@ import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
 
-abstract class AbstractBookShopLog<T, RunResult>
-    extends LogBuilder<T, RunResult> {
-  AbstractBookShopLog() {
+class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
+  ShopCULog() : super() {
     doWith(BusinessType.shop);
+  }
+
+  @override
+  Future<String> executeLog() async {
+    if (operateType == OperateType.create) {
+      await DaoManager.accountShopDao.insert(data!);
+      subject(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.accountShopDao.update(businessId!, data!);
+    }
+    return data!.id.value;
   }
 
   @override
@@ -22,71 +33,50 @@ abstract class AbstractBookShopLog<T, RunResult>
       return AccountShopTable.toJsonString(data as AccountShopTableCompanion);
     }
   }
-}
 
-class CreateBookShopLog
-    extends AbstractBookShopLog<AccountShopTableCompanion, String> {
-  CreateBookShopLog() : super() {
-    operate(OperateType.create);
-  }
-
-  @override
-  Future<String> executeLog() async {
-    await DaoManager.accountShopDao.insert(data!);
-    subject(data!.id.value);
-    return data!.id.value;
-  }
-
-  static CreateBookShopLog build(String who, String bookId,
-      {required String name, required}) {
-    return CreateBookShopLog()
+  static ShopCULog create(String who, String bookId, {required String name}) {
+    return ShopCULog()
         .who(who)
         .inBook(bookId)
+        .doCreate()
         .withData(AccountShopTable.toCreateCompanion(
           who,
           bookId,
           name: name,
-        )) as CreateBookShopLog;
+        )) as ShopCULog;
   }
 
-  static LogBuilder<AccountShopTableCompanion, String> fromLog(LogSync log) {
-    Map<String, dynamic> data = jsonDecode(log.operateData);
-    return CreateBookShopLog.build(log.operatorId, log.accountBookId,
-        name: data['name']);
-  }
-}
-
-class UpdateBookShopLog
-    extends AbstractBookShopLog<AccountShopTableCompanion, void> {
-  UpdateBookShopLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    await DaoManager.accountShopDao.update(businessId!, data!);
-  }
-
-  static UpdateBookShopLog build(
-    String userId,
-    String bookId,
-    String shopId, {
-    required String name,
-  }) {
-    return UpdateBookShopLog()
+  static ShopCULog update(String userId, String bookId, String shopId,
+      {required String name}) {
+    return ShopCULog()
         .who(userId)
         .inBook(bookId)
         .subject(shopId)
+        .doUpdate()
         .withData(AccountShopTable.toUpdateCompanion(
           userId,
           name: name,
-        )) as UpdateBookShopLog;
+        )) as ShopCULog;
   }
 
-  static LogBuilder<AccountShopTableCompanion, void> fromLog(LogSync log) {
+  static ShopCULog fromCreateLog(LogSync log) {
+    return ShopCULog()
+            .who(log.operatorId)
+            .inBook(log.accountBookId)
+            .doCreate()
+            .withData(AccountShop.fromJson(jsonDecode(log.operateData)))
+        as ShopCULog;
+  }
+
+  static ShopCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateBookShopLog.build(
-        log.operatorId, log.accountBookId, log.businessId,
+    return ShopCULog.update(log.operatorId, log.accountBookId, log.businessId,
         name: data['name']);
+  }
+
+  static ShopCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? ShopCULog.fromCreateLog(log)
+        : ShopCULog.fromUpdateLog(log));
   }
 }

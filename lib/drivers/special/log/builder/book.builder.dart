@@ -9,15 +9,21 @@ import '../../../../enums/operate_type.dart';
 import '../../../../models/vo/book_member_vo.dart';
 import 'builder.dart';
 
-abstract class BookLogBuilder<T, RunResult> extends LogBuilder<T, RunResult> {
-  BookLogBuilder() {
+class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
+  BookCULog() : super() {
     doWith(BusinessType.book);
   }
 
   @override
-  LogBuilder<T, RunResult> inBook(String bookId) {
-    super.inBook(bookId).subject(bookId);
-    return this;
+  Future<String> executeLog() async {
+    if (operateType == OperateType.create) {
+      await DaoManager.accountBookDao.insert(data!);
+      inBook(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.accountBookDao.update(accountBookId!, data!);
+    }
+    return data!.id.value;
   }
 
   @override
@@ -29,67 +35,49 @@ abstract class BookLogBuilder<T, RunResult> extends LogBuilder<T, RunResult> {
       return AccountBookTable.toJsonString(data as AccountBookTableCompanion);
     }
   }
-}
 
-class CreateBookLog extends BookLogBuilder<AccountBookTableCompanion, String> {
-  CreateBookLog() : super() {
-    operate(OperateType.create);
-  }
-
-  @override
-  Future<String> executeLog() async {
-    await DaoManager.accountBookDao.insert(data!);
-    inBook(data!.id.value);
-    return data!.id.value;
-  }
-
-  static CreateBookLog build(String who,
+  static BookCULog create(String who,
       {required String name,
       String? description,
       CurrencySymbol? currencySymbol = CurrencySymbol.cny,
       String? icon}) {
-    return CreateBookLog().who(who).withData(AccountBookTable.toCreateCompanion(
-        who,
-        name: name,
-        description: description,
-        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-        icon: icon)) as CreateBookLog;
+    return BookCULog().who(who).doCreate().withData(
+        AccountBookTable.toCreateCompanion(who,
+            name: name,
+            description: description,
+            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+            icon: icon)) as BookCULog;
   }
 
-  static CreateBookLog fromLog(LogSync log) {
-    return CreateBookLog().who(log.operatorId).withData(
-            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
-        as CreateBookLog;
-  }
-}
-
-class UpdateBookLog extends BookLogBuilder<AccountBookTableCompanion, void> {
-  UpdateBookLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    DaoManager.accountBookDao.update(accountBookId!, data!);
-  }
-
-  static UpdateBookLog build(String who, String bookId,
+  static BookCULog update(String who, String bookId,
       {String? name,
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
       List<BookMemberVO>? members}) {
-    return UpdateBookLog().inBook(bookId).who(who).withData(
+    return BookCULog().inBook(bookId).doUpdate().who(who).withData(
         AccountBookTable.toUpdateCompanion(who,
             name: name,
             description: description,
             currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-            icon: icon)) as UpdateBookLog;
+            icon: icon)) as BookCULog;
   }
 
-  static UpdateBookLog fromLog(LogSync log) {
+  static BookCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? BookCULog.fromCreateLog(log)
+        : BookCULog.fromUpdateLog(log));
+  }
+
+  static BookCULog fromCreateLog(LogSync log) {
+    return BookCULog().who(log.operatorId).doCreate().withData(
+            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+        as BookCULog;
+  }
+
+  static BookCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateBookLog.build(log.operatorId, log.accountBookId,
+    return BookCULog.update(log.operatorId, log.accountBookId,
         name: data['name'],
         description: data['description'],
         currencySymbol: data['currencySymbol'],

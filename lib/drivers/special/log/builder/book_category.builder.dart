@@ -7,10 +7,21 @@ import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
 
-abstract class AbstractBookCategoryLog<T, RunResult>
-    extends LogBuilder<T, RunResult> {
-  AbstractBookCategoryLog() {
+class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
+  CategoryCULog() : super() {
     doWith(BusinessType.category);
+  }
+
+  @override
+  Future<String> executeLog() async {
+    if (operateType == OperateType.create) {
+      await DaoManager.accountCategoryDao.insert(data!);
+      subject(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.accountCategoryDao.update(businessId!, data!);
+    }
+    return data!.id.value;
   }
 
   @override
@@ -23,72 +34,53 @@ abstract class AbstractBookCategoryLog<T, RunResult>
           data as AccountCategoryTableCompanion);
     }
   }
-}
 
-class CreateBookCategoryLog
-    extends AbstractBookCategoryLog<AccountCategoryTableCompanion, String> {
-  CreateBookCategoryLog() : super() {
-    operate(OperateType.create);
-  }
-
-  @override
-  Future<String> executeLog() async {
-    await DaoManager.accountCategoryDao.insert(data!);
-    subject(data!.id.value);
-    return data!.id.value;
-  }
-
-  static CreateBookCategoryLog build(String who, String bookId,
+  static CategoryCULog create(String who, String bookId,
       {required String name, required String categoryType}) {
-    return CreateBookCategoryLog()
+    return CategoryCULog()
         .who(who)
         .inBook(bookId)
+        .doCreate()
         .withData(AccountCategoryTable.toCreateCompanion(
           who,
           bookId,
           name: name,
           categoryType: categoryType,
-        )) as CreateBookCategoryLog;
+        )) as CategoryCULog;
   }
 
-  static LogBuilder<AccountCategoryTableCompanion, String> fromLog(
-      LogSync log) {
-    return CreateBookCategoryLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateBookCategoryLog;
-  }
-}
-
-class UpdateBookCategoryLog
-    extends AbstractBookCategoryLog<AccountCategoryTableCompanion, void> {
-  UpdateBookCategoryLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    await DaoManager.accountCategoryDao.update(businessId!, data!);
-  }
-
-  static UpdateBookCategoryLog build(
-      String userId, String bookId, String categoryId,
+  static CategoryCULog update(String userId, String bookId, String categoryId,
       {String? name, DateTime? lastAccountItemAt}) {
-    return UpdateBookCategoryLog()
+    return CategoryCULog()
         .who(userId)
         .inBook(bookId)
         .subject(categoryId)
+        .doUpdate()
         .withData(AccountCategoryTable.toUpdateCompanion(
           userId,
           name: name,
           lastAccountItemAt: lastAccountItemAt,
-        )) as UpdateBookCategoryLog;
+        )) as CategoryCULog;
   }
 
-  static LogBuilder<AccountCategoryTableCompanion, void> fromLog(LogSync log) {
+  static CategoryCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? CategoryCULog.fromCreateLog(log)
+        : CategoryCULog.fromUpdateLog(log));
+  }
+
+  static CategoryCULog fromCreateLog(LogSync log) {
+    return CategoryCULog()
+            .who(log.operatorId)
+            .inBook(log.accountBookId)
+            .doCreate()
+            .withData(AccountCategory.fromJson(jsonDecode(log.operateData)))
+        as CategoryCULog;
+  }
+
+  static CategoryCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateBookCategoryLog.build(
+    return CategoryCULog.update(
         log.operatorId, log.accountBookId, log.businessId,
         name: data['name'], lastAccountItemAt: data['lastAccountItemAt']);
   }

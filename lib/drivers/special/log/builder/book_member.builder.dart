@@ -1,33 +1,41 @@
 import 'dart:convert';
 
-import 'package:clsswjz/database/database.dart';
-import 'package:clsswjz/manager/dao_manager.dart';
-import 'package:clsswjz/utils/date_util.dart';
-import 'package:drift/drift.dart';
+import '../../../../database/database.dart';
 import '../../../../database/tables/rel_accountbook_user_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
+import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
 
-class CreateMemberLog
-    extends LogBuilder<RelAccountbookUserTableCompanion, String> {
-  CreateMemberLog() : super() {
-    doWith(BusinessType.bookMember).operate(OperateType.create);
+class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
+  MemberCULog() : super() {
+    doWith(BusinessType.bookMember);
   }
 
   @override
   Future<String> executeLog() async {
-    subject(data!.id.value);
-    await DaoManager.relAccountbookUserDao.insert(data!);
+    if (operateType == OperateType.create) {
+      await DaoManager.relAccountbookUserDao.insert(data!);
+      subject(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.relAccountbookUserDao.update(businessId!, data!);
+    }
     return data!.id.value;
   }
 
   @override
   String data2Json() {
-    return RelAccountbookUserTable.toJsonString(data!);
+    if (data == null) return '';
+    if (operateType == OperateType.delete) {
+      return data!.toString();
+    } else {
+      return RelAccountbookUserTable.toJsonString(
+          data as RelAccountbookUserTableCompanion);
+    }
   }
 
-  static CreateMemberLog build(String who, String accountBookId,
+  static MemberCULog create(String who, String bookId,
       {required String userId,
       bool canViewBook = true,
       bool canEditBook = false,
@@ -35,70 +43,66 @@ class CreateMemberLog
       bool canViewItem = true,
       bool canEditItem = false,
       bool canDeleteItem = false}) {
-    return CreateMemberLog().who(who).inBook(accountBookId).withData(
+    return MemberCULog().who(who).inBook(bookId).doCreate().withData(
         RelAccountbookUserTable.toCreateCompanion(
-            accountBookId: accountBookId,
+            accountBookId: bookId,
             userId: userId,
             canViewBook: canViewBook,
             canEditBook: canEditBook,
             canDeleteBook: canDeleteBook,
             canViewItem: canViewItem,
             canEditItem: canEditItem,
-            canDeleteItem: canDeleteItem)) as CreateMemberLog;
+            canDeleteItem: canDeleteItem)) as MemberCULog;
   }
 
-  static LogBuilder<RelAccountbookUserTableCompanion, String> fromLog(
-      LogSync log) {
-    return CreateMemberLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateMemberLog;
-  }
-}
-
-class UpdateMemberLog
-    extends LogBuilder<RelAccountbookUserTableCompanion, void> {
-  UpdateMemberLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    final newData = data!.copyWith(
-      updatedAt: Value(DateUtil.now()),
-    );
-    await DaoManager.relAccountbookUserDao.update(accountBookId!, newData);
-  }
-
-  static UpdateMemberLog build(
-      String who, String accountBookId, String memberId,
+  static MemberCULog update(String who, String bookId, String memberId,
       {bool? canViewBook,
       bool? canEditBook,
       bool? canDeleteBook,
       bool? canViewItem,
       bool? canEditItem,
       bool? canDeleteItem}) {
-    return UpdateMemberLog().who(who).inBook(accountBookId).withData(
-        RelAccountbookUserTable.toUpdateCompanion(
+    return MemberCULog()
+        .who(who)
+        .inBook(bookId)
+        .subject(memberId)
+        .doUpdate()
+        .withData(RelAccountbookUserTable.toUpdateCompanion(
             canViewBook: canViewBook,
             canEditBook: canEditBook,
             canDeleteBook: canDeleteBook,
             canViewItem: canViewItem,
             canEditItem: canEditItem,
-            canDeleteItem: canDeleteItem)) as UpdateMemberLog;
+            canDeleteItem: canDeleteItem)) as MemberCULog;
   }
 
-  static LogBuilder<RelAccountbookUserTableCompanion, void> fromLog(
-      LogSync log) {
+  static MemberCULog fromCreateLog(LogSync log) {
+    return MemberCULog()
+            .who(log.operatorId)
+            .inBook(log.accountBookId)
+            .doCreate()
+            .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData)))
+        as MemberCULog;
+  }
+
+  static MemberCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateMemberLog.build(
-        log.operatorId, log.accountBookId, log.businessId,
-        canViewBook: data['canViewBook'],
-        canEditBook: data['canEditBook'],
-        canDeleteBook: data['canDeleteBook'],
-        canViewItem: data['canViewItem'],
-        canEditItem: data['canEditItem'],
-        canDeleteItem: data['canDeleteItem']);
+    return MemberCULog.update(
+      log.operatorId,
+      log.accountBookId,
+      log.businessId,
+      canViewBook: data['canViewBook'],
+      canEditBook: data['canEditBook'],
+      canDeleteBook: data['canDeleteBook'],
+      canViewItem: data['canViewItem'],
+      canEditItem: data['canEditItem'],
+      canDeleteItem: data['canDeleteItem'],
+    );
+  }
+
+  static MemberCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? MemberCULog.fromCreateLog(log)
+        : MemberCULog.fromUpdateLog(log));
   }
 }

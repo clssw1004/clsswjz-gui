@@ -34,7 +34,7 @@ class LogDataDriver implements BookDataDriver {
       String? defaultCategoryName,
       String? defaultShopName,
       List<BookMemberVO> members = const []}) async {
-    final bookId = await CreateBookLog.build(userId,
+    final bookId = await BookCULog.create(userId,
             name: name,
             description: description,
             currencySymbol: currencySymbol ?? CurrencySymbol.cny,
@@ -117,7 +117,7 @@ class LogDataDriver implements BookDataDriver {
       CurrencySymbol? currencySymbol,
       String? icon,
       List<BookMemberVO> members = const []}) async {
-    await UpdateBookLog.build(who, bookId,
+    await BookCULog.update(who, bookId,
             name: name,
             description: description,
             currencySymbol: currencySymbol,
@@ -158,7 +158,7 @@ class LogDataDriver implements BookDataDriver {
       String? shopCode,
       String? tagCode,
       String? projectCode}) async {
-    final id = await CreateBookItemLog.build(who, bookId,
+    final id = await ItemCULog.create(who, bookId,
             amount: amount,
             description: description,
             type: type,
@@ -184,7 +184,7 @@ class LogDataDriver implements BookDataDriver {
       String? shopCode,
       String? tagCode,
       String? projectCode}) async {
-    await UpdateBookItemLog.build(who, bookId, itemId,
+    await ItemCULog.update(who, bookId, itemId,
             amount: amount,
             description: description,
             type: type,
@@ -201,7 +201,7 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createBookCategory(String who, String bookId,
       {required String name, required String categoryType}) async {
-    final id = await CreateBookCategoryLog.build(who, bookId,
+    final id = await CategoryCULog.create(who, bookId,
             name: name, categoryType: categoryType)
         .execute();
     return OperateResult.success(id);
@@ -211,7 +211,7 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<void>> updateBookCategory(
       String who, String bookId, String categoryId,
       {String? name, DateTime? lastAccountItemAt}) async {
-    await UpdateBookCategoryLog.build(who, bookId, categoryId,
+    await CategoryCULog.update(who, bookId, categoryId,
             name: name, lastAccountItemAt: lastAccountItemAt)
         .execute();
     return OperateResult.success(null);
@@ -221,7 +221,7 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createBookShop(String who, String bookId,
       {required String name}) async {
-    final id = await CreateBookShopLog.build(who, bookId, name: name).execute();
+    final id = await ShopCULog.create(who, bookId, name: name).execute();
     return OperateResult.success(id);
   }
 
@@ -230,14 +230,14 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<void>> updateBookShop(
       String who, String bookId, String shopId,
       {required String name}) async {
-    await UpdateBookShopLog.build(who, bookId, shopId, name: name).execute();
+    await ShopCULog.update(who, bookId, shopId, name: name).execute();
     return OperateResult.success(null);
   }
 
   @override
   Future<OperateResult<String>> createBookSymbol(String who, String bookId,
       {required String name, required SymbolType symbolType}) async {
-    final id = await CreateBookSymbolLog.build(who, bookId,
+    final id = await SymbolCULog.create(who, bookId,
             name: name, symbolType: symbolType)
         .execute();
     return OperateResult.success(id);
@@ -247,7 +247,7 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<void>> updateBookSymbol(
       String who, String bookId, String tagId,
       {required String name}) async {
-    await UpdateBookSymbolLog.build(who, bookId, tagId, name: name).execute();
+    await SymbolCULog.update(who, bookId, tagId, name: name).execute();
     return OperateResult.success(null);
   }
 
@@ -293,7 +293,7 @@ class LogDataDriver implements BookDataDriver {
     double? fundBalance,
     bool isDefault = false,
   }) async {
-    final id = await CreateFundLog.build(who, bookId,
+    final id = await FundCULog.create(who, bookId,
             name: name,
             fundType: fundType,
             fundRemark: fundRemark,
@@ -313,7 +313,7 @@ class LogDataDriver implements BookDataDriver {
     double? fundBalance,
     String? fundRemark,
   }) async {
-    await UpdateFundLog.build(who, bookId, fundId,
+    await FundCULog.update(who, bookId, fundId,
             name: name,
             fundType: fundType,
             fundBalance: fundBalance,
@@ -345,7 +345,7 @@ class LogDataDriver implements BookDataDriver {
       bool canViewItem = true,
       bool canEditItem = true,
       bool canDeleteItem = true}) async {
-    final id = await CreateMemberLog.build(who, bookId,
+    final id = await MemberCULog.create(who, bookId,
             userId: userId,
             canViewBook: canViewBook,
             canEditBook: canEditBook,
@@ -364,7 +364,7 @@ class LogDataDriver implements BookDataDriver {
       bool? canViewItem,
       bool? canEditItem,
       bool? canDeleteItem}) async {
-    await UpdateMemberLog.build(who, bookId, memberId,
+    await MemberCULog.update(who, bookId, memberId,
             canViewBook: canViewBook,
             canEditBook: canEditBook,
             canDeleteBook: canDeleteBook,

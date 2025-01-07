@@ -7,10 +7,21 @@ import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import 'builder.dart';
 
-abstract class AbstractBookItemLog<T, RunResult>
-    extends LogBuilder<T, RunResult> {
-  AbstractBookItemLog() {
+class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
+  ItemCULog() : super() {
     doWith(BusinessType.item);
+  }
+
+  @override
+  Future<String> executeLog() async {
+    if (operateType == OperateType.create) {
+      await DaoManager.accountItemDao.insert(data!);
+      subject(data!.id.value);
+      return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.accountItemDao.update(businessId!, data!);
+    }
+    return data!.id.value;
   }
 
   @override
@@ -22,22 +33,8 @@ abstract class AbstractBookItemLog<T, RunResult>
       return AccountItemTable.toJsonString(data as AccountItemTableCompanion);
     }
   }
-}
 
-class CreateBookItemLog
-    extends AbstractBookItemLog<AccountItemTableCompanion, String> {
-  CreateBookItemLog() : super() {
-    operate(OperateType.create);
-  }
-
-  @override
-  Future<String> executeLog() async {
-    await DaoManager.accountItemDao.insert(data!);
-    subject(data!.id.value);
-    return data!.id.value;
-  }
-
-  static CreateBookItemLog build(String who, String bookId,
+  static ItemCULog create(String who, String bookId,
       {required amount,
       String? description,
       required String type,
@@ -47,7 +44,7 @@ class CreateBookItemLog
       String? shopCode,
       String? tagCode,
       String? projectCode}) {
-    return CreateBookItemLog().who(who).inBook(bookId).withData(
+    return ItemCULog().who(who).inBook(bookId).doCreate().withData(
         AccountItemTable.toCreateCompanion(who, bookId,
             amount: amount,
             description: description,
@@ -57,30 +54,10 @@ class CreateBookItemLog
             fundId: fundId,
             shopCode: shopCode,
             tagCode: tagCode,
-            projectCode: projectCode)) as CreateBookItemLog;
+            projectCode: projectCode)) as ItemCULog;
   }
 
-  static LogBuilder<AccountItemTableCompanion, String> fromLog(LogSync log) {
-    return CreateBookItemLog()
-        .who(log.operatorId)
-        .inBook(log.accountBookId)
-        .withData(AccountItem.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CreateBookItemLog;
-  }
-}
-
-class UpdateBookItemLog
-    extends AbstractBookItemLog<AccountItemTableCompanion, void> {
-  UpdateBookItemLog() : super() {
-    operate(OperateType.update);
-  }
-
-  @override
-  Future<void> executeLog() async {
-    await DaoManager.accountItemDao.update(businessId!, data!);
-  }
-
-  static UpdateBookItemLog build(String userId, String bookId, String itemId,
+  static ItemCULog update(String userId, String bookId, String itemId,
       {double? amount,
       String? description,
       String? type,
@@ -90,10 +67,11 @@ class UpdateBookItemLog
       String? shopCode,
       String? tagCode,
       String? projectCode}) {
-    return UpdateBookItemLog()
+    return ItemCULog()
         .who(userId)
         .inBook(bookId)
         .subject(itemId)
+        .doUpdate()
         .withData(AccountItemTable.toUpdateCompanion(userId,
             amount: amount,
             description: description,
@@ -103,12 +81,21 @@ class UpdateBookItemLog
             fundId: fundId,
             shopCode: shopCode,
             tagCode: tagCode,
-            projectCode: projectCode)) as UpdateBookItemLog;
+            projectCode: projectCode)) as ItemCULog;
   }
 
-  static LogBuilder<AccountItemTableCompanion, void> fromLog(LogSync log) {
+  static ItemCULog fromCreateLog(LogSync log) {
+    return ItemCULog()
+            .who(log.operatorId)
+            .inBook(log.accountBookId)
+            .doCreate()
+            .withData(AccountItem.fromJson(jsonDecode(log.operateData)))
+        as ItemCULog;
+  }
+
+  static ItemCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return UpdateBookItemLog.build(
+    return ItemCULog.update(
       log.operatorId,
       log.accountBookId,
       log.businessId,
@@ -122,5 +109,11 @@ class UpdateBookItemLog
       tagCode: data['tagCode'],
       projectCode: data['projectCode'],
     );
+  }
+
+  static ItemCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? ItemCULog.fromCreateLog(log)
+        : ItemCULog.fromUpdateLog(log));
   }
 }

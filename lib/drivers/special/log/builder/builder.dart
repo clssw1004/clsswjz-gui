@@ -91,17 +91,17 @@ abstract class LogBuilder<T, RunResult> {
     return this;
   }
 
-  LogBuilder create() {
+  LogBuilder doCreate() {
     _operateType = OperateType.create;
     return this;
   }
 
-  LogBuilder update() {
-    _operateType = OperateType.delete;
+  LogBuilder doUpdate() {
+    _operateType = OperateType.update;
     return this;
   }
 
-  LogBuilder delete() {
+  LogBuilder doDelete() {
     _operateType = OperateType.delete;
     return this;
   }
@@ -158,33 +158,20 @@ abstract class LogBuilder<T, RunResult> {
 
     switch (businessType) {
       case BusinessType.book:
-        return (operateType == OperateType.create
-            ? CreateBookLog.fromLog(log)
-            : UpdateBookLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return BookCULog.fromLog(log) as LogBuilder<T, RunResult>;
+
       case BusinessType.category:
-        return (operateType == OperateType.create
-            ? CreateBookCategoryLog.fromLog(log)
-            : UpdateBookCategoryLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return CategoryCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.item:
-        return (operateType == OperateType.create
-            ? CreateBookItemLog.fromLog(log)
-            : UpdateBookItemLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return ItemCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.shop:
-        return (operateType == OperateType.create
-            ? CreateBookShopLog.fromLog(log)
-            : UpdateBookShopLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return ShopCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.symbol:
-        return (operateType == OperateType.create
-            ? CreateBookSymbolLog.fromLog(log)
-            : UpdateBookSymbolLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return SymbolCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.fund:
-        return (operateType == OperateType.create
-            ? CreateFundLog.fromLog(log)
-            : UpdateFundLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return FundCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.bookMember:
-        return (operateType == OperateType.create
-            ? CreateMemberLog.fromLog(log)
-            : UpdateMemberLog.fromLog(log)) as LogBuilder<T, RunResult>;
+        return MemberCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
