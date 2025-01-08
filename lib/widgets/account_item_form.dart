@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import '../constants/business_code.dart';
 import '../constants/symbol_type.dart';
 import '../database/database.dart';
 import '../drivers/driver_factory.dart';
 import '../enums/account_type.dart';
+import '../enums/business_type.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
@@ -391,7 +391,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
               final attachments = files
                   .map((file) =>
                       ServiceManager.attachmentService.generateVoFromFile(
-                        BusinessCode.item.code,
+                        BusinessType.item,
                         provider.item.id,
                         file,
                         userId,

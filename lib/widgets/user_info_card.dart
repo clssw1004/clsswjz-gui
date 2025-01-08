@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../routes/app_routes.dart';
+import 'common/user_avatar.dart';
 
 /// 用户信息卡片组件
 class UserInfoCard extends StatelessWidget {
@@ -36,6 +37,8 @@ class UserInfoCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Row(
             children: [
+              UserAvatar(avatar: user?.avatar),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,12 +110,10 @@ class UserInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SizedBox(
-      width: 100, // 减小整体宽度
+      width: 100,
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // 使用spaceBetween替代Expanded
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 图标和文字左对齐
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -130,7 +131,6 @@ class UserInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          // 数字右对齐
           Text(
             value.toString(),
             style: theme.textTheme.titleSmall?.copyWith(

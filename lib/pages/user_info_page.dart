@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../providers/user_provider.dart';
 import '../widgets/common/common_app_bar.dart';
 import '../widgets/common/common_dialog.dart';
 import '../widgets/common/common_text_form_field.dart';
+import '../widgets/common/user_avatar.dart';
 import '../theme/theme_spacing.dart';
+import '../utils/toast_util.dart';
 
 class UserInfoPage extends StatelessWidget {
   const UserInfoPage({super.key});
@@ -19,6 +23,50 @@ class UserInfoPage extends StatelessWidget {
 
 class _UserInfoPageView extends StatelessWidget {
   const _UserInfoPageView();
+
+  Future<void> _pickImage(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<UserProvider>();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final result = await CommonDialog.show<ImageSource>(
+      context: context,
+      title: l10n.selectIcon,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.photo_camera, color: colorScheme.primary),
+            title: Text(l10n.takePhoto),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ListTile(
+            leading: Icon(Icons.photo_library, color: colorScheme.primary),
+            title: Text(l10n.chooseFromGallery),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ],
+      ),
+    );
+    if (result == null) return;
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: result,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+
+    if (pickedFile == null) return;
+    if (context.mounted) {
+      final file = File(pickedFile.path);
+      await provider.updateAvatar(file);
+      if (context.mounted) {
+        ToastUtil.showSuccess(l10n.modifySuccess(l10n.avatar));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +119,14 @@ class _UserInfoPageView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Center(
+                              child: UserAvatar(
+                                avatar: provider.user?.avatar,
+                                size: 80,
+                                onTap: () => _pickImage(context),
+                              ),
+                            ),
+                            SizedBox(height: spacing.formGroupSpacing),
                             CommonTextFormField(
                               initialValue: provider.user?.username,
                               labelText: l10n.username,

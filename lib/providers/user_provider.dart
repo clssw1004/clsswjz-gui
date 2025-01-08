@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
@@ -45,38 +46,32 @@ class UserProvider extends ChangeNotifier {
   }
 
   /// 更新用户信息
-  Future<OperateResult<void>> updateUserInfo({
+  Future<void> updateUserInfo({
     String? nickname,
     String? email,
     String? phone,
     String? timezone,
   }) async {
-    if (_loading) {
-      return OperateResult.failWithMessage(message: '正在处理中', exception: null);
-    }
-
     _loading = true;
     _error = null;
     notifyListeners();
+    await ServiceManager.userService.updateUserInfo(
+      id: UserConfigManager.currentUserId,
+      nickname: nickname,
+      email: email,
+      phone: phone,
+      timezone: timezone,
+    );
+    await refreshUserInfo();
+  }
 
-    try {
-      final result = await ServiceManager.userService.updateUserInfo(
-        id: UserConfigManager.currentUserId,
-        nickname: nickname,
-        email: email,
-        phone: phone,
-        timezone: timezone,
-      );
-
-      if (result.ok) {
-        await refreshUserInfo();
-      }
-
-      return result;
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
+  /// 更新头像
+  Future<void> updateAvatar(File file) async {
+    final result = await ServiceManager.userService.updateAvatar(
+      id: UserConfigManager.currentUserId,
+      file: file,
+    );
+    await refreshUserInfo();
   }
 
   /// 修改密码

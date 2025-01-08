@@ -1,4 +1,5 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
+import 'package:clsswjz/enums/business_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/common.dart';
@@ -10,7 +11,6 @@ import '../enums/account_type.dart';
 import '../models/vo/account_item_vo.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
-import '../constants/business_code.dart';
 
 /// 账目表单状态管理
 class AccountItemFormProvider extends ChangeNotifier {
@@ -164,7 +164,7 @@ class AccountItemFormProvider extends ChangeNotifier {
 
     final result =
         await ServiceManager.attachmentService.getAttachmentsByBusiness(
-      BusinessCode.item.code,
+      BusinessType.item,
       item.id,
     );
 
@@ -225,7 +225,7 @@ class AccountItemFormProvider extends ChangeNotifier {
     // 保存附件
     final attachmentResult =
         await ServiceManager.attachmentService.saveAttachments(
-      businessCode: BusinessCode.item,
+      businessType: BusinessType.item,
       businessId: _item.id,
       attachments: _attachments
           .map((attachment) => AttachmentVO(
@@ -234,7 +234,7 @@ class AccountItemFormProvider extends ChangeNotifier {
                 fileLength: attachment.fileLength,
                 extension: attachment.extension,
                 contentType: attachment.contentType,
-                businessCode: BusinessCode.item.code,
+                businessCode: BusinessType.item.code,
                 businessId: _item.id,
                 createdBy: attachment.createdBy,
                 updatedBy: attachment.updatedBy,

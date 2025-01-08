@@ -64,11 +64,11 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
 
   static SymbolCULog fromCreateLog(LogSync log) {
     return SymbolCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(AccountSymbol.fromJson(jsonDecode(log.operateData)))
-        as SymbolCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as SymbolCULog;
   }
 
   static SymbolCULog fromUpdateLog(LogSync log) {

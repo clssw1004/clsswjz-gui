@@ -6,6 +6,7 @@ import '../database/dao/account_item_dao.dart';
 import '../database/dao/account_shop_dao.dart';
 import '../database/dao/account_symbol_dao.dart';
 import '../database/dao/rel_accountbook_user_dao.dart';
+import '../database/dao/user_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
@@ -20,4 +21,5 @@ class DaoManager {
   static RelAccountbookUserDao relAccountbookUserDao =
       RelAccountbookUserDao(DatabaseManager.db);
   static LogSyncDao logSyncDao = LogSyncDao(DatabaseManager.db);
+  static UserDao userDao = UserDao(DatabaseManager.db);
 }

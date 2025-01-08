@@ -30,6 +30,7 @@ dependencies:
   file_picker: ^8.1.7
   pull_to_refresh: ^2.0.0
   json_annotation: ^4.9.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:

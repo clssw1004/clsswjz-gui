@@ -10,6 +10,7 @@ import 'base_table.dart';
 class UserTable extends BaseTable {
   TextColumn get username => text().named('username')();
   TextColumn get nickname => text().named('nickname')();
+  TextColumn get avatar => text().nullable().named('avatar')();
   TextColumn get password => text().named('password')();
   TextColumn get email => text().nullable().named('email')();
   TextColumn get phone => text().nullable().named('phone')();

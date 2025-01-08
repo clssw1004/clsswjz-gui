@@ -1,31 +1,21 @@
+import 'dart:io';
+import 'package:drift/drift.dart';
+
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../database/tables/user_table.dart';
-import '../manager/database_manager.dart';
+import '../enums/business_type.dart';
+import '../manager/dao_manager.dart';
 import '../models/common.dart';
 import '../models/vo/user_vo.dart';
 import 'base_service.dart';
 import '../utils/id_util.dart';
+import '../manager/service_manager.dart';
 
 /// 用户服务
 class UserService extends BaseService {
-  final UserDao _userDao;
-
-  UserService() : _userDao = UserDao(DatabaseManager.db);
-
-  /// 用户登录
-  Future<OperateResult<UserVO>> login(String username, String password) async {
-    User? user = await _userDao.findByUsername(username);
-    if (user == null) {
-      return OperateResult.failWithMessage(message: '用户名或密码错误');
-    }
-    if (!await verifyPassword(user, password)) {
-      return OperateResult.failWithMessage(
-        message: '用户名或密码错误',
-      );
-    }
-    return OperateResult.success(UserVO.fromUser(user: user));
-  }
+  /// 用户数据访问对象
+  final UserDao _userDao = DaoManager.userDao;
 
   /// 用户注册
   Future<OperateResult<UserVO>> register({
@@ -68,7 +58,10 @@ class UserService extends BaseService {
       if (user == null) {
         return OperateResult.failWithMessage(message: '用户不存在');
       }
-      return OperateResult.success(UserVO.fromUser(user: user));
+      return OperateResult.success(UserVO.fromUser(
+          user: user,
+          avatar: await ServiceManager.attachmentService
+              .getAttachment(user.avatar)));
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取用户信息失败：$e',
@@ -78,41 +71,38 @@ class UserService extends BaseService {
   }
 
   /// 更新用户信息
-  Future<OperateResult<void>> updateUserInfo({
+  Future<void> updateUserInfo({
     required String id,
     String? nickname,
     String? email,
     String? phone,
     String? timezone,
   }) async {
-    try {
-      final user = await _userDao.findById(id);
-      if (user == null) {
-        return OperateResult.failWithMessage(message: '用户不存在');
-      }
-
-      await _userDao.update(
-          id,
-          UserTable.toUpdateCompanion(
-            nickname: nickname,
-            email: email,
-            phone: phone,
-            timezone: timezone,
-          ));
-
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '更新用户信息失败：$e',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
+    final companion = UserTableCompanion(
+      nickname: Value.absentIfNull(nickname),
+      email: Value.absentIfNull(email),
+      phone: Value.absentIfNull(phone),
+      timezone: Value.absentIfNull(timezone),
+    );
+    await _userDao.update(id, companion);
   }
 
-  /// 验证密码
-  Future<bool> verifyPassword(User user, String password) async {
-    final hashedPassword = encryptPassword(password);
-    return user.password == hashedPassword;
+  /// 更新头像
+  Future<void> updateAvatar({
+    required String id,
+    required File file,
+  }) async {
+    final attachId = await ServiceManager.attachmentService.saveFile(
+      BusinessType.user,
+      id,
+      file,
+      id,
+    );
+
+    final companion = UserTableCompanion(
+      avatar: Value(attachId),
+    );
+    await _userDao.update(id, companion);
   }
 
   /// 修改密码
@@ -148,6 +138,12 @@ class UserService extends BaseService {
         exception: e is Exception ? e : Exception(e.toString()),
       );
     }
+  }
+
+  /// 验证密码
+  Future<bool> verifyPassword(User user, String password) async {
+    final hashedPassword = encryptPassword(password);
+    return user.password == hashedPassword;
   }
 
   /// 生成邀请码

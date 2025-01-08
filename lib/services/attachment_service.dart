@@ -5,10 +5,10 @@ import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import '../database/dao/attachment_dao.dart';
 import '../database/database.dart';
+import '../enums/business_type.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import 'base_service.dart';
-import '../constants/business_code.dart';
 import '../models/vo/attachment_vo.dart';
 import '../utils/date_util.dart';
 
@@ -17,6 +17,15 @@ class AttachmentService extends BaseService {
   final AttachmentDao _attachmentDao;
 
   AttachmentService() : _attachmentDao = AttachmentDao(DatabaseManager.db);
+
+  Future<AttachmentVO?> getAttachment(String? id) async {
+    if (id == null) return null;
+    final attachment = await _attachmentDao.findById(id);
+    if (attachment == null) {
+      return null;
+    }
+    return toAttachmentVO(attachment);
+  }
 
   /// 获取附件存储目录
   Future<Directory> get _attachmentDir async {
@@ -35,16 +44,36 @@ class AttachmentService extends BaseService {
     return path.join(dir.path, '$attachmentId$extension');
   }
 
+  /// 保存文件
+  /// [businessCode] 业务代码
+  /// [businessId] 业务ID
+  /// [file] 文件
+  /// [userId] 用户ID
+  /// 返回附件ID
+  Future<String> saveFile(BusinessType businessType, String businessId,
+      File file, String userId) async {
+    AttachmentVO attachment =
+        generateVoFromFile(businessType, businessId, file, userId);
+    await saveAttachments(
+        businessType: businessType,
+        businessId: businessId,
+        attachments: [attachment],
+        userId: userId,
+        isDelete: false);
+    return attachment.id;
+  }
+
   /// 批量保存附件（处理更新、删除、新增）
   /// [businessCode] 业务代码
   /// [businessId] 业务ID
   /// [attachments] 附件列表
   /// [userId] 用户ID
   Future<OperateResult<void>> saveAttachments({
-    required BusinessCode businessCode,
+    required BusinessType businessType,
     required String businessId,
     required List<AttachmentVO> attachments,
     required String userId,
+    bool isDelete = true,
   }) async {
     try {
       final attachmentDir = await _attachmentDir;
@@ -53,7 +82,7 @@ class AttachmentService extends BaseService {
       final existingAttachments = await (db.select(db.attachmentTable)
             ..where((t) =>
                 t.businessId.equals(businessId) &
-                t.businessCode.equals(businessCode.code)))
+                t.businessCode.equals(businessType.code)))
           .get();
 
       await db.transaction(() async {
@@ -63,7 +92,7 @@ class AttachmentService extends BaseService {
                 !attachments.any((attachment) => attachment.id == existing.id))
             .toList();
 
-        if (attachmentsToDelete.isNotEmpty) {
+        if (attachmentsToDelete.isNotEmpty && isDelete) {
           // 批量删除文件
           for (var attachment in attachmentsToDelete) {
             final filePath =
@@ -152,29 +181,19 @@ class AttachmentService extends BaseService {
 
   /// 获取业务相关的所有附件
   Future<OperateResult<List<AttachmentVO>>> getAttachmentsByBusiness(
-    String businessCode,
+    BusinessType businessType,
     String businessId,
   ) async {
     try {
       final attachments = await (db.select(db.attachmentTable)
             ..where((t) =>
                 t.businessId.equals(businessId) &
-                t.businessCode.equals(businessCode)))
+                t.businessCode.equals(businessType.code)))
           .get();
 
       final attachmentVOs = <AttachmentVO>[];
       for (var attachment in attachments) {
-        final filePath =
-            await getAttachmentPath(attachment.id, attachment.extension);
-        final file = File(filePath);
-        final exists = await file.exists();
-
-        attachmentVOs.add(
-          await AttachmentVO.fromAttachment(
-            attachment: attachment,
-            file: exists ? file : null,
-          ),
-        );
+        attachmentVOs.add(await toAttachmentVO(attachment));
       }
 
       return OperateResult.success(attachmentVOs);
@@ -188,7 +207,7 @@ class AttachmentService extends BaseService {
 
   /// 从文件生成附件VO
   AttachmentVO generateVoFromFile(
-    String businessCode,
+    BusinessType businessType,
     String businessId,
     File file,
     String userId,
@@ -206,7 +225,7 @@ class AttachmentService extends BaseService {
       fileLength: fileLength,
       extension: extension,
       contentType: mimeType,
-      businessCode: businessCode,
+      businessCode: businessType.code,
       businessId: businessId,
       createdBy: userId,
       updatedBy: userId,
@@ -326,5 +345,16 @@ class AttachmentService extends BaseService {
         exception: e is Exception ? e : Exception(e.toString()),
       );
     }
+  }
+
+  Future<AttachmentVO> toAttachmentVO(Attachment attachment) async {
+    final filePath =
+        await getAttachmentPath(attachment.id, attachment.extension);
+    final file = File(filePath);
+    final exists = await file.exists();
+    return AttachmentVO.fromAttachment(
+      attachment: attachment,
+      file: exists ? file : null,
+    );
   }
 }

@@ -86,11 +86,11 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
 
   static ItemCULog fromCreateLog(LogSync log) {
     return ItemCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(AccountItem.fromJson(jsonDecode(log.operateData)))
-        as ItemCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(AccountItem.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as ItemCULog;
   }
 
   static ItemCULog fromUpdateLog(LogSync log) {

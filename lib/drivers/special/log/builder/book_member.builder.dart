@@ -78,11 +78,11 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
 
   static MemberCULog fromCreateLog(LogSync log) {
     return MemberCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData)))
-        as MemberCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as MemberCULog;
   }
 
   static MemberCULog fromUpdateLog(LogSync log) {

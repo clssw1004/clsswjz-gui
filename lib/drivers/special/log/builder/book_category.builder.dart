@@ -71,11 +71,11 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
 
   static CategoryCULog fromCreateLog(LogSync log) {
     return CategoryCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(AccountCategory.fromJson(jsonDecode(log.operateData)))
-        as CategoryCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CategoryCULog;
   }
 
   static CategoryCULog fromUpdateLog(LogSync log) {

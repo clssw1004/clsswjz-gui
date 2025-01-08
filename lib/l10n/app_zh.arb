@@ -439,5 +439,13 @@
     "syncing": "正在同步...",
     "syncSuccess": "同步成功",
     "syncFailed": "同步失败",
-    "syncSettings": "同步设置"
+    "syncSettings": "同步设置",
+    "takePhoto": "拍照",
+    "@takePhoto": {
+        "description": "拍照选项"
+    },
+    "chooseFromGallery": "从相册选择",
+    "@chooseFromGallery": {
+        "description": "从相册选择选项"
+    }
 }

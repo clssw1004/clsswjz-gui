@@ -79,21 +79,28 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
 
   static FundCULog fromCreateLog(LogSync log) {
     return FundCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(AccountFund.fromJson(jsonDecode(log.operateData)))
-        as FundCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as FundCULog;
   }
 
   static FundCULog fromUpdateLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
     return FundCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .subject(log.businessId)
-            .doUpdate()
-            .withData(AccountFund.fromJson(jsonDecode(log.operateData)))
-        as FundCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .subject(log.businessId)
+        .doUpdate()
+        .withData(AccountFundTable.toUpdateCompanion(
+          log.operatorId,
+          name: data['name'],
+          fundType: FundType.fromCode(data['fundType']),
+          fundRemark: data['fundRemark'],
+          fundBalance: data['fundBalance'],
+          isDefault: data['isDefault'],
+        )) as FundCULog;
   }
 
   static FundCULog fromLog(LogSync log) {

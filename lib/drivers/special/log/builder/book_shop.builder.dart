@@ -61,11 +61,11 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
 
   static ShopCULog fromCreateLog(LogSync log) {
     return ShopCULog()
-            .who(log.operatorId)
-            .inBook(log.accountBookId)
-            .doCreate()
-            .withData(AccountShop.fromJson(jsonDecode(log.operateData)))
-        as ShopCULog;
+        .who(log.operatorId)
+        .inBook(log.accountBookId)
+        .doCreate()
+        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as ShopCULog;
   }
 
   static ShopCULog fromUpdateLog(LogSync log) {
