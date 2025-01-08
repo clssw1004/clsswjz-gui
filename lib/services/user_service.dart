@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../database/tables/user_table.dart';
@@ -7,7 +6,6 @@ import '../models/common.dart';
 import '../models/vo/user_vo.dart';
 import 'base_service.dart';
 import '../utils/id_util.dart';
-import '../utils/date_util.dart';
 
 /// 用户服务
 class UserService extends BaseService {

@@ -4,7 +4,6 @@ import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/common.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
-import '../constants/constant.dart';
 import '../constants/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';

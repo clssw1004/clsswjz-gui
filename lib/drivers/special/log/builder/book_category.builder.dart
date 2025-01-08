@@ -21,7 +21,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountCategoryDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

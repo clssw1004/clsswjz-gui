@@ -2,7 +2,6 @@ import 'dart:core';
 import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
-import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/enums/fund_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';

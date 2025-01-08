@@ -1,6 +1,5 @@
 import 'package:clsswjz/utils/collection_util.dart';
 import '../database/dao/account_book_dao.dart';
-import '../database/dao/rel_accountbook_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';

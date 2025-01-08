@@ -23,7 +23,7 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountBookDao.update(accountBookId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

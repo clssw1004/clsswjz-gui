@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import '../enums/sync_state.dart';
 import 'tables/account_book_table.dart';
 import 'tables/account_category_table.dart';
 import 'tables/account_fund_table.dart';

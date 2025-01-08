@@ -18,29 +18,42 @@ class SyncDataButton extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(spacing.formItemSpacing),
       width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: syncProvider.syncing
-            ? null
-            : () async {
-                try {
-                  await syncProvider.syncData();
-                  if (context.mounted) {
-                    ToastUtil.showSuccess(l10n.syncSuccess);
-                  }
-                } catch (e) {
-                  ToastUtil.showError(l10n.syncFailed);
-                }
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/sync_settings');
               },
-        icon: syncProvider.syncing
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              )
-            : const Icon(Icons.sync),
-        label: Text(syncProvider.syncing ? l10n.syncing : l10n.syncData),
+              icon: const Icon(Icons.sync_alt),
+              label: Text(l10n.syncSettings),
+            ),
+          ),
+          SizedBox(width: spacing.formItemSpacing),
+          IconButton(
+            onPressed: syncProvider.syncing
+                ? null
+                : () async {
+                    try {
+                      await syncProvider.syncData();
+                      if (context.mounted) {
+                        ToastUtil.showSuccess(l10n.syncSuccess);
+                      }
+                    } catch (e) {
+                      ToastUtil.showError(l10n.syncFailed);
+                    }
+                  },
+            icon: syncProvider.syncing
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.sync),
+          ),
+        ],
       ),
     );
   }

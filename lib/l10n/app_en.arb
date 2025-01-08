@@ -420,5 +420,6 @@
     "syncData": "Sync Data",
     "syncing": "Syncing...",
     "syncSuccess": "Sync successful",
-    "syncFailed": "Sync failed"
+    "syncFailed": "Sync failed",
+    "syncSettings": "Sync Settings"
 }

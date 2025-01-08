@@ -21,7 +21,7 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.relAccountbookUserDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

@@ -21,7 +21,7 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountItemDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

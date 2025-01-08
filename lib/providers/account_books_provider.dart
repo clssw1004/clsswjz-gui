@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
-import '../manager/user_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../services/account_item_service.dart';

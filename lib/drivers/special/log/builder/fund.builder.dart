@@ -22,7 +22,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountFundDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

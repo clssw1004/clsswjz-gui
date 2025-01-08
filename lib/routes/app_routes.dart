@@ -19,6 +19,7 @@ import '../pages/account_book/projects_page.dart';
 import '../pages/account_book/categories_page.dart';
 import '../pages/account_book/fund_list_page.dart';
 import '../pages/settings/about_page.dart';
+import '../pages/settings/sync_settings_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -59,6 +60,8 @@ class AppRoutes {
   static const String funds = '/funds';
 
   static const String about = '/about';
+
+  static const String syncSettings = '/sync_settings';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -107,5 +110,6 @@ class AppRoutes {
       return FundListPage(accountBook: args);
     },
     about: (context) => const AboutPage(),
+    syncSettings: (context) => const SyncSettingsPage(),
   };
 }

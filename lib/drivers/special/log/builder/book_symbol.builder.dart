@@ -21,7 +21,7 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountSymbolDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override

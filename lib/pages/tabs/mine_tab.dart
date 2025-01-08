@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/user_info_card.dart';
 import '../../routes/app_routes.dart';
-import 'package:clsswjz/manager/service_manager.dart';
 import '../../widgets/common/sync_data_button.dart';
 
 class MineTab extends StatelessWidget {
@@ -20,49 +19,6 @@ class MineTab extends StatelessWidget {
 
 class _MineTabView extends StatelessWidget {
   const _MineTabView();
-
-  Future<void> _syncData(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => Center(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(l10n.syncing),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await ServiceManager.syncService.syncChanges();
-
-      Navigator.of(context).pop();
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.syncSuccess)),
-        );
-      }
-    } catch (e) {
-      Navigator.of(context).pop();
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.syncFailed}: $e')),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +39,8 @@ class _MineTabView extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, '/user_info'),
           ),
           const Divider(height: 1),
+          const SyncDataButton(),
+          const Divider(height: 1),
           // 功能按钮区域
           GridView.count(
             padding: const EdgeInsets.all(16),
@@ -94,73 +52,65 @@ class _MineTabView extends StatelessWidget {
             children: [
               _buildGridItem(
                 context,
-                icon: Icons.book_outlined,
-                label: l10n.accountBook,
-                onTap: () {
-                  Navigator.pushNamed(context, '/account_books');
-                },
+                Icons.book_outlined,
+                l10n.accountBook,
+                () => Navigator.pushNamed(context, AppRoutes.accountBooks),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.category_outlined,
-                label: l10n.category,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.categories,
-                    arguments: accountBook,
-                  );
-                },
+                Icons.category_outlined,
+                l10n.category,
+                () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.categories,
+                  arguments: accountBook,
+                ),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.account_balance_wallet_outlined,
-                label: l10n.account,
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.funds,
-                      arguments: accountBook);
-                },
+                Icons.account_balance_wallet_outlined,
+                l10n.account,
+                () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.funds,
+                  arguments: accountBook,
+                ),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.store_outlined,
-                label: l10n.merchant,
-                onTap: () async {
-                  Navigator.pushNamed(context, AppRoutes.merchants,
-                      arguments: accountBook);
-                },
+                Icons.store_outlined,
+                l10n.merchant,
+                () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.merchants,
+                  arguments: accountBook,
+                ),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.local_offer_outlined,
-                label: l10n.tag,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.tags,
-                    arguments: accountBook,
-                  );
-                },
+                Icons.local_offer_outlined,
+                l10n.tag,
+                () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.tags,
+                  arguments: accountBook,
+                ),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.folder_outlined,
-                label: l10n.project,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.projects,
-                    arguments: accountBook,
-                  );
-                },
+                Icons.folder_outlined,
+                l10n.project,
+                () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.projects,
+                  arguments: accountBook,
+                ),
               ),
               _buildGridItem(
                 context,
-                icon: Icons.file_upload_outlined,
-                label: l10n.import,
-                onTap: () {
-                  Navigator.pushNamed(context, '/import');
-                },
+                Icons.file_upload_outlined,
+                l10n.import,
+                () => Navigator.pushNamed(context, '/import'),
               ),
             ],
           ),
@@ -176,35 +126,23 @@ class _MineTabView extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.palette_outlined),
             title: Text(l10n.themeSettings),
-            onTap: () {
-              Navigator.pushNamed(context, '/theme_settings');
-            },
+            onTap: () => Navigator.pushNamed(context, AppRoutes.themeSettings),
           ),
           ListTile(
             leading: const Icon(Icons.language_outlined),
             title: Text(l10n.languageSettings),
-            onTap: () {
-              Navigator.pushNamed(context, '/language_settings');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.sync_outlined),
-            title: Text(l10n.syncData),
-            onTap: () => _syncData(context),
+            onTap: () =>
+                Navigator.pushNamed(context, AppRoutes.languageSettings),
           ),
           ListTile(
             leading: const Icon(Icons.storage_outlined),
             title: Text(l10n.database),
-            onTap: () {
-              Navigator.pushNamed(context, '/database_viewer');
-            },
+            onTap: () => Navigator.pushNamed(context, AppRoutes.databaseViewer),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.about),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.about);
-            },
+            onTap: () => Navigator.pushNamed(context, AppRoutes.about),
           ),
         ],
       ),
@@ -212,21 +150,38 @@ class _MineTabView extends StatelessWidget {
   }
 
   Widget _buildGridItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorScheme.secondaryContainer.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: colorScheme.onSecondaryContainer,
+            ),
+          ),
           const SizedBox(height: 4),
           Text(
             label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurface,
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

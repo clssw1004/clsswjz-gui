@@ -21,7 +21,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     } else if (operateType == OperateType.update) {
       await DaoManager.accountShopDao.update(businessId!, data!);
     }
-    return data!.id.value;
+    return businessId!;
   }
 
   @override
