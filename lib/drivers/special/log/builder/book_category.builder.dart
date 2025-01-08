@@ -72,7 +72,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   static CategoryCULog fromCreateLog(LogSync log) {
     return CategoryCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doCreate()
         .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
             .toCompanion(true)) as CategoryCULog;
@@ -80,8 +80,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
 
   static CategoryCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return CategoryCULog.update(
-        log.operatorId, log.accountBookId, log.businessId,
+    return CategoryCULog.update(log.operatorId, log.parentId, log.businessId,
         name: data['name'], lastAccountItemAt: data['lastAccountItemAt']);
   }
 }

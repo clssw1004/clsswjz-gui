@@ -80,7 +80,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   static FundCULog fromCreateLog(LogSync log) {
     return FundCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doCreate()
         .withData(AccountFund.fromJson(jsonDecode(log.operateData))
             .toCompanion(true)) as FundCULog;
@@ -90,7 +90,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return FundCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .subject(log.businessId)
         .doUpdate()
         .withData(AccountFundTable.toUpdateCompanion(

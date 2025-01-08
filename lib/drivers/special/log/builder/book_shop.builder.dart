@@ -62,7 +62,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   static ShopCULog fromCreateLog(LogSync log) {
     return ShopCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doCreate()
         .withData(AccountShop.fromJson(jsonDecode(log.operateData))
             .toCompanion(true)) as ShopCULog;
@@ -70,7 +70,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
 
   static ShopCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return ShopCULog.update(log.operatorId, log.accountBookId, log.businessId,
+    return ShopCULog.update(log.operatorId, log.parentId, log.businessId,
         name: data['name']);
   }
 

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:clsswjz/constants/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';
 import '../models/common.dart';
+import '../models/vo/attachment_vo.dart';
 import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_fund_vo.dart';
 
@@ -47,20 +50,25 @@ abstract class BookDataDriver {
       String? fundId,
       String? shopCode,
       String? tagCode,
-      String? projectCode});
+      String? projectCode,
+      List<File>? files});
 
   /// 更新账目
   Future<OperateResult<void>> updateBookItem(
-      String userId, String bookId, String itemId,
-      {double? amount,
-      String? description,
-      String? type,
-      String? categoryCode,
-      String? accountDate,
-      String? fundId,
-      String? shopCode,
-      String? tagCode,
-      String? projectCode});
+    String userId,
+    String bookId,
+    String itemId, {
+    double? amount,
+    String? description,
+    String? type,
+    String? categoryCode,
+    String? accountDate,
+    String? fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    List<AttachmentVO>? attachments,
+  });
 
   /// 删除账目
   Future<OperateResult<void>> deleteBookItem(

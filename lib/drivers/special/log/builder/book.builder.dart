@@ -15,13 +15,19 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   @override
+  BookCULog inBook(String bookId) {
+    super.inBook(bookId).subject(bookId);
+    return this;
+  }
+
+  @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountBookDao.insert(data!);
       inBook(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountBookDao.update(accountBookId!, data!);
+      await DaoManager.accountBookDao.update(parentId!, data!);
     }
     return businessId!;
   }
@@ -77,7 +83,7 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
 
   static BookCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return BookCULog.update(log.operatorId, log.accountBookId,
+    return BookCULog.update(log.operatorId, log.parentId,
         name: data['name'],
         description: data['description'],
         currencySymbol: data['currencySymbol'],

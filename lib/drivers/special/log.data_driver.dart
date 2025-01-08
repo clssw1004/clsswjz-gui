@@ -1,5 +1,7 @@
 import 'dart:core';
+import 'dart:io';
 import 'package:clsswjz/constants/symbol_type.dart';
+import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
 import 'package:clsswjz/enums/fund_type.dart';
@@ -8,6 +10,7 @@ import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
+import '../../models/vo/attachment_vo.dart';
 import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../enums/currency_symbol.dart';
@@ -142,7 +145,6 @@ class LogDataDriver implements BookDataDriver {
         await deleteBookMember(who, bookId, member.id);
       }
     }
-
     return OperateResult.success(null);
   }
 
@@ -156,7 +158,8 @@ class LogDataDriver implements BookDataDriver {
       String? fundId,
       String? shopCode,
       String? tagCode,
-      String? projectCode}) async {
+      String? projectCode,
+      List<File>? files}) async {
     final id = await ItemCULog.create(who, bookId,
             amount: amount,
             description: description,
@@ -168,6 +171,13 @@ class LogDataDriver implements BookDataDriver {
             tagCode: tagCode,
             projectCode: projectCode)
         .execute();
+    if (files != null && files!.isNotEmpty) {
+      for (var file in files!) {
+        await AttachmentCULog.fromFile(who,
+                belongType: BusinessType.item, belongId: id, file: file)
+            .execute();
+      }
+    }
     return OperateResult.success(id);
   }
 
@@ -182,7 +192,8 @@ class LogDataDriver implements BookDataDriver {
       String? fundId,
       String? shopCode,
       String? tagCode,
-      String? projectCode}) async {
+      String? projectCode,
+      List<AttachmentVO>? attachments}) async {
     await ItemCULog.update(who, bookId, itemId,
             amount: amount,
             description: description,
@@ -194,6 +205,25 @@ class LogDataDriver implements BookDataDriver {
             tagCode: tagCode,
             projectCode: projectCode)
         .execute();
+    final oldAttachments = await ServiceManager.attachmentService
+        .getAttachmentsByBusiness(BusinessType.item, itemId);
+    final diff = CollectionUtil.diff(oldAttachments, attachments, (e) => e.id);
+    if (diff.added != null && diff.added!.isNotEmpty) {
+      for (var attachment in diff.added!) {
+        await AttachmentCULog.fromVO(who,
+                belongType: BusinessType.item, belongId: itemId, vo: attachment)
+            .execute();
+      }
+    }
+    if (diff.removed != null && diff.removed!.isNotEmpty) {
+      for (var attachment in diff.removed!) {
+        await AttachmentDeleteLog.fromAttachmentId(who,
+                belongType: BusinessType.item,
+                belongId: itemId,
+                attachmentId: attachment.id)
+            .execute();
+      }
+    }
     return OperateResult.success(null);
   }
 

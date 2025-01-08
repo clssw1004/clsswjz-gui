@@ -162,27 +162,16 @@ class AccountItemFormProvider extends ChangeNotifier {
   Future<void> loadAttachments() async {
     if (item.id.isEmpty) return;
 
-    final result =
+    _attachments =
         await ServiceManager.attachmentService.getAttachmentsByBusiness(
       BusinessType.item,
       item.id,
     );
-
-    if (result.ok) {
-      _attachments = result.data!;
-      notifyListeners();
-    }
+    notifyListeners();
   }
 
   /// 保存账目
   Future<bool> save() async {
-    if (_saving) return false;
-
-    _saving = true;
-    _error = null;
-    notifyListeners();
-
-    // try {
     final userId = AppConfigManager.instance.userId!;
     OperateResult result;
     if (isNew) {
@@ -199,22 +188,24 @@ class AccountItemFormProvider extends ChangeNotifier {
         tagCode: _item.tagCode,
         projectCode: _item.projectCode,
         accountDate: _item.accountDate,
+        files: _attachments
+            .where((attachment) => attachment.file != null)
+            .map((attachment) => attachment.file!)
+            .toList(),
       );
       _item = _item.copyWith(id: result.data!);
     } else {
       result = await DriverFactory.driver.updateBookItem(
-        userId,
-        _item.accountBookId,
-        _item.id,
-        amount: _item.amount,
-        description: _item.description,
-        categoryCode: _item.categoryCode,
-        fundId: _item.fundId,
-        shopCode: _item.shopCode,
-        tagCode: _item.tagCode,
-        projectCode: _item.projectCode,
-        accountDate: _item.accountDate,
-      );
+          userId, _item.accountBookId, _item.id,
+          amount: _item.amount,
+          description: _item.description,
+          categoryCode: _item.categoryCode,
+          fundId: _item.fundId,
+          shopCode: _item.shopCode,
+          tagCode: _item.tagCode,
+          projectCode: _item.projectCode,
+          accountDate: _item.accountDate,
+          attachments: _attachments);
     }
 
     if (!result.ok) {
@@ -222,43 +213,7 @@ class AccountItemFormProvider extends ChangeNotifier {
       return false;
     }
 
-    // 保存附件
-    final attachmentResult =
-        await ServiceManager.attachmentService.saveAttachments(
-      businessType: BusinessType.item,
-      businessId: _item.id,
-      attachments: _attachments
-          .map((attachment) => AttachmentVO(
-                id: attachment.id,
-                originName: attachment.originName,
-                fileLength: attachment.fileLength,
-                extension: attachment.extension,
-                contentType: attachment.contentType,
-                businessCode: BusinessType.item.code,
-                businessId: _item.id,
-                createdBy: attachment.createdBy,
-                updatedBy: attachment.updatedBy,
-                createdAt: attachment.createdAt,
-                updatedAt: attachment.updatedAt,
-                file: attachment.file,
-              ))
-          .toList(),
-      userId: _item.updatedBy,
-    );
-
-    if (!attachmentResult.ok) {
-      _error = '保存附件失败：${attachmentResult.message}';
-      return false;
-    }
-
     return true;
-    // } catch (e) {
-    //   _error = '保存失败：$e';
-    //   return false;
-    // } finally {
-    //   _saving = false;
-    //   notifyListeners();
-    // }
   }
 
   /// 更新类型

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import '../database/dao/user_dao.dart';
 import '../database/database.dart';
 import '../database/tables/user_table.dart';
+import '../drivers/special/log/builder/attachment.builder.dart';
 import '../enums/business_type.dart';
 import '../manager/dao_manager.dart';
 import '../models/common.dart';
@@ -92,12 +93,9 @@ class UserService extends BaseService {
     required String id,
     required File file,
   }) async {
-    final attachId = await ServiceManager.attachmentService.saveFile(
-      BusinessType.user,
-      id,
-      file,
-      id,
-    );
+    final attachId = await AttachmentCULog.fromFile(id,
+            belongType: BusinessType.user, belongId: id, file: file)
+        .execute();
 
     final companion = UserTableCompanion(
       avatar: Value(attachId),

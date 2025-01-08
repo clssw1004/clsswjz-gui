@@ -6,8 +6,11 @@ import 'base_table.dart';
 /// 同步日志表
 @DataClassName('LogSync')
 class LogSyncTable extends StringIdTable {
-  /// 账本ID
-  TextColumn get accountBookId => text().named('account_book_id')();
+  /// 父级ID
+  TextColumn get parentType => text().named('parent_type')();
+
+  /// 父级ID
+  TextColumn get parentId => text().named('parent_id')();
 
   /// 操作人
   TextColumn get operatorId => text().named('operator_id')();
@@ -42,7 +45,7 @@ class LogSyncTable extends StringIdTable {
 
   @override
   List<String> get customConstraints => [
-        'UNIQUE (account_book_id, business_type, business_id,operator_id, operated_at)',
+        'UNIQUE (parent_type, parent_id, business_type, business_id,operator_id, operated_at)',
       ];
 
   /// 创建更新伴生对象

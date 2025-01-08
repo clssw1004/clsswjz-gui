@@ -1,4 +1,5 @@
 import '../database/dao/account_book_dao.dart';
+import '../database/dao/attachment_dao.dart';
 import '../database/dao/log_sync_dao.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
@@ -22,4 +23,5 @@ class DaoManager {
       RelAccountbookUserDao(DatabaseManager.db);
   static LogSyncDao logSyncDao = LogSyncDao(DatabaseManager.db);
   static UserDao userDao = UserDao(DatabaseManager.db);
+  static AttachmentDao attachmentDao = AttachmentDao(DatabaseManager.db);
 }

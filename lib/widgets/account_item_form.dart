@@ -1,3 +1,4 @@
+import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +8,8 @@ import '../drivers/driver_factory.dart';
 import '../enums/account_type.dart';
 import '../enums/business_type.dart';
 import '../manager/app_config_manager.dart';
-import '../manager/service_manager.dart';
 import '../providers/account_item_form_provider.dart';
+import '../utils/attachment.util.dart';
 import '../utils/file_util.dart';
 import '../theme/theme_spacing.dart';
 import 'amount_input.dart';
@@ -389,8 +390,7 @@ class _AccountItemFormState extends State<AccountItemForm> {
             onUpload: (files) async {
               final userId = provider.item.updatedBy;
               final attachments = files
-                  .map((file) =>
-                      ServiceManager.attachmentService.generateVoFromFile(
+                  .map((file) => AttachmentUtil.generateVoFromFile(
                         BusinessType.item,
                         provider.item.id,
                         file,

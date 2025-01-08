@@ -1,5 +1,6 @@
 import 'dart:io';
 import '../../database/database.dart';
+import '../../utils/attachment.util.dart';
 
 /// 附件VO
 class AttachmentVO {
@@ -55,10 +56,13 @@ class AttachmentVO {
   });
 
   /// 从Attachment和File创建VO
-  static Future<AttachmentVO> fromAttachment({
-    required Attachment attachment,
-    File? file,
-  }) async {
+  static Future<AttachmentVO> fromAttachment(
+    Attachment attachment,
+  ) async {
+    final filePath = await AttachmentUtil.getAttachmentPath(
+        attachment.id, attachment.extension);
+    final file = File(filePath);
+    final exists = await file.exists();
     return AttachmentVO(
       id: attachment.id,
       originName: attachment.originName,
@@ -71,7 +75,7 @@ class AttachmentVO {
       updatedBy: attachment.updatedBy,
       createdAt: attachment.createdAt,
       updatedAt: attachment.updatedAt,
-      file: file,
+      file: exists ? file : null,
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:clsswjz/manager/dao_manager.dart';
 import '../../../../database/tables/account_item_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
+import '../../../../models/vo/attachment_vo.dart';
 import 'builder.dart';
 
 class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
@@ -43,7 +44,8 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       String? fundId,
       String? shopCode,
       String? tagCode,
-      String? projectCode}) {
+      String? projectCode,
+      List<AttachmentVO>? attachments}) {
     return ItemCULog().who(who).inBook(bookId).doCreate().withData(
         AccountItemTable.toCreateCompanion(who, bookId,
             amount: amount,
@@ -87,7 +89,7 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
   static ItemCULog fromCreateLog(LogSync log) {
     return ItemCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doCreate()
         .withData(AccountItem.fromJson(jsonDecode(log.operateData))
             .toCompanion(true)) as ItemCULog;
@@ -97,7 +99,7 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return ItemCULog.update(
       log.operatorId,
-      log.accountBookId,
+      log.parentId,
       log.businessId,
       amount: data['amount'],
       description: data['description'],

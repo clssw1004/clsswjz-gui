@@ -65,7 +65,7 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
   static SymbolCULog fromCreateLog(LogSync log) {
     return SymbolCULog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doCreate()
         .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
             .toCompanion(true)) as SymbolCULog;
@@ -73,7 +73,7 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
 
   static SymbolCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return SymbolCULog.update(log.operatorId, log.accountBookId, log.businessId,
+    return SymbolCULog.update(log.operatorId, log.parentId, log.businessId,
         name: data['name']);
   }
 

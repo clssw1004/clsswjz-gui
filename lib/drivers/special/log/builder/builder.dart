@@ -28,8 +28,12 @@ abstract class LogBuilder<T, RunResult> {
   String? get id => _id;
 
   /// 账本ID
-  String? _accountBookId;
-  String? get accountBookId => _accountBookId;
+  String? _parentId;
+  String? get parentId => _parentId;
+
+  /// 父级类型
+  BusinessType? _parentType;
+  BusinessType? get parentType => _parentType;
 
   /// 操作人
   String? _operatorId;
@@ -71,12 +75,19 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   LogBuilder withOutBook() {
-    _accountBookId = NONE_BOOK;
+    _parentId = NONE_BOOK;
     return this;
   }
 
   LogBuilder inBook(String bookId) {
-    _accountBookId = bookId;
+    _parentType = BusinessType.book;
+    _parentId = bookId;
+    return this;
+  }
+
+  LogBuilder withBelong(BusinessType belongType, String belongId) {
+    _parentType = belongType;
+    _parentId = belongId;
     return this;
   }
 
@@ -92,6 +103,11 @@ abstract class LogBuilder<T, RunResult> {
 
   LogBuilder doCreate() {
     _operateType = OperateType.create;
+    return this;
+  }
+
+  LogBuilder doCreateBatch() {
+    _operateType = OperateType.batchCreate;
     return this;
   }
 
@@ -126,11 +142,12 @@ abstract class LogBuilder<T, RunResult> {
   LogSync toSyncLog() {
     return LogSync(
       id: _id!,
-      accountBookId: _accountBookId!,
+      parentType: _parentType!.code,
+      parentId: _parentId!,
       operatorId: _operatorId!,
       operatedAt: _operatedAt!,
-      businessType: _businessType!.name,
-      operateType: _operateType!.name,
+      businessType: _businessType!.code,
+      operateType: _operateType!.code,
       businessId: _businessId!,
       operateData: data2Json(),
       syncState: SyncState.unsynced.value,
@@ -150,15 +167,15 @@ abstract class LogBuilder<T, RunResult> {
         return DeleteLog.buildBook(log.operatorId, log.businessId)
             as LogBuilder<T, RunResult>;
       } else {
-        return DeleteLog.buildBookSub(log.operatorId, log.accountBookId,
-            businessType!, log.businessId) as LogBuilder<T, RunResult>;
+        return DeleteLog.buildBookSub(
+                log.operatorId, log.parentId, businessType!, log.businessId)
+            as LogBuilder<T, RunResult>;
       }
     }
 
     switch (businessType) {
       case BusinessType.book:
         return BookCULog.fromLog(log) as LogBuilder<T, RunResult>;
-
       case BusinessType.category:
         return CategoryCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.item:
@@ -217,7 +234,7 @@ abstract class LogBuilder<T, RunResult> {
 
 class DeleteLog extends LogBuilder<String, void> {
   DeleteLog() {
-    operate(OperateType.delete);
+    doDelete();
   }
 
   @override
@@ -235,6 +252,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.accountShopDao.delete(businessId!);
       case BusinessType.bookMember:
         return DaoManager.relAccountbookUserDao.delete(businessId!);
+      case BusinessType.attachment:
+        return DaoManager.attachmentDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
@@ -269,7 +288,7 @@ class DeleteLog extends LogBuilder<String, void> {
   static DeleteLog fromLog(LogSync log) {
     return DeleteLog()
         .who(log.operatorId)
-        .inBook(log.accountBookId)
+        .inBook(log.parentId)
         .doWith(BusinessType.fromCode(log.businessType)!)
         .subject(log.businessId) as DeleteLog;
   }
