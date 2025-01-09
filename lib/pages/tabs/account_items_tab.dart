@@ -155,12 +155,10 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                           onItemTap: (item) {
                             Navigator.pushNamed(
                               context,
-                              AppRoutes.accountItemForm,
+                              AppRoutes.accountItemEdit,
                               arguments: [accountBook, item],
                             ).then((updated) {
-                              if (updated == true) {
-                                bookProvider.loadItems();
-                              }
+                              bookProvider.loadItems();
                             });
                           },
                         ),
@@ -178,7 +176,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
             onPressed: () {
               Navigator.pushNamed(
                 context,
-                AppRoutes.accountItemForm,
+                AppRoutes.accountItemAdd,
                 arguments: [accountBook],
               ).then((created) {
                 if (created == true) {

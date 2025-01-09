@@ -92,7 +92,7 @@ class SyncService extends BaseService {
 
   /// 处理进度
   Future<void> _processOnProgress(Function(int percent, String message)? onProgress, int percent, String message) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+    // await Future.delayed(const Duration(milliseconds: 1000));
     if (onProgress != null) {
       onProgress(percent, message);
     }

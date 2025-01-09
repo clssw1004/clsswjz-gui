@@ -22,11 +22,11 @@ import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_attachment_field.dart';
 
-class AccountItemFormPage extends StatelessWidget {
+class AccountItemAddPage extends StatelessWidget {
   final UserBookVO accountBook;
   final AccountItemVO? item;
 
-  const AccountItemFormPage({
+  const AccountItemAddPage({
     super.key,
     required this.accountBook,
     this.item,
@@ -187,17 +187,13 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return currentType == AccountItemType.expense
-                      ? colorScheme.errorContainer
-                      : colorScheme.primaryContainer;
+                  return currentType == AccountItemType.expense ? colorScheme.errorContainer : colorScheme.primaryContainer;
                 }
                 return null;
               }),
               foregroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return currentType == AccountItemType.expense
-                      ? colorScheme.onErrorContainer
-                      : colorScheme.onPrimaryContainer;
+                  return currentType == AccountItemType.expense ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer;
                 }
                 return null;
               }),
@@ -215,10 +211,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
           // 分类选择
           CommonSelectFormField<AccountCategory>(
-            items: provider.categories
-                .where((category) => category.categoryType == item.type)
-                .toList()
-                .cast<AccountCategory>(),
+            items: provider.categories.where((category) => category.categoryType == item.type).toList().cast<AccountCategory>(),
             value: item.categoryCode,
             displayMode: DisplayMode.expand,
             displayField: (item) => item.name,
@@ -464,7 +457,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     ? null
                     : () async {
                         if (_formKey.currentState?.validate() ?? false) {
-                          if (await provider.save()) {
+                          if (await provider.create()) {
                             if (context.mounted) {
                               if (widget.onSaved != null) {
                                 widget.onSaved!();

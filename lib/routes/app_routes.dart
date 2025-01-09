@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../pages/account_book/account_book_list_page.dart';
-import '../pages/account_book/account_item_form_page.dart';
+import '../pages/account_book/account_item_add_page.dart';
+import '../pages/account_book/account_item_edit_page.dart';
 import '../pages/account_book/account_book_form_page.dart';
 import '../pages/account_book/merchants_page.dart';
 import '../pages/home_page.dart';
@@ -41,7 +42,10 @@ class AppRoutes {
   static const String accountBooks = '/account_books';
 
   /// 账目详情表单页面
-  static const String accountItemForm = '/account_item_form';
+  static const String accountItemAdd = '/account_item_add';
+
+  /// 账目编辑页面
+  static const String accountItemEdit = '/account_item_edit';
 
   /// 账本创建页面
   static const String accountBookForm = '/account_book_form';
@@ -78,12 +82,18 @@ class AppRoutes {
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
     accountBooks: (context) => const AccountBookListPage(),
     accountBookForm: (context) => const AccountBookFormPage(),
-    accountItemForm: (context) {
+    accountItemAdd: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
       final accountBook = args[0] as UserBookVO;
       final item = args.length > 1 && args[1] != null ? args[1] as AccountItemVO : null;
-      return AccountItemFormPage(accountBook: accountBook, item: item);
+      return AccountItemAddPage(accountBook: accountBook, item: item);
+    },
+    accountItemEdit: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as UserBookVO;
+      final item = args[1] as AccountItemVO;
+      return AccountItemEditPage(accountBook: accountBook, item: item);
     },
     serverConfig: (context) => const ServerConfigPage(),
     merchants: (context) {

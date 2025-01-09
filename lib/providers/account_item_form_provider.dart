@@ -26,7 +26,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool get isNew => _item.id.isEmpty;
 
   /// 是否正在保存
-  final bool _saving = false;
+  bool _saving = false;
   bool get saving => _saving;
 
   /// 错误信息
@@ -77,31 +77,83 @@ class AccountItemFormProvider extends ChangeNotifier {
               createdAtString: DateTime.now().toString(),
               updatedAtString: DateTime.now().toString(),
             ) {
-    _loadData();
+    _init();
   }
 
-  /// 加载数据
-  Future<void> _loadData() async {
-    if (_loading) return;
-
+  Future<void> _init() async {
     _loading = true;
-    _error = null;
     notifyListeners();
 
-    try {
-      await Future.wait([
-        loadCategories(),
-        loadFunds(),
-        loadShops(),
-        loadSymbols(),
-        loadAttachments(),
-      ]);
-    } catch (e) {
-      _error = '加载数据失败：$e';
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
+    await Future.wait([
+      loadCategories(),
+      loadFunds(),
+      loadShops(),
+      loadTags(),
+      loadProjects(),
+    ]);
+
+    _loading = false;
+    notifyListeners();
+  }
+
+  /// 更新类型并保存
+  Future<void> updateTypeAndSave(String type) async {
+    updateType(type);
+    await partUpdate(type: type);
+  }
+
+  /// 更新金额并保存
+  Future<void> updateAmountAndSave(double amount) async {
+    updateAmount(amount);
+    await partUpdate(amount: amount);
+  }
+
+  /// 更新分类并保存
+  Future<void> updateCategoryAndSave(String? code, String? name) async {
+    updateCategory(code, name);
+    await partUpdate(categoryCode: code);
+  }
+
+  /// 更新账户并保存
+  Future<void> updateFundAndSave(String? id, String? name) async {
+    updateFund(id, name);
+    await partUpdate(fundId: id);
+  }
+
+  /// 更新商户并保存
+  Future<void> updateShopAndSave(String? code, String? name) async {
+    updateShop(code, name);
+    await partUpdate(shopCode: code);
+  }
+
+  /// 更新标签并保存
+  Future<void> updateTagAndSave(String? code, String? name) async {
+    updateTag(code, name);
+    await partUpdate(tagCode: code);
+  }
+
+  /// 更新项目并保存
+  Future<void> updateProjectAndSave(String? code, String? name) async {
+    updateProject(code, name);
+    await partUpdate(projectCode: code);
+  }
+
+  /// 更新描述并保存
+  Future<void> updateDescriptionAndSave(String? description) async {
+    updateDescription(description);
+    await partUpdate(description: description);
+  }
+
+  /// 更新日期时间并保存
+  Future<void> updateDateTimeAndSave(String date, String time) async {
+    _item.updateDateTime(date, time);
+    await partUpdate(accountDate: date);
+  }
+
+  /// 更新附件并保存
+  Future<void> updateAttachmentsAndSave(List<AttachmentVO> attachments) async {
+    updateAttachments(attachments);
+    await partUpdate(attachments: attachments);
   }
 
   /// 加载分类
@@ -143,8 +195,7 @@ class AccountItemFormProvider extends ChangeNotifier {
 
   /// 加载项目
   Future<void> loadProjects() async {
-    final result =
-        await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.project.name);
+    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.project.name);
     _projects = result.data ?? [];
     notifyListeners();
   }
@@ -161,39 +212,25 @@ class AccountItemFormProvider extends ChangeNotifier {
   }
 
   /// 保存账目
-  Future<bool> save() async {
+  Future<bool> create() async {
     final userId = AppConfigManager.instance.userId!;
     OperateResult result;
-    if (isNew) {
-      // 保存账目信息
-      result = await DriverFactory.driver.createBookItem(
-        userId,
-        _item.accountBookId,
-        type: _item.type,
-        amount: _item.amount,
-        description: _item.description,
-        categoryCode: _item.categoryCode,
-        fundId: _item.fundId,
-        shopCode: _item.shopCode,
-        tagCode: _item.tagCode,
-        projectCode: _item.projectCode,
-        accountDate: _item.accountDate,
-        files:
-            _attachments.where((attachment) => attachment.file != null).map((attachment) => attachment.file!).toList(),
-      );
-      _item = _item.copyWith(id: result.data!);
-    } else {
-      result = await DriverFactory.driver.updateBookItem(userId, _item.accountBookId, _item.id,
-          amount: _item.amount,
-          description: _item.description,
-          categoryCode: _item.categoryCode,
-          fundId: _item.fundId,
-          shopCode: _item.shopCode,
-          tagCode: _item.tagCode,
-          projectCode: _item.projectCode,
-          accountDate: _item.accountDate,
-          attachments: _attachments);
-    }
+    // 保存账目信息
+    result = await DriverFactory.driver.createBookItem(
+      userId,
+      _item.accountBookId,
+      type: _item.type,
+      amount: _item.amount,
+      description: _item.description,
+      categoryCode: _item.categoryCode,
+      fundId: _item.fundId,
+      shopCode: _item.shopCode,
+      tagCode: _item.tagCode,
+      projectCode: _item.projectCode,
+      accountDate: _item.accountDate,
+      files: _attachments.where((attachment) => attachment.file != null).map((attachment) => attachment.file!).toList(),
+    );
+    _item = _item.copyWith(id: result.data!);
 
     if (!result.ok) {
       _error = result.message;
@@ -201,6 +238,56 @@ class AccountItemFormProvider extends ChangeNotifier {
     }
 
     return true;
+  }
+
+  /// 保存账目
+  Future<bool> partUpdate({
+    String? type,
+    double? amount,
+    String? description,
+    String? categoryCode,
+    String? fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    String? accountDate,
+    List<AttachmentVO>? attachments,
+  }) async {
+    if (_saving) return true;
+
+    _saving = true;
+    notifyListeners();
+
+    try {
+      final result = await DriverFactory.driver.updateBookItem(
+        AppConfigManager.instance.userId!,
+        _accountBook.id,
+        _item.id,
+        type: type,
+        amount: amount,
+        accountDate: accountDate,
+        description: description,
+        categoryCode: categoryCode,
+        fundId: fundId,
+        shopCode: shopCode,
+        tagCode: tagCode,
+        projectCode: projectCode,
+        attachments: attachments,
+      );
+
+      if (!result.ok) {
+        _error = result.message;
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _saving = false;
+      notifyListeners();
+    }
   }
 
   /// 更新类型
