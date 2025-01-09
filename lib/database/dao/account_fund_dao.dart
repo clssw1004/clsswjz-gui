@@ -3,7 +3,7 @@ import '../database.dart';
 import '../tables/account_fund_table.dart';
 import 'base_dao.dart';
 
-class AccountFundDao extends BaseDao<AccountFundTable, AccountFund> {
+class AccountFundDao extends BaseBookDao<AccountFundTable, AccountFund> {
   AccountFundDao(super.db);
 
   Future<List<AccountFund>> findByType(String fundType) {

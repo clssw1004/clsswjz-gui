@@ -49,3 +49,20 @@ abstract class BaseDao<T extends StringIdTable, D> {
 
   TableInfo<T, D> get table;
 }
+
+abstract class BaseBookDao<T extends BaseAccountBookTable, D> extends BaseDao<T, D> {
+  BaseBookDao(super.db);
+
+  Future<List<D>> findByAccountBookId(String accountBookId) {
+    return (db.select(table)
+          ..where((t) => t.accountBookId.equals(accountBookId))
+          ..orderBy(defaultOrderBy()))
+        .get();
+  }
+
+  List<OrderClauseGenerator<T>> defaultOrderBy() {
+    return [
+      (t) => OrderingTerm.desc(t.createdAt),
+    ];
+  }
+}

@@ -1,68 +1,16 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
-import '../../utils/date_util.dart';
 import '../tables/account_item_table.dart';
 import 'base_dao.dart';
 
-class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
+class AccountItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
   AccountItemDao(super.db);
 
-  Future<List<AccountItem>> findByAccountBookId(String accountBookId, {int limit = 20, int offset = 0}) {
-    final query = db.select(db.accountItemTable)
-      ..where((t) => t.accountBookId.equals(accountBookId))
-      ..orderBy([(t) => OrderingTerm.desc(t.accountDate)])
-      ..limit(limit, offset: offset);
-    return query.get();
-  }
-
-  Future<List<AccountItem>> findByDateRange(String accountBookId, String startDate, String endDate) {
-    return (db.select(db.accountItemTable)
-          ..where((t) => t.accountBookId.equals(accountBookId) & t.accountDate.isBetweenValues(startDate, endDate)))
-        .get();
-  }
-
-  Future<List<AccountItem>> findByFundId(String fundId) {
-    return (db.select(db.accountItemTable)..where((t) => t.fundId.equals(fundId))).get();
-  }
-
-  Future<List<AccountItem>> findByCategoryCode(String categoryCode) {
-    return (db.select(db.accountItemTable)..where((t) => t.categoryCode.equals(categoryCode))).get();
-  }
-
-  Future<void> createAccountItem({
-    required String id,
-    required double amount,
-    required String type,
-    required String accountDate,
-    required String accountBookId,
-    required String createdBy,
-    required String updatedBy,
-    String? description,
-    String? categoryCode,
-    String? fundId,
-    String? shopCode,
-    String? tagCode,
-    String? projectCode,
-  }) {
-    return insert(
-      AccountItemTableCompanion.insert(
-        id: id,
-        amount: amount,
-        type: type,
-        accountDate: accountDate,
-        accountBookId: accountBookId,
-        description: Value(description),
-        categoryCode: Value(categoryCode),
-        fundId: Value(fundId),
-        shopCode: Value(shopCode),
-        tagCode: Value(tagCode),
-        projectCode: Value(projectCode),
-        createdBy: createdBy,
-        updatedBy: updatedBy,
-        createdAt: DateUtil.now(),
-        updatedAt: DateUtil.now(),
-      ),
-    );
+  @override
+  List<OrderClauseGenerator<AccountItemTable>> defaultOrderBy() {
+    return [
+      (t) => OrderingTerm.desc(t.accountDate),
+    ];
   }
 
   Future<List<AccountItem>> findByConditions({
