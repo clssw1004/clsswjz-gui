@@ -9,6 +9,7 @@ import '../pages/account_book/account_item_edit_page.dart';
 import '../pages/account_book/account_book_form_page.dart';
 import '../pages/account_book/merchants_page.dart';
 import '../pages/home_page.dart';
+import '../pages/import/import_page.dart';
 import '../pages/settings/language_settings_page.dart';
 import '../pages/settings/server_config_page.dart';
 import '../pages/settings/theme_settings_page.dart';
@@ -67,6 +68,8 @@ class AppRoutes {
 
   static const String syncSettings = '/sync_settings';
 
+  static const String import = '/import';
+
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
       builder: (context) => AppConfigManager.isAppInit() ? const HomePage() : const ServerConfigPage(),
@@ -118,5 +121,6 @@ class AppRoutes {
     },
     about: (context) => const AboutPage(),
     syncSettings: (context) => const SyncSettingsPage(),
+    import: (context) => const ImportPage(),
   };
 }

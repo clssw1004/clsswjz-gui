@@ -447,5 +447,9 @@
     "chooseFromGallery": "从相册选择",
     "@chooseFromGallery": {
         "description": "从相册选择选项"
-    }
+    },
+    "importData": "导入数据",
+    "dataSource": "数据来源",
+    "selectFile": "选择文件",
+    "import": "导入"
 }

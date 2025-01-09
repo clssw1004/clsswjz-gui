@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import '../models/vo/account_item_vo.dart';
 import '../utils/color_util.dart';
@@ -114,7 +115,7 @@ class AccountItemListTile extends StatelessWidget {
             // 右侧创建人和时间
             if (item.createdByName != null) ...[
               Text(
-                item.createdByName!,
+                AppConfigManager.instance.userId == item.createdBy ? '' : item.createdByName!,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.outline,
                 ),

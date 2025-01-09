@@ -421,5 +421,9 @@
     "syncing": "Syncing...",
     "syncSuccess": "Sync successful",
     "syncFailed": "Sync failed",
-    "syncSettings": "Sync Settings"
+    "syncSettings": "Sync Settings",
+    "importData": "Import Data",
+    "dataSource": "Data Source",
+    "selectFile": "Select File",
+    "import": "Import"
 }

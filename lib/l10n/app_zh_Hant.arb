@@ -342,5 +342,9 @@
                 "example": "10"
             }
         }
-    }
+    },
+    "importData": "導入數據",
+    "dataSource": "數據來源",
+    "selectFile": "選擇文件",
+    "import": "導入"
 }
