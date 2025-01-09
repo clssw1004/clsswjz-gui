@@ -22,14 +22,14 @@ class AttachmentUtil {
   }
 
   /// 根据附件ID获取文件路径
-  static Future<String> getAttachmentPath(String attachmentId, String extension) async {
+  static Future<String> getAttachmentPath(String attachmentId) async {
     final dir = await getAttachmentDir();
-    return path.join(dir.path, '$attachmentId$extension');
+    return path.join(dir.path, attachmentId);
   }
 
   static Future<void> copyFileToLocal(AttachmentVO vo) async {
     if (vo.file == null) throw Exception("文件为空");
-    final targetPath = await getAttachmentPath(vo.id, vo.extension);
+    final targetPath = await getAttachmentPath(vo.id);
     await vo.file!.copy(targetPath);
   }
 

@@ -32,6 +32,7 @@ dependencies:
   json_annotation: ^4.9.0
   image_picker: ^1.0.4
   custom_refresh_indicator: ^4.0.1
+  device_info_plus: ^11.2.0
 
 dev_dependencies:
   flutter_test:

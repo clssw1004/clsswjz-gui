@@ -80,6 +80,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _amountFocusNode = FocusNode();
   late String _selectedDate;
   late String _selectedTime;
 
@@ -96,6 +97,17 @@ class _AccountItemFormState extends State<_AccountItemForm> {
       _selectedDate = DateFormat('yyyy-MM-dd').format(now);
       _selectedTime = DateFormat('HH:mm').format(now);
       widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+
+      // 延迟一帧后弹出金额输入
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _amountController.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _amountController.text.length,
+          );
+          FocusScope.of(context).requestFocus(_amountFocusNode);
+        }
+      });
     } else {
       // 编辑账目，使用已有时间
       _selectedDate = widget.provider.item.accountDateOnly;
@@ -110,6 +122,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -205,6 +218,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           AmountInput(
             type: item.type,
             controller: _amountController,
+            focusNode: _amountFocusNode,
             onChanged: (value) => provider.updateAmount(value),
           ),
           SizedBox(height: spacing.formItemSpacing),

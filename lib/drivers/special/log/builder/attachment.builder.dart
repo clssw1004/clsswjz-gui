@@ -20,6 +20,11 @@ class AttachmentCULog extends LogBuilder<AttachmentVO, String> {
     return data!.id;
   }
 
+  @override
+  String data2Json() {
+    return data!.toAttachment().toJsonString();
+  }
+
   static AttachmentCULog fromFile(
     String who, {
     required BusinessType belongType,
@@ -49,7 +54,7 @@ class AttachmentDeleteLog extends DeleteLog {
   Future<void> executeLog() async {
     Attachment? attachment = await DaoManager.attachmentDao.findById(businessId!);
     if (attachment == null) return;
-    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id, attachment.extension);
+    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id);
     final file = File(filePath);
     if (await file.exists()) {
       await file.delete();

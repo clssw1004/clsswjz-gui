@@ -1,10 +1,12 @@
 import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import '../../services/auth_service.dart';
 import '../../services/health_service.dart';
 import '../../utils/toast_util.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -66,28 +68,68 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     super.dispose();
   }
 
+  Future<Map<String, String>> _getDeviceInfo() async {
+    final deviceInfo = DeviceInfoPlugin();
+    try {
+      if (Theme.of(context).platform == TargetPlatform.android) {
+        final androidInfo = await deviceInfo.androidInfo;
+        return {
+          'clientId': androidInfo.id,
+          'clientName': '${androidInfo.brand} ${androidInfo.model}',
+        };
+      } else if (Theme.of(context).platform == TargetPlatform.iOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        return {
+          'clientId': iosInfo.identifierForVendor ?? 'unknown',
+          'clientName': '${iosInfo.name} ${iosInfo.model}',
+        };
+      } else if (Theme.of(context).platform == TargetPlatform.windows) {
+        final windowsInfo = await deviceInfo.windowsInfo;
+        return {
+          'clientId': windowsInfo.deviceId,
+          'clientName': '${windowsInfo.computerName} (Windows)',
+        };
+      } else if (Theme.of(context).platform == TargetPlatform.macOS) {
+        final macOsInfo = await deviceInfo.macOsInfo;
+        return {
+          'clientId': macOsInfo.systemGUID ?? 'unknown',
+          'clientName': '${macOsInfo.computerName} (macOS)',
+        };
+      } else if (Theme.of(context).platform == TargetPlatform.linux) {
+        final linuxInfo = await deviceInfo.linuxInfo;
+        return {
+          'clientId': linuxInfo.machineId ?? 'unknown',
+          'clientName': '${linuxInfo.name} (Linux)',
+        };
+      }
+      return {
+        'clientId': 'unknown',
+        'clientName': 'Unknown Device',
+      };
+    } catch (e) {
+      return {
+        'clientId': 'unknown',
+        'clientName': 'Unknown Device',
+      };
+    }
+  }
+
   Future<void> _checkServer() async {
     final l10n = AppLocalizations.of(context)!;
-    if (_serverUrl.isEmpty) {
-      ToastUtil.showError(l10n.pleaseInput(l10n.serverAddress));
-      return;
-    }
-    setState(() => _isChecking = true);
-    try {
-      final healthService = HealthService(_serverUrl);
-      final result = await healthService.checkHealth();
-      if (result.ok && result.data?.status == 'ok') {
-        setState(() => _serverValid = true);
-        ToastUtil.showSuccess(l10n.serverConnectionSuccess);
-      } else {
-        setState(() => _serverValid = false);
-        ToastUtil.showError(l10n.serverConnectionFailed);
-      }
-    } catch (e) {
-      setState(() => _serverValid = false);
-      ToastUtil.showError(l10n.serverConnectionError);
-    } finally {
-      setState(() => _isChecking = false);
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    final healthService = HealthService(_serverUrl);
+    final result = await healthService.checkHealth();
+    setState(() {
+      _isLoading = false;
+      _serverValid = result.ok;
+    });
+
+    if (result.ok) {
+      ToastUtil.showSuccess(l10n.serverConnectionSuccess);
+    } else {
+      ToastUtil.showError(result.message ?? l10n.serverConnectionFailed);
     }
   }
 
@@ -95,12 +137,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     await AppConfigManager.storageOfflineMode(context,
-        username: _username,
-        nickname: _nickname,
-        email: _email,
-        phone: _phone,
-        bookName: _bookName,
-        bookIcon: _bookIcon);
+        username: _username, nickname: _nickname, email: _email, phone: _phone, bookName: _bookName, bookIcon: _bookIcon);
     RestartWidget.restartApp(context);
   }
 
@@ -113,27 +150,31 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     }
 
     setState(() => _isLoading = true);
-    // try {
-    final authService = AuthService(_serverUrl);
-    final result = await authService.login(
-      _username,
-      _password,
-    );
-    if (result.ok && result.data != null) {
-      await AppConfigManager.storgeSelfhostMode(
-        _serverUrl,
-        result.data!.userId,
-        result.data!.accessToken,
+    try {
+      final deviceInfo = await _getDeviceInfo();
+      final authService = AuthService(_serverUrl);
+      final result = await authService.login(
+        _username,
+        _password,
+        clientType: Theme.of(context).platform.name,
+        clientId: deviceInfo['clientId'],
+        clientName: deviceInfo['clientName'],
       );
-      RestartWidget.restartApp(context);
-    } else {
-      ToastUtil.showError(l10n.loginFailed);
+      if (result.ok && result.data != null) {
+        await AppConfigManager.storgeSelfhostMode(
+          _serverUrl,
+          result.data!.userId,
+          result.data!.accessToken,
+        );
+        RestartWidget.restartApp(context);
+      } else {
+        ToastUtil.showError(l10n.loginFailed);
+      }
+    } catch (e) {
+      ToastUtil.showError(l10n.loginError);
+    } finally {
+      setState(() => _isLoading = false);
     }
-    // } catch (e) {
-    //   ToastUtil.showError(l10n.loginError);
-    // } finally {
-    //   setState(() => _isLoading = false);
-    // }
   }
 
   @override

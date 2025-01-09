@@ -8,7 +8,13 @@ class AuthService {
 
   AuthService(this.baseUrl);
 
-  Future<ApiResponse<AuthResponse>> login(String username, String password) async {
+  Future<ApiResponse<AuthResponse>> login(
+    String username,
+    String password, {
+    String? clientType,
+    String? clientId,
+    String? clientName,
+  }) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/login'),
@@ -16,6 +22,9 @@ class AuthService {
         body: jsonEncode({
           'username': username,
           'password': password,
+          'clientType': clientType,
+          'clientId': clientId,
+          'clientName': clientName,
         }),
       );
 

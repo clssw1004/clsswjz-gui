@@ -59,7 +59,7 @@ class AttachmentVO {
   static Future<AttachmentVO> fromAttachment(
     Attachment attachment,
   ) async {
-    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id, attachment.extension);
+    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id);
     final file = File(filePath);
     final exists = await file.exists();
     return AttachmentVO(

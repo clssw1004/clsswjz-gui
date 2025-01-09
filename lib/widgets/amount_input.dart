@@ -4,19 +4,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../utils/color_util.dart';
 
 class AmountInput extends StatefulWidget {
-  final double? initialValue;
-  final ValueChanged<double> onChanged;
   final String type;
-  final FocusNode? focusNode;
   final TextEditingController controller;
+  final FocusNode? focusNode;
+  final ValueChanged<double> onChanged;
 
   const AmountInput({
     super.key,
-    this.initialValue,
-    required this.onChanged,
     required this.type,
-    this.focusNode,
     required this.controller,
+    this.focusNode,
+    required this.onChanged,
   });
 
   @override
@@ -25,6 +23,18 @@ class AmountInput extends StatefulWidget {
 
 class _AmountInputState extends State<AmountInput> {
   String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusNode != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showCalculator();
+        }
+      });
+    }
+  }
 
   void _showCalculator() {
     showModalBottomSheet(
@@ -61,6 +71,7 @@ class _AmountInputState extends State<AmountInput> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
+          focusNode: widget.focusNode,
           onTap: _showCalculator,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
