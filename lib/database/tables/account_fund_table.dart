@@ -12,12 +12,8 @@ class AccountFundTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get fundType => text().named('fund_type')();
   TextColumn get fundRemark => text().nullable().named('fund_remark')();
-  RealColumn get fundBalance =>
-      real().named('fund_balance').withDefault(const Constant(0.00))();
-  BoolColumn get isDefault => boolean()
-      .named('is_default')
-      .nullable()
-      .withDefault(const Constant(false))();
+  RealColumn get fundBalance => real().named('fund_balance').withDefault(const Constant(0.00))();
+  BoolColumn get isDefault => boolean().named('is_default').nullable().withDefault(const Constant(false))();
 
   /// 生成更新数据的伴生对象
   static AccountFundTableCompanion toUpdateCompanion(

@@ -11,12 +11,9 @@ class AccountShopService extends BaseService {
   AccountShopService() : _accountShopDao = AccountShopDao(DatabaseManager.db);
 
   /// 获取账本下的所有商家
-  Future<OperateResult<List<AccountShop>>> getShopsByAccountBook(
-      String accountBookId) async {
+  Future<OperateResult<List<AccountShop>>> getShopsByAccountBook(String accountBookId) async {
     try {
-      final shops = await (db.select(db.accountShopTable)
-            ..where((t) => t.accountBookId.equals(accountBookId)))
-          .get();
+      final shops = await (db.select(db.accountShopTable)..where((t) => t.accountBookId.equals(accountBookId))).get();
       return OperateResult.success(shops);
     } catch (e) {
       return OperateResult.failWithMessage(

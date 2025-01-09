@@ -41,11 +41,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
       String? fundRemark,
       double? fundBalance,
       bool isDefault = false}) {
-    return FundCULog()
-        .who(who)
-        .inBook(bookId)
-        .doCreate()
-        .withData(AccountFundTable.toCreateCompanion(
+    return FundCULog().who(who).inBook(bookId).doCreate().withData(AccountFundTable.toCreateCompanion(
           who,
           bookId,
           name: name,
@@ -57,11 +53,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   }
 
   static FundCULog update(String userId, String bookId, String fundId,
-      {String? name,
-      FundType? fundType,
-      String? fundRemark,
-      double? fundBalance,
-      bool? isDefault}) {
+      {String? name, FundType? fundType, String? fundRemark, double? fundBalance, bool? isDefault}) {
     return FundCULog()
         .who(userId)
         .inBook(bookId)
@@ -82,8 +74,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountFund.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as FundCULog;
+        .withData(AccountFund.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as FundCULog;
   }
 
   static FundCULog fromUpdateLog(LogSync log) {

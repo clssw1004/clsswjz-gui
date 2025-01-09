@@ -151,8 +151,7 @@ class AuthInterceptor implements HttpInterceptor {
   }
 
   @override
-  Future<HttpResponse<T>> onResponse<T>(HttpResponse<T> response) async =>
-      response;
+  Future<HttpResponse<T>> onResponse<T>(HttpResponse<T> response) async => response;
 
   @override
   Future<HttpError> onError(HttpError error) async => error;
@@ -217,8 +216,7 @@ class HttpClient {
       }
 
       // 构建请求URI
-      final uri = _buildUri(
-          interceptedOptions.path, interceptedOptions.queryParameters);
+      final uri = _buildUri(interceptedOptions.path, interceptedOptions.queryParameters);
 
       // 构建请求头
       final headers = {
@@ -242,8 +240,7 @@ class HttpClient {
       // 应用响应拦截器
       var interceptedResponse = httpResponse;
       for (var interceptor in _config.interceptors) {
-        interceptedResponse =
-            await interceptor.onResponse<T>(interceptedResponse);
+        interceptedResponse = await interceptor.onResponse<T>(interceptedResponse);
       }
 
       return interceptedResponse;
@@ -387,10 +384,8 @@ class HttpClient {
     if (data != null) {
       if (headers['Content-Type']?.contains('application/json') == true) {
         request.body = jsonEncode(data);
-      } else if (headers['Content-Type']?.contains('multipart/form-data') ==
-          true) {
-        final multipartRequest = http.MultipartRequest(methodName, uri)
-          ..headers.addAll(headers);
+      } else if (headers['Content-Type']?.contains('multipart/form-data') == true) {
+        final multipartRequest = http.MultipartRequest(methodName, uri)..headers.addAll(headers);
 
         data.forEach((key, value) {
           if (value is http.MultipartFile) {
@@ -403,9 +398,7 @@ class HttpClient {
         final streamedResponse = await multipartRequest.send().timeout(timeout);
         return http.Response.fromStream(streamedResponse);
       } else {
-        request.body = Uri(
-            queryParameters: data
-                .map((key, value) => MapEntry(key, value.toString()))).query;
+        request.body = Uri(queryParameters: data.map((key, value) => MapEntry(key, value.toString()))).query;
       }
     }
 

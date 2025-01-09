@@ -25,11 +25,9 @@ class TagsPage extends StatelessWidget {
           accountBook.id,
           SymbolType.tag.name,
         ),
-        createItem: (name, _) => DriverFactory.driver.createBookSymbol(
-            userId, accountBook.id,
-            name: name, symbolType: SymbolType.tag),
-        updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.driver.updateBookSymbol(
+        createItem: (name, _) =>
+            DriverFactory.driver.createBookSymbol(userId, accountBook.id, name: name, symbolType: SymbolType.tag),
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookSymbol(
           userId,
           accountBook.id,
           item.id,

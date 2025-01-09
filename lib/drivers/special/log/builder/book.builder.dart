@@ -43,30 +43,21 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   static BookCULog create(String who,
-      {required String name,
-      String? description,
-      CurrencySymbol? currencySymbol = CurrencySymbol.cny,
-      String? icon}) {
-    return BookCULog().who(who).doCreate().withData(
-        AccountBookTable.toCreateCompanion(who,
-            name: name,
-            description: description,
-            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-            icon: icon)) as BookCULog;
+      {required String name, String? description, CurrencySymbol? currencySymbol = CurrencySymbol.cny, String? icon}) {
+    return BookCULog().who(who).doCreate().withData(AccountBookTable.toCreateCompanion(who,
+        name: name,
+        description: description,
+        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+        icon: icon)) as BookCULog;
   }
 
   static BookCULog update(String who, String bookId,
-      {String? name,
-      String? description,
-      CurrencySymbol? currencySymbol,
-      String? icon,
-      List<BookMemberVO>? members}) {
-    return BookCULog().inBook(bookId).doUpdate().who(who).withData(
-        AccountBookTable.toUpdateCompanion(who,
-            name: name,
-            description: description,
-            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-            icon: icon)) as BookCULog;
+      {String? name, String? description, CurrencySymbol? currencySymbol, String? icon, List<BookMemberVO>? members}) {
+    return BookCULog().inBook(bookId).doUpdate().who(who).withData(AccountBookTable.toUpdateCompanion(who,
+        name: name,
+        description: description,
+        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+        icon: icon)) as BookCULog;
   }
 
   static BookCULog fromLog(LogSync log) {
@@ -76,9 +67,10 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   static BookCULog fromCreateLog(LogSync log) {
-    return BookCULog().who(log.operatorId).doCreate().withData(
-            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
-        as BookCULog;
+    return BookCULog()
+        .who(log.operatorId)
+        .doCreate()
+        .withData(AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as BookCULog;
   }
 
   static BookCULog fromUpdateLog(LogSync log) {

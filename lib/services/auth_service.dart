@@ -8,8 +8,7 @@ class AuthService {
 
   AuthService(this.baseUrl);
 
-  Future<ApiResponse<AuthResponse>> login(
-      String username, String password) async {
+  Future<ApiResponse<AuthResponse>> login(String username, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/login'),

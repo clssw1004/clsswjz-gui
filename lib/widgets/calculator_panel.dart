@@ -61,10 +61,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
   }
 
   bool _endsWithOperator(String value) {
-    return value.endsWith('+') ||
-        value.endsWith('-') ||
-        value.endsWith('*') ||
-        value.endsWith('/');
+    return value.endsWith('+') || value.endsWith('-') || value.endsWith('*') || value.endsWith('/');
   }
 
   void _addOperator(String operator) {
@@ -84,8 +81,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       if (_endsWithOperator(_expression)) {
         // 替换最后的操作符
         setState(() {
-          _expression =
-              _expression.substring(0, _expression.length - 1) + operator;
+          _expression = _expression.substring(0, _expression.length - 1) + operator;
           _displayText = _expression;
         });
         return;
@@ -183,9 +179,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
   }
 
   bool get _canConfirmOrCalculate {
-    if (_displayText.isEmpty ||
-        _displayText == '错误' ||
-        _endsWithOperator(_expression)) {
+    if (_displayText.isEmpty || _displayText == '错误' || _endsWithOperator(_expression)) {
       return false;
     }
     return true;
@@ -429,9 +423,7 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
                         height: buttonHeight * 2,
                         child: _buildCalculatorButton(
                           child: Text(
-                            _hasOperator && !_endsWithOperator(_expression)
-                                ? '='
-                                : 'OK',
+                            _hasOperator && !_endsWithOperator(_expression) ? '=' : 'OK',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,

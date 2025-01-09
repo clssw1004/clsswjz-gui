@@ -59,10 +59,8 @@ class UserService extends BaseService {
       if (user == null) {
         return OperateResult.failWithMessage(message: '用户不存在');
       }
-      return OperateResult.success(UserVO.fromUser(
-          user: user,
-          avatar: await ServiceManager.attachmentService
-              .getAttachment(user.avatar)));
+      return OperateResult.success(
+          UserVO.fromUser(user: user, avatar: await ServiceManager.attachmentService.getAttachment(user.avatar)));
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取用户信息失败：$e',
@@ -93,9 +91,8 @@ class UserService extends BaseService {
     required String id,
     required File file,
   }) async {
-    final attachId = await AttachmentCULog.fromFile(id,
-            belongType: BusinessType.user, belongId: id, file: file)
-        .execute();
+    final attachId =
+        await AttachmentCULog.fromFile(id, belongType: BusinessType.user, belongId: id, file: file).execute();
 
     final companion = UserTableCompanion(
       avatar: Value(attachId),

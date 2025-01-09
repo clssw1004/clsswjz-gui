@@ -30,8 +30,7 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return RelAccountbookUserTable.toJsonString(
-          data as RelAccountbookUserTableCompanion);
+      return RelAccountbookUserTable.toJsonString(data as RelAccountbookUserTableCompanion);
     }
   }
 
@@ -43,16 +42,15 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
       bool canViewItem = true,
       bool canEditItem = false,
       bool canDeleteItem = false}) {
-    return MemberCULog().who(who).inBook(bookId).doCreate().withData(
-        RelAccountbookUserTable.toCreateCompanion(
-            accountBookId: bookId,
-            userId: userId,
-            canViewBook: canViewBook,
-            canEditBook: canEditBook,
-            canDeleteBook: canDeleteBook,
-            canViewItem: canViewItem,
-            canEditItem: canEditItem,
-            canDeleteItem: canDeleteItem)) as MemberCULog;
+    return MemberCULog().who(who).inBook(bookId).doCreate().withData(RelAccountbookUserTable.toCreateCompanion(
+        accountBookId: bookId,
+        userId: userId,
+        canViewBook: canViewBook,
+        canEditBook: canEditBook,
+        canDeleteBook: canDeleteBook,
+        canViewItem: canViewItem,
+        canEditItem: canEditItem,
+        canDeleteItem: canDeleteItem)) as MemberCULog;
   }
 
   static MemberCULog update(String who, String bookId, String memberId,
@@ -62,12 +60,8 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
       bool? canViewItem,
       bool? canEditItem,
       bool? canDeleteItem}) {
-    return MemberCULog()
-        .who(who)
-        .inBook(bookId)
-        .subject(memberId)
-        .doUpdate()
-        .withData(RelAccountbookUserTable.toUpdateCompanion(
+    return MemberCULog().who(who).inBook(bookId).subject(memberId).doUpdate().withData(
+        RelAccountbookUserTable.toUpdateCompanion(
             canViewBook: canViewBook,
             canEditBook: canEditBook,
             canDeleteBook: canDeleteBook,
@@ -81,8 +75,7 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as MemberCULog;
+        .withData(RelAccountbookUser.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as MemberCULog;
   }
 
   static MemberCULog fromUpdateLog(LogSync log) {

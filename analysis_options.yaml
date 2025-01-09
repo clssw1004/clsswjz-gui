@@ -1,1 +1,10 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - lines_longer_than_140_chars # 设置行长度检查
+
+# 设置最大行宽
+dart_code_metrics:
+  metrics:
+    maximum-line-length: 140 # 可以根据需要调整数值

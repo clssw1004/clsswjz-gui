@@ -131,8 +131,7 @@ class _MineTabView extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.language_outlined),
             title: Text(l10n.languageSettings),
-            onTap: () =>
-                Navigator.pushNamed(context, AppRoutes.languageSettings),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.languageSettings),
           ),
           ListTile(
             leading: const Icon(Icons.storage_outlined),

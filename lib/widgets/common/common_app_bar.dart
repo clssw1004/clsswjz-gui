@@ -46,8 +46,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// 切换语言
   Future<void> _changeLanguage(BuildContext context, String locale) async {
     final parts = locale.split('_');
-    final newLocale =
-        parts.length > 1 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
+    final newLocale = parts.length > 1 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
     final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
 
     // 保存新的语言设置
@@ -57,8 +56,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       // 重新构建整个应用以应用新的语言设置
       // 使用 pushNamedAndRemoveUntil 而不是 pushReplacementNamed，
       // 因为我们需要清除整个导航栈以确保所有页面都使用新的语言
-      Navigator.of(context, rootNavigator: true)
-          .pushNamedAndRemoveUntil('/', (route) => false);
+      Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil('/', (route) => false);
     }
   }
 
@@ -66,8 +64,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   void _changeThemeMode(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final currentMode = themeProvider.themeMode;
-    final newMode =
-        currentMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    final newMode = currentMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     themeProvider.setThemeMode(newMode);
   }
 
@@ -178,15 +175,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: showBackButton ? null : 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          bottom: bottom == null
-              ? Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0)
-              : Radius.zero,
+          bottom: bottom == null ? Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0) : Radius.zero,
         ),
       ),
     );
   }
 
   @override
-  Size get preferredSize =>
-      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
+  Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }

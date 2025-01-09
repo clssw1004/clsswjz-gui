@@ -8,8 +8,7 @@ class ColorUtil {
 
   /// 获取账目金额颜色
   static Color getAmountColor(String? type) {
-    final currentType =
-        AccountItemType.fromCode(type) ?? AccountItemType.expense;
+    final currentType = AccountItemType.fromCode(type) ?? AccountItemType.expense;
 
     return currentType == AccountItemType.expense ? EXPENSE : INCOME;
   }

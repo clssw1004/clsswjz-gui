@@ -22,8 +22,7 @@ class AttachmentUtil {
   }
 
   /// 根据附件ID获取文件路径
-  static Future<String> getAttachmentPath(
-      String attachmentId, String extension) async {
+  static Future<String> getAttachmentPath(String attachmentId, String extension) async {
     final dir = await getAttachmentDir();
     return path.join(dir.path, '$attachmentId$extension');
   }

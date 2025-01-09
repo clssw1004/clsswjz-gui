@@ -44,10 +44,7 @@ class CommonBadge extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final bgColor = backgroundColor ?? colorScheme.surface;
-    final fgColor = textColor ??
-        (selected
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.onSurfaceVariant);
+    final fgColor = textColor ?? (selected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant);
     final border = Border.all(
       color: borderColor ?? colorScheme.outline.withAlpha(51),
       width: 1,

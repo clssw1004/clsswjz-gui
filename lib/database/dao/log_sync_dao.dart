@@ -11,8 +11,6 @@ class LogSyncDao extends BaseDao<LogSyncTable, LogSync> {
   TableInfo<LogSyncTable, LogSync> get table => db.logSyncTable;
 
   Future<List<LogSync>> listChangeLogs() async {
-    return await (db.select(db.logSyncTable)
-          ..where((tbl) => tbl.syncState.equals(SyncState.unsynced.value)))
-        .get();
+    return await (db.select(db.logSyncTable)..where((tbl) => tbl.syncState.equals(SyncState.unsynced.value))).get();
   }
 }

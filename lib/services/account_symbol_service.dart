@@ -9,16 +9,13 @@ import 'base_service.dart';
 class AccountSymbolService extends BaseService {
   final AccountSymbolDao _accountSymbolDao;
 
-  AccountSymbolService()
-      : _accountSymbolDao = AccountSymbolDao(DatabaseManager.db);
+  AccountSymbolService() : _accountSymbolDao = AccountSymbolDao(DatabaseManager.db);
 
   /// 获取账本下的所有标签
-  Future<OperateResult<List<AccountSymbol>>> getSymbolsByAccountBook(
-      String accountBookId) async {
+  Future<OperateResult<List<AccountSymbol>>> getSymbolsByAccountBook(String accountBookId) async {
     try {
-      final symbols = await (db.select(db.accountSymbolTable)
-            ..where((t) => t.accountBookId.equals(accountBookId)))
-          .get();
+      final symbols =
+          await (db.select(db.accountSymbolTable)..where((t) => t.accountBookId.equals(accountBookId))).get();
       return OperateResult.success(symbols);
     } catch (e) {
       return OperateResult.failWithMessage(
@@ -29,13 +26,10 @@ class AccountSymbolService extends BaseService {
   }
 
   /// 获取账本下指定类型的标签
-  Future<OperateResult<List<AccountSymbol>>> getSymbolsByType(
-      String accountBookId, String symbolType) async {
+  Future<OperateResult<List<AccountSymbol>>> getSymbolsByType(String accountBookId, String symbolType) async {
     try {
       final symbols = await (db.select(db.accountSymbolTable)
-            ..where((t) =>
-                t.accountBookId.equals(accountBookId) &
-                t.symbolType.equals(symbolType)))
+            ..where((t) => t.accountBookId.equals(accountBookId) & t.symbolType.equals(symbolType)))
           .get();
       return OperateResult.success(symbols);
     } catch (e) {

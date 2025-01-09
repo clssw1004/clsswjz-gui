@@ -8,8 +8,7 @@ class UserDao extends BaseDao<UserTable, User> {
   UserDao(super.db);
 
   Future<User?> findByUsername(String username) {
-    return (db.select(db.userTable)..where((t) => t.username.equals(username)))
-        .getSingleOrNull();
+    return (db.select(db.userTable)..where((t) => t.username.equals(username))).getSingleOrNull();
   }
 
   Future<bool> isUsernameExists(String username) async {
@@ -46,9 +45,7 @@ class UserDao extends BaseDao<UserTable, User> {
   }
 
   Future<User?> findByInviteCode(String inviteCode) {
-    return (db.select(db.userTable)
-          ..where((t) => t.inviteCode.equals(inviteCode)))
-        .getSingleOrNull();
+    return (db.select(db.userTable)..where((t) => t.inviteCode.equals(inviteCode))).getSingleOrNull();
   }
 
   @override

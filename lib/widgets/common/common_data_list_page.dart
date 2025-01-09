@@ -123,8 +123,7 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
                       itemCount: _items?.length ?? 0,
                       separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
-                        return widget.config
-                            .itemBuilder(context, _items![index]);
+                        return widget.config.itemBuilder(context, _items![index]);
                       },
                     ),
       floatingActionButton: widget.config.onAdd != null

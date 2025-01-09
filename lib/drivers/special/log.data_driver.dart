@@ -66,12 +66,10 @@ class LogDataDriver implements BookDataDriver {
   }
 
   Future<void> initDefaultBookData(String userId, String bookId) async {
-    DefaultBookData defaultData =
-        getDefaultDataByLocale(AppConfigManager.instance.locale);
+    DefaultBookData defaultData = getDefaultDataByLocale(AppConfigManager.instance.locale);
     if (defaultData.category.isNotEmpty) {
       for (var category in defaultData.category) {
-        await createBookCategory(userId, bookId,
-            name: category.name, categoryType: category.categoryType.code);
+        await createBookCategory(userId, bookId, name: category.name, categoryType: category.categoryType.code);
       }
     }
     if (defaultData.shop.isNotEmpty) {
@@ -81,14 +79,12 @@ class LogDataDriver implements BookDataDriver {
     }
     if (defaultData.symbols.isNotEmpty) {
       for (var symbol in defaultData.symbols) {
-        await createBookSymbol(userId, bookId,
-            name: symbol.name, symbolType: symbol.symbolType);
+        await createBookSymbol(userId, bookId, name: symbol.name, symbolType: symbol.symbolType);
       }
     }
     if (defaultData.funds.isNotEmpty) {
       for (var fund in defaultData.funds) {
-        await createFund(userId, bookId,
-            name: fund.name, fundType: fund.fundType);
+        await createFund(userId, bookId, name: fund.name, fundType: fund.fundType);
       }
     }
   }
@@ -101,14 +97,12 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<UserBookVO>> getBook(String who, String bookId) async {
-    return OperateResult.successIfNotNull(
-        await ServiceManager.accountBookService.getAccountBook(who, bookId));
+    return OperateResult.successIfNotNull(await ServiceManager.accountBookService.getAccountBook(who, bookId));
   }
 
   @override
   Future<OperateResult<List<UserBookVO>>> listBooksByUser(String userId) async {
-    List<UserBookVO> books =
-        await ServiceManager.accountBookService.getBooksByUserId(userId);
+    List<UserBookVO> books = await ServiceManager.accountBookService.getBooksByUserId(userId);
     return OperateResult.success(books);
   }
 
@@ -120,14 +114,10 @@ class LogDataDriver implements BookDataDriver {
       String? icon,
       List<BookMemberVO> members = const []}) async {
     await BookCULog.update(who, bookId,
-            name: name,
-            description: description,
-            currencySymbol: currencySymbol,
-            icon: icon)
+            name: name, description: description, currencySymbol: currencySymbol, icon: icon)
         .execute();
     final book = await getBook(who, bookId);
-    final diff =
-        CollectionUtil.diff(book.data?.members, members, (e) => e.userId);
+    final diff = CollectionUtil.diff(book.data?.members, members, (e) => e.userId);
     if (diff.added != null && diff.added!.isNotEmpty) {
       for (var member in diff.added!) {
         await addBookMember(who, bookId,
@@ -171,19 +161,16 @@ class LogDataDriver implements BookDataDriver {
             tagCode: tagCode,
             projectCode: projectCode)
         .execute();
-    if (files != null && files!.isNotEmpty) {
-      for (var file in files!) {
-        await AttachmentCULog.fromFile(who,
-                belongType: BusinessType.item, belongId: id, file: file)
-            .execute();
+    if (files != null && files.isNotEmpty) {
+      for (var file in files) {
+        await AttachmentCULog.fromFile(who, belongType: BusinessType.item, belongId: id, file: file).execute();
       }
     }
     return OperateResult.success(id);
   }
 
   @override
-  Future<OperateResult<void>> updateBookItem(
-      String who, String bookId, String itemId,
+  Future<OperateResult<void>> updateBookItem(String who, String bookId, String itemId,
       {double? amount,
       String? description,
       String? type,
@@ -205,22 +192,17 @@ class LogDataDriver implements BookDataDriver {
             tagCode: tagCode,
             projectCode: projectCode)
         .execute();
-    final oldAttachments = await ServiceManager.attachmentService
-        .getAttachmentsByBusiness(BusinessType.item, itemId);
+    final oldAttachments = await ServiceManager.attachmentService.getAttachmentsByBusiness(BusinessType.item, itemId);
     final diff = CollectionUtil.diff(oldAttachments, attachments, (e) => e.id);
     if (diff.added != null && diff.added!.isNotEmpty) {
       for (var attachment in diff.added!) {
-        await AttachmentCULog.fromVO(who,
-                belongType: BusinessType.item, belongId: itemId, vo: attachment)
-            .execute();
+        await AttachmentCULog.fromVO(who, belongType: BusinessType.item, belongId: itemId, vo: attachment).execute();
       }
     }
     if (diff.removed != null && diff.removed!.isNotEmpty) {
       for (var attachment in diff.removed!) {
         await AttachmentDeleteLog.fromAttachmentId(who,
-                belongType: BusinessType.item,
-                belongId: itemId,
-                attachmentId: attachment.id)
+                belongType: BusinessType.item, belongId: itemId, attachmentId: attachment.id)
             .execute();
       }
     }
@@ -230,35 +212,27 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createBookCategory(String who, String bookId,
       {required String name, required String categoryType}) async {
-    final id = await CategoryCULog.create(who, bookId,
-            name: name, categoryType: categoryType)
-        .execute();
+    final id = await CategoryCULog.create(who, bookId, name: name, categoryType: categoryType).execute();
     return OperateResult.success(id);
   }
 
   @override
-  Future<OperateResult<void>> updateBookCategory(
-      String who, String bookId, String categoryId,
+  Future<OperateResult<void>> updateBookCategory(String who, String bookId, String categoryId,
       {String? name, DateTime? lastAccountItemAt}) async {
-    await CategoryCULog.update(who, bookId, categoryId,
-            name: name, lastAccountItemAt: lastAccountItemAt)
-        .execute();
+    await CategoryCULog.update(who, bookId, categoryId, name: name, lastAccountItemAt: lastAccountItemAt).execute();
     return OperateResult.success(null);
   }
 
   // 创建商家
   @override
-  Future<OperateResult<String>> createBookShop(String who, String bookId,
-      {required String name}) async {
+  Future<OperateResult<String>> createBookShop(String who, String bookId, {required String name}) async {
     final id = await ShopCULog.create(who, bookId, name: name).execute();
     return OperateResult.success(id);
   }
 
   // 更新商家
   @override
-  Future<OperateResult<void>> updateBookShop(
-      String who, String bookId, String shopId,
-      {required String name}) async {
+  Future<OperateResult<void>> updateBookShop(String who, String bookId, String shopId, {required String name}) async {
     await ShopCULog.update(who, bookId, shopId, name: name).execute();
     return OperateResult.success(null);
   }
@@ -266,49 +240,37 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createBookSymbol(String who, String bookId,
       {required String name, required SymbolType symbolType}) async {
-    final id = await SymbolCULog.create(who, bookId,
-            name: name, symbolType: symbolType)
-        .execute();
+    final id = await SymbolCULog.create(who, bookId, name: name, symbolType: symbolType).execute();
     return OperateResult.success(id);
   }
 
   @override
-  Future<OperateResult<void>> updateBookSymbol(
-      String who, String bookId, String tagId,
-      {required String name}) async {
+  Future<OperateResult<void>> updateBookSymbol(String who, String bookId, String tagId, {required String name}) async {
     await SymbolCULog.update(who, bookId, tagId, name: name).execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteBookCategory(
-      String who, String bookId, String categoryId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.category, categoryId)
-        .execute();
+  Future<OperateResult<void>> deleteBookCategory(String who, String bookId, String categoryId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.category, categoryId).execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteBookItem(
-      String who, String bookId, String itemId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.item, itemId)
-        .execute();
+  Future<OperateResult<void>> deleteBookItem(String who, String bookId, String itemId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.item, itemId).execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteBookShop(
-      String who, String bookId, String shopId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.shop, shopId)
-        .execute();
+  Future<OperateResult<void>> deleteBookShop(String who, String bookId, String shopId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.shop, shopId).execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteBookSymbol(
-      String who, String bookId, String symbolId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.symbol, symbolId)
-        .execute();
+  Future<OperateResult<void>> deleteBookSymbol(String who, String bookId, String symbolId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.symbol, symbolId).execute();
     return OperateResult.success(null);
   }
 
@@ -323,11 +285,7 @@ class LogDataDriver implements BookDataDriver {
     bool isDefault = false,
   }) async {
     final id = await FundCULog.create(who, bookId,
-            name: name,
-            fundType: fundType,
-            fundRemark: fundRemark,
-            fundBalance: fundBalance,
-            isDefault: isDefault)
+            name: name, fundType: fundType, fundRemark: fundRemark, fundBalance: fundBalance, isDefault: isDefault)
         .execute();
     return OperateResult.success(id);
   }
@@ -343,25 +301,19 @@ class LogDataDriver implements BookDataDriver {
     String? fundRemark,
   }) async {
     await FundCULog.update(who, bookId, fundId,
-            name: name,
-            fundType: fundType,
-            fundBalance: fundBalance,
-            fundRemark: fundRemark)
+            name: name, fundType: fundType, fundBalance: fundBalance, fundRemark: fundRemark)
         .execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> deleteFund(
-      String who, String bookId, String fundId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.fund, fundId)
-        .execute();
+  Future<OperateResult<void>> deleteFund(String who, String bookId, String fundId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.fund, fundId).execute();
     return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<UserFundVO>> getFund(
-      String who, String bookId, String fundId) async {
+  Future<OperateResult<UserFundVO>> getFund(String who, String bookId, String fundId) async {
     final fund = await ServiceManager.accountFundService.getFund(fundId);
     return OperateResult.success(fund);
   }
@@ -403,17 +355,13 @@ class LogDataDriver implements BookDataDriver {
         .execute();
   }
 
-  Future<void> deleteBookMember(
-      String who, String bookId, String memberId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.bookMember, memberId)
-        .execute();
+  Future<void> deleteBookMember(String who, String bookId, String memberId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.bookMember, memberId).execute();
   }
 
   @override
-  Future<OperateResult<List<UserFundVO>>> listFundsByBook(
-      String userId, String bookId) async {
-    final funds =
-        await ServiceManager.accountFundService.getFundsByBook(bookId);
+  Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId) async {
+    final funds = await ServiceManager.accountFundService.getFundsByBook(bookId);
     return OperateResult.successIfNotNull(funds);
   }
 }

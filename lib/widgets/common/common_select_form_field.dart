@@ -111,12 +111,10 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
   });
 
   @override
-  State<_CommonSelectFormFieldWidget<T>> createState() =>
-      _CommonSelectFormFieldWidgetState<T>();
+  State<_CommonSelectFormFieldWidget<T>> createState() => _CommonSelectFormFieldWidgetState<T>();
 }
 
-class _CommonSelectFormFieldWidgetState<T>
-    extends State<_CommonSelectFormFieldWidget<T>> {
+class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldWidget<T>> {
   /// 搜索控制器
   final TextEditingController _searchController = TextEditingController();
 
@@ -180,17 +178,12 @@ class _CommonSelectFormFieldWidgetState<T>
                   if (widget.items.isEmpty || widget.searchable || isAddMode)
                     TextField(
                       controller: _searchController,
-                      autofocus: widget.items.isEmpty ||
-                          isAddMode, // 当没有选项或新增模式时自动获取焦点
+                      autofocus: widget.items.isEmpty || isAddMode, // 当没有选项或新增模式时自动获取焦点
                       style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: widget.items.isEmpty || isAddMode
-                            ? l10n.addNew(widget.label ?? '')
-                            : l10n.search,
+                        hintText: widget.items.isEmpty || isAddMode ? l10n.addNew(widget.label ?? '') : l10n.search,
                         prefixIcon: Icon(
-                          widget.items.isEmpty || isAddMode
-                              ? Icons.add
-                              : Icons.search,
+                          widget.items.isEmpty || isAddMode ? Icons.add : Icons.search,
                           color: theme.colorScheme.primary,
                         ),
                         suffixIcon: _searchText.isNotEmpty
@@ -206,10 +199,7 @@ class _CommonSelectFormFieldWidgetState<T>
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                            Theme.of(context)
-                                    .extension<ThemeRadius>()
-                                    ?.radius ??
-                                4,
+                            Theme.of(context).extension<ThemeRadius>()?.radius ?? 4,
                           ),
                         ),
                       ),
@@ -239,10 +229,7 @@ class _CommonSelectFormFieldWidgetState<T>
                       )
                     : ListView.builder(
                         shrinkWrap: true,
-                        itemCount: _filteredItems.length +
-                            (_searchText.isNotEmpty && widget.allowCreate
-                                ? 1
-                                : 0),
+                        itemCount: _filteredItems.length + (_searchText.isNotEmpty && widget.allowCreate ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == _filteredItems.length) {
                             // 显示新增选项
@@ -251,8 +238,7 @@ class _CommonSelectFormFieldWidgetState<T>
                               title: Text(l10n.addNew(_searchText)),
                               onTap: () async {
                                 if (widget.onCreateItem != null) {
-                                  final newItem =
-                                      await widget.onCreateItem!(_searchText);
+                                  final newItem = await widget.onCreateItem!(_searchText);
                                   if (newItem != null && mounted) {
                                     setState(() {
                                       _searchController.clear();
@@ -266,8 +252,7 @@ class _CommonSelectFormFieldWidgetState<T>
                           }
 
                           final item = _filteredItems[index];
-                          final isSelected = widget.value != null &&
-                              widget.keyField(item) == widget.value;
+                          final isSelected = widget.value != null && widget.keyField(item) == widget.value;
 
                           return ListTile(
                             title: Text(widget.displayField(item)),
@@ -315,9 +300,7 @@ class _CommonSelectFormFieldWidgetState<T>
         ),
       ),
       controller: TextEditingController(
-        text: _selectedItem != null
-            ? widget.displayField(_selectedItem as T)
-            : '',
+        text: _selectedItem != null ? widget.displayField(_selectedItem as T) : '',
       ),
       style: theme.textTheme.bodyLarge,
     );
@@ -332,23 +315,15 @@ class _CommonSelectFormFieldWidgetState<T>
       children: [
         CommonBadge(
           icon: widget.icon,
-          text: _selectedItem != null
-              ? widget.displayField(_selectedItem as T)
-              : widget.hint ?? widget.label ?? '',
+          text: _selectedItem != null ? widget.displayField(_selectedItem as T) : widget.hint ?? widget.label ?? '',
           onTap: _showSelectDialog,
           selected: _selectedItem != null,
-          backgroundColor: _selectedItem != null
-              ? (widget.badgeColor ?? colorScheme.secondaryContainer)
-              : null,
+          backgroundColor: _selectedItem != null ? (widget.badgeColor ?? colorScheme.secondaryContainer) : null,
           textColor: _selectedItem != null
-              ? (widget.badgeColor != null
-                  ? theme.colorScheme.onSurface
-                  : colorScheme.onSecondaryContainer)
+              ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer)
               : null,
           iconColor: _selectedItem != null
-              ? (widget.badgeColor != null
-                  ? theme.colorScheme.onSurface
-                  : colorScheme.onSecondaryContainer)
+              ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer)
               : null,
           borderColor: colorScheme.outline.withAlpha(51),
         ),
@@ -357,8 +332,7 @@ class _CommonSelectFormFieldWidgetState<T>
   }
 
   /// 构建更多按钮
-  Widget _buildMoreButton(
-      double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildMoreButton(double buttonWidth, ThemeData theme, AppLocalizations l10n) {
     return SizedBox(
       width: buttonWidth,
       child: Center(
@@ -392,8 +366,7 @@ class _CommonSelectFormFieldWidgetState<T>
   }
 
   /// 构建新增按钮
-  Widget _buildAddButton(
-      double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildAddButton(double buttonWidth, ThemeData theme, AppLocalizations l10n) {
     return SizedBox(
       width: buttonWidth,
       child: Center(
@@ -452,9 +425,7 @@ class _CommonSelectFormFieldWidgetState<T>
     // 计算每行显示的数量
     final itemsPerRow = (widget.expandCount / widget.expandRows).ceil();
     // 计算按钮宽度（减去padding和spacing的空间）
-    final buttonWidth =
-        (MediaQuery.of(context).size.width - 32 - (itemsPerRow - 1) * 8) /
-            itemsPerRow;
+    final buttonWidth = (MediaQuery.of(context).size.width - 32 - (itemsPerRow - 1) * 8) / itemsPerRow;
 
     // 是否需要显示更多按钮
     final showMore = widget.items.length > widget.expandCount;
@@ -485,9 +456,7 @@ class _CommonSelectFormFieldWidgetState<T>
       // 如果是最后一行且需要显示更多或新增按钮，则少显示一个选项
       final actualEndIndex = endIndex > displayItems.length
           ? displayItems.length
-          : (i + itemsPerRow == displayItems.length &&
-                  (showMore || showAdd) &&
-                  displayItems.length % itemsPerRow == 0)
+          : (i + itemsPerRow == displayItems.length && (showMore || showAdd) && displayItems.length % itemsPerRow == 0)
               ? endIndex - 1
               : endIndex;
       rows.add(displayItems.sublist(i, actualEndIndex));
@@ -511,8 +480,7 @@ class _CommonSelectFormFieldWidgetState<T>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ...rowItems.map((item) {
-                        final isSelected = widget.value != null &&
-                            widget.keyField(item) == widget.value;
+                        final isSelected = widget.value != null && widget.keyField(item) == widget.value;
 
                         return Container(
                           margin: const EdgeInsets.only(right: 8),
@@ -524,21 +492,15 @@ class _CommonSelectFormFieldWidgetState<T>
                               pressElevation: 0,
                               selectedColor: theme.colorScheme.primaryContainer,
                               side: BorderSide(
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.outline,
+                                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
                                 width: 1,
                               ),
                               labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                                color: isSelected
-                                    ? theme.colorScheme.onPrimaryContainer
-                                    : theme.colorScheme.onSurface,
+                                color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurface,
                               ),
                               labelPadding: EdgeInsets.zero,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               label: SizedBox(
                                 width: buttonWidth - 32,
                                 child: Text(

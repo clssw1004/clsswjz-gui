@@ -26,7 +26,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool get isNew => _item.id.isEmpty;
 
   /// 是否正在保存
-  bool _saving = false;
+  final bool _saving = false;
   bool get saving => _saving;
 
   /// 错误信息
@@ -106,54 +106,45 @@ class AccountItemFormProvider extends ChangeNotifier {
 
   /// 加载分类
   Future<void> loadCategories() async {
-    final result = await ServiceManager.accountCategoryService
-        .getCategoriesByAccountBook(item.accountBookId);
+    final result = await ServiceManager.accountCategoryService.getCategoriesByAccountBook(item.accountBookId);
     _categories = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载账户
   Future<void> loadFunds() async {
-    final result = await ServiceManager.accountFundService
-        .getFundsByAccountBook(item.accountBookId);
+    final result = await ServiceManager.accountFundService.getFundsByAccountBook(item.accountBookId);
     _funds = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载商户
   Future<void> loadShops() async {
-    final result = await ServiceManager.accountShopService
-        .getShopsByAccountBook(item.accountBookId);
+    final result = await ServiceManager.accountShopService.getShopsByAccountBook(item.accountBookId);
     _shops = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载标签和项目
   Future<void> loadSymbols() async {
-    final result = await ServiceManager.accountSymbolService
-        .getSymbolsByAccountBook(item.accountBookId);
+    final result = await ServiceManager.accountSymbolService.getSymbolsByAccountBook(item.accountBookId);
     final symbols = result.data as List<AccountSymbol>;
-    _tags = symbols
-        .where((symbol) => symbol.symbolType == SymbolType.tag.name)
-        .toList();
-    _projects = symbols
-        .where((symbol) => symbol.symbolType == SymbolType.project.name)
-        .toList();
+    _tags = symbols.where((symbol) => symbol.symbolType == SymbolType.tag.name).toList();
+    _projects = symbols.where((symbol) => symbol.symbolType == SymbolType.project.name).toList();
     notifyListeners();
   }
 
   /// 加载标签
   Future<void> loadTags() async {
-    final result = await ServiceManager.accountSymbolService
-        .getSymbolsByType(item.accountBookId, SymbolType.tag.name);
+    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.tag.name);
     _tags = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载项目
   Future<void> loadProjects() async {
-    final result = await ServiceManager.accountSymbolService
-        .getSymbolsByType(item.accountBookId, SymbolType.project.name);
+    final result =
+        await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.project.name);
     _projects = result.data ?? [];
     notifyListeners();
   }
@@ -162,8 +153,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   Future<void> loadAttachments() async {
     if (item.id.isEmpty) return;
 
-    _attachments =
-        await ServiceManager.attachmentService.getAttachmentsByBusiness(
+    _attachments = await ServiceManager.attachmentService.getAttachmentsByBusiness(
       BusinessType.item,
       item.id,
     );
@@ -188,15 +178,12 @@ class AccountItemFormProvider extends ChangeNotifier {
         tagCode: _item.tagCode,
         projectCode: _item.projectCode,
         accountDate: _item.accountDate,
-        files: _attachments
-            .where((attachment) => attachment.file != null)
-            .map((attachment) => attachment.file!)
-            .toList(),
+        files:
+            _attachments.where((attachment) => attachment.file != null).map((attachment) => attachment.file!).toList(),
       );
       _item = _item.copyWith(id: result.data!);
     } else {
-      result = await DriverFactory.driver.updateBookItem(
-          userId, _item.accountBookId, _item.id,
+      result = await DriverFactory.driver.updateBookItem(userId, _item.accountBookId, _item.id,
           amount: _item.amount,
           description: _item.description,
           categoryCode: _item.categoryCode,

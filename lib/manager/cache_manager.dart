@@ -23,8 +23,7 @@ class CacheManager {
   String? getString(String key) => _prefs.getString(key);
 
   /// 设置字符串
-  Future<bool> setString(String key, String value) =>
-      _prefs.setString(key, value);
+  Future<bool> setString(String key, String value) => _prefs.setString(key, value);
 
   /// 获取整数
   int? getInt(String key) => _prefs.getInt(key);
@@ -36,8 +35,7 @@ class CacheManager {
   double? getDouble(String key) => _prefs.getDouble(key);
 
   /// 设置双精度浮点数
-  Future<bool> setDouble(String key, double value) =>
-      _prefs.setDouble(key, value);
+  Future<bool> setDouble(String key, double value) => _prefs.setDouble(key, value);
 
   /// 获取布尔值
   bool? getBool(String key) => _prefs.getBool(key);

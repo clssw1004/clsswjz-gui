@@ -32,8 +32,7 @@ class UserConfigManager {
       isInited = true;
     }
     _currentUserId = userId;
-    final user =
-        await _userService.getUserInfo(userId).then((value) => value.data);
+    final user = await _userService.getUserInfo(userId).then((value) => value.data);
     print('user: $user');
     setCurrentUser(user!);
   }

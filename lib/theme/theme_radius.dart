@@ -31,4 +31,4 @@ class ThemeRadius extends ThemeExtension<ThemeRadius> {
       radius: lerpDouble(radius, other.radius, t) ?? radius,
     );
   }
-} 
+}

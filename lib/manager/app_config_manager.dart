@@ -92,21 +92,16 @@ class AppConfigManager {
     _databaseName = CacheManager.instance.getString(_databaseNameKey);
 
     // 初始化存储模式
-    final String? storageTypeString =
-        CacheManager.instance.getString(_storageTypeKey);
+    final String? storageTypeString = CacheManager.instance.getString(_storageTypeKey);
     _storageType = string2StorageMode(storageTypeString);
 
     // 初始化语言
     final languageCode = CacheManager.instance.getString(_localeKey) ?? 'zh';
-    final countryCode =
-        CacheManager.instance.getString('${_localeKey}_country');
-    _locale = countryCode != null
-        ? Locale(languageCode, countryCode)
-        : Locale(languageCode);
+    final countryCode = CacheManager.instance.getString('${_localeKey}_country');
+    _locale = countryCode != null ? Locale(languageCode, countryCode) : Locale(languageCode);
 
     // 初始化主题色
-    _themeColor = Color(
-        CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
+    _themeColor = Color(CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
 
     // 初始化主题模式
     final themeModeString = CacheManager.instance.getString(_themeModeKey);
@@ -154,8 +149,7 @@ class AppConfigManager {
     _locale = locale;
     await CacheManager.instance.setString(_localeKey, locale.languageCode);
     if (locale.countryCode != null) {
-      await CacheManager.instance
-          .setString('${_localeKey}_country', locale.countryCode!);
+      await CacheManager.instance.setString('${_localeKey}_country', locale.countryCode!);
     } else {
       await CacheManager.instance.remove('${_localeKey}_country');
     }
@@ -286,8 +280,7 @@ class AppConfigManager {
   }
 
   /// 设置服务器信息
-  static Future<void> storgeSelfhostMode(
-      String serverUrl, String userId, String accessToken) async {
+  static Future<void> storgeSelfhostMode(String serverUrl, String userId, String accessToken) async {
     _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);

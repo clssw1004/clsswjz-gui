@@ -175,8 +175,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
                 isChecking: _isChecking,
                 serverValid: _serverValid,
                 isLoading: _isLoading,
-                onServerUrlChanged: (value) =>
-                    setState(() => _serverUrl = value),
+                onServerUrlChanged: (value) => setState(() => _serverUrl = value),
                 onUsernameChanged: (value) => setState(() => _username = value),
                 onPasswordChanged: (value) => setState(() => _password = value),
                 onCheckServer: _checkServer,

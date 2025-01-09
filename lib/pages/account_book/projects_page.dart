@@ -31,8 +31,7 @@ class ProjectsPage extends StatelessWidget {
           name: name,
           symbolType: SymbolType.project,
         ),
-        updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.driver.updateBookSymbol(
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookSymbol(
           userId,
           accountBook.id,
           item.id,

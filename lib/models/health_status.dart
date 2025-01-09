@@ -19,8 +19,7 @@ class HealthStatus {
       timestamp: json['timestamp'] as String,
       uptime: json['uptime'] as int,
       memory: MemoryStatus.fromJson(json['memory'] as Map<String, dynamic>),
-      database:
-          DatabaseStatus.fromJson(json['database'] as Map<String, dynamic>),
+      database: DatabaseStatus.fromJson(json['database'] as Map<String, dynamic>),
     );
   }
 }

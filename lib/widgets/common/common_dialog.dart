@@ -40,8 +40,7 @@ class CommonDialog extends StatelessWidget {
     this.showCloseButton = true,
     this.width,
     this.height,
-    this.contentPadding =
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     this.titlePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     this.titleStyle,
     this.backgroundColor,
@@ -116,10 +115,8 @@ class CommonDialog extends StatelessWidget {
     bool showCloseButton = true,
     double? width,
     double? height,
-    EdgeInsetsGeometry contentPadding =
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    EdgeInsetsGeometry titlePadding =
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    EdgeInsetsGeometry contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     TextStyle? titleStyle,
     Color? backgroundColor,
     double borderRadius = 16,

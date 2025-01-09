@@ -66,8 +66,7 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 // 版本号
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
@@ -104,10 +103,8 @@ class AboutPage extends StatelessWidget {
                   title: l10n.frontendProject,
                   subtitle: 'https://github.com/clssw1004/clsswjz-gui',
                   icon: Icons.code,
-                  onTap: () => _launchUrl(
-                      context, 'https://github.com/clssw1004/clsswjz-gui'),
-                  onCopy: () => _copyToClipboard(
-                      context, 'https://github.com/clssw1004/clsswjz-gui'),
+                  onTap: () => _launchUrl(context, 'https://github.com/clssw1004/clsswjz-gui'),
+                  onCopy: () => _copyToClipboard(context, 'https://github.com/clssw1004/clsswjz-gui'),
                 ),
                 const SizedBox(height: 12),
                 _buildLinkCard(
@@ -115,10 +112,8 @@ class AboutPage extends StatelessWidget {
                   title: l10n.backendProject,
                   subtitle: 'https://github.com/clssw1004/clsswjz-server',
                   icon: Icons.dns_outlined,
-                  onTap: () => _launchUrl(
-                      context, 'https://github.com/clssw1004/clsswjz-server'),
-                  onCopy: () => _copyToClipboard(
-                      context, 'https://github.com/clssw1004/clsswjz-server'),
+                  onTap: () => _launchUrl(context, 'https://github.com/clssw1004/clsswjz-server'),
+                  onCopy: () => _copyToClipboard(context, 'https://github.com/clssw1004/clsswjz-server'),
                 ),
               ],
             ),

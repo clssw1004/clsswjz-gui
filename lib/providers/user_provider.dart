@@ -23,14 +23,13 @@ class UserProvider extends ChangeNotifier {
   /// 获取用户信息
   Future<void> refreshUserInfo() async {
     try {
-      final result = await ServiceManager.userService
-          .getUserInfo(UserConfigManager.currentUserId);
+      final result = await ServiceManager.userService.getUserInfo(UserConfigManager.currentUserId);
 
       if (result.ok && result.data != null) {
         _user = result.data;
         // 获取用户统计信息
-        final statisticResult = await ServiceManager.statisticService
-            .getUserStatisticInfo(UserConfigManager.currentUserId);
+        final statisticResult =
+            await ServiceManager.statisticService.getUserStatisticInfo(UserConfigManager.currentUserId);
         if (statisticResult.ok) {
           _statistic = statisticResult.data;
         }

@@ -69,10 +69,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       );
 
       if (result != null && result.files.isNotEmpty) {
-        final files = result.files
-            .where((file) => file.path != null)
-            .map((file) => File(file.path!))
-            .toList();
+        final files = result.files.where((file) => file.path != null).map((file) => File(file.path!)).toList();
 
         if (files.isNotEmpty) {
           await widget.onUpload!(files);
@@ -129,8 +126,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                       },
                     )
                   : null,
-              onTap:
-                  widget.onTap != null ? () => widget.onTap!(attachment) : null,
+              onTap: widget.onTap != null ? () => widget.onTap!(attachment) : null,
             );
           },
         ),
@@ -161,12 +157,9 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextButton(
-                    onPressed: widget.attachments.isNotEmpty
-                        ? _showAttachmentDialog
-                        : null,
+                    onPressed: widget.attachments.isNotEmpty ? _showAttachmentDialog : null,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: colorScheme.primary,
@@ -196,8 +189,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                       child: TextButton.icon(
                         onPressed: _isUploading ? null : _pickFiles,
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           foregroundColor: colorScheme.primary,

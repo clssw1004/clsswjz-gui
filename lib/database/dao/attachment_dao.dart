@@ -9,12 +9,9 @@ class AttachmentDao extends BaseDao<AttachmentTable, Attachment> {
   @override
   TableInfo<AttachmentTable, Attachment> get table => db.attachmentTable;
 
-  Future<List<Attachment>> findByBusinessId(
-      BusinessType businessType, String businessId) async {
+  Future<List<Attachment>> findByBusinessId(BusinessType businessType, String businessId) async {
     return (db.select(db.attachmentTable)
-          ..where((t) =>
-              t.businessId.equals(businessId) &
-              t.businessCode.equals(businessType.code)))
+          ..where((t) => t.businessId.equals(businessId) & t.businessCode.equals(businessType.code)))
         .get();
   }
 }

@@ -11,25 +11,21 @@ class OperateResult<T> {
   }
 
   static OperateResult<T> successIfNotNull<T>(T? data) {
-    return OperateResult(
-        ok: data != null, data: data, message: 'ok', exception: null);
+    return OperateResult(ok: data != null, data: data, message: 'ok', exception: null);
   }
 
   static OperateResult<T> failed<T>() {
-    return OperateResult(
-        ok: false, data: null, message: 'failed', exception: null);
+    return OperateResult(ok: false, data: null, message: 'failed', exception: null);
   }
 
   static OperateResult<T> fail<T>({Exception? exception}) {
     if (exception != null) {
       print(exception.toString());
     }
-    return OperateResult(
-        ok: false, message: exception!.toString(), exception: exception);
+    return OperateResult(ok: false, message: exception!.toString(), exception: exception);
   }
 
-  static OperateResult<T> failWithMessage<T>(
-      {String? message, Exception? exception}) {
+  static OperateResult<T> failWithMessage<T>({String? message, Exception? exception}) {
     if (exception != null) {
       print(exception.toString());
     }

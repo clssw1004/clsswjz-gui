@@ -35,19 +35,14 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog create(String who, String bookId, {required String name}) {
-    return ShopCULog()
-        .who(who)
-        .inBook(bookId)
-        .doCreate()
-        .withData(AccountShopTable.toCreateCompanion(
+    return ShopCULog().who(who).inBook(bookId).doCreate().withData(AccountShopTable.toCreateCompanion(
           who,
           bookId,
           name: name,
         )) as ShopCULog;
   }
 
-  static ShopCULog update(String userId, String bookId, String shopId,
-      {required String name}) {
+  static ShopCULog update(String userId, String bookId, String shopId, {required String name}) {
     return ShopCULog()
         .who(userId)
         .inBook(bookId)
@@ -64,14 +59,12 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as ShopCULog;
+        .withData(AccountShop.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as ShopCULog;
   }
 
   static ShopCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return ShopCULog.update(log.operatorId, log.parentId, log.businessId,
-        name: data['name']);
+    return ShopCULog.update(log.operatorId, log.parentId, log.businessId, name: data['name']);
   }
 
   static ShopCULog fromLog(LogSync log) {

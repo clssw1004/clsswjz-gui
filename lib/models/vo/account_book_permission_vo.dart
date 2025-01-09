@@ -30,8 +30,7 @@ class AccountBookPermissionVO {
   });
 
   /// 从账本用户关系表记录创建
-  factory AccountBookPermissionVO.fromRelAccountbookUser(
-      RelAccountbookUser relAccountbookUser) {
+  factory AccountBookPermissionVO.fromRelAccountbookUser(RelAccountbookUser relAccountbookUser) {
     return AccountBookPermissionVO(
       canViewBook: relAccountbookUser.canViewBook,
       canEditBook: relAccountbookUser.canEditBook,

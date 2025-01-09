@@ -49,9 +49,7 @@ class ClsswjzApp extends StatelessWidget {
       ],
       routes: AppRoutes.routes,
       onGenerateRoute: AppRoutes.onGenerateRoute,
-      initialRoute: AppConfigManager.isAppInit()
-          ? AppRoutes.home
-          : AppRoutes.serverConfig,
+      initialRoute: AppConfigManager.isAppInit() ? AppRoutes.home : AppRoutes.serverConfig,
     );
   }
 }

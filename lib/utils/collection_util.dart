@@ -3,10 +3,7 @@ class Diff<T> {
   List<T>? removed;
   List<T>? updated;
 
-  Diff(
-      {this.added = const [],
-      this.removed = const [],
-      this.updated = const []});
+  Diff({this.added = const [], this.removed = const [], this.updated = const []});
 }
 
 class CollectionUtil {
@@ -32,8 +29,7 @@ class CollectionUtil {
     return map;
   }
 
-  static Diff<T> diff<T, V>(
-      List<T>? oldList, List<T>? newList, V Function(T) compareProperty) {
+  static Diff<T> diff<T, V>(List<T>? oldList, List<T>? newList, V Function(T) compareProperty) {
     if (oldList == null) {
       return Diff(added: newList ?? [], removed: [], updated: []);
     }
@@ -42,15 +38,9 @@ class CollectionUtil {
     }
     final oldMap = toMap(oldList, compareProperty);
     final newMap = toMap(newList, compareProperty);
-    final added = newMap.values
-        .where((e) => !oldMap.containsKey(compareProperty(e)))
-        .toList();
-    final removed = oldMap.values
-        .where((e) => !newMap.containsKey(compareProperty(e)))
-        .toList();
-    final updated = newMap.values
-        .where((e) => oldMap.containsKey(compareProperty(e)))
-        .toList();
+    final added = newMap.values.where((e) => !oldMap.containsKey(compareProperty(e))).toList();
+    final removed = oldMap.values.where((e) => !newMap.containsKey(compareProperty(e))).toList();
+    final updated = newMap.values.where((e) => oldMap.containsKey(compareProperty(e))).toList();
     return Diff(added: added, removed: removed, updated: updated);
   }
 

@@ -6,4 +6,3 @@ class DigestUtil {
     return sha256.convert(utf8.encode(data)).toString();
   }
 }
-

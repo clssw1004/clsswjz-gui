@@ -83,8 +83,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
   void didUpdateWidget(CommonTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 如果initialValue改变且没有外部controller，更新文本
-    if (widget.controller == null &&
-        widget.initialValue != oldWidget.initialValue) {
+    if (widget.controller == null && widget.initialValue != oldWidget.initialValue) {
       _internalController.text = widget.initialValue ?? '';
     }
   }
@@ -127,10 +126,8 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
           controller: _internalController,
           enabled: widget.enabled,
           decoration: InputDecoration(
-            labelText:
-                widget.required ? '${widget.labelText} *' : widget.labelText,
-            hintText:
-                widget.hintText ?? (widget.required ? null : l10n.optional),
+            labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
+            hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.4),
             ),

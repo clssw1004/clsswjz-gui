@@ -83,8 +83,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                         ),
                       )
                     : const Icon(Icons.sync),
-                label:
-                    Text(syncProvider.syncing ? l10n.syncing : l10n.syncData),
+                label: Text(syncProvider.syncing ? l10n.syncing : l10n.syncData),
               ),
             ),
             const Divider(),

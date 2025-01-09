@@ -15,16 +15,13 @@ class AccountBookDao extends BaseDao<AccountBookTable, AccountBook> {
         ),
       ),
     ])
-      ..where(db.relAccountbookUserTable.userId.equals(userId) &
-          db.relAccountbookUserTable.canViewBook.equals(true));
+      ..where(db.relAccountbookUserTable.userId.equals(userId) & db.relAccountbookUserTable.canViewBook.equals(true));
 
     return query.map((row) => row.readTable(db.accountBookTable)).get();
   }
 
   Future<List<AccountBook>> findByCreatedBy(String userId) {
-    return (db.select(db.accountBookTable)
-          ..where((t) => t.createdBy.equals(userId)))
-        .get();
+    return (db.select(db.accountBookTable)..where((t) => t.createdBy.equals(userId))).get();
   }
 
   @override

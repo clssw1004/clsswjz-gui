@@ -7,9 +7,7 @@ class AccountFundDao extends BaseDao<AccountFundTable, AccountFund> {
   AccountFundDao(super.db);
 
   Future<List<AccountFund>> findByType(String fundType) {
-    return (db.select(db.accountFundTable)
-          ..where((t) => t.fundType.equals(fundType)))
-        .get();
+    return (db.select(db.accountFundTable)..where((t) => t.fundType.equals(fundType))).get();
   }
 
   @override

@@ -30,18 +30,12 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return AccountCategoryTable.toJsonString(
-          data as AccountCategoryTableCompanion);
+      return AccountCategoryTable.toJsonString(data as AccountCategoryTableCompanion);
     }
   }
 
-  static CategoryCULog create(String who, String bookId,
-      {required String name, required String categoryType}) {
-    return CategoryCULog()
-        .who(who)
-        .inBook(bookId)
-        .doCreate()
-        .withData(AccountCategoryTable.toCreateCompanion(
+  static CategoryCULog create(String who, String bookId, {required String name, required String categoryType}) {
+    return CategoryCULog().who(who).inBook(bookId).doCreate().withData(AccountCategoryTable.toCreateCompanion(
           who,
           bookId,
           name: name,
@@ -74,8 +68,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as CategoryCULog;
+        .withData(AccountCategory.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as CategoryCULog;
   }
 
   static CategoryCULog fromUpdateLog(LogSync log) {

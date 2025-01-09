@@ -65,9 +65,7 @@ class AppRoutes {
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
-      builder: (context) => AppConfigManager.isAppInit()
-          ? const HomePage()
-          : const ServerConfigPage(),
+      builder: (context) => AppConfigManager.isAppInit() ? const HomePage() : const ServerConfigPage(),
     );
   }
 
@@ -84,8 +82,7 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
       final accountBook = args[0] as UserBookVO;
-      final item =
-          args.length > 1 && args[1] != null ? args[1] as AccountItemVO : null;
+      final item = args.length > 1 && args[1] != null ? args[1] as AccountItemVO : null;
       return AccountItemFormPage(accountBook: accountBook, item: item);
     },
     serverConfig: (context) => const ServerConfigPage(),

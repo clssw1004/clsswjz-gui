@@ -152,8 +152,7 @@ class AccountBooksProvider extends ChangeNotifier {
       _loadingItems = true;
       notifyListeners();
 
-      final result =
-          await _accountItemService.getByAccountBookId(_selectedBook!.id);
+      final result = await _accountItemService.getByAccountBookId(_selectedBook!.id);
 
       if (_disposed) return;
 

@@ -138,8 +138,7 @@ class _OfflineFormState extends State<OfflineForm> {
               height: 48,
               child: Icon(
                 _selectedIcon != null
-                    ? IconData(int.parse(_selectedIcon!),
-                        fontFamily: 'MaterialIcons')
+                    ? IconData(int.parse(_selectedIcon!), fontFamily: 'MaterialIcons')
                     : Icons.book_outlined,
                 color: colorScheme.primary,
               ),

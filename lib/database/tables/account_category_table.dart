@@ -11,8 +11,7 @@ class AccountCategoryTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get categoryType => text().named('category_type')();
-  DateTimeColumn get lastAccountItemAt =>
-      dateTime().nullable().named('last_account_item_at')();
+  DateTimeColumn get lastAccountItemAt => dateTime().nullable().named('last_account_item_at')();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [

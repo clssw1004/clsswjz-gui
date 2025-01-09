@@ -29,12 +29,10 @@ class CommonSimpleCrudListConfig<T> {
   final Future<OperateResult<List<T>>> Function() loadData;
 
   /// 创建项目方法
-  final Future<OperateResult<String>> Function(String name, String? type)
-      createItem;
+  final Future<OperateResult<String>> Function(String name, String? type) createItem;
 
   /// 更新项目方法
-  final Future<OperateResult<void>> Function(T item,
-      {required String name, String? type}) updateItem;
+  final Future<OperateResult<void>> Function(T item, {required String name, String? type}) updateItem;
 
   /// 删除项目方法
   final Future<OperateResult<void>> Function(T item) deleteItem;
@@ -68,8 +66,7 @@ class CommonSimpleCrudList<T> extends StatefulWidget {
   });
 
   @override
-  State<CommonSimpleCrudList<T>> createState() =>
-      CommonSimpleCrudListState<T>();
+  State<CommonSimpleCrudList<T>> createState() => CommonSimpleCrudListState<T>();
 }
 
 class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
@@ -180,8 +177,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
         if (item == null) {
           // 创建
           final code = inputName.toLowerCase().replaceAll(' ', '_');
-          final result =
-              await widget.config.createItem(inputName, selectedType);
+          final result = await widget.config.createItem(inputName, selectedType);
           if (result.ok) {
             await _loadData();
           } else {
@@ -286,8 +282,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(_error!,
-                          style: TextStyle(color: theme.colorScheme.error)),
+                      Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
                       TextButton(
                         onPressed: _loadData,
                         child: Text(l10n.retry),
@@ -309,9 +304,8 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
 
                         return ListTile(
                           title: Text(widget.config.getName(item)),
-                          subtitle: widget.config.showType && type != null
-                              ? Text(widget.config.getTypeText!(type))
-                              : null,
+                          subtitle:
+                              widget.config.showType && type != null ? Text(widget.config.getTypeText!(type)) : null,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

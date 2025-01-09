@@ -25,9 +25,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<AccountBooksProvider>()
-          .loadBooks(UserConfigManager.currentUserId);
+      context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
     });
   }
 
@@ -45,8 +43,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
             return const Center(child: CircularProgressIndicator());
           }
           return RefreshIndicator(
-            onRefresh: () =>
-                provider.loadBooks(UserConfigManager.currentUserId),
+            onRefresh: () => provider.loadBooks(UserConfigManager.currentUserId),
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: provider.books.length,
@@ -71,9 +68,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
           )
               .then((created) {
             if (created == true) {
-              context
-                  .read<AccountBooksProvider>()
-                  .loadBooks(UserConfigManager.currentUserId);
+              context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
             }
           });
         },
@@ -111,9 +106,7 @@ class _AccountBookCard extends StatelessWidget {
         )
             .then((updated) {
           if (updated == true) {
-            context
-                .read<AccountBooksProvider>()
-                .loadBooks(UserConfigManager.currentUserId);
+            context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
           }
         });
       },
@@ -148,8 +141,7 @@ class _AccountBookCard extends StatelessWidget {
                             style: theme.textTheme.titleMedium,
                           ),
                         ),
-                        if (isShared && book.createdByName != null)
-                          SharedBadge(name: book.createdByName!),
+                        if (isShared && book.createdByName != null) SharedBadge(name: book.createdByName!),
                       ],
                     ),
                     if (book.description?.isNotEmpty == true) ...[

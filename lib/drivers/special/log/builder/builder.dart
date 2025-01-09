@@ -156,19 +156,15 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   factory LogBuilder.fromLog(LogSync log) {
-    final Map<String, dynamic> data = log.operateType == OperateType.delete.name
-        ? {}
-        : jsonDecode(log.operateData);
+    final Map<String, dynamic> data = log.operateType == OperateType.delete.name ? {} : jsonDecode(log.operateData);
     final businessType = BusinessType.fromCode(log.businessType);
     final operateType = OperateType.fromCode(log.operateType);
 
     if (operateType == OperateType.delete) {
       if (businessType == BusinessType.book) {
-        return DeleteLog.buildBook(log.operatorId, log.businessId)
-            as LogBuilder<T, RunResult>;
+        return DeleteLog.buildBook(log.operatorId, log.businessId) as LogBuilder<T, RunResult>;
       } else {
-        return DeleteLog.buildBookSub(
-                log.operatorId, log.parentId, businessType!, log.businessId)
+        return DeleteLog.buildBookSub(log.operatorId, log.parentId, businessType!, log.businessId)
             as LogBuilder<T, RunResult>;
       }
     }
@@ -189,8 +185,7 @@ abstract class LogBuilder<T, RunResult> {
       case BusinessType.bookMember:
         return MemberCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
-        throw UnimplementedError(
-            'Unsupported business type: ${log.businessType}');
+        throw UnimplementedError('Unsupported business type: ${log.businessType}');
     }
   }
 
@@ -260,29 +255,15 @@ class DeleteLog extends LogBuilder<String, void> {
   }
 
   static DeleteLog buildBook(String who, String bookId) {
-    return DeleteLog()
-        .who(who)
-        .doWith(BusinessType.book)
-        .inBook(bookId)
-        .subject(bookId) as DeleteLog;
+    return DeleteLog().who(who).doWith(BusinessType.book).inBook(bookId).subject(bookId) as DeleteLog;
   }
 
-  static DeleteLog buildBookSub(
-      String who, String bookId, BusinessType businessType, String subjectId) {
-    return DeleteLog()
-        .who(who)
-        .doWith(businessType)
-        .inBook(bookId)
-        .subject(subjectId) as DeleteLog;
+  static DeleteLog buildBookSub(String who, String bookId, BusinessType businessType, String subjectId) {
+    return DeleteLog().who(who).doWith(businessType).inBook(bookId).subject(subjectId) as DeleteLog;
   }
 
-  static DeleteLog build(
-      String who, BusinessType businessType, String subjectId) {
-    return DeleteLog()
-        .who(who)
-        .doWith(businessType)
-        .withOutBook()
-        .subject(subjectId) as DeleteLog;
+  static DeleteLog build(String who, BusinessType businessType, String subjectId) {
+    return DeleteLog().who(who).doWith(businessType).withOutBook().subject(subjectId) as DeleteLog;
   }
 
   static DeleteLog fromLog(LogSync log) {

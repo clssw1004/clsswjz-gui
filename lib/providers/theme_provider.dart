@@ -136,17 +136,14 @@ class ThemeProvider extends ChangeNotifier {
 
   /// 获取文本主题
   TextTheme _getTextTheme(Brightness brightness) {
-    final baseTheme = brightness == Brightness.light
-        ? ThemeData.light().textTheme
-        : ThemeData.dark().textTheme;
+    final baseTheme = brightness == Brightness.light ? ThemeData.light().textTheme : ThemeData.dark().textTheme;
 
     return baseTheme.copyWith(
       displayLarge: baseTheme.displayLarge?.copyWith(fontSize: 96 * fontSize),
       displayMedium: baseTheme.displayMedium?.copyWith(fontSize: 60 * fontSize),
       displaySmall: baseTheme.displaySmall?.copyWith(fontSize: 48 * fontSize),
       headlineLarge: baseTheme.headlineLarge?.copyWith(fontSize: 40 * fontSize),
-      headlineMedium:
-          baseTheme.headlineMedium?.copyWith(fontSize: 34 * fontSize),
+      headlineMedium: baseTheme.headlineMedium?.copyWith(fontSize: 34 * fontSize),
       headlineSmall: baseTheme.headlineSmall?.copyWith(fontSize: 24 * fontSize),
       titleLarge: baseTheme.titleLarge?.copyWith(fontSize: 20 * fontSize),
       titleMedium: baseTheme.titleMedium?.copyWith(fontSize: 16 * fontSize),

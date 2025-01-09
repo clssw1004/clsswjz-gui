@@ -8,23 +8,17 @@ import '../utils/date_util.dart';
 /// 资金账户服务
 class AccountFundService extends BaseService {
   /// 获取账本下的所有资金账户
-  Future<OperateResult<List<AccountFund>>> getFundsByAccountBook(
-      String accountBookId) async {
-    final funds = await (db.select(db.accountFundTable)
-          ..where((t) => t.accountBookId.equals(accountBookId)))
-        .get();
+  Future<OperateResult<List<AccountFund>>> getFundsByAccountBook(String accountBookId) async {
+    final funds = await (db.select(db.accountFundTable)..where((t) => t.accountBookId.equals(accountBookId))).get();
 
     return OperateResult.success(funds);
   }
 
   /// 更新资金账户余额
-  Future<OperateResult<void>> updateFundBalance(
-      String id, double balanceChange) async {
+  Future<OperateResult<void>> updateFundBalance(String id, double balanceChange) async {
     try {
       await db.transaction(() async {
-        final fund = await (db.select(db.accountFundTable)
-              ..where((t) => t.id.equals(id)))
-            .getSingle();
+        final fund = await (db.select(db.accountFundTable)..where((t) => t.id.equals(id))).getSingle();
         await db.update(db.accountFundTable).replace(
               fund.copyWith(
                 fundBalance: fund.fundBalance + balanceChange,
@@ -53,18 +47,14 @@ class AccountFundService extends BaseService {
 
   /// 获取资金账户
   Future<UserFundVO> getFund(String fundId) async {
-    final funds = await (db.select(db.accountFundTable)
-          ..where((t) => t.id.equals(fundId)))
-        .getSingle();
+    final funds = await (db.select(db.accountFundTable)..where((t) => t.id.equals(fundId))).getSingle();
     final result = await toUserFundVO([funds]);
     return result.first;
   }
 
   /// 将资金账户转换为视图对象
   Future<List<UserFundVO>> toUserFundVO(List<AccountFund> funds) async {
-    return funds.isEmpty
-        ? []
-        : funds.map((e) => UserFundVO.fromFundAndBooks(e)).toList();
+    return funds.isEmpty ? [] : funds.map((e) => UserFundVO.fromFundAndBooks(e)).toList();
   }
 
   /// 获取默认资金账户

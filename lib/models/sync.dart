@@ -37,12 +37,8 @@ class SyncResponseDTO {
   factory SyncResponseDTO.fromJson(Map<String, dynamic> json) {
     print(json);
     return SyncResponseDTO(
-      results: (json['results'] as List<dynamic>)
-          .map((e) => SyncResultDTO.fromJson(e))
-          .toList(),
-      changes: (json['changes'] as List<dynamic>)
-          .map((e) => LogSync.fromJson(e))
-          .toList(),
+      results: (json['results'] as List<dynamic>).map((e) => SyncResultDTO.fromJson(e)).toList(),
+      changes: (json['changes'] as List<dynamic>).map((e) => LogSync.fromJson(e)).toList(),
       syncTimeStamp: json['syncTimeStamp'],
     );
   }

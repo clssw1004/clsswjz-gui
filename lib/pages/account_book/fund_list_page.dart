@@ -26,8 +26,7 @@ class FundListPage extends StatelessWidget {
       config: CommonDataListPageConfig(
         title: l10n.tabFunds,
         onLoad: () async {
-          final result = await DriverFactory.driver.listFundsByBook(
-              AppConfigManager.instance.userId!, accountBook.id);
+          final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId!, accountBook.id);
           return result.ok ? result.data! : [];
         },
         itemBuilder: (context, item) {
@@ -68,15 +67,12 @@ class FundListPage extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
-                    color: item.fundBalance >= 0
-                        ? ColorUtil.INCOME
-                        : ColorUtil.EXPENSE,
+                    color: item.fundBalance >= 0 ? ColorUtil.INCOME : ColorUtil.EXPENSE,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  dateFormat.format(
-                      DateTime.fromMillisecondsSinceEpoch(item.createdAt)),
+                  dateFormat.format(DateTime.fromMillisecondsSinceEpoch(item.createdAt)),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.outline,
                     fontSize: 11,

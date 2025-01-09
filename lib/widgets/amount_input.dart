@@ -32,9 +32,7 @@ class _AmountInputState extends State<AmountInput> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CalculatorPanel(
-        initialValue: widget.controller.text.isEmpty
-            ? null
-            : double.tryParse(widget.controller.text),
+        initialValue: widget.controller.text.isEmpty ? null : double.tryParse(widget.controller.text),
         onConfirm: (value) {
           setState(() {
             widget.controller.text = value.toString();
@@ -89,13 +87,9 @@ class _AmountInputState extends State<AmountInput> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.controller.text.isEmpty
-                            ? l10n.pleaseInput(l10n.amount)
-                            : widget.controller.text,
+                        widget.controller.text.isEmpty ? l10n.pleaseInput(l10n.amount) : widget.controller.text,
                         style: theme.textTheme.headlineMedium?.copyWith(
-                          color: widget.controller.text.isEmpty
-                              ? colorScheme.onSurfaceVariant
-                              : amountColor,
+                          color: widget.controller.text.isEmpty ? colorScheme.onSurfaceVariant : amountColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

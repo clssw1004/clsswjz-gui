@@ -11,8 +11,7 @@ import 'base_table.dart';
 class AccountBookTable extends BaseBusinessTable {
   TextColumn get name => text().named('name')();
   TextColumn get description => text().nullable().named('description')();
-  TextColumn get currencySymbol =>
-      text().named('currency_symbol').withDefault(const Constant('¥'))();
+  TextColumn get currencySymbol => text().named('currency_symbol').withDefault(const Constant('¥'))();
   TextColumn get icon => text().nullable().named('icon')();
 
   static AccountBookTableCompanion toUpdateCompanion(
@@ -35,10 +34,7 @@ class AccountBookTable extends BaseBusinessTable {
   }
 
   static AccountBookTableCompanion toCreateCompanion(String who,
-          {required String name,
-          String? description,
-          required String currencySymbol,
-          String? icon}) =>
+          {required String name, String? description, required String currencySymbol, String? icon}) =>
       AccountBookTableCompanion(
         id: Value(IdUtil.genId()),
         name: Value(name),

@@ -64,8 +64,7 @@ class ServiceManager extends BaseService {
   static SyncService get syncService => _syncService;
 
   /// 获取分类服务
-  static AccountCategoryService get accountCategoryService =>
-      _accountCategoryService;
+  static AccountCategoryService get accountCategoryService => _accountCategoryService;
 
   /// 获取资金账户服务
   static AccountFundService get accountFundService => _accountFundService;

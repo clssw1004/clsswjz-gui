@@ -21,9 +21,7 @@ class AttachmentService extends BaseService {
     String businessId,
   ) async {
     final attachments = await (db.select(db.attachmentTable)
-          ..where((t) =>
-              t.businessId.equals(businessId) &
-              t.businessCode.equals(businessType.code)))
+          ..where((t) => t.businessId.equals(businessId) & t.businessCode.equals(businessType.code)))
         .get();
     final attachmentVOs = <AttachmentVO>[];
     for (var attachment in attachments) {

@@ -14,8 +14,7 @@ Future<void> initApp({
   String? userPhone,
 }) async {
   if (AppConfigManager.isAppInit()) {
-    bool needSync =
-        AppConfigManager.instance.storageType == StorageMode.selfHost;
+    bool needSync = AppConfigManager.instance.storageType == StorageMode.selfHost;
     if (needSync) {
       //  初始化HTTP客户端
       await HttpClient.refresh(

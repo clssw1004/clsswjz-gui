@@ -94,13 +94,10 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
 
     return ThemeSpacing(
       formItemSpacing: lerpDouble(formItemSpacing, other.formItemSpacing, t)!,
-      formGroupSpacing:
-          lerpDouble(formGroupSpacing, other.formGroupSpacing, t)!,
+      formGroupSpacing: lerpDouble(formGroupSpacing, other.formGroupSpacing, t)!,
       formPadding: EdgeInsets.lerp(formPadding, other.formPadding, t)!,
-      formItemPadding:
-          EdgeInsets.lerp(formItemPadding, other.formItemPadding, t)!,
-      formGroupPadding:
-          EdgeInsets.lerp(formGroupPadding, other.formGroupPadding, t)!,
+      formItemPadding: EdgeInsets.lerp(formItemPadding, other.formItemPadding, t)!,
+      formGroupPadding: EdgeInsets.lerp(formGroupPadding, other.formGroupPadding, t)!,
       contentPadding: EdgeInsets.lerp(contentPadding, other.contentPadding, t)!,
     );
   }

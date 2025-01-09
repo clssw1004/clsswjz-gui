@@ -21,8 +21,7 @@ class DateEntity extends StringIdEntity {
     required this.updatedAt,
   });
 
-  DateEntity.update(String id, int createdAt)
-      : this(id: id, createdAt: createdAt, updatedAt: DateUtil.now());
+  DateEntity.update(String id, int createdAt) : this(id: id, createdAt: createdAt, updatedAt: DateUtil.now());
 
   DateEntity.now()
       : createdAt = DateUtil.now(),

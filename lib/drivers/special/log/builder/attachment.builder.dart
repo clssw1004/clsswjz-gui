@@ -26,25 +26,16 @@ class AttachmentCULog extends LogBuilder<AttachmentVO, String> {
     required String belongId,
     required File file,
   }) {
-    AttachmentVO vo =
-        AttachmentUtil.generateVoFromFile(belongType, belongId, file, who);
+    AttachmentVO vo = AttachmentUtil.generateVoFromFile(belongType, belongId, file, who);
     return fromVO(who, belongType: belongType, belongId: belongId, vo: vo);
   }
 
-  static AttachmentCULog fromVO(String who,
-      {required BusinessType belongType,
-      required String belongId,
-      required AttachmentVO vo}) {
-    return AttachmentCULog()
-        .who(who)
-        .withBelong(belongType, belongId)
-        .doCreate()
-        .withData(vo) as AttachmentCULog;
+  static AttachmentCULog fromVO(String who, {required BusinessType belongType, required String belongId, required AttachmentVO vo}) {
+    return AttachmentCULog().who(who).withBelong(belongType, belongId).doCreate().withData(vo) as AttachmentCULog;
   }
 
   static AttachmentCULog fromLog(LogSync log) {
-    return AttachmentCULog().who(log.operatorId).doCreate().withData(
-            Attachment.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+    return AttachmentCULog().who(log.operatorId).doCreate().withData(Attachment.fromJson(jsonDecode(log.operateData)).toCompanion(true))
         as AttachmentCULog;
   }
 }
@@ -56,11 +47,9 @@ class AttachmentDeleteLog extends DeleteLog {
 
   @override
   Future<void> executeLog() async {
-    Attachment? attachment =
-        await DaoManager.attachmentDao.findById(businessId!);
+    Attachment? attachment = await DaoManager.attachmentDao.findById(businessId!);
     if (attachment == null) return;
-    final filePath = await AttachmentUtil.getAttachmentPath(
-        attachment.id, attachment.extension);
+    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id, attachment.extension);
     final file = File(filePath);
     if (await file.exists()) {
       await file.delete();
@@ -69,12 +58,7 @@ class AttachmentDeleteLog extends DeleteLog {
   }
 
   static AttachmentDeleteLog fromAttachmentId(String who,
-      {required BusinessType belongType,
-      required String belongId,
-      required String attachmentId}) {
-    return AttachmentDeleteLog()
-        .who(who)
-        .withBelong(belongType, belongId)
-        .subject(attachmentId) as AttachmentDeleteLog;
+      {required BusinessType belongType, required String belongId, required String attachmentId}) {
+    return AttachmentDeleteLog().who(who).withBelong(belongType, belongId).subject(attachmentId) as AttachmentDeleteLog;
   }
 }

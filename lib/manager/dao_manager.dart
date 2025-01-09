@@ -12,15 +12,12 @@ import 'database_manager.dart';
 
 class DaoManager {
   static AccountBookDao accountBookDao = AccountBookDao(DatabaseManager.db);
-  static AccountCategoryDao accountCategoryDao =
-      AccountCategoryDao(DatabaseManager.db);
+  static AccountCategoryDao accountCategoryDao = AccountCategoryDao(DatabaseManager.db);
   static AccountItemDao accountItemDao = AccountItemDao(DatabaseManager.db);
   static AccountFundDao accountFundDao = AccountFundDao(DatabaseManager.db);
   static AccountShopDao accountShopDao = AccountShopDao(DatabaseManager.db);
-  static AccountSymbolDao accountSymbolDao =
-      AccountSymbolDao(DatabaseManager.db);
-  static RelAccountbookUserDao relAccountbookUserDao =
-      RelAccountbookUserDao(DatabaseManager.db);
+  static AccountSymbolDao accountSymbolDao = AccountSymbolDao(DatabaseManager.db);
+  static RelAccountbookUserDao relAccountbookUserDao = RelAccountbookUserDao(DatabaseManager.db);
   static LogSyncDao logSyncDao = LogSyncDao(DatabaseManager.db);
   static UserDao userDao = UserDao(DatabaseManager.db);
   static AttachmentDao attachmentDao = AttachmentDao(DatabaseManager.db);

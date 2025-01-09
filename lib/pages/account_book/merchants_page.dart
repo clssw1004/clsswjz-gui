@@ -20,12 +20,9 @@ class MerchantsPage extends StatelessWidget {
       config: CommonSimpleCrudListConfig(
         title: l10n.merchant,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountShopService
-            .getShopsByAccountBook(accountBook.id),
-        createItem: (name, _) => DriverFactory.driver
-            .createBookShop(userId, accountBook.id, name: name),
-        updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.driver.updateBookShop(
+        loadData: () => ServiceManager.accountShopService.getShopsByAccountBook(accountBook.id),
+        createItem: (name, _) => DriverFactory.driver.createBookShop(userId, accountBook.id, name: name),
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookShop(
           userId,
           accountBook.id,
           item.id,

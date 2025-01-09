@@ -124,17 +124,14 @@ class _FundFormPageState extends State<FundFormPage> {
           decoration: BoxDecoration(
             color: selected ? colorScheme.primaryContainer : Colors.transparent,
             border: Border.all(
-              color:
-                  selected ? colorScheme.primaryContainer : colorScheme.outline,
+              color: selected ? colorScheme.primaryContainer : colorScheme.outline,
             ),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: selected
-                  ? colorScheme.onPrimaryContainer
-                  : colorScheme.onSurface,
+              color: selected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
               fontSize: 12,
             ),
           ),
@@ -152,9 +149,7 @@ class _FundFormPageState extends State<FundFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(widget.fund == null
-            ? l10n.addNew(l10n.tabFunds)
-            : l10n.editTo(l10n.tabFunds)),
+        title: Text(widget.fund == null ? l10n.addNew(l10n.tabFunds) : l10n.editTo(l10n.tabFunds)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,

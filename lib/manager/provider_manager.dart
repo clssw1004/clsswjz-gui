@@ -28,8 +28,7 @@ class ProviderManager {
             create: (_) => UserProvider()..refreshUserInfo(),
           ),
           ChangeNotifierProvider<AccountBooksProvider>(
-            create: (_) =>
-                AccountBooksProvider()..init(UserConfigManager.currentUserId),
+            create: (_) => AccountBooksProvider()..init(UserConfigManager.currentUserId),
           ),
           ChangeNotifierProvider<SyncProvider>(
             create: (_) => SyncProvider(),

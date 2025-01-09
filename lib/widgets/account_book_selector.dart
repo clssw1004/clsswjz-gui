@@ -84,9 +84,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     }
 
     final isOwner = _selectedBook!.createdBy == widget.userId;
-    final bookName = isOwner
-        ? _selectedBook!.name
-        : '${_selectedBook!.name} (${_selectedBook!.createdByName})';
+    final bookName = isOwner ? _selectedBook!.name : '${_selectedBook!.name} (${_selectedBook!.createdByName})';
 
     return InkWell(
       onTap: _showBookSelector,
@@ -164,8 +162,7 @@ class _AccountBookList extends StatelessWidget {
                       Expanded(
                         child: Text(book.name),
                       ),
-                      if (book.createdBy != userId &&
-                          book.createdByName != null)
+                      if (book.createdBy != userId && book.createdByName != null)
                         SharedBadge(name: book.createdByName!),
                     ],
                   ),

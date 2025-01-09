@@ -190,8 +190,7 @@ class ThemeSettingsPage extends StatelessWidget {
                   const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: () {},
-                    child: Text(
-                        MaterialLocalizations.of(context).cancelButtonLabel),
+                    child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                   ),
                 ],
               ),
@@ -235,9 +234,7 @@ class _ColorButton extends StatelessWidget {
           color: color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: 3,
           ),
           boxShadow: [

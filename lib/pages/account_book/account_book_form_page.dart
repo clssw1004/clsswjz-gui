@@ -118,8 +118,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .saveFailed(result.message ?? '')),
+              content: Text(AppLocalizations.of(context)!.saveFailed(result.message ?? '')),
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
@@ -170,8 +169,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
       content: StatefulBuilder(
         builder: (context, setState) {
           final bool isMemberExists = foundMember != null &&
-              (_members.any((m) => m.userId == foundMember!.userId) ||
-                  foundMember!.userId == widget.book!.createdBy);
+              (_members.any((m) => m.userId == foundMember!.userId) || foundMember!.userId == widget.book!.createdBy);
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -205,9 +203,8 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                             hasSearched = true;
                           });
                           try {
-                            final result = await ServiceManager
-                                .accountBookService
-                                .gernerateDefaultMemberByInviteCode(inviteCode);
+                            final result =
+                                await ServiceManager.accountBookService.gernerateDefaultMemberByInviteCode(inviteCode);
                             setState(() {
                               foundMember = result.ok ? result.data : null;
                             });
@@ -236,9 +233,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                       horizontal: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: isMemberExists
-                          ? colorScheme.outline
-                          : colorScheme.primaryContainer.withOpacity(0.1),
+                      color: isMemberExists ? colorScheme.outline : colorScheme.primaryContainer.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -297,30 +292,17 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
   }
 
   /// 更新成员权限
-  void _updateMemberPermission(
-      BookMemberVO member, String permissionKey, bool value) {
+  void _updateMemberPermission(BookMemberVO member, String permissionKey, bool value) {
     final index = _members.indexOf(member);
     if (index == -1) return;
 
     final newPermission = AccountBookPermissionVO(
-      canViewBook: permissionKey == 'canViewBook'
-          ? value
-          : member.permission.canViewBook,
-      canEditBook: permissionKey == 'canEditBook'
-          ? value
-          : member.permission.canEditBook,
-      canDeleteBook: permissionKey == 'canDeleteBook'
-          ? value
-          : member.permission.canDeleteBook,
-      canViewItem: permissionKey == 'canViewItem'
-          ? value
-          : member.permission.canViewItem,
-      canEditItem: permissionKey == 'canEditItem'
-          ? value
-          : member.permission.canEditItem,
-      canDeleteItem: permissionKey == 'canDeleteItem'
-          ? value
-          : member.permission.canDeleteItem,
+      canViewBook: permissionKey == 'canViewBook' ? value : member.permission.canViewBook,
+      canEditBook: permissionKey == 'canEditBook' ? value : member.permission.canEditBook,
+      canDeleteBook: permissionKey == 'canDeleteBook' ? value : member.permission.canDeleteBook,
+      canViewItem: permissionKey == 'canViewItem' ? value : member.permission.canViewItem,
+      canEditItem: permissionKey == 'canEditItem' ? value : member.permission.canEditItem,
+      canDeleteItem: permissionKey == 'canDeleteItem' ? value : member.permission.canDeleteItem,
     );
 
     setState(() {
@@ -342,9 +324,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(isCreateMode
-            ? l10n.addNew(l10n.accountBook)
-            : l10n.editTo(l10n.accountBook)),
+        title: Text(isCreateMode ? l10n.addNew(l10n.accountBook) : l10n.editTo(l10n.accountBook)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -379,10 +359,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                   width: 48,
                   height: 48,
                   child: Icon(
-                    _icon != null
-                        ? IconData(int.parse(_icon!),
-                            fontFamily: 'MaterialIcons')
-                        : Icons.book_outlined,
+                    _icon != null ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons') : Icons.book_outlined,
                     color: colorScheme.primary,
                   ),
                 ),
@@ -450,15 +427,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                   physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _members.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
+                  separatorBuilder: (context, index) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final member = _members[index];
                     return _MemberItem(
                       member: member,
                       onRemove: () => _removeMember(member),
-                      onPermissionChanged: (key, value) =>
-                          _updateMemberPermission(member, key, value),
+                      onPermissionChanged: (key, value) => _updateMemberPermission(member, key, value),
                     );
                   },
                 ),

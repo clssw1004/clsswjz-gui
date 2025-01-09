@@ -13,6 +13,8 @@ class SyncDataButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final spacing = Theme.of(context).spacing;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final syncProvider = context.watch<SyncProvider>();
 
     return Container(
@@ -30,28 +32,45 @@ class SyncDataButton extends StatelessWidget {
             ),
           ),
           SizedBox(width: spacing.formItemSpacing),
-          IconButton(
-            onPressed: syncProvider.syncing
-                ? null
-                : () async {
-                    try {
-                      await syncProvider.syncData();
-                      if (context.mounted) {
-                        ToastUtil.showSuccess(l10n.syncSuccess);
-                      }
-                    } catch (e) {
-                      ToastUtil.showError(l10n.syncFailed);
-                    }
-                  },
-            icon: syncProvider.syncing
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                onPressed: syncProvider.syncing
+                    ? null
+                    : () async {
+                        try {
+                          await syncProvider.syncData();
+                          if (context.mounted) {
+                            ToastUtil.showSuccess(l10n.syncSuccess);
+                          }
+                        } catch (e) {
+                          ToastUtil.showError(l10n.syncFailed);
+                        }
+                      },
+                icon: syncProvider.syncing ? const SizedBox(width: 24, height: 24) : const Icon(Icons.sync),
+              ),
+              if (syncProvider.syncing)
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    value: syncProvider.progress > 0 ? syncProvider.progress : null,
+                    strokeWidth: 2,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              if (syncProvider.syncing && syncProvider.currentStep != null)
+                Positioned(
+                  bottom: -16,
+                  child: Text(
+                    syncProvider.currentStep!,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.primary,
                     ),
-                  )
-                : const Icon(Icons.sync),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

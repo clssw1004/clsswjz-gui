@@ -46,17 +46,16 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       String? tagCode,
       String? projectCode,
       List<AttachmentVO>? attachments}) {
-    return ItemCULog().who(who).inBook(bookId).doCreate().withData(
-        AccountItemTable.toCreateCompanion(who, bookId,
-            amount: amount,
-            description: description,
-            type: type,
-            categoryCode: categoryCode,
-            accountDate: accountDate,
-            fundId: fundId,
-            shopCode: shopCode,
-            tagCode: tagCode,
-            projectCode: projectCode)) as ItemCULog;
+    return ItemCULog().who(who).inBook(bookId).doCreate().withData(AccountItemTable.toCreateCompanion(who, bookId,
+        amount: amount,
+        description: description,
+        type: type,
+        categoryCode: categoryCode,
+        accountDate: accountDate,
+        fundId: fundId,
+        shopCode: shopCode,
+        tagCode: tagCode,
+        projectCode: projectCode)) as ItemCULog;
   }
 
   static ItemCULog update(String userId, String bookId, String itemId,
@@ -69,12 +68,8 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       String? shopCode,
       String? tagCode,
       String? projectCode}) {
-    return ItemCULog()
-        .who(userId)
-        .inBook(bookId)
-        .subject(itemId)
-        .doUpdate()
-        .withData(AccountItemTable.toUpdateCompanion(userId,
+    return ItemCULog().who(userId).inBook(bookId).subject(itemId).doUpdate().withData(
+        AccountItemTable.toUpdateCompanion(userId,
             amount: amount,
             description: description,
             type: type,
@@ -91,8 +86,7 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountItem.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as ItemCULog;
+        .withData(AccountItem.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as ItemCULog;
   }
 
   static ItemCULog fromUpdateLog(LogSync log) {

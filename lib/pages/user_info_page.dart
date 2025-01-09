@@ -263,8 +263,7 @@ class _UserInfoPageView extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child:
-                      Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
@@ -297,9 +296,7 @@ class _UserInfoPageView extends StatelessWidget {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                      result.message ?? l10n.modifyFailed(l10n.password, ''))),
+              SnackBar(content: Text(result.message ?? l10n.modifyFailed(l10n.password, ''))),
             );
           }
         }

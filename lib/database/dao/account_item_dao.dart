@@ -7,8 +7,7 @@ import 'base_dao.dart';
 class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
   AccountItemDao(super.db);
 
-  Future<List<AccountItem>> findByAccountBookId(String accountBookId,
-      {int limit = 20, int offset = 0}) {
+  Future<List<AccountItem>> findByAccountBookId(String accountBookId, {int limit = 20, int offset = 0}) {
     final query = db.select(db.accountItemTable)
       ..where((t) => t.accountBookId.equals(accountBookId))
       ..orderBy([(t) => OrderingTerm.desc(t.accountDate)])
@@ -16,25 +15,18 @@ class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
     return query.get();
   }
 
-  Future<List<AccountItem>> findByDateRange(
-      String accountBookId, String startDate, String endDate) {
+  Future<List<AccountItem>> findByDateRange(String accountBookId, String startDate, String endDate) {
     return (db.select(db.accountItemTable)
-          ..where((t) =>
-              t.accountBookId.equals(accountBookId) &
-              t.accountDate.isBetweenValues(startDate, endDate)))
+          ..where((t) => t.accountBookId.equals(accountBookId) & t.accountDate.isBetweenValues(startDate, endDate)))
         .get();
   }
 
   Future<List<AccountItem>> findByFundId(String fundId) {
-    return (db.select(db.accountItemTable)
-          ..where((t) => t.fundId.equals(fundId)))
-        .get();
+    return (db.select(db.accountItemTable)..where((t) => t.fundId.equals(fundId))).get();
   }
 
   Future<List<AccountItem>> findByCategoryCode(String categoryCode) {
-    return (db.select(db.accountItemTable)
-          ..where((t) => t.categoryCode.equals(categoryCode)))
-        .get();
+    return (db.select(db.accountItemTable)..where((t) => t.categoryCode.equals(categoryCode))).get();
   }
 
   Future<void> createAccountItem({
@@ -110,8 +102,7 @@ class AccountItemDao extends BaseDao<AccountItemTable, AccountItem> {
       conditions.add(db.accountItemTable.projectCode.equals(projectCode));
     }
     if (startDate != null && endDate != null) {
-      conditions.add(
-          db.accountItemTable.accountDate.isBetweenValues(startDate, endDate));
+      conditions.add(db.accountItemTable.accountDate.isBetweenValues(startDate, endDate));
     }
 
     if (conditions.isNotEmpty) {

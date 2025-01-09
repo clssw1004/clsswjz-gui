@@ -30,8 +30,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
       config: CommonSimpleCrudListConfig(
         title: l10n.category,
         getName: (item) => item.name,
-        loadData: () =>
-            ServiceManager.accountCategoryService.getCategoriesByType(
+        loadData: () => ServiceManager.accountCategoryService.getCategoriesByType(
           widget.accountBook.id,
           _selectedType,
         ),
@@ -41,8 +40,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           name: name,
           categoryType: _selectedType,
         ),
-        updateItem: (item, {required String name, String? type}) =>
-            DriverFactory.driver.updateBookCategory(
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookCategory(
           userId,
           widget.accountBook.id,
           item.id,

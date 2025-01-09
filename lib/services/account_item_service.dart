@@ -194,13 +194,10 @@ class AccountItemService extends BaseService {
   // }
 
   /// 获取账本的账目列表（包含关联信息）
-  Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(
-      String accountBookId,
-      {int limit = 20,
-      int offset = 0}) async {
+  Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(String accountBookId,
+      {int limit = 20, int offset = 0}) async {
     try {
-      final items = await _accountItemDao.findByAccountBookId(accountBookId,
-          limit: limit, offset: offset);
+      final items = await _accountItemDao.findByAccountBookId(accountBookId, limit: limit, offset: offset);
       if (items.isEmpty) {
         return OperateResult.success([]);
       }
@@ -208,8 +205,7 @@ class AccountItemService extends BaseService {
         await toVos(items),
       );
     } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取账目列表失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(message: '获取账目列表失败：$e', exception: e as Exception);
     }
   }
 
@@ -217,8 +213,7 @@ class AccountItemService extends BaseService {
     try {
       return OperateResult.success(await _accountItemDao.findAll());
     } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取账目列表失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(message: '获取账目列表失败：$e', exception: e as Exception);
     }
   }
 
@@ -228,35 +223,17 @@ class AccountItemService extends BaseService {
     }
 
     // 2. 获取所有需要查询的ID和代码
-    final categoryCodes = items
-        .where((item) => item.categoryCode != null)
-        .map((item) => item.categoryCode!)
-        .toSet()
-        .toList();
+    final categoryCodes =
+        items.where((item) => item.categoryCode != null).map((item) => item.categoryCode!).toSet().toList();
 
-    final fundIds = items
-        .where((item) => item.fundId != null)
-        .map((item) => item.fundId!)
-        .toSet()
-        .toList();
+    final fundIds = items.where((item) => item.fundId != null).map((item) => item.fundId!).toSet().toList();
 
-    final shopCodes = items
-        .where((item) => item.shopCode != null)
-        .map((item) => item.shopCode!)
-        .toSet()
-        .toList();
+    final shopCodes = items.where((item) => item.shopCode != null).map((item) => item.shopCode!).toSet().toList();
 
-    final tagCodes = items
-        .where((item) => item.tagCode != null)
-        .map((item) => item.tagCode!)
-        .toSet()
-        .toList();
+    final tagCodes = items.where((item) => item.tagCode != null).map((item) => item.tagCode!).toSet().toList();
 
-    final projectCodes = items
-        .where((item) => item.projectCode != null)
-        .map((item) => item.projectCode!)
-        .toSet()
-        .toList();
+    final projectCodes =
+        items.where((item) => item.projectCode != null).map((item) => item.projectCode!).toSet().toList();
 
     // 获取所有用户ID
     final userIds = {
@@ -265,27 +242,19 @@ class AccountItemService extends BaseService {
     }.toList();
 
     // 3. 批量查询关联数据
-    final categories = CollectionUtil.toMap(
-        await _accountCategoryDao.findByCodes(categoryCodes), (c) => c.code);
+    final categories = CollectionUtil.toMap(await _accountCategoryDao.findByCodes(categoryCodes), (c) => c.code);
 
-    final funds = CollectionUtil.toMap(
-        await _accountFundDao.findByIds(fundIds), (f) => f.id);
+    final funds = CollectionUtil.toMap(await _accountFundDao.findByIds(fundIds), (f) => f.id);
 
-    final shops = CollectionUtil.toMap(
-        await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
+    final shops = CollectionUtil.toMap(await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
     final symbolMap = CollectionUtil.groupBy(
-        await _accountSymbolDao
-            .findByTypes([SymbolType.tag.name, SymbolType.project.name]),
-        (s) => s.symbolType);
+        await _accountSymbolDao.findByTypes([SymbolType.tag.name, SymbolType.project.name]), (s) => s.symbolType);
 
-    final tags = CollectionUtil.toMap(
-        symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
-    final projects = CollectionUtil.toMap(
-        symbolMap[SymbolType.project.name] ?? [], (s) => s.code);
+    final tags = CollectionUtil.toMap(symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
+    final projects = CollectionUtil.toMap(symbolMap[SymbolType.project.name] ?? [], (s) => s.code);
 
-    final users =
-        CollectionUtil.toMap(await _userDao.findByIds(userIds), (u) => u.id);
+    final users = CollectionUtil.toMap(await _userDao.findByIds(userIds), (u) => u.id);
 
     // 4. 组装VO对象
     return items.map((item) {
