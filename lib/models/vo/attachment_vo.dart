@@ -40,6 +40,9 @@ class AttachmentVO {
   /// 文件对象
   final File? file;
 
+  /// 是否是远程附件
+  final bool isRemote;
+
   const AttachmentVO({
     required this.id,
     required this.originName,
@@ -53,6 +56,7 @@ class AttachmentVO {
     required this.createdAt,
     required this.updatedAt,
     this.file,
+    this.isRemote = false,
   });
 
   /// 从Attachment和File创建VO
@@ -74,7 +78,28 @@ class AttachmentVO {
       updatedBy: attachment.updatedBy,
       createdAt: attachment.createdAt,
       updatedAt: attachment.updatedAt,
+      isRemote: exists,
       file: exists ? file : null,
+    );
+  }
+
+  /// 从Attachment和File创建VO
+  static AttachmentVO fromRemoteAttachment(
+    Attachment attachment,
+  ) {
+    return AttachmentVO(
+      id: attachment.id,
+      originName: attachment.originName,
+      fileLength: attachment.fileLength,
+      extension: attachment.extension,
+      contentType: attachment.contentType,
+      businessCode: attachment.businessCode,
+      businessId: attachment.businessId,
+      createdBy: attachment.createdBy,
+      updatedBy: attachment.updatedBy,
+      createdAt: attachment.createdAt,
+      updatedAt: attachment.updatedAt,
+      isRemote: true,
     );
   }
 

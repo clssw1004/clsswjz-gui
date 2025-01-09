@@ -18,7 +18,7 @@ Future<void> initApp({
     if (needSync) {
       //  初始化HTTP客户端
       await HttpClient.refresh(
-        serverUrl: AppConfigManager.instance.serverUrl,
+        serverUrl: AppConfigManager.instance.serverUrl!,
         accessToken: AppConfigManager.instance.accessToken,
       );
     }

@@ -15,7 +15,9 @@ class AttachmentCULog extends LogBuilder<AttachmentVO, String> {
   @override
   Future<String> executeLog() async {
     await DaoManager.attachmentDao.insert(data!.toAttachment());
-    await AttachmentUtil.copyFileToLocal(data!);
+    if (!data!.isRemote) {
+      await AttachmentUtil.copyFileToLocal(data!);
+    }
     subject(data!.id);
     return data!.id;
   }
@@ -40,8 +42,10 @@ class AttachmentCULog extends LogBuilder<AttachmentVO, String> {
   }
 
   static AttachmentCULog fromLog(LogSync log) {
-    return AttachmentCULog().who(log.operatorId).doCreate().withData(Attachment.fromJson(jsonDecode(log.operateData)).toCompanion(true))
-        as AttachmentCULog;
+    return AttachmentCULog()
+        .who(log.operatorId)
+        .doCreate()
+        .withData(AttachmentVO.fromRemoteAttachment(Attachment.fromJson(jsonDecode(log.operateData)))) as AttachmentCULog;
   }
 }
 

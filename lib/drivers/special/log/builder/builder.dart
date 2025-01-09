@@ -10,6 +10,7 @@ import '../../../../enums/sync_state.dart';
 import '../../../../manager/dao_manager.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
+import 'attachment.builder.dart';
 import 'book_category.builder.dart';
 import 'book_item.builder.dart';
 import 'book_member.builder.dart';
@@ -127,6 +128,7 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   Future<RunResult> executeWithoutRecord() async {
+    print('executeWithoutRecord: ${_data.toString()}');
     final result = await executeLog();
     return result;
   }
@@ -164,8 +166,7 @@ abstract class LogBuilder<T, RunResult> {
       if (businessType == BusinessType.book) {
         return DeleteLog.buildBook(log.operatorId, log.businessId) as LogBuilder<T, RunResult>;
       } else {
-        return DeleteLog.buildBookSub(log.operatorId, log.parentId, businessType!, log.businessId)
-            as LogBuilder<T, RunResult>;
+        return DeleteLog.buildBookSub(log.operatorId, log.parentId, businessType!, log.businessId) as LogBuilder<T, RunResult>;
       }
     }
 
@@ -184,6 +185,8 @@ abstract class LogBuilder<T, RunResult> {
         return FundCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.bookMember:
         return MemberCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.attachment:
+        return AttachmentCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError('Unsupported business type: ${log.businessType}');
     }
@@ -267,10 +270,7 @@ class DeleteLog extends LogBuilder<String, void> {
   }
 
   static DeleteLog fromLog(LogSync log) {
-    return DeleteLog()
-        .who(log.operatorId)
-        .inBook(log.parentId)
-        .doWith(BusinessType.fromCode(log.businessType)!)
-        .subject(log.businessId) as DeleteLog;
+    return DeleteLog().who(log.operatorId).inBook(log.parentId).doWith(BusinessType.fromCode(log.businessType)!).subject(log.businessId)
+        as DeleteLog;
   }
 }

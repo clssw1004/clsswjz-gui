@@ -3,6 +3,9 @@ import '../enums/business_type.dart';
 import '../manager/dao_manager.dart';
 import 'base_service.dart';
 import '../models/vo/attachment_vo.dart';
+import 'dart:io';
+import '../utils/http_client.dart';
+import '../models/api_response.dart';
 
 /// 附件服务
 class AttachmentService extends BaseService {
@@ -13,6 +16,17 @@ class AttachmentService extends BaseService {
       return null;
     }
     return await AttachmentVO.fromAttachment(attachment);
+  }
+
+  Future<List<AttachmentVO>> getAttachments(List<String>? ids) async {
+    if (ids == null || ids.isEmpty) return [];
+    final attachments = await DaoManager.attachmentDao.findByIds(ids);
+    if (attachments.isEmpty) return [];
+    final attachmentVOs = <AttachmentVO>[];
+    for (var attachment in attachments) {
+      attachmentVOs.add(await AttachmentVO.fromAttachment(attachment));
+    }
+    return attachmentVOs;
   }
 
   /// 获取业务相关的所有附件
