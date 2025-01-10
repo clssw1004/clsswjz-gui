@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../providers/sync_provider.dart';
+import '../widgets/common/progress_indicator_bar.dart';
 import 'tabs/account_items_tab.dart';
 import 'tabs/mine_tab.dart';
 
@@ -20,8 +23,31 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final syncProvider = context.watch<SyncProvider>();
+
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: Stack(
+        children: [
+          _pages[_currentIndex],
+          // 同步进度条
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (syncProvider.syncing)
+                  ProgressIndicatorBar(
+                    value: syncProvider.progress > 0 ? syncProvider.progress : null,
+                    label: syncProvider.currentStep ?? l10n.syncing,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -32,11 +58,11 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet),
-            label: AppLocalizations.of(context)!.tabAccountItems,
+            label: l10n.tabAccountItems,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),
-            label: AppLocalizations.of(context)!.tabMine,
+            label: l10n.tabMine,
           ),
         ],
       ),

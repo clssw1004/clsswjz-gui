@@ -3,9 +3,6 @@ import '../enums/business_type.dart';
 import '../manager/dao_manager.dart';
 import 'base_service.dart';
 import '../models/vo/attachment_vo.dart';
-import 'dart:io';
-import '../utils/http_client.dart';
-import '../models/api_response.dart';
 
 /// 附件服务
 class AttachmentService extends BaseService {

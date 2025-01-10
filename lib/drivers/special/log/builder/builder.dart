@@ -25,7 +25,7 @@ abstract class DeserializerLog<T extends LogBuilder> {
 }
 
 abstract class LogBuilder<T, RunResult> {
-  final String? _id;
+  String? _id;
   String? get id => _id;
 
   /// 账本ID
@@ -128,7 +128,6 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   Future<RunResult> executeWithoutRecord() async {
-    print('executeWithoutRecord: ${_data.toString()}');
     final result = await executeLog();
     return result;
   }
@@ -158,7 +157,12 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   factory LogBuilder.fromLog(LogSync log) {
-    final Map<String, dynamic> data = log.operateType == OperateType.delete.name ? {} : jsonDecode(log.operateData);
+    LogBuilder<T, RunResult> builder = _fromLog<T, RunResult>(log);
+    builder._id = log.id;
+    return builder;
+  }
+
+  static LogBuilder<T, RunResult> _fromLog<T, RunResult>(LogSync log) {
     final businessType = BusinessType.fromCode(log.businessType);
     final operateType = OperateType.fromCode(log.operateType);
 

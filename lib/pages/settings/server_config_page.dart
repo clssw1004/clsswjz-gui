@@ -1,7 +1,6 @@
 import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import '../../services/auth_service.dart';
@@ -40,7 +39,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   String _bookName = '崔伟的账本';
   String _bookIcon = Icons.book_outlined.codePoint.toString();
   bool _isLoading = false;
-  bool _isChecking = false;
+  final bool _isChecking = false;
   bool _serverValid = false;
   StorageMode _storageMode = StorageMode.offline;
 

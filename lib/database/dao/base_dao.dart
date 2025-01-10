@@ -47,17 +47,25 @@ abstract class BaseDao<T extends StringIdTable, D> {
     });
   }
 
+  Future<bool> existById(String id) async {
+    final result = await (db.select(table)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return result != null;
+  }
+
   TableInfo<T, D> get table;
 }
 
 abstract class BaseBookDao<T extends BaseAccountBookTable, D> extends BaseDao<T, D> {
   BaseBookDao(super.db);
 
-  Future<List<D>> findByAccountBookId(String accountBookId) {
-    return (db.select(table)
-          ..where((t) => t.accountBookId.equals(accountBookId))
-          ..orderBy(defaultOrderBy()))
-        .get();
+  Future<List<D>> findByAccountBookId(String accountBookId, {int? limit, int? offset}) {
+    final query = (db.select(table)
+      ..where((t) => t.accountBookId.equals(accountBookId))
+      ..orderBy(defaultOrderBy()));
+    if (limit != null) {
+      query.limit(limit, offset: offset);
+    }
+    return query.get();
   }
 
   List<OrderClauseGenerator<T>> defaultOrderBy() {

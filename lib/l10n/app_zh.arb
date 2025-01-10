@@ -451,5 +451,143 @@
     "importData": "导入数据",
     "dataSource": "数据来源",
     "selectFile": "选择文件",
-    "import": "导入"
+    "import": "导入",
+    "sync": "同步",
+    "syncStarting": "开始同步，上次同步时间：{time}",
+    "@syncStarting": {
+        "description": "同步开始时的提示消息",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "2023-01-01 12:00:00"
+            }
+        }
+    },
+    "neverSync": "尚未同步",
+    "gettingLocalChanges": "获取本地变更",
+    "localChangeCount": "本地变更数量：{count}",
+    "@localChangeCount": {
+        "description": "本地变更数量提示",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "uploadingAttachments": "上传附件: {count}",
+    "@uploadingAttachments": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "attachmentUploadComplete": "附件上传完成",
+    "syncingLocalChanges": "同步本地变更: {count}",
+    "@syncingLocalChanges": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "localChangeSyncComplete": "本地变更同步完成：{total}，成功：{success}，失败：{failed}",
+    "@localChangeSyncComplete": {
+        "placeholders": {
+            "total": {
+                "type": "int",
+                "example": "10"
+            },
+            "success": {
+                "type": "int",
+                "example": "8"
+            },
+            "failed": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "syncingLocalChangeStatus": "同步本地变更状态: {count}",
+    "@syncingLocalChangeStatus": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "syncingLocalChangeStatusProgress": "同步本地变更状态({current}/{total})",
+    "@syncingLocalChangeStatusProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "5"
+            },
+            "total": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "localChangeStatusSyncComplete": "本地变更状态同步完成",
+    "syncingServerChanges": "同步服务端变更: {count}",
+    "@syncingServerChanges": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "syncingServerChangesProgress": "同步服务端变更({current}/{total})",
+    "@syncingServerChangesProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "5"
+            },
+            "total": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "downloadingAttachments": "下载附件: {count}",
+    "@downloadingAttachments": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "downloadingAttachmentsProgress": "下载附件({current}/{total})",
+    "@downloadingAttachmentsProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "3"
+            },
+            "total": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "attachmentDownloadComplete": "附件下载完成",
+    "serverChangeSyncComplete": "服务端变更同步完成",
+    "syncComplete": "同步完成",
+    "syncFailed": "同步失败：{error}",
+    "@syncFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
+    }
 }

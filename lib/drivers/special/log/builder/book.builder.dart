@@ -61,16 +61,12 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   static BookCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? BookCULog.fromCreateLog(log)
-        : BookCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? BookCULog.fromCreateLog(log) : BookCULog.fromUpdateLog(log));
   }
 
   static BookCULog fromCreateLog(LogSync log) {
-    return BookCULog()
-        .who(log.operatorId)
-        .doCreate()
-        .withData(AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as BookCULog;
+    return BookCULog().who(log.operatorId).doCreate().withData(AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+        as BookCULog;
   }
 
   static BookCULog fromUpdateLog(LogSync log) {
@@ -78,7 +74,7 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
     return BookCULog.update(log.operatorId, log.parentId,
         name: data['name'],
         description: data['description'],
-        currencySymbol: data['currencySymbol'],
+        currencySymbol: CurrencySymbol.fromSymbol(data['currencySymbol']),
         icon: data['icon']);
   }
 }

@@ -64,8 +64,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -88,32 +86,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
           final accountBook = bookProvider.selectedBook;
           return Column(
             children: [
-              // 同步进度指示器
-              if (syncProvider.syncing)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          value: syncProvider.progress > 0 ? syncProvider.progress : null,
-                          strokeWidth: 2,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        syncProvider.currentStep ?? l10n.syncing,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               // 账目列表
               Expanded(
                 child: accountBook == null
@@ -141,13 +113,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                       )
                     : CustomRefreshIndicator(
                         onRefresh: _handleRefresh,
-                        builder: (
-                          BuildContext context,
-                          Widget child,
-                          IndicatorController controller,
-                        ) {
-                          return child;
-                        },
+                        builder: (context, child, controller) => child,
                         child: _AccountItemList(
                           accountBook: accountBook,
                           initialItems: bookProvider.items,

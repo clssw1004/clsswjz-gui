@@ -71,7 +71,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                             ToastUtil.showSuccess(l10n.syncSuccess);
                           }
                         } catch (e) {
-                          ToastUtil.showError(l10n.syncFailed);
+                          ToastUtil.showError(l10n.syncFailed(e.toString()));
                         }
                       },
                 icon: syncProvider.syncing

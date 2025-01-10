@@ -255,24 +255,14 @@ class AppConfigManager {
 
     /// 注册用户
     await ServiceManager.userService
-        .register(
-            userId: userId,
-            username: username,
-            password: DEFAULT_PASSWORD,
-            nickname: nickname,
-            email: email,
-            phone: phone)
+        .register(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone)
         .then((value) => value.data);
 
     final l10n = AppLocalizations.of(context)!;
 
     /// 创建账本
     final bookId = await DriverFactory.driver
-        .createBook(userId,
-            name: bookName,
-            defaultFundName: l10n.cash,
-            defaultCategoryName: l10n.noCategory,
-            defaultShopName: l10n.noShop)
+        .createBook(userId, name: bookName, defaultFundName: l10n.cash, defaultCategoryName: l10n.noCategory, defaultShopName: l10n.noShop)
         .then((value) => value.data);
 
     await _instance.setDefaultBookId(bookId);
@@ -294,13 +284,7 @@ class AppConfigManager {
 
     /// 注册用户
     await ServiceManager.userService
-        .register(
-            userId: userId,
-            username: 'cuiwei',
-            password: 'cuiwei',
-            nickname: '崔伟',
-            email: 'cuiwei@clsswjz.com',
-            phone: '13800138000')
+        .register(userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000')
         .then((value) => value.data);
 
     /// 初始化导入数据

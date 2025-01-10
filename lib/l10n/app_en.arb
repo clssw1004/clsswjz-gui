@@ -425,5 +425,143 @@
     "importData": "Import Data",
     "dataSource": "Data Source",
     "selectFile": "Select File",
-    "import": "Import"
+    "import": "Import",
+    "sync": "Sync",
+    "syncStarting": "Start syncing, last sync time: {time}",
+    "@syncStarting": {
+        "description": "Sync start message",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "2023-01-01 12:00:00"
+            }
+        }
+    },
+    "neverSync": "Never synced",
+    "gettingLocalChanges": "Getting local changes",
+    "localChangeCount": "Local changes count: {count}",
+    "@localChangeCount": {
+        "description": "Local changes count prompt",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "uploadingAttachments": "Uploading attachments: {count}",
+    "@uploadingAttachments": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "attachmentUploadComplete": "Attachments upload complete",
+    "syncingLocalChanges": "Syncing local changes: {count}",
+    "@syncingLocalChanges": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "localChangeSyncComplete": "Local changes sync complete: {total}, success: {success}, failed: {failed}",
+    "@localChangeSyncComplete": {
+        "placeholders": {
+            "total": {
+                "type": "int",
+                "example": "10"
+            },
+            "success": {
+                "type": "int",
+                "example": "8"
+            },
+            "failed": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "syncingLocalChangeStatus": "Syncing local change status: {count}",
+    "@syncingLocalChangeStatus": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "syncingLocalChangeStatusProgress": "Syncing local change status ({current}/{total})",
+    "@syncingLocalChangeStatusProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "5"
+            },
+            "total": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "localChangeStatusSyncComplete": "Local change status sync complete",
+    "syncingServerChanges": "Syncing server changes: {count}",
+    "@syncingServerChanges": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "syncingServerChangesProgress": "Syncing server changes ({current}/{total})",
+    "@syncingServerChangesProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "5"
+            },
+            "total": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "downloadingAttachments": "Downloading attachments: {count}",
+    "@downloadingAttachments": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "downloadingAttachmentsProgress": "Downloading attachments ({current}/{total})",
+    "@downloadingAttachmentsProgress": {
+        "placeholders": {
+            "current": {
+                "type": "int",
+                "example": "3"
+            },
+            "total": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "attachmentDownloadComplete": "Attachments download complete",
+    "serverChangeSyncComplete": "Server changes sync complete",
+    "syncComplete": "Sync complete",
+    "syncFailed": "Sync failed: {error}",
+    "@syncFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Network error"
+            }
+        }
+    }
 }
