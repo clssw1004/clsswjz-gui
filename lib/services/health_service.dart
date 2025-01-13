@@ -10,7 +10,8 @@ class HealthService {
 
   Future<ApiResponse<HealthStatus>> checkHealth() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/health'));
+      Duration timeout = const Duration(seconds: 3);
+      final response = await http.get(Uri.parse('$baseUrl/api/health')).timeout(timeout);
       final json = jsonDecode(response.body);
 
       if (response.statusCode == 200) {

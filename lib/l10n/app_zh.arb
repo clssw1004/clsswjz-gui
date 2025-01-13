@@ -438,7 +438,15 @@
     "syncData": "同步数据",
     "syncing": "正在同步...",
     "syncSuccess": "同步成功",
-    "syncFailed": "同步失败",
+    "syncFailed": "同步失败：{error}",
+    "@syncFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "网络错误"
+            }
+        }
+    },
     "syncSettings": "同步设置",
     "takePhoto": "拍照",
     "@takePhoto": {
@@ -589,5 +597,8 @@
                 "example": "网络错误"
             }
         }
-    }
+    },
+    "checkingServerStatus": "检查服务器状态",
+    "serverConnectionOk": "服务器连接正常",
+    "serverConnectionTimeout": "服务器连接超时"
 }

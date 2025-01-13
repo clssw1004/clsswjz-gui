@@ -420,7 +420,15 @@
     "syncData": "Sync Data",
     "syncing": "Syncing...",
     "syncSuccess": "Sync successful",
-    "syncFailed": "Sync failed",
+    "syncFailed": "Sync failed: {error}",
+    "@syncFailed": {
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Network error"
+            }
+        }
+    },
     "syncSettings": "Sync Settings",
     "importData": "Import Data",
     "dataSource": "Data Source",
@@ -563,5 +571,8 @@
                 "example": "Network error"
             }
         }
-    }
+    },
+    "checkingServerStatus": "Checking server status",
+    "serverConnectionOk": "Server connection OK",
+    "serverConnectionTimeout": "Server connection timeout"
 }

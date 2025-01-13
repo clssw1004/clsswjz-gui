@@ -1,3 +1,4 @@
+import '../services/health_service.dart';
 import '../services/statistic_service.dart';
 import '../services/account_book_service.dart';
 import '../services/account_item_service.dart';
@@ -10,6 +11,7 @@ import '../services/account_shop_service.dart';
 import '../services/account_symbol_service.dart';
 import '../services/attachment_service.dart';
 import '../services/base_service.dart';
+import 'app_config_manager.dart';
 
 /// 服务管理类，用于集中管理和初始化所有服务
 class ServiceManager extends BaseService {
@@ -26,6 +28,8 @@ class ServiceManager extends BaseService {
   static late AttachmentService _attachmentService;
   static late StatisticService _statisticService;
 
+  static late HealthService _currentHealthService;
+
   ServiceManager._();
 
   static Future<void> init({bool syncInit = false}) async {
@@ -36,6 +40,7 @@ class ServiceManager extends BaseService {
     _accountItemService = AccountItemService();
     if (syncInit) {
       _syncService = SyncService(httpClient: HttpClient.instance);
+      _currentHealthService = HealthService(AppConfigManager.instance.serverUrl!);
     }
     _accountCategoryService = AccountCategoryService();
     _accountFundService = AccountFundService();
@@ -80,4 +85,7 @@ class ServiceManager extends BaseService {
 
   /// 获取统计服务
   static StatisticService get statisticService => _statisticService;
+
+  /// 获取健康检查服务
+  static HealthService get currentServer => _currentHealthService;
 }

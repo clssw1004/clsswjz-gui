@@ -484,5 +484,8 @@
                 "example": "網絡錯誤"
             }
         }
-    }
+    },
+    "checkingServerStatus": "檢查服務器狀態",
+    "serverConnectionOk": "服務器連接正常",
+    "serverConnectionTimeout": "服務器連接超時"
 }

@@ -157,4 +157,35 @@ class HttpClient {
       );
     }
   }
+
+  Future<ApiResponse<T>> get<T>({
+    required String path,
+    T Function(Map<String, dynamic>)? transform,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl$path'),
+        headers: _getHeaders(),
+      );
+
+      final json = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return ApiResponse(
+          ok: true,
+          data: transform != null ? transform(json) : json,
+        );
+      }
+
+      return ApiResponse(
+        ok: false,
+        message: json['message'] ?? '请求失败',
+      );
+    } catch (e) {
+      return ApiResponse(
+        ok: false,
+        message: e.toString(),
+      );
+    }
+  }
 }
