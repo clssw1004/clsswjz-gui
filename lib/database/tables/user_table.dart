@@ -20,25 +20,27 @@ class UserTable extends BaseTable {
 
   /// 生成创建数据的伴生对象
   static UserTableCompanion toCreateCompanion({
+    String? userId,
     required String username,
     required String nickname,
     required String password,
     String? email,
     String? phone,
-    required String inviteCode,
-    String language = 'zh-CN',
-    String timezone = 'Asia/Shanghai',
+    String? language,
+    String? timezone,
+    String? avatar,
   }) =>
       UserTableCompanion(
-        id: Value(IdUtil.genId()),
+        id: Value(userId ?? IdUtil.genId()),
         username: Value(username),
         nickname: Value(nickname),
         password: Value(password),
         email: Value.absentIfNull(email),
         phone: Value.absentIfNull(phone),
-        inviteCode: Value(inviteCode),
-        language: Value(language),
-        timezone: Value(timezone),
+        inviteCode: Value(IdUtil.genNanoId8()),
+        language: Value(language ?? 'zh-CN'),
+        timezone: Value(timezone ?? 'Asia/Shanghai'),
+        avatar: Value.absentIfNull(avatar),
         createdAt: Value(DateUtil.now()),
         updatedAt: Value(DateUtil.now()),
       );
@@ -51,6 +53,7 @@ class UserTable extends BaseTable {
     String? phone,
     String? language,
     String? timezone,
+    String? avatar,
   }) {
     return UserTableCompanion(
       nickname: Value.absentIfNull(nickname),
@@ -59,6 +62,7 @@ class UserTable extends BaseTable {
       phone: Value.absentIfNull(phone),
       language: Value.absentIfNull(language),
       timezone: Value.absentIfNull(timezone),
+      avatar: Value.absentIfNull(avatar),
       updatedAt: Value(DateUtil.now()),
     );
   }
@@ -77,6 +81,7 @@ class UserTable extends BaseTable {
     MapUtil.setIfPresent(map, 'timezone', companion.timezone);
     MapUtil.setIfPresent(map, 'createdAt', companion.createdAt);
     MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
+    MapUtil.setIfPresent(map, 'avatar', companion.avatar);
     return jsonEncode(map);
   }
 }

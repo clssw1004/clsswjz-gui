@@ -16,7 +16,7 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.relAccountbookUserDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.relAccountbookUserDao.update(businessId!, data!);
@@ -54,20 +54,14 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
   }
 
   static MemberCULog update(String who, String bookId, String memberId,
-      {bool? canViewBook,
-      bool? canEditBook,
-      bool? canDeleteBook,
-      bool? canViewItem,
-      bool? canEditItem,
-      bool? canDeleteItem}) {
-    return MemberCULog().who(who).inBook(bookId).subject(memberId).doUpdate().withData(
-        RelAccountbookUserTable.toUpdateCompanion(
-            canViewBook: canViewBook,
-            canEditBook: canEditBook,
-            canDeleteBook: canDeleteBook,
-            canViewItem: canViewItem,
-            canEditItem: canEditItem,
-            canDeleteItem: canDeleteItem)) as MemberCULog;
+      {bool? canViewBook, bool? canEditBook, bool? canDeleteBook, bool? canViewItem, bool? canEditItem, bool? canDeleteItem}) {
+    return MemberCULog().who(who).inBook(bookId).target(memberId).doUpdate().withData(RelAccountbookUserTable.toUpdateCompanion(
+        canViewBook: canViewBook,
+        canEditBook: canEditBook,
+        canDeleteBook: canDeleteBook,
+        canViewItem: canViewItem,
+        canEditItem: canEditItem,
+        canDeleteItem: canDeleteItem)) as MemberCULog;
   }
 
   static MemberCULog fromCreateLog(LogSync log) {
@@ -94,8 +88,6 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
   }
 
   static MemberCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? MemberCULog.fromCreateLog(log)
-        : MemberCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? MemberCULog.fromCreateLog(log) : MemberCULog.fromUpdateLog(log));
   }
 }

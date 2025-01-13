@@ -18,7 +18,7 @@ class AttachmentCULog extends LogBuilder<AttachmentVO, String> {
     if (!data!.isRemote) {
       await AttachmentUtil.copyFileToLocal(data!);
     }
-    subject(data!.id);
+    target(data!.id);
     return data!.id;
   }
 
@@ -68,6 +68,6 @@ class AttachmentDeleteLog extends DeleteLog {
 
   static AttachmentDeleteLog fromAttachmentId(String who,
       {required BusinessType belongType, required String belongId, required String attachmentId}) {
-    return AttachmentDeleteLog().who(who).withBelong(belongType, belongId).subject(attachmentId) as AttachmentDeleteLog;
+    return AttachmentDeleteLog().who(who).withBelong(belongType, belongId).target(attachmentId) as AttachmentDeleteLog;
   }
 }

@@ -16,7 +16,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountCategoryDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.accountCategoryDao.update(businessId!, data!);
@@ -43,14 +43,8 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         )) as CategoryCULog;
   }
 
-  static CategoryCULog update(String userId, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt}) {
-    return CategoryCULog()
-        .who(userId)
-        .inBook(bookId)
-        .subject(categoryId)
-        .doUpdate()
-        .withData(AccountCategoryTable.toUpdateCompanion(
+  static CategoryCULog update(String userId, String bookId, String categoryId, {String? name, DateTime? lastAccountItemAt}) {
+    return CategoryCULog().who(userId).inBook(bookId).target(categoryId).doUpdate().withData(AccountCategoryTable.toUpdateCompanion(
           userId,
           name: name,
           lastAccountItemAt: lastAccountItemAt,

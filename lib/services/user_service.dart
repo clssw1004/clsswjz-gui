@@ -39,7 +39,7 @@ class UserService extends BaseService {
         username: username,
         password: hashedPassword,
         nickname: nickname ?? generateNickname(),
-        inviteCode: generateInviteCode(),
+        inviteCode: IdUtil.genNanoId8(),
         email: email,
         phone: phone,
       );
@@ -59,8 +59,7 @@ class UserService extends BaseService {
       if (user == null) {
         return OperateResult.failWithMessage(message: '用户不存在');
       }
-      return OperateResult.success(
-          UserVO.fromUser(user: user, avatar: await ServiceManager.attachmentService.getAttachment(user.avatar)));
+      return OperateResult.success(UserVO.fromUser(user: user, avatar: await ServiceManager.attachmentService.getAttachment(user.avatar)));
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取用户信息失败：$e',
@@ -91,8 +90,7 @@ class UserService extends BaseService {
     required String id,
     required File file,
   }) async {
-    final attachId =
-        await AttachmentCULog.fromFile(id, belongType: BusinessType.user, belongId: id, file: file).execute();
+    final attachId = await AttachmentCULog.fromFile(id, belongType: BusinessType.user, belongId: id, file: file).execute();
 
     final companion = UserTableCompanion(
       avatar: Value(attachId),
@@ -139,11 +137,6 @@ class UserService extends BaseService {
   Future<bool> verifyPassword(User user, String password) async {
     final hashedPassword = encryptPassword(password);
     return user.password == hashedPassword;
-  }
-
-  /// 生成邀请码
-  String generateInviteCode() {
-    return IdUtil.genNanoId6();
   }
 
   /// 生成昵称

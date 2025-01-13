@@ -16,7 +16,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountShopDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.accountShopDao.update(businessId!, data!);
@@ -43,12 +43,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog update(String userId, String bookId, String shopId, {required String name}) {
-    return ShopCULog()
-        .who(userId)
-        .inBook(bookId)
-        .subject(shopId)
-        .doUpdate()
-        .withData(AccountShopTable.toUpdateCompanion(
+    return ShopCULog().who(userId).inBook(bookId).target(shopId).doUpdate().withData(AccountShopTable.toUpdateCompanion(
           userId,
           name: name,
         )) as ShopCULog;
@@ -68,8 +63,6 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? ShopCULog.fromCreateLog(log)
-        : ShopCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? ShopCULog.fromCreateLog(log) : ShopCULog.fromUpdateLog(log));
   }
 }

@@ -90,7 +90,7 @@ abstract class LogBuilder<T, RunResult> {
     return this;
   }
 
-  LogBuilder subject(String businessId) {
+  LogBuilder target(String businessId) {
     _businessId = businessId;
     return this;
   }
@@ -260,19 +260,19 @@ class DeleteLog extends LogBuilder<String, void> {
   }
 
   static DeleteLog buildBook(String who, String bookId) {
-    return DeleteLog().who(who).doWith(BusinessType.book).inBook(bookId).subject(bookId) as DeleteLog;
+    return DeleteLog().who(who).doWith(BusinessType.book).inBook(bookId).target(bookId) as DeleteLog;
   }
 
   static DeleteLog buildBookSub(String who, String bookId, BusinessType businessType, String subjectId) {
-    return DeleteLog().who(who).doWith(businessType).inBook(bookId).subject(subjectId) as DeleteLog;
+    return DeleteLog().who(who).doWith(businessType).inBook(bookId).target(subjectId) as DeleteLog;
   }
 
   static DeleteLog build(String who, BusinessType businessType, String subjectId) {
-    return DeleteLog().who(who).doWith(businessType).withOutBook().subject(subjectId) as DeleteLog;
+    return DeleteLog().who(who).doWith(businessType).withOutBook().target(subjectId) as DeleteLog;
   }
 
   static DeleteLog fromLog(LogSync log) {
-    return DeleteLog().who(log.operatorId).inBook(log.parentId).doWith(BusinessType.fromCode(log.businessType)!).subject(log.businessId)
+    return DeleteLog().who(log.operatorId).inBook(log.parentId).doWith(BusinessType.fromCode(log.businessType)!).target(log.businessId)
         as DeleteLog;
   }
 }

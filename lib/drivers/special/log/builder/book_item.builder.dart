@@ -17,7 +17,7 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountItemDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.accountItemDao.update(businessId!, data!);
@@ -68,17 +68,16 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       String? shopCode,
       String? tagCode,
       String? projectCode}) {
-    return ItemCULog().who(userId).inBook(bookId).subject(itemId).doUpdate().withData(
-        AccountItemTable.toUpdateCompanion(userId,
-            amount: amount,
-            description: description,
-            type: type,
-            categoryCode: categoryCode,
-            accountDate: accountDate,
-            fundId: fundId,
-            shopCode: shopCode,
-            tagCode: tagCode,
-            projectCode: projectCode)) as ItemCULog;
+    return ItemCULog().who(userId).inBook(bookId).target(itemId).doUpdate().withData(AccountItemTable.toUpdateCompanion(userId,
+        amount: amount,
+        description: description,
+        type: type,
+        categoryCode: categoryCode,
+        accountDate: accountDate,
+        fundId: fundId,
+        shopCode: shopCode,
+        tagCode: tagCode,
+        projectCode: projectCode)) as ItemCULog;
   }
 
   static ItemCULog fromCreateLog(LogSync log) {
@@ -108,8 +107,6 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
   }
 
   static ItemCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? ItemCULog.fromCreateLog(log)
-        : ItemCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? ItemCULog.fromCreateLog(log) : ItemCULog.fromUpdateLog(log));
   }
 }

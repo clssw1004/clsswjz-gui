@@ -16,7 +16,7 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
 
   @override
   BookCULog inBook(String bookId) {
-    super.inBook(bookId).subject(bookId);
+    super.inBook(bookId).target(bookId);
     return this;
   }
 

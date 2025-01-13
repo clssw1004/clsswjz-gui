@@ -17,7 +17,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountFundDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.accountFundDao.update(businessId!, data!);
@@ -36,11 +36,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   }
 
   static FundCULog create(String who, String bookId,
-      {required String name,
-      required FundType fundType,
-      String? fundRemark,
-      double? fundBalance,
-      bool isDefault = false}) {
+      {required String name, required FundType fundType, String? fundRemark, double? fundBalance, bool isDefault = false}) {
     return FundCULog().who(who).inBook(bookId).doCreate().withData(AccountFundTable.toCreateCompanion(
           who,
           bookId,
@@ -54,12 +50,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
 
   static FundCULog update(String userId, String bookId, String fundId,
       {String? name, FundType? fundType, String? fundRemark, double? fundBalance, bool? isDefault}) {
-    return FundCULog()
-        .who(userId)
-        .inBook(bookId)
-        .subject(fundId)
-        .doUpdate()
-        .withData(AccountFundTable.toUpdateCompanion(
+    return FundCULog().who(userId).inBook(bookId).target(fundId).doUpdate().withData(AccountFundTable.toUpdateCompanion(
           userId,
           name: name,
           fundType: fundType,
@@ -82,7 +73,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
     return FundCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
-        .subject(log.businessId)
+        .target(log.businessId)
         .doUpdate()
         .withData(AccountFundTable.toUpdateCompanion(
           log.operatorId,
@@ -95,8 +86,6 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   }
 
   static FundCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? FundCULog.fromCreateLog(log)
-        : FundCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? FundCULog.fromCreateLog(log) : FundCULog.fromUpdateLog(log));
   }
 }

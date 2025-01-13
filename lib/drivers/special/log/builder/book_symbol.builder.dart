@@ -16,7 +16,7 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
       await DaoManager.accountSymbolDao.insert(data!);
-      subject(data!.id.value);
+      target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.accountSymbolDao.update(businessId!, data!);
@@ -44,12 +44,7 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
   }
 
   static SymbolCULog update(String userId, String bookId, String symbolId, {String? name}) {
-    return SymbolCULog()
-        .who(userId)
-        .inBook(bookId)
-        .subject(symbolId)
-        .doUpdate()
-        .withData(AccountSymbolTable.toUpdateCompanion(
+    return SymbolCULog().who(userId).inBook(bookId).target(symbolId).doUpdate().withData(AccountSymbolTable.toUpdateCompanion(
           userId,
           name: name,
         )) as SymbolCULog;
@@ -69,8 +64,6 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
   }
 
   static SymbolCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? SymbolCULog.fromCreateLog(log)
-        : SymbolCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? SymbolCULog.fromCreateLog(log) : SymbolCULog.fromUpdateLog(log));
   }
 }
