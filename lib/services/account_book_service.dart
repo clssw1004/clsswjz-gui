@@ -20,8 +20,7 @@ class AccountBookService extends BaseService {
   /// 获取账本信息
   Future<UserBookVO?> getAccountBook(String userId, String bookId) async {
     // 1. 从关联表中查询用户的账本权限
-    final userBooks =
-        await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.equals(bookId))).get();
+    final userBooks = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.equals(bookId))).get();
 
     if (userBooks.isEmpty) {
       return null;
@@ -100,8 +99,7 @@ class AccountBookService extends BaseService {
     final books = await _accountBookDao.findByIds(bookIds);
 
     // 4. 查询所有账本的成员关系
-    final allBookMembers =
-        await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.isIn(bookIds))).get();
+    final allBookMembers = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.isIn(bookIds))).get();
 
     // 5. 获取所有用户ID（包括创建者、更新者和成员）
     final userIds = {
@@ -170,9 +168,8 @@ class AccountBookService extends BaseService {
       final books = await _accountBookDao.findByCreatedBy(checkUserId);
 
       // 2. 检查是否存在同名账本（只检查当前用户创建的账本）
-      final existingBook = books
-          .where((book) => book.name == bookName && book.createdBy == userId && (bookId == null || book.id != bookId))
-          .toList();
+      final existingBook =
+          books.where((book) => book.name == bookName && book.createdBy == userId && (bookId == null || book.id != bookId)).toList();
 
       if (existingBook.isNotEmpty) {
         return OperateResult.failWithMessage(message: '您已创建过同名账本');

@@ -10,6 +10,8 @@ import 'manager/provider_manager.dart';
 import 'providers/theme_provider.dart';
 import 'routes/app_routes.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //  初始化缓存工具
@@ -32,6 +34,7 @@ class ClsswjzApp extends StatelessWidget {
     final themeProvider = context.watch<ThemeProvider>();
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Clsswjz',
       theme: themeProvider.getLightTheme(context),
       darkTheme: themeProvider.getDarkTheme(context),

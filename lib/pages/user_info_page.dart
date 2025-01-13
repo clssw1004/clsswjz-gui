@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 
 import '../providers/user_provider.dart';
 import '../widgets/common/common_app_bar.dart';
@@ -178,6 +179,33 @@ class _UserInfoPageView extends StatelessWidget {
                               onSaved: (value) {
                                 if (value?.isNotEmpty ?? false) {
                                   provider.updateUserInfo(phone: value);
+                                }
+                              },
+                            ),
+                            SizedBox(height: spacing.formItemSpacing),
+                            // 邀请码
+                            CommonTextFormField(
+                              initialValue: provider.user?.inviteCode,
+                              labelText: l10n.inviteCode,
+                              enabled: false,
+                              prefixIcon: Icon(
+                                Icons.qr_code_outlined,
+                                color: theme.colorScheme.primary,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  Icons.refresh_outlined,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                tooltip: l10n.reset,
+                                onPressed: () {
+                                  // TODO: 实现重置邀请码功能
+                                },
+                              ),
+                              onTap: () {
+                                if (provider.user?.inviteCode.isNotEmpty ?? false) {
+                                  Clipboard.setData(ClipboardData(text: provider.user!.inviteCode));
+                                  ToastUtil.showSuccess(l10n.copySuccess);
                                 }
                               },
                             ),

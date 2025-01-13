@@ -574,5 +574,13 @@
     },
     "checkingServerStatus": "Checking server status",
     "serverConnectionOk": "Server connection OK",
-    "serverConnectionTimeout": "Server connection timeout"
+    "serverConnectionTimeout": "Server connection timeout",
+    "reset": "Reset",
+    "@reset": {
+        "description": "Reset button text"
+    },
+    "copySuccess": "Copy successful",
+    "@copySuccess": {
+        "description": "Copy success message"
+    }
 }

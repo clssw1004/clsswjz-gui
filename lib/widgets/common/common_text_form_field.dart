@@ -42,6 +42,9 @@ class CommonTextFormField extends StatefulWidget {
   /// 文本控制器
   final TextEditingController? controller;
 
+  /// 点击回调
+  final VoidCallback? onTap;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -57,6 +60,7 @@ class CommonTextFormField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.required = false,
+    this.onTap,
   });
 
   @override
@@ -120,56 +124,59 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             _formKey.currentState?.save();
           }
         },
-        child: TextFormField(
-          key: _formKey,
-          focusNode: _focusNode,
-          controller: _internalController,
-          enabled: widget.enabled,
-          decoration: InputDecoration(
-            labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
-            hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
-            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
-            ),
-            prefixIcon: _buildIcon(widget.prefixIcon),
-            suffixIcon: _buildIcon(widget.suffixIcon),
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            contentPadding: const EdgeInsets.all(16),
-            border: UnderlineInputBorder(
-              borderSide: BorderSide(color: theme.colorScheme.outline),
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: theme.colorScheme.outline),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: theme.colorScheme.primary),
-            ),
-            disabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.5),
+        child: GestureDetector(
+          onTap: widget.enabled ? null : widget.onTap,
+          child: TextFormField(
+            key: _formKey,
+            focusNode: _focusNode,
+            controller: _internalController,
+            enabled: widget.enabled,
+            decoration: InputDecoration(
+              labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
+              hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
+              hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.4),
+              ),
+              prefixIcon: _buildIcon(widget.prefixIcon),
+              suffixIcon: _buildIcon(widget.suffixIcon),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              contentPadding: const EdgeInsets.all(16),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.outline),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.outline),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.primary),
+              ),
+              disabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.outline.withOpacity(0.5),
+                ),
               ),
             ),
-          ),
-          style: theme.textTheme.bodyLarge,
-          onChanged: widget.onChanged,
-          validator: widget.validator ??
-              (widget.required
-                  ? (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.required;
+            style: theme.textTheme.bodyLarge,
+            onChanged: widget.onChanged,
+            validator: widget.validator ??
+                (widget.required
+                    ? (value) {
+                        if (value == null || value.isEmpty) {
+                          return l10n.required;
+                        }
+                        return null;
                       }
-                      return null;
-                    }
-                  : null),
-          onSaved: widget.onSaved,
-          obscureText: widget.obscureText,
-          keyboardType: widget.keyboardType,
-          onEditingComplete: () {
-            _focusNode.unfocus();
-          },
-          onFieldSubmitted: (_) {
-            _focusNode.unfocus();
-          },
+                    : null),
+            onSaved: widget.onSaved,
+            obscureText: widget.obscureText,
+            keyboardType: widget.keyboardType,
+            onEditingComplete: () {
+              _focusNode.unfocus();
+            },
+            onFieldSubmitted: (_) {
+              _focusNode.unfocus();
+            },
+          ),
         ),
       ),
     );

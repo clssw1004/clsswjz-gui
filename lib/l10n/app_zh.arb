@@ -600,5 +600,13 @@
     },
     "checkingServerStatus": "检查服务器状态",
     "serverConnectionOk": "服务器连接正常",
-    "serverConnectionTimeout": "服务器连接超时"
+    "serverConnectionTimeout": "服务器连接超时",
+    "reset": "重置",
+    "@reset": {
+        "description": "重置按钮文本"
+    },
+    "copySuccess": "复制成功",
+    "@copySuccess": {
+        "description": "复制成功提示"
+    }
 }

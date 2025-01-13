@@ -487,5 +487,17 @@
     },
     "checkingServerStatus": "檢查服務器狀態",
     "serverConnectionOk": "服務器連接正常",
-    "serverConnectionTimeout": "服務器連接超時"
+    "serverConnectionTimeout": "服務器連接超時",
+    "inviteCode": "邀請碼",
+    "@inviteCode": {
+        "description": "邀請碼輸入框標籤"
+    },
+    "reset": "重置",
+    "@reset": {
+        "description": "重置按鈕文本"
+    },
+    "copySuccess": "複製成功",
+    "@copySuccess": {
+        "description": "複製成功提示"
+    }
 }
