@@ -9,6 +9,7 @@ import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list_tile.dart';
 import '../../widgets/common/common_app_bar.dart';
+import '../../widgets/common/progress_indicator_bar.dart';
 import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 
@@ -64,6 +65,8 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -84,52 +87,70 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
       body: Consumer2<AccountBooksProvider, SyncProvider>(
         builder: (context, bookProvider, syncProvider, child) {
           final accountBook = bookProvider.selectedBook;
-          return Column(
+          return Stack(
             children: [
-              // 账目列表
-              Expanded(
-                child: accountBook == null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(l10n.noAccountBooks),
-                            const SizedBox(height: 16),
-                            FilledButton.icon(
-                              onPressed: () async {
-                                final result = await Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.accountBookForm,
-                                );
-                                if (result == true) {
-                                  await bookProvider.init(UserConfigManager.currentUserId);
-                                }
-                              },
-                              icon: const Icon(Icons.add),
-                              label: Text(l10n.addNew(l10n.accountBook)),
+              Column(
+                children: [
+                  // 账目列表
+                  Expanded(
+                    child: accountBook == null
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(l10n.noAccountBooks),
+                                const SizedBox(height: 16),
+                                FilledButton.icon(
+                                  onPressed: () async {
+                                    final result = await Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.accountBookForm,
+                                    );
+                                    if (result == true) {
+                                      await bookProvider.init(UserConfigManager.currentUserId);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.add),
+                                  label: Text(l10n.addNew(l10n.accountBook)),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      )
-                    : CustomRefreshIndicator(
-                        onRefresh: _handleRefresh,
-                        builder: (context, child, controller) => child,
-                        child: _AccountItemList(
-                          accountBook: accountBook,
-                          initialItems: bookProvider.items,
-                          loading: bookProvider.loadingItems,
-                          onItemTap: (item) {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.accountItemEdit,
-                              arguments: [accountBook, item],
-                            ).then((updated) {
-                              bookProvider.loadItems();
-                            });
-                          },
-                        ),
-                      ),
+                          )
+                        : CustomRefreshIndicator(
+                            onRefresh: _handleRefresh,
+                            builder: (context, child, controller) => child,
+                            child: _AccountItemList(
+                              accountBook: accountBook,
+                              initialItems: bookProvider.items,
+                              loading: bookProvider.loadingItems,
+                              onItemTap: (item) {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.accountItemEdit,
+                                  arguments: [accountBook, item],
+                                ).then((updated) {
+                                  if (updated == true) {
+                                    bookProvider.loadItems();
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                  ),
+                ],
               ),
+              // 同步进度条
+              if (syncProvider.syncing && syncProvider.currentStep != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: ProgressIndicatorBar(
+                    value: syncProvider.progress,
+                    label: syncProvider.currentStep!,
+                    height: 24,
+                  ),
+                ),
             ],
           );
         },
@@ -143,9 +164,9 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
               Navigator.pushNamed(
                 context,
                 AppRoutes.accountItemAdd,
-                arguments: [accountBook],
-              ).then((created) {
-                if (created == true) {
+                arguments: accountBook,
+              ).then((added) {
+                if (added == true) {
                   provider.loadItems();
                 }
               });

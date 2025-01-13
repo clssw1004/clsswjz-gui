@@ -65,14 +65,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                 onPressed: syncProvider.syncing
                     ? null
                     : () async {
-                        try {
-                          await syncProvider.syncData();
-                          if (context.mounted) {
-                            ToastUtil.showSuccess(l10n.syncSuccess);
-                          }
-                        } catch (e) {
-                          ToastUtil.showError(l10n.syncFailed(e.toString()));
-                        }
+                        await syncProvider.syncData();
                       },
                 icon: syncProvider.syncing
                     ? const SizedBox(

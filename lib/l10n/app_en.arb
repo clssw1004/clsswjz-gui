@@ -582,5 +582,19 @@
     "copySuccess": "Copy successful",
     "@copySuccess": {
         "description": "Copy success message"
+    },
+    "lastSyncTime": "Last sync: {time}",
+    "@lastSyncTime": {
+        "description": "Last sync time",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "2024-03-21 12:00:00"
+            }
+        }
+    },
+    "notSynced": "Not synced",
+    "@notSynced": {
+        "description": "Not synced status"
     }
 }

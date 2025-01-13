@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../manager/service_manager.dart';
+import '../manager/app_config_manager.dart';
 
 class SyncProvider extends ChangeNotifier {
   bool _syncing = false;
@@ -11,6 +12,8 @@ class SyncProvider extends ChangeNotifier {
 
   String? _currentStep;
   String? get currentStep => _currentStep;
+
+  int? get lastSyncTime => AppConfigManager.instance.lastSyncTime;
 
   Future<void> syncData() async {
     if (_syncing) return;
@@ -28,6 +31,7 @@ class SyncProvider extends ChangeNotifier {
           notifyListeners();
         },
       );
+      notifyListeners();
     } finally {
       _syncing = false;
       _progress = 0.0;

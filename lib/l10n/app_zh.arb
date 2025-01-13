@@ -608,5 +608,19 @@
     "copySuccess": "复制成功",
     "@copySuccess": {
         "description": "复制成功提示"
+    },
+    "lastSyncTime": "最后同步时间：{time}",
+    "@lastSyncTime": {
+        "description": "最后同步时间",
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "2024-03-21 12:00:00"
+            }
+        }
+    },
+    "notSynced": "未同步",
+    "@notSynced": {
+        "description": "未同步状态"
     }
 }
