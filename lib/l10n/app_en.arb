@@ -1,8 +1,8 @@
 {
     "@@locale": "en",
     "appName": "Clsswjz",
-    "tabAccountItems": "Account Items",
-    "tabMine": "Mine",
+    "tabAccountItems": "Records",
+    "tabMine": "MY",
     "settings": "Settings",
     "notLoggedIn": "Not Logged In",
     "accountBook": "Account Book",
@@ -403,7 +403,7 @@
     "@addAnother": {
         "description": "Button text for adding another account item"
     },
-    "attachNum": "共{num}个",
+    "attachNum": "{num} items",
     "@attachNum": {
         "description": "Attachment number",
         "placeholders": {
