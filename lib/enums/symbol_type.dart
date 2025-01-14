@@ -8,23 +8,23 @@ enum SymbolType {
   project('PROJECT', '项目');
 
   /// 构造函数
-  const SymbolType(this.value, this.name);
+  const SymbolType(this.code, this.name);
 
   /// 枚举值
-  final String value;
+  final String code;
 
   /// 名称
   final String name;
 
   /// 从字符串转换为枚举
-  static SymbolType? fromString(String? value) {
+  static SymbolType? fromCode(String? value) {
     if (value == null) return null;
     return SymbolType.values.firstWhere(
-      (element) => element.value == value,
+      (element) => element.code == value,
       orElse: () => tag,
     );
   }
 
   /// 转换为字符串
-  String toJson() => value;
+  String toJson() => code;
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:clsswjz/constants/symbol_type.dart';
+import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';

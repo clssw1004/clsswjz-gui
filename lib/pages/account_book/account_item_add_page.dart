@@ -8,7 +8,7 @@ import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_item_form_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
-import '../../constants/symbol_type.dart';
+import '../../enums/symbol_type.dart';
 import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../enums/account_type.dart';

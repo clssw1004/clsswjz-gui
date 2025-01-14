@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'dart:io';
-import 'package:clsswjz/constants/symbol_type.dart';
+import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';

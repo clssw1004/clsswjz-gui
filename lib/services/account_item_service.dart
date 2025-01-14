@@ -1,4 +1,4 @@
-import '../constants/symbol_type.dart';
+import '../enums/symbol_type.dart';
 import '../database/dao/account_category_dao.dart';
 import '../database/dao/account_fund_dao.dart';
 import '../database/dao/account_item_dao.dart';

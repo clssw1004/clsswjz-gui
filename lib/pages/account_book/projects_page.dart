@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../constants/symbol_type.dart';
+import '../../enums/symbol_type.dart';
 import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';

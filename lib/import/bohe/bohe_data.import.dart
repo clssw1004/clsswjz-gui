@@ -8,7 +8,7 @@ import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:csv/csv.dart';
 
-import '../../constants/symbol_type.dart';
+import '../../enums/symbol_type.dart';
 import '../../database/database.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/database_manager.dart';
@@ -57,9 +57,9 @@ class BoheDataImport extends ImportInterface {
     Map<String, AccountFund> fundMap = CollectionUtil.toMap(bookMeta.funds, (e) => e.name);
     Map<String, AccountShop> shopMap = CollectionUtil.toMap(bookMeta.shops, (e) => e.name);
     Map<String, AccountSymbol> projectMap = CollectionUtil.toMap(
-        bookMeta.symbols?.where((e) => SymbolType.fromString(e.symbolType) == SymbolType.project).toList(), (e) => e.name);
+        bookMeta.symbols?.where((e) => SymbolType.fromCode(e.symbolType) == SymbolType.project).toList(), (e) => e.name);
     Map<String, AccountSymbol> tagMap =
-        CollectionUtil.toMap(bookMeta.symbols?.where((e) => SymbolType.fromString(e.symbolType) == SymbolType.tag).toList(), (e) => e.name);
+        CollectionUtil.toMap(bookMeta.symbols?.where((e) => SymbolType.fromCode(e.symbolType) == SymbolType.tag).toList(), (e) => e.name);
     await DatabaseManager.db.transaction(() async {
       for (int i = 0; i < records.length; i++) {
         final record = records[i];

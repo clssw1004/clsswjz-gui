@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:clsswjz/enums/account_type.dart';
 
 import '../enums/fund_type.dart';
-import 'symbol_type.dart';
+import '../enums/symbol_type.dart';
 
 class DefaultBookData {
   final List<CategoryData> category;

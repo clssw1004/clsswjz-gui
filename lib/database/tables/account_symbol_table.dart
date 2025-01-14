@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
-import '../../constants/symbol_type.dart';
+import '../../enums/symbol_type.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
@@ -40,7 +40,7 @@ class AccountSymbolTable extends BaseAccountBookTable {
         name: Value(name),
         code: Value(IdUtil.genNanoId8()),
         accountBookId: Value(accountBookId),
-        symbolType: Value(symbolType.name),
+        symbolType: Value(symbolType.code),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),

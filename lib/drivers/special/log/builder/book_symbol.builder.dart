@@ -1,4 +1,4 @@
-import '../../../../constants/symbol_type.dart';
+import '../../../../enums/symbol_type.dart';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_symbol_table.dart';
 import '../../../../enums/business_type.dart';
