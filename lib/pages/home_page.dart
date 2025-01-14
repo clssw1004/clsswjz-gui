@@ -23,7 +23,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final syncProvider = context.watch<SyncProvider>();
 
     return Scaffold(
       body: _pages[_currentIndex],

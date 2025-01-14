@@ -49,7 +49,9 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
       // 同步完成后刷新列表
       await bookProvider.loadItems();
     } finally {
-      setState(() => _isRefreshing = false);
+      if (mounted) {
+        setState(() => _isRefreshing = false);
+      }
     }
   }
 
@@ -164,7 +166,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
               Navigator.pushNamed(
                 context,
                 AppRoutes.accountItemAdd,
-                arguments: accountBook,
+                arguments: [accountBook],
               ).then((added) {
                 if (added == true) {
                   provider.loadItems();

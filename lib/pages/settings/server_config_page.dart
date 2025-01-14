@@ -137,7 +137,11 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     setState(() => _isLoading = true);
     await AppConfigManager.storageOfflineMode(context,
         username: _username, nickname: _nickname, email: _email, phone: _phone, bookName: _bookName, bookIcon: _bookIcon);
-    RestartWidget.restartApp(context);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      RestartWidget.restartApp(context);
+    }
   }
 
   Future<void> _initSelfhost() async {
@@ -165,7 +169,11 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           result.data!.userId,
           result.data!.accessToken,
         );
-        RestartWidget.restartApp(context);
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          RestartWidget.restartApp(context);
+        }
       } else {
         ToastUtil.showError(l10n.loginFailed);
       }

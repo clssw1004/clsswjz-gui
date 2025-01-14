@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
+import '../../import/import.factory.dart';
+import '../../manager/app_config_manager.dart';
 import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../enums/import_source.dart';
@@ -164,6 +166,7 @@ class _ImportPageState extends State<ImportPage> {
       return;
     }
 
-    // TODO: 实现导入逻辑
+    await ImportFactory.importData(AppConfigManager.instance.userId!,
+        source: _selectedSource!, accountBookId: _selectedBookId!, file: _selectedFile!);
   }
 }

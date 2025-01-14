@@ -236,7 +236,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             expandCount: 8,
             expandRows: 3,
             onCreateItem: (value) async {
-              final result = await DriverFactory.driver.createBookCategory(
+              final result = await DriverFactory.driver.createCategory(
                 AppConfigManager.instance.userId!,
                 provider.accountBook.id,
                 name: value,
@@ -302,7 +302,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             icon: Icons.store_outlined,
             label: l10n.merchant,
             onCreateItem: (value) async {
-              final result = await DriverFactory.driver.createBookShop(
+              final result = await DriverFactory.driver.createShop(
                 AppConfigManager.instance.userId!,
                 provider.accountBook.id,
                 name: value,
@@ -342,7 +342,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   icon: Icons.local_offer_outlined,
                   hint: l10n.tag,
                   onCreateItem: (value) async {
-                    final result = await DriverFactory.driver.createBookSymbol(
+                    final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId!,
                       provider.accountBook.id,
                       name: value,
@@ -373,7 +373,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   icon: Icons.folder_outlined,
                   hint: l10n.project,
                   onCreateItem: (value) async {
-                    final result = await DriverFactory.driver.createBookSymbol(
+                    final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId!,
                       provider.accountBook.id,
                       name: value,

@@ -25,15 +25,14 @@ class TagsPage extends StatelessWidget {
           accountBook.id,
           SymbolType.tag.name,
         ),
-        createItem: (name, _) =>
-            DriverFactory.driver.createBookSymbol(userId, accountBook.id, name: name, symbolType: SymbolType.tag),
-        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookSymbol(
+        createItem: (name, _) => DriverFactory.driver.createSymbol(userId, accountBook.id, name: name, symbolType: SymbolType.tag),
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateSymbol(
           userId,
           accountBook.id,
           item.id,
           name: name,
         ),
-        deleteItem: (item) => DriverFactory.driver.deleteBookSymbol(
+        deleteItem: (item) => DriverFactory.driver.deleteSymbol(
           userId,
           accountBook.id,
           item.id,

@@ -194,8 +194,7 @@ class AccountItemService extends BaseService {
   // }
 
   /// 获取账本的账目列表（包含关联信息）
-  Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(String accountBookId,
-      {int limit = 20, int offset = 0}) async {
+  Future<OperateResult<List<AccountItemVO>>> getByAccountBookId(String accountBookId, {int limit = 200, int offset = 0}) async {
     try {
       final items = await _accountItemDao.findByAccountBookId(accountBookId, limit: limit, offset: offset);
       if (items.isEmpty) {
@@ -223,8 +222,7 @@ class AccountItemService extends BaseService {
     }
 
     // 2. 获取所有需要查询的ID和代码
-    final categoryCodes =
-        items.where((item) => item.categoryCode != null).map((item) => item.categoryCode!).toSet().toList();
+    final categoryCodes = items.where((item) => item.categoryCode != null).map((item) => item.categoryCode!).toSet().toList();
 
     final fundIds = items.where((item) => item.fundId != null).map((item) => item.fundId!).toSet().toList();
 
@@ -232,8 +230,7 @@ class AccountItemService extends BaseService {
 
     final tagCodes = items.where((item) => item.tagCode != null).map((item) => item.tagCode!).toSet().toList();
 
-    final projectCodes =
-        items.where((item) => item.projectCode != null).map((item) => item.projectCode!).toSet().toList();
+    final projectCodes = items.where((item) => item.projectCode != null).map((item) => item.projectCode!).toSet().toList();
 
     // 获取所有用户ID
     final userIds = {
@@ -248,8 +245,8 @@ class AccountItemService extends BaseService {
 
     final shops = CollectionUtil.toMap(await _accountShopDao.findByCodes(shopCodes), (s) => s.code);
 
-    final symbolMap = CollectionUtil.groupBy(
-        await _accountSymbolDao.findByTypes([SymbolType.tag.name, SymbolType.project.name]), (s) => s.symbolType);
+    final symbolMap =
+        CollectionUtil.groupBy(await _accountSymbolDao.findByTypes([SymbolType.tag.name, SymbolType.project.name]), (s) => s.symbolType);
 
     final tags = CollectionUtil.toMap(symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
     final projects = CollectionUtil.toMap(symbolMap[SymbolType.project.name] ?? [], (s) => s.code);

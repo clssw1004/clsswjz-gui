@@ -216,7 +216,7 @@ class AccountItemFormProvider extends ChangeNotifier {
     final userId = AppConfigManager.instance.userId!;
     OperateResult result;
     // 保存账目信息
-    result = await DriverFactory.driver.createBookItem(
+    result = await DriverFactory.driver.createItem(
       userId,
       _item.accountBookId,
       type: _item.type,
@@ -259,7 +259,7 @@ class AccountItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await DriverFactory.driver.updateBookItem(
+      final result = await DriverFactory.driver.updateItem(
         AppConfigManager.instance.userId!,
         _accountBook.id,
         _item.id,

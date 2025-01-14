@@ -34,19 +34,19 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           widget.accountBook.id,
           _selectedType,
         ),
-        createItem: (name, _) => DriverFactory.driver.createBookCategory(
+        createItem: (name, _) => DriverFactory.driver.createCategory(
           userId,
           widget.accountBook.id,
           name: name,
           categoryType: _selectedType,
         ),
-        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateBookCategory(
+        updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateCategory(
           userId,
           widget.accountBook.id,
           item.id,
           name: name,
         ),
-        deleteItem: (item) => DriverFactory.driver.deleteBookCategory(
+        deleteItem: (item) => DriverFactory.driver.deleteCategory(
           userId,
           widget.accountBook.id,
           item.id,

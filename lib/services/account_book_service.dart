@@ -1,10 +1,13 @@
+import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import '../database/dao/account_book_dao.dart';
 import '../database/dao/user_dao.dart';
+import '../database/database.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/account_book_permission_vo.dart';
 import '../models/vo/book_member_vo.dart';
+import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
 import '../utils/id_util.dart';
 import 'base_service.dart';
@@ -16,6 +19,27 @@ class AccountBookService extends BaseService {
   AccountBookService()
       : _accountBookDao = AccountBookDao(DatabaseManager.db),
         _userDao = UserDao(DatabaseManager.db);
+
+  /// 获取账本信息
+  Future<BookMetaVO?> getBookMeta(String userId, String bookId) async {
+    UserBookVO? userBook = await getAccountBook(userId, bookId);
+    if (userBook == null) {
+      return null;
+    }
+
+    List<AccountFund> funds = await DaoManager.accountFundDao.findByAccountBookId(bookId);
+    List<AccountCategory> categories = await DaoManager.accountCategoryDao.findByAccountBookId(bookId);
+    List<AccountSymbol> symbols = await DaoManager.accountSymbolDao.findByAccountBookId(bookId);
+    List<AccountShop> shops = await DaoManager.accountShopDao.findByAccountBookId(bookId);
+
+    return BookMetaVO(
+      bookInfo: userBook,
+      funds: funds,
+      categories: categories,
+      symbols: symbols,
+      shops: shops,
+    );
+  }
 
   /// 获取账本信息
   Future<UserBookVO?> getAccountBook(String userId, String bookId) async {

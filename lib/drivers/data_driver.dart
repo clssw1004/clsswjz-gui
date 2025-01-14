@@ -24,11 +24,7 @@ abstract class BookDataDriver {
 
   /// 更新账本
   Future<OperateResult<void>> updateBook(String userId, String bookId,
-      {String? name,
-      String? description,
-      CurrencySymbol? currencySymbol,
-      String? icon,
-      List<BookMemberVO> members = const []});
+      {String? name, String? description, CurrencySymbol? currencySymbol, String? icon, List<BookMemberVO> members = const []});
 
   /// 删除账本
   Future<OperateResult<void>> deleteBook(String userId, String bookId);
@@ -41,8 +37,8 @@ abstract class BookDataDriver {
 
   /// 账目相关
   /// 创建账目
-  Future<OperateResult<String>> createBookItem(String userId, String bookId,
-      {required amount,
+  Future<OperateResult<String>> createItem(String userId, String bookId,
+      {required double amount,
       String? description,
       required String type,
       String? categoryCode,
@@ -54,7 +50,7 @@ abstract class BookDataDriver {
       List<File>? files});
 
   /// 更新账目
-  Future<OperateResult<void>> updateBookItem(
+  Future<OperateResult<void>> updateItem(
     String userId,
     String bookId,
     String itemId, {
@@ -71,40 +67,37 @@ abstract class BookDataDriver {
   });
 
   /// 删除账目
-  Future<OperateResult<void>> deleteBookItem(String userId, String bookId, String itemId);
+  Future<OperateResult<void>> deleteItem(String userId, String bookId, String itemId);
 
   /// 分类相关
   /// 创建分类
-  Future<OperateResult<String>> createBookCategory(String userId, String bookId,
-      {required String name, required String categoryType});
+  Future<OperateResult<String>> createCategory(String userId, String bookId, {required String name, required String categoryType});
 
   /// 更新分类
-  Future<OperateResult<void>> updateBookCategory(String userId, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt});
+  Future<OperateResult<void>> updateCategory(String userId, String bookId, String categoryId, {String? name, DateTime? lastAccountItemAt});
 
   /// 删除分类
-  Future<OperateResult<void>> deleteBookCategory(String userId, String bookId, String categoryId);
+  Future<OperateResult<void>> deleteCategory(String userId, String bookId, String categoryId);
 
   /// 商家相关
   /// 创建商家
-  Future<OperateResult<String>> createBookShop(String userId, String bookId, {required String name});
+  Future<OperateResult<String>> createShop(String userId, String bookId, {required String name});
 
   /// 更新商家
-  Future<OperateResult<void>> updateBookShop(String userId, String bookId, String shopId, {required String name});
+  Future<OperateResult<void>> updateShop(String userId, String bookId, String shopId, {required String name});
 
   /// 删除商家
-  Future<OperateResult<void>> deleteBookShop(String userId, String bookId, String shopId);
+  Future<OperateResult<void>> deleteShop(String userId, String bookId, String shopId);
 
   /// 其它账本标识
   /// 创建账本标识
-  Future<OperateResult<String>> createBookSymbol(String userId, String bookId,
-      {required String name, required SymbolType symbolType});
+  Future<OperateResult<String>> createSymbol(String userId, String bookId, {required String name, required SymbolType symbolType});
 
   /// 更新账本标识
-  Future<OperateResult<void>> updateBookSymbol(String userId, String bookId, String tagId, {required String name});
+  Future<OperateResult<void>> updateSymbol(String userId, String bookId, String tagId, {required String name});
 
   /// 删除账本标识
-  Future<OperateResult<void>> deleteBookSymbol(String userId, String bookId, String symbolId);
+  Future<OperateResult<void>> deleteSymbol(String userId, String bookId, String symbolId);
 
   /// 账本资金相关
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId);
