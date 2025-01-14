@@ -181,21 +181,21 @@ class AccountItemFormProvider extends ChangeNotifier {
   Future<void> loadSymbols() async {
     final result = await ServiceManager.accountSymbolService.getSymbolsByAccountBook(item.accountBookId);
     final symbols = result.data as List<AccountSymbol>;
-    _tags = symbols.where((symbol) => symbol.symbolType == SymbolType.tag.name).toList();
-    _projects = symbols.where((symbol) => symbol.symbolType == SymbolType.project.name).toList();
+    _tags = symbols.where((symbol) => symbol.symbolType == SymbolType.tag.code).toList();
+    _projects = symbols.where((symbol) => symbol.symbolType == SymbolType.project.code).toList();
     notifyListeners();
   }
 
   /// 加载标签
   Future<void> loadTags() async {
-    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.tag.name);
+    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.tag.code);
     _tags = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载项目
   Future<void> loadProjects() async {
-    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.project.name);
+    final result = await ServiceManager.accountSymbolService.getSymbolsByType(item.accountBookId, SymbolType.project.code);
     _projects = result.data ?? [];
     notifyListeners();
   }
