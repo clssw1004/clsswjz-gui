@@ -42,7 +42,7 @@ class SyncDataButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: syncProvider.progress,
-                      backgroundColor: colorScheme.surfaceVariant,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
                       valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       minHeight: 4,
                     ),

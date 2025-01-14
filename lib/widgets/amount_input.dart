@@ -42,7 +42,7 @@ class _AmountInputState extends State<AmountInput> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CalculatorPanel(
-        initialValue: widget.controller.text.isEmpty ? null : double.tryParse(widget.controller.text),
+        initialValue: widget.controller.text.isEmpty ? null : double.tryParse(widget.controller.text)?.abs(),
         onConfirm: (value) {
           setState(() {
             widget.controller.text = value.toString();

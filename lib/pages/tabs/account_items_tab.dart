@@ -235,24 +235,29 @@ class _AccountItemListState extends State<_AccountItemList> {
     }
 
     if (_items == null || _items!.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.receipt_long,
-              size: 48,
-              color: colorScheme.outline,
+      return ListView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        children: [
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.receipt_long,
+                  size: 48,
+                  color: colorScheme.outline,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.noAccountItems,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.outline,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noAccountItems,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: colorScheme.outline,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 

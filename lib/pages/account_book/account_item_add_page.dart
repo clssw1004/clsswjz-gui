@@ -215,11 +215,20 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
 
           // 金额输入
-          AmountInput(
-            type: item.type,
-            controller: _amountController,
-            focusNode: _amountFocusNode,
-            onChanged: (value) => provider.updateAmount(value),
+          Focus(
+            onFocusChange: (hasFocus) {
+              if (!hasFocus) {
+                provider.partUpdate();
+              }
+            },
+            child: AmountInput(
+              type: item.type,
+              controller: _amountController,
+              focusNode: _amountFocusNode,
+              onChanged: (value) {
+                provider.updateAmount(value);
+              },
+            ),
           ),
           SizedBox(height: spacing.formItemSpacing),
 

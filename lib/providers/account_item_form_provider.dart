@@ -301,7 +301,9 @@ class AccountItemFormProvider extends ChangeNotifier {
 
   /// 更新金额
   void updateAmount(double amount) {
-    _item = _item.copyWith(amount: amount);
+    // 根据类型转换金额正负
+    final finalAmount = _item.type == AccountItemType.expense.code ? -amount.abs() : amount.abs();
+    _item = _item.copyWith(amount: finalAmount);
     notifyListeners();
   }
 

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../providers/sync_provider.dart';
 import '../../theme/theme_spacing.dart';
-import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/forms/self_host_form.dart';
 

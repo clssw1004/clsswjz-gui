@@ -46,7 +46,8 @@ class BoheDataImport extends ImportInterface {
   }
 
   @override
-  Future<void> importData(String who, {required BookMetaVO bookMeta, required ImportSource source, required File file}) async {
+  Future<void> importData(String who, Function(double percent, String message) importProgress,
+      {required BookMetaVO bookMeta, required ImportSource source, required File file}) async {
     // 读取CSV文件
     final records = await readBoheData(file);
     if (records.isEmpty) {
@@ -60,12 +61,20 @@ class BoheDataImport extends ImportInterface {
     Map<String, AccountSymbol> tagMap =
         CollectionUtil.toMap(bookMeta.symbols?.where((e) => SymbolType.fromString(e.symbolType) == SymbolType.tag).toList(), (e) => e.name);
     await DatabaseManager.db.transaction(() async {
-      for (final record in records) {
-        AccountCategory? category = await getOrCreateCategory(who, bookMeta.id, categoryMap, record);
-        AccountFund? fund = await getOrCreateFund(who, bookMeta.id, fundMap, record);
-        AccountShop? shop = await getOrCreateShop(who, bookMeta.id, shopMap, record);
-        AccountSymbol? tag = await getOrCreateSymbol(who, bookMeta.id, tagMap, SymbolType.tag, record);
-        AccountSymbol? project = await getOrCreateSymbol(who, bookMeta.id, projectMap, SymbolType.project, record);
+      for (int i = 0; i < records.length; i++) {
+        final record = records[i];
+        final percent = i / records.length;
+        await progressDelegate(importProgress, percent, '正在导入第${i + 1}条记录');
+        AccountCategory? category = await getOrCreateCategory(who, (String message) => progressDelegate(importProgress, percent, message),
+            bookId: bookMeta.id, categoryMap: categoryMap, record: record);
+        AccountFund? fund = await getOrCreateFund(who, (String message) => progressDelegate(importProgress, percent, message),
+            bookId: bookMeta.id, fundMap: fundMap, record: record);
+        AccountShop? shop = await getOrCreateShop(who, (String message) => progressDelegate(importProgress, percent, message),
+            bookId: bookMeta.id, shopMap: shopMap, record: record);
+        AccountSymbol? tag = await getOrCreateSymbol(who, (String message) => progressDelegate(importProgress, percent, message),
+            bookId: bookMeta.id, symbolMap: tagMap, symbolType: SymbolType.tag, record: record);
+        AccountSymbol? project = await getOrCreateSymbol(who, (String message) => progressDelegate(importProgress, percent, message),
+            bookId: bookMeta.id, symbolMap: projectMap, symbolType: SymbolType.project, record: record);
         await DriverFactory.driver.createItem(who, bookMeta.id,
             amount: record.amount,
             type: record.type,
@@ -80,13 +89,14 @@ class BoheDataImport extends ImportInterface {
     });
   }
 
-  Future<AccountCategory?> getOrCreateCategory(
-      String userId, String bookId, Map<String, AccountCategory> categoryMap, BoheRecord record) async {
+  Future<AccountCategory?> getOrCreateCategory(String userId, Function(String message) importProgress,
+      {required String bookId, required Map<String, AccountCategory> categoryMap, required BoheRecord record}) async {
     final categoryName = record.category;
     if (categoryName.isEmpty) return null;
     if (categoryMap.containsKey(categoryName)) {
       return categoryMap[categoryName];
     }
+    importProgress('正在创建分类 `$categoryName`');
     OperateResult<String> result = await DriverFactory.driver
         .createCategory(userId, bookId, name: categoryName, categoryType: record.amount.isNegative ? 'expense' : 'income');
     if (result.ok && result.data != null) {
@@ -94,58 +104,70 @@ class BoheDataImport extends ImportInterface {
       if (category != null) {
         categoryMap[categoryName] = category;
       }
+      importProgress('创建分类 `$categoryName` 成功');
       return category;
     }
     return null;
   }
 
-  Future<AccountFund?> getOrCreateFund(String userId, String bookId, Map<String, AccountFund> fundMap, BoheRecord record) async {
+  Future<AccountFund?> getOrCreateFund(String userId, Function(String message) importProgress,
+      {required String bookId, required Map<String, AccountFund> fundMap, required BoheRecord record}) async {
     final fundName = record.account;
     if (fundName.isEmpty) return null;
     if (fundMap.containsKey(fundName)) {
       return fundMap[fundName];
     }
+    importProgress('正在创建账户 `$fundName`');
     OperateResult<String> result = await DriverFactory.driver.createFund(userId, bookId, name: fundName, fundType: FundType.cash);
     if (result.ok && result.data != null) {
       AccountFund? fund = await DaoManager.accountFundDao.findById(result.data!);
       if (fund != null) {
         fundMap[fundName] = fund;
       }
+      importProgress('创建账户 `$fundName` 成功');
       return fund;
     }
     return null;
   }
 
-  Future<AccountShop?> getOrCreateShop(String userId, String bookId, Map<String, AccountShop> shopMap, BoheRecord record) async {
+  Future<AccountShop?> getOrCreateShop(String userId, Function(String message) importProgress,
+      {required String bookId, required Map<String, AccountShop> shopMap, required BoheRecord record}) async {
     final shopName = record.merchant;
     if (shopName.isEmpty) return null;
     if (shopMap.containsKey(shopName)) {
       return shopMap[shopName];
     }
+    importProgress('正在创建商户 `$shopName`');
     OperateResult<String> result = await DriverFactory.driver.createShop(userId, bookId, name: shopName);
     if (result.ok && result.data != null) {
       AccountShop? shop = await DaoManager.accountShopDao.findById(result.data!);
       if (shop != null) {
         shopMap[shopName] = shop;
       }
+      importProgress('创建商户 `$shopName` 成功');
       return shop;
     }
     return null;
   }
 
-  Future<AccountSymbol?> getOrCreateSymbol(
-      String userId, String bookId, Map<String, AccountSymbol> symbolMap, SymbolType symbolType, BoheRecord record) async {
+  Future<AccountSymbol?> getOrCreateSymbol(String userId, Function(String message) importProgress,
+      {required String bookId,
+      required Map<String, AccountSymbol> symbolMap,
+      required SymbolType symbolType,
+      required BoheRecord record}) async {
     final symbolName = symbolType == SymbolType.tag ? record.tag : record.project;
     if (symbolName.isEmpty) return null;
     if (symbolMap.containsKey(symbolName)) {
       return symbolMap[symbolName];
     }
+    importProgress('正在创建 `${symbolType.name}` `$symbolName`');
     OperateResult<String> result = await DriverFactory.driver.createSymbol(userId, bookId, name: symbolName, symbolType: symbolType);
     if (result.ok && result.data != null) {
       AccountSymbol? symbol = await DaoManager.accountSymbolDao.findById(result.data!);
       if (symbol != null) {
         symbolMap[symbolName] = symbol;
       }
+      importProgress('创建 `${symbolType.name}` `$symbolName` 成功');
       return symbol;
     }
     return null;

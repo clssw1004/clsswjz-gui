@@ -63,7 +63,7 @@ class AccountItemListTile extends StatelessWidget {
           ),
           // 右侧金额
           Text(
-            '${item.type == 'EXPENSE' ? '-' : '+'}$currencySymbol${item.amount.toStringAsFixed(2)}',
+            item.amount.toStringAsFixed(2),
             style: theme.textTheme.titleMedium?.copyWith(
               color: ColorUtil.getAmountColor(item.type),
               fontWeight: FontWeight.bold,

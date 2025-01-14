@@ -10,14 +10,15 @@ class ImportFactory {
   static final ImportInterface _boheImport = BoheDataImport();
 
   /// 导入数据
-  static Future<void> importData(String userId, {required ImportSource source, required String accountBookId, required File file}) async {
+  static Future<void> importData(String userId, Function(double percent, String message) importProgress,
+      {required ImportSource source, required String accountBookId, required File file}) async {
     final BookMetaVO? bookMeta = await ServiceManager.accountBookService.getBookMeta(userId, accountBookId);
     if (bookMeta == null) {
       throw Exception('账本不存在');
     }
     switch (source) {
       case ImportSource.bohe:
-        await _boheImport.importData(userId, bookMeta: bookMeta, source: source, file: file);
+        await _boheImport.importData(userId, importProgress, bookMeta: bookMeta, source: source, file: file);
         break;
     }
   }

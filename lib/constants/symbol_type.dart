@@ -2,16 +2,19 @@
 /// 用于区分标签和项目
 enum SymbolType {
   /// 标签类型
-  tag('TAG'),
+  tag('TAG', '标签'),
 
   /// 项目类型
-  project('PROJECT');
+  project('PROJECT', '项目');
 
   /// 构造函数
-  const SymbolType(this.value);
+  const SymbolType(this.value, this.name);
 
   /// 枚举值
   final String value;
+
+  /// 名称
+  final String name;
 
   /// 从字符串转换为枚举
   static SymbolType? fromString(String? value) {
