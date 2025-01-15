@@ -1,7 +1,6 @@
 import 'package:clsswjz/constants/default_constant.dart';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/manager/l10n_manager.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../enums/storage_mode.dart';
@@ -256,8 +255,8 @@ class AppConfigManager {
     await ServiceManager.init();
 
     /// 注册用户
-    await UserCULog.create(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone)
-        .execute();
+    await DriverFactory.driver
+        .register(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone);
 
     /// 创建账本
     final bookId = await DriverFactory.driver
@@ -286,9 +285,8 @@ class AppConfigManager {
     await ServiceManager.init(syncInit: true);
 
     /// 注册用户
-    await UserCULog.create(
-            userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000')
-        .executeWithoutRecord();
+    await DriverFactory.driver.register(
+        userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000');
 
     /// 初始化导入数据
     // final result = await ServiceManager.syncService.syncInit();

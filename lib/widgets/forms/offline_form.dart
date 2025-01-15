@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../../manager/l10n_manager.dart';
 import '../common/common_text_form_field.dart';

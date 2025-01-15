@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../enums/account_type.dart';
 import '../../manager/l10n_manager.dart';
@@ -223,7 +222,6 @@ class _AccountItemListState extends State<_AccountItemList> {
     if (_items == null || _items!.isEmpty) return [];
 
     final result = <dynamic>[];
-    String? currentDate;
     double currentIncome = 0;
     double currentExpense = 0;
     final itemsByDate = <String, List<AccountItemVO>>{};
@@ -250,7 +248,7 @@ class _AccountItemListState extends State<_AccountItemList> {
         }
       }
 
-      result.add(DailyStatistics(date, currentExpense, currentIncome));
+      result.add(DailyStatistics(date, currentIncome, currentExpense));
       result.addAll(dailyItems);
     }
 
@@ -274,12 +272,17 @@ class _AccountItemListState extends State<_AccountItemList> {
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
     return Container(
+      margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withAlpha(255),
         border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outlineVariant.withAlpha(32),
+            width: 1,
+          ),
           bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+            color: theme.colorScheme.outlineVariant,
             width: 0.5,
           ),
         ),
@@ -291,7 +294,8 @@ class _AccountItemListState extends State<_AccountItemList> {
             stats.date,
             style: theme.textTheme.titleSmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(width: 8),
@@ -300,7 +304,7 @@ class _AccountItemListState extends State<_AccountItemList> {
             height: 4,
             margin: const EdgeInsets.only(bottom: 4),
             decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withOpacity(0.5),
+              color: theme.colorScheme.outline.withAlpha(128),
               shape: BoxShape.circle,
             ),
           ),
@@ -308,23 +312,26 @@ class _AccountItemListState extends State<_AccountItemList> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                '+${stats.income.toStringAsFixed(2)}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: ColorUtil.INCOME,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: -0.5,
+              if (stats.income > 0)
+                Text(
+                  '+${stats.income.toStringAsFixed(2)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: ColorUtil.INCOME,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.5,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '-${stats.expense.toStringAsFixed(2)}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: ColorUtil.EXPENSE,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: -0.5,
+              if (stats.expense < 0) ...[
+                const SizedBox(width: 8),
+                Text(
+                  stats.expense.toStringAsFixed(2),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: ColorUtil.EXPENSE,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.5,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ],
@@ -372,7 +379,7 @@ class _AccountItemListState extends State<_AccountItemList> {
 
     return ListView.builder(
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       itemCount: itemsWithHeaders.length,
       itemBuilder: (context, index) {
         final item = itemsWithHeaders[index];

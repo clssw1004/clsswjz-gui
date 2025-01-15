@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:io';
+import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
@@ -344,5 +345,22 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId) async {
     final funds = await ServiceManager.accountFundService.getFundsByBook(bookId);
     return OperateResult.successIfNotNull(funds);
+  }
+
+  @override
+  Future<OperateResult<String>> register(
+      {String? userId,
+      required String username,
+      required String password,
+      required String nickname,
+      String? email,
+      String? phone,
+      String? language,
+      String? timezone,
+      String? avatar}) async {
+    final id =
+        await UserCULog.create(userId: userId, username: username, password: password, nickname: nickname, email: email, phone: phone)
+            .execute();
+    return OperateResult.success(id);
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 import '../../manager/l10n_manager.dart';
@@ -451,6 +450,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: provider.updateDescription,
             keyboardType: TextInputType.multiline,
+            minLines: 1,
+            maxLines: 9,
           ),
 
           // 附件上传

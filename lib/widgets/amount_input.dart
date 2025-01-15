@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../manager/l10n_manager.dart';
 import './calculator_panel.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../utils/color_util.dart';
 
 class AmountInput extends StatefulWidget {

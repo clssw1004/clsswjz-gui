@@ -42,7 +42,7 @@ class AccountItemListTile extends StatelessWidget {
                   Text(
                     item.categoryName!,
                     style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 // 描述

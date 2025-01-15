@@ -122,4 +122,17 @@ abstract class BookDataDriver {
 
   /// 删除账本资金
   Future<OperateResult<void>> deleteFund(String userId, String bookId, String fundId);
+
+  /// 注册用户
+  Future<OperateResult<String>> register({
+    String? userId,
+    required String username,
+    required String password,
+    required String nickname,
+    String? email,
+    String? phone,
+    String? language,
+    String? timezone,
+    String? avatar,
+  });
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../manager/l10n_manager.dart';
 
@@ -47,6 +46,12 @@ class CommonTextFormField extends StatefulWidget {
   /// 点击回调
   final VoidCallback? onTap;
 
+  /// 最大行数，默认1行，null表示不限制行数
+  final int? maxLines;
+
+  /// 最小行数，默认等于maxLines
+  final int? minLines;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -63,6 +68,8 @@ class CommonTextFormField extends StatefulWidget {
     this.keyboardType,
     this.required = false,
     this.onTap,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   @override
@@ -132,6 +139,8 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             focusNode: _focusNode,
             controller: _internalController,
             enabled: widget.enabled,
+            maxLines: widget.maxLines,
+            minLines: widget.minLines ?? widget.maxLines,
             decoration: InputDecoration(
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
               hintText: widget.hintText ?? (widget.required ? null : L10nManager.l10n.optional),

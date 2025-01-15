@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../manager/l10n_manager.dart';
 import 'tabs/account_items_tab.dart';
 import 'tabs/mine_tab.dart';
