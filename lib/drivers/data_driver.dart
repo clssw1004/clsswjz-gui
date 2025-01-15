@@ -135,4 +135,16 @@ abstract class BookDataDriver {
     String? timezone,
     String? avatar,
   });
+
+  /// 更新用户信息
+  Future<OperateResult<void>> updateUser(
+    String userId, {
+    String? password,
+    String? nickname,
+    String? email,
+    String? phone,
+    String? language,
+    String? timezone,
+    String? avatar,
+  });
 }

@@ -7,6 +7,7 @@ import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
 import 'package:clsswjz/enums/fund_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
+import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
@@ -358,9 +359,22 @@ class LogDataDriver implements BookDataDriver {
       String? language,
       String? timezone,
       String? avatar}) async {
+    // 检查用户名是否已存在
+    if (await DaoManager.userDao.isUsernameExists(username)) {
+      return OperateResult.failWithMessage(message: '用户名已存在');
+    }
     final id =
         await UserCULog.create(userId: userId, username: username, password: password, nickname: nickname, email: email, phone: phone)
             .execute();
     return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> updateUser(String userId,
+      {String? password, String? nickname, String? email, String? phone, String? language, String? timezone, String? avatar}) async {
+    await UserCULog.update(userId,
+            password: password, nickname: nickname, email: email, phone: phone, language: language, timezone: timezone, avatar: avatar)
+        .execute();
+    return OperateResult.success(null);
   }
 }

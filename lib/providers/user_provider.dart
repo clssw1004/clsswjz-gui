@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../drivers/driver_factory.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
@@ -28,8 +29,7 @@ class UserProvider extends ChangeNotifier {
       if (result.ok && result.data != null) {
         _user = result.data;
         // 获取用户统计信息
-        final statisticResult =
-            await ServiceManager.statisticService.getUserStatisticInfo(UserConfigManager.currentUserId);
+        final statisticResult = await ServiceManager.statisticService.getUserStatisticInfo(UserConfigManager.currentUserId);
         if (statisticResult.ok) {
           _statistic = statisticResult.data;
         }
@@ -54,14 +54,20 @@ class UserProvider extends ChangeNotifier {
     _loading = true;
     _error = null;
     notifyListeners();
-    await ServiceManager.userService.updateUserInfo(
-      id: UserConfigManager.currentUserId,
+    final result = await DriverFactory.driver.updateUser(
+      UserConfigManager.currentUserId,
       nickname: nickname,
       email: email,
       phone: phone,
       timezone: timezone,
     );
-    await refreshUserInfo();
+    if (result.ok) {
+      await refreshUserInfo();
+    } else {
+      _error = result.message;
+    }
+    _loading = false;
+    notifyListeners();
   }
 
   /// 更新头像

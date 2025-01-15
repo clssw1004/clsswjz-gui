@@ -60,6 +60,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
   static UserCULog update(
     String who, {
     String? nickname,
+    String? password,
     String? email,
     String? phone,
     String? language,
@@ -68,6 +69,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
   }) {
     return UserCULog().doUpdate().withData(UserTable.toUpdateCompanion(
           nickname: nickname,
+          password: password,
           email: email,
           phone: phone,
           language: language,

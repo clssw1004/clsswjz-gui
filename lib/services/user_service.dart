@@ -18,40 +18,6 @@ class UserService extends BaseService {
   /// 用户数据访问对象
   final UserDao _userDao = DaoManager.userDao;
 
-  /// 用户注册
-  Future<OperateResult<UserVO>> register({
-    String? userId,
-    required String username,
-    required String password,
-    required String? nickname,
-    String? email,
-    String? phone,
-  }) async {
-    try {
-      // 检查用户名是否已存在
-      if (await _userDao.isUsernameExists(username)) {
-        return OperateResult.failWithMessage(message: '用户名已存在');
-      }
-      userId = userId ?? generateUuid();
-      final hashedPassword = encryptPassword(password);
-      await _userDao.createUser(
-        id: userId,
-        username: username,
-        password: hashedPassword,
-        nickname: nickname ?? generateNickname(),
-        inviteCode: IdUtil.genNanoId8(),
-        email: email,
-        phone: phone,
-      );
-      return await getUserInfo(userId);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-        message: '注册失败：$e',
-        exception: e is Exception ? e : Exception(e.toString()),
-      );
-    }
-  }
-
   /// 获取用户信息
   Future<OperateResult<UserVO>> getUserInfo(String id) async {
     try {
@@ -66,23 +32,6 @@ class UserService extends BaseService {
         exception: e is Exception ? e : Exception(e.toString()),
       );
     }
-  }
-
-  /// 更新用户信息
-  Future<void> updateUserInfo({
-    required String id,
-    String? nickname,
-    String? email,
-    String? phone,
-    String? timezone,
-  }) async {
-    final companion = UserTableCompanion(
-      nickname: Value.absentIfNull(nickname),
-      email: Value.absentIfNull(email),
-      phone: Value.absentIfNull(phone),
-      timezone: Value.absentIfNull(timezone),
-    );
-    await _userDao.update(id, companion);
   }
 
   /// 更新头像
