@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 
@@ -10,13 +10,12 @@ class LanguageSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final localeProvider = context.watch<LocaleProvider>();
     final currentLocale = localeProvider.locale;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.languageSettings),
+        title: Text(L10nManager.l10n.languageSettings),
       ),
       body: ListView(
         children: [

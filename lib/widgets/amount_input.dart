@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../manager/l10n_manager.dart';
 import './calculator_panel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../utils/color_util.dart';
@@ -62,7 +63,6 @@ class _AmountInputState extends State<AmountInput> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     // 获取金额颜色
     final amountColor = ColorUtil.getAmountColor(widget.type);
@@ -91,14 +91,14 @@ class _AmountInputState extends State<AmountInput> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.amountLabel,
+                        L10nManager.l10n.amountLabel,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.controller.text.isEmpty ? l10n.pleaseInput(l10n.amount) : widget.controller.text,
+                        widget.controller.text.isEmpty ? L10nManager.l10n.pleaseInput(L10nManager.l10n.amount) : widget.controller.text,
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: widget.controller.text.isEmpty ? colorScheme.onSurfaceVariant : amountColor,
                           fontWeight: FontWeight.w500,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/common.dart';
 import 'common_app_bar.dart';
 import 'common_dialog.dart';
@@ -109,7 +110,6 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   }
 
   Future<void> _showFormDialog({T? item}) async {
-    final l10n = AppLocalizations.of(context)!;
     var inputName = item != null ? widget.config.getName(item) : '';
     String? selectedType;
     if (item != null) {
@@ -119,14 +119,14 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
 
     final result = await CommonDialog.show<bool>(
       context: context,
-      title: item == null ? l10n.create : l10n.edit,
+      title: item == null ? L10nManager.l10n.create : L10nManager.l10n.edit,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           CommonTextFormField(
             initialValue: inputName,
-            labelText: l10n.name,
-            hintText: l10n.required,
+            labelText: L10nManager.l10n.name,
+            hintText: L10nManager.l10n.required,
             required: true,
             onChanged: (value) => inputName = value,
           ),
@@ -142,7 +142,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
               }).toList(),
               onChanged: (value) => selectedType = value,
               decoration: InputDecoration(
-                labelText: l10n.type,
+                labelText: L10nManager.l10n.type,
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -153,12 +153,12 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
             children: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l10n.cancel),
+                child: Text(L10nManager.l10n.cancel),
               ),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(l10n.confirm),
+                child: Text(L10nManager.l10n.confirm),
               ),
             ],
           ),
@@ -205,26 +205,25 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   }
 
   Future<void> _deleteItem(T item) async {
-    final l10n = AppLocalizations.of(context)!;
     final confirm = await CommonDialog.show<bool>(
       context: context,
-      title: l10n.confirmDelete,
+      title: L10nManager.l10n.confirmDelete,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(l10n.deleteConfirmMessage(widget.config.getName(item))),
+          Text(L10nManager.l10n.deleteConfirmMessage(widget.config.getName(item))),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l10n.cancel),
+                child: Text(L10nManager.l10n.cancel),
               ),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(l10n.confirm),
+                child: Text(L10nManager.l10n.confirm),
               ),
             ],
           ),
@@ -267,7 +266,6 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -285,14 +283,14 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
                       Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
                       TextButton(
                         onPressed: _loadData,
-                        child: Text(l10n.retry),
+                        child: Text(L10nManager.l10n.retry),
                       ),
                     ],
                   ),
                 )
               : _items?.isEmpty == true
                   ? Center(
-                      child: Text(l10n.noData),
+                      child: Text(L10nManager.l10n.noData),
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -304,8 +302,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
 
                         return ListTile(
                           title: Text(widget.config.getName(item)),
-                          subtitle:
-                              widget.config.showType && type != null ? Text(widget.config.getTypeText!(type)) : null,
+                          subtitle: widget.config.showType && type != null ? Text(widget.config.getTypeText!(type)) : null,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

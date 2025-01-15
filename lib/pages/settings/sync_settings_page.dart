@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../providers/sync_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -43,14 +44,13 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final syncProvider = context.watch<SyncProvider>();
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.syncSettings),
+        title: Text(L10nManager.l10n.syncSettings),
       ),
       body: Form(
         key: _formKey,
@@ -75,7 +75,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                         ),
                       )
                     : const Icon(Icons.sync),
-                label: Text(syncProvider.syncing ? l10n.syncing : l10n.syncData),
+                label: Text(syncProvider.syncing ? L10nManager.l10n.syncing : L10nManager.l10n.syncData),
               ),
             ),
             const Divider(),

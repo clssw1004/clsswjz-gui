@@ -1,5 +1,6 @@
 import 'package:clsswjz/constants/default_constant.dart';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
+import 'package:clsswjz/manager/l10n_manager.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
@@ -258,11 +259,13 @@ class AppConfigManager {
     await UserCULog.create(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone)
         .execute();
 
-    final l10n = AppLocalizations.of(context)!;
-
     /// 创建账本
     final bookId = await DriverFactory.driver
-        .createBook(userId, name: bookName, defaultFundName: l10n.cash, defaultCategoryName: l10n.noCategory, defaultShopName: l10n.noShop)
+        .createBook(userId,
+            name: bookName,
+            defaultFundName: L10nManager.l10n.cash,
+            defaultCategoryName: L10nManager.l10n.noCategory,
+            defaultShopName: L10nManager.l10n.noShop)
         .then((value) => value.data);
 
     await _instance.setDefaultBookId(bookId);

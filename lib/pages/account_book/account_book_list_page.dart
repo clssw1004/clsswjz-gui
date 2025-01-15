@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_books_provider.dart';
@@ -31,11 +32,9 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.accountBooks),
+        title: Text(L10nManager.l10n.accountBooks),
       ),
       body: Consumer<AccountBooksProvider>(
         builder: (context, provider, child) {
@@ -72,7 +71,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
             }
           });
         },
-        tooltip: l10n.addNew(l10n.accountBook),
+        tooltip: L10nManager.l10n.addNew(L10nManager.l10n.accountBook),
         child: const Icon(Icons.add),
       ),
     );

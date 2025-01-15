@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
+import '../../manager/l10n_manager.dart';
 import '../../widgets/common/common_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,13 +10,12 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.about),
+        title: Text(L10nManager.l10n.about),
       ),
       body: ListView(
         children: [
@@ -57,7 +57,7 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 // 应用名称
                 Text(
-                  l10n.appName,
+                  L10nManager.l10n.appName,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -75,7 +75,7 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '${l10n.version}: 0.0.2',
+                    '${L10nManager.l10n.version}: 0.0.2',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -91,7 +91,7 @@ class AboutPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.openSource,
+                  L10nManager.l10n.openSource,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -100,7 +100,7 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildLinkCard(
                   context,
-                  title: l10n.frontendProject,
+                  title: L10nManager.l10n.frontendProject,
                   subtitle: 'https://github.com/clssw1004/clsswjz-gui',
                   icon: Icons.code,
                   onTap: () => _launchUrl(context, 'https://github.com/clssw1004/clsswjz-gui'),
@@ -109,7 +109,7 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildLinkCard(
                   context,
-                  title: l10n.backendProject,
+                  title: L10nManager.l10n.backendProject,
                   subtitle: 'https://github.com/clssw1004/clsswjz-server',
                   icon: Icons.dns_outlined,
                   onTap: () => _launchUrl(context, 'https://github.com/clssw1004/clsswjz-server'),
@@ -124,15 +124,15 @@ class AboutPage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: _buildSection(
               context,
-              title: l10n.features,
+              title: L10nManager.l10n.features,
               content: [
-                l10n.featureMultiUser,
-                l10n.featureMultiBook,
-                l10n.featureMultiCurrency,
-                l10n.featureDataBackup,
-                l10n.featureDataSync,
-                l10n.featureCustomTheme,
-                l10n.featureMultiLanguage,
+                L10nManager.l10n.featureMultiUser,
+                L10nManager.l10n.featureMultiBook,
+                L10nManager.l10n.featureMultiCurrency,
+                L10nManager.l10n.featureDataBackup,
+                L10nManager.l10n.featureDataSync,
+                L10nManager.l10n.featureCustomTheme,
+                L10nManager.l10n.featureMultiLanguage,
               ],
             ),
           ),
@@ -142,7 +142,7 @@ class AboutPage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: _buildSection(
               context,
-              title: l10n.technology,
+              title: L10nManager.l10n.technology,
               content: [
                 'Flutter',
                 'Material Design 3',
@@ -223,7 +223,6 @@ class AboutPage extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       elevation: 0,
@@ -281,7 +280,7 @@ class AboutPage extends StatelessWidget {
               IconButton(
                 onPressed: onCopy,
                 icon: const Icon(Icons.copy_outlined),
-                tooltip: l10n.copyLink,
+                tooltip: L10nManager.l10n.copyLink,
               ),
             ],
           ),
@@ -303,14 +302,14 @@ class AboutPage extends StatelessWidget {
           ),
         );
       } else {
-        throw Exception(AppLocalizations.of(context)!.unsupportedLinkType);
+        throw Exception(L10nManager.l10n.unsupportedLinkType);
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              AppLocalizations.of(context)!.cannotOpenLink(e.toString()),
+              L10nManager.l10n.cannotOpenLink(e.toString()),
             ),
             behavior: SnackBarBehavior.floating,
             width: 300,
@@ -326,7 +325,7 @@ class AboutPage extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.linkCopied),
+          content: Text(L10nManager.l10n.linkCopied),
           behavior: SnackBarBehavior.floating,
           width: 200,
           duration: const Duration(seconds: 2),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 
@@ -9,11 +9,9 @@ class ThemeSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.themeSettings),
+        title: Text(L10nManager.l10n.themeSettings),
       ),
       body: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -26,7 +24,7 @@ class ThemeSettingsPage extends StatelessWidget {
               // 主题模式选择
               ListTile(
                 leading: const Icon(Icons.brightness_medium),
-                title: Text(l10n.themeMode),
+                title: Text(L10nManager.l10n.themeMode),
                 trailing: DropdownButton<ThemeMode>(
                   value: themeProvider.themeMode,
                   onChanged: (ThemeMode? newMode) {
@@ -37,15 +35,15 @@ class ThemeSettingsPage extends StatelessWidget {
                   items: [
                     DropdownMenuItem(
                       value: ThemeMode.system,
-                      child: Text(l10n.followSystem),
+                      child: Text(L10nManager.l10n.followSystem),
                     ),
                     DropdownMenuItem(
                       value: ThemeMode.light,
-                      child: Text(l10n.lightMode),
+                      child: Text(L10nManager.l10n.lightMode),
                     ),
                     DropdownMenuItem(
                       value: ThemeMode.dark,
-                      child: Text(l10n.darkMode),
+                      child: Text(L10nManager.l10n.darkMode),
                     ),
                   ],
                 ),
@@ -54,8 +52,8 @@ class ThemeSettingsPage extends StatelessWidget {
               // Material 3 开关
               SwitchListTile(
                 secondary: const Icon(Icons.style),
-                title: Text(l10n.useMaterial3),
-                subtitle: Text(l10n.useMaterial3Description),
+                title: Text(L10nManager.l10n.useMaterial3),
+                subtitle: Text(L10nManager.l10n.useMaterial3Description),
                 value: themeProvider.useMaterial3,
                 onChanged: (bool value) {
                   themeProvider.setUseMaterial3(value);
@@ -65,7 +63,7 @@ class ThemeSettingsPage extends StatelessWidget {
               // 字体大小选择
               ListTile(
                 leading: const Icon(Icons.format_size),
-                title: Text(l10n.fontSize),
+                title: Text(L10nManager.l10n.fontSize),
                 trailing: DropdownButton<double>(
                   value: themeProvider.fontSize,
                   onChanged: (double? newSize) {
@@ -76,19 +74,19 @@ class ThemeSettingsPage extends StatelessWidget {
                   items: [
                     DropdownMenuItem(
                       value: FontSize.smaller,
-                      child: Text(l10n.fontSizeSmaller),
+                      child: Text(L10nManager.l10n.fontSizeSmaller),
                     ),
                     DropdownMenuItem(
                       value: FontSize.normal,
-                      child: Text(l10n.fontSizeNormal),
+                      child: Text(L10nManager.l10n.fontSizeNormal),
                     ),
                     DropdownMenuItem(
                       value: FontSize.larger,
-                      child: Text(l10n.fontSizeLarger),
+                      child: Text(L10nManager.l10n.fontSizeLarger),
                     ),
                     DropdownMenuItem(
                       value: FontSize.largest,
-                      child: Text(l10n.fontSizeLargest),
+                      child: Text(L10nManager.l10n.fontSizeLargest),
                     ),
                   ],
                 ),
@@ -97,7 +95,7 @@ class ThemeSettingsPage extends StatelessWidget {
               // 圆角大小选择
               ListTile(
                 leading: const Icon(Icons.rounded_corner),
-                title: Text(l10n.radius),
+                title: Text(L10nManager.l10n.radius),
                 trailing: DropdownButton<double>(
                   value: themeProvider.radius,
                   onChanged: (double? newRadius) {
@@ -108,19 +106,19 @@ class ThemeSettingsPage extends StatelessWidget {
                   items: [
                     DropdownMenuItem(
                       value: RadiusSize.none,
-                      child: Text(l10n.radiusNone),
+                      child: Text(L10nManager.l10n.radiusNone),
                     ),
                     DropdownMenuItem(
                       value: RadiusSize.small,
-                      child: Text(l10n.radiusSmall),
+                      child: Text(L10nManager.l10n.radiusSmall),
                     ),
                     DropdownMenuItem(
                       value: RadiusSize.medium,
-                      child: Text(l10n.radiusMedium),
+                      child: Text(L10nManager.l10n.radiusMedium),
                     ),
                     DropdownMenuItem(
                       value: RadiusSize.large,
-                      child: Text(l10n.radiusLarge),
+                      child: Text(L10nManager.l10n.radiusLarge),
                     ),
                   ],
                 ),
@@ -135,7 +133,7 @@ class ThemeSettingsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.themeColor,
+                      L10nManager.l10n.themeColor,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -164,8 +162,6 @@ class ThemeSettingsPage extends StatelessWidget {
   }
 
   Widget _buildPreviewCard(BuildContext context, ThemeProvider themeProvider) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -175,7 +171,7 @@ class ThemeSettingsPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                l10n.themePreview,
+                L10nManager.l10n.themePreview,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
@@ -184,7 +180,7 @@ class ThemeSettingsPage extends StatelessWidget {
                   Expanded(
                     child: FilledButton(
                       onPressed: () {},
-                      child: Text(l10n.save),
+                      child: Text(L10nManager.l10n.save),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -197,8 +193,8 @@ class ThemeSettingsPage extends StatelessWidget {
               const SizedBox(height: 16),
               TextField(
                 decoration: InputDecoration(
-                  labelText: l10n.description,
-                  hintText: l10n.pleaseInput(l10n.description),
+                  labelText: L10nManager.l10n.description,
+                  hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
                 ),
                 controller: TextEditingController(text: '示例文本'),
               ),

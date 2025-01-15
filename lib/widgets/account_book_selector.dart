@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../manager/app_config_manager.dart';
+import '../manager/l10n_manager.dart';
 import '../models/vo/user_book_vo.dart';
 import 'common/common_dialog.dart';
 import 'common/shared_badge.dart';
@@ -57,7 +58,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
   Future<void> _showBookSelector() async {
     final result = await CommonDialog.show<UserBookVO>(
       context: context,
-      title: AppLocalizations.of(context)!.selectAccountBook,
+      title: L10nManager.l10n.selectAccountBook,
       width: 320,
       content: _AccountBookList(
         userId: widget.userId,
@@ -77,10 +78,9 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     if (_selectedBook == null) {
-      return Text(l10n.noAccountBooks);
+      return Text(L10nManager.l10n.noAccountBooks);
     }
 
     final isOwner = _selectedBook!.createdBy == widget.userId;
@@ -137,14 +137,13 @@ class _AccountBookList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(
         maxHeight: 400,
       ),
       child: books.isEmpty
-          ? Center(child: Text(l10n.noAccountBooks))
+          ? Center(child: Text(L10nManager.l10n.noAccountBooks))
           : ListView.separated(
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -162,8 +161,7 @@ class _AccountBookList extends StatelessWidget {
                       Expanded(
                         child: Text(book.name),
                       ),
-                      if (book.createdBy != userId && book.createdByName != null)
-                        SharedBadge(name: book.createdByName!),
+                      if (book.createdBy != userId && book.createdByName != null) SharedBadge(name: book.createdByName!),
                     ],
                   ),
                   subtitle: book.description?.isNotEmpty == true

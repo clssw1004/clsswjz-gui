@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
+import '../../manager/l10n_manager.dart';
 import '../common/common_text_form_field.dart';
 import '../common/common_icon_picker.dart';
 import '../../theme/theme_spacing.dart';
@@ -69,7 +70,6 @@ class _OfflineFormState extends State<OfflineForm> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
@@ -78,12 +78,12 @@ class _OfflineFormState extends State<OfflineForm> {
       children: [
         CommonTextFormField(
           controller: widget.usernameController,
-          labelText: l10n.username,
+          labelText: L10nManager.l10n.username,
           prefixIcon: const Icon(Icons.person),
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInput(l10n.username);
+              return L10nManager.l10n.pleaseInput(L10nManager.l10n.username);
             }
             return null;
           },
@@ -92,7 +92,7 @@ class _OfflineFormState extends State<OfflineForm> {
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           controller: widget.nicknameController,
-          labelText: l10n.nickname,
+          labelText: L10nManager.l10n.nickname,
           prefixIcon: const Icon(Icons.face),
           required: true,
           onChanged: widget.onNicknameChanged,
@@ -101,14 +101,14 @@ class _OfflineFormState extends State<OfflineForm> {
           SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
             controller: widget.emailController,
-            labelText: l10n.email,
+            labelText: L10nManager.l10n.email,
             prefixIcon: const Icon(Icons.email),
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value != null && value.isNotEmpty) {
                 final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                 if (!emailRegex.hasMatch(value)) {
-                  return l10n.invalidEmail;
+                  return L10nManager.l10n.invalidEmail;
                 }
               }
               return null;
@@ -120,7 +120,7 @@ class _OfflineFormState extends State<OfflineForm> {
           SizedBox(height: spacing.formItemSpacing),
           CommonTextFormField(
             controller: widget.phoneController,
-            labelText: l10n.phone,
+            labelText: L10nManager.l10n.phone,
             prefixIcon: const Icon(Icons.phone),
             keyboardType: TextInputType.phone,
             onChanged: widget.onPhoneChanged,
@@ -129,7 +129,7 @@ class _OfflineFormState extends State<OfflineForm> {
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           controller: widget.bookNameController,
-          labelText: '${l10n.accountBook}${l10n.name}',
+          labelText: '${L10nManager.l10n.accountBook}${L10nManager.l10n.name}',
           prefixIcon: InkWell(
             onTap: _selectIcon,
             borderRadius: BorderRadius.circular(8),
@@ -137,9 +137,7 @@ class _OfflineFormState extends State<OfflineForm> {
               width: 48,
               height: 48,
               child: Icon(
-                _selectedIcon != null
-                    ? IconData(int.parse(_selectedIcon!), fontFamily: 'MaterialIcons')
-                    : Icons.book_outlined,
+                _selectedIcon != null ? IconData(int.parse(_selectedIcon!), fontFamily: 'MaterialIcons') : Icons.book_outlined,
                 color: colorScheme.primary,
               ),
             ),
@@ -147,7 +145,7 @@ class _OfflineFormState extends State<OfflineForm> {
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInput(l10n.accountBook);
+              return L10nManager.l10n.pleaseInput(L10nManager.l10n.accountBook);
             }
             return null;
           },
@@ -162,7 +160,7 @@ class _OfflineFormState extends State<OfflineForm> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text(l10n.createLocalDatabase),
+              : Text(L10nManager.l10n.createLocalDatabase),
         ),
       ],
     );

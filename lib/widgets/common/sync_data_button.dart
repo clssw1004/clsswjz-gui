@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/sync_provider.dart';
-import '../../utils/toast_util.dart';
-import '../../theme/theme_spacing.dart';
 
 class SyncDataButton extends StatelessWidget {
   const SyncDataButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final syncProvider = context.watch<SyncProvider>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -24,7 +22,7 @@ class SyncDataButton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.syncSettings,
+                  L10nManager.l10n.syncSettings,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onSurface,
                   ),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 
+import '../manager/l10n_manager.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/common_app_bar.dart';
 import '../widgets/common/common_dialog.dart';
@@ -26,25 +27,24 @@ class _UserInfoPageView extends StatelessWidget {
   const _UserInfoPageView();
 
   Future<void> _pickImage(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
     final provider = context.read<UserProvider>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     final result = await CommonDialog.show<ImageSource>(
       context: context,
-      title: l10n.selectIcon,
+      title: L10nManager.l10n.selectIcon,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             leading: Icon(Icons.photo_camera, color: colorScheme.primary),
-            title: Text(l10n.takePhoto),
+            title: Text(L10nManager.l10n.takePhoto),
             onTap: () => Navigator.pop(context, ImageSource.camera),
           ),
           ListTile(
             leading: Icon(Icons.photo_library, color: colorScheme.primary),
-            title: Text(l10n.chooseFromGallery),
+            title: Text(L10nManager.l10n.chooseFromGallery),
             onTap: () => Navigator.pop(context, ImageSource.gallery),
           ),
         ],
@@ -64,14 +64,13 @@ class _UserInfoPageView extends StatelessWidget {
       final file = File(pickedFile.path);
       await provider.updateAvatar(file);
       if (context.mounted) {
-        ToastUtil.showSuccess(l10n.modifySuccess(l10n.avatar));
+        ToastUtil.showSuccess(L10nManager.l10n.modifySuccess(L10nManager.l10n.avatar));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<UserProvider>();
     final theme = Theme.of(context);
     final spacing = theme.spacing;
@@ -80,13 +79,13 @@ class _UserInfoPageView extends StatelessWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: CommonAppBar(
-          title: Text(l10n.userInfo),
+          title: Text(L10nManager.l10n.userInfo),
           actions: [
             if (provider.user != null && !provider.loading)
               IconButton(
                 onPressed: () => _showChangePasswordDialog(context),
                 icon: const Icon(Icons.lock_outline),
-                tooltip: l10n.changePassword,
+                tooltip: L10nManager.l10n.changePassword,
               ),
           ],
         ),
@@ -106,14 +105,14 @@ class _UserInfoPageView extends StatelessWidget {
                         SizedBox(height: spacing.formItemSpacing),
                         FilledButton(
                           onPressed: provider.refreshUserInfo,
-                          child: Text(l10n.retry),
+                          child: Text(L10nManager.l10n.retry),
                         ),
                       ],
                     ),
                   )
                 : provider.user == null
                     ? Center(
-                        child: Text(l10n.noData),
+                        child: Text(L10nManager.l10n.noData),
                       )
                     : SingleChildScrollView(
                         padding: spacing.formPadding,
@@ -130,7 +129,7 @@ class _UserInfoPageView extends StatelessWidget {
                             SizedBox(height: spacing.formGroupSpacing),
                             CommonTextFormField(
                               initialValue: provider.user?.username,
-                              labelText: l10n.username,
+                              labelText: L10nManager.l10n.username,
                               enabled: false,
                               prefixIcon: Icon(
                                 Icons.person_outline,
@@ -141,7 +140,7 @@ class _UserInfoPageView extends StatelessWidget {
                             // 昵称
                             CommonTextFormField(
                               initialValue: provider.user?.nickname,
-                              labelText: l10n.nickname,
+                              labelText: L10nManager.l10n.nickname,
                               prefixIcon: Icon(
                                 Icons.account_box_outlined,
                                 color: theme.colorScheme.primary,
@@ -156,7 +155,7 @@ class _UserInfoPageView extends StatelessWidget {
                             // 邮箱
                             CommonTextFormField(
                               initialValue: provider.user?.email,
-                              labelText: l10n.email,
+                              labelText: L10nManager.l10n.email,
                               prefixIcon: Icon(
                                 Icons.email_outlined,
                                 color: theme.colorScheme.primary,
@@ -171,7 +170,7 @@ class _UserInfoPageView extends StatelessWidget {
                             // 手机号
                             CommonTextFormField(
                               initialValue: provider.user?.phone,
-                              labelText: l10n.phone,
+                              labelText: L10nManager.l10n.phone,
                               prefixIcon: Icon(
                                 Icons.phone_outlined,
                                 color: theme.colorScheme.primary,
@@ -186,7 +185,7 @@ class _UserInfoPageView extends StatelessWidget {
                             // 邀请码
                             CommonTextFormField(
                               initialValue: provider.user?.inviteCode,
-                              labelText: l10n.inviteCode,
+                              labelText: L10nManager.l10n.inviteCode,
                               enabled: false,
                               prefixIcon: Icon(
                                 Icons.qr_code_outlined,
@@ -197,7 +196,7 @@ class _UserInfoPageView extends StatelessWidget {
                                   Icons.refresh_outlined,
                                   color: theme.colorScheme.primary,
                                 ),
-                                tooltip: l10n.reset,
+                                tooltip: L10nManager.l10n.reset,
                                 onPressed: () {
                                   // TODO: 实现重置邀请码功能
                                 },
@@ -205,7 +204,7 @@ class _UserInfoPageView extends StatelessWidget {
                               onTap: () {
                                 if (provider.user?.inviteCode.isNotEmpty ?? false) {
                                   Clipboard.setData(ClipboardData(text: provider.user!.inviteCode));
-                                  ToastUtil.showSuccess(l10n.copySuccess);
+                                  ToastUtil.showSuccess(L10nManager.l10n.copySuccess);
                                 }
                               },
                             ),
@@ -217,7 +216,6 @@ class _UserInfoPageView extends StatelessWidget {
   }
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final formKey = GlobalKey<FormState>();
@@ -226,7 +224,7 @@ class _UserInfoPageView extends StatelessWidget {
 
     final result = await CommonDialog.show(
       context: context,
-      title: l10n.changePassword,
+      title: L10nManager.l10n.changePassword,
       showCloseButton: false,
       content: Form(
         key: formKey,
@@ -234,7 +232,7 @@ class _UserInfoPageView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CommonTextFormField(
-              labelText: l10n.oldPassword,
+              labelText: L10nManager.l10n.oldPassword,
               prefixIcon: Icon(
                 Icons.lock_outline,
                 color: theme.colorScheme.primary,
@@ -242,7 +240,7 @@ class _UserInfoPageView extends StatelessWidget {
               obscureText: true,
               validator: (value) {
                 if (value?.isEmpty ?? true) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 return null;
               },
@@ -250,7 +248,7 @@ class _UserInfoPageView extends StatelessWidget {
             ),
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
-              labelText: l10n.newPassword,
+              labelText: L10nManager.l10n.newPassword,
               prefixIcon: Icon(
                 Icons.lock_outline,
                 color: theme.colorScheme.primary,
@@ -258,10 +256,10 @@ class _UserInfoPageView extends StatelessWidget {
               obscureText: true,
               validator: (value) {
                 if (value?.isEmpty ?? true) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 if (value!.length < 6) {
-                  return l10n.passwordTooShort;
+                  return L10nManager.l10n.passwordTooShort;
                 }
                 newPassword = value;
                 return null;
@@ -269,7 +267,7 @@ class _UserInfoPageView extends StatelessWidget {
             ),
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
-              labelText: l10n.confirmPassword,
+              labelText: L10nManager.l10n.confirmPassword,
               prefixIcon: Icon(
                 Icons.lock_outline,
                 color: theme.colorScheme.primary,
@@ -277,10 +275,10 @@ class _UserInfoPageView extends StatelessWidget {
               obscureText: true,
               validator: (value) {
                 if (value?.isEmpty ?? true) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 if (value != newPassword) {
-                  return l10n.passwordNotMatch;
+                  return L10nManager.l10n.passwordNotMatch;
                 }
                 return null;
               },
@@ -301,7 +299,7 @@ class _UserInfoPageView extends StatelessWidget {
                       Navigator.pop(context, true);
                     }
                   },
-                  child: Text(l10n.save),
+                  child: Text(L10nManager.l10n.save),
                 ),
               ],
             ),
@@ -320,18 +318,18 @@ class _UserInfoPageView extends StatelessWidget {
         if (context.mounted) {
           if (result.ok) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.modifySuccess(l10n.password))),
+              SnackBar(content: Text(L10nManager.l10n.modifySuccess(L10nManager.l10n.password))),
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result.message ?? l10n.modifyFailed(l10n.password, ''))),
+              SnackBar(content: Text(result.message ?? L10nManager.l10n.modifyFailed(L10nManager.l10n.password, ''))),
             );
           }
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.updateFailed)),
+            SnackBar(content: Text(L10nManager.l10n.updateFailed)),
           );
         }
       }

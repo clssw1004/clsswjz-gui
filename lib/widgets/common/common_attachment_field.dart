@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
 import 'common_dialog.dart';
@@ -65,7 +66,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.any,
-        dialogTitle: AppLocalizations.of(context)!.addAttachment,
+        dialogTitle: L10nManager.l10n.addAttachment,
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -93,7 +94,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
   void _showAttachmentDialog() {
     CommonDialog.show(
       context: context,
-      title: AppLocalizations.of(context)!.attachments,
+      title: L10nManager.l10n.attachments,
       width: 400,
       content: Container(
         constraints: const BoxConstraints(maxHeight: 400),
@@ -138,7 +139,6 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +170,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                         const Icon(Icons.attachment_rounded, size: 20),
                         const SizedBox(width: 4),
                         Text(
-                          l10n.attachNum(widget.attachments.length),
+                          L10nManager.l10n.attachNum(widget.attachments.length),
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: colorScheme.primary,
                           ),
@@ -185,7 +185,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                       color: colorScheme.onSurface.withAlpha(20),
                     ),
                     Tooltip(
-                      message: l10n.addAttachment,
+                      message: L10nManager.l10n.addAttachment,
                       child: TextButton.icon(
                         onPressed: _isUploading ? null : _pickFiles,
                         style: TextButton.styleFrom(
@@ -205,7 +205,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                               )
                             : const Icon(Icons.add_circle_outline, size: 20),
                         label: Text(
-                          l10n.uploadAttachment,
+                          L10nManager.l10n.uploadAttachment,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: colorScheme.primary,
                           ),

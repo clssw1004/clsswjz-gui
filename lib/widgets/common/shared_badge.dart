@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../manager/l10n_manager.dart';
+
 /// 共享徽章组件
 class SharedBadge extends StatelessWidget {
   /// 共享来源名称
@@ -35,7 +37,7 @@ class SharedBadge extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            AppLocalizations.of(context)!.sharedFrom(name),
+            L10nManager.l10n.sharedFrom(name),
             style: theme.textTheme.labelSmall?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontSize: 11,

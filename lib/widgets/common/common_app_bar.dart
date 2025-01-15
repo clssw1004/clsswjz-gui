@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../theme/theme_radius.dart';
@@ -72,7 +73,6 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     // 获取当前语言
     final currentLocale = Localizations.localeOf(context).toString();
@@ -88,7 +88,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                 isDark ? Icons.dark_mode : Icons.light_mode,
                 color: colorScheme.onSurface,
               ),
-              tooltip: isDark ? l10n.lightMode : l10n.darkMode,
+              tooltip: isDark ? L10nManager.l10n.lightMode : L10nManager.l10n.darkMode,
               onPressed: () => _changeThemeMode(context),
             );
           },
@@ -99,13 +99,13 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icons.language,
             color: colorScheme.onSurface,
           ),
-          tooltip: l10n.language,
+          tooltip: L10nManager.l10n.language,
           itemBuilder: (context) => [
             PopupMenuItem(
               value: 'zh',
               child: Row(
                 children: [
-                  Text(l10n.simplifiedChinese),
+                  Text(L10nManager.l10n.simplifiedChinese),
                   if (currentLocale == 'zh') ...[
                     const SizedBox(width: 8),
                     Icon(
@@ -121,7 +121,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               value: 'zh_Hant',
               child: Row(
                 children: [
-                  Text(l10n.traditionalChinese),
+                  Text(L10nManager.l10n.traditionalChinese),
                   if (currentLocale == 'zh_Hant') ...[
                     const SizedBox(width: 8),
                     Icon(
@@ -137,7 +137,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               value: 'en',
               child: Row(
                 children: [
-                  Text(l10n.english),
+                  Text(L10nManager.l10n.english),
                   if (currentLocale == 'en') ...[
                     const SizedBox(width: 8),
                     Icon(

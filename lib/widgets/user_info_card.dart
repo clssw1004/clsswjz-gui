@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../manager/l10n_manager.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../routes/app_routes.dart';
@@ -26,7 +27,6 @@ class UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Material(
@@ -46,7 +46,7 @@ class UserInfoCard extends StatelessWidget {
                   children: [
                     // 用户基本信息
                     Text(
-                      user?.nickname ?? l10n.notLoggedIn,
+                      user?.nickname ?? L10nManager.l10n.notLoggedIn,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -75,21 +75,21 @@ class UserInfoCard extends StatelessWidget {
                       context,
                       icon: Icons.book_outlined,
                       value: statistic!.bookCount,
-                      label: l10n.accountBook,
+                      label: L10nManager.l10n.accountBook,
                     ),
                     const SizedBox(height: 8),
                     _buildStatisticItem(
                       context,
                       icon: Icons.receipt_outlined,
                       value: statistic!.itemCount,
-                      label: l10n.accountItemCount,
+                      label: L10nManager.l10n.accountItemCount,
                     ),
                     const SizedBox(height: 8),
                     _buildStatisticItem(
                       context,
                       icon: Icons.calendar_today_outlined,
                       value: statistic!.dayCount,
-                      label: l10n.accountDayCount,
+                      label: L10nManager.l10n.accountDayCount,
                     ),
                   ],
                 ),

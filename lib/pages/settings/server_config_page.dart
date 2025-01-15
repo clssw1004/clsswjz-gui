@@ -1,8 +1,8 @@
 import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import '../../manager/l10n_manager.dart';
 import '../../services/auth_service.dart';
 import '../../services/health_service.dart';
 import '../../utils/toast_util.dart';
@@ -114,7 +114,6 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   }
 
   Future<void> _checkServer() async {
-    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -126,9 +125,9 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     });
 
     if (result.ok) {
-      ToastUtil.showSuccess(l10n.serverConnectionSuccess);
+      ToastUtil.showSuccess(L10nManager.l10n.serverConnectionSuccess);
     } else {
-      ToastUtil.showError(result.message ?? l10n.serverConnectionFailed);
+      ToastUtil.showError(result.message ?? L10nManager.l10n.serverConnectionFailed);
     }
   }
 
@@ -145,10 +144,9 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   }
 
   Future<void> _initSelfhost() async {
-    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (!_serverValid) {
-      ToastUtil.showError(l10n.pleaseCheckServerFirst);
+      ToastUtil.showError(L10nManager.l10n.pleaseCheckServerFirst);
       return;
     }
 
@@ -175,10 +173,10 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           RestartWidget.restartApp(context);
         }
       } else {
-        ToastUtil.showError(l10n.loginFailed);
+        ToastUtil.showError(L10nManager.l10n.loginFailed);
       }
     } catch (e) {
-      ToastUtil.showError(l10n.loginError);
+      ToastUtil.showError(L10nManager.l10n.loginError);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -186,12 +184,11 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.serverConfig),
+        title: Text(L10nManager.l10n.serverConfig),
         showLanguageSelector: true,
         showThemeSelector: true,
       ),
@@ -206,7 +203,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.displayName(context),
               keyField: (item) => item,
-              label: l10n.storageMode,
+              label: L10nManager.l10n.storageMode,
               icon: Icons.storage,
               onChanged: (value) {
                 setState(() {

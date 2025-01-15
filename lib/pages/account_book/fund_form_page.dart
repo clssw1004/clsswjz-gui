@@ -1,8 +1,8 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_select_form_field.dart';
@@ -142,14 +142,14 @@ class _FundFormPageState extends State<FundFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(widget.fund == null ? l10n.addNew(l10n.tabFunds) : l10n.editTo(l10n.tabFunds)),
+        title: Text(
+            widget.fund == null ? L10nManager.l10n.addNew(L10nManager.l10n.tabFunds) : L10nManager.l10n.editTo(L10nManager.l10n.tabFunds)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -170,12 +170,12 @@ class _FundFormPageState extends State<FundFormPage> {
           children: [
             CommonTextFormField(
               initialValue: _nameController.text,
-              labelText: l10n.name,
+              labelText: L10nManager.l10n.name,
               required: true,
               onChanged: (value) => _nameController.text = value,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 return null;
               },
@@ -186,20 +186,20 @@ class _FundFormPageState extends State<FundFormPage> {
               value: _fundType,
               displayMode: DisplayMode.expand,
               displayField: (item) => switch (item) {
-                FundType.cash => l10n.fundTypeCash,
-                FundType.debitCard => l10n.fundTypeDebitCard,
-                FundType.creditCard => l10n.fundTypeCreditCard,
-                FundType.prepaidCard => l10n.fundTypePrepaidCard,
-                FundType.alipay => l10n.fundTypeAlipay,
-                FundType.wechat => l10n.fundTypeWechat,
-                FundType.debt => l10n.fundTypeDebt,
-                FundType.investment => l10n.fundTypeInvestment,
-                FundType.eWallet => l10n.fundTypeEWallet,
-                FundType.other => l10n.fundTypeOther,
+                FundType.cash => L10nManager.l10n.fundTypeCash,
+                FundType.debitCard => L10nManager.l10n.fundTypeDebitCard,
+                FundType.creditCard => L10nManager.l10n.fundTypeCreditCard,
+                FundType.prepaidCard => L10nManager.l10n.fundTypePrepaidCard,
+                FundType.alipay => L10nManager.l10n.fundTypeAlipay,
+                FundType.wechat => L10nManager.l10n.fundTypeWechat,
+                FundType.debt => L10nManager.l10n.fundTypeDebt,
+                FundType.investment => L10nManager.l10n.fundTypeInvestment,
+                FundType.eWallet => L10nManager.l10n.fundTypeEWallet,
+                FundType.other => L10nManager.l10n.fundTypeOther,
               },
               keyField: (item) => item,
               icon: Icons.account_balance_outlined,
-              label: l10n.type,
+              label: L10nManager.l10n.type,
               allowCreate: false,
               required: true,
               expandCount: 10,
@@ -213,7 +213,7 @@ class _FundFormPageState extends State<FundFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _balanceController.text,
-              labelText: l10n.balance,
+              labelText: L10nManager.l10n.balance,
               required: true,
               onChanged: (value) => _balanceController.text = value,
               keyboardType: const TextInputType.numberWithOptions(
@@ -222,10 +222,10 @@ class _FundFormPageState extends State<FundFormPage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 if (double.tryParse(value) == null) {
-                  return l10n.invalidNumber;
+                  return L10nManager.l10n.invalidNumber;
                 }
                 return null;
               },
@@ -233,7 +233,7 @@ class _FundFormPageState extends State<FundFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _remarkController.text,
-              labelText: l10n.remark,
+              labelText: L10nManager.l10n.remark,
               onChanged: (value) => _remarkController.text = value,
             ),
             SizedBox(height: spacing.formGroupSpacing),

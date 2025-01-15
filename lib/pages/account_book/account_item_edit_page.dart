@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_item_form_provider.dart';
@@ -35,7 +36,6 @@ class AccountItemEditPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final spacing = Theme.of(context).spacing;
 
     return ChangeNotifierProvider(
@@ -44,7 +44,7 @@ class AccountItemEditPage extends StatelessWidget {
         builder: (context, provider, child) {
           return Scaffold(
             appBar: CommonAppBar(
-              title: Text(l10n.editTo(l10n.tabAccountItems)),
+              title: Text(L10nManager.l10n.editTo(L10nManager.l10n.tabAccountItems)),
             ),
             body: provider.loading
                 ? const Center(child: CircularProgressIndicator())
@@ -139,7 +139,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final provider = widget.provider;
     final item = provider.item;
@@ -158,17 +157,17 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             segments: [
               ButtonSegment<AccountItemType>(
                 value: AccountItemType.expense,
-                label: Text(l10n.expense),
+                label: Text(L10nManager.l10n.expense),
                 icon: const Icon(Icons.remove_circle_outline),
               ),
               ButtonSegment<AccountItemType>(
                 value: AccountItemType.income,
-                label: Text(l10n.income),
+                label: Text(L10nManager.l10n.income),
                 icon: const Icon(Icons.add_circle_outline),
               ),
               ButtonSegment<AccountItemType>(
                 value: AccountItemType.transfer,
-                label: Text(l10n.transfer),
+                label: Text(L10nManager.l10n.transfer),
                 icon: const Icon(Icons.swap_horiz_outlined),
               ),
             ],
@@ -234,7 +233,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             displayField: (item) => item.name,
             keyField: (item) => item.code,
             icon: Icons.category_outlined,
-            label: l10n.category,
+            label: L10nManager.l10n.category,
             required: true,
             expandCount: 8,
             expandRows: 3,
@@ -261,7 +260,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
             validator: (value) {
               if (value == null) {
-                return l10n.required;
+                return L10nManager.l10n.required;
               }
               return null;
             },
@@ -276,7 +275,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             displayField: (item) => item.name,
             keyField: (item) => item.id,
             icon: Icons.account_balance_wallet_outlined,
-            label: l10n.account,
+            label: L10nManager.l10n.account,
             required: true,
             onChanged: (value) async {
               final fund = value as AccountFund?;
@@ -288,7 +287,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
             validator: (value) {
               if (value == null) {
-                return l10n.required;
+                return L10nManager.l10n.required;
               }
               return null;
             },
@@ -303,7 +302,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             displayField: (item) => item.name,
             keyField: (item) => item.code,
             icon: Icons.store_outlined,
-            label: l10n.merchant,
+            label: L10nManager.l10n.merchant,
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createShop(
                 AppConfigManager.instance.userId!,
@@ -338,12 +337,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 CommonSelectFormField<AccountSymbol>(
                   items: provider.tags.cast<AccountSymbol>(),
                   value: item.tagCode,
-                  label: l10n.tag,
+                  label: L10nManager.l10n.tag,
                   displayMode: DisplayMode.badge,
                   displayField: (item) => item.name,
                   keyField: (item) => item.code,
                   icon: Icons.local_offer_outlined,
-                  hint: l10n.tag,
+                  hint: L10nManager.l10n.tag,
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId!,
@@ -369,12 +368,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 CommonSelectFormField<AccountSymbol>(
                   items: provider.projects.cast<AccountSymbol>(),
                   value: item.projectCode,
-                  label: l10n.project,
+                  label: L10nManager.l10n.project,
                   displayMode: DisplayMode.badge,
                   displayField: (item) => item.name,
                   keyField: (item) => item.code,
                   icon: Icons.folder_outlined,
-                  hint: l10n.project,
+                  hint: L10nManager.l10n.project,
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId!,
@@ -425,8 +424,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
             child: CommonTextFormField(
               initialValue: _descriptionController.text,
-              labelText: l10n.description,
-              hintText: l10n.pleaseInput(l10n.description),
+              labelText: L10nManager.l10n.description,
+              hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
               prefixIcon: const Icon(Icons.description_outlined),
               onChanged: provider.updateDescription,
               keyboardType: TextInputType.multiline,
@@ -437,7 +436,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
           CommonAttachmentField(
             attachments: provider.attachments,
-            label: l10n.attachments,
+            label: L10nManager.l10n.attachments,
             onUpload: (files) async {
               final userId = provider.item.updatedBy;
               final attachments = files

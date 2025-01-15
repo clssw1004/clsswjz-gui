@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../manager/l10n_manager.dart';
+
 /// 通用图标选择组件
 class CommonIconPicker extends StatelessWidget {
   /// 图标列表
@@ -46,7 +48,6 @@ class CommonIconPicker extends StatelessWidget {
     double spacing = 8,
     bool showCancelButton = true,
   }) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -54,7 +55,7 @@ class CommonIconPicker extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(l10n.selectIcon),
+          title: Text(L10nManager.l10n.selectIcon),
           content: SizedBox(
             width: double.maxFinite,
             height: MediaQuery.of(context).size.height * 0.6,

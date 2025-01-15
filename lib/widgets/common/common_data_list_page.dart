@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import 'common_app_bar.dart';
 
 /// 通用数据列表页面配置
@@ -89,7 +90,6 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -109,14 +109,14 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
                       ),
                       TextButton(
                         onPressed: _loadData,
-                        child: Text(l10n.retry),
+                        child: Text(L10nManager.l10n.retry),
                       ),
                     ],
                   ),
                 )
               : _items?.isEmpty == true
                   ? Center(
-                      child: Text(l10n.noData),
+                      child: Text(L10nManager.l10n.noData),
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../common/common_text_form_field.dart';
 import '../../theme/theme_spacing.dart';
 
@@ -33,14 +34,13 @@ class SelfHostForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final spacing = Theme.of(context).spacing;
 
     return Column(
       children: [
         CommonTextFormField(
           controller: serverUrlController,
-          labelText: l10n.serverAddress,
+          labelText: L10nManager.l10n.serverAddress,
           hintText: 'http://example.com',
           prefixIcon: Icons.computer,
           suffixIcon: Row(
@@ -60,14 +60,14 @@ class SelfHostForm extends StatelessWidget {
               IconButton(
                 onPressed: isChecking ? null : onCheckServer,
                 icon: const Icon(Icons.refresh),
-                tooltip: l10n.checkServer,
+                tooltip: L10nManager.l10n.checkServer,
               ),
             ],
           ),
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInput(l10n.serverAddress);
+              return L10nManager.l10n.pleaseInput(L10nManager.l10n.serverAddress);
             }
             return null;
           },
@@ -76,12 +76,12 @@ class SelfHostForm extends StatelessWidget {
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           controller: usernameController,
-          labelText: l10n.username,
+          labelText: L10nManager.l10n.username,
           prefixIcon: Icons.person,
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInput(l10n.username);
+              return L10nManager.l10n.pleaseInput(L10nManager.l10n.username);
             }
             return null;
           },
@@ -90,13 +90,13 @@ class SelfHostForm extends StatelessWidget {
         SizedBox(height: spacing.formItemSpacing),
         CommonTextFormField(
           controller: passwordController,
-          labelText: l10n.password,
+          labelText: L10nManager.l10n.password,
           prefixIcon: Icons.lock,
           obscureText: true,
           required: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return l10n.pleaseInput(l10n.password);
+              return L10nManager.l10n.pleaseInput(L10nManager.l10n.password);
             }
             return null;
           },
@@ -111,7 +111,7 @@ class SelfHostForm extends StatelessWidget {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text(l10n.connectServer),
+              : Text(L10nManager.l10n.connectServer),
         ),
       ],
     );

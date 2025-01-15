@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../constants/account_book_icons.dart';
 import '../../drivers/driver_factory.dart';
+import '../../manager/l10n_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/account_book_permission_vo.dart';
@@ -118,7 +119,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.saveFailed(result.message ?? '')),
+              content: Text(L10nManager.l10n.saveFailed(result.message ?? '')),
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
@@ -152,7 +153,6 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
   /// 添加成员
   Future<void> _addMember() async {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -163,7 +163,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
     await CommonDialog.show(
       context: context,
-      title: l10n.findUserByInviteCode,
+      title: L10nManager.l10n.findUserByInviteCode,
       width: 320,
       height: 250,
       content: StatefulBuilder(
@@ -176,7 +176,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CommonTextFormField(
-                labelText: l10n.inviteCode,
+                labelText: L10nManager.l10n.inviteCode,
                 required: true,
                 onChanged: (value) {
                   inviteCode = value;
@@ -203,8 +203,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                             hasSearched = true;
                           });
                           try {
-                            final result =
-                                await ServiceManager.accountBookService.gernerateDefaultMemberByInviteCode(inviteCode);
+                            final result = await ServiceManager.accountBookService.gernerateDefaultMemberByInviteCode(inviteCode);
                             setState(() {
                               foundMember = result.ok ? result.data : null;
                             });
@@ -245,14 +244,14 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                foundMember!.nickname ?? l10n.unknownUser,
+                                foundMember!.nickname ?? L10nManager.l10n.unknownUser,
                                 style: theme.textTheme.bodyLarge,
                               ),
                               if (isMemberExists)
                                 Text(
                                   foundMember!.userId == widget.book!.createdBy
-                                      ? l10n.bookCreator
-                                      : l10n.memberAlreadyExists,
+                                      ? L10nManager.l10n.bookCreator
+                                      : L10nManager.l10n.memberAlreadyExists,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: colorScheme.outline,
                                   ),
@@ -273,7 +272,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    l10n.userNotFound,
+                    L10nManager.l10n.userNotFound,
                     style: TextStyle(color: colorScheme.error),
                   ),
                 ),
@@ -317,14 +316,14 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(isCreateMode ? l10n.addNew(l10n.accountBook) : l10n.editTo(l10n.accountBook)),
+        title: Text(
+            isCreateMode ? L10nManager.l10n.addNew(L10nManager.l10n.accountBook) : L10nManager.l10n.editTo(L10nManager.l10n.accountBook)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -344,13 +343,13 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
           padding: spacing.formPadding,
           children: [
             Text(
-              l10n.basicInfo,
+              L10nManager.l10n.basicInfo,
               style: theme.textTheme.titleMedium,
             ),
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _nameController.text,
-              labelText: l10n.name,
+              labelText: L10nManager.l10n.name,
               required: true,
               prefixIcon: InkWell(
                 onTap: _selectIcon,
@@ -366,7 +365,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return l10n.required;
+                  return L10nManager.l10n.required;
                 }
                 return null;
               },
@@ -375,7 +374,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _descriptionController.text,
-              labelText: l10n.description,
+              labelText: L10nManager.l10n.description,
               prefixIcon: Icons.description_outlined,
               onChanged: (value) => _descriptionController.text = value,
             ),
@@ -387,7 +386,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
               displayField: (item) => '${item.symbol} - ${item.code}',
               keyField: (item) => item.symbol,
               icon: Icons.currency_exchange,
-              label: l10n.currency,
+              label: L10nManager.l10n.currency,
               required: true,
               onChanged: (value) {
                 setState(() {
@@ -401,7 +400,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      l10n.members,
+                      L10nManager.l10n.members,
                       style: theme.textTheme.titleMedium,
                     ),
                   ),
@@ -416,7 +415,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Center(
                     child: Text(
-                      l10n.noMembers,
+                      L10nManager.l10n.noMembers,
                       style: TextStyle(color: colorScheme.outline),
                     ),
                   ),
@@ -459,10 +458,8 @@ class _MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return ExpansionTile(
-      title: Text(member.nickname ?? l10n.unknownUser),
+      title: Text(member.nickname ?? L10nManager.l10n.unknownUser),
       leading: const Icon(Icons.person_outline),
       trailing: IconButton(
         icon: const Icon(Icons.remove_circle_outline),
@@ -471,37 +468,37 @@ class _MemberItem extends StatelessWidget {
       children: [
         _buildPermissionSwitch(
           context,
-          l10n.canViewBook,
+          L10nManager.l10n.canViewBook,
           'canViewBook',
           member.permission.canViewBook,
         ),
         _buildPermissionSwitch(
           context,
-          l10n.canEditBook,
+          L10nManager.l10n.canEditBook,
           'canEditBook',
           member.permission.canEditBook,
         ),
         _buildPermissionSwitch(
           context,
-          l10n.canDeleteBook,
+          L10nManager.l10n.canDeleteBook,
           'canDeleteBook',
           member.permission.canDeleteBook,
         ),
         _buildPermissionSwitch(
           context,
-          l10n.canViewItem,
+          L10nManager.l10n.canViewItem,
           'canViewItem',
           member.permission.canViewItem,
         ),
         _buildPermissionSwitch(
           context,
-          l10n.canEditItem,
+          L10nManager.l10n.canEditItem,
           'canEditItem',
           member.permission.canEditItem,
         ),
         _buildPermissionSwitch(
           context,
-          l10n.canDeleteItem,
+          L10nManager.l10n.canDeleteItem,
           'canDeleteItem',
           member.permission.canDeleteItem,
         ),

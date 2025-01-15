@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../manager/l10n_manager.dart';
+
 /// 通用文本输入框表单组件
 class CommonTextFormField extends StatefulWidget {
   /// 初始值
@@ -113,7 +115,6 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       color: theme.colorScheme.surface,
@@ -133,7 +134,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             enabled: widget.enabled,
             decoration: InputDecoration(
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
-              hintText: widget.hintText ?? (widget.required ? null : l10n.optional),
+              hintText: widget.hintText ?? (widget.required ? null : L10nManager.l10n.optional),
               hintStyle: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.4),
               ),
@@ -162,7 +163,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
                 (widget.required
                     ? (value) {
                         if (value == null || value.isEmpty) {
-                          return l10n.required;
+                          return L10nManager.l10n.required;
                         }
                         return null;
                       }

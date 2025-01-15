@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../manager/l10n_manager.dart';
 import 'tabs/account_items_tab.dart';
 import 'tabs/mine_tab.dart';
 
@@ -20,8 +21,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -34,11 +33,11 @@ class _HomePageState extends State<HomePage> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet),
-            label: l10n.tabAccountItems,
+            label: L10nManager.l10n.tabAccountItems,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),
-            label: l10n.tabMine,
+            label: L10nManager.l10n.tabMine,
           ),
         ],
       ),

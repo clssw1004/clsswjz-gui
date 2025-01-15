@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../manager/l10n_manager.dart';
 import '../../theme/theme_radius.dart';
 import 'common_badge.dart';
 
@@ -163,7 +164,6 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
         return StatefulBuilder(
           builder: (context, setState) {
             final theme = Theme.of(context);
-            final l10n = AppLocalizations.of(context)!;
 
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -181,7 +181,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                       autofocus: widget.items.isEmpty || isAddMode, // 当没有选项或新增模式时自动获取焦点
                       style: Theme.of(context).textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: widget.items.isEmpty || isAddMode ? l10n.addNew(widget.label ?? '') : l10n.search,
+                        hintText: widget.items.isEmpty || isAddMode ? L10nManager.l10n.addNew(widget.label ?? '') : L10nManager.l10n.search,
                         prefixIcon: Icon(
                           widget.items.isEmpty || isAddMode ? Icons.add : Icons.search,
                           color: theme.colorScheme.primary,
@@ -221,7 +221,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                 child: widget.items.isEmpty && _searchText.isEmpty
                     ? Center(
                         child: Text(
-                          l10n.noData,
+                          L10nManager.l10n.noData,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withAlpha(60),
                           ),
@@ -235,7 +235,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                             // 显示新增选项
                             return ListTile(
                               leading: const Icon(Icons.add),
-                              title: Text(l10n.addNew(_searchText)),
+                              title: Text(L10nManager.l10n.addNew(_searchText)),
                               onTap: () async {
                                 if (widget.onCreateItem != null) {
                                   final newItem = await widget.onCreateItem!(_searchText);
@@ -319,12 +319,10 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
           onTap: _showSelectDialog,
           selected: _selectedItem != null,
           backgroundColor: _selectedItem != null ? (widget.badgeColor ?? colorScheme.secondaryContainer) : null,
-          textColor: _selectedItem != null
-              ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer)
-              : null,
-          iconColor: _selectedItem != null
-              ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer)
-              : null,
+          textColor:
+              _selectedItem != null ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer) : null,
+          iconColor:
+              _selectedItem != null ? (widget.badgeColor != null ? theme.colorScheme.onSurface : colorScheme.onSecondaryContainer) : null,
           borderColor: colorScheme.outline.withAlpha(51),
         ),
       ],
@@ -332,7 +330,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
   }
 
   /// 构建更多按钮
-  Widget _buildMoreButton(double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildMoreButton(double buttonWidth, ThemeData theme) {
     return SizedBox(
       width: buttonWidth,
       child: Center(
@@ -353,7 +351,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
           label: SizedBox(
             width: buttonWidth - 32,
             child: Text(
-              l10n.more,
+              L10nManager.l10n.more,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -366,7 +364,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
   }
 
   /// 构建新增按钮
-  Widget _buildAddButton(double buttonWidth, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildAddButton(double buttonWidth, ThemeData theme) {
     return SizedBox(
       width: buttonWidth,
       child: Center(
@@ -398,7 +396,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    l10n.addNew(widget.label ?? ''),
+                    L10nManager.l10n.addNew(widget.label ?? ''),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -420,7 +418,6 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
   /// 构建展开模式
   Widget _buildExpandMode() {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     // 计算每行显示的数量
     final itemsPerRow = (widget.expandCount / widget.expandRows).ceil();
@@ -521,9 +518,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                       if (showButton)
                         SizedBox(
                           width: buttonWidth,
-                          child: showMore
-                              ? _buildMoreButton(buttonWidth, theme, l10n)
-                              : _buildAddButton(buttonWidth, theme, l10n),
+                          child: showMore ? _buildMoreButton(buttonWidth, theme) : _buildAddButton(buttonWidth, theme),
                         ),
                     ],
                   ),

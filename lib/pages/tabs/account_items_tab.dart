@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../enums/account_type.dart';
+import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_books_provider.dart';
 import '../../providers/sync_provider.dart';
@@ -77,7 +78,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
@@ -108,7 +108,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(l10n.noAccountBooks),
+                                Text(L10nManager.l10n.noAccountBooks),
                                 const SizedBox(height: 16),
                                 FilledButton.icon(
                                   onPressed: () async {
@@ -121,7 +121,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                                     }
                                   },
                                   icon: const Icon(Icons.add),
-                                  label: Text(l10n.addNew(l10n.accountBook)),
+                                  label: Text(L10nManager.l10n.addNew(L10nManager.l10n.accountBook)),
                                 ),
                               ],
                             ),
@@ -336,10 +336,9 @@ class _AccountItemListState extends State<_AccountItemList> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
 
     if (widget.loading && (_items == null || _items!.isEmpty)) {
-      return Center(child: Text(l10n.loading));
+      return Center(child: Text(L10nManager.l10n.loading));
     }
 
     if (_items == null || _items!.isEmpty) {
@@ -357,7 +356,7 @@ class _AccountItemListState extends State<_AccountItemList> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  l10n.noAccountItems,
+                  L10nManager.l10n.noAccountItems,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: colorScheme.outline,
                   ),

@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../import/import.factory.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
@@ -30,11 +31,10 @@ class _ImportPageState extends State<ImportPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.importData),
+        title: Text(L10nManager.l10n.importData),
       ),
       body: Stack(
         children: [
@@ -51,7 +51,7 @@ class _ImportPageState extends State<ImportPage> {
                   displayField: (item) => item.name,
                   keyField: (item) => item.id,
                   icon: Icons.book,
-                  label: l10n.accountBook,
+                  label: L10nManager.l10n.accountBook,
                   required: true,
                   onChanged: (value) {
                     setState(() {
@@ -60,7 +60,7 @@ class _ImportPageState extends State<ImportPage> {
                   },
                   validator: (value) {
                     if (value == null) {
-                      return l10n.required;
+                      return L10nManager.l10n.required;
                     }
                     return null;
                   },
@@ -75,7 +75,7 @@ class _ImportPageState extends State<ImportPage> {
                   displayField: (item) => item.name,
                   keyField: (item) => item,
                   icon: Icons.source,
-                  label: l10n.dataSource,
+                  label: L10nManager.l10n.dataSource,
                   required: true,
                   onChanged: (value) {
                     setState(() {
@@ -86,7 +86,7 @@ class _ImportPageState extends State<ImportPage> {
                   },
                   validator: (value) {
                     if (value == null) {
-                      return l10n.required;
+                      return L10nManager.l10n.required;
                     }
                     return null;
                   },
@@ -130,7 +130,7 @@ class _ImportPageState extends State<ImportPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _selectedFile?.path ?? l10n.selectFile,
+                                      _selectedFile?.path ?? L10nManager.l10n.selectFile,
                                       style: theme.textTheme.titleMedium?.copyWith(
                                         color: _selectedFile != null
                                             ? theme.colorScheme.onSurface
@@ -185,7 +185,7 @@ class _ImportPageState extends State<ImportPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 16, top: 8),
                     child: Text(
-                      l10n.required,
+                      L10nManager.l10n.required,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.error,
                       ),
@@ -196,7 +196,7 @@ class _ImportPageState extends State<ImportPage> {
                 // 导入按钮
                 FilledButton(
                   onPressed: _importing ? null : (_canImport ? _importData : null),
-                  child: Text(l10n.import),
+                  child: Text(L10nManager.l10n.import),
                 ),
                 const SizedBox(height: 16),
               ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/user_info_card.dart';
 import '../../routes/app_routes.dart';
@@ -23,7 +24,6 @@ class _MineTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final provider = context.watch<UserProvider>();
@@ -83,13 +83,13 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.book_outlined,
-                  l10n.accountBook,
+                  L10nManager.l10n.accountBook,
                   () => Navigator.pushNamed(context, AppRoutes.accountBooks),
                 ),
                 _buildFeatureItem(
                   context,
                   Icons.category_outlined,
-                  l10n.category,
+                  L10nManager.l10n.category,
                   () => Navigator.pushNamed(
                     context,
                     AppRoutes.categories,
@@ -99,7 +99,7 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.account_balance_wallet_outlined,
-                  l10n.account,
+                  L10nManager.l10n.account,
                   () => Navigator.pushNamed(
                     context,
                     AppRoutes.funds,
@@ -109,7 +109,7 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.store_outlined,
-                  l10n.merchant,
+                  L10nManager.l10n.merchant,
                   () => Navigator.pushNamed(
                     context,
                     AppRoutes.merchants,
@@ -119,7 +119,7 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.local_offer_outlined,
-                  l10n.tag,
+                  L10nManager.l10n.tag,
                   () => Navigator.pushNamed(
                     context,
                     AppRoutes.tags,
@@ -129,7 +129,7 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.folder_outlined,
-                  l10n.project,
+                  L10nManager.l10n.project,
                   () => Navigator.pushNamed(
                     context,
                     AppRoutes.projects,
@@ -139,7 +139,7 @@ class _MineTabView extends StatelessWidget {
                 _buildFeatureItem(
                   context,
                   Icons.file_upload_outlined,
-                  l10n.import,
+                  L10nManager.l10n.import,
                   () => Navigator.pushNamed(context, '/import'),
                 ),
               ],
@@ -163,7 +163,7 @@ class _MineTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                     child: Text(
-                      l10n.systemSettings,
+                      L10nManager.l10n.systemSettings,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.primary,
                         fontWeight: FontWeight.w500,
@@ -173,25 +173,25 @@ class _MineTabView extends StatelessWidget {
                   _buildSettingItem(
                     context,
                     Icons.palette_outlined,
-                    l10n.themeSettings,
+                    L10nManager.l10n.themeSettings,
                     () => Navigator.pushNamed(context, AppRoutes.themeSettings),
                   ),
                   _buildSettingItem(
                     context,
                     Icons.language_outlined,
-                    l10n.languageSettings,
+                    L10nManager.l10n.languageSettings,
                     () => Navigator.pushNamed(context, AppRoutes.languageSettings),
                   ),
                   _buildSettingItem(
                     context,
                     Icons.storage_outlined,
-                    l10n.database,
+                    L10nManager.l10n.database,
                     () => Navigator.pushNamed(context, AppRoutes.databaseViewer),
                   ),
                   _buildSettingItem(
                     context,
                     Icons.info_outline,
-                    l10n.about,
+                    L10nManager.l10n.about,
                     () => Navigator.pushNamed(context, AppRoutes.about),
                     isLast: true,
                   ),
@@ -313,7 +313,6 @@ class _MineTabView extends StatelessWidget {
   Widget _buildSyncSettingItem(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     final syncProvider = context.watch<SyncProvider>();
 
     return Padding(
@@ -329,7 +328,9 @@ class _MineTabView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      syncProvider.lastSyncTime != null ? l10n.lastSyncTime(DateUtil.format(syncProvider.lastSyncTime!)) : l10n.notSynced,
+                      syncProvider.lastSyncTime != null
+                          ? L10nManager.l10n.lastSyncTime(DateUtil.format(syncProvider.lastSyncTime!))
+                          : L10nManager.l10n.notSynced,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
                         fontSize: 14,
