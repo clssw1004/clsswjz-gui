@@ -106,6 +106,7 @@
     },
     "expense": "支出",
     "income": "收入",
+    "transfer": "转账",
     "description": "描述",
     "@description": {
         "description": "描述标签"

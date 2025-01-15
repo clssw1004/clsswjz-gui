@@ -98,6 +98,7 @@
     },
     "expense": "Expense",
     "income": "Income",
+    "transfer": "Transfer",
     "description": "Description",
     "@description": {
         "description": "Description label"

@@ -1,4 +1,5 @@
 import 'package:clsswjz/constants/default_constant.dart';
+import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
@@ -254,9 +255,8 @@ class AppConfigManager {
     await ServiceManager.init();
 
     /// 注册用户
-    await ServiceManager.userService
-        .register(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone)
-        .then((value) => value.data);
+    await UserCULog.create(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone)
+        .execute();
 
     final l10n = AppLocalizations.of(context)!;
 
@@ -283,9 +283,9 @@ class AppConfigManager {
     await ServiceManager.init(syncInit: true);
 
     /// 注册用户
-    await ServiceManager.userService
-        .register(userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000')
-        .then((value) => value.data);
+    await UserCULog.create(
+            userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000')
+        .executeWithoutRecord();
 
     /// 初始化导入数据
     // final result = await ServiceManager.syncService.syncInit();

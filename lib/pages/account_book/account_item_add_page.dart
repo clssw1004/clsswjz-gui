@@ -21,6 +21,7 @@ import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_attachment_field.dart';
+import '../../utils/color_util.dart';
 
 class AccountItemAddPage extends StatelessWidget {
   final UserBookVO accountBook;
@@ -190,6 +191,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 label: Text(l10n.income),
                 icon: const Icon(Icons.add_circle_outline),
               ),
+              ButtonSegment<AccountItemType>(
+                value: AccountItemType.transfer,
+                label: Text(l10n.transfer),
+                icon: const Icon(Icons.swap_horiz_outlined),
+              ),
             ],
             selected: {currentType},
             onSelectionChanged: (Set<AccountItemType> selected) {
@@ -200,13 +206,27 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return currentType == AccountItemType.expense ? colorScheme.errorContainer : colorScheme.primaryContainer;
+                  switch (currentType) {
+                    case AccountItemType.expense:
+                      return ColorUtil.EXPENSE.withAlpha(64);
+                    case AccountItemType.income:
+                      return ColorUtil.INCOME.withAlpha(64);
+                    case AccountItemType.transfer:
+                      return ColorUtil.TRANSFER.withAlpha(64);
+                  }
                 }
                 return null;
               }),
               foregroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return currentType == AccountItemType.expense ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer;
+                  switch (currentType) {
+                    case AccountItemType.expense:
+                      return ColorUtil.EXPENSE;
+                    case AccountItemType.income:
+                      return ColorUtil.INCOME;
+                    case AccountItemType.transfer:
+                      return ColorUtil.TRANSFER;
+                  }
                 }
                 return null;
               }),

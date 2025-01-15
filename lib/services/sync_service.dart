@@ -212,8 +212,6 @@ class SyncService extends BaseService {
     }
     if (percent == progressComplete) {
       await Future.delayed(const Duration(milliseconds: 1000));
-    } else {
-      await Future.delayed(const Duration(milliseconds: 100));
     }
   }
 }

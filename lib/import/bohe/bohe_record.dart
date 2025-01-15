@@ -42,8 +42,21 @@ class BoheRecord {
   });
 
   factory BoheRecord.fromCsv(List<String> row) {
+    String convertType(String type) {
+      switch (type.trim()) {
+        case '支出':
+          return 'EXPENSE';
+        case '收入':
+          return 'INCOME';
+        case '转账':
+          return 'TRANSFER';
+        default:
+          return 'EXPENSE';
+      }
+    }
+
     return BoheRecord(
-      type: row[0],
+      type: convertType(row[0]),
       currency: row[1],
       amount: double.tryParse(row[2]) ?? 0.0,
       exchangeRate: double.tryParse(row[3]) ?? 1.0,

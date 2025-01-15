@@ -4,7 +4,10 @@ enum AccountItemType {
   expense('EXPENSE'),
 
   /// 收入
-  income('INCOME');
+  income('INCOME'),
+
+  /// 转账
+  transfer('TRANSFER');
 
   final String code;
   const AccountItemType(this.code);

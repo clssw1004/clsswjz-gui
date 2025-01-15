@@ -2,16 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import '../../enums/account_type.dart';
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/color_util.dart';
 import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list_tile.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+
+/// 日期收支统计数据
+class DailyStatistics {
+  final String date;
+  final double income;
+  final double expense;
+
+  DailyStatistics(this.date, this.income, this.expense);
+}
 
 /// 账目列表标签页
 class AccountItemsTab extends StatefulWidget {
@@ -67,9 +78,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
@@ -210,6 +218,45 @@ class _AccountItemListState extends State<_AccountItemList> {
   /// 账目列表
   List<AccountItemVO>? _items;
 
+  /// 获取处理后的列表项（包含日期分隔）
+  List<dynamic> _getItemsWithDateHeaders() {
+    if (_items == null || _items!.isEmpty) return [];
+
+    final result = <dynamic>[];
+    String? currentDate;
+    double currentIncome = 0;
+    double currentExpense = 0;
+    final itemsByDate = <String, List<AccountItemVO>>{};
+
+    // 按日期分组并计算统计
+    for (final item in _items!) {
+      final itemDate = item.accountDateOnly;
+      itemsByDate.putIfAbsent(itemDate, () => []).add(item);
+    }
+
+    // 按日期降序排序
+    final sortedDates = itemsByDate.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    for (final date in sortedDates) {
+      final dailyItems = itemsByDate[date]!;
+      currentIncome = 0;
+      currentExpense = 0;
+
+      for (final item in dailyItems) {
+        if (AccountItemType.fromCode(item.type) == AccountItemType.income) {
+          currentIncome += item.amount;
+        } else if (AccountItemType.fromCode(item.type) == AccountItemType.expense) {
+          currentExpense += item.amount;
+        }
+      }
+
+      result.add(DailyStatistics(date, currentExpense, currentIncome));
+      result.addAll(dailyItems);
+    }
+
+    return result;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -222,6 +269,67 @@ class _AccountItemListState extends State<_AccountItemList> {
     if (oldWidget.initialItems != widget.initialItems) {
       _items = widget.initialItems;
     }
+  }
+
+  /// 构建日期分隔标题
+  Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            stats.date,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 4,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 4),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.outline.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const Spacer(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '+${stats.income.toStringAsFixed(2)}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: ColorUtil.INCOME,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '-${stats.expense.toStringAsFixed(2)}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: ColorUtil.EXPENSE,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -261,19 +369,31 @@ class _AccountItemListState extends State<_AccountItemList> {
       );
     }
 
-    return ListView.separated(
+    final itemsWithHeaders = _getItemsWithDateHeaders();
+
+    return ListView.builder(
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _items!.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
+      itemCount: itemsWithHeaders.length,
       itemBuilder: (context, index) {
-        final item = _items![index];
-        return InkWell(
-          onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-          child: AccountItemListTile(
-            item: item,
-            currencySymbol: widget.accountBook.currencySymbol.symbol,
-          ),
+        final item = itemsWithHeaders[index];
+
+        if (item is DailyStatistics) {
+          return _buildDateHeader(item, theme);
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
+              child: AccountItemListTile(
+                item: item,
+                currencySymbol: widget.accountBook.currencySymbol.symbol,
+              ),
+            ),
+            if (index < itemsWithHeaders.length - 1 && itemsWithHeaders[index + 1] is! DailyStatistics) const Divider(height: 1),
+          ],
         );
       },
     );
