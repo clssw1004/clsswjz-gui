@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:io';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
+import 'package:clsswjz/drivers/vo_transfer.dart';
 import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
@@ -12,6 +13,7 @@ import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
+import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -129,6 +131,12 @@ class LogDataDriver implements BookDataDriver {
       }
     }
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<AccountItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0}) async {
+    final items = await DaoManager.accountItemDao.findByAccountBookId(bookId, limit: limit, offset: offset);
+    return OperateResult.success(await VOTransfer.transferAccountItem(items));
   }
 
   @override

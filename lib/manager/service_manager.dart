@@ -1,7 +1,6 @@
 import '../services/health_service.dart';
 import '../services/statistic_service.dart';
 import '../services/account_book_service.dart';
-import '../services/account_item_service.dart';
 import '../services/user_service.dart';
 import '../services/sync_service.dart';
 import '../utils/http_client.dart';
@@ -19,7 +18,6 @@ class ServiceManager extends BaseService {
   static ServiceManager? _instance;
   static late UserService _userService;
   static late AccountBookService _accountBookService;
-  static late AccountItemService _accountItemService;
   static late SyncService _syncService;
   static late AccountCategoryService _accountCategoryService;
   static late AccountFundService _accountFundService;
@@ -37,7 +35,6 @@ class ServiceManager extends BaseService {
     // 初始化所有服务
     _userService = UserService();
     _accountBookService = AccountBookService();
-    _accountItemService = AccountItemService();
     if (syncInit) {
       _syncService = SyncService(httpClient: HttpClient.instance);
       _currentHealthService = HealthService(AppConfigManager.instance.serverUrl!);
@@ -61,9 +58,6 @@ class ServiceManager extends BaseService {
 
   /// 获取账本服务
   static AccountBookService get accountBookService => _accountBookService;
-
-  /// 获取账目服务
-  static AccountItemService get accountItemService => _accountItemService;
 
   /// 获取同步服务
   static SyncService get syncService => _syncService;

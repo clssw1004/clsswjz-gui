@@ -3,13 +3,9 @@ import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
-import '../services/account_item_service.dart';
 
 /// 账本状态管理
 class AccountBooksProvider extends ChangeNotifier {
-  /// 账目服务
-  final _accountItemService = AccountItemService();
-
   /// 账本列表
   List<UserBookVO>? _books;
   List<UserBookVO> get books => _books ?? const [];
@@ -152,7 +148,7 @@ class AccountBooksProvider extends ChangeNotifier {
       _loadingItems = true;
       notifyListeners();
 
-      final result = await _accountItemService.getByAccountBookId(_selectedBook!.id);
+      final result = await DriverFactory.driver.listItemsByBook(AppConfigManager.instance.userId!, _selectedBook!.id, limit: 200);
 
       if (_disposed) return;
 
