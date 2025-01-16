@@ -67,7 +67,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
     String? timezone,
     String? avatar,
   }) {
-    return UserCULog().doUpdate().withData(UserTable.toUpdateCompanion(
+    return UserCULog().doUpdate().target(who).withData(UserTable.toUpdateCompanion(
           nickname: nickname,
           password: password,
           email: email,

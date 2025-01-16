@@ -316,20 +316,14 @@ class _UserInfoPageView extends StatelessWidget {
         );
         if (context.mounted) {
           if (result.ok) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(L10nManager.l10n.modifySuccess(L10nManager.l10n.password))),
-            );
+            ToastUtil.showSuccess(L10nManager.l10n.modifySuccess(L10nManager.l10n.password));
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result.message ?? L10nManager.l10n.modifyFailed(L10nManager.l10n.password, ''))),
-            );
+            ToastUtil.showError(result.message ?? L10nManager.l10n.modifyFailed(L10nManager.l10n.password, ''));
           }
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(L10nManager.l10n.updateFailed)),
-          );
+          ToastUtil.showError(L10nManager.l10n.updateFailed);
         }
       }
     }

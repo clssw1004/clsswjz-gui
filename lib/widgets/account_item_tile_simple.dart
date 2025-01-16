@@ -34,21 +34,23 @@ class AccountItemTileSimple extends StatelessWidget {
     final amountColor = ColorUtil.getAmountColor(item.type);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // 时间线
             SizedBox(
-              width: 72,
+              width: 48,
               child: Stack(
-                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                alignment: Alignment.centerRight,
                 children: [
                   // 竖线
                   Positioned(
                     top: 0,
                     bottom: 0,
+                    right: 5,
                     child: Container(
                       width: 2,
                       decoration: BoxDecoration(
@@ -56,43 +58,42 @@ class AccountItemTileSimple extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            colorScheme.outlineVariant.withOpacity(0.2),
+                            colorScheme.outlineVariant.withAlpha(128),
                             colorScheme.outlineVariant,
-                            colorScheme.outlineVariant.withOpacity(0.2),
+                            colorScheme.outlineVariant.withAlpha(128),
                           ],
                         ),
                       ),
                     ),
                   ),
                   // 时间点
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: amountColor,
-                        width: 2,
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: amountColor.withAlpha(204),
+                          width: 3,
+                        ),
                       ),
                     ),
                   ),
                   // 时间文本
                   Positioned(
-                    left: 0,
+                    right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withAlpha(128),
-                          width: 0.5,
-                        ),
                       ),
                       child: Text(
                         timeString,
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: theme.textTheme.labelSmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
@@ -105,7 +106,7 @@ class AccountItemTileSimple extends StatelessWidget {
             // 内容区域
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.fromLTRB(4, 8, 8, 5),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -124,23 +125,20 @@ class AccountItemTileSimple extends StatelessWidget {
                         children: [
                           Text(
                             item.categoryName ?? '',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
+                            style: theme.textTheme.titleMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            item.description ?? '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.outline,
+                              height: 1.2,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (item.description?.isNotEmpty == true) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              item.description!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.outline,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                         ],
                       ),
                     ),

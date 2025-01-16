@@ -4,6 +4,7 @@ import '../../enums/fund_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_fund_vo.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
@@ -93,9 +94,7 @@ class _FundFormPageState extends State<FundFormPage> {
         Navigator.of(context).pop(true);
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.message ?? '保存失败')),
-          );
+          ToastUtil.showError(result.message ?? '保存失败');
         }
       }
     } finally {

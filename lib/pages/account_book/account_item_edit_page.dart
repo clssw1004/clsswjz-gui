@@ -8,6 +8,7 @@ import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/account_item_form_provider.dart';
 import '../../utils/color_util.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../enums/symbol_type.dart';
@@ -460,12 +461,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onTap: (attachment) async {
               final result = await FileUtil.openFile(attachment);
               if (!result.ok && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.message ?? '打开文件失败'),
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                );
+                ToastUtil.showError(result.message ?? '打开文件失败');
               }
             },
           ),

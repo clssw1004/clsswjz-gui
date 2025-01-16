@@ -1,8 +1,8 @@
 import 'package:clsswjz/constants/default_constant.dart';
-import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/manager/l10n_manager.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
+import '../enums/account_item_view_mode.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -26,6 +26,7 @@ class AppConfigManager {
   static const String _isStorageInitKey = 'is_storage_init';
   static const String _databaseNameKey = 'database_name';
   static const String _lastSyncTimeKey = 'last_sync_time';
+  static const String _accountItemListStyleKey = 'account_item_list_style';
 
   static bool _isInit = false;
 
@@ -86,6 +87,9 @@ class AppConfigManager {
   late int? _lastSyncTime;
   int? get lastSyncTime => _lastSyncTime;
 
+  late AccountItemViewMode _accountItemViewMode;
+  AccountItemViewMode get accountItemViewMode => _accountItemViewMode;
+
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
 
@@ -136,6 +140,11 @@ class AppConfigManager {
 
     // 初始化上次同步时间
     _lastSyncTime = CacheManager.instance.getInt(_lastSyncTimeKey);
+
+    // 初始化账目列表样式
+    final accountItemListStyleString = CacheManager.instance.getString(_accountItemListStyleKey);
+    _accountItemViewMode =
+        accountItemListStyleString == null ? AccountItemViewMode.detail : AccountItemViewMode.fromCode(accountItemListStyleString);
   }
 
   /// 初始化
@@ -233,6 +242,11 @@ class AppConfigManager {
   Future<void> setLastSyncTime(int time) async {
     _lastSyncTime = time;
     await CacheManager.instance.setInt(_lastSyncTimeKey, time);
+  }
+
+  Future<void> setAccountItemViewMode(AccountItemViewMode mode) async {
+    _accountItemViewMode = mode;
+    await CacheManager.instance.setString(_accountItemListStyleKey, mode.code);
   }
 
   /// 是否已经配置过后台服务

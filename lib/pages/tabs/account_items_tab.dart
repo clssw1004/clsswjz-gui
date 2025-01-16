@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_books_provider.dart';
@@ -10,6 +11,7 @@ import '../../widgets/account_book_selector.dart';
 import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
+import '../../enums/account_item_view_mode.dart';
 
 /// 账目列表标签页
 class AccountItemsTab extends StatefulWidget {
@@ -21,7 +23,7 @@ class AccountItemsTab extends StatefulWidget {
 
 class _AccountItemsTabState extends State<AccountItemsTab> {
   bool _isRefreshing = false;
-  bool _useSimpleView = false;
+  AccountItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
 
   @override
   void initState() {
@@ -83,13 +85,16 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
         actions: [
           IconButton(
             onPressed: () {
-              setState(() => _useSimpleView = !_useSimpleView);
+              setState(() {
+                _viewMode = _viewMode == AccountItemViewMode.detail ? AccountItemViewMode.simple : AccountItemViewMode.detail;
+                AppConfigManager.instance.setAccountItemViewMode(_viewMode);
+              });
             },
             icon: Icon(
-              _useSimpleView ? Icons.view_agenda : Icons.view_headline,
+              _viewMode == AccountItemViewMode.detail ? Icons.view_list_outlined : Icons.view_headline_outlined,
               color: Theme.of(context).colorScheme.primary,
             ),
-            tooltip: _useSimpleView ? L10nManager.l10n.detailView : L10nManager.l10n.simpleView,
+            tooltip: _viewMode == AccountItemViewMode.detail ? L10nManager.l10n.simpleView : L10nManager.l10n.detailView,
           ),
         ],
       ),
@@ -133,7 +138,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                               initialItems: bookProvider.items,
                               loading: bookProvider.loadingItems,
                               hasMore: bookProvider.hasMore,
-                              useSimpleView: _useSimpleView,
+                              useSimpleView: _viewMode == AccountItemViewMode.simple,
                               onLoadMore: () => bookProvider.loadMore(),
                               onItemTap: (item) {
                                 Navigator.pushNamed(

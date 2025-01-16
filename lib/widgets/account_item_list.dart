@@ -106,11 +106,6 @@ class _AccountItemListState extends State<AccountItemList> {
   List<dynamic> _getItemsWithDateHeaders() {
     if (_items == null || _items!.isEmpty) return [];
 
-    // 简约模式下直接返回按日期降序排序的列表
-    if (widget.useSimpleView) {
-      return _items!..sort((a, b) => b.accountDate.compareTo(a.accountDate));
-    }
-
     final result = <dynamic>[];
     double currentIncome = 0;
     double currentExpense = 0;
@@ -130,11 +125,14 @@ class _AccountItemListState extends State<AccountItemList> {
       currentIncome = 0;
       currentExpense = 0;
 
-      for (final item in dailyItems) {
-        if (AccountItemType.fromCode(item.type) == AccountItemType.income) {
-          currentIncome += item.amount;
-        } else if (AccountItemType.fromCode(item.type) == AccountItemType.expense) {
-          currentExpense += item.amount;
+      // 简约模式下不计算统计数据
+      if (!widget.useSimpleView) {
+        for (final item in dailyItems) {
+          if (AccountItemType.fromCode(item.type) == AccountItemType.income) {
+            currentIncome += item.amount;
+          } else if (AccountItemType.fromCode(item.type) == AccountItemType.expense) {
+            currentExpense += item.amount;
+          }
         }
       }
 
@@ -155,6 +153,20 @@ class _AccountItemListState extends State<AccountItemList> {
 
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
+    if (widget.useSimpleView) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+        child: Text(
+          stats.date,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.outline,
+            letterSpacing: 0.5,
+          ),
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -349,7 +361,7 @@ class _AccountItemListState extends State<AccountItemList> {
 
         final item = itemsWithHeaders[index];
 
-        if (!widget.useSimpleView && item is DailyStatistics) {
+        if (item is DailyStatistics) {
           return _buildDateHeader(item, theme);
         }
 

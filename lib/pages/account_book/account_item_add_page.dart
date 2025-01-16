@@ -1,3 +1,4 @@
+import 'package:clsswjz/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -483,12 +484,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onTap: (attachment) async {
               final result = await FileUtil.openFile(attachment);
               if (!result.ok && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.message ?? '打开文件失败'),
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                );
+                ToastUtil.showError(result.message ?? '打开文件失败');
               }
             },
           ),
@@ -510,12 +506,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                               }
                             }
                           } else if (context.mounted && provider.error != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(provider.error!),
-                                backgroundColor: theme.colorScheme.error,
-                              ),
-                            );
+                            ToastUtil.showError(provider.error!);
                           }
                         }
                       },

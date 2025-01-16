@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../enums/symbol_type.dart';
 import '../database.dart';
-import '../../utils/date_util.dart';
 import '../tables/account_symbol_table.dart';
 import 'base_dao.dart';
 

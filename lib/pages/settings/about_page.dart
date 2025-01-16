@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../manager/l10n_manager.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -305,16 +306,7 @@ class AboutPage extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              L10nManager.l10n.cannotOpenLink(e.toString()),
-            ),
-            behavior: SnackBarBehavior.floating,
-            width: 300,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        ToastUtil.showError(L10nManager.l10n.cannotOpenLink(e.toString()));
       }
     }
   }
@@ -322,14 +314,7 @@ class AboutPage extends StatelessWidget {
   Future<void> _copyToClipboard(BuildContext context, String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(L10nManager.l10n.linkCopied),
-          behavior: SnackBarBehavior.floating,
-          width: 200,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      ToastUtil.showSuccess(L10nManager.l10n.linkCopied);
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:clsswjz/models/common.dart';
+import 'package:clsswjz/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import '../../constants/account_book_icons.dart';
 import '../../drivers/driver_factory.dart';
@@ -116,12 +117,7 @@ class _AccountBookFormPageState extends State<AccountBookFormPage> {
 
       if (!result.ok) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(L10nManager.l10n.saveFailed(result.message ?? '')),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+          ToastUtil.showError(L10nManager.l10n.saveFailed(result.message ?? ''));
         }
         return;
       }

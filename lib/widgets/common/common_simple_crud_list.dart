@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/common.dart';
+import '../../utils/toast_util.dart';
 import 'common_app_bar.dart';
 import 'common_dialog.dart';
 import 'common_text_form_field.dart';
@@ -250,12 +251,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
 
   void _showError(String? message) {
     if (mounted && message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      ToastUtil.showError(message);
     }
   }
 
