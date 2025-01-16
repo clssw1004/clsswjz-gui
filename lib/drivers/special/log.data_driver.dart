@@ -135,8 +135,8 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<AccountItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0}) async {
-    final items = await DaoManager.accountItemDao.findByAccountBookId(bookId, limit: limit, offset: offset);
+  Future<OperateResult<List<AccountItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 20, int offset = 0}) async {
+    final items = await DaoManager.accountItemDao.listByBook(bookId, limit: limit, offset: offset);
     return OperateResult.success(await VOTransfer.transferAccountItem(items));
   }
 
@@ -353,7 +353,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId) async {
-    final funds = await DaoManager.accountFundDao.findByAccountBookId(bookId);
+    final funds = await DaoManager.accountFundDao.listByBook(bookId);
     return OperateResult.successIfNotNull(await VOTransfer.transferFunds(funds));
   }
 
@@ -395,7 +395,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<AccountShop>>> listShopsByBook(String userId, String bookId) async {
-    final shops = await DaoManager.accountShopDao.findByAccountBookId(bookId);
+    final shops = await DaoManager.accountShopDao.listByBook(bookId);
     return OperateResult.success(shops);
   }
 

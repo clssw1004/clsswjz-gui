@@ -4,17 +4,21 @@ import '../models/vo/account_item_vo.dart';
 import '../utils/color_util.dart';
 
 /// 账目列表项
-class AccountItemListTile extends StatelessWidget {
+class AccountItemTileAdvance extends StatelessWidget {
   /// 账目数据
   final AccountItemVO item;
 
   /// 货币符号
   final String currencySymbol;
 
-  const AccountItemListTile({
+  /// 在列表中的索引
+  final int index;
+
+  const AccountItemTileAdvance({
     super.key,
     required this.item,
     required this.currencySymbol,
+    required this.index,
   });
 
   @override

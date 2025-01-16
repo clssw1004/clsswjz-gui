@@ -27,6 +27,18 @@
     "@noAccountItems": {
         "description": "Text to show when account item list is empty"
     },
+    "noMore": "No more data",
+    "@noMore": {
+        "description": "Text to show when there is no more data to load"
+    },
+    "detailView": "Detail View",
+    "@detailView": {
+        "description": "Switch to detail view"
+    },
+    "simpleView": "Simple View",
+    "@simpleView": {
+        "description": "Switch to simple view"
+    },
     "traditionalChinese": "Traditional Chinese",
     "@traditionalChinese": {
         "description": "Traditional Chinese option"

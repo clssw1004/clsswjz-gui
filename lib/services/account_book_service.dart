@@ -27,10 +27,10 @@ class AccountBookService extends BaseService {
       return null;
     }
 
-    List<AccountFund> funds = await DaoManager.accountFundDao.findByAccountBookId(bookId);
-    List<AccountCategory> categories = await DaoManager.accountCategoryDao.findByAccountBookId(bookId);
-    List<AccountSymbol> symbols = await DaoManager.accountSymbolDao.findByAccountBookId(bookId);
-    List<AccountShop> shops = await DaoManager.accountShopDao.findByAccountBookId(bookId);
+    List<AccountFund> funds = await DaoManager.accountFundDao.listByBook(bookId);
+    List<AccountCategory> categories = await DaoManager.accountCategoryDao.listByBook(bookId);
+    List<AccountSymbol> symbols = await DaoManager.accountSymbolDao.listByBook(bookId);
+    List<AccountShop> shops = await DaoManager.accountShopDao.listByBook(bookId);
 
     return BookMetaVO(
       bookInfo: userBook,

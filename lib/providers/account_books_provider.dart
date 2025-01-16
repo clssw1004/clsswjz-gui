@@ -1,181 +1,130 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 
-/// 账本状态管理
+/// 账本数据提供者
 class AccountBooksProvider extends ChangeNotifier {
   /// 账本列表
-  List<UserBookVO>? _books;
-  List<UserBookVO> get books => _books ?? const [];
+  final List<UserBookVO> _books = [];
 
-  /// 当前选中的账本
+  /// 账目列表
+  final List<AccountItemVO> _items = [];
+
+  /// 选中的账本
   UserBookVO? _selectedBook;
-  UserBookVO? get selectedBook => _selectedBook;
-
-  /// 当前账本的账目列表
-  List<AccountItemVO>? _items;
-  List<AccountItemVO>? get items => _items;
 
   /// 是否正在加载账本列表
   bool _loadingBooks = false;
-  bool get loadingBooks => _loadingBooks;
 
   /// 是否正在加载账目列表
   bool _loadingItems = false;
+
+  /// 是否还有更多数据
+  bool _hasMore = true;
+
+  /// 当前页码
+  int _page = 1;
+
+  /// 每页数量
+  static const int _pageSize = 50;
+
+  /// 获取账本列表
+  List<UserBookVO> get books => _books;
+
+  /// 获取账目列表
+  List<AccountItemVO> get items => _items;
+
+  /// 获取选中的账本
+  UserBookVO? get selectedBook => _selectedBook;
+
+  /// 获取是否正在加载账本列表
+  bool get loadingBooks => _loadingBooks;
+
+  /// 获取是否正在加载账目列表
   bool get loadingItems => _loadingItems;
 
-  /// 错误信息
-  String? _error;
-  String? get error => _error;
-
-  /// 是否已销毁
-  bool _disposed = false;
-
-  /// 是否已初始化
-  bool _initialized = false;
-  bool get initialized => _initialized;
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
+  /// 获取是否还有更多数据
+  bool get hasMore => _hasMore;
 
   /// 初始化
   Future<void> init(String userId) async {
-    if (_disposed || _initialized) return;
-
-    try {
-      _loadingBooks = true;
-      _error = null;
-      notifyListeners();
-
-      final result = await DriverFactory.driver.listBooksByUser(userId);
-
-      if (_disposed) return;
-
-      if (result.ok) {
-        _books = result.data ?? const [];
-        _initialized = true;
-
-        // 如果有账本，选择默认账本
-        if (_books!.isNotEmpty) {
-          final defaultBookId = AppConfigManager.instance.defaultBookId;
-          final defaultBook = _books!.firstWhere(
-            (book) => book.id == defaultBookId,
-            orElse: () => _books!.first,
-          );
-          await setSelectedBook(defaultBook);
-        }
-      } else {
-        _error = result.message;
-        _books = const [];
-      }
-
-      _loadingBooks = false;
-      notifyListeners();
-    } catch (e) {
-      if (_disposed) return;
-
-      _loadingBooks = false;
-      _initialized = true;
-      _error = e.toString();
-      _books = const [];
-      notifyListeners();
-    }
+    await loadBooks(userId);
   }
 
   /// 加载账本列表
   Future<void> loadBooks(String userId) async {
-    if (_disposed) return;
+    if (_loadingBooks) return;
+
+    _loadingBooks = true;
+    notifyListeners();
 
     try {
       final result = await DriverFactory.driver.listBooksByUser(userId);
-
       if (result.ok) {
-        _books = result.data ?? const [];
+        _books.clear();
+        _books.addAll(result.data ?? []);
 
-        // 如果当前没有选中的账本，且有可用的账本，则自动选择一个账本
-        if (_selectedBook == null && _books!.isNotEmpty) {
-          final defaultBookId = AppConfigManager.instance.defaultBookId;
-          final defaultBook = _books!.firstWhere(
-            (book) => book.id == defaultBookId,
-            orElse: () => _books!.first,
+        if (_selectedBook != null) {
+          _selectedBook = _books.firstWhere(
+            (book) => book.id == _selectedBook!.id,
+            orElse: () => _books.first,
           );
-          await setSelectedBook(defaultBook);
+          await loadItems();
+        } else if (_books.isNotEmpty) {
+          _selectedBook = _books.first;
+          await loadItems();
         }
-      } else {
-        _error = result.message;
-        _books = const [];
       }
-
-      notifyListeners();
-    } catch (e) {
-      if (_disposed) return;
-
+    } finally {
       _loadingBooks = false;
-      _error = e.toString();
-      _books = const [];
       notifyListeners();
-    }
-  }
-
-  /// 设置当前账本
-  Future<void> setSelectedBook(UserBookVO? book) async {
-    if (_selectedBook?.id == book?.id) {
-      return;
-    }
-
-    _selectedBook = book;
-    _items = null;
-    notifyListeners();
-
-    if (book != null) {
-      await AppConfigManager.instance.setDefaultBookId(book.id);
-      await loadItems();
     }
   }
 
   /// 加载账目列表
-  Future<void> loadItems() async {
-    if (_selectedBook == null || _loadingItems || _disposed) {
-      return;
+  /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
+  Future<void> loadItems([bool refresh = true]) async {
+    if (_loadingItems || _selectedBook == null) return;
+    if (!refresh && !_hasMore) return;
+
+    _loadingItems = true;
+    if (refresh) {
+      _page = 1;
+      _hasMore = true;
     }
+    notifyListeners();
 
     try {
-      _loadingItems = true;
-      notifyListeners();
-
-      final result = await DriverFactory.driver.listItemsByBook(AppConfigManager.instance.userId!, _selectedBook!.id, limit: 200);
-
-      if (_disposed) return;
-
+      final result = await DriverFactory.driver.listItemsByBook(
+        AppConfigManager.instance.userId!,
+        _selectedBook!.id,
+        offset: (_page - 1) * _pageSize,
+        limit: _pageSize,
+      );
       if (result.ok) {
-        _items = result.data;
-      } else {
-        _error = result.message;
-        _items = null;
+        if (refresh) {
+          _items.clear();
+        }
+        _items.addAll(result.data ?? []);
+        _hasMore = (result.data?.length ?? 0) >= _pageSize;
+        if (!refresh) {
+          _page++;
+        }
       }
-
+    } finally {
       _loadingItems = false;
-      notifyListeners();
-    } catch (e) {
-      if (_disposed) return;
-
-      _loadingItems = false;
-      _error = e.toString();
-      _items = null;
       notifyListeners();
     }
   }
 
-  /// 刷新当前数据
-  Future<void> refresh(String userId) async {
-    await loadBooks(userId);
-    if (_selectedBook != null) {
-      await loadItems();
-    }
+  /// 加载更多账目
+  Future<void> loadMore() => loadItems(false);
+
+  /// 设置选中的账本
+  Future<void> setSelectedBook(UserBookVO book) async {
+    _selectedBook = book;
+    await loadItems();
   }
 }

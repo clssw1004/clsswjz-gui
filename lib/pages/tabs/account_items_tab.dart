@@ -1,28 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import '../../enums/account_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../providers/account_books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
-import '../../utils/color_util.dart';
 import '../../widgets/account_book_selector.dart';
-import '../../widgets/account_item_list_tile.dart';
+import '../../widgets/account_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
-import '../../models/vo/account_item_vo.dart';
-import '../../models/vo/user_book_vo.dart';
-
-/// 日期收支统计数据
-class DailyStatistics {
-  final String date;
-  final double income;
-  final double expense;
-
-  DailyStatistics(this.date, this.income, this.expense);
-}
 
 /// 账目列表标签页
 class AccountItemsTab extends StatefulWidget {
@@ -34,6 +21,7 @@ class AccountItemsTab extends StatefulWidget {
 
 class _AccountItemsTabState extends State<AccountItemsTab> {
   bool _isRefreshing = false;
+  bool _useSimpleView = false;
 
   @override
   void initState() {
@@ -92,6 +80,18 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
             );
           },
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() => _useSimpleView = !_useSimpleView);
+            },
+            icon: Icon(
+              _useSimpleView ? Icons.view_agenda : Icons.view_headline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            tooltip: _useSimpleView ? L10nManager.l10n.detailView : L10nManager.l10n.simpleView,
+          ),
+        ],
       ),
       body: Consumer2<AccountBooksProvider, SyncProvider>(
         builder: (context, bookProvider, syncProvider, child) {
@@ -128,10 +128,13 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                         : CustomRefreshIndicator(
                             onRefresh: _handleRefresh,
                             builder: (context, child, controller) => child,
-                            child: _AccountItemList(
+                            child: AccountItemList(
                               accountBook: accountBook,
                               initialItems: bookProvider.items,
                               loading: bookProvider.loadingItems,
+                              hasMore: bookProvider.hasMore,
+                              useSimpleView: _useSimpleView,
+                              onLoadMore: () => bookProvider.loadMore(),
                               onItemTap: (item) {
                                 Navigator.pushNamed(
                                   context,
@@ -184,224 +187,6 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
           );
         },
       ),
-    );
-  }
-}
-
-/// 账目列表
-class _AccountItemList extends StatefulWidget {
-  /// 账本
-  final UserBookVO accountBook;
-
-  /// 初始账目列表
-  final List<AccountItemVO>? initialItems;
-
-  /// 是否加载中
-  final bool loading;
-
-  /// 点击账目回调
-  final void Function(AccountItemVO item)? onItemTap;
-
-  const _AccountItemList({
-    required this.accountBook,
-    this.initialItems,
-    this.loading = false,
-    this.onItemTap,
-  });
-
-  @override
-  State<_AccountItemList> createState() => _AccountItemListState();
-}
-
-class _AccountItemListState extends State<_AccountItemList> {
-  /// 账目列表
-  List<AccountItemVO>? _items;
-
-  /// 获取处理后的列表项（包含日期分隔）
-  List<dynamic> _getItemsWithDateHeaders() {
-    if (_items == null || _items!.isEmpty) return [];
-
-    final result = <dynamic>[];
-    double currentIncome = 0;
-    double currentExpense = 0;
-    final itemsByDate = <String, List<AccountItemVO>>{};
-
-    // 按日期分组并计算统计
-    for (final item in _items!) {
-      final itemDate = item.accountDateOnly;
-      itemsByDate.putIfAbsent(itemDate, () => []).add(item);
-    }
-
-    // 按日期降序排序
-    final sortedDates = itemsByDate.keys.toList()..sort((a, b) => b.compareTo(a));
-
-    for (final date in sortedDates) {
-      final dailyItems = itemsByDate[date]!;
-      currentIncome = 0;
-      currentExpense = 0;
-
-      for (final item in dailyItems) {
-        if (AccountItemType.fromCode(item.type) == AccountItemType.income) {
-          currentIncome += item.amount;
-        } else if (AccountItemType.fromCode(item.type) == AccountItemType.expense) {
-          currentExpense += item.amount;
-        }
-      }
-
-      result.add(DailyStatistics(date, currentIncome, currentExpense));
-      result.addAll(dailyItems);
-    }
-
-    return result;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _items = widget.initialItems;
-  }
-
-  @override
-  void didUpdateWidget(_AccountItemList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems) {
-      _items = widget.initialItems;
-    }
-  }
-
-  /// 构建日期分隔标题
-  Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withAlpha(255),
-        border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outlineVariant.withAlpha(32),
-            width: 1,
-          ),
-          bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant,
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            stats.date,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            width: 4,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 4),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withAlpha(128),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const Spacer(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (stats.income > 0)
-                Text(
-                  '+${stats.income.toStringAsFixed(2)}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.INCOME,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              if (stats.expense < 0) ...[
-                const SizedBox(width: 8),
-                Text(
-                  stats.expense.toStringAsFixed(2),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.EXPENSE,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    if (widget.loading && (_items == null || _items!.isEmpty)) {
-      return Center(child: Text(L10nManager.l10n.loading));
-    }
-
-    if (_items == null || _items!.isEmpty) {
-      return ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        children: [
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.receipt_long,
-                  size: 48,
-                  color: colorScheme.outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  L10nManager.l10n.noAccountItems,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.outline,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    final itemsWithHeaders = _getItemsWithDateHeaders();
-
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.only(bottom: 8),
-      itemCount: itemsWithHeaders.length,
-      itemBuilder: (context, index) {
-        final item = itemsWithHeaders[index];
-
-        if (item is DailyStatistics) {
-          return _buildDateHeader(item, theme);
-        }
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            InkWell(
-              onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-              child: AccountItemListTile(
-                item: item,
-                currencySymbol: widget.accountBook.currencySymbol.symbol,
-              ),
-            ),
-            if (index < itemsWithHeaders.length - 1 && itemsWithHeaders[index + 1] is! DailyStatistics) const Divider(height: 1),
-          ],
-        );
-      },
     );
   }
 }

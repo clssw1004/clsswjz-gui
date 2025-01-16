@@ -58,7 +58,7 @@ abstract class BaseDao<T extends StringIdTable, D> {
 abstract class BaseBookDao<T extends BaseAccountBookTable, D> extends BaseDao<T, D> {
   BaseBookDao(super.db);
 
-  Future<List<D>> findByAccountBookId(String accountBookId, {int? limit, int? offset}) {
+  Future<List<D>> listByBook(String accountBookId, {int? limit, int? offset}) {
     final query = (db.select(table)
       ..where((t) => t.accountBookId.equals(accountBookId))
       ..orderBy(defaultOrderBy()));

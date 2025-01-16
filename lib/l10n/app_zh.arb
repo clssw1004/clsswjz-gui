@@ -623,5 +623,17 @@
     "notSynced": "未同步",
     "@notSynced": {
         "description": "未同步状态"
+    },
+    "noMore": "没有更多数据了",
+    "@noMore": {
+        "description": "当没有更多数据可加载时显示的文本"
+    },
+    "detailView": "详细视图",
+    "@detailView": {
+        "description": "切换到详细视图"
+    },
+    "simpleView": "简约视图",
+    "@simpleView": {
+        "description": "切换到简约视图"
     }
 }

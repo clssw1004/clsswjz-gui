@@ -27,6 +27,18 @@
     "@noAccountItems": {
         "description": "當賬目列表為空時顯示的文本"
     },
+    "noMore": "沒有更多數據了",
+    "@noMore": {
+        "description": "當沒有更多數據可加載時顯示的文本"
+    },
+    "detailView": "詳細視圖",
+    "@detailView": {
+        "description": "切換到詳細視圖"
+    },
+    "simpleView": "簡約視圖",
+    "@simpleView": {
+        "description": "切換到簡約視圖"
+    },
     "traditionalChinese": "繁體中文",
     "@traditionalChinese": {
         "description": "繁體中文選項"
