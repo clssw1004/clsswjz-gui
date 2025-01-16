@@ -44,7 +44,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
     String? timezone,
     String? avatar,
   }) {
-    return UserCULog().doCreate().withData(UserTable.toCreateCompanion(
+    return UserCULog().doCreate().noParent().withData(UserTable.toCreateCompanion(
           userId: userId,
           username: username,
           password: password,
@@ -67,7 +67,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
     String? timezone,
     String? avatar,
   }) {
-    return UserCULog().doUpdate().target(who).withData(UserTable.toUpdateCompanion(
+    return UserCULog().who(who).doUpdate().noParent().target(who).withData(UserTable.toUpdateCompanion(
           nickname: nickname,
           password: password,
           email: email,

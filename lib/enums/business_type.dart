@@ -1,5 +1,8 @@
 /// 账本操作业务类型
 enum BusinessType {
+  /// 根
+  root('root'),
+
   /// 账目
   item('item'),
 

@@ -18,10 +18,6 @@ import 'fund.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
 
-abstract class DeserializerLog<T extends LogBuilder> {
-  T fromLog(LogSync log);
-}
-
 abstract class LogBuilder<T, RunResult> {
   String? _id;
   String? get id => _id;
@@ -90,6 +86,12 @@ abstract class LogBuilder<T, RunResult> {
     return this;
   }
 
+  LogBuilder noParent() {
+    _parentType = BusinessType.root;
+    _parentId = null;
+    return this;
+  }
+
   LogBuilder target(String businessId) {
     _businessId = businessId;
     return this;
@@ -141,8 +143,8 @@ abstract class LogBuilder<T, RunResult> {
   LogSync toSyncLog() {
     return LogSync(
       id: _id!,
-      parentType: _parentType!.code,
-      parentId: _parentId!,
+      parentType: _parentType?.code ?? BusinessType.root.code,
+      parentId: _parentId ?? 'NONE',
       operatorId: _operatorId!,
       operatedAt: _operatedAt!,
       businessType: _businessType!.code,
