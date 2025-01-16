@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
+import '../database/database.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';
 import '../models/common.dart';
@@ -74,6 +75,9 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteItem(String userId, String bookId, String itemId);
 
   /// 分类相关
+  /// 获取账本分类列表
+  Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(String userId, String bookId, {String? categoryType});
+
   /// 创建分类
   Future<OperateResult<String>> createCategory(String userId, String bookId, {required String name, required String categoryType});
 
@@ -84,6 +88,9 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteCategory(String userId, String bookId, String categoryId);
 
   /// 商家相关
+  /// 获取账本商家列表
+  Future<OperateResult<List<AccountShop>>> listShopsByBook(String userId, String bookId);
+
   /// 创建商家
   Future<OperateResult<String>> createShop(String userId, String bookId, {required String name});
 
@@ -94,6 +101,9 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteShop(String userId, String bookId, String shopId);
 
   /// 其它账本标识
+  /// 获取账本标识列表
+  Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(String userId, String bookId, {SymbolType? symbolType});
+
   /// 创建账本标识
   Future<OperateResult<String>> createSymbol(String userId, String bookId, {required String name, required SymbolType symbolType});
 
@@ -104,6 +114,7 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteSymbol(String userId, String bookId, String symbolId);
 
   /// 账本资金相关
+  /// 获取账本资金列表
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId);
 
   /// 获取账本资金

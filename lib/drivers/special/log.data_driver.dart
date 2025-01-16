@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:io';
+import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/drivers/vo_transfer.dart';
 import 'package:clsswjz/enums/symbol_type.dart';
@@ -310,8 +311,8 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<UserFundVO>> getFund(String who, String bookId, String fundId) async {
-    final fund = await ServiceManager.accountFundService.getFund(fundId);
-    return OperateResult.success(fund);
+    final fund = await DaoManager.accountFundDao.findById(fundId);
+    return OperateResult.successIfNotNull(await VOTransfer.transferFund(fund));
   }
 
   Future<String> addBookMember(String who, String bookId,
@@ -352,8 +353,8 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId) async {
-    final funds = await ServiceManager.accountFundService.getFundsByBook(bookId);
-    return OperateResult.successIfNotNull(funds);
+    final funds = await DaoManager.accountFundDao.findByAccountBookId(bookId);
+    return OperateResult.successIfNotNull(await VOTransfer.transferFunds(funds));
   }
 
   @override
@@ -384,5 +385,23 @@ class LogDataDriver implements BookDataDriver {
             password: password, nickname: nickname, email: email, phone: phone, language: language, timezone: timezone, avatar: avatar)
         .execute();
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(String userId, String bookId, {String? categoryType}) async {
+    final categories = await DaoManager.accountCategoryDao.listCategoriesByBook(bookId, categoryType: categoryType);
+    return OperateResult.success(categories);
+  }
+
+  @override
+  Future<OperateResult<List<AccountShop>>> listShopsByBook(String userId, String bookId) async {
+    final shops = await DaoManager.accountShopDao.findByAccountBookId(bookId);
+    return OperateResult.success(shops);
+  }
+
+  @override
+  Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(String userId, String bookId, {SymbolType? symbolType}) async {
+    final symbols = await DaoManager.accountSymbolDao.listSymbolsByBook(bookId, symbolType: symbolType);
+    return OperateResult.success(symbols);
   }
 }

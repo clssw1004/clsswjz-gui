@@ -10,6 +10,14 @@ class AccountFundDao extends BaseBookDao<AccountFundTable, AccountFund> {
     return (db.select(db.accountFundTable)..where((t) => t.fundType.equals(fundType))).get();
   }
 
+  /// 获取默认资金账户
+  Future<AccountFund?> getDefaultFund(String userId) async {
+    final fund =
+        await (db.select(db.accountFundTable)..where((t) => t.createdBy.equals(userId) & t.isDefault.equals(true))).getSingleOrNull();
+    if (fund == null) {}
+    return fund;
+  }
+
   @override
   TableInfo<AccountFundTable, AccountFund> get table => db.accountFundTable;
 }

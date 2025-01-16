@@ -20,9 +20,10 @@ class TagsPage extends StatelessWidget {
       config: CommonSimpleCrudListConfig(
         title: L10nManager.l10n.tag,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountSymbolService.getSymbolsByType(
+        loadData: () => DriverFactory.driver.listSymbolsByBook(
+          userId,
           accountBook.id,
-          SymbolType.tag.name,
+          symbolType: SymbolType.tag,
         ),
         createItem: (name, _) => DriverFactory.driver.createSymbol(userId, accountBook.id, name: name, symbolType: SymbolType.tag),
         updateItem: (item, {required String name, String? type}) => DriverFactory.driver.updateSymbol(

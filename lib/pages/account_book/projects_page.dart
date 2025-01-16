@@ -20,9 +20,10 @@ class ProjectsPage extends StatelessWidget {
       config: CommonSimpleCrudListConfig(
         title: L10nManager.l10n.project,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountSymbolService.getSymbolsByType(
+        loadData: () => DriverFactory.driver.listSymbolsByBook(
+          userId,
           accountBook.id,
-          SymbolType.project.name,
+          symbolType: SymbolType.project,
         ),
         createItem: (name, _) => DriverFactory.driver.createSymbol(
           userId,

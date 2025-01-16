@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
-import '../../utils/date_util.dart';
 import '../tables/account_category_table.dart';
 import 'base_dao.dart';
 
@@ -11,35 +10,19 @@ class AccountCategoryDao extends BaseBookDao<AccountCategoryTable, AccountCatego
     return (db.select(db.accountCategoryTable)..where((t) => t.code.isIn(codes))).get();
   }
 
-  Future<List<AccountCategory>> findByAccountBookIdAndType(String accountBookId, String categoryType) {
-    return (db.select(db.accountCategoryTable)..where((t) => t.accountBookId.equals(accountBookId) & t.categoryType.equals(categoryType)))
-        .get();
+  Future<List<AccountCategory>> listCategoriesByBook(String accountBookId, {String? categoryType}) {
+    final query = db.select(db.accountCategoryTable)..where((t) => t.accountBookId.equals(accountBookId));
+    if (categoryType != null) {
+      query.where((t) => t.categoryType.equals(categoryType));
+    }
+    return query.get();
   }
 
-  Future<void> createCategory({
-    required String id,
-    required String name,
-    required String code,
-    required String accountBookId,
-    required String categoryType,
-    required String createdBy,
-    required String updatedBy,
-    DateTime? lastAccountItemAt,
-  }) {
-    return insert(
-      AccountCategoryTableCompanion.insert(
-        id: id,
-        name: name,
-        code: code,
-        accountBookId: accountBookId,
-        categoryType: categoryType,
-        lastAccountItemAt: Value(lastAccountItemAt),
-        createdBy: createdBy,
-        updatedBy: updatedBy,
-        createdAt: DateUtil.now(),
-        updatedAt: DateUtil.now(),
-      ),
-    );
+  Future<bool> checkCategoryName(String bookId, String categoryType, String name) async {
+    final categories = await (db.select(db.accountCategoryTable)
+          ..where((t) => t.accountBookId.equals(bookId) & t.categoryType.equals(categoryType) & t.name.equals(name)))
+        .get();
+    return categories.isNotEmpty;
   }
 
   @override

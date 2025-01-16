@@ -2,6 +2,7 @@ import '../database/database.dart';
 import '../enums/symbol_type.dart';
 import '../manager/dao_manager.dart';
 import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_fund_vo.dart';
 import '../utils/collection_util.dart';
 
 class VOTransfer {
@@ -70,5 +71,15 @@ class VOTransfer {
         updatedByName: updatedByUser?.nickname,
       );
     }).toList();
+  }
+
+  /// 将资金账户转换为视图对象
+  static Future<List<UserFundVO>> transferFunds(List<AccountFund>? funds) async {
+    return funds == null || funds.isEmpty ? [] : funds.map((e) => UserFundVO.fromFundAndBooks(e)).toList();
+  }
+
+  /// 将资金账户转换为视图对象
+  static Future<UserFundVO?> transferFund(AccountFund? fund) async {
+    return fund == null ? null : UserFundVO.fromFundAndBooks(fund);
   }
 }

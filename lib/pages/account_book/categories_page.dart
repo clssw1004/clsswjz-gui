@@ -29,9 +29,10 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
       config: CommonSimpleCrudListConfig(
         title: L10nManager.l10n.category,
         getName: (item) => item.name,
-        loadData: () => ServiceManager.accountCategoryService.getCategoriesByType(
+        loadData: () => DriverFactory.driver.listCategoriesByBook(
+          userId,
           widget.accountBook.id,
-          _selectedType,
+          categoryType: _selectedType,
         ),
         createItem: (name, _) => DriverFactory.driver.createCategory(
           userId,

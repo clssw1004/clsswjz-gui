@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../enums/symbol_type.dart';
 import '../database.dart';
 import '../../utils/date_util.dart';
 import '../tables/account_symbol_table.dart';
@@ -23,32 +24,12 @@ class AccountSymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
     return (db.select(db.accountSymbolTable)..where((t) => t.code.equals(code))).getSingleOrNull();
   }
 
-  Future<List<AccountSymbol>> findByAccountBookIdAndType(String accountBookId, String symbolType) {
-    return (db.select(db.accountSymbolTable)..where((t) => t.accountBookId.equals(accountBookId) & t.symbolType.equals(symbolType))).get();
-  }
-
-  Future<void> createSymbol({
-    required String id,
-    required String name,
-    required String code,
-    required String accountBookId,
-    required String symbolType,
-    required String createdBy,
-    required String updatedBy,
-  }) {
-    return insert(
-      AccountSymbolTableCompanion.insert(
-        id: id,
-        name: name,
-        code: code,
-        accountBookId: accountBookId,
-        symbolType: symbolType,
-        createdBy: createdBy,
-        updatedBy: updatedBy,
-        createdAt: DateUtil.now(),
-        updatedAt: DateUtil.now(),
-      ),
-    );
+  Future<List<AccountSymbol>> listSymbolsByBook(String accountBookId, {SymbolType? symbolType}) {
+    final query = (db.select(db.accountSymbolTable)..where((t) => t.accountBookId.equals(accountBookId)));
+    if (symbolType != null) {
+      query.where((t) => t.symbolType.equals(symbolType.code));
+    }
+    return query.get();
   }
 
   @override
