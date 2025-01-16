@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/account_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../models/vo/user_fund_vo.dart';
 import '../../providers/account_item_form_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
@@ -295,8 +296,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
 
           // 账户选择
-          CommonSelectFormField<AccountFund>(
-            items: provider.funds.cast<AccountFund>(),
+          CommonSelectFormField<UserFundVO>(
+            items: provider.funds.cast<UserFundVO>(),
             value: item.fundId,
             displayMode: DisplayMode.iconText,
             displayField: (item) => item.name,

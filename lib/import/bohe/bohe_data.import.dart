@@ -8,6 +8,7 @@ import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import 'package:csv/csv.dart';
 
+import '../../enums/account_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../database/database.dart';
 import '../../enums/fund_type.dart';
@@ -97,8 +98,8 @@ class BoheDataImport extends ImportInterface {
       return categoryMap[categoryName];
     }
     importProgress('正在创建分类 `$categoryName`');
-    OperateResult<String> result = await DriverFactory.driver
-        .createCategory(userId, bookId, name: categoryName, categoryType: record.amount.isNegative ? 'expense' : 'income');
+    OperateResult<String> result = await DriverFactory.driver.createCategory(userId, bookId,
+        name: categoryName, categoryType: record.amount.isNegative ? AccountItemType.expense.code : AccountItemType.income.code);
     if (result.ok && result.data != null) {
       AccountCategory? category = await DaoManager.accountCategoryDao.findById(result.data!);
       if (category != null) {

@@ -1,3 +1,4 @@
+import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -267,8 +268,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
 
           // 账户选择
-          CommonSelectFormField<AccountFund>(
-            items: provider.funds.cast<AccountFund>(),
+          CommonSelectFormField<UserFundVO>(
+            items: provider.funds.cast<UserFundVO>(),
             value: item.fundId,
             displayMode: DisplayMode.iconText,
             displayField: (item) => item.name,
