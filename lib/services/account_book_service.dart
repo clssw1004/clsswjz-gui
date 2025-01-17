@@ -13,13 +13,6 @@ import '../utils/id_util.dart';
 import 'base_service.dart';
 
 class AccountBookService extends BaseService {
-  final AccountBookDao _accountBookDao;
-  final UserDao _userDao;
-
-  AccountBookService()
-      : _accountBookDao = AccountBookDao(DatabaseManager.db),
-        _userDao = UserDao(DatabaseManager.db);
-
   /// 获取账本信息
   Future<BookMetaVO?> getBookMeta(String userId, String bookId) async {
     UserBookVO? userBook = await getAccountBook(userId, bookId);
@@ -50,7 +43,7 @@ class AccountBookService extends BaseService {
       return null;
     }
 
-    final book = await _accountBookDao.findById(bookId);
+    final book = await DaoManager.accountBookDao.findById(bookId);
     if (book == null) {
       return null;
     }
@@ -58,7 +51,7 @@ class AccountBookService extends BaseService {
     final userIds = userBooks.map((e) => e.userId).toList();
 
     final userMap = CollectionUtil.toMap(
-      await _userDao.findByIds(userIds.toList()),
+      await DaoManager.userDao.findByIds(userIds.toList()),
       (e) => e.id,
     );
 
@@ -87,7 +80,7 @@ class AccountBookService extends BaseService {
 
   /// 根据邀请码生成默认成员
   Future<OperateResult<BookMemberVO>> gernerateDefaultMemberByInviteCode(String inviteCode) async {
-    final user = await _userDao.findByInviteCode(inviteCode);
+    final user = await DaoManager.userDao.findByInviteCode(inviteCode);
     if (user == null) {
       return OperateResult.failWithMessage(message: '用户不存在');
     }
@@ -120,7 +113,7 @@ class AccountBookService extends BaseService {
     final bookIds = userBooks.map((e) => e.accountBookId).toList();
 
     // 3. 查询账本详细信息
-    final books = await _accountBookDao.findByIds(bookIds);
+    final books = await DaoManager.accountBookDao.findByIds(bookIds);
 
     // 4. 查询所有账本的成员关系
     final allBookMembers = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.isIn(bookIds))).get();
@@ -134,7 +127,7 @@ class AccountBookService extends BaseService {
 
     // 6. 查询所有用户信息
     final userMap = CollectionUtil.toMap(
-      await _userDao.findByIds(userIds.toList()),
+      await DaoManager.userDao.findByIds(userIds.toList()),
       (e) => e.id,
     );
 
@@ -181,7 +174,7 @@ class AccountBookService extends BaseService {
       String checkUserId = userId;
       if (bookId != null) {
         // 1. 获取用户的所有账本
-        final book = await _accountBookDao.findById(bookId);
+        final book = await DaoManager.accountBookDao.findById(bookId);
         if (book != null) {
           checkUserId = book.createdBy;
         } else {
@@ -189,7 +182,7 @@ class AccountBookService extends BaseService {
         }
       }
 
-      final books = await _accountBookDao.findByCreatedBy(checkUserId);
+      final books = await DaoManager.accountBookDao.findByCreatedBy(checkUserId);
 
       // 2. 检查是否存在同名账本（只检查当前用户创建的账本）
       final existingBook =

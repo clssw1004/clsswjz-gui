@@ -18,10 +18,6 @@ class VOTransfer {
 
     final shopCodes = items.where((item) => item.shopCode != null).map((item) => item.shopCode!).toSet().toList();
 
-    final tagCodes = items.where((item) => item.tagCode != null).map((item) => item.tagCode!).toSet().toList();
-
-    final projectCodes = items.where((item) => item.projectCode != null).map((item) => item.projectCode!).toSet().toList();
-
     // 获取所有用户ID
     final userIds = {
       ...items.map((item) => item.createdBy),
@@ -38,8 +34,8 @@ class VOTransfer {
     final symbolMap = CollectionUtil.groupBy(
         await DaoManager.accountSymbolDao.findByTypes([SymbolType.tag.code, SymbolType.project.code]), (s) => s.symbolType);
 
-    final tags = CollectionUtil.toMap(symbolMap[SymbolType.tag.name] ?? [], (s) => s.code);
-    final projects = CollectionUtil.toMap(symbolMap[SymbolType.project.name] ?? [], (s) => s.code);
+    final tags = CollectionUtil.toMap(symbolMap[SymbolType.tag.code] ?? [], (s) => s.code);
+    final projects = CollectionUtil.toMap(symbolMap[SymbolType.project.code] ?? [], (s) => s.code);
 
     final users = CollectionUtil.toMap(await DaoManager.userDao.findByIds(userIds), (u) => u.id);
 
