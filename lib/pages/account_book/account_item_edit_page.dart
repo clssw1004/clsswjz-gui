@@ -279,7 +279,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             label: L10nManager.l10n.account,
             required: true,
             onChanged: (value) async {
-              final fund = value as AccountFund?;
+              final fund = value as UserFundVO?;
               if (fund != null) {
                 await provider.updateFundAndSave(fund.id, fund.name);
               } else {

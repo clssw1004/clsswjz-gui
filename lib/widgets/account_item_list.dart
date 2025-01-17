@@ -186,23 +186,27 @@ class _AccountItemListState extends State<AccountItemList> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            stats.date,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            width: 4,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 4),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withAlpha(128),
-              shape: BoxShape.circle,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                stats.date,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                width: 32,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withAlpha(128),
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ],
           ),
           const Spacer(),
           Row(

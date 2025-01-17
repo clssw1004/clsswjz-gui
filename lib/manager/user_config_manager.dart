@@ -1,8 +1,7 @@
 import 'package:clsswjz/manager/cache_manager.dart';
 
+import '../drivers/driver_factory.dart';
 import '../models/vo/user_vo.dart';
-import '../services/user_service.dart';
-import 'service_manager.dart';
 
 class UserConfigManager {
   static const _currentUserIdKey = 'current_user_id';
@@ -10,9 +9,6 @@ class UserConfigManager {
   static bool isInited = false;
   static late final UserConfigManager _instance;
   static UserConfigManager get instance => _instance;
-  static late UserService _userService;
-
-  static UserService get userService => _userService;
 
   static String get currentUserIdKey => _currentUserIdKey;
 
@@ -25,15 +21,12 @@ class UserConfigManager {
   UserConfigManager._();
 
   static Future<void> refresh(String userId) async {
-    print('init:$userId');
     if (!isInited) {
       _instance = UserConfigManager._();
-      _userService = ServiceManager.userService;
       isInited = true;
     }
     _currentUserId = userId;
-    final user = await _userService.getUserInfo(userId).then((value) => value.data);
-    print('user: $user');
+    final user = await DriverFactory.driver.getUserInfo(userId).then((value) => value.data);
     setCurrentUser(user!);
   }
 

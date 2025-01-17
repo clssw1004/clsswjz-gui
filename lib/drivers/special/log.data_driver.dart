@@ -11,6 +11,7 @@ import 'package:clsswjz/enums/fund_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
+import 'package:clsswjz/utils/digest_util.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
@@ -20,6 +21,7 @@ import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../enums/currency_symbol.dart';
 import '../../models/common.dart';
+import '../../models/vo/user_vo.dart';
 import '../../utils/collection_util.dart';
 import '../data_driver.dart';
 import '../../constants/account_book_icons.dart';
@@ -378,13 +380,62 @@ class LogDataDriver implements BookDataDriver {
     return OperateResult.success(id);
   }
 
+  /// 获取用户信息
+  @override
+  Future<OperateResult<UserVO>> getUserInfo(String id) async {
+    final user = await DaoManager.userDao.findById(id);
+    if (user == null) {
+      return OperateResult.failWithMessage(message: '用户不存在');
+    }
+    return OperateResult.success(UserVO.fromUser(user: user, avatar: await ServiceManager.attachmentService.getAttachment(user.avatar)));
+  }
+
   @override
   Future<OperateResult<void>> updateUser(String userId,
-      {String? password, String? nickname, String? email, String? phone, String? language, String? timezone, String? avatar}) async {
+      {String? oldPassword,
+      String? newPassword,
+      String? nickname,
+      String? email,
+      String? phone,
+      String? language,
+      String? timezone,
+      File? avatar}) async {
+    String? attachId;
+    if (avatar != null) {
+      attachId = await AttachmentCULog.fromFile(userId, belongType: BusinessType.user, belongId: userId, file: avatar).execute();
+    }
+
+    String? hashedPassword;
+    if (newPassword != null && oldPassword != null) {
+      final user = await DaoManager.userDao.findById(userId);
+      if (user == null) {
+        return OperateResult.failWithMessage(message: '用户不存在');
+      }
+      if (!await verifyPassword(user, oldPassword)) {
+        return OperateResult.failWithMessage(message: '旧密码错误');
+      }
+      hashedPassword = encryptPassword(newPassword);
+    }
     await UserCULog.update(userId,
-            password: password, nickname: nickname, email: email, phone: phone, language: language, timezone: timezone, avatar: avatar)
+            password: hashedPassword,
+            nickname: nickname,
+            email: email,
+            phone: phone,
+            language: language,
+            timezone: timezone,
+            avatar: attachId)
         .execute();
     return OperateResult.success(null);
+  }
+
+  /// 验证密码
+  Future<bool> verifyPassword(User user, String password) async {
+    final hashedPassword = encryptPassword(password);
+    return user.password == hashedPassword;
+  }
+
+  String encryptPassword(String password) {
+    return DigestUtil.toSha256(password);
   }
 
   @override

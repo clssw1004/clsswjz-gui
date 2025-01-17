@@ -24,7 +24,7 @@ class UserProvider extends ChangeNotifier {
   /// 获取用户信息
   Future<void> refreshUserInfo() async {
     try {
-      final result = await ServiceManager.userService.getUserInfo(UserConfigManager.currentUserId);
+      final result = await DriverFactory.driver.getUserInfo(UserConfigManager.currentUserId);
 
       if (result.ok && result.data != null) {
         _user = result.data;
@@ -72,9 +72,9 @@ class UserProvider extends ChangeNotifier {
 
   /// 更新头像
   Future<void> updateAvatar(File file) async {
-    final result = await ServiceManager.userService.updateAvatar(
-      id: UserConfigManager.currentUserId,
-      file: file,
+    await DriverFactory.driver.updateUser(
+      UserConfigManager.currentUserId,
+      avatar: file,
     );
     await refreshUserInfo();
   }
@@ -93,8 +93,8 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await ServiceManager.userService.changePassword(
-        id: UserConfigManager.currentUserId,
+      final result = await DriverFactory.driver.updateUser(
+        UserConfigManager.currentUserId,
         oldPassword: oldPassword,
         newPassword: newPassword,
       );

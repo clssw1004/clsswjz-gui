@@ -10,6 +10,7 @@ import '../models/vo/account_item_vo.dart';
 import '../models/vo/attachment_vo.dart';
 import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_fund_vo.dart';
+import '../models/vo/user_vo.dart';
 
 abstract class BookDataDriver {
   /// 账本相关
@@ -138,6 +139,9 @@ abstract class BookDataDriver {
   /// 删除账本资金
   Future<OperateResult<void>> deleteFund(String userId, String bookId, String fundId);
 
+  /// 用户相关
+  Future<OperateResult<UserVO>> getUserInfo(String id);
+
   /// 注册用户
   Future<OperateResult<String>> register({
     String? userId,
@@ -154,12 +158,13 @@ abstract class BookDataDriver {
   /// 更新用户信息
   Future<OperateResult<void>> updateUser(
     String userId, {
-    String? password,
+    String? oldPassword,
+    String? newPassword,
     String? nickname,
     String? email,
     String? phone,
     String? language,
     String? timezone,
-    String? avatar,
+    File? avatar,
   });
 }

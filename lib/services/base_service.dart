@@ -33,8 +33,4 @@ abstract class BaseService {
       });
     }
   }
-
-  String encryptPassword(String data) {
-    return DigestUtil.toSha256(data);
-  }
 }
