@@ -40,15 +40,8 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
 
     try {
       final syncProvider = context.read<SyncProvider>();
-      final bookProvider = context.read<AccountBooksProvider>();
-      // 先进行同步
-      try {
-        await syncProvider.syncData();
-      } catch (e) {
-        // 同步失败继续刷新列表
-      }
-      // 同步完成后刷新列表
-      await bookProvider.loadItems();
+      // 只进行同步操作，刷新由事件总线统一处理
+      await syncProvider.syncData();
     } finally {
       if (mounted) {
         setState(() => _isRefreshing = false);
@@ -72,7 +65,9 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
         showBackButton: false,
         title: Consumer<AccountBooksProvider>(
           builder: (context, provider, child) {
+            final key = ValueKey('${provider.selectedBook?.id ?? ''}_${provider.books.length}');
             return AccountBookSelector(
+              key: key,
               userId: UserConfigManager.currentUserId,
               books: provider.books,
               selectedBook: provider.selectedBook,

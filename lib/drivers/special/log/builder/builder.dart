@@ -15,6 +15,7 @@ import 'book_member.builder.dart';
 import 'book_shop.builder.dart';
 import 'book_symbol.builder.dart';
 import 'fund.builder.dart';
+import 'user.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
 
@@ -191,6 +192,8 @@ abstract class LogBuilder<T, RunResult> {
         return MemberCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.attachment:
         return AttachmentCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.user:
+        return UserCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError('Unsupported business type: ${log.businessType}');
     }

@@ -1,11 +1,31 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/account_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
+import '../utils/event_bus.dart';
+import '../events/sync_events.dart';
 
 /// 账本数据提供者
 class AccountBooksProvider extends ChangeNotifier {
+  AccountBooksProvider() {
+    // 监听同步完成事件
+    _subscription = EventBus.instance.on<SyncCompletedEvent>((event) async {
+      // 重置状态
+      _loadingBooks = false;
+      _loadingItems = false;
+      _hasMore = true;
+      _page = 1;
+      notifyListeners();
+
+      // 刷新账本列表
+      await loadBooks(AppConfigManager.instance.userId!);
+    });
+  }
+
+  late final StreamSubscription _subscription;
+
   /// 账本列表
   final List<UserBookVO> _books = [];
 
@@ -64,16 +84,27 @@ class AccountBooksProvider extends ChangeNotifier {
       final result = await DriverFactory.driver.listBooksByUser(userId);
       if (result.ok) {
         _books.clear();
+        _items.clear();
+        _selectedBook = null;
+        notifyListeners();
+
         _books.addAll(result.data ?? []);
 
-        if (_selectedBook != null) {
+        // 获取默认账本ID
+        final defaultBookId = AppConfigManager.instance.defaultBookId;
+        if (defaultBookId != null && _books.isNotEmpty) {
+          // 尝试找到默认账本
           _selectedBook = _books.firstWhere(
-            (book) => book.id == _selectedBook!.id,
+            (book) => book.id == defaultBookId,
             orElse: () => _books.first,
           );
-          await loadItems();
         } else if (_books.isNotEmpty) {
           _selectedBook = _books.first;
+        }
+        notifyListeners();
+
+        // 如果有选中的账本，加载账目
+        if (_selectedBook != null) {
           await loadItems();
         }
       }
@@ -125,6 +156,13 @@ class AccountBooksProvider extends ChangeNotifier {
   /// 设置选中的账本
   Future<void> setSelectedBook(UserBookVO book) async {
     _selectedBook = book;
+    AppConfigManager.instance.setDefaultBookId(book.id);
     await loadItems();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

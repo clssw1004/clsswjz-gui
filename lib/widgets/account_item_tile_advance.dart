@@ -35,16 +35,16 @@ class AccountItemTileAdvance extends StatelessWidget {
     final amountColor = ColorUtil.getAmountColor(item.type);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Material(
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.shadow.withOpacity(0.05),
+                color: colorScheme.shadow.withAlpha(10),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../manager/service_manager.dart';
 import '../manager/app_config_manager.dart';
+import '../utils/event_bus.dart';
+import '../events/sync_events.dart';
 
 class SyncProvider extends ChangeNotifier {
   bool _syncing = false;
@@ -31,6 +33,9 @@ class SyncProvider extends ChangeNotifier {
           notifyListeners();
         },
       );
+
+      EventBus.instance.emit(const SyncCompletedEvent());
+
       notifyListeners();
     } finally {
       _syncing = false;

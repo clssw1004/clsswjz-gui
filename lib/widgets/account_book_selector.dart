@@ -32,27 +32,6 @@ class AccountBookSelector extends StatefulWidget {
 }
 
 class _AccountBookSelectorState extends State<AccountBookSelector> {
-  /// 当前选中的账本
-  UserBookVO? _selectedBook;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedBook = widget.selectedBook;
-  }
-
-  /// 添加 didUpdateWidget 生命周期方法来处理外部属性更新
-  @override
-  void didUpdateWidget(AccountBookSelector oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // 当 selectedBook 发生变化时更新内部状态
-    if (widget.selectedBook?.id != oldWidget.selectedBook?.id) {
-      setState(() {
-        _selectedBook = widget.selectedBook;
-      });
-    }
-  }
-
   /// 显示账本选择弹窗
   Future<void> _showBookSelector() async {
     final result = await CommonDialog.show<UserBookVO>(
@@ -66,9 +45,6 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     );
 
     if (result != null && mounted) {
-      setState(() {
-        _selectedBook = result;
-      });
       widget.onSelected?.call(result);
     }
   }
@@ -78,12 +54,12 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    if (_selectedBook == null) {
+    if (widget.selectedBook == null) {
       return Text(L10nManager.l10n.noAccountBooks);
     }
 
-    final isOwner = _selectedBook!.createdBy == widget.userId;
-    final bookName = isOwner ? _selectedBook!.name : '${_selectedBook!.name} (${_selectedBook!.createdByName})';
+    final isOwner = widget.selectedBook!.createdBy == widget.userId;
+    final bookName = isOwner ? widget.selectedBook!.name : '${widget.selectedBook!.name} (${widget.selectedBook!.createdByName})';
 
     return InkWell(
       onTap: _showBookSelector,
@@ -95,7 +71,7 @@ class _AccountBookSelectorState extends State<AccountBookSelector> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              _getBookIcon(_selectedBook!.icon),
+              _getBookIcon(widget.selectedBook!.icon),
               size: 20,
               color: colorScheme.primary,
             ),

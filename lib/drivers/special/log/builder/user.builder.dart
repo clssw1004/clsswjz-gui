@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clsswjz/database/tables/user_table.dart';
 import 'package:clsswjz/drivers/special/log/builder/builder.dart';
 
@@ -31,6 +33,31 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
     } else {
       return UserTable.toJsonString(data as UserTableCompanion);
     }
+  }
+
+  static UserCULog fromCreateLog(LogSync log) {
+    return UserCULog()
+        .who(log.operatorId)
+        .target(log.businessId)
+        .doCreate()
+        .withData(AccountFund.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as UserCULog;
+  }
+
+  static UserCULog fromUpdateLog(LogSync log) {
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    return UserCULog().who(log.operatorId).target(log.businessId).doUpdate().withData(UserTable.toUpdateCompanion(
+          nickname: data['nickname'],
+          password: data['password'],
+          email: data['email'],
+          phone: data['phone'],
+          language: data['language'],
+          timezone: data['timezone'],
+          avatar: data['avatar'],
+        )) as UserCULog;
+  }
+
+  static UserCULog fromLog(LogSync log) {
+    return (OperateType.fromCode(log.operateType) == OperateType.create ? UserCULog.fromCreateLog(log) : UserCULog.fromUpdateLog(log));
   }
 
   static UserCULog create({

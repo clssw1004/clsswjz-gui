@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/service_manager.dart';
@@ -6,9 +7,20 @@ import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';
+import '../utils/event_bus.dart';
+import '../events/sync_events.dart';
 
 /// 用户信息状态管理
 class UserProvider extends ChangeNotifier {
+  UserProvider() {
+    // 监听同步完成事件
+    _subscription = EventBus.instance.on<SyncCompletedEvent>((event) {
+      refreshUserInfo();
+    });
+  }
+
+  late final StreamSubscription _subscription;
+
   bool _loading = false;
   bool get loading => _loading;
 
@@ -20,6 +32,12 @@ class UserProvider extends ChangeNotifier {
 
   UserStatisticVO? _statistic;
   UserStatisticVO? get statistic => _statistic;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 
   /// 获取用户信息
   Future<void> refreshUserInfo() async {
