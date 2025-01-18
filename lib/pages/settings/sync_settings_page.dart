@@ -5,7 +5,6 @@ import '../../manager/l10n_manager.dart';
 import '../../providers/sync_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/forms/self_host_form.dart';
 
 class SyncSettingsPage extends StatefulWidget {
   const SyncSettingsPage({super.key});

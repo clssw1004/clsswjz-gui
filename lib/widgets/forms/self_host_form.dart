@@ -53,13 +53,13 @@ class _SelfHostFormState extends State<SelfHostForm> {
   final _formKey = GlobalKey<FormState>();
   SelfHostFormType _formType = SelfHostFormType.login;
 
-  final _serverUrlController = TextEditingController(text: 'http://192.168.2.147:3000');
-  final _usernameController = TextEditingController(text: 'lss');
-  final _passwordController = TextEditingController(text: '123456');
-  final _nicknameController = TextEditingController(text: 'lss');
-  final _phoneController = TextEditingController(text: '13800138000');
-  final _emailController = TextEditingController(text: 'admin@example.com');
-  final _bookNameController = TextEditingController(text: '我的账本');
+  final _serverUrlController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nicknameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _bookNameController = TextEditingController();
 
   void _handleSubmit() {
     if (!_formKey.currentState!.validate()) return;
