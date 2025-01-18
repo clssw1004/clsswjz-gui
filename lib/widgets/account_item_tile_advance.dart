@@ -86,7 +86,7 @@ class AccountItemTileAdvance extends StatelessWidget {
                                 if (item.tagName != null) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: colorScheme.tertiaryContainer,
