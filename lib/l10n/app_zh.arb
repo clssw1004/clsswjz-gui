@@ -635,5 +635,9 @@
     "simpleView": "简约视图",
     "@simpleView": {
         "description": "切换到简约视图"
+    },
+    "register": "注册",
+    "@register": {
+        "description": "注册按钮文本"
     }
 }

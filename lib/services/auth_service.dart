@@ -2,19 +2,31 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/api_response.dart';
 import '../models/auth_response.dart';
+import '../utils/device.util.dart';
 
 class AuthService {
   final String baseUrl;
 
   AuthService(this.baseUrl);
 
+  Future<ApiResponse<AuthResponse>> register({
+    required String username,
+    required String password,
+    required String nickname,
+    String? email,
+    String? phone,
+    String? avatar,
+    String? language,
+    String? timezone,
+  }) async {
+    return ApiResponse(ok: false, message: '未实现');
+  }
+
   Future<ApiResponse<AuthResponse>> login(
     String username,
-    String password, {
-    String? clientType,
-    String? clientId,
-    String? clientName,
-  }) async {
+    String password,
+    DeviceInfo deviceInfo,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/login'),
@@ -22,9 +34,9 @@ class AuthService {
         body: jsonEncode({
           'username': username,
           'password': password,
-          'clientType': clientType,
-          'clientId': clientId,
-          'clientName': clientName,
+          'clientType': deviceInfo.clientType,
+          'clientId': deviceInfo.clientId,
+          'clientName': deviceInfo.clientName,
         }),
       );
 

@@ -526,5 +526,9 @@
     "notSynced": "未同步",
     "@notSynced": {
         "description": "未同步狀態"
+    },
+    "register": "註冊",
+    "@register": {
+        "description": "註冊按鈕文本"
     }
 }

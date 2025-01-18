@@ -8,13 +8,12 @@ import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/shared_badge.dart';
+import '../../widgets/common/empty_data_view.dart';
 import 'account_book_form_page.dart';
 
 /// 账本列表页面
 class AccountBookListPage extends StatefulWidget {
-  const AccountBookListPage({
-    super.key,
-  });
+  const AccountBookListPage({super.key});
 
   @override
   State<AccountBookListPage> createState() => _AccountBookListPageState();
@@ -40,40 +39,50 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
           if (provider.loadingBooks && provider.books.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          if (provider.books.isEmpty) {
+            return EmptyDataView(
+              icon: Icons.book_outlined,
+              title: L10nManager.l10n.noAccountBooks,
+              buttonText: L10nManager.l10n.addNew(L10nManager.l10n.accountBook),
+              onButtonPressed: () => _showAccountBookForm(context),
+            );
+          }
+
           return RefreshIndicator(
             onRefresh: () => provider.loadBooks(UserConfigManager.currentUserId),
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: provider.books.length,
               itemBuilder: (context, index) {
                 final book = provider.books[index];
                 return _AccountBookCard(
                   book: book,
                   userId: UserConfigManager.currentUserId,
+                  onEdit: () => _showAccountBookForm(context, book),
                 );
               },
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context)
-              .push<bool>(
-            MaterialPageRoute(
-              builder: (context) => const AccountBookFormPage(),
-            ),
-          )
-              .then((created) {
-            if (created == true) {
-              context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
-            }
-          });
-        },
-        tooltip: L10nManager.l10n.addNew(L10nManager.l10n.accountBook),
-        child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAccountBookForm(context),
+        icon: const Icon(Icons.add),
+        label: Text(L10nManager.l10n.addNew(L10nManager.l10n.accountBook)),
       ),
     );
+  }
+
+  Future<void> _showAccountBookForm(BuildContext context, [UserBookVO? book]) async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => AccountBookFormPage(book: book),
+      ),
+    );
+    if (result == true && mounted) {
+      context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
+    }
   }
 }
 
@@ -81,10 +90,12 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
 class _AccountBookCard extends StatelessWidget {
   final UserBookVO book;
   final String userId;
+  final VoidCallback onEdit;
 
   const _AccountBookCard({
     required this.book,
     required this.userId,
+    required this.onEdit,
   });
 
   @override
@@ -95,38 +106,26 @@ class _AccountBookCard extends StatelessWidget {
     final isShared = book.createdBy != userId;
 
     return CommonCardContainer(
-      onTap: () {
-        Navigator.of(context)
-            .push<bool>(
-          MaterialPageRoute(
-            builder: (context) => AccountBookFormPage(book: book),
-          ),
-        )
-            .then((updated) {
-          if (updated == true) {
-            context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
-          }
-        });
-      },
+      onTap: onEdit,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(8),
+                  color: colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   _getBookIcon(book.icon),
-                  size: 20,
+                  size: 24,
                   color: colorScheme.onSecondaryContainer,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,10 +135,15 @@ class _AccountBookCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             book.name,
-                            style: theme.textTheme.titleMedium,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        if (isShared && book.createdByName != null) SharedBadge(name: book.createdByName!),
+                        if (isShared && book.createdByName != null) ...[
+                          const SizedBox(width: 8),
+                          SharedBadge(name: book.createdByName!),
+                        ],
                       ],
                     ),
                     if (book.description?.isNotEmpty == true) ...[
@@ -158,37 +162,48 @@ class _AccountBookCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: colorScheme.outline.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(4),
+                  color: colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   book.currencySymbol.symbol,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               if (book.members.isNotEmpty) ...[
-                const SizedBox(width: 12),
-                Icon(
-                  Icons.people_outline,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${book.members.length}',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
+                const SizedBox(width: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${book.members.length}',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -203,7 +218,7 @@ class _AccountBookCard extends StatelessWidget {
 /// 获取账本图标
 IconData _getBookIcon(String? icon) {
   if (icon == null || icon.isEmpty) {
-    return Icons.book;
+    return Icons.book_outlined;
   }
   // 这里可以根据icon字符串返回对应的图标
   return IconData(int.parse(icon), fontFamily: 'MaterialIcons');

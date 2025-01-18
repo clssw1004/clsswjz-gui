@@ -16,28 +16,14 @@ class SyncSettingsPage extends StatefulWidget {
 
 class _SyncSettingsPageState extends State<SyncSettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _serverUrlController;
-  late final TextEditingController _usernameController;
-  late final TextEditingController _passwordController;
-  String _serverUrl = '';
-  String _username = '';
-  String _password = '';
-  final bool _isChecking = false;
-  final bool _serverValid = false;
 
   @override
   void initState() {
     super.initState();
-    _serverUrlController = TextEditingController(text: _serverUrl);
-    _usernameController = TextEditingController(text: _username);
-    _passwordController = TextEditingController(text: _password);
   }
 
   @override
   void dispose() {
-    _serverUrlController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -76,20 +62,6 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                     : const Icon(Icons.sync),
                 label: Text(syncProvider.syncing ? L10nManager.l10n.syncing : L10nManager.l10n.syncData),
               ),
-            ),
-            const Divider(),
-            SelfHostForm(
-              serverUrlController: _serverUrlController,
-              usernameController: _usernameController,
-              passwordController: _passwordController,
-              isChecking: _isChecking,
-              serverValid: _serverValid,
-              isLoading: false,
-              onServerUrlChanged: (value) => setState(() => _serverUrl = value),
-              onUsernameChanged: (value) => setState(() => _username = value),
-              onPasswordChanged: (value) => setState(() => _password = value),
-              onCheckServer: () {},
-              onSubmit: () {},
             ),
           ],
         ),

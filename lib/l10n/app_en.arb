@@ -609,5 +609,9 @@
     "notSynced": "Not synced",
     "@notSynced": {
         "description": "Not synced status"
+    },
+    "register": "Register",
+    "@register": {
+        "description": "Register button text"
     }
 }
