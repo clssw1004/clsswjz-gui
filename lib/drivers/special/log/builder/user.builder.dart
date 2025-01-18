@@ -40,7 +40,7 @@ class UserCULog extends LogBuilder<UserTableCompanion, String> {
         .who(log.operatorId)
         .target(log.businessId)
         .doCreate()
-        .withData(AccountFund.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as UserCULog;
+        .withData(User.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as UserCULog;
   }
 
   static UserCULog fromUpdateLog(LogSync log) {

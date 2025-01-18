@@ -8,3 +8,5 @@ Future<File> getDatabaseFile(String? fileName) async {
   final file = File(path.join(dbFolder.path, '${fileName ?? dbName}.sqlite'));
   return file;
 }
+
+const defaultAvatar = 'default_avatar';

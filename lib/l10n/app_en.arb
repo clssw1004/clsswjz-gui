@@ -613,5 +613,13 @@
     "register": "Register",
     "@register": {
         "description": "Register button text"
+    },
+    "registerFailed": "Registration failed",
+    "@registerFailed": {
+        "description": "Registration failed message"
+    },
+    "registerError": "Registration error",
+    "@registerError": {
+        "description": "Registration error message"
     }
 }

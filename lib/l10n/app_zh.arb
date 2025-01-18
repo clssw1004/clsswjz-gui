@@ -639,5 +639,13 @@
     "register": "注册",
     "@register": {
         "description": "注册按钮文本"
+    },
+    "registerFailed": "注册失败",
+    "@registerFailed": {
+        "description": "注册失败消息"
+    },
+    "registerError": "注册错误",
+    "@registerError": {
+        "description": "注册错误消息"
     }
 }

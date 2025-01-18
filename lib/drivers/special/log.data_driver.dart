@@ -12,6 +12,7 @@ import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import 'package:clsswjz/utils/digest_util.dart';
+import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
@@ -387,7 +388,8 @@ class LogDataDriver implements BookDataDriver {
     if (user == null) {
       return OperateResult.failWithMessage(message: '用户不存在');
     }
-    return OperateResult.success(UserVO.fromUser(user: user, avatar: await ServiceManager.attachmentService.getAttachment(user.avatar)));
+    return OperateResult.success(UserVO.fromUser(
+        user: user, avatar: user.avatar != defaultAvatar ? await ServiceManager.attachmentService.getAttachment(user.avatar) : null));
   }
 
   @override

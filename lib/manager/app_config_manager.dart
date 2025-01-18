@@ -271,22 +271,12 @@ class AppConfigManager {
     /// 注册用户
     await DriverFactory.driver
         .register(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone);
-
-    /// 创建账本
-    final bookId = await DriverFactory.driver
-        .createBook(userId,
-            name: bookName,
-            defaultFundName: L10nManager.l10n.cash,
-            defaultCategoryName: L10nManager.l10n.noCategory,
-            defaultShopName: L10nManager.l10n.noShop)
-        .then((value) => value.data);
-
-    await _instance.setDefaultBookId(bookId);
+    await _createBook(bookName, userId);
     await _instance.makeStorageInit();
   }
 
   /// 设置服务器信息
-  static Future<void> storgeSelfhostMode(String serverUrl, String userId, String accessToken) async {
+  static Future<void> storgeSelfhostMode(String serverUrl, String userId, String accessToken, {String? bookName}) async {
     _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
@@ -298,15 +288,22 @@ class AppConfigManager {
     await DatabaseManager.init();
     await ServiceManager.init(syncInit: true);
 
-    /// 注册用户
-    await DriverFactory.driver.register(
-        userId: userId, username: 'cuiwei', password: 'cuiwei', nickname: '崔伟', email: 'cuiwei@clsswjz.com', phone: '13800138000');
+    if (bookName != null) {
+      await _createBook(bookName, userId);
+    }
 
-    /// 初始化导入数据
-    // final result = await ServiceManager.syncService.syncInit();
-    // if (result.ok) {
-    //   await _instance.setLastSyncTime(result.data!);
-    // }
     await _instance.makeStorageInit();
+  }
+
+  static Future<void> _createBook(String bookName, String userId) async {
+    /// 创建账本
+    final result = await DriverFactory.driver.createBook(userId,
+        name: bookName,
+        defaultFundName: L10nManager.l10n.cash,
+        defaultCategoryName: L10nManager.l10n.noCategory,
+        defaultShopName: L10nManager.l10n.noShop);
+    if (result.ok) {
+      await _instance.setDefaultBookId(result.data);
+    }
   }
 }

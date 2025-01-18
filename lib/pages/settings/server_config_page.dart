@@ -1,6 +1,8 @@
 import 'package:clsswjz/enums/storage_mode.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
+import 'package:clsswjz/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../services/auth_service.dart';
 import '../../services/health_service.dart';
@@ -38,8 +40,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     });
   }
 
-  Future<void> registerSelfhost(SelfHostFormData data) async {}
-
+  /// 初始化离线模式
   Future<void> _initOffline(OfflineFormData data) async {
     setState(() => _isLoading = true);
     await AppConfigManager.storageOfflineMode(
@@ -58,23 +59,24 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     }
   }
 
-  Future<void> _initSelfhost(SelfHostFormData data) async {
+  Future<void> _initSelfhost(SelfHostFormData data, SelfHostFormType type) async {
     if (_isLoading) {
       return;
     }
-
     setState(() => _isLoading = true);
     try {
       final deviceInfo = await DeviceUtil.getDeviceInfo(context);
       final authService = AuthService(data.serverUrl);
-      final result = await authService.login(data.username, data.password, deviceInfo);
+      final result = await authService.loginOrRegister(type, data, deviceInfo);
       if (result.ok && result.data != null) {
         await AppConfigManager.storgeSelfhostMode(
           data.serverUrl,
           result.data!.userId,
           result.data!.accessToken,
+          bookName: data.bookName,
         );
-        await Future.delayed(const Duration(milliseconds: 100));
+        final syncProvider = Provider.of<SyncProvider>(context, listen: false);
+        await syncProvider.syncData();
         if (mounted) {
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
           RestartWidget.restartApp(context);
@@ -124,11 +126,8 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
                 isChecking: _isChecking,
                 serverValid: _serverValid,
                 isLoading: _isLoading,
-                onCheckServer: (serverUrl) async => await _checkServer(serverUrl),
-                onLogin: (data) async => await _initSelfhost(data),
-                onRegister: (data) {
-                  // TODO: 处理注册逻辑
-                },
+                onCheckServer: _checkServer,
+                onSubmit: _initSelfhost,
               ),
             if (_storageMode == StorageMode.offline)
               OfflineForm(

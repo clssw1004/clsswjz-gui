@@ -530,5 +530,13 @@
     "register": "註冊",
     "@register": {
         "description": "註冊按鈕文本"
+    },
+    "registerFailed": "註冊失敗",
+    "@registerFailed": {
+        "description": "註冊失敗消息"
+    },
+    "registerError": "註冊錯誤",
+    "@registerError": {
+        "description": "註冊錯誤消息"
     }
 }
