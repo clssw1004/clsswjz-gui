@@ -309,8 +309,6 @@ class _AccountItemListState extends State<AccountItemList> {
                   index: itemIndex,
                 ),
         ),
-        if (!widget.useSimpleView && index < itemsWithHeaders.length - 1 && itemsWithHeaders[index + 1] is! DailyStatistics)
-          const Divider(height: 1),
       ],
     );
   }
