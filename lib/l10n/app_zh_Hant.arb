@@ -179,8 +179,8 @@
     "@selfHostStorage": {
         "description": "私有服務器模式"
     },
-    "connectServer": "連接服務器",
-    "@connectServer": {
+    "loginAndSync": "登錄並同步",
+    "@loginAndSync": {
         "description": "連接服務器按鈕文本"
     },
     "optional": "可選",
@@ -529,7 +529,11 @@
     },
     "register": "註冊",
     "@register": {
-        "description": "註冊按鈕文本"
+        "description": "註冊"
+    },
+    "registerAndSync": "註冊並同步",
+    "@registerAndSync": {
+        "description": "註冊並同步按鈕文本"
     },
     "registerFailed": "註冊失敗",
     "@registerFailed": {

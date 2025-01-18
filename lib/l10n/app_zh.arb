@@ -163,8 +163,8 @@
     "@selfHostStorage": {
         "description": "私有服务器模式"
     },
-    "connectServer": "连接服务器",
-    "@connectServer": {
+    "loginAndSync": "登录并同步",
+    "@loginAndSync": {
         "description": "连接服务器按钮文本"
     },
     "optional": "可选",
@@ -638,7 +638,11 @@
     },
     "register": "注册",
     "@register": {
-        "description": "注册按钮文本"
+        "description": "注册"
+    },
+    "registerAndSync": "注册并同步",
+    "@registerAndSync": {
+        "description": "注册并同步按钮文本"
     },
     "registerFailed": "注册失败",
     "@registerFailed": {

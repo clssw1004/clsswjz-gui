@@ -173,8 +173,8 @@
     "@selfHostStorage": {
         "description": "Self-hosted server mode"
     },
-    "connectServer": "Connect Server",
-    "@connectServer": {
+    "loginAndSync": "Login and Sync",
+    "@loginAndSync": {
         "description": "Connect server button text"
     },
     "optional": "Optional",
@@ -613,6 +613,10 @@
     "register": "Register",
     "@register": {
         "description": "Register button text"
+    },
+    "registerAndSync": "Register and Sync",
+    "@registerAndSync": {
+        "description": "Register and Sync button text"
     },
     "registerFailed": "Registration failed",
     "@registerFailed": {

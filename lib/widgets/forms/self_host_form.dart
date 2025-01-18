@@ -174,7 +174,7 @@ class _SelfHostFormState extends State<SelfHostForm> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(_formType == SelfHostFormType.register ? L10nManager.l10n.register : L10nManager.l10n.connectServer),
+                : Text(_formType == SelfHostFormType.register ? L10nManager.l10n.registerAndSync : L10nManager.l10n.loginAndSync),
           ),
         ],
       ),
