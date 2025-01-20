@@ -84,8 +84,8 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
       } else {
         ToastUtil.showError(L10nManager.l10n.loginFailed);
       }
-    } catch (e) {
-      ToastUtil.showError(L10nManager.l10n.loginError);
+      // } catch (e) {
+      //   ToastUtil.showError(L10nManager.l10n.loginError);
     } finally {
       setState(() => _isLoading = false);
     }

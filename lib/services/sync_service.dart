@@ -16,6 +16,7 @@ import '../models/sync.dart';
 import '../utils/attachment.util.dart';
 import '../utils/http_client.dart';
 import 'base_service.dart';
+import 'package:flutter/foundation.dart';
 
 /// 数据同步服务
 class SyncService extends BaseService {
@@ -58,9 +59,10 @@ class SyncService extends BaseService {
       await _syncServerChanges(changes: syncResult.changes, syncTimestamp: syncResult.syncTimeStamp, onProgress: onProgress);
       AppConfigManager.instance.setLastSyncTime(syncResult.syncTimeStamp);
       await _processOnProgress(onProgress, progressComplete, l10n.syncComplete);
-    } catch (e) {
-      await _processOnProgress(onProgress, progressComplete, L10nManager.l10n.syncFailed(e.toString()));
-      rethrow;
+    } catch (e, stackTrace) {
+      debugPrint('Sync error: $e');
+      debugPrint('Stack trace: $stackTrace');
+      await _processOnProgress(onProgress, progressComplete, L10nManager.l10n.syncFailed('$e\n$stackTrace'));
     }
   }
 

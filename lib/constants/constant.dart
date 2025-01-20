@@ -10,3 +10,5 @@ Future<File> getDatabaseFile(String? fileName) async {
 }
 
 const defaultAvatar = 'default_avatar';
+
+const clsswCloud = 'cuiwei';
