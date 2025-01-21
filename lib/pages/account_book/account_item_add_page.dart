@@ -196,7 +196,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               ButtonSegment<AccountItemType>(
                 value: AccountItemType.transfer,
                 label: Text(L10nManager.l10n.transfer),
-                icon: const Icon(Icons.swap_horiz_outlined),
+                icon: const Icon(Icons.swap_horizontal_circle_outlined),
               ),
             ],
             selected: {currentType},
@@ -491,41 +491,40 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
           // 保存按钮
           SizedBox(height: spacing.formGroupSpacing),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FilledButton.icon(
-                onPressed: provider.saving
-                    ? null
-                    : () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          if (await provider.create()) {
-                            if (context.mounted) {
-                              if (widget.onSaved != null) {
-                                widget.onSaved!();
-                              }
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FilledButton.icon(
+              onPressed: provider.saving
+                  ? null
+                  : () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (await provider.create()) {
+                          if (context.mounted) {
+                            if (widget.onSaved != null) {
+                              widget.onSaved!();
                             }
-                          } else if (context.mounted && provider.error != null) {
-                            ToastUtil.showError(provider.error!);
                           }
+                        } else if (context.mounted && provider.error != null) {
+                          ToastUtil.showError(provider.error!);
                         }
-                      },
-                icon: provider.saving
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
-                      )
-                    : const Icon(Icons.save_outlined),
-                label: Text(L10nManager.l10n.save),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
+                      }
+                    },
+              icon: provider.saving
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorScheme.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.save_outlined),
+              label: Text(L10nManager.l10n.save),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
-            ],
+            ),
           ),
         ],
       ),

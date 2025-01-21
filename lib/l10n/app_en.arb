@@ -432,7 +432,7 @@
     },
     "syncData": "Sync Data",
     "syncing": "Syncing...",
-    "syncSuccess": "Sync successful",
+    "syncSuccess": "Sync Successful",
     "syncFailed": "Sync failed: {error}",
     "@syncFailed": {
         "placeholders": {
@@ -625,5 +625,15 @@
     "registerError": "Registration error",
     "@registerError": {
         "description": "Registration error message"
-    }
+    },
+    "importComplete": "Import Complete",
+    "create": "Create",
+    "edit": "Edit",
+    "type": "Type",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "confirmDelete": "Confirm Delete",
+    "deleteConfirmMessage": "Are you sure to delete [{name}]?",
+    "takePhoto": "Take Photo",
+    "chooseFromGallery": "Choose from Gallery"
 }

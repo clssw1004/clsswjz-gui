@@ -651,5 +651,6 @@
     "registerError": "注册错误",
     "@registerError": {
         "description": "注册错误消息"
-    }
+    },
+    "importComplete": "导入完成"
 }

@@ -106,7 +106,7 @@ class AccountItemTileSimple extends StatelessWidget {
             // 内容区域
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(

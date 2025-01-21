@@ -169,7 +169,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               ButtonSegment<AccountItemType>(
                 value: AccountItemType.transfer,
                 label: Text(L10nManager.l10n.transfer),
-                icon: const Icon(Icons.swap_horiz_outlined),
+                icon: const Icon(Icons.swap_horizontal_circle_outlined),
               ),
             ],
             selected: {currentType},

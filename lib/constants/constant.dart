@@ -11,4 +11,4 @@ Future<File> getDatabaseFile(String? fileName) async {
 
 const defaultAvatar = 'default_avatar';
 
-const clsswCloud = 'cuiwei';
+const clsswCloud = 'http://139.224.41.190:13999';

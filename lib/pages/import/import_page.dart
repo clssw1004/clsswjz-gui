@@ -10,6 +10,7 @@ import '../../providers/account_books_provider.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/import_source.dart';
+import '../../providers/sync_provider.dart';
 
 class ImportPage extends StatefulWidget {
   const ImportPage({super.key});
@@ -26,6 +27,7 @@ class _ImportPageState extends State<ImportPage> {
   bool _importing = false;
   double _importProgress = 0.0;
   String _importMessage = '';
+  bool _importComplete = false;
 
   @override
   Widget build(BuildContext context) {
@@ -161,22 +163,6 @@ class _ImportPageState extends State<ImportPage> {
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: theme.colorScheme.outline.withAlpha(20),
-                            ),
-                          ),
-                        ),
-                        child: _importing
-                            ? ProgressIndicatorBar(
-                                label: _importMessage,
-                                value: _importProgress,
-                              )
-                            : const SizedBox(height: 4),
-                      ),
                     ],
                   ),
                 ),
@@ -192,11 +178,49 @@ class _ImportPageState extends State<ImportPage> {
                   ),
                 const SizedBox(height: 32),
 
-                // 导入按钮
-                FilledButton(
-                  onPressed: _importing ? null : (_canImport ? _importData : null),
-                  child: Text(L10nManager.l10n.import),
-                ),
+                // 导入按钮区域
+                if (_importing)
+                  // 导入进度
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withAlpha(20),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: ProgressIndicatorBar(
+                      label: _importMessage,
+                      value: _importProgress,
+                    ),
+                  )
+                else if (_importComplete)
+                  // 导入完成按钮
+                  FilledButton.icon(
+                    onPressed: () {
+                      // 先返回首页
+                      Navigator.of(context).pop();
+                      // 然后同步数据
+                      context.read<SyncProvider>().syncData();
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      backgroundColor: theme.colorScheme.primary,
+                    ),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: Text(L10nManager.l10n.importComplete),
+                  )
+                else
+                  // 导入按钮
+                  FilledButton.icon(
+                    onPressed: _canImport ? _importData : null,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(L10nManager.l10n.import),
+                  ),
                 const SizedBox(height: 16),
               ],
             ),
@@ -252,6 +276,7 @@ class _ImportPageState extends State<ImportPage> {
     } finally {
       setState(() {
         _importing = false;
+        _importComplete = true;
       });
     }
   }
