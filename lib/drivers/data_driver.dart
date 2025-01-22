@@ -6,11 +6,11 @@ import '../database/database.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';
 import '../models/common.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../models/vo/attachment_vo.dart';
-import '../models/vo/book_member_vo.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../models/vo/user_vo.dart';
+import '../models/vo/user_note_vo.dart';
 
 abstract class BookDataDriver {
   /// 账本相关
@@ -39,7 +39,7 @@ abstract class BookDataDriver {
   Future<OperateResult<List<UserBookVO>>> listBooksByUser(String userId);
 
   /// 获取账本账目列表
-  Future<OperateResult<List<AccountItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0});
+  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0});
 
   /// 账目相关
   /// 创建账目
@@ -167,4 +167,17 @@ abstract class BookDataDriver {
     String? timezone,
     File? avatar,
   });
+
+  /// 记事相关
+  /// 获取用户记事列表
+  Future<OperateResult<List<UserNoteVO>>> listNotes(String userId);
+
+  /// 创建记事
+  Future<OperateResult<String>> createNote(String userId, {required UserNoteVO note});
+
+  /// 更新记事
+  Future<OperateResult<void>> updateNote(String userId, {required UserNoteVO note});
+
+  /// 删除记事
+  Future<OperateResult<void>> deleteNote(String userId, {required String noteId});
 }

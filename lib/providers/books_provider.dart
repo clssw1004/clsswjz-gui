@@ -2,14 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../utils/event_bus.dart';
 import '../events/sync_events.dart';
 
 /// 账本数据提供者
-class AccountBooksProvider extends ChangeNotifier {
-  AccountBooksProvider() {
+class BooksProvider extends ChangeNotifier {
+  BooksProvider() {
     // 监听同步完成事件
     _subscription = EventBus.instance.on<SyncCompletedEvent>((event) async {
       // 重置状态
@@ -30,7 +30,7 @@ class AccountBooksProvider extends ChangeNotifier {
   final List<UserBookVO> _books = [];
 
   /// 账目列表
-  final List<AccountItemVO> _items = [];
+  final List<UserItemVO> _items = [];
 
   /// 选中的账本
   UserBookVO? _selectedBook;
@@ -54,7 +54,7 @@ class AccountBooksProvider extends ChangeNotifier {
   List<UserBookVO> get books => _books;
 
   /// 获取账目列表
-  List<AccountItemVO> get items => _items;
+  List<UserItemVO> get items => _items;
 
   /// 获取选中的账本
   UserBookVO? get selectedBook => _selectedBook;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app_init.dart';
-import '../providers/account_books_provider.dart';
+import '../providers/books_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/sync_provider.dart';
 import '../providers/theme_provider.dart';
@@ -27,8 +27,8 @@ class ProviderManager {
           ChangeNotifierProvider<UserProvider>(
             create: (_) => UserProvider()..refreshUserInfo(),
           ),
-          ChangeNotifierProvider<AccountBooksProvider>(
-            create: (_) => AccountBooksProvider()..init(UserConfigManager.currentUserId),
+          ChangeNotifierProvider<BooksProvider>(
+            create: (_) => BooksProvider()..init(UserConfigManager.currentUserId),
           ),
           ChangeNotifierProvider<SyncProvider>(
             create: (_) => SyncProvider(),

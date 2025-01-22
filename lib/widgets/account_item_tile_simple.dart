@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../utils/color_util.dart';
 
 /// 简略版账目列表项
 class AccountItemTileSimple extends StatelessWidget {
   /// 账目数据
-  final AccountItemVO item;
+  final UserItemVO item;
 
   /// 货币符号
   final String currencySymbol;

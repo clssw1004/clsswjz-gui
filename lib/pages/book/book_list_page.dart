@@ -4,27 +4,27 @@ import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../providers/account_books_provider.dart';
+import '../../providers/books_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/shared_badge.dart';
 import '../../widgets/common/empty_data_view.dart';
-import 'account_book_form_page.dart';
+import 'book_form_page.dart';
 
 /// 账本列表页面
-class AccountBookListPage extends StatefulWidget {
-  const AccountBookListPage({super.key});
+class BookListPage extends StatefulWidget {
+  const BookListPage({super.key});
 
   @override
-  State<AccountBookListPage> createState() => _AccountBookListPageState();
+  State<BookListPage> createState() => _BookListPageState();
 }
 
-class _AccountBookListPageState extends State<AccountBookListPage> {
+class _BookListPageState extends State<BookListPage> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
     });
   }
 
@@ -34,7 +34,7 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.accountBooks),
       ),
-      body: Consumer<AccountBooksProvider>(
+      body: Consumer<BooksProvider>(
         builder: (context, provider, child) {
           if (provider.loadingBooks && provider.books.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -77,11 +77,11 @@ class _AccountBookListPageState extends State<AccountBookListPage> {
   Future<void> _showAccountBookForm(BuildContext context, [UserBookVO? book]) async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (context) => AccountBookFormPage(book: book),
+        builder: (context) => BookFormPage(book: book),
       ),
     );
     if (result == true && mounted) {
-      context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
     }
   }
 }

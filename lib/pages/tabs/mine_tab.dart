@@ -1,4 +1,4 @@
-import 'package:clsswjz/providers/account_books_provider.dart';
+import 'package:clsswjz/providers/books_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +26,7 @@ class _MineTabView extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final provider = context.watch<UserProvider>();
-    final bookProvider = context.read<AccountBooksProvider>();
+    final bookProvider = context.read<BooksProvider>();
     final accountBook = bookProvider.selectedBook;
 
     return Scaffold(

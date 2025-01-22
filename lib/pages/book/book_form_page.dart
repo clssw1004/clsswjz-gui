@@ -6,8 +6,6 @@ import '../../drivers/driver_factory.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
-import '../../models/vo/account_book_permission_vo.dart';
-import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
@@ -18,20 +16,20 @@ import '../../widgets/common/common_icon_picker.dart';
 import '../../theme/theme_spacing.dart';
 
 /// 账本详情编辑页面
-class AccountBookFormPage extends StatefulWidget {
+class BookFormPage extends StatefulWidget {
   /// 账本信息（编辑模式时必传）
   final UserBookVO? book;
 
-  const AccountBookFormPage({
+  const BookFormPage({
     super.key,
     this.book,
   });
 
   @override
-  State<AccountBookFormPage> createState() => _AccountBookFormPageState();
+  State<BookFormPage> createState() => _BookFormPageState();
 }
 
-class _AccountBookFormPageState extends State<AccountBookFormPage> {
+class _BookFormPageState extends State<BookFormPage> {
   /// 表单Key
   final _formKey = GlobalKey<FormState>();
 

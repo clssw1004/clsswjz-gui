@@ -3,6 +3,7 @@
     "appName": "Clsswjz",
     "tabAccountItems": "Records",
     "tabMine": "MY",
+    "tabNotes": "Notes",
     "settings": "Settings",
     "notLoggedIn": "Not Logged In",
     "accountBook": "Account Book",
@@ -635,5 +636,13 @@
     "confirmDelete": "Confirm Delete",
     "deleteConfirmMessage": "Are you sure to delete [{name}]?",
     "takePhoto": "Take Photo",
-    "chooseFromGallery": "Choose from Gallery"
+    "chooseFromGallery": "Choose from Gallery",
+    "title": "Title",
+    "@title": {
+        "description": "Title label"
+    },
+    "content": "Content",
+    "@content": {
+        "description": "Content label"
+    }
 }

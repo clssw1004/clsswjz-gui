@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../manager/l10n_manager.dart';
-import '../../models/vo/account_item_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
-import '../../providers/account_item_form_provider.dart';
+import '../../providers/account_item_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../enums/symbol_type.dart';
@@ -25,11 +25,11 @@ import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_attachment_field.dart';
 import '../../utils/color_util.dart';
 
-class AccountItemAddPage extends StatelessWidget {
+class ItemAddPage extends StatelessWidget {
   final UserBookVO accountBook;
-  final AccountItemVO? item;
+  final UserItemVO? item;
 
-  const AccountItemAddPage({
+  const ItemAddPage({
     super.key,
     required this.accountBook,
     this.item,

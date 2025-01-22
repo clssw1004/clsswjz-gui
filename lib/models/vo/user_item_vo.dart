@@ -1,7 +1,7 @@
 import '../../database/database.dart';
 
 /// 账目视图对象
-class AccountItemVO {
+class UserItemVO {
   /// ID
   final String id;
 
@@ -80,7 +80,7 @@ class AccountItemVO {
   /// 更新时间（格式化）
   String updatedAtString;
 
-  AccountItemVO({
+  UserItemVO({
     required this.id,
     required this.amount,
     this.description,
@@ -108,7 +108,7 @@ class AccountItemVO {
   });
 
   /// 从账目对象创建视图对象
-  static AccountItemVO fromAccountItem({
+  static UserItemVO fromAccountItem({
     required AccountItem item,
     String? categoryName,
     String? fundName,
@@ -118,7 +118,7 @@ class AccountItemVO {
     String? createdByName,
     String? updatedByName,
   }) {
-    return AccountItemVO(
+    return UserItemVO(
       id: item.id,
       amount: item.amount,
       description: item.description,
@@ -146,7 +146,7 @@ class AccountItemVO {
     );
   }
 
-  static AccountItem toAccountItem(AccountItemVO vo) {
+  static AccountItem toAccountItem(UserItemVO vo) {
     return AccountItem(
       id: vo.id,
       amount: vo.amount,
@@ -203,7 +203,7 @@ class AccountItemVO {
   }
 
   /// 创建一个新的实例，只更新指定的属性
-  AccountItemVO copyWith({
+  UserItemVO copyWith({
     String? id,
     double? amount,
     String? description,
@@ -229,7 +229,7 @@ class AccountItemVO {
     String? createdAtString,
     String? updatedAtString,
   }) {
-    return AccountItemVO(
+    return UserItemVO(
       id: id ?? this.id,
       amount: amount ?? this.amount,
       description: description ?? this.description,

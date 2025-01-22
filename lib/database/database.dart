@@ -3,6 +3,7 @@ import 'tables/account_book_table.dart';
 import 'tables/account_category_table.dart';
 import 'tables/account_fund_table.dart';
 import 'tables/account_item_table.dart';
+import 'tables/account_note_table.dart';
 import 'tables/account_shop_table.dart';
 import 'tables/account_symbol_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
@@ -18,6 +19,7 @@ part 'database.g.dart';
     AccountCategoryTable,
     AccountFundTable,
     AccountItemTable,
+    AccountNoteTable,
     AccountShopTable,
     AccountSymbolTable,
     RelAccountbookUserTable,

@@ -1,12 +1,12 @@
 import '../database/database.dart';
 import '../enums/symbol_type.dart';
 import '../manager/dao_manager.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../utils/collection_util.dart';
 
 class VOTransfer {
-  static Future<List<AccountItemVO>> transferAccountItem(List<AccountItem>? items) async {
+  static Future<List<UserItemVO>> transferAccountItem(List<AccountItem>? items) async {
     if (items == null || items.isEmpty) {
       return [];
     }
@@ -56,7 +56,7 @@ class VOTransfer {
 
       final updatedByUser = users[item.updatedBy];
 
-      return AccountItemVO.fromAccountItem(
+      return UserItemVO.fromAccountItem(
         item: item,
         categoryName: category?.name,
         fundName: fund?.name,

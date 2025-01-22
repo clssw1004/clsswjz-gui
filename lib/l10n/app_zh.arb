@@ -2,6 +2,7 @@
     "@@locale": "zh",
     "tabAccountItems": "记账",
     "tabMine": "我的",
+    "tabNotes": "记事",
     "settings": "设置",
     "notLoggedIn": "未登录",
     "accountBook": "账本",
@@ -652,5 +653,13 @@
     "@registerError": {
         "description": "注册错误消息"
     },
-    "importComplete": "导入完成"
+    "importComplete": "导入完成",
+    "title": "标题",
+    "@title": {
+        "description": "标题标签"
+    },
+    "content": "内容",
+    "@content": {
+        "description": "内容标签"
+    }
 }

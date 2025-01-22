@@ -1,6 +1,7 @@
+import 'package:clsswjz/pages/book/note_form_page.dart';
 import 'package:flutter/material.dart';
 import '../manager/l10n_manager.dart';
-import 'tabs/account_items_tab.dart';
+import 'tabs/items_tab.dart';
 import 'tabs/mine_tab.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,7 +15,8 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const AccountItemsTab(),
+    const ItemsTab(),
+    const NoteFormPage(),
     const MineTab(),
   ];
 
@@ -33,6 +35,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance_wallet),
             label: L10nManager.l10n.tabAccountItems,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.note_alt_outlined),
+            label: L10nManager.l10n.tabNotes,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),

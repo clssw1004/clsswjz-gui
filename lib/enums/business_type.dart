@@ -6,6 +6,9 @@ enum BusinessType {
   /// 账目
   item('item'),
 
+  /// 记事
+  note('note'),
+
   /// 账本
   book('book'),
 

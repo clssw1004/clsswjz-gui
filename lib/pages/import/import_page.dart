@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../import/import.factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../providers/account_books_provider.dart';
+import '../../providers/books_provider.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/import_source.dart';
@@ -46,7 +46,7 @@ class _ImportPageState extends State<ImportPage> {
               children: [
                 // 账本选择
                 CommonSelectFormField<UserBookVO>(
-                  items: context.read<AccountBooksProvider>().books,
+                  items: context.read<BooksProvider>().books,
                   value: _selectedBookId,
                   displayMode: DisplayMode.iconText,
                   displayField: (item) => item.name,

@@ -6,7 +6,7 @@ import '../../../../database/tables/account_book_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/currency_symbol.dart';
 import '../../../../enums/operate_type.dart';
-import '../../../../models/vo/book_member_vo.dart';
+import '../../../../models/vo/user_book_vo.dart';
 import 'builder.dart';
 
 class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {

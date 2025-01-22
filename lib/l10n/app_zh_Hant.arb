@@ -3,6 +3,7 @@
     "appName": "Clsswjz",
     "tabAccountItems": "記賬",
     "tabMine": "我的",
+    "tabNotes": "記事",
     "settings": "設置",
     "notLoggedIn": "未登錄",
     "accountBook": "賬本",
@@ -590,5 +591,13 @@
     "memberAlreadyExists": "該成員已在列表中",
     "userNotFound": "未查找到用戶，請稍後再輸入",
     "bookCreator": "賬本創建人",
-    "accountItem": "賬目"
+    "accountItem": "賬目",
+    "title": "標題",
+    "@title": {
+        "description": "標題標籤"
+    },
+    "content": "內容",
+    "@content": {
+        "description": "內容標籤"
+    }
 }

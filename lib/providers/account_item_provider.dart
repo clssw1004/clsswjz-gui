@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import '../enums/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
 
@@ -19,8 +19,8 @@ class AccountItemFormProvider extends ChangeNotifier {
   UserBookVO get accountBook => _accountBook;
 
   /// 账目数据
-  AccountItemVO _item;
-  AccountItemVO get item => _item;
+  UserItemVO _item;
+  UserItemVO get item => _item;
 
   /// 是否为新增
   bool get isNew => _item.id.isEmpty;
@@ -61,10 +61,10 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  AccountItemFormProvider(UserBookVO accountBook, AccountItemVO? item)
+  AccountItemFormProvider(UserBookVO accountBook, UserItemVO? item)
       : _accountBook = accountBook,
         _item = item ??
-            AccountItemVO(
+            UserItemVO(
               id: '',
               accountBookId: accountBook.id,
               type: AccountItemType.expense.code,

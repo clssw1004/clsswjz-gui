@@ -1,7 +1,7 @@
+import 'package:drift/drift.dart';
+
 import '../../database/database.dart';
 import '../../enums/currency_symbol.dart';
-import 'account_book_permission_vo.dart';
-import 'book_member_vo.dart';
 
 /// 用户账本视图对象
 class UserBookVO {
@@ -97,6 +97,82 @@ class UserBookVO {
       updatedBy: updatedBy,
       createdAt: createdAt,
       updatedAt: updatedAt,
+    );
+  }
+}
+
+/// 账本权限VO
+class AccountBookPermissionVO {
+  /// 是否可以查看账本
+  final bool canViewBook;
+
+  /// 是否可以编辑账本
+  final bool canEditBook;
+
+  /// 是否可以删除账本
+  final bool canDeleteBook;
+
+  /// 是否可以查看账目
+  final bool canViewItem;
+
+  /// 是否可以编辑账目
+  final bool canEditItem;
+
+  /// 是否可以删除账目
+  final bool canDeleteItem;
+
+  AccountBookPermissionVO({
+    required this.canViewBook,
+    required this.canEditBook,
+    required this.canDeleteBook,
+    required this.canViewItem,
+    required this.canEditItem,
+    required this.canDeleteItem,
+  });
+
+  /// 从账本用户关系表记录创建
+  factory AccountBookPermissionVO.fromRelAccountbookUser(RelAccountbookUser relAccountbookUser) {
+    return AccountBookPermissionVO(
+      canViewBook: relAccountbookUser.canViewBook,
+      canEditBook: relAccountbookUser.canEditBook,
+      canDeleteBook: relAccountbookUser.canDeleteBook,
+      canViewItem: relAccountbookUser.canViewItem,
+      canEditItem: relAccountbookUser.canEditItem,
+      canDeleteItem: relAccountbookUser.canDeleteItem,
+    );
+  }
+}
+
+/// 账本成员视图对象
+class BookMemberVO {
+  /// 成员ID
+  final String id;
+
+  /// 用户ID
+  final String userId;
+
+  /// 用户昵称
+  final String? nickname;
+
+  /// 权限
+  final AccountBookPermissionVO permission;
+
+  const BookMemberVO({
+    required this.id,
+    required this.userId,
+    required this.nickname,
+    required this.permission,
+  });
+
+  /// 转换为账本成员对象
+  RelAccountbookUserTableCompanion toRelAccountbookUserCompanion() {
+    return RelAccountbookUserTableCompanion(
+      userId: Value(userId),
+      canViewBook: Value(permission.canViewBook),
+      canEditBook: Value(permission.canEditBook),
+      canDeleteBook: Value(permission.canDeleteBook),
+      canViewItem: Value(permission.canViewItem),
+      canEditItem: Value(permission.canEditItem),
     );
   }
 }

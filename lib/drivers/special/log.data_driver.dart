@@ -11,14 +11,14 @@ import 'package:clsswjz/enums/fund_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/models/vo/user_fund_vo.dart';
+import 'package:clsswjz/models/vo/user_note_vo.dart';
 import 'package:clsswjz/utils/digest_util.dart';
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
-import '../../models/vo/account_item_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
-import '../../models/vo/book_member_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../enums/currency_symbol.dart';
 import '../../models/common.dart';
@@ -138,7 +138,7 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<AccountItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 20, int offset = 0}) async {
+  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 20, int offset = 0}) async {
     final items = await DaoManager.accountItemDao.listByBook(bookId, limit: limit, offset: offset);
     return OperateResult.success(await VOTransfer.transferAccountItem(items));
   }
@@ -456,5 +456,29 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(String userId, String bookId, {SymbolType? symbolType}) async {
     final symbols = await DaoManager.accountSymbolDao.listSymbolsByBook(bookId, symbolType: symbolType);
     return OperateResult.success(symbols);
+  }
+
+  @override
+  Future<OperateResult<String>> createNote(String userId, {required UserNoteVO note}) {
+    // TODO: implement createNote
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<OperateResult<void>> deleteNote(String userId, {required String noteId}) {
+    // TODO: implement deleteNote
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<OperateResult<List<UserNoteVO>>> listNotes(String userId) {
+    // TODO: implement listNotes
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<OperateResult<void>> updateNote(String userId, {required UserNoteVO note}) {
+    // TODO: implement updateNote
+    throw UnimplementedError();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../enums/account_type.dart';
 import '../manager/l10n_manager.dart';
-import '../models/vo/account_item_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../utils/color_util.dart';
 import 'account_item_tile_advance.dart';
@@ -22,13 +22,13 @@ class AccountItemList extends StatefulWidget {
   final UserBookVO accountBook;
 
   /// 初始账目列表
-  final List<AccountItemVO>? initialItems;
+  final List<UserItemVO>? initialItems;
 
   /// 是否加载中
   final bool loading;
 
   /// 点击账目回调
-  final void Function(AccountItemVO item)? onItemTap;
+  final void Function(UserItemVO item)? onItemTap;
 
   /// 加载更多回调
   final Future<void> Function()? onLoadMore;
@@ -56,7 +56,7 @@ class AccountItemList extends StatefulWidget {
 
 class _AccountItemListState extends State<AccountItemList> {
   /// 账目列表
-  List<AccountItemVO>? _items;
+  List<UserItemVO>? _items;
 
   /// 是否正在加载更多
   bool _loadingMore = false;
@@ -109,7 +109,7 @@ class _AccountItemListState extends State<AccountItemList> {
     final result = <dynamic>[];
     double currentIncome = 0;
     double currentExpense = 0;
-    final itemsByDate = <String, List<AccountItemVO>>{};
+    final itemsByDate = <String, List<UserItemVO>>{};
 
     // 按日期分组并计算统计
     for (final item in _items!) {
@@ -283,11 +283,11 @@ class _AccountItemListState extends State<AccountItemList> {
   }
 
   /// 构建账目列表项
-  Widget _buildAccountItem(AccountItemVO item, ThemeData theme, int index, List<dynamic> itemsWithHeaders) {
+  Widget _buildAccountItem(UserItemVO item, ThemeData theme, int index, List<dynamic> itemsWithHeaders) {
     // 计算实际的账目索引（排除日期分隔）
     int itemIndex = 0;
     for (int i = 0; i < index; i++) {
-      if (itemsWithHeaders[i] is AccountItemVO) {
+      if (itemsWithHeaders[i] is UserItemVO) {
         itemIndex++;
       }
     }

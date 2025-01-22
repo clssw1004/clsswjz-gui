@@ -4,7 +4,7 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
-import '../../providers/account_books_provider.dart';
+import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/account_book_selector.dart';
@@ -14,14 +14,14 @@ import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/account_item_view_mode.dart';
 
 /// 账目列表标签页
-class AccountItemsTab extends StatefulWidget {
-  const AccountItemsTab({super.key});
+class ItemsTab extends StatefulWidget {
+  const ItemsTab({super.key});
 
   @override
-  State<AccountItemsTab> createState() => _AccountItemsTabState();
+  State<ItemsTab> createState() => _ItemsTabState();
 }
 
-class _AccountItemsTabState extends State<AccountItemsTab> {
+class _ItemsTabState extends State<ItemsTab> {
   bool _isRefreshing = false;
   AccountItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
 
@@ -29,7 +29,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AccountBooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
     });
   }
 
@@ -52,7 +52,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final provider = context.read<AccountBooksProvider>();
+    final provider = context.read<BooksProvider>();
     if (provider.books.isEmpty && !provider.loadingBooks) {
       provider.loadBooks(UserConfigManager.currentUserId);
     }
@@ -63,7 +63,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
-        title: Consumer<AccountBooksProvider>(
+        title: Consumer<BooksProvider>(
           builder: (context, provider, child) {
             final key = ValueKey('${provider.selectedBook?.id ?? ''}_${provider.books.length}');
             return AccountBookSelector(
@@ -93,7 +93,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
           ),
         ],
       ),
-      body: Consumer2<AccountBooksProvider, SyncProvider>(
+      body: Consumer2<BooksProvider, SyncProvider>(
         builder: (context, bookProvider, syncProvider, child) {
           final accountBook = bookProvider.selectedBook;
           return Stack(
@@ -113,7 +113,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                                   onPressed: () async {
                                     final result = await Navigator.pushNamed(
                                       context,
-                                      AppRoutes.accountBookForm,
+                                      AppRoutes.bookForm,
                                     );
                                     if (result == true) {
                                       await bookProvider.init(UserConfigManager.currentUserId);
@@ -138,7 +138,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
                               onItemTap: (item) {
                                 Navigator.pushNamed(
                                   context,
-                                  AppRoutes.accountItemEdit,
+                                  AppRoutes.itemEdit,
                                   arguments: [accountBook, item],
                                 ).then((updated) {
                                   if (updated == true) {
@@ -167,7 +167,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
           );
         },
       ),
-      floatingActionButton: Consumer<AccountBooksProvider>(
+      floatingActionButton: Consumer<BooksProvider>(
         builder: (context, provider, child) {
           final accountBook = provider.selectedBook;
           if (accountBook == null) return const SizedBox.shrink();
@@ -175,7 +175,7 @@ class _AccountItemsTabState extends State<AccountItemsTab> {
             onPressed: () {
               Navigator.pushNamed(
                 context,
-                AppRoutes.accountItemAdd,
+                AppRoutes.itemAdd,
                 arguments: [accountBook],
               ).then((added) {
                 if (added == true) {
