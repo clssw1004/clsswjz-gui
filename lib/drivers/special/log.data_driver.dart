@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:io';
 import 'package:clsswjz/database/database.dart';
+import 'package:clsswjz/drivers/special/log/builder/book_note.build.dart';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/drivers/vo_transfer.dart';
 import 'package:clsswjz/enums/symbol_type.dart';
@@ -139,7 +140,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 20, int offset = 0}) async {
-    final items = await DaoManager.accountItemDao.listByBook(bookId, limit: limit, offset: offset);
+    final items = await DaoManager.itemDao.listByBook(bookId, limit: limit, offset: offset);
     return OperateResult.success(await VOTransfer.transferAccountItem(items));
   }
 
@@ -314,7 +315,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<UserFundVO>> getFund(String who, String bookId, String fundId) async {
-    final fund = await DaoManager.accountFundDao.findById(fundId);
+    final fund = await DaoManager.fundDao.findById(fundId);
     return OperateResult.successIfNotNull(await VOTransfer.transferFund(fund));
   }
 
@@ -356,7 +357,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<UserFundVO>>> listFundsByBook(String userId, String bookId) async {
-    final funds = await DaoManager.accountFundDao.listByBook(bookId);
+    final funds = await DaoManager.fundDao.listByBook(bookId);
     return OperateResult.successIfNotNull(await VOTransfer.transferFunds(funds));
   }
 
@@ -442,43 +443,43 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(String userId, String bookId, {String? categoryType}) async {
-    final categories = await DaoManager.accountCategoryDao.listCategoriesByBook(bookId, categoryType: categoryType);
+    final categories = await DaoManager.categoryDao.listCategoriesByBook(bookId, categoryType: categoryType);
     return OperateResult.success(categories);
   }
 
   @override
   Future<OperateResult<List<AccountShop>>> listShopsByBook(String userId, String bookId) async {
-    final shops = await DaoManager.accountShopDao.listByBook(bookId);
+    final shops = await DaoManager.shopDao.listByBook(bookId);
     return OperateResult.success(shops);
   }
 
   @override
   Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(String userId, String bookId, {SymbolType? symbolType}) async {
-    final symbols = await DaoManager.accountSymbolDao.listSymbolsByBook(bookId, symbolType: symbolType);
+    final symbols = await DaoManager.symbolDao.listSymbolsByBook(bookId, symbolType: symbolType);
     return OperateResult.success(symbols);
   }
 
   @override
-  Future<OperateResult<String>> createNote(String userId, {required UserNoteVO note}) {
-    // TODO: implement createNote
-    throw UnimplementedError();
+  Future<OperateResult<List<UserNoteVO>>> listNotesByBook(String userId, String bookId, {int limit = 200, int offset = 0}) async {
+    final notes = await DaoManager.noteDao.listByBook(bookId, limit: limit, offset: offset);
+    return OperateResult.success(await VOTransfer.transferNote(notes));
   }
 
   @override
-  Future<OperateResult<void>> deleteNote(String userId, {required String noteId}) {
-    // TODO: implement deleteNote
-    throw UnimplementedError();
+  Future<OperateResult<String>> createNote(String who, String bookId, {required String content, required String noteDate}) async {
+    final id = await NoteCULog.create(who, bookId, content: content, noteDate: noteDate).execute();
+    return OperateResult.success(id);
   }
 
   @override
-  Future<OperateResult<List<UserNoteVO>>> listNotes(String userId) {
-    // TODO: implement listNotes
-    throw UnimplementedError();
+  Future<OperateResult<void>> deleteNote(String who, String bookId, String noteId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.note, noteId).execute();
+    return OperateResult.success(null);
   }
 
   @override
-  Future<OperateResult<void>> updateNote(String userId, {required UserNoteVO note}) {
-    // TODO: implement updateNote
-    throw UnimplementedError();
+  Future<OperateResult<void>> updateNote(String who, String bookId, String noteId, {String? content, String? noteDate}) async {
+    await NoteCULog.update(who, bookId, noteId, content: content, noteDate: noteDate).execute();
+    return OperateResult.success(null);
   }
 }

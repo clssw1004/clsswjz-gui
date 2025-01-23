@@ -170,14 +170,11 @@ abstract class BookDataDriver {
 
   /// 记事相关
   /// 获取用户记事列表
-  Future<OperateResult<List<UserNoteVO>>> listNotes(String userId);
+  Future<OperateResult<List<UserNoteVO>>> listNotesByBook(String who, String bookId, {int limit = 200, int offset = 0});
 
-  /// 创建记事
-  Future<OperateResult<String>> createNote(String userId, {required UserNoteVO note});
+  Future<OperateResult<String>> createNote(String who, String bookId, {required String content, required String noteDate});
 
-  /// 更新记事
-  Future<OperateResult<void>> updateNote(String userId, {required UserNoteVO note});
+  Future<OperateResult<void>> deleteNote(String who, String bookId, String noteId);
 
-  /// 删除记事
-  Future<OperateResult<void>> deleteNote(String userId, {required String noteId});
+  Future<OperateResult<void>> updateNote(String who, String bookId, String noteId, {String? content, String? noteDate});
 }

@@ -16,11 +16,11 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountFundDao.insert(data!);
+      await DaoManager.fundDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountFundDao.update(businessId!, data!);
+      await DaoManager.fundDao.update(businessId!, data!);
     }
     return businessId!;
   }

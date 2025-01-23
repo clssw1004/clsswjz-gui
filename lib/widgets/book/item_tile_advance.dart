@@ -1,10 +1,10 @@
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
-import '../models/vo/user_item_vo.dart';
-import '../utils/color_util.dart';
+import '../../models/vo/user_item_vo.dart';
+import '../../utils/color_util.dart';
 
 /// 账目列表项
-class AccountItemTileAdvance extends StatelessWidget {
+class ItemTileAdvance extends StatelessWidget {
   /// 账目数据
   final UserItemVO item;
 
@@ -14,7 +14,7 @@ class AccountItemTileAdvance extends StatelessWidget {
   /// 在列表中的索引
   final int index;
 
-  const AccountItemTileAdvance({
+  const ItemTileAdvance({
     super.key,
     required this.item,
     required this.currencySymbol,

@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../app_init.dart';
 import '../providers/books_provider.dart';
+import '../providers/item_list_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/note_list_provider.dart';
 import '../providers/sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
@@ -27,11 +29,17 @@ class ProviderManager {
           ChangeNotifierProvider<UserProvider>(
             create: (_) => UserProvider()..refreshUserInfo(),
           ),
-          ChangeNotifierProvider<BooksProvider>(
-            create: (_) => BooksProvider()..init(UserConfigManager.currentUserId),
-          ),
           ChangeNotifierProvider<SyncProvider>(
             create: (_) => SyncProvider(),
+          ),
+          ChangeNotifierProvider<ItemListProvider>(
+            create: (_) => ItemListProvider(),
+          ),
+          ChangeNotifierProvider<NoteListProvider>(
+            create: (_) => NoteListProvider(),
+          ),
+          ChangeNotifierProvider<BooksProvider>(
+            create: (_) => BooksProvider()..init(UserConfigManager.currentUserId),
           ),
         ],
         child: child,

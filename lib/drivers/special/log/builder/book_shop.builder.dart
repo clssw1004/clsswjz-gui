@@ -15,11 +15,11 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountShopDao.insert(data!);
+      await DaoManager.shopDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountShopDao.update(businessId!, data!);
+      await DaoManager.shopDao.update(businessId!, data!);
     }
     return businessId!;
   }

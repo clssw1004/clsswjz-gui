@@ -4,8 +4,8 @@ import '../../utils/date_util.dart';
 import '../tables/account_shop_table.dart';
 import 'base_dao.dart';
 
-class AccountShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
-  AccountShopDao(super.db);
+class ShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
+  ShopDao(super.db);
 
   Future<List<AccountShop>> findByCodes(List<String> codes) {
     return (db.select(db.accountShopTable)..where((t) => t.code.isIn(codes))).get();

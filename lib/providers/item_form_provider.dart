@@ -13,7 +13,7 @@ import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
 
 /// 账目表单状态管理
-class AccountItemFormProvider extends ChangeNotifier {
+class ItemFormProvider extends ChangeNotifier {
   /// 账本数据
   final UserBookVO _accountBook;
   UserBookVO get accountBook => _accountBook;
@@ -61,7 +61,7 @@ class AccountItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  AccountItemFormProvider(UserBookVO accountBook, UserItemVO? item)
+  ItemFormProvider(UserBookVO accountBook, UserItemVO? item)
       : _accountBook = accountBook,
         _item = item ??
             UserItemVO(

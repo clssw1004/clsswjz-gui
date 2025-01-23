@@ -4,8 +4,8 @@ import '../database.dart';
 import '../tables/account_symbol_table.dart';
 import 'base_dao.dart';
 
-class AccountSymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
-  AccountSymbolDao(super.db);
+class SymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
+  SymbolDao(super.db);
 
   Future<List<AccountSymbol>> findByType(String symbolType) {
     return (db.select(db.accountSymbolTable)..where((t) => t.symbolType.equals(symbolType))).get();

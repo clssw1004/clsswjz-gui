@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../enums/account_type.dart';
-import '../manager/l10n_manager.dart';
-import '../models/vo/user_item_vo.dart';
-import '../models/vo/user_book_vo.dart';
-import '../utils/color_util.dart';
-import 'account_item_tile_advance.dart';
-import 'account_item_tile_simple.dart';
+import '../../enums/account_type.dart';
+import '../../manager/l10n_manager.dart';
+import '../../models/vo/user_item_vo.dart';
+import '../../models/vo/user_book_vo.dart';
+import '../../utils/color_util.dart';
+import 'item_tile_advance.dart';
+import 'item_tile_simple.dart';
 
 /// 日期收支统计数据
 class DailyStatistics {
@@ -17,7 +17,7 @@ class DailyStatistics {
 }
 
 /// 账目列表
-class AccountItemList extends StatefulWidget {
+class ItemList extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
 
@@ -39,7 +39,7 @@ class AccountItemList extends StatefulWidget {
   /// 是否使用简约视图
   final bool useSimpleView;
 
-  const AccountItemList({
+  const ItemList({
     super.key,
     required this.accountBook,
     this.initialItems,
@@ -51,10 +51,10 @@ class AccountItemList extends StatefulWidget {
   });
 
   @override
-  State<AccountItemList> createState() => _AccountItemListState();
+  State<ItemList> createState() => _ItemListState();
 }
 
-class _AccountItemListState extends State<AccountItemList> {
+class _ItemListState extends State<ItemList> {
   /// 账目列表
   List<UserItemVO>? _items;
 
@@ -144,7 +144,7 @@ class _AccountItemListState extends State<AccountItemList> {
   }
 
   @override
-  void didUpdateWidget(AccountItemList oldWidget) {
+  void didUpdateWidget(ItemList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialItems != widget.initialItems) {
       _items = widget.initialItems;
@@ -298,12 +298,12 @@ class _AccountItemListState extends State<AccountItemList> {
         InkWell(
           onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
           child: widget.useSimpleView
-              ? AccountItemTileSimple(
+              ? ItemTileSimple(
                   item: item,
                   currencySymbol: widget.accountBook.currencySymbol.symbol,
                   index: itemIndex,
                 )
-              : AccountItemTileAdvance(
+              : ItemTileAdvance(
                   item: item,
                   currencySymbol: widget.accountBook.currencySymbol.symbol,
                   index: itemIndex,

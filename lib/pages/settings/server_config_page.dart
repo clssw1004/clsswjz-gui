@@ -12,8 +12,8 @@ import '../../utils/toast_util.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/restart_widget.dart';
-import '../../widgets/forms/offline_form.dart';
-import '../../widgets/forms/self_host_form.dart';
+import '../../widgets/setting/offline_form.dart';
+import '../../widgets/setting/self_host_form.dart';
 import '../../theme/theme_spacing.dart';
 
 class ServerConfigPage extends StatefulWidget {

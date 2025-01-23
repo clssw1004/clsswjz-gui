@@ -3,8 +3,8 @@ import '../database.dart';
 import '../tables/account_category_table.dart';
 import 'base_dao.dart';
 
-class AccountCategoryDao extends BaseBookDao<AccountCategoryTable, AccountCategory> {
-  AccountCategoryDao(super.db);
+class CategoryDao extends BaseBookDao<AccountCategoryTable, AccountCategory> {
+  CategoryDao(super.db);
 
   Future<List<AccountCategory>> findByCodes(List<String> codes) {
     return (db.select(db.accountCategoryTable)..where((t) => t.code.isIn(codes))).get();

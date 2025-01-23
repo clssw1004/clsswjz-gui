@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill/quill_delta.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../manager/app_config_manager.dart';
@@ -12,8 +13,9 @@ import '../../drivers/driver_factory.dart';
 
 class NoteFormPage extends StatefulWidget {
   final UserNoteVO? note;
+  final UserBookVO book;
 
-  const NoteFormPage({super.key, this.note});
+  const NoteFormPage({super.key, this.note, required this.book});
 
   @override
   State<NoteFormPage> createState() => _NoteFormPageState();
@@ -21,7 +23,6 @@ class NoteFormPage extends StatefulWidget {
 
 class _NoteFormPageState extends State<NoteFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
   final _quillController = QuillController.basic();
   bool _saving = false;
 
@@ -29,7 +30,6 @@ class _NoteFormPageState extends State<NoteFormPage> {
   void initState() {
     super.initState();
     if (widget.note != null) {
-      _titleController.text = widget.note!.title;
       try {
         final doc = Document.fromJson(jsonDecode(widget.note!.content));
         _quillController.document = doc;
@@ -46,7 +46,6 @@ class _NoteFormPageState extends State<NoteFormPage> {
 
   @override
   void dispose() {
-    _titleController.dispose();
     _quillController.dispose();
     super.dispose();
   }
@@ -66,15 +65,14 @@ class _NoteFormPageState extends State<NoteFormPage> {
 
       final note = UserNoteVO(
         id: widget.note?.id ?? '',
-        title: _titleController.text,
         content: jsonEncode(_quillController.document.toDelta().toJson()),
         noteDate: noteDate,
-        accountBookId: widget.note?.accountBookId ?? '',
+        accountBookId: widget.book.id,
       );
 
       final result = widget.note == null
-          ? await DriverFactory.driver.createNote(userId, note: note)
-          : await DriverFactory.driver.updateNote(userId, note: note);
+          ? await DriverFactory.driver.createNote(userId, widget.book.id, content: note.content, noteDate: note.noteDate)
+          : await DriverFactory.driver.updateNote(userId, widget.book.id, note.id, content: note.content, noteDate: note.noteDate);
 
       if (result.ok) {
         if (mounted) {

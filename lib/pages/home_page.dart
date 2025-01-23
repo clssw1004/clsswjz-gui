@@ -1,7 +1,7 @@
-import 'package:clsswjz/pages/book/note_form_page.dart';
 import 'package:flutter/material.dart';
 import '../manager/l10n_manager.dart';
 import 'tabs/items_tab.dart';
+import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const ItemsTab(),
-    const NoteFormPage(),
+    const NotesTab(),
     const MineTab(),
   ];
 

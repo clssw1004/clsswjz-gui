@@ -23,11 +23,11 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountBookDao.insert(data!);
+      await DaoManager.bookDao.insert(data!);
       inBook(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountBookDao.update(parentId!, data!);
+      await DaoManager.bookDao.update(parentId!, data!);
     }
     return businessId!;
   }

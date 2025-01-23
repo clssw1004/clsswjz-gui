@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../manager/app_config_manager.dart';
-import '../manager/l10n_manager.dart';
-import '../models/vo/user_book_vo.dart';
-import 'common/common_dialog.dart';
-import 'common/shared_badge.dart';
+import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
+import '../../models/vo/user_book_vo.dart';
+import '../common/common_dialog.dart';
+import '../common/shared_badge.dart';
 
 /// 账本选择组件
-class AccountBookSelector extends StatefulWidget {
+class BookSelector extends StatefulWidget {
   /// 用户ID
   final String userId;
 
@@ -19,7 +19,7 @@ class AccountBookSelector extends StatefulWidget {
   /// 选中账本回调
   final void Function(UserBookVO book)? onSelected;
 
-  const AccountBookSelector({
+  const BookSelector({
     super.key,
     required this.userId,
     required this.books,
@@ -28,10 +28,10 @@ class AccountBookSelector extends StatefulWidget {
   });
 
   @override
-  State<AccountBookSelector> createState() => _AccountBookSelectorState();
+  State<BookSelector> createState() => _BookSelectorState();
 }
 
-class _AccountBookSelectorState extends State<AccountBookSelector> {
+class _BookSelectorState extends State<BookSelector> {
   /// 显示账本选择弹窗
   Future<void> _showBookSelector() async {
     final result = await CommonDialog.show<UserBookVO>(

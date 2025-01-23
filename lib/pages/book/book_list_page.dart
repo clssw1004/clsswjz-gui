@@ -36,7 +36,7 @@ class _BookListPageState extends State<BookListPage> {
       ),
       body: Consumer<BooksProvider>(
         builder: (context, provider, child) {
-          if (provider.loadingBooks && provider.books.isEmpty) {
+          if (provider.books.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 

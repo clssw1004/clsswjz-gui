@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/api_response.dart';
 import '../models/auth_response.dart';
 import '../utils/device.util.dart';
-import '../widgets/forms/self_host_form.dart';
+import '../widgets/setting/self_host_form.dart';
 
 class AuthService {
   final String baseUrl;

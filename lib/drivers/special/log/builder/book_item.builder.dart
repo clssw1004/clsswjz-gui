@@ -16,11 +16,11 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountItemDao.insert(data!);
+      await DaoManager.itemDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountItemDao.update(businessId!, data!);
+      await DaoManager.itemDao.update(businessId!, data!);
     }
     return businessId!;
   }

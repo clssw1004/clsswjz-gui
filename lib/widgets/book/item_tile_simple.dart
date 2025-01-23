@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/vo/user_item_vo.dart';
-import '../utils/color_util.dart';
+import '../../models/vo/user_item_vo.dart';
+import '../../utils/color_util.dart';
 
 /// 简略版账目列表项
-class AccountItemTileSimple extends StatelessWidget {
+class ItemTileSimple extends StatelessWidget {
   /// 账目数据
   final UserItemVO item;
 
@@ -13,7 +13,7 @@ class AccountItemTileSimple extends StatelessWidget {
   /// 在列表中的索引
   final int index;
 
-  const AccountItemTileSimple({
+  const ItemTileSimple({
     super.key,
     required this.item,
     required this.currencySymbol,

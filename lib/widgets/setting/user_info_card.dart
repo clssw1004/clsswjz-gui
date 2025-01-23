@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../manager/l10n_manager.dart';
-import '../models/vo/statistic_vo.dart';
-import '../models/vo/user_vo.dart';
-import '../routes/app_routes.dart';
-import 'common/user_avatar.dart';
+import '../../manager/l10n_manager.dart';
+import '../../models/vo/statistic_vo.dart';
+import '../../models/vo/user_vo.dart';
+import '../../routes/app_routes.dart';
+import '../common/user_avatar.dart';
 
 /// 用户信息卡片组件
 class UserInfoCard extends StatelessWidget {

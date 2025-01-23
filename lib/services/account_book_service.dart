@@ -15,10 +15,10 @@ class AccountBookService extends BaseService {
       return null;
     }
 
-    List<AccountFund> funds = await DaoManager.accountFundDao.listByBook(bookId);
-    List<AccountCategory> categories = await DaoManager.accountCategoryDao.listByBook(bookId);
-    List<AccountSymbol> symbols = await DaoManager.accountSymbolDao.listByBook(bookId);
-    List<AccountShop> shops = await DaoManager.accountShopDao.listByBook(bookId);
+    List<AccountFund> funds = await DaoManager.fundDao.listByBook(bookId);
+    List<AccountCategory> categories = await DaoManager.categoryDao.listByBook(bookId);
+    List<AccountSymbol> symbols = await DaoManager.symbolDao.listByBook(bookId);
+    List<AccountShop> shops = await DaoManager.shopDao.listByBook(bookId);
 
     return BookMetaVO(
       bookInfo: userBook,
@@ -38,7 +38,7 @@ class AccountBookService extends BaseService {
       return null;
     }
 
-    final book = await DaoManager.accountBookDao.findById(bookId);
+    final book = await DaoManager.bookDao.findById(bookId);
     if (book == null) {
       return null;
     }
@@ -108,7 +108,7 @@ class AccountBookService extends BaseService {
     final bookIds = userBooks.map((e) => e.accountBookId).toList();
 
     // 3. 查询账本详细信息
-    final books = await DaoManager.accountBookDao.findByIds(bookIds);
+    final books = await DaoManager.bookDao.findByIds(bookIds);
 
     // 4. 查询所有账本的成员关系
     final allBookMembers = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.isIn(bookIds))).get();
@@ -169,7 +169,7 @@ class AccountBookService extends BaseService {
       String checkUserId = userId;
       if (bookId != null) {
         // 1. 获取用户的所有账本
-        final book = await DaoManager.accountBookDao.findById(bookId);
+        final book = await DaoManager.bookDao.findById(bookId);
         if (book != null) {
           checkUserId = book.createdBy;
         } else {
@@ -177,7 +177,7 @@ class AccountBookService extends BaseService {
         }
       }
 
-      final books = await DaoManager.accountBookDao.findByCreatedBy(checkUserId);
+      final books = await DaoManager.bookDao.findByCreatedBy(checkUserId);
 
       // 2. 检查是否存在同名账本（只检查当前用户创建的账本）
       final existingBook =

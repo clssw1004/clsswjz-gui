@@ -3,8 +3,8 @@ import '../database.dart';
 import '../tables/account_item_table.dart';
 import 'base_dao.dart';
 
-class AccountItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
-  AccountItemDao(super.db);
+class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
+  ItemDao(super.db);
 
   @override
   List<OrderClauseGenerator<AccountItemTable>> defaultOrderBy() {

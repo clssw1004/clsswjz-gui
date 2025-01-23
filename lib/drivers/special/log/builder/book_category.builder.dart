@@ -15,11 +15,11 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountCategoryDao.insert(data!);
+      await DaoManager.categoryDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountCategoryDao.update(businessId!, data!);
+      await DaoManager.categoryDao.update(businessId!, data!);
     }
     return businessId!;
   }

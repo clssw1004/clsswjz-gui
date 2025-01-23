@@ -1,3 +1,4 @@
+import 'package:clsswjz/providers/item_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
@@ -7,8 +8,8 @@ import '../../manager/user_config_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
-import '../../widgets/account_book_selector.dart';
-import '../../widgets/account_item_list.dart';
+import '../../widgets/book/book_selector.dart';
+import '../../widgets/book/item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/account_item_view_mode.dart';
@@ -52,10 +53,8 @@ class _ItemsTabState extends State<ItemsTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final provider = context.read<BooksProvider>();
-    if (provider.books.isEmpty && !provider.loadingBooks) {
-      provider.loadBooks(UserConfigManager.currentUserId);
-    }
+    final provider = context.read<ItemListProvider>();
+    provider.loadItems();
   }
 
   @override
@@ -66,7 +65,7 @@ class _ItemsTabState extends State<ItemsTab> {
         title: Consumer<BooksProvider>(
           builder: (context, provider, child) {
             final key = ValueKey('${provider.selectedBook?.id ?? ''}_${provider.books.length}');
-            return AccountBookSelector(
+            return BookSelector(
               key: key,
               userId: UserConfigManager.currentUserId,
               books: provider.books,
@@ -93,8 +92,8 @@ class _ItemsTabState extends State<ItemsTab> {
           ),
         ],
       ),
-      body: Consumer2<BooksProvider, SyncProvider>(
-        builder: (context, bookProvider, syncProvider, child) {
+      body: Consumer3<BooksProvider, ItemListProvider, SyncProvider>(
+        builder: (context, bookProvider, itemListProvider, syncProvider, child) {
           final accountBook = bookProvider.selectedBook;
           return Stack(
             children: [
@@ -128,13 +127,13 @@ class _ItemsTabState extends State<ItemsTab> {
                         : CustomRefreshIndicator(
                             onRefresh: _handleRefresh,
                             builder: (context, child, controller) => child,
-                            child: AccountItemList(
+                            child: ItemList(
                               accountBook: accountBook,
-                              initialItems: bookProvider.items,
-                              loading: bookProvider.loadingItems,
-                              hasMore: bookProvider.hasMore,
+                              initialItems: itemListProvider.items,
+                              loading: itemListProvider.loading,
+                              hasMore: itemListProvider.hasMore,
                               useSimpleView: _viewMode == AccountItemViewMode.simple,
-                              onLoadMore: () => bookProvider.loadMore(),
+                              onLoadMore: () => itemListProvider.loadMore(),
                               onItemTap: (item) {
                                 Navigator.pushNamed(
                                   context,
@@ -142,7 +141,7 @@ class _ItemsTabState extends State<ItemsTab> {
                                   arguments: [accountBook, item],
                                 ).then((updated) {
                                   if (updated == true) {
-                                    bookProvider.loadItems();
+                                    itemListProvider.loadItems();
                                   }
                                 });
                               },
@@ -167,9 +166,9 @@ class _ItemsTabState extends State<ItemsTab> {
           );
         },
       ),
-      floatingActionButton: Consumer<BooksProvider>(
-        builder: (context, provider, child) {
-          final accountBook = provider.selectedBook;
+      floatingActionButton: Consumer2<BooksProvider, ItemListProvider>(
+        builder: (context, bookProvider, itemListProvider, child) {
+          final accountBook = bookProvider.selectedBook;
           if (accountBook == null) return const SizedBox.shrink();
           return FloatingActionButton(
             onPressed: () {
@@ -179,7 +178,7 @@ class _ItemsTabState extends State<ItemsTab> {
                 arguments: [accountBook],
               ).then((added) {
                 if (added == true) {
-                  provider.loadItems();
+                  itemListProvider.loadItems();
                 }
               });
             },

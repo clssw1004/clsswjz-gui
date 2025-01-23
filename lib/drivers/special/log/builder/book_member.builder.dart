@@ -15,11 +15,11 @@ class MemberCULog extends LogBuilder<RelAccountbookUserTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.relAccountbookUserDao.insert(data!);
+      await DaoManager.relbookUserDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.relAccountbookUserDao.update(businessId!, data!);
+      await DaoManager.relbookUserDao.update(businessId!, data!);
     }
     return businessId!;
   }

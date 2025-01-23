@@ -15,11 +15,11 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
   @override
   Future<String> executeLog() async {
     if (operateType == OperateType.create) {
-      await DaoManager.accountSymbolDao.insert(data!);
+      await DaoManager.symbolDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
     } else if (operateType == OperateType.update) {
-      await DaoManager.accountSymbolDao.update(businessId!, data!);
+      await DaoManager.symbolDao.update(businessId!, data!);
     }
     return businessId!;
   }

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../manager/l10n_manager.dart';
 import '../../providers/user_provider.dart';
-import '../../widgets/user_info_card.dart';
+import '../../widgets/setting/user_info_card.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';

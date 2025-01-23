@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../providers/account_item_provider.dart';
+import '../../providers/item_form_provider.dart';
 import '../../utils/color_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -19,7 +19,7 @@ import '../../enums/business_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../utils/attachment.util.dart';
 import '../../utils/file_util.dart';
-import '../../widgets/amount_input.dart';
+import '../../widgets/book/amount_input.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_badge.dart';
@@ -40,8 +40,8 @@ class ItemEditPage extends StatelessWidget {
     final spacing = Theme.of(context).spacing;
 
     return ChangeNotifierProvider(
-      create: (context) => AccountItemFormProvider(accountBook, item),
-      child: Consumer<AccountItemFormProvider>(
+      create: (context) => ItemFormProvider(accountBook, item),
+      child: Consumer<ItemFormProvider>(
         builder: (context, provider, child) {
           return Scaffold(
             appBar: CommonAppBar(
@@ -65,7 +65,7 @@ class ItemEditPage extends StatelessWidget {
 }
 
 class _AccountItemForm extends StatefulWidget {
-  final AccountItemFormProvider provider;
+  final ItemFormProvider provider;
 
   const _AccountItemForm({
     required this.provider,

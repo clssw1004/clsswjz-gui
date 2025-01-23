@@ -22,7 +22,6 @@ import '../pages/book/categories_page.dart';
 import '../pages/book/fund_list_page.dart';
 import '../pages/settings/about_page.dart';
 import '../pages/settings/sync_settings_page.dart';
-import '../pages/book/note_list_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 
@@ -72,8 +71,6 @@ class AppRoutes {
   static const String syncSettings = '/sync_settings';
 
   static const String import = '/import';
-
-  static const String notes = '/notes';
 
   static const String noteAdd = '/note_add';
 
@@ -131,8 +128,16 @@ class AppRoutes {
     about: (context) => const AboutPage(),
     syncSettings: (context) => const SyncSettingsPage(),
     import: (context) => const ImportPage(),
-    notes: (context) => const NoteListPage(),
-    noteAdd: (context) => const NoteFormPage(),
-    noteEdit: (context) => NoteFormPage(note: ModalRoute.of(context)!.settings.arguments as UserNoteVO),
+    noteAdd: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as UserBookVO;
+      return NoteFormPage(book: accountBook);
+    },
+    noteEdit: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final note = args[0] as UserNoteVO;
+      final accountBook = args[1] as UserBookVO;
+      return NoteFormPage(note: note, book: accountBook);
+    },
   };
 }

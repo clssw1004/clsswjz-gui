@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../manager/service_manager.dart';
 import '../manager/app_config_manager.dart';
-import '../utils/event_bus.dart';
-import '../events/sync_events.dart';
+import '../events/event_bus.dart';
+import '../events/event_sync.dart';
 
 class SyncProvider extends ChangeNotifier {
   bool _syncing = false;

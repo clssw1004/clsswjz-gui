@@ -3,8 +3,8 @@ import '../database.dart';
 import '../tables/rel_accountbook_user_table.dart';
 import 'base_dao.dart';
 
-class RelAccountbookUserDao extends BaseDao<RelAccountbookUserTable, RelAccountbookUser> {
-  RelAccountbookUserDao(super.db);
+class RelBookUserDao extends BaseDao<RelAccountbookUserTable, RelAccountbookUser> {
+  RelBookUserDao(super.db);
 
   @override
   TableInfo<RelAccountbookUserTable, RelAccountbookUser> get table => db.relAccountbookUserTable;

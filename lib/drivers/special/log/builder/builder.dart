@@ -246,17 +246,17 @@ class DeleteLog extends LogBuilder<String, void> {
   Future<void> executeLog() {
     switch (businessType) {
       case BusinessType.book:
-        return DaoManager.accountBookDao.delete(businessId!);
+        return DaoManager.bookDao.delete(businessId!);
       case BusinessType.category:
-        return DaoManager.accountCategoryDao.delete(businessId!);
+        return DaoManager.categoryDao.delete(businessId!);
       case BusinessType.item:
-        return DaoManager.accountItemDao.delete(businessId!);
+        return DaoManager.itemDao.delete(businessId!);
       case BusinessType.fund:
-        return DaoManager.accountFundDao.delete(businessId!);
+        return DaoManager.fundDao.delete(businessId!);
       case BusinessType.shop:
-        return DaoManager.accountShopDao.delete(businessId!);
+        return DaoManager.shopDao.delete(businessId!);
       case BusinessType.bookMember:
-        return DaoManager.relAccountbookUserDao.delete(businessId!);
+        return DaoManager.relbookUserDao.delete(businessId!);
       case BusinessType.attachment:
         return DaoManager.attachmentDao.delete(businessId!);
       default:

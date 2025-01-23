@@ -101,7 +101,7 @@ class BoheDataImport extends ImportInterface {
     OperateResult<String> result = await DriverFactory.driver.createCategory(userId, bookId,
         name: categoryName, categoryType: record.amount.isNegative ? AccountItemType.expense.code : AccountItemType.income.code);
     if (result.ok && result.data != null) {
-      AccountCategory? category = await DaoManager.accountCategoryDao.findById(result.data!);
+      AccountCategory? category = await DaoManager.categoryDao.findById(result.data!);
       if (category != null) {
         categoryMap[categoryName] = category;
       }
@@ -121,7 +121,7 @@ class BoheDataImport extends ImportInterface {
     importProgress('正在创建账户 `$fundName`');
     OperateResult<String> result = await DriverFactory.driver.createFund(userId, bookId, name: fundName, fundType: FundType.cash);
     if (result.ok && result.data != null) {
-      AccountFund? fund = await DaoManager.accountFundDao.findById(result.data!);
+      AccountFund? fund = await DaoManager.fundDao.findById(result.data!);
       if (fund != null) {
         fundMap[fundName] = fund;
       }
@@ -141,7 +141,7 @@ class BoheDataImport extends ImportInterface {
     importProgress('正在创建商户 `$shopName`');
     OperateResult<String> result = await DriverFactory.driver.createShop(userId, bookId, name: shopName);
     if (result.ok && result.data != null) {
-      AccountShop? shop = await DaoManager.accountShopDao.findById(result.data!);
+      AccountShop? shop = await DaoManager.shopDao.findById(result.data!);
       if (shop != null) {
         shopMap[shopName] = shop;
       }
@@ -164,7 +164,7 @@ class BoheDataImport extends ImportInterface {
     importProgress('正在创建 `${symbolType.name}` `$symbolName`');
     OperateResult<String> result = await DriverFactory.driver.createSymbol(userId, bookId, name: symbolName, symbolType: symbolType);
     if (result.ok && result.data != null) {
-      AccountSymbol? symbol = await DaoManager.accountSymbolDao.findById(result.data!);
+      AccountSymbol? symbol = await DaoManager.symbolDao.findById(result.data!);
       if (symbol != null) {
         symbolMap[symbolName] = symbol;
       }

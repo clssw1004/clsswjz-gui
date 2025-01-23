@@ -3,8 +3,8 @@ import '../database.dart';
 import '../tables/account_book_table.dart';
 import 'base_dao.dart';
 
-class AccountBookDao extends BaseDao<AccountBookTable, AccountBook> {
-  AccountBookDao(super.db);
+class BookDao extends BaseDao<AccountBookTable, AccountBook> {
+  BookDao(super.db);
 
   Future<List<AccountBook>> findPermissionedByUserId(String userId) {
     final query = db.select(db.accountBookTable).join([

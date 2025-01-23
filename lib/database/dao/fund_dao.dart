@@ -3,8 +3,8 @@ import '../database.dart';
 import '../tables/account_fund_table.dart';
 import 'base_dao.dart';
 
-class AccountFundDao extends BaseBookDao<AccountFundTable, AccountFund> {
-  AccountFundDao(super.db);
+class FundDao extends BaseBookDao<AccountFundTable, AccountFund> {
+  FundDao(super.db);
 
   Future<List<AccountFund>> findByType(String fundType) {
     return (db.select(db.accountFundTable)..where((t) => t.fundType.equals(fundType))).get();
