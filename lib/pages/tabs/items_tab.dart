@@ -53,8 +53,10 @@ class _ItemsTabState extends State<ItemsTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final provider = context.read<ItemListProvider>();
-    provider.loadItems();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<ItemListProvider>();
+      provider.loadItems();
+    });
   }
 
   @override

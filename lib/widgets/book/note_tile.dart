@@ -15,10 +15,14 @@ class NoteTile extends StatelessWidget {
   /// 在列表中的索引
   final int index;
 
+  /// 点击回调
+  final VoidCallback? onTap;
+
   const NoteTile({
     super.key,
     required this.note,
     required this.index,
+    this.onTap,
   });
 
   String _getPlainText(String? content) {
@@ -44,17 +48,7 @@ class NoteTile extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         InkWell(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.noteEdit,
-              arguments: [note, provider.selectedBook],
-            ).then((updated) {
-              if (updated == true) {
-                noteListProvider.loadNotes();
-              }
-            });
-          },
+          onTap: onTap,
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

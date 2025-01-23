@@ -29,8 +29,10 @@ class _NotesTabState extends State<NotesTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final provider = context.read<NoteListProvider>();
-    provider.loadNotes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<NoteListProvider>();
+      provider.loadNotes();
+    });
   }
 
   @override
@@ -43,7 +45,24 @@ class _NotesTabState extends State<NotesTab> {
         title: Text(L10nManager.l10n.tabNotes),
         showBackButton: false,
       ),
-      body: const NoteList(),
+      body: NoteList(
+        accountBook: provider.selectedBook,
+        initialNotes: noteListProvider.notes,
+        loading: noteListProvider.loading,
+        hasMore: noteListProvider.hasMore,
+        onLoadMore: () => noteListProvider.loadMore(),
+        onNoteTap: (note) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.noteEdit,
+            arguments: [note, provider.selectedBook],
+          ).then((updated) {
+            if (updated == true) {
+              noteListProvider.loadNotes();
+            }
+          });
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(
