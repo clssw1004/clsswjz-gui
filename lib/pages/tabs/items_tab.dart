@@ -30,7 +30,7 @@ class _ItemsTabState extends State<ItemsTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(AppConfigManager.instance.userId);
     });
   }
 
@@ -69,7 +69,7 @@ class _ItemsTabState extends State<ItemsTab> {
             final key = ValueKey('${provider.selectedBook?.id ?? ''}_${provider.books.length}');
             return BookSelector(
               key: key,
-              userId: UserConfigManager.currentUserId,
+              userId: AppConfigManager.instance.userId,
               books: provider.books,
               selectedBook: provider.selectedBook,
               onSelected: (book) {
@@ -87,7 +87,7 @@ class _ItemsTabState extends State<ItemsTab> {
               });
             },
             icon: Icon(
-              _viewMode == ItemViewMode.detail ? Icons.view_list_outlined : Icons.view_headline_outlined,
+              _viewMode == ItemViewMode.detail ? Icons.view_headline_outlined : Icons.view_timeline_outlined,
               color: Theme.of(context).colorScheme.primary,
             ),
             tooltip: _viewMode == ItemViewMode.detail ? L10nManager.l10n.simpleView : L10nManager.l10n.detailView,
@@ -117,7 +117,7 @@ class _ItemsTabState extends State<ItemsTab> {
                                       AppRoutes.bookForm,
                                     );
                                     if (result == true) {
-                                      await bookProvider.init(UserConfigManager.currentUserId);
+                                      await bookProvider.init(AppConfigManager.instance.userId);
                                     }
                                   },
                                   icon: const Icon(Icons.add),

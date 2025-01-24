@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
+import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
@@ -42,12 +43,12 @@ class UserProvider extends ChangeNotifier {
   /// 获取用户信息
   Future<void> refreshUserInfo() async {
     try {
-      final result = await DriverFactory.driver.getUserInfo(UserConfigManager.currentUserId);
+      final result = await DriverFactory.driver.getUserInfo(AppConfigManager.instance.userId);
 
       if (result.ok && result.data != null) {
         _user = result.data;
         // 获取用户统计信息
-        final statisticResult = await ServiceManager.statisticService.getUserStatisticInfo(UserConfigManager.currentUserId);
+        final statisticResult = await ServiceManager.statisticService.getUserStatisticInfo(AppConfigManager.instance.userId);
         if (statisticResult.ok) {
           _statistic = statisticResult.data;
         }
@@ -73,7 +74,7 @@ class UserProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     final result = await DriverFactory.driver.updateUser(
-      UserConfigManager.currentUserId,
+      AppConfigManager.instance.userId,
       nickname: nickname,
       email: email,
       phone: phone,
@@ -91,7 +92,7 @@ class UserProvider extends ChangeNotifier {
   /// 更新头像
   Future<void> updateAvatar(File file) async {
     await DriverFactory.driver.updateUser(
-      UserConfigManager.currentUserId,
+      AppConfigManager.instance.userId,
       avatar: file,
     );
     await refreshUserInfo();
@@ -112,7 +113,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       final result = await DriverFactory.driver.updateUser(
-        UserConfigManager.currentUserId,
+        AppConfigManager.instance.userId,
         oldPassword: oldPassword,
         newPassword: newPassword,
       );

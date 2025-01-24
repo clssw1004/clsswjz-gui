@@ -70,19 +70,19 @@ class AppConfigManager {
 
   /// 当前用户ID
   String? _userId;
-  String? get userId => _userId;
+  String get userId => _userId!;
 
   /// 服务器地址
   String? _serverUrl;
-  String? get serverUrl => _serverUrl;
+  String get serverUrl => _serverUrl!;
 
   /// 访问令牌
   String? _accessToken;
-  String? get accessToken => _accessToken;
+  String get accessToken => _accessToken!;
 
   /// 数据库名称
   late String? _databaseName;
-  String? get databaseName => _databaseName;
+  String get databaseName => _databaseName!;
 
   late int? _lastSyncTime;
   int? get lastSyncTime => _lastSyncTime;
@@ -280,6 +280,7 @@ class AppConfigManager {
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
     await _instance.setUserId(userId);
+    await _instance._setDatabaseName(userId);
     await HttpClient.refresh(
       serverUrl: serverUrl,
       accessToken: accessToken,

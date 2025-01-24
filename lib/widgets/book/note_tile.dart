@@ -87,7 +87,7 @@ class NoteTile extends StatelessWidget {
               children: [
                 // 日期
                 Text(
-                  note.noteDate,
+                  note.createdAt!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     letterSpacing: 0.5,

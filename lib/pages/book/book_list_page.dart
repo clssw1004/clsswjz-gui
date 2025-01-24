@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -24,7 +25,7 @@ class _BookListPageState extends State<BookListPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(AppConfigManager.instance.userId);
     });
   }
 
@@ -50,7 +51,7 @@ class _BookListPageState extends State<BookListPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () => provider.loadBooks(UserConfigManager.currentUserId),
+            onRefresh: () => provider.loadBooks(AppConfigManager.instance.userId),
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: provider.books.length,
@@ -58,7 +59,7 @@ class _BookListPageState extends State<BookListPage> {
                 final book = provider.books[index];
                 return _AccountBookCard(
                   book: book,
-                  userId: UserConfigManager.currentUserId,
+                  userId: AppConfigManager.instance.userId,
                   onEdit: () => _showAccountBookForm(context, book),
                 );
               },
@@ -81,7 +82,7 @@ class _BookListPageState extends State<BookListPage> {
       ),
     );
     if (result == true && mounted) {
-      context.read<BooksProvider>().loadBooks(UserConfigManager.currentUserId);
+      context.read<BooksProvider>().loadBooks(AppConfigManager.instance.userId);
     }
   }
 }

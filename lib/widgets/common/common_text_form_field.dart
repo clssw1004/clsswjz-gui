@@ -55,6 +55,9 @@ class CommonTextFormField extends StatefulWidget {
   /// 文本样式
   final TextStyle? style;
 
+  /// 编辑完成回调
+  final VoidCallback? onEditingComplete;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -74,6 +77,7 @@ class CommonTextFormField extends StatefulWidget {
     this.maxLines = 1,
     this.minLines,
     this.style,
+    this.onEditingComplete,
   });
 
   @override
@@ -184,9 +188,10 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             onSaved: widget.onSaved,
             obscureText: widget.obscureText,
             keyboardType: widget.keyboardType,
-            onEditingComplete: () {
-              _focusNode.unfocus();
-            },
+            onEditingComplete: widget.onEditingComplete ??
+                () {
+                  _focusNode.unfocus();
+                },
             onFieldSubmitted: (_) {
               _focusNode.unfocus();
             },

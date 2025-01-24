@@ -9,11 +9,4 @@ class NoteDao extends BaseBookDao<AccountNoteTable, AccountNote> {
 
   @override
   TableInfo<AccountNoteTable, AccountNote> get table => db.accountNoteTable;
-
-  @override
-  List<OrderClauseGenerator<AccountNoteTable>> defaultOrderBy() {
-    return [
-      (t) => OrderingTerm.desc(t.noteDate),
-    ];
-  }
 }

@@ -64,7 +64,7 @@ class NoteListProvider extends ChangeNotifier {
     }
     try {
       final result = await DriverFactory.driver.listNotesByBook(
-        UserConfigManager.currentUserId!,
+        AppConfigManager.instance.userId!,
         _currentBookId!,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
@@ -90,7 +90,7 @@ class NoteListProvider extends ChangeNotifier {
 
   /// 删除笔记
   Future<bool> deleteNote(UserNoteVO note) async {
-    final result = await DriverFactory.driver.deleteNote(UserConfigManager.currentUserId, _currentBookId!, note.id);
+    final result = await DriverFactory.driver.deleteNote(AppConfigManager.instance.userId, _currentBookId!, note.id);
     if (result.ok) {
       _notes.remove(note);
       notifyListeners();

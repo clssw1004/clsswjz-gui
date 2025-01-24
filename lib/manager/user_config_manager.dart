@@ -12,9 +12,6 @@ class UserConfigManager {
 
   static String get currentUserIdKey => _currentUserIdKey;
 
-  static late String _currentUserId;
-  static String get currentUserId => _currentUserId;
-
   static late UserVO _currentUser;
   UserVO get currentUser => _currentUser;
 
@@ -25,7 +22,6 @@ class UserConfigManager {
       _instance = UserConfigManager._();
       isInited = true;
     }
-    _currentUserId = userId;
     final user = await DriverFactory.driver.getUserInfo(userId).then((value) => value.data);
     setCurrentUser(user!);
   }

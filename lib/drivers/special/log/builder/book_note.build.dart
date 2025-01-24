@@ -38,14 +38,12 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String bookId, {
     String? title,
     String? content,
-    required String noteDate,
   }) {
     return NoteCULog().who(who).inBook(bookId).doCreate().withData(AccountNoteTable.toCreateCompanion(
           who,
           bookId,
           title: title,
           content: content,
-          noteDate: noteDate,
         )) as NoteCULog;
   }
 

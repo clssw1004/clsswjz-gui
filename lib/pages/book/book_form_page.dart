@@ -3,6 +3,7 @@ import 'package:clsswjz/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import '../../constants/account_book_icons.dart';
 import '../../drivers/driver_factory.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../manager/user_config_manager.dart';
@@ -76,7 +77,7 @@ class _BookFormPageState extends State<BookFormPage> {
   }
 
   Future<OperateResult<void>> create() async {
-    final userId = UserConfigManager.currentUserId;
+    final userId = AppConfigManager.instance.userId;
     return await DriverFactory.driver.createBook(
       userId,
       name: _nameController.text,
@@ -88,7 +89,7 @@ class _BookFormPageState extends State<BookFormPage> {
   }
 
   Future<OperateResult<void>> update() async {
-    final userId = UserConfigManager.currentUserId;
+    final userId = AppConfigManager.instance.userId;
 
     return await DriverFactory.driver.updateBook(
       userId,

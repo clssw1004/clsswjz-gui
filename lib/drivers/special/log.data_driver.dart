@@ -466,9 +466,8 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<String>> createNote(String who, String bookId,
-      {String? title, required String content, required String noteDate}) async {
-    final id = await NoteCULog.create(who, bookId, title: title, content: content, noteDate: noteDate).execute();
+  Future<OperateResult<String>> createNote(String who, String bookId, {String? title, required String content}) async {
+    final id = await NoteCULog.create(who, bookId, title: title, content: content).execute();
     return OperateResult.success(id);
   }
 

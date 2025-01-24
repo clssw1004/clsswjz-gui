@@ -66,13 +66,11 @@ class _NoteFormPageState extends State<NoteFormPage> {
     try {
       final userId = AppConfigManager.instance.userId!;
       final now = DateTime.now();
-      final noteDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
       final note = UserNoteVO(
         id: widget.note?.id ?? '',
         title: _titleController.text.trim(),
         content: jsonEncode(_quillController.document.toDelta().toJson()),
-        noteDate: noteDate,
         accountBookId: widget.book.id,
       );
 
@@ -82,7 +80,6 @@ class _NoteFormPageState extends State<NoteFormPage> {
               widget.book.id,
               title: note.title,
               content: note.content,
-              noteDate: note.noteDate,
             )
           : await DriverFactory.driver.updateNote(
               userId,
@@ -90,7 +87,6 @@ class _NoteFormPageState extends State<NoteFormPage> {
               note.id,
               title: note.title,
               content: note.content,
-              noteDate: note.noteDate,
             );
 
       if (result.ok) {
@@ -162,12 +158,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.15,
                       ),
-                    ),
-                    // 分隔线
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      height: 1,
-                      color: colorScheme.outline.withAlpha(50),
+                      onEditingComplete: () {},
                     ),
                     // 内容编辑器
                     Expanded(

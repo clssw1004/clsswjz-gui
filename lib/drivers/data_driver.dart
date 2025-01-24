@@ -172,9 +172,9 @@ abstract class BookDataDriver {
   /// 获取用户记事列表
   Future<OperateResult<List<UserNoteVO>>> listNotesByBook(String who, String bookId, {int limit = 200, int offset = 0});
 
-  Future<OperateResult<String>> createNote(String who, String bookId, {String? title, required String content, required String noteDate});
+  Future<OperateResult<String>> createNote(String who, String bookId, {String? title, required String content});
 
   Future<OperateResult<void>> deleteNote(String who, String bookId, String noteId);
 
-  Future<OperateResult<void>> updateNote(String who, String bookId, String noteId, {String? title, String? content, String? noteDate});
+  Future<OperateResult<void>> updateNote(String who, String bookId, String noteId, {String? title, String? content});
 }

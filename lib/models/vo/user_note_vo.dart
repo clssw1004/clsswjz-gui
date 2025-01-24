@@ -1,4 +1,5 @@
 import '../../database/database.dart';
+import '../../utils/date_util.dart';
 
 class UserNoteVO {
   /// ID
@@ -10,18 +11,30 @@ class UserNoteVO {
   /// 内容
   final String content;
 
-  /// 笔记日期
-  final String noteDate;
-
   /// 账本ID
   final String accountBookId;
+
+  /// 创建时间
+  final String? createdAt;
+
+  /// 更新时间
+  final String? updatedAt;
+
+  /// 创建人
+  final String? createdBy;
+
+  /// 更新人
+  final String? updatedBy;
 
   const UserNoteVO({
     required this.id,
     this.title,
     required this.content,
-    required this.noteDate,
     required this.accountBookId,
+    this.createdAt,
+    this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
   });
 
   UserNoteVO copyWith({
@@ -30,13 +43,20 @@ class UserNoteVO {
     required String content,
     String? noteDate,
     String? accountBookId,
+    String? createdAt,
+    String? updatedAt,
+    String? createdBy,
+    String? updatedBy,
   }) {
     return UserNoteVO(
       id: id ?? this.id,
       title: title ?? this.title,
       content: content,
-      noteDate: noteDate ?? this.noteDate,
       accountBookId: accountBookId ?? this.accountBookId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
     );
   }
 
@@ -45,8 +65,11 @@ class UserNoteVO {
       id: note.id,
       title: note.title ?? '',
       content: note.content ?? '',
-      noteDate: note.noteDate,
       accountBookId: note.accountBookId,
+      createdAt: DateUtil.format(note.createdAt),
+      updatedAt: DateUtil.format(note.updatedAt),
+      createdBy: note.createdBy,
+      updatedBy: note.updatedBy,
     );
   }
 }
