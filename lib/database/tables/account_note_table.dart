@@ -9,11 +9,13 @@ import 'base_table.dart';
 
 @DataClassName('AccountNote')
 class AccountNoteTable extends BaseAccountBookTable {
+  TextColumn get title => text().nullable().named('title')();
   TextColumn get content => text().nullable().named('content').withLength(max: 4294967295)();
   TextColumn get noteDate => text().named('note_date')();
 
   static AccountNoteTableCompanion toUpdateCompanion(
     String who, {
+    String? title,
     String? content,
     String? noteDate,
     String? accountBookId,
@@ -21,6 +23,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     return AccountNoteTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
+      title: Value.absentIfNull(title),
       content: Value.absentIfNull(content),
       noteDate: Value.absentIfNull(noteDate),
       accountBookId: Value.absentIfNull(accountBookId),
@@ -32,12 +35,14 @@ class AccountNoteTable extends BaseAccountBookTable {
   static AccountNoteTableCompanion toCreateCompanion(
     String who,
     String accountBookId, {
+    String? title,
     String? content,
     required String noteDate,
   }) =>
       AccountNoteTableCompanion(
         id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
+        title: Value.absentIfNull(title),
         content: Value.absentIfNull(content),
         noteDate: Value(noteDate),
         createdBy: Value(who),
@@ -53,6 +58,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
     MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
+    MapUtil.setIfPresent(map, 'title', companion.title);
     MapUtil.setIfPresent(map, 'content', companion.content);
     MapUtil.setIfPresent(map, 'noteDate', companion.noteDate);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);

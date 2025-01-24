@@ -52,6 +52,9 @@ class CommonTextFormField extends StatefulWidget {
   /// 最小行数，默认等于maxLines
   final int? minLines;
 
+  /// 文本样式
+  final TextStyle? style;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -70,6 +73,7 @@ class CommonTextFormField extends StatefulWidget {
     this.onTap,
     this.maxLines = 1,
     this.minLines,
+    this.style,
   });
 
   @override
@@ -141,6 +145,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             enabled: widget.enabled,
             maxLines: widget.maxLines,
             minLines: widget.minLines ?? widget.maxLines,
+            style: widget.style ?? theme.textTheme.bodyLarge,
             decoration: InputDecoration(
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
               hintText: widget.hintText ?? (widget.required ? null : L10nManager.l10n.optional),
@@ -166,7 +171,6 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
                 ),
               ),
             ),
-            style: theme.textTheme.bodyLarge,
             onChanged: widget.onChanged,
             validator: widget.validator ??
                 (widget.required

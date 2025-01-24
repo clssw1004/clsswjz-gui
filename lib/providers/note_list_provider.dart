@@ -52,12 +52,16 @@ class NoteListProvider extends ChangeNotifier {
   }
 
   /// 加载笔记列表
-  Future<void> loadNotes() async {
+  /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
+  Future<void> loadNotes([bool refresh = true]) async {
     if (_loading || _currentBookId == null) return;
+    if (!refresh && !_hasMore) return;
 
     _loading = true;
-    _page = 1;
-
+    if (refresh) {
+      _page = 1;
+      _hasMore = true;
+    }
     try {
       final result = await DriverFactory.driver.listNotesByBook(
         UserConfigManager.currentUserId!,
@@ -65,12 +69,12 @@ class NoteListProvider extends ChangeNotifier {
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
       );
-      _notes.clear();
-      if (result.ok && result.data != null) {
-        _notes.addAll(result.data!);
-        _hasMore = result.data!.length >= _pageSize;
-      } else {
-        _hasMore = false;
+      if (result.ok) {
+        if (refresh) {
+          _notes.clear();
+        }
+        _notes.addAll(result.data ?? []);
+        _hasMore = (result.data?.length ?? 0) >= _pageSize;
       }
     } finally {
       _loading = false;
@@ -80,29 +84,8 @@ class NoteListProvider extends ChangeNotifier {
 
   /// 加载更多笔记
   Future<void> loadMore() async {
-    if (_loading || !_hasMore || _currentBookId == null) return;
-
-    _loading = true;
-    notifyListeners();
-
-    try {
-      final result = await DriverFactory.driver.listNotesByBook(
-        UserConfigManager.currentUserId!,
-        _currentBookId!,
-        offset: _page * _pageSize,
-        limit: _pageSize,
-      );
-      if (result.ok && result.data != null && result.data!.isNotEmpty) {
-        _notes.addAll(result.data!);
-        _page++;
-        _hasMore = result.data!.length >= _pageSize;
-      } else {
-        _hasMore = false;
-      }
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
+    _page++;
+    await loadNotes(false);
   }
 
   /// 删除笔记

@@ -36,12 +36,14 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
   static NoteCULog create(
     String who,
     String bookId, {
+    String? title,
     String? content,
     required String noteDate,
   }) {
     return NoteCULog().who(who).inBook(bookId).doCreate().withData(AccountNoteTable.toCreateCompanion(
           who,
           bookId,
+          title: title,
           content: content,
           noteDate: noteDate,
         )) as NoteCULog;
@@ -51,11 +53,13 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String userId,
     String bookId,
     String noteId, {
+    String? title,
     String? content,
     String? noteDate,
   }) {
     return NoteCULog().who(userId).inBook(bookId).target(noteId).doUpdate().withData(AccountNoteTable.toUpdateCompanion(
           userId,
+          title: title,
           content: content,
           noteDate: noteDate,
         )) as NoteCULog;
@@ -75,6 +79,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
       log.operatorId,
       log.parentId,
       log.businessId,
+      title: data['title'],
       content: data['content'],
       noteDate: data['noteDate'],
     );

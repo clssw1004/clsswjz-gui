@@ -54,6 +54,21 @@ class NoteTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 标题
+            if (note.title?.isNotEmpty == true) ...[
+              Text(
+                note.title!,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                  height: 1.4,
+                  letterSpacing: 0.15,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: spacing.listItemSpacing / 2),
+            ],
             // 内容预览
             Text(
               plainText,

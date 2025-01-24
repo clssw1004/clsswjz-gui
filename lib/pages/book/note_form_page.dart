@@ -7,6 +7,7 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
+import '../../widgets/common/common_text_form_field.dart';
 import '../../manager/app_config_manager.dart';
 import '../../utils/toast_util.dart';
 import '../../drivers/driver_factory.dart';
@@ -24,6 +25,7 @@ class NoteFormPage extends StatefulWidget {
 class _NoteFormPageState extends State<NoteFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _quillController = QuillController.basic();
+  final _titleController = TextEditingController();
   bool _saving = false;
   bool _showFullToolbar = false;
 
@@ -31,6 +33,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
   void initState() {
     super.initState();
     if (widget.note != null) {
+      _titleController.text = widget.note!.title ?? '';
       try {
         final doc = Document.fromJson(jsonDecode(widget.note!.content));
         _quillController.document = doc;
@@ -48,6 +51,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
   @override
   void dispose() {
     _quillController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
@@ -66,14 +70,28 @@ class _NoteFormPageState extends State<NoteFormPage> {
 
       final note = UserNoteVO(
         id: widget.note?.id ?? '',
+        title: _titleController.text.trim(),
         content: jsonEncode(_quillController.document.toDelta().toJson()),
         noteDate: noteDate,
         accountBookId: widget.book.id,
       );
 
       final result = widget.note == null
-          ? await DriverFactory.driver.createNote(userId, widget.book.id, content: note.content, noteDate: note.noteDate)
-          : await DriverFactory.driver.updateNote(userId, widget.book.id, note.id, content: note.content, noteDate: note.noteDate);
+          ? await DriverFactory.driver.createNote(
+              userId,
+              widget.book.id,
+              title: note.title,
+              content: note.content,
+              noteDate: note.noteDate,
+            )
+          : await DriverFactory.driver.updateNote(
+              userId,
+              widget.book.id,
+              note.id,
+              title: note.title,
+              content: note.content,
+              noteDate: note.noteDate,
+            );
 
       if (result.ok) {
         if (mounted) {
@@ -134,6 +152,24 @@ class _NoteFormPageState extends State<NoteFormPage> {
                 ),
                 child: Column(
                   children: [
+                    // 标题输入框
+                    CommonTextFormField(
+                      controller: _titleController,
+                      hintText: L10nManager.l10n.title,
+                      maxLines: 1,
+                      required: false,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.15,
+                      ),
+                    ),
+                    // 分隔线
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      height: 1,
+                      color: colorScheme.outline.withAlpha(50),
+                    ),
+                    // 内容编辑器
                     Expanded(
                       child: QuillEditor.basic(
                         controller: _quillController,
@@ -215,7 +251,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
                               showFontSize: _showFullToolbar,
                               showBoldButton: true,
                               showItalicButton: true,
-                              showUnderLineButton: true,
+                              showUnderLineButton: _showFullToolbar,
                               showClipboardPaste: _showFullToolbar,
                               showClipboardCopy: _showFullToolbar,
                               showClipboardCut: _showFullToolbar,

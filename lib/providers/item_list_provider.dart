@@ -66,8 +66,8 @@ class ItemListProvider extends ChangeNotifier {
       _page = 1;
       _hasMore = true;
     }
-
     try {
+      print('loadItems: $_page');
       final result = await DriverFactory.driver.listItemsByBook(
         userId,
         bookId,
@@ -80,9 +80,6 @@ class ItemListProvider extends ChangeNotifier {
         }
         _items.addAll(result.data ?? []);
         _hasMore = (result.data?.length ?? 0) >= _pageSize;
-        if (!refresh) {
-          _page++;
-        }
       }
     } finally {
       _loading = false;
@@ -91,7 +88,10 @@ class ItemListProvider extends ChangeNotifier {
   }
 
   /// 加载更多账目
-  Future<void> loadMore() => loadItems(false);
+  Future<void> loadMore() async {
+    _page++;
+    await loadItems(false);
+  }
 
   @override
   void dispose() {
