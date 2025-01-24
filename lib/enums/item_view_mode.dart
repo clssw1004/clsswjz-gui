@@ -1,5 +1,5 @@
 /// 账目列表显示模式
-enum AccountItemViewMode {
+enum ItemViewMode {
   /// 详细模式
   detail('DETAIL'),
 
@@ -9,13 +9,13 @@ enum AccountItemViewMode {
   /// 编码
   final String code;
 
-  const AccountItemViewMode(this.code);
+  const ItemViewMode(this.code);
 
   /// 从编码获取枚举值
-  static AccountItemViewMode fromCode(String code) {
-    return AccountItemViewMode.values.firstWhere(
+  static ItemViewMode fromCode(String code) {
+    return ItemViewMode.values.firstWhere(
       (e) => e.code == code,
-      orElse: () => AccountItemViewMode.detail,
+      orElse: () => ItemViewMode.detail,
     );
   }
 }

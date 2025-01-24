@@ -21,6 +21,21 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
   /// 内容区域内边距
   final EdgeInsets contentPadding;
 
+  /// 列表内边距
+  final EdgeInsets listPadding;
+
+  /// 列表项外边距
+  final EdgeInsets listItemMargin;
+
+  /// 列表项内边距
+  final EdgeInsets listItemPadding;
+
+  /// 列表项内容间距
+  final double listItemSpacing;
+
+  /// 加载更多区域内边距
+  final EdgeInsets loadMorePadding;
+
   const ThemeSpacing({
     required this.formItemSpacing,
     required this.formGroupSpacing,
@@ -28,6 +43,11 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     required this.formItemPadding,
     required this.formGroupPadding,
     required this.contentPadding,
+    required this.listPadding,
+    required this.listItemMargin,
+    required this.listItemPadding,
+    required this.listItemSpacing,
+    required this.loadMorePadding,
   });
 
   /// 根据屏幕尺寸创建间距配置
@@ -45,6 +65,12 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     // 垂直内边距，根据屏幕高度计算
     final verticalPadding = (screenSize.height * 0.02).clamp(16.0, 24.0);
 
+    // 列表相关间距
+    final listHorizontalPadding = (screenSize.width * 0.03).clamp(12.0, 24.0);
+    final listVerticalPadding = (screenSize.height * 0.005).clamp(4.0, 8.0);
+    final listItemPadding = (shortestSide * 0.03).clamp(12.0, 16.0);
+    final listItemSpacing = (shortestSide * 0.02).clamp(8.0, 12.0);
+
     return ThemeSpacing(
       formItemSpacing: baseSpacing,
       formGroupSpacing: groupSpacing,
@@ -61,6 +87,17 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
         horizontal: horizontalPadding,
         vertical: verticalPadding,
       ),
+      listPadding: EdgeInsets.symmetric(
+        horizontal: listHorizontalPadding,
+        vertical: listVerticalPadding,
+      ),
+      listItemMargin: EdgeInsets.symmetric(
+        horizontal: listHorizontalPadding,
+        vertical: listVerticalPadding,
+      ),
+      listItemPadding: EdgeInsets.all(listItemPadding),
+      listItemSpacing: listItemSpacing,
+      loadMorePadding: EdgeInsets.symmetric(vertical: listItemSpacing),
     );
   }
 
@@ -72,6 +109,11 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     EdgeInsets? formItemPadding,
     EdgeInsets? formGroupPadding,
     EdgeInsets? contentPadding,
+    EdgeInsets? listPadding,
+    EdgeInsets? listItemMargin,
+    EdgeInsets? listItemPadding,
+    double? listItemSpacing,
+    EdgeInsets? loadMorePadding,
   }) {
     return ThemeSpacing(
       formItemSpacing: formItemSpacing ?? this.formItemSpacing,
@@ -80,6 +122,11 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       formItemPadding: formItemPadding ?? this.formItemPadding,
       formGroupPadding: formGroupPadding ?? this.formGroupPadding,
       contentPadding: contentPadding ?? this.contentPadding,
+      listPadding: listPadding ?? this.listPadding,
+      listItemMargin: listItemMargin ?? this.listItemMargin,
+      listItemPadding: listItemPadding ?? this.listItemPadding,
+      listItemSpacing: listItemSpacing ?? this.listItemSpacing,
+      loadMorePadding: loadMorePadding ?? this.loadMorePadding,
     );
   }
 
@@ -99,6 +146,11 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       formItemPadding: EdgeInsets.lerp(formItemPadding, other.formItemPadding, t)!,
       formGroupPadding: EdgeInsets.lerp(formGroupPadding, other.formGroupPadding, t)!,
       contentPadding: EdgeInsets.lerp(contentPadding, other.contentPadding, t)!,
+      listPadding: EdgeInsets.lerp(listPadding, other.listPadding, t)!,
+      listItemMargin: EdgeInsets.lerp(listItemMargin, other.listItemMargin, t)!,
+      listItemPadding: EdgeInsets.lerp(listItemPadding, other.listItemPadding, t)!,
+      listItemSpacing: lerpDouble(listItemSpacing, other.listItemSpacing, t)!,
+      loadMorePadding: EdgeInsets.lerp(loadMorePadding, other.loadMorePadding, t)!,
     );
   }
 }

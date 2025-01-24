@@ -12,7 +12,7 @@ import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
-import '../../enums/account_item_view_mode.dart';
+import '../../enums/item_view_mode.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -24,7 +24,7 @@ class ItemsTab extends StatefulWidget {
 
 class _ItemsTabState extends State<ItemsTab> {
   bool _isRefreshing = false;
-  AccountItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
+  ItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
 
   @override
   void initState() {
@@ -82,15 +82,15 @@ class _ItemsTabState extends State<ItemsTab> {
           IconButton(
             onPressed: () {
               setState(() {
-                _viewMode = _viewMode == AccountItemViewMode.detail ? AccountItemViewMode.simple : AccountItemViewMode.detail;
+                _viewMode = _viewMode == ItemViewMode.detail ? ItemViewMode.simple : ItemViewMode.detail;
                 AppConfigManager.instance.setAccountItemViewMode(_viewMode);
               });
             },
             icon: Icon(
-              _viewMode == AccountItemViewMode.detail ? Icons.view_list_outlined : Icons.view_headline_outlined,
+              _viewMode == ItemViewMode.detail ? Icons.view_list_outlined : Icons.view_headline_outlined,
               color: Theme.of(context).colorScheme.primary,
             ),
-            tooltip: _viewMode == AccountItemViewMode.detail ? L10nManager.l10n.simpleView : L10nManager.l10n.detailView,
+            tooltip: _viewMode == ItemViewMode.detail ? L10nManager.l10n.simpleView : L10nManager.l10n.detailView,
           ),
         ],
       ),
@@ -134,7 +134,7 @@ class _ItemsTabState extends State<ItemsTab> {
                               initialItems: itemListProvider.items,
                               loading: itemListProvider.loading,
                               hasMore: itemListProvider.hasMore,
-                              useSimpleView: _viewMode == AccountItemViewMode.simple,
+                              useSimpleView: _viewMode == ItemViewMode.simple,
                               onLoadMore: () => itemListProvider.loadMore(),
                               onItemTap: (item) {
                                 Navigator.pushNamed(

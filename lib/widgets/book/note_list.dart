@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_spacing.dart';
 import 'note_tile.dart';
 
 /// 笔记列表
@@ -99,7 +100,7 @@ class _NoteListState extends State<NoteList> {
   Widget _buildLoadMoreIndicator(ThemeData theme) {
     if (!widget.hasMore) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: theme.spacing.loadMorePadding,
         child: Center(
           child: Text(
             L10nManager.l10n.noMore,
@@ -112,7 +113,7 @@ class _NoteListState extends State<NoteList> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: theme.spacing.loadMorePadding,
       child: Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -142,6 +143,7 @@ class _NoteListState extends State<NoteList> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     if (widget.loading && (_notes == null || _notes!.isEmpty)) {
       return Center(child: Text(L10nManager.l10n.loading));
@@ -150,6 +152,7 @@ class _NoteListState extends State<NoteList> {
     if (_notes == null || _notes!.isEmpty) {
       return ListView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        padding: spacing.listPadding,
         children: [
           Center(
             child: Column(
@@ -177,7 +180,7 @@ class _NoteListState extends State<NoteList> {
     return ListView.builder(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: spacing.listPadding,
       itemCount: _notes!.length + 1,
       itemBuilder: (context, index) {
         if (index == _notes!.length) {

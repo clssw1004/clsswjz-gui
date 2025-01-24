@@ -4,6 +4,7 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../utils/color_util.dart';
+import '../../theme/theme_spacing.dart';
 import 'item_tile_advance.dart';
 import 'item_tile_simple.dart';
 
@@ -153,10 +154,17 @@ class _ItemListState extends State<ItemList> {
 
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
+    final spacing = theme.spacing;
+
     if (widget.useSimpleView) {
       return Container(
-        margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+        margin: EdgeInsets.only(top: spacing.listItemSpacing),
+        padding: EdgeInsets.fromLTRB(
+          spacing.listItemPadding.left,
+          spacing.listItemSpacing,
+          spacing.listItemPadding.right,
+          spacing.listItemSpacing / 2,
+        ),
         child: Text(
           stats.date,
           style: theme.textTheme.labelMedium?.copyWith(
@@ -168,8 +176,13 @@ class _ItemListState extends State<ItemList> {
     }
 
     return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      margin: EdgeInsets.only(bottom: spacing.listItemSpacing),
+      padding: EdgeInsets.fromLTRB(
+        spacing.listItemPadding.left,
+        spacing.listItemSpacing,
+        spacing.listItemPadding.right,
+        spacing.listItemSpacing,
+      ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withAlpha(255),
         border: Border(
@@ -197,7 +210,7 @@ class _ItemListState extends State<ItemList> {
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: spacing.listItemSpacing / 2),
               Container(
                 width: 32,
                 height: 2,
@@ -222,7 +235,7 @@ class _ItemListState extends State<ItemList> {
                   ),
                 ),
               if (stats.expense < 0) ...[
-                const SizedBox(width: 8),
+                SizedBox(width: spacing.listItemSpacing),
                 Text(
                   stats.expense.toStringAsFixed(2),
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -243,7 +256,7 @@ class _ItemListState extends State<ItemList> {
   Widget _buildLoadMoreIndicator(ThemeData theme) {
     if (!widget.hasMore) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: theme.spacing.loadMorePadding,
         child: Center(
           child: Text(
             L10nManager.l10n.noMore,
@@ -256,7 +269,7 @@ class _ItemListState extends State<ItemList> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: theme.spacing.loadMorePadding,
       child: Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -269,7 +282,7 @@ class _ItemListState extends State<ItemList> {
                 color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: theme.spacing.listItemSpacing),
             Text(
               L10nManager.l10n.loading,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -317,6 +330,7 @@ class _ItemListState extends State<ItemList> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     if (widget.loading && (_items == null || _items!.isEmpty)) {
       return Center(child: Text(L10nManager.l10n.loading));
@@ -325,6 +339,7 @@ class _ItemListState extends State<ItemList> {
     if (_items == null || _items!.isEmpty) {
       return ListView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        padding: spacing.listPadding,
         children: [
           Center(
             child: Column(
@@ -335,7 +350,7 @@ class _ItemListState extends State<ItemList> {
                   size: 48,
                   color: colorScheme.outline,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: spacing.listItemSpacing * 2),
                 Text(
                   L10nManager.l10n.noAccountItems,
                   style: theme.textTheme.bodyLarge?.copyWith(
@@ -354,7 +369,6 @@ class _ItemListState extends State<ItemList> {
     return ListView.builder(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.only(bottom: 8),
       itemCount: itemsWithHeaders.length + 1,
       itemBuilder: (context, index) {
         if (index == itemsWithHeaders.length) {

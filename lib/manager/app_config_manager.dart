@@ -2,7 +2,7 @@ import 'package:clsswjz/constants/default_constant.dart';
 import 'package:clsswjz/manager/l10n_manager.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
-import '../enums/account_item_view_mode.dart';
+import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -87,8 +87,8 @@ class AppConfigManager {
   late int? _lastSyncTime;
   int? get lastSyncTime => _lastSyncTime;
 
-  late AccountItemViewMode _accountItemViewMode;
-  AccountItemViewMode get accountItemViewMode => _accountItemViewMode;
+  late ItemViewMode _itemViewMode;
+  ItemViewMode get accountItemViewMode => _itemViewMode;
 
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
@@ -143,8 +143,7 @@ class AppConfigManager {
 
     // 初始化账目列表样式
     final accountItemListStyleString = CacheManager.instance.getString(_accountItemListStyleKey);
-    _accountItemViewMode =
-        accountItemListStyleString == null ? AccountItemViewMode.detail : AccountItemViewMode.fromCode(accountItemListStyleString);
+    _itemViewMode = accountItemListStyleString == null ? ItemViewMode.detail : ItemViewMode.fromCode(accountItemListStyleString);
   }
 
   /// 初始化
@@ -244,8 +243,8 @@ class AppConfigManager {
     await CacheManager.instance.setInt(_lastSyncTimeKey, time);
   }
 
-  Future<void> setAccountItemViewMode(AccountItemViewMode mode) async {
-    _accountItemViewMode = mode;
+  Future<void> setAccountItemViewMode(ItemViewMode mode) async {
+    _itemViewMode = mode;
     await CacheManager.instance.setString(_accountItemListStyleKey, mode.code);
   }
 
