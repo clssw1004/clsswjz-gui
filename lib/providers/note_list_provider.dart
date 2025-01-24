@@ -104,4 +104,14 @@ class NoteListProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// 删除笔记
+  Future<bool> deleteNote(UserNoteVO note) async {
+    final result = await DriverFactory.driver.deleteNote(UserConfigManager.currentUserId, _currentBookId!, note.id);
+    if (result.ok) {
+      _notes.remove(note);
+      notifyListeners();
+    }
+    return result.ok;
+  }
 }

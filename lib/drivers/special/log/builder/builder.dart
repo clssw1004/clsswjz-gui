@@ -12,6 +12,7 @@ import 'attachment.builder.dart';
 import 'book_category.builder.dart';
 import 'book_item.builder.dart';
 import 'book_member.builder.dart';
+import 'book_note.build.dart';
 import 'book_shop.builder.dart';
 import 'book_symbol.builder.dart';
 import 'fund.builder.dart';
@@ -194,6 +195,8 @@ abstract class LogBuilder<T, RunResult> {
         return AttachmentCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.user:
         return UserCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.note:
+        return NoteCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError('Unsupported business type: ${log.businessType}');
     }
@@ -259,6 +262,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.relbookUserDao.delete(businessId!);
       case BusinessType.attachment:
         return DaoManager.attachmentDao.delete(businessId!);
+      case BusinessType.note:
+        return DaoManager.noteDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }

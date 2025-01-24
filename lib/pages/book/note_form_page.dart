@@ -25,6 +25,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _quillController = QuillController.basic();
   bool _saving = false;
+  bool _showFullToolbar = false;
 
   @override
   void initState() {
@@ -96,6 +97,8 @@ class _NoteFormPageState extends State<NoteFormPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.padding.bottom;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -142,39 +145,85 @@ class _NoteFormPageState extends State<NoteFormPage> {
                         ),
                       ),
                     ),
-                    QuillSimpleToolbar(
-                      controller: _quillController,
-                      configurations: const QuillSimpleToolbarConfigurations(
-                        showListCheck: true,
-                        showListBullets: true,
-                        showListNumbers: true,
-                        showHeaderStyle: true,
-                        showSearchButton: false,
-                        showAlignmentButtons: false,
-                        showCodeBlock: false,
-                        showQuote: false,
-                        showIndent: false,
-                        showLink: false,
-                        showUndo: false,
-                        showRedo: false,
-                        showClearFormat: false,
-                        showColorButton: false,
-                        showBackgroundColorButton: false,
-                        showSmallButton: false,
-                        showLineHeightButton: false,
-                        showStrikeThrough: false,
-                        showInlineCode: false,
-                        showJustifyAlignment: false,
-                        showFontFamily: false,
-                        showFontSize: true,
-                        showBoldButton: false,
-                        showItalicButton: false,
-                        showUnderLineButton: false,
-                        showClipboardPaste: false,
-                        showClipboardCopy: false,
-                        showClipboardCut: false,
-                        showSubscript: false,
-                        showSuperscript: false,
+                    Container(
+                      padding: EdgeInsets.only(bottom: bottomPadding),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        border: Border(
+                          top: BorderSide(color: colorScheme.outline.withAlpha(100)),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 展开按钮
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _showFullToolbar = !_showFullToolbar;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      _showFullToolbar ? Icons.expand_less : Icons.expand_more,
+                                      size: 20,
+                                      color: colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _showFullToolbar ? '收起' : '展开',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          // 工具栏
+                          QuillSimpleToolbar(
+                            controller: _quillController,
+                            configurations: QuillSimpleToolbarConfigurations(
+                              showListCheck: true,
+                              showListBullets: true,
+                              showListNumbers: true,
+                              showHeaderStyle: _showFullToolbar,
+                              showSearchButton: _showFullToolbar,
+                              showAlignmentButtons: _showFullToolbar,
+                              showCodeBlock: _showFullToolbar,
+                              showQuote: _showFullToolbar,
+                              showIndent: _showFullToolbar,
+                              showLink: _showFullToolbar,
+                              showUndo: true,
+                              showRedo: true,
+                              showClearFormat: _showFullToolbar,
+                              showColorButton: _showFullToolbar,
+                              showBackgroundColorButton: _showFullToolbar,
+                              showSmallButton: _showFullToolbar,
+                              showLineHeightButton: _showFullToolbar,
+                              showStrikeThrough: _showFullToolbar,
+                              showInlineCode: _showFullToolbar,
+                              showJustifyAlignment: _showFullToolbar,
+                              showFontFamily: _showFullToolbar,
+                              showFontSize: _showFullToolbar,
+                              showBoldButton: true,
+                              showItalicButton: true,
+                              showUnderLineButton: true,
+                              showClipboardPaste: _showFullToolbar,
+                              showClipboardCopy: _showFullToolbar,
+                              showClipboardCut: _showFullToolbar,
+                              showSubscript: _showFullToolbar,
+                              showSuperscript: _showFullToolbar,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

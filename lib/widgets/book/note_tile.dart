@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'dart:convert';
 import '../../models/vo/user_note_vo.dart';
-import '../../providers/books_provider.dart';
-import '../../providers/note_list_provider.dart';
-import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
 import '../common/common_card_container.dart';
 
@@ -42,38 +38,57 @@ class NoteTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final provider = Provider.of<BooksProvider>(context);
-    final noteListProvider = Provider.of<NoteListProvider>(context);
     final spacing = theme.spacing;
     final plainText = _getPlainText(note.content);
 
-    return CommonCardContainer(
-      onTap: onTap,
-      margin: spacing.listItemMargin,
-      padding: spacing.listItemPadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 内容预览
-          Text(
-            plainText,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurface,
-              height: 1.5,
+    return SizedBox(
+      width: double.infinity,
+      child: CommonCardContainer(
+        onTap: onTap,
+        margin: spacing.listItemMargin,
+        padding: EdgeInsets.symmetric(
+          horizontal: spacing.listItemPadding.left,
+          vertical: spacing.listItemPadding.top / 1.5,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 内容预览
+            Text(
+              plainText,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+                height: 1.4,
+                letterSpacing: 0.25,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: spacing.listItemSpacing),
-          // 日期
-          Text(
-            note.noteDate,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
+            SizedBox(height: spacing.listItemSpacing / 2),
+            // 日期和其他信息
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // 日期
+                Text(
+                  note.noteDate,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                // 右侧图标
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,14 +33,14 @@ class ProviderManager {
           ChangeNotifierProvider<SyncProvider>(
             create: (_) => SyncProvider(),
           ),
+          ChangeNotifierProvider<BooksProvider>(
+            create: (_) => BooksProvider()..init(AppConfigManager.instance.userId!),
+          ),
           ChangeNotifierProvider<ItemListProvider>(
             create: (_) => ItemListProvider(),
           ),
           ChangeNotifierProvider<NoteListProvider>(
             create: (_) => NoteListProvider(),
-          ),
-          ChangeNotifierProvider<BooksProvider>(
-            create: (_) => BooksProvider()..init(UserConfigManager.currentUserId),
           ),
         ],
         child: child,

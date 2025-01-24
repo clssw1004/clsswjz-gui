@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
@@ -12,28 +11,32 @@ class NoteList extends StatefulWidget {
   final UserBookVO? accountBook;
 
   /// 初始笔记列表
-  final List<UserNoteVO>? initialNotes;
+  final List<UserNoteVO> initialNotes;
 
   /// 是否加载中
   final bool loading;
 
-  /// 点击笔记回调
-  final void Function(UserNoteVO note)? onNoteTap;
+  /// 是否还有更多数据
+  final bool hasMore;
 
   /// 加载更多回调
   final Future<void> Function()? onLoadMore;
 
-  /// 是否还有更多数据
-  final bool hasMore;
+  /// 删除回调
+  final Future<bool> Function(UserNoteVO note)? onDelete;
+
+  /// 点击笔记回调
+  final void Function(UserNoteVO note)? onNoteTap;
 
   const NoteList({
     super.key,
     this.accountBook,
-    this.initialNotes,
+    required this.initialNotes,
     this.loading = false,
-    this.onNoteTap,
+    this.hasMore = false,
     this.onLoadMore,
-    this.hasMore = true,
+    this.onDelete,
+    this.onNoteTap,
   });
 
   @override
@@ -126,7 +129,7 @@ class _NoteListState extends State<NoteList> {
                 color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: theme.spacing.listItemSpacing),
             Text(
               L10nManager.l10n.loading,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -135,6 +138,35 @@ class _NoteListState extends State<NoteList> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 构建列表项
+  Widget _buildListItem(UserNoteVO note, int index, ThemeData theme) {
+    return Dismissible(
+      key: ValueKey(note.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: theme.spacing.listItemPadding.right),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.error,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          Icons.delete_outline,
+          color: theme.colorScheme.onError,
+        ),
+      ),
+      confirmDismiss: (direction) async {
+        final result = await widget.onDelete?.call(note);
+        return result;
+      },
+      child: NoteTile(
+        note: note,
+        index: index,
+        onTap: () => widget.onNoteTap?.call(note),
       ),
     );
   }
@@ -150,50 +182,50 @@ class _NoteListState extends State<NoteList> {
     }
 
     if (_notes == null || _notes!.isEmpty) {
-      return ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        padding: spacing.listPadding,
-        children: [
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.note_outlined,
-                  size: 48,
-                  color: colorScheme.outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '暂无笔记',
-                  style: theme.textTheme.bodyLarge?.copyWith(
+      return RefreshIndicator(
+        onRefresh: widget.onLoadMore ?? Future.value,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.note_outlined,
+                    size: 48,
                     color: colorScheme.outline,
                   ),
-                ),
-              ],
+                  SizedBox(height: spacing.listItemSpacing * 2),
+                  Text(
+                    '暂无笔记',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.outline,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: spacing.listPadding,
-      itemCount: _notes!.length + 1,
-      itemBuilder: (context, index) {
-        if (index == _notes!.length) {
-          return _buildLoadMoreIndicator(theme);
-        }
+    return RefreshIndicator(
+      onRefresh: widget.onLoadMore ?? Future.value,
+      child: ListView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        itemCount: _notes!.length + 1,
+        itemBuilder: (context, index) {
+          if (index == _notes!.length) {
+            return _buildLoadMoreIndicator(theme);
+          }
 
-        final note = _notes![index];
-        return NoteTile(
-          note: note,
-          index: index,
-          onTap: widget.onNoteTap == null ? null : () => widget.onNoteTap!(note),
-        );
-      },
+          final note = _notes![index];
+          return _buildListItem(note, index, theme);
+        },
+      ),
     );
   }
 }

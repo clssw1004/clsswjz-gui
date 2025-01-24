@@ -72,6 +72,7 @@ class BooksProvider extends ChangeNotifier {
           );
         } else if (_books.isNotEmpty) {
           _selectedBook = _books.first;
+          AppConfigManager.instance.setDefaultBookId(_selectedBook?.id);
         }
 
         // 如果有选中的账本，发送切换事件
