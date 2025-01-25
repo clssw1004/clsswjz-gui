@@ -26,7 +26,7 @@ class ServiceManager extends BaseService {
     _accountBookService = AccountBookService();
     if (syncInit) {
       _syncService = SyncService(httpClient: HttpClient.instance);
-      _currentHealthService = HealthService(AppConfigManager.instance.serverUrl!);
+      _currentHealthService = HealthService(AppConfigManager.instance.serverUrl);
     }
     _attachmentService = AttachmentService();
     _statisticService = StatisticService();

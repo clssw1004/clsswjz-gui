@@ -18,7 +18,7 @@ Future<void> initApp({
     if (needSync) {
       //  初始化HTTP客户端
       await HttpClient.refresh(
-        serverUrl: AppConfigManager.instance.serverUrl!,
+        serverUrl: AppConfigManager.instance.serverUrl,
         accessToken: AppConfigManager.instance.accessToken,
       );
     }
@@ -27,6 +27,6 @@ Future<void> initApp({
     // 初始化服务管理器
     await ServiceManager.init(syncInit: needSync);
     // 初始化用户配置管理器
-    await UserConfigManager.refresh(AppConfigManager.instance.userId!);
+    await UserConfigManager.refresh(AppConfigManager.instance.userId);
   }
 }

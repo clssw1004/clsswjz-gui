@@ -25,7 +25,7 @@ class FundListPage extends StatelessWidget {
       config: CommonDataListPageConfig(
         title: L10nManager.l10n.tabFunds,
         onLoad: () async {
-          final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId!, accountBook.id);
+          final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId, accountBook.id);
           return result.ok ? result.data! : [];
         },
         itemBuilder: (context, item) {

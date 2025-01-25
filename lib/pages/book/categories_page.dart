@@ -21,7 +21,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userId = AppConfigManager.instance.userId!;
+    final userId = AppConfigManager.instance.userId;
 
     return CommonSimpleCrudList<AccountCategory>(
       key: _listKey,

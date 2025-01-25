@@ -12,7 +12,7 @@ class MerchantsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = AppConfigManager.instance.userId!;
+    final userId = AppConfigManager.instance.userId;
 
     return CommonSimpleCrudList<AccountShop>(
       config: CommonSimpleCrudListConfig(

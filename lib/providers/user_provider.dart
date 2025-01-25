@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/service_manager.dart';
-import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';

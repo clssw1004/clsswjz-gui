@@ -17,7 +17,7 @@ class BooksProvider extends ChangeNotifier {
       notifyListeners();
 
       // 刷新账本列表
-      await loadBooks(AppConfigManager.instance.userId!);
+      await loadBooks(AppConfigManager.instance.userId);
     });
   }
 

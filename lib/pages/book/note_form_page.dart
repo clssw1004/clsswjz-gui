@@ -64,7 +64,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
     });
 
     try {
-      final userId = AppConfigManager.instance.userId!;
+      final userId = AppConfigManager.instance.userId;
       final now = DateTime.now();
 
       final note = UserNoteVO(

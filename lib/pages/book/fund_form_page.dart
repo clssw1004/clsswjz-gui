@@ -71,7 +71,7 @@ class _FundFormPageState extends State<FundFormPage> {
     });
 
     try {
-      final userId = AppConfigManager.instance.userId!;
+      final userId = AppConfigManager.instance.userId;
       final result = widget.fund == null
           ? await DriverFactory.driver.createFund(
               userId,

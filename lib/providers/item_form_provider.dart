@@ -70,8 +70,8 @@ class ItemFormProvider extends ChangeNotifier {
               type: AccountItemType.expense.code,
               amount: 0,
               accountDate: DateTime.now().toString().substring(0, 10),
-              createdBy: AppConfigManager.instance.userId!,
-              updatedBy: AppConfigManager.instance.userId!,
+              createdBy: AppConfigManager.instance.userId,
+              updatedBy: AppConfigManager.instance.userId,
               createdAt: DateUtil.now(),
               updatedAt: DateUtil.now(),
               createdAtString: DateTime.now().toString(),
@@ -158,28 +158,28 @@ class ItemFormProvider extends ChangeNotifier {
 
   /// 加载分类
   Future<void> loadCategories() async {
-    final result = await DriverFactory.driver.listCategoriesByBook(AppConfigManager.instance.userId!, item.accountBookId);
+    final result = await DriverFactory.driver.listCategoriesByBook(AppConfigManager.instance.userId, item.accountBookId);
     _categories = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载账户
   Future<void> loadFunds() async {
-    final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId!, item.accountBookId);
+    final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId, item.accountBookId);
     _funds = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载商户
   Future<void> loadShops() async {
-    final result = await DriverFactory.driver.listShopsByBook(AppConfigManager.instance.userId!, item.accountBookId);
+    final result = await DriverFactory.driver.listShopsByBook(AppConfigManager.instance.userId, item.accountBookId);
     _shops = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载标签和项目
   Future<void> loadSymbols() async {
-    final result = await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId!, item.accountBookId);
+    final result = await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId, item.accountBookId);
     final symbols = result.data as List<AccountSymbol>;
     _tags = symbols.where((symbol) => symbol.symbolType == SymbolType.tag.code).toList();
     _projects = symbols.where((symbol) => symbol.symbolType == SymbolType.project.code).toList();
@@ -189,7 +189,7 @@ class ItemFormProvider extends ChangeNotifier {
   /// 加载标签
   Future<void> loadTags() async {
     final result =
-        await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId!, item.accountBookId, symbolType: SymbolType.tag);
+        await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId, item.accountBookId, symbolType: SymbolType.tag);
     _tags = result.data ?? [];
     notifyListeners();
   }
@@ -197,7 +197,7 @@ class ItemFormProvider extends ChangeNotifier {
   /// 加载项目
   Future<void> loadProjects() async {
     final result = await DriverFactory.driver.listSymbolsByBook(
-      AppConfigManager.instance.userId!,
+      AppConfigManager.instance.userId,
       item.accountBookId,
       symbolType: SymbolType.project,
     );
@@ -218,7 +218,7 @@ class ItemFormProvider extends ChangeNotifier {
 
   /// 保存账目
   Future<bool> create() async {
-    final userId = AppConfigManager.instance.userId!;
+    final userId = AppConfigManager.instance.userId;
     OperateResult result;
     // 保存账目信息
     result = await DriverFactory.driver.createItem(
@@ -265,7 +265,7 @@ class ItemFormProvider extends ChangeNotifier {
 
     try {
       final result = await DriverFactory.driver.updateItem(
-        AppConfigManager.instance.userId!,
+        AppConfigManager.instance.userId,
         _accountBook.id,
         _item.id,
         type: type,

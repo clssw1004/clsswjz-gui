@@ -58,7 +58,7 @@ class ItemListProvider extends ChangeNotifier {
   Future<void> loadItems([bool refresh = true]) async {
     final userId = AppConfigManager.instance.userId;
     final bookId = _currentBookId;
-    if (_loading || userId == null || bookId == null) return;
+    if (_loading || bookId == null) return;
     if (!refresh && !_hasMore) return;
 
     _loading = true;

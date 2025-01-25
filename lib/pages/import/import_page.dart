@@ -262,7 +262,7 @@ class _ImportPageState extends State<ImportPage> {
 
     try {
       await ImportFactory.importData(
-        AppConfigManager.instance.userId!,
+        AppConfigManager.instance.userId,
         (double percent, String message) {
           setState(() {
             _importProgress = percent;

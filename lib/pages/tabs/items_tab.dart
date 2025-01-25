@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../manager/user_config_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';

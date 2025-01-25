@@ -64,7 +64,7 @@ class NoteListProvider extends ChangeNotifier {
     }
     try {
       final result = await DriverFactory.driver.listNotesByBook(
-        AppConfigManager.instance.userId!,
+        AppConfigManager.instance.userId,
         _currentBookId!,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
