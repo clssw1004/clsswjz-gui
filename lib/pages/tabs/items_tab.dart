@@ -133,6 +133,7 @@ class _ItemsTabState extends State<ItemsTab> {
                               initialItems: itemListProvider.items,
                               loading: itemListProvider.loading,
                               hasMore: itemListProvider.hasMore,
+                              onDelete: itemListProvider.deleteItem,
                               useSimpleView: _viewMode == ItemViewMode.simple,
                               onLoadMore: () => itemListProvider.loadMore(),
                               onItemTap: (item) {

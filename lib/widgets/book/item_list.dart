@@ -34,6 +34,9 @@ class ItemList extends StatefulWidget {
   /// 加载更多回调
   final Future<void> Function()? onLoadMore;
 
+  /// 删除账目回调
+  final Future<bool> Function(UserItemVO item)? onDelete;
+
   /// 是否还有更多数据
   final bool hasMore;
 
@@ -49,6 +52,7 @@ class ItemList extends StatefulWidget {
     this.onLoadMore,
     this.hasMore = true,
     this.useSimpleView = false,
+    this.onDelete,
   });
 
   @override
@@ -320,6 +324,7 @@ class _ItemListState extends State<ItemList> {
                   item: item,
                   currencySymbol: widget.accountBook.currencySymbol.symbol,
                   index: itemIndex,
+                  onDelete: widget.onDelete,
                 ),
         ),
       ],

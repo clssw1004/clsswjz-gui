@@ -5,7 +5,6 @@ import '../events/event_bus.dart';
 import '../events/event_sync.dart';
 import '../events/event_book.dart';
 import '../manager/app_config_manager.dart';
-import '../manager/user_config_manager.dart';
 import '../models/vo/user_note_vo.dart';
 
 class NoteListProvider extends ChangeNotifier {

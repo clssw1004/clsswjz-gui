@@ -99,4 +99,18 @@ class ItemListProvider extends ChangeNotifier {
     _syncSubscription.cancel();
     super.dispose();
   }
+
+  /// 删除账目
+  Future<bool> deleteItem(UserItemVO item) async {
+    final result = await DriverFactory.driver.deleteItem(
+      AppConfigManager.instance.userId,
+      item.accountBookId,
+      item.id,
+    );
+    if (result.ok) {
+      _items.remove(item);
+      notifyListeners();
+    }
+    return result.ok;
+  }
 }

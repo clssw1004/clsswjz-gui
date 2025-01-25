@@ -144,30 +144,11 @@ class _NoteListState extends State<NoteList> {
 
   /// 构建列表项
   Widget _buildListItem(UserNoteVO note, int index, ThemeData theme) {
-    return Dismissible(
-      key: ValueKey(note.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: theme.spacing.listItemPadding.right),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.error,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(
-          Icons.delete_outline,
-          color: theme.colorScheme.onError,
-        ),
-      ),
-      confirmDismiss: (direction) async {
-        final result = await widget.onDelete?.call(note);
-        return result;
-      },
-      child: NoteTile(
-        note: note,
-        index: index,
-        onTap: () => widget.onNoteTap?.call(note),
-      ),
+    return NoteTile(
+      note: note,
+      index: index,
+      onTap: () => widget.onNoteTap?.call(note),
+      onDelete: widget.onDelete,
     );
   }
 
