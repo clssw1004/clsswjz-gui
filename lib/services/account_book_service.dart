@@ -11,14 +11,21 @@ class AccountBookService extends BaseService {
   /// 获取账本信息
   Future<BookMetaVO?> getBookMeta(String userId, String bookId) async {
     UserBookVO? userBook = await getAccountBook(userId, bookId);
+    return toBookMeta(userBook);
+  }
+
+  /// 获取账本信息
+  Future<BookMetaVO?> toBookMeta(UserBookVO? userBook) async {
     if (userBook == null) {
       return null;
     }
 
-    List<AccountFund> funds = await DaoManager.fundDao.listByBook(bookId);
-    List<AccountCategory> categories = await DaoManager.categoryDao.listByBook(bookId);
-    List<AccountSymbol> symbols = await DaoManager.symbolDao.listByBook(bookId);
-    List<AccountShop> shops = await DaoManager.shopDao.listByBook(bookId);
+    List<AccountFund> funds = await DaoManager.fundDao.listByBook(userBook.id);
+    List<AccountCategory> categories =
+        await DaoManager.categoryDao.listByBook(userBook.id);
+    List<AccountSymbol> symbols =
+        await DaoManager.symbolDao.listByBook(userBook.id);
+    List<AccountShop> shops = await DaoManager.shopDao.listByBook(userBook.id);
 
     return BookMetaVO(
       bookInfo: userBook,
@@ -32,7 +39,9 @@ class AccountBookService extends BaseService {
   /// 获取账本信息
   Future<UserBookVO?> getAccountBook(String userId, String bookId) async {
     // 1. 从关联表中查询用户的账本权限
-    final userBooks = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.equals(bookId))).get();
+    final userBooks = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.accountBookId.equals(bookId)))
+        .get();
 
     if (userBooks.isEmpty) {
       return null;
@@ -74,7 +83,8 @@ class AccountBookService extends BaseService {
   }
 
   /// 根据邀请码生成默认成员
-  Future<OperateResult<BookMemberVO>> gernerateDefaultMemberByInviteCode(String inviteCode) async {
+  Future<OperateResult<BookMemberVO>> gernerateDefaultMemberByInviteCode(
+      String inviteCode) async {
     final user = await DaoManager.userDao.findByInviteCode(inviteCode);
     if (user == null) {
       return OperateResult.failWithMessage(message: '用户不存在');
@@ -98,7 +108,9 @@ class AccountBookService extends BaseService {
   /// 获取用户的账本列表及权限
   Future<List<UserBookVO>> getBooksByUserId(String userId) async {
     // 1. 从关联表中查询用户的账本权限
-    final userBooks = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.userId.equals(userId))).get();
+    final userBooks = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.userId.equals(userId)))
+        .get();
 
     if (userBooks.isEmpty) {
       return [];
@@ -111,7 +123,9 @@ class AccountBookService extends BaseService {
     final books = await DaoManager.bookDao.findByIds(bookIds);
 
     // 4. 查询所有账本的成员关系
-    final allBookMembers = await (db.select(db.relAccountbookUserTable)..where((tbl) => tbl.accountBookId.isIn(bookIds))).get();
+    final allBookMembers = await (db.select(db.relAccountbookUserTable)
+          ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
+        .get();
 
     // 5. 获取所有用户ID（包括创建者、更新者和成员）
     final userIds = {
@@ -135,7 +149,8 @@ class AccountBookService extends BaseService {
 
       // 获取账本成员（排除创建者）
       final members = allBookMembers
-          .where((m) => m.accountBookId == book.id && m.userId != book.createdBy)
+          .where(
+              (m) => m.accountBookId == book.id && m.userId != book.createdBy)
           .map((m) => BookMemberVO(
                 id: m.id,
                 userId: m.userId,
@@ -180,15 +195,20 @@ class AccountBookService extends BaseService {
       final books = await DaoManager.bookDao.findByCreatedBy(checkUserId);
 
       // 2. 检查是否存在同名账本（只检查当前用户创建的账本）
-      final existingBook =
-          books.where((book) => book.name == bookName && book.createdBy == userId && (bookId == null || book.id != bookId)).toList();
+      final existingBook = books
+          .where((book) =>
+              book.name == bookName &&
+              book.createdBy == userId &&
+              (bookId == null || book.id != bookId))
+          .toList();
 
       if (existingBook.isNotEmpty) {
         return OperateResult.failWithMessage(message: '您已创建过同名账本');
       }
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '检查账本名称失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '检查账本名称失败：$e', exception: e as Exception);
     }
   }
 }

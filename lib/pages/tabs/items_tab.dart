@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/book/book_selector.dart';
+import '../../widgets/book/item_filter_sheet.dart';
 import '../../widgets/book/item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
@@ -24,6 +26,7 @@ class ItemsTab extends StatefulWidget {
 class _ItemsTabState extends State<ItemsTab> {
   bool _isRefreshing = false;
   ItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
+  ItemFilterDTO? _filter;
 
   @override
   void initState() {
@@ -58,14 +61,41 @@ class _ItemsTabState extends State<ItemsTab> {
     });
   }
 
+  /// 显示筛选面板
+  void _showFilterSheet() {
+    final selectedBook = context.read<BooksProvider>().selectedBook;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: ItemFilterSheet(
+          initialFilter: _filter,
+          selectedBook: selectedBook,
+          onConfirm: (filter) {
+            setState(() => _filter = filter);
+            final provider = context.read<ItemListProvider>();
+            provider.loadItems(refresh: true, filter: filter);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: CommonAppBar(
         showBackButton: false,
         title: Consumer<BooksProvider>(
           builder: (context, provider, child) {
-            final key = ValueKey('${provider.selectedBook?.id ?? ''}_${provider.books.length}');
+            final key = ValueKey(
+                '${provider.selectedBook?.id ?? ''}_${provider.books.length}');
             return BookSelector(
               key: key,
               userId: AppConfigManager.instance.userId,
@@ -78,23 +108,54 @@ class _ItemsTabState extends State<ItemsTab> {
           },
         ),
         actions: [
+          // 筛选按钮
+          IconButton(
+            onPressed: _showFilterSheet,
+            icon: Stack(
+              children: [
+                const Icon(Icons.filter_list),
+                if (_filter?.isNotEmpty == true)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            tooltip: '筛选',
+          ),
+          // 视图切换按钮
           IconButton(
             onPressed: () {
               setState(() {
-                _viewMode = _viewMode == ItemViewMode.detail ? ItemViewMode.simple : ItemViewMode.detail;
+                _viewMode = _viewMode == ItemViewMode.detail
+                    ? ItemViewMode.simple
+                    : ItemViewMode.detail;
                 AppConfigManager.instance.setAccountItemViewMode(_viewMode);
               });
             },
             icon: Icon(
-              _viewMode == ItemViewMode.detail ? Icons.view_headline_outlined : Icons.view_timeline_outlined,
-              color: Theme.of(context).colorScheme.primary,
+              _viewMode == ItemViewMode.detail
+                  ? Icons.view_headline_outlined
+                  : Icons.view_timeline_outlined,
+              color: theme.colorScheme.primary,
             ),
-            tooltip: _viewMode == ItemViewMode.detail ? L10nManager.l10n.simpleView : L10nManager.l10n.detailView,
+            tooltip: _viewMode == ItemViewMode.detail
+                ? L10nManager.l10n.simpleView
+                : L10nManager.l10n.detailView,
           ),
         ],
       ),
       body: Consumer3<BooksProvider, ItemListProvider, SyncProvider>(
-        builder: (context, bookProvider, itemListProvider, syncProvider, child) {
+        builder:
+            (context, bookProvider, itemListProvider, syncProvider, child) {
           final accountBook = bookProvider.selectedBook;
           return Stack(
             children: [
@@ -116,11 +177,13 @@ class _ItemsTabState extends State<ItemsTab> {
                                       AppRoutes.bookForm,
                                     );
                                     if (result == true) {
-                                      await bookProvider.init(AppConfigManager.instance.userId);
+                                      await bookProvider.init(
+                                          AppConfigManager.instance.userId);
                                     }
                                   },
                                   icon: const Icon(Icons.add),
-                                  label: Text(L10nManager.l10n.addNew(L10nManager.l10n.accountBook)),
+                                  label: Text(L10nManager.l10n
+                                      .addNew(L10nManager.l10n.accountBook)),
                                 ),
                               ],
                             ),

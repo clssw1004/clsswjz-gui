@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill/quill_delta.dart';
@@ -65,7 +64,6 @@ class _NoteFormPageState extends State<NoteFormPage> {
 
     try {
       final userId = AppConfigManager.instance.userId;
-      final now = DateTime.now();
 
       final note = UserNoteVO(
         id: widget.note?.id ?? '',
@@ -95,7 +93,8 @@ class _NoteFormPageState extends State<NoteFormPage> {
         }
       } else {
         if (mounted) {
-          ToastUtil.showError(result.message ?? L10nManager.l10n.saveFailed(''));
+          ToastUtil.showError(
+              result.message ?? L10nManager.l10n.saveFailed(''));
         }
       }
     } finally {
@@ -116,8 +115,9 @@ class _NoteFormPageState extends State<NoteFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(
-            widget.note == null ? L10nManager.l10n.addNew(L10nManager.l10n.tabNotes) : L10nManager.l10n.editTo(L10nManager.l10n.tabNotes)),
+        title: Text(widget.note == null
+            ? L10nManager.l10n.addNew(L10nManager.l10n.tabNotes)
+            : L10nManager.l10n.editTo(L10nManager.l10n.tabNotes)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -177,7 +177,8 @@ class _NoteFormPageState extends State<NoteFormPage> {
                       decoration: BoxDecoration(
                         color: colorScheme.surface,
                         border: Border(
-                          top: BorderSide(color: colorScheme.outline.withAlpha(100)),
+                          top: BorderSide(
+                              color: colorScheme.outline.withAlpha(100)),
                         ),
                       ),
                       child: Column(
@@ -193,19 +194,23 @@ class _NoteFormPageState extends State<NoteFormPage> {
                                 });
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      _showFullToolbar ? Icons.expand_less : Icons.expand_more,
+                                      _showFullToolbar
+                                          ? Icons.expand_more
+                                          : Icons.expand_less,
                                       size: 20,
                                       color: colorScheme.primary,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
                                       _showFullToolbar ? '收起' : '展开',
-                                      style: theme.textTheme.bodySmall?.copyWith(
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
                                         color: colorScheme.primary,
                                       ),
                                     ),

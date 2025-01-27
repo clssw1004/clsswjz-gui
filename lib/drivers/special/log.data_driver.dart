@@ -18,6 +18,7 @@ import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
 import '../../manager/service_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -139,8 +140,9 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 20, int offset = 0}) async {
-    final items = await DaoManager.itemDao.listByBook(bookId, limit: limit, offset: offset);
+  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId,
+      {int limit = 20, int offset = 0, ItemFilterDTO? filter}) async {
+    final items = await DaoManager.itemDao.listByBook(bookId, limit: limit, offset: offset, filter: filter);
     return OperateResult.success(await VOTransfer.transferAccountItem(items));
   }
 

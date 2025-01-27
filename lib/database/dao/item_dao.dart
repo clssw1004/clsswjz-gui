@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../database.dart';
 import '../tables/account_item_table.dart';
 import 'base_dao.dart';
@@ -13,52 +14,61 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
     ];
   }
 
-  Future<List<AccountItem>> findByConditions({
-    String? accountBookId,
-    String? type,
-    String? categoryCode,
-    String? fundId,
-    String? shopCode,
-    String? tagCode,
-    String? projectCode,
-    String? startDate,
-    String? endDate,
-  }) {
-    var query = db.select(db.accountItemTable);
+  @override
+  Future<List<AccountItem>> listByBook(String accountBookId,
+      {int? limit, int? offset, ItemFilterDTO? filter}) {
+    var query = db.select(table)
+      ..where((t) => t.accountBookId.equals(accountBookId));
 
-    var conditions = <Expression<bool>>[];
-
-    if (accountBookId != null) {
-      conditions.add(db.accountItemTable.accountBookId.equals(accountBookId));
-    }
-    if (type != null) {
-      conditions.add(db.accountItemTable.type.equals(type));
-    }
-    if (categoryCode != null) {
-      conditions.add(db.accountItemTable.categoryCode.equals(categoryCode));
-    }
-    if (fundId != null) {
-      conditions.add(db.accountItemTable.fundId.equals(fundId));
-    }
-    if (shopCode != null) {
-      conditions.add(db.accountItemTable.shopCode.equals(shopCode));
-    }
-    if (tagCode != null) {
-      conditions.add(db.accountItemTable.tagCode.equals(tagCode));
-    }
-    if (projectCode != null) {
-      conditions.add(db.accountItemTable.projectCode.equals(projectCode));
-    }
-    if (startDate != null && endDate != null) {
-      conditions.add(db.accountItemTable.accountDate.isBetweenValues(startDate, endDate));
-    }
-
-    if (conditions.isNotEmpty) {
-      Expression<bool> whereClause = conditions.first;
-      for (var i = 1; i < conditions.length; i++) {
-        whereClause = whereClause & conditions[i];
+    // 应用筛选条件
+    if (filter != null) {
+      // 账目类型筛选
+      if (filter.types?.isNotEmpty == true) {
+        query = query..where((t) => t.type.isIn(filter.types!));
       }
-      query.where((tbl) => whereClause);
+
+      // 金额范围筛选
+      if (filter.minAmount != null) {
+        query = query
+          ..where((t) => t.amount.isBiggerOrEqualValue(filter.minAmount!));
+      }
+      if (filter.maxAmount != null) {
+        query = query
+          ..where((t) => t.amount.isSmallerOrEqualValue(filter.maxAmount!));
+      }
+
+      // 日期范围筛选
+      if (filter.startDate != null) {
+        query = query
+          ..where((t) => t.accountDate.isBiggerOrEqualValue(filter.startDate!));
+      }
+      if (filter.endDate != null) {
+        query = query
+          ..where((t) => t.accountDate.isSmallerOrEqualValue(filter.endDate!));
+      }
+
+      // 分类筛选
+      if (filter.categoryCodes?.isNotEmpty == true) {
+        query = query..where((t) => t.categoryCode.isIn(filter.categoryCodes!));
+      }
+
+      // 商户筛选
+      if (filter.shopCodes?.isNotEmpty == true) {
+        query = query..where((t) => t.shopCode.isIn(filter.shopCodes!));
+      }
+
+      // 账户筛选
+      if (filter.fundIds?.isNotEmpty == true) {
+        query = query..where((t) => t.fundId.isIn(filter.fundIds!));
+      }
+    }
+
+    // 按日期倒序排序
+    query = query..orderBy([...defaultOrderBy()]);
+
+    // 应用分页
+    if (limit != null) {
+      query = query..limit(limit, offset: offset);
     }
 
     return query.get();

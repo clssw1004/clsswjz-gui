@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:clsswjz/manager/service_manager.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../events/event_book.dart';
 import '../manager/app_config_manager.dart';
+import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
 import '../events/event_bus.dart';
 import '../events/event_sync.dart';
@@ -27,7 +29,7 @@ class BooksProvider extends ChangeNotifier {
   final List<UserBookVO> _books = [];
 
   /// 选中的账本
-  UserBookVO? _selectedBook;
+  BookMetaVO? _selectedBook;
 
   /// 是否正在加载账本列表
   bool _loading = false;
@@ -36,7 +38,7 @@ class BooksProvider extends ChangeNotifier {
   List<UserBookVO> get books => _books;
 
   /// 获取选中的账本
-  UserBookVO? get selectedBook => _selectedBook;
+  BookMetaVO? get selectedBook => _selectedBook;
 
   /// 获取是否正在加载账本列表
   bool get loading => _loading;
@@ -64,19 +66,22 @@ class BooksProvider extends ChangeNotifier {
 
         // 获取默认账本ID
         final defaultBookId = AppConfigManager.instance.defaultBookId;
+        UserBookVO? selectedBook;
         if (defaultBookId != null && _books.isNotEmpty) {
           // 尝试找到默认账本
-          _selectedBook = _books.firstWhere(
+          selectedBook = _books.firstWhere(
             (book) => book.id == defaultBookId,
             orElse: () => _books.first,
           );
         } else if (_books.isNotEmpty) {
-          _selectedBook = _books.first;
-          AppConfigManager.instance.setDefaultBookId(_selectedBook?.id);
+          selectedBook = _books.first;
+          AppConfigManager.instance.setDefaultBookId(selectedBook.id);
         }
 
         // 如果有选中的账本，发送切换事件
-        if (_selectedBook != null) {
+        if (selectedBook != null) {
+          _selectedBook =
+              await ServiceManager.accountBookService.toBookMeta(selectedBook);
           EventBus.instance.emit(BookChangedEvent(_selectedBook!));
         }
       }
@@ -87,8 +92,8 @@ class BooksProvider extends ChangeNotifier {
   }
 
   /// 设置选中的账本
-  void setSelectedBook(UserBookVO book) {
-    _selectedBook = book;
+  void setSelectedBook(UserBookVO book) async {
+    _selectedBook = await ServiceManager.accountBookService.toBookMeta(book);
     AppConfigManager.instance.setDefaultBookId(book.id);
     EventBus.instance.emit(BookChangedEvent(book));
   }

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../database.dart';
 import '../tables/base_table.dart';
 

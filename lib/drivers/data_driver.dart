@@ -6,6 +6,7 @@ import '../database/database.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';
 import '../models/common.dart';
+import '../models/dto/item_filter_dto.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/vo/attachment_vo.dart';
 import '../models/vo/user_fund_vo.dart';
@@ -39,7 +40,7 @@ abstract class BookDataDriver {
   Future<OperateResult<List<UserBookVO>>> listBooksByUser(String userId);
 
   /// 获取账本账目列表
-  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0});
+  Future<OperateResult<List<UserItemVO>>> listItemsByBook(String userId, String bookId, {int limit = 200, int offset = 0, ItemFilterDTO? filter});
 
   /// 账目相关
   /// 创建账目

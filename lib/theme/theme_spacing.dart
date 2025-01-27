@@ -36,6 +36,9 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
   /// 加载更多区域内边距
   final EdgeInsets loadMorePadding;
 
+  /// 底部弹出组件内边距
+  final EdgeInsets bottomSheetPadding;
+
   const ThemeSpacing({
     required this.formItemSpacing,
     required this.formGroupSpacing,
@@ -48,6 +51,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     required this.listItemPadding,
     required this.listItemSpacing,
     required this.loadMorePadding,
+    required this.bottomSheetPadding,
   });
 
   /// 根据屏幕尺寸创建间距配置
@@ -98,6 +102,10 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemPadding: EdgeInsets.all(listItemPadding),
       listItemSpacing: listItemSpacing,
       loadMorePadding: EdgeInsets.symmetric(vertical: listItemSpacing),
+      bottomSheetPadding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ),
     );
   }
 
@@ -114,6 +122,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     EdgeInsets? listItemPadding,
     double? listItemSpacing,
     EdgeInsets? loadMorePadding,
+    EdgeInsets? bottomSheetPadding,
   }) {
     return ThemeSpacing(
       formItemSpacing: formItemSpacing ?? this.formItemSpacing,
@@ -127,6 +136,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemPadding: listItemPadding ?? this.listItemPadding,
       listItemSpacing: listItemSpacing ?? this.listItemSpacing,
       loadMorePadding: loadMorePadding ?? this.loadMorePadding,
+      bottomSheetPadding: bottomSheetPadding ?? this.bottomSheetPadding,
     );
   }
 
@@ -151,6 +161,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemPadding: EdgeInsets.lerp(listItemPadding, other.listItemPadding, t)!,
       listItemSpacing: lerpDouble(listItemSpacing, other.listItemSpacing, t)!,
       loadMorePadding: EdgeInsets.lerp(loadMorePadding, other.loadMorePadding, t)!,
+      bottomSheetPadding: EdgeInsets.lerp(bottomSheetPadding, other.bottomSheetPadding, t)!,
     );
   }
 }
