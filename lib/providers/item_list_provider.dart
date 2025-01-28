@@ -14,7 +14,7 @@ class ItemListProvider extends ChangeNotifier {
   late final StreamSubscription _syncSubscription;
 
   /// 账目列表
-  List<UserItemVO> _items = [];
+  final List<UserItemVO> _items = [];
 
   /// 是否正在加载账目列表
   bool _loading = false;
@@ -46,6 +46,20 @@ class ItemListProvider extends ChangeNotifier {
   /// 获取当前筛选条件
   ItemFilterDTO? get filter => _filter;
 
+  /// 设置筛选条件
+  void setFilter(ItemFilterDTO? filter) {
+    _filter = filter;
+    loadItems(refresh: true, filter: filter);
+    notifyListeners();
+  }
+
+  /// 清除筛选条件
+  void clearFilter() {
+    _filter = null;
+    loadItems(refresh: true);
+    notifyListeners();
+  }
+
   ItemListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     // 监听账本切换事件
@@ -58,12 +72,6 @@ class ItemListProvider extends ChangeNotifier {
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
       loadItems();
     });
-  }
-
-  /// 设置筛选条件
-  void setFilter(ItemFilterDTO? filter) {
-    _filter = filter;
-    loadItems();
   }
 
   /// 加载账目列表

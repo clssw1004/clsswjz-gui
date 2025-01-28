@@ -102,7 +102,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemPadding: EdgeInsets.all(listItemPadding),
       listItemSpacing: listItemSpacing,
       loadMorePadding: EdgeInsets.symmetric(vertical: listItemSpacing),
-      bottomSheetPadding: EdgeInsets.symmetric(
+      bottomSheetPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 16,
       ),

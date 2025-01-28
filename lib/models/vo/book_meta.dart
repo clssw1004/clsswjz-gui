@@ -7,9 +7,13 @@ class BookMetaVO extends UserBookVO {
   List<AccountSymbol>? symbols;
   List<AccountShop>? shops;
 
-  BookMetaVO(
-      {required UserBookVO bookInfo, this.funds = const [], this.categories = const [], this.symbols = const [], this.shops = const []})
-      : super(
+  BookMetaVO({
+    required UserBookVO bookInfo,
+    this.funds = const [],
+    this.categories = const [],
+    this.symbols = const [],
+    this.shops = const [],
+  }) : super(
             id: bookInfo.id,
             name: bookInfo.name,
             currencySymbol: bookInfo.currencySymbol,

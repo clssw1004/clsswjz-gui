@@ -11,7 +11,6 @@ import '../providers/sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/restart_widget.dart';
-import 'user_config_manager.dart';
 
 /// Provider 管理器
 class ProviderManager {

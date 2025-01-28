@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../manager/user_config_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
 import '../../widgets/common/common_app_bar.dart';

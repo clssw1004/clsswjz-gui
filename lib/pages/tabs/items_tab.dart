@@ -26,7 +26,6 @@ class ItemsTab extends StatefulWidget {
 class _ItemsTabState extends State<ItemsTab> {
   bool _isRefreshing = false;
   ItemViewMode _viewMode = AppConfigManager.instance.accountItemViewMode;
-  ItemFilterDTO? _filter;
 
   @override
   void initState() {
@@ -64,6 +63,7 @@ class _ItemsTabState extends State<ItemsTab> {
   /// 显示筛选面板
   void _showFilterSheet() {
     final selectedBook = context.read<BooksProvider>().selectedBook;
+    final provider = context.read<ItemListProvider>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -72,12 +72,10 @@ class _ItemsTabState extends State<ItemsTab> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: ItemFilterSheet(
-          initialFilter: _filter,
+          initialFilter: provider.filter,
           selectedBook: selectedBook,
           onConfirm: (filter) {
-            setState(() => _filter = filter);
-            final provider = context.read<ItemListProvider>();
-            provider.loadItems(refresh: true, filter: filter);
+            provider.setFilter(filter);
           },
         ),
       ),
@@ -114,7 +112,7 @@ class _ItemsTabState extends State<ItemsTab> {
             icon: Stack(
               children: [
                 const Icon(Icons.filter_list),
-                if (_filter?.isNotEmpty == true)
+                if (context.read<ItemListProvider>().filter?.isNotEmpty == true)
                   Positioned(
                     right: 0,
                     top: 0,
