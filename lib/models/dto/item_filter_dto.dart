@@ -1,5 +1,6 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
 
 /// 账目筛选参数
 @JsonSerializable()
@@ -47,7 +48,6 @@ class ItemFilterDTO {
     this.endDate,
   });
 
-
   /// 复制并修改
   ItemFilterDTO copyWith({
     List<String>? types,
@@ -90,4 +90,59 @@ class ItemFilterDTO {
 
   /// 是否不为空
   bool get isNotEmpty => !isEmpty;
-} 
+
+  static ItemFilterDTO fromJson(String json) {
+    final map = jsonDecode(json);
+    final filter = ItemFilterDTO(
+      types: (map['types'] as List?)?.map((e) => e.toString()).toList(),
+      categoryCodes:
+          (map['categoryCodes'] as List?)?.map((e) => e.toString()).toList(),
+      shopCodes: (map['shopCodes'] as List?)?.map((e) => e.toString()).toList(),
+      fundIds: (map['fundIds'] as List?)?.map((e) => e.toString()).toList(),
+      tagCodes: (map['tagCodes'] as List?)?.map((e) => e.toString()).toList(),
+      projectCodes:
+          (map['projectCodes'] as List?)?.map((e) => e.toString()).toList(),
+      minAmount: map['minAmount']?.toDouble(),
+      maxAmount: map['maxAmount']?.toDouble(),
+      startDate: map['startDate']?.toString(),
+      endDate: map['endDate']?.toString(),
+    );
+    return filter;
+  }
+
+  /// 转换为JSON字符串
+  static String toJsonString(ItemFilterDTO filter) {
+    Map<String, dynamic> map = {};
+    if (filter.types?.isNotEmpty == true) {
+      map['types'] = filter.types;
+    }
+    if (filter.categoryCodes?.isNotEmpty == true) {
+      map['categoryCodes'] = filter.categoryCodes;
+    }
+    if (filter.shopCodes?.isNotEmpty == true) {
+      map['shopCodes'] = filter.shopCodes;
+    }
+    if (filter.fundIds?.isNotEmpty == true) {
+      map['fundIds'] = filter.fundIds;
+    }
+    if (filter.tagCodes?.isNotEmpty == true) {
+      map['tagCodes'] = filter.tagCodes;
+    }
+    if (filter.projectCodes?.isNotEmpty == true) {
+      map['projectCodes'] = filter.projectCodes;
+    }
+    if (filter.minAmount != null) {
+      map['minAmount'] = filter.minAmount;
+    }
+    if (filter.maxAmount != null) {
+      map['maxAmount'] = filter.maxAmount;
+    }
+    if (filter.startDate != null) {
+      map['startDate'] = filter.startDate;
+    }
+    if (filter.endDate != null) {
+      map['endDate'] = filter.endDate;
+    }
+    return jsonEncode(map);
+  }
+}

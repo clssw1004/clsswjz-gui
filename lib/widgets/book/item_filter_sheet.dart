@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../enums/account_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
@@ -116,13 +117,13 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
   /// 构建类型选择器
   Widget _buildTypeSelector(ThemeData theme) {
     final l10n = L10nManager.l10n;
-    final types = _filter.types ?? [];
+    final types = _filter.types?.map((e) => AccountItemType.fromCode(e)).whereType<AccountItemType>().toList() ?? [];
     final colorScheme = theme.colorScheme;
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.outline.withAlpha(128)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -154,79 +155,73 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
               children: [
                 FilterChip(
                   label: Text(l10n.expense),
-                  selected: types.contains('expense'),
+                  selected: types.contains(AccountItemType.expense),
                   showCheckmark: false,
                   selectedColor: colorScheme.primaryContainer,
                   visualDensity: VisualDensity.compact,
                   labelStyle: TextStyle(
                     fontSize: 12,
-                    color: types.contains('expense')
+                    color: types.contains(AccountItemType.expense)
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurfaceVariant,
                   ),
                   onSelected: (selected) {
                     setState(() {
+                      final currentTypes = _filter.types?.toList() ?? [];
                       if (selected) {
-                        _filter = _filter.copyWith(
-                          types: [...types, 'expense'],
-                        );
+                        currentTypes.add(AccountItemType.expense.code);
                       } else {
-                        _filter = _filter.copyWith(
-                          types: types.where((t) => t != 'expense').toList(),
-                        );
+                        currentTypes.remove(AccountItemType.expense.code);
                       }
+                      _filter = _filter.copyWith(types: currentTypes);
                     });
                   },
                 ),
                 FilterChip(
                   label: Text(l10n.income),
-                  selected: types.contains('income'),
+                  selected: types.contains(AccountItemType.income),
                   showCheckmark: false,
                   selectedColor: colorScheme.primaryContainer,
                   visualDensity: VisualDensity.compact,
                   labelStyle: TextStyle(
                     fontSize: 12,
-                    color: types.contains('income')
+                    color: types.contains(AccountItemType.income)
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurfaceVariant,
                   ),
                   onSelected: (selected) {
                     setState(() {
+                      final currentTypes = _filter.types?.toList() ?? [];
                       if (selected) {
-                        _filter = _filter.copyWith(
-                          types: [...types, 'income'],
-                        );
+                        currentTypes.add(AccountItemType.income.code);
                       } else {
-                        _filter = _filter.copyWith(
-                          types: types.where((t) => t != 'income').toList(),
-                        );
+                        currentTypes.remove(AccountItemType.income.code);
                       }
+                      _filter = _filter.copyWith(types: currentTypes);
                     });
                   },
                 ),
                 FilterChip(
                   label: Text(l10n.transfer),
-                  selected: types.contains('transfer'),
+                  selected: types.contains(AccountItemType.transfer),
                   showCheckmark: false,
                   selectedColor: colorScheme.primaryContainer,
                   visualDensity: VisualDensity.compact,
                   labelStyle: TextStyle(
                     fontSize: 12,
-                    color: types.contains('transfer')
+                    color: types.contains(AccountItemType.transfer)
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurfaceVariant,
                   ),
                   onSelected: (selected) {
                     setState(() {
+                      final currentTypes = _filter.types?.toList() ?? [];
                       if (selected) {
-                        _filter = _filter.copyWith(
-                          types: [...types, 'transfer'],
-                        );
+                        currentTypes.add(AccountItemType.transfer.code);
                       } else {
-                        _filter = _filter.copyWith(
-                          types: types.where((t) => t != 'transfer').toList(),
-                        );
+                        currentTypes.remove(AccountItemType.transfer.code);
                       }
+                      _filter = _filter.copyWith(types: currentTypes);
                     });
                   },
                 ),

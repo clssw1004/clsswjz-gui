@@ -49,7 +49,8 @@ class ItemListProvider extends ChangeNotifier {
   /// 设置筛选条件
   void setFilter(ItemFilterDTO? filter) {
     _filter = filter;
-    loadItems(refresh: true, filter: filter);
+    AppConfigManager.instance.setItemFilter(_filter);
+    loadItems(refresh: true);
     notifyListeners();
   }
 
@@ -62,6 +63,7 @@ class ItemListProvider extends ChangeNotifier {
 
   ItemListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
+    _filter = AppConfigManager.instance.itemFilter;
     // 监听账本切换事件
     _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
       _currentBookId = event.book.id;
@@ -76,7 +78,7 @@ class ItemListProvider extends ChangeNotifier {
 
   /// 加载账目列表
   /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
-  Future<void> loadItems({bool refresh = true, ItemFilterDTO? filter}) async {
+  Future<void> loadItems({bool refresh = true}) async {
     final userId = AppConfigManager.instance.userId;
     final bookId = _currentBookId;
     if (_loading || bookId == null) return;
@@ -93,7 +95,7 @@ class ItemListProvider extends ChangeNotifier {
         bookId,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
-        filter: filter,
+        filter: _filter,
       );
       if (result.ok) {
         if (refresh) {

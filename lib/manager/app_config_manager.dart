@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
+import '../models/dto/item_filter_dto.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
 import 'cache_manager.dart';
@@ -27,6 +28,7 @@ class AppConfigManager {
   static const String _databaseNameKey = 'database_name';
   static const String _lastSyncTimeKey = 'last_sync_time';
   static const String _accountItemListStyleKey = 'account_item_list_style';
+  static const String _itemFilterKey = 'item_filter';
 
   static bool _isInit = false;
 
@@ -90,6 +92,9 @@ class AppConfigManager {
   late ItemViewMode _itemViewMode;
   ItemViewMode get accountItemViewMode => _itemViewMode;
 
+  late ItemFilterDTO _itemFilter;
+  ItemFilterDTO get itemFilter => _itemFilter;
+
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
 
@@ -97,16 +102,21 @@ class AppConfigManager {
     _databaseName = CacheManager.instance.getString(_databaseNameKey);
 
     // 初始化存储模式
-    final String? storageTypeString = CacheManager.instance.getString(_storageTypeKey);
+    final String? storageTypeString =
+        CacheManager.instance.getString(_storageTypeKey);
     _storageType = string2StorageMode(storageTypeString);
 
     // 初始化语言
     final languageCode = CacheManager.instance.getString(_localeKey) ?? 'zh';
-    final countryCode = CacheManager.instance.getString('${_localeKey}_country');
-    _locale = countryCode != null ? Locale(languageCode, countryCode) : Locale(languageCode);
+    final countryCode =
+        CacheManager.instance.getString('${_localeKey}_country');
+    _locale = countryCode != null
+        ? Locale(languageCode, countryCode)
+        : Locale(languageCode);
 
     // 初始化主题色
-    _themeColor = Color(CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
+    _themeColor = Color(
+        CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
 
     // 初始化主题模式
     final themeModeString = CacheManager.instance.getString(_themeModeKey);
@@ -142,8 +152,17 @@ class AppConfigManager {
     _lastSyncTime = CacheManager.instance.getInt(_lastSyncTimeKey);
 
     // 初始化账目列表样式
-    final accountItemListStyleString = CacheManager.instance.getString(_accountItemListStyleKey);
-    _itemViewMode = accountItemListStyleString == null ? ItemViewMode.detail : ItemViewMode.fromCode(accountItemListStyleString);
+    final accountItemListStyleString =
+        CacheManager.instance.getString(_accountItemListStyleKey);
+    _itemViewMode = accountItemListStyleString == null
+        ? ItemViewMode.detail
+        : ItemViewMode.fromCode(accountItemListStyleString);
+
+    // 初始化账目筛选条件
+    final itemFilterString = CacheManager.instance.getString(_itemFilterKey);
+    _itemFilter = itemFilterString != null
+        ? ItemFilterDTO.fromJson(itemFilterString)
+        : ItemFilterDTO();
   }
 
   /// 初始化
@@ -158,7 +177,8 @@ class AppConfigManager {
     _locale = locale;
     await CacheManager.instance.setString(_localeKey, locale.languageCode);
     if (locale.countryCode != null) {
-      await CacheManager.instance.setString('${_localeKey}_country', locale.countryCode!);
+      await CacheManager.instance
+          .setString('${_localeKey}_country', locale.countryCode!);
     } else {
       await CacheManager.instance.remove('${_localeKey}_country');
     }
@@ -248,6 +268,12 @@ class AppConfigManager {
     await CacheManager.instance.setString(_accountItemListStyleKey, mode.code);
   }
 
+  Future<void> setItemFilter(ItemFilterDTO? filter) async {
+    _itemFilter = filter ?? const ItemFilterDTO();
+    await CacheManager.instance
+        .setString(_itemFilterKey, ItemFilterDTO.toJsonString(_itemFilter));
+  }
+
   /// 是否已经配置过后台服务
   static bool isAppInit() {
     return _instance.isStorageInit;
@@ -268,14 +294,21 @@ class AppConfigManager {
     await ServiceManager.init();
 
     /// 注册用户
-    await DriverFactory.driver
-        .register(userId: userId, username: username, password: DEFAULT_PASSWORD, nickname: nickname, email: email, phone: phone);
+    await DriverFactory.driver.register(
+        userId: userId,
+        username: username,
+        password: DEFAULT_PASSWORD,
+        nickname: nickname,
+        email: email,
+        phone: phone);
     await _createBook(bookName, userId);
     await _instance.makeStorageInit();
   }
 
   /// 设置服务器信息
-  static Future<void> storgeSelfhostMode(String serverUrl, String userId, String accessToken, {String? bookName}) async {
+  static Future<void> storgeSelfhostMode(
+      String serverUrl, String userId, String accessToken,
+      {String? bookName}) async {
     _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
