@@ -16,6 +16,9 @@ class ItemFilterSheet extends StatefulWidget {
   /// 确认回调
   final void Function(ItemFilterDTO filter)? onConfirm;
 
+  /// 清空回调
+  final VoidCallback? onClear;
+
   /// 当前选中的账本
   final BookMetaVO? selectedBook;
 
@@ -23,6 +26,7 @@ class ItemFilterSheet extends StatefulWidget {
     super.key,
     this.initialFilter,
     this.onConfirm,
+    this.onClear,
     required this.selectedBook,
   });
 
@@ -532,6 +536,21 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
         // 先回调，再关闭页面
         if (mounted && context.mounted) {
           widget.onConfirm?.call(filter);
+          Navigator.of(context).pop();
+        }
+      },
+      onClear: () {
+        setState(() {
+          // 清空所有筛选条件
+          _filter = const ItemFilterDTO();
+          _minAmountController.clear();
+          _maxAmountController.clear();
+          _startDate = null;
+          _endDate = null;
+        });
+        // 先回调，再关闭页面
+        if (mounted && context.mounted) {
+          widget.onClear?.call();
           Navigator.of(context).pop();
         }
       },

@@ -661,5 +661,9 @@
     "content": "内容",
     "@content": {
         "description": "内容标签"
+    },
+    "clear": "清空",
+    "@clear": {
+        "description": "清空按钮文本"
     }
 }

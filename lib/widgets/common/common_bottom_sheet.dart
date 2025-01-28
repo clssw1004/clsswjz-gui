@@ -18,6 +18,9 @@ class CommonBottomSheet extends StatelessWidget {
   /// 取消回调
   final VoidCallback? onCancel;
 
+  /// 清空回调
+  final VoidCallback? onClear;
+
   const CommonBottomSheet({
     super.key,
     required this.title,
@@ -25,6 +28,7 @@ class CommonBottomSheet extends StatelessWidget {
     this.showDivider = false,
     this.onConfirm,
     this.onCancel,
+    this.onClear,
   });
 
   @override
@@ -110,15 +114,31 @@ class CommonBottomSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             child: Row(
               children: [
+                if (onClear != null) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onClear,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                        foregroundColor: colorScheme.error,
+                        side: BorderSide(color: colorScheme.error.withAlpha(128)),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(28)),
+                        ),
+                      ),
+                      child: Text(l10n.clear),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: FilledButton(
-                    onPressed: () {
-                      if (onConfirm != null) {
-                        onConfirm!();
-                      }
-                    },
+                    onPressed: onConfirm,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(28)),
+                      ),
                     ),
                     child: Text(l10n.confirm),
                   ),

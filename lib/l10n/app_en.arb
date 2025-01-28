@@ -644,5 +644,9 @@
     "content": "Content",
     "@content": {
         "description": "Content label"
+    },
+    "clear": "Clear",
+    "@clear": {
+        "description": "Clear button text"
     }
 }
