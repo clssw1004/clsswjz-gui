@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../manager/l10n_manager.dart';
-import '../../theme/theme_spacing.dart';
 
 /// 通用底部弹出组件
 class CommonBottomSheet extends StatelessWidget {
@@ -32,58 +31,100 @@ class CommonBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
     final l10n = L10nManager.l10n;
 
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(16),
+        ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // 拖动手柄
+          Container(
+            width: 32,
+            height: 4,
+            margin: const EdgeInsets.only(top: 8, bottom: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           // 标题栏
-          Padding(
+          Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              border: showDivider ? Border(
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ) : null,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
+                IconButton(
                   onPressed: () {
                     onCancel?.call();
                     Navigator.of(context).pop();
                   },
-                  child: Text(
-                    l10n.cancel,
-                    style: TextStyle(color: colorScheme.outline),
+                  icon: Icon(
+                    Icons.close,
+                    color: colorScheme.outline,
                   ),
                 ),
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    onConfirm?.call();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(l10n.confirm),
-                ),
+                const SizedBox(width: 40), // 平衡左侧按钮的宽度
               ],
             ),
           ),
-          // 分割线
-          if (showDivider)
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: colorScheme.outlineVariant,
-            ),
           // 内容区域
           Flexible(
             child: child,
+          ),
+          // 底部按钮区域
+          Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      if (onConfirm != null) {
+                        onConfirm!();
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    child: Text(l10n.confirm),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

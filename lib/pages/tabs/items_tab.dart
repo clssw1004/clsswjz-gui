@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../models/dto/item_filter_dto.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
@@ -67,16 +66,21 @@ class _ItemsTabState extends State<ItemsTab> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: ItemFilterSheet(
-          initialFilter: provider.filter,
-          selectedBook: selectedBook,
-          onConfirm: (filter) {
-            provider.setFilter(filter);
-          },
+      useSafeArea: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: ItemFilterSheet(
+            initialFilter: provider.filter,
+            selectedBook: selectedBook,
+            onConfirm: (filter) {
+              provider.setFilter(filter);
+            },
+          ),
         ),
       ),
     );

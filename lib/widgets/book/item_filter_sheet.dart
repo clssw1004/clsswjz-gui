@@ -119,95 +119,122 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
     final types = _filter.types ?? [];
     final colorScheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '账目类型',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.category_outlined,
+                size: 20,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '账目类型',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            FilterChip(
-              label: Text(l10n.expense),
-              selected: types.contains('expense'),
-              showCheckmark: false,
-              selectedColor: colorScheme.primaryContainer,
-              labelStyle: TextStyle(
-                color: types.contains('expense')
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _filter = _filter.copyWith(
-                      types: [...types, 'expense'],
-                    );
-                  } else {
-                    _filter = _filter.copyWith(
-                      types: types.where((t) => t != 'expense').toList(),
-                    );
-                  }
-                });
-              },
+          const SizedBox(height: 8),
+          Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                FilterChip(
+                  label: Text(l10n.expense),
+                  selected: types.contains('expense'),
+                  showCheckmark: false,
+                  selectedColor: colorScheme.primaryContainer,
+                  visualDensity: VisualDensity.compact,
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    color: types.contains('expense')
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _filter = _filter.copyWith(
+                          types: [...types, 'expense'],
+                        );
+                      } else {
+                        _filter = _filter.copyWith(
+                          types: types.where((t) => t != 'expense').toList(),
+                        );
+                      }
+                    });
+                  },
+                ),
+                FilterChip(
+                  label: Text(l10n.income),
+                  selected: types.contains('income'),
+                  showCheckmark: false,
+                  selectedColor: colorScheme.primaryContainer,
+                  visualDensity: VisualDensity.compact,
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    color: types.contains('income')
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _filter = _filter.copyWith(
+                          types: [...types, 'income'],
+                        );
+                      } else {
+                        _filter = _filter.copyWith(
+                          types: types.where((t) => t != 'income').toList(),
+                        );
+                      }
+                    });
+                  },
+                ),
+                FilterChip(
+                  label: Text(l10n.transfer),
+                  selected: types.contains('transfer'),
+                  showCheckmark: false,
+                  selectedColor: colorScheme.primaryContainer,
+                  visualDensity: VisualDensity.compact,
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    color: types.contains('transfer')
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _filter = _filter.copyWith(
+                          types: [...types, 'transfer'],
+                        );
+                      } else {
+                        _filter = _filter.copyWith(
+                          types: types.where((t) => t != 'transfer').toList(),
+                        );
+                      }
+                    });
+                  },
+                ),
+              ],
             ),
-            FilterChip(
-              label: Text(l10n.income),
-              selected: types.contains('income'),
-              showCheckmark: false,
-              selectedColor: colorScheme.primaryContainer,
-              labelStyle: TextStyle(
-                color: types.contains('income')
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _filter = _filter.copyWith(
-                      types: [...types, 'income'],
-                    );
-                  } else {
-                    _filter = _filter.copyWith(
-                      types: types.where((t) => t != 'income').toList(),
-                    );
-                  }
-                });
-              },
-            ),
-            FilterChip(
-              label: Text(l10n.transfer),
-              selected: types.contains('transfer'),
-              showCheckmark: false,
-              selectedColor: colorScheme.primaryContainer,
-              labelStyle: TextStyle(
-                color: types.contains('transfer')
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _filter = _filter.copyWith(
-                      types: [...types, 'transfer'],
-                    );
-                  } else {
-                    _filter = _filter.copyWith(
-                      types: types.where((t) => t != 'transfer').toList(),
-                    );
-                  }
-                });
-              },
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -215,138 +242,125 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
   Widget _buildAmountRangeSelector(ThemeData theme) {
     final colorScheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '金额范围',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.monetization_on_outlined,
-                    size: 20,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '设置金额范围',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ],
+              Icon(
+                Icons.monetization_on_outlined,
+                size: 20,
+                color: colorScheme.primary,
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _minAmountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: theme.textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: '最小金额',
-                        hintStyle: TextStyle(
-                          color: colorScheme.outline,
-                          fontSize: 14,
-                        ),
-                        prefixText: '¥',
-                        prefixStyle: TextStyle(
-                          color: colorScheme.primary,
-                          fontSize: 14,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.primary),
-                        ),
-                      ),
-                      onChanged: (value) {
-                        final amount = double.tryParse(value);
-                        setState(() {
-                          _filter = _filter.copyWith(minAmount: amount);
-                        });
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      '至',
-                      style: TextStyle(
-                        color: colorScheme.outline,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _maxAmountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: theme.textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: '最大金额',
-                        hintStyle: TextStyle(
-                          color: colorScheme.outline,
-                          fontSize: 14,
-                        ),
-                        prefixText: '¥',
-                        prefixStyle: TextStyle(
-                          color: colorScheme.primary,
-                          fontSize: 14,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(color: colorScheme.primary),
-                        ),
-                      ),
-                      onChanged: (value) {
-                        final amount = double.tryParse(value);
-                        setState(() {
-                          _filter = _filter.copyWith(maxAmount: amount);
-                        });
-                      },
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Text(
+                '金额范围',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _minAmountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: theme.textTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: '最小金额',
+                    hintStyle: TextStyle(
+                      color: colorScheme.outline,
+                      fontSize: 14,
+                    ),
+                    prefixText: '¥',
+                    prefixStyle: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 14,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.primary),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    final amount = double.tryParse(value);
+                    setState(() {
+                      _filter = _filter.copyWith(minAmount: amount);
+                    });
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '至',
+                  style: TextStyle(
+                    color: colorScheme.outline,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _maxAmountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: theme.textTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: '最大金额',
+                    hintStyle: TextStyle(
+                      color: colorScheme.outline,
+                      fontSize: 14,
+                    ),
+                    prefixText: '¥',
+                    prefixStyle: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 14,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      borderSide: BorderSide(color: colorScheme.primary),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    final amount = double.tryParse(value);
+                    setState(() {
+                      _filter = _filter.copyWith(maxAmount: amount);
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -354,26 +368,20 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
   Widget _buildDateRangeSelector(ThemeData theme) {
     final colorScheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '日期范围',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: _selectDateRange,
+    return InkWell(
+      onTap: _selectDateRange,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
           borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
                 Icon(
                   Icons.calendar_today_outlined,
@@ -381,18 +389,13 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
                   color: colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _startDate != null && _endDate != null
-                        ? '${_startDate!.year}-${_startDate!.month}-${_startDate!.day} 至 ${_endDate!.year}-${_endDate!.month}-${_endDate!.day}'
-                        : '选择日期范围',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: _startDate != null
-                          ? colorScheme.onSurface
-                          : colorScheme.outline,
-                    ),
+                Text(
+                  '日期范围',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                const Spacer(),
                 Icon(
                   Icons.chevron_right,
                   size: 20,
@@ -400,9 +403,21 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 20,
+              child: Text(
+                _startDate != null && _endDate != null
+                    ? '${_startDate!.year}-${_startDate!.month}-${_startDate!.day} 至 ${_endDate!.year}-${_endDate!.month}-${_endDate!.day}'
+                    : '点击选择日期范围',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: _startDate != null ? colorScheme.onSurface : colorScheme.outline,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -419,94 +434,88 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
     final selectedOptions =
         options.where((o) => selectedItems?.contains(o.key) ?? false).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
+    return InkWell(
+      onTap: () async {
+        final result = await showDialog<List<String>>(
+          context: context,
+          builder: (context) => MultiSelectDialog(
+            title: title,
+            options: options,
+            selectedIds: selectedItems,
           ),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () async {
-            final result = await showDialog<List<String>>(
-              context: context,
-              builder: (context) => MultiSelectDialog(
-                title: title,
-                options: options,
-                selectedIds: selectedItems,
-              ),
-            );
+        );
 
-            if (result != null) {
-              onSelect(result);
-            }
-          },
+        if (result != null) {
+          onSelect(result);
+        }
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
           borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      icon,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        selectedItems?.isNotEmpty == true
-                            ? '已选择 ${selectedItems!.length} 项'
-                            : '点击选择',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: selectedItems?.isNotEmpty == true
-                              ? colorScheme.onSurface
-                              : colorScheme.outline,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 20,
-                      color: colorScheme.outline,
-                    ),
-                  ],
+                Icon(
+                  icon,
+                  size: 20,
+                  color: colorScheme.primary,
                 ),
-                if (selectedOptions.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: selectedOptions
-                        .map((option) => Chip(
-                              label: Text(
-                                option.name,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: colorScheme.onSecondaryContainer,
-                                ),
-                              ),
-                              backgroundColor: colorScheme.secondaryContainer,
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ))
-                        .toList(),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
+                ),
+                const Spacer(),
+                Text(
+                  selectedItems?.isNotEmpty == true
+                      ? '已选择 ${selectedItems!.length} 项'
+                      : '点击选择',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: selectedItems?.isNotEmpty == true
+                        ? colorScheme.onSurface
+                        : colorScheme.outline,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: colorScheme.outline,
+                ),
               ],
             ),
-          ),
+            if (selectedOptions.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: selectedOptions
+                    .map((option) => Chip(
+                          label: Text(
+                            option.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                          backgroundColor: colorScheme.secondaryContainer,
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                        ))
+                    .toList(),
+              ),
+            ],
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -528,19 +537,36 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
         // 先回调，再关闭页面
         if (mounted && context.mounted) {
           widget.onConfirm?.call(filter);
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+          Navigator.of(context).pop();
         }
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          _buildTypeSelector(theme),
-          const SizedBox(height: 16),
-          _buildAmountRangeSelector(theme),
-          const SizedBox(height: 16),
-          _buildDateRangeSelector(theme),
+          // 第一行：账目类型
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 账目类型
+              SizedBox(
+                width: 120,
+                child: _buildTypeSelector(theme),
+              ),
+              const SizedBox(width: 12),
+              // 右侧列
+              Expanded(
+                child: Column(
+                  children: [
+                    // 日期范围
+                    _buildDateRangeSelector(theme),
+                    const SizedBox(height: 12),
+                    // 金额范围
+                    _buildAmountRangeSelector(theme),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           // 分类选择器
           _buildMultiSelector(
