@@ -110,6 +110,13 @@ class CommonBottomSheet extends StatelessWidget {
                   width: 1,
                 ),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withAlpha(13),
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
+                ),
+              ],
             ),
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             child: Row(
@@ -119,14 +126,29 @@ class CommonBottomSheet extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onClear,
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 48),
+                        minimumSize: const Size(double.infinity, 52),
                         foregroundColor: colorScheme.error,
-                        side: BorderSide(color: colorScheme.error.withAlpha(128)),
+                        side: BorderSide(color: colorScheme.error),
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(28)),
                         ),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      ).copyWith(
+                        overlayColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.pressed)) {
+                            return colorScheme.error.withAlpha(31);
+                          }
+                          if (states.contains(WidgetState.hovered)) {
+                            return colorScheme.error.withAlpha(20);
+                          }
+                          return null;
+                        }),
                       ),
-                      child: Text(l10n.clear),
+                      child: Text(
+                        l10n.clear,
+                        style: theme.textTheme.labelLarge,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -135,12 +157,35 @@ class CommonBottomSheet extends StatelessWidget {
                   child: FilledButton(
                     onPressed: onConfirm,
                     style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
+                      minimumSize: const Size(double.infinity, 52),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(28)),
                       ),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                    ).copyWith(
+                      overlayColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return colorScheme.onPrimary.withAlpha(31);
+                        }
+                        if (states.contains(WidgetState.hovered)) {
+                          return colorScheme.onPrimary.withAlpha(20);
+                        }
+                        return null;
+                      }),
+                      backgroundColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.disabled)) {
+                          return colorScheme.primary.withAlpha(31);
+                        }
+                        return colorScheme.primary;
+                      }),
                     ),
-                    child: Text(l10n.confirm),
+                    child: Text(
+                      l10n.confirm,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
                   ),
                 ),
               ],

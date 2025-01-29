@@ -47,7 +47,7 @@ class AccountItemTable extends BaseAccountBookTable {
       projectCode: Value.absentIfNull(projectCode),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
-    );
+  );
   }
 
   static AccountItemTableCompanion toCreateCompanion(

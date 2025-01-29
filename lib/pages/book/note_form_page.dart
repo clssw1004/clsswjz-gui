@@ -69,6 +69,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
         id: widget.note?.id ?? '',
         title: _titleController.text.trim(),
         content: jsonEncode(_quillController.document.toDelta().toJson()),
+        plainContent: _quillController.document.toPlainText(),
         accountBookId: widget.book.id,
       );
 
@@ -78,6 +79,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
               widget.book.id,
               title: note.title,
               content: note.content,
+              plainContent: note.plainContent,
             )
           : await DriverFactory.driver.updateNote(
               userId,
@@ -85,6 +87,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
               note.id,
               title: note.title,
               content: note.content,
+              plainContent: note.plainContent,
             );
 
       if (result.ok) {

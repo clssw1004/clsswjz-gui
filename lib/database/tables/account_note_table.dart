@@ -10,13 +10,16 @@ import 'base_table.dart';
 @DataClassName('AccountNote')
 class AccountNoteTable extends BaseAccountBookTable {
   TextColumn get title => text().nullable().named('title')();
-  TextColumn get content => text().nullable().named('content').withLength(max: 4294967295)();
+  TextColumn get content =>
+      text().nullable().named('content').withLength(max: 4294967295)();
+  TextColumn get plainContent =>
+      text().nullable().named('plain_content').withLength(max: 4294967295)();
 
   static AccountNoteTableCompanion toUpdateCompanion(
     String who, {
     String? title,
     String? content,
-    String? noteDate,
+    String? plainContent,
     String? accountBookId,
   }) {
     return AccountNoteTableCompanion(
@@ -24,6 +27,7 @@ class AccountNoteTable extends BaseAccountBookTable {
       updatedAt: Value(DateUtil.now()),
       title: Value.absentIfNull(title),
       content: Value.absentIfNull(content),
+      plainContent: Value.absentIfNull(plainContent),
       accountBookId: Value.absentIfNull(accountBookId),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -35,12 +39,14 @@ class AccountNoteTable extends BaseAccountBookTable {
     String accountBookId, {
     String? title,
     String? content,
+    String? plainContent,
   }) =>
       AccountNoteTableCompanion(
         id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
         title: Value.absentIfNull(title),
         content: Value.absentIfNull(content),
+        plainContent: Value.absentIfNull(plainContent),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),

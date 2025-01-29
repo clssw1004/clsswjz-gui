@@ -11,6 +11,9 @@ class UserNoteVO {
   /// 内容
   final String content;
 
+  /// 纯文本内容
+  final String plainContent;
+
   /// 账本ID
   final String accountBookId;
 
@@ -30,6 +33,7 @@ class UserNoteVO {
     required this.id,
     this.title,
     required this.content,
+    required this.plainContent,
     required this.accountBookId,
     this.createdAt,
     this.updatedAt,
@@ -41,7 +45,7 @@ class UserNoteVO {
     String? id,
     String? title,
     required String content,
-    String? noteDate,
+    required String plainContent,
     String? accountBookId,
     String? createdAt,
     String? updatedAt,
@@ -52,6 +56,7 @@ class UserNoteVO {
       id: id ?? this.id,
       title: title ?? this.title,
       content: content,
+      plainContent: plainContent,
       accountBookId: accountBookId ?? this.accountBookId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -65,6 +70,7 @@ class UserNoteVO {
       id: note.id,
       title: note.title ?? '',
       content: note.content ?? '',
+      plainContent: note.plainContent ?? '',
       accountBookId: note.accountBookId,
       createdAt: DateUtil.format(note.createdAt),
       updatedAt: DateUtil.format(note.updatedAt),

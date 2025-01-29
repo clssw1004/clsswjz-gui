@@ -31,6 +31,10 @@ class NoteListProvider extends ChangeNotifier {
 
   String? _currentBookId;
 
+  /// 搜索关键字
+  String? _keyword;
+  String? get keyword => _keyword;
+
   NoteListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     _subscription = EventBus.instance.on<BookChangedEvent>((event) {
@@ -48,6 +52,10 @@ class NoteListProvider extends ChangeNotifier {
     _subscription.cancel();
     _syncSubscription.cancel();
     super.dispose();
+  }
+  Future<void> setKeyword(String keyword) async {
+    _keyword = keyword;
+    loadNotes(true);
   }
 
   /// 加载笔记列表
@@ -67,6 +75,7 @@ class NoteListProvider extends ChangeNotifier {
         _currentBookId!,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
+        keyword: _keyword,
       );
       if (result.ok) {
         if (refresh) {
@@ -89,7 +98,8 @@ class NoteListProvider extends ChangeNotifier {
 
   /// 删除笔记
   Future<bool> deleteNote(UserNoteVO note) async {
-    final result = await DriverFactory.driver.deleteNote(AppConfigManager.instance.userId, _currentBookId!, note.id);
+    final result = await DriverFactory.driver
+        .deleteNote(AppConfigManager.instance.userId, _currentBookId!, note.id);
     if (result.ok) {
       _notes.remove(note);
       notifyListeners();
