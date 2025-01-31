@@ -34,7 +34,7 @@ class CollectionUtil {
       return Diff(added: newList ?? [], removed: [], updated: []);
     }
     if (newList == null) {
-      return Diff(added: [], removed: oldList ?? [], updated: []);
+      return Diff(added: [], removed: oldList, updated: []);
     }
     final oldMap = toMap(oldList, compareProperty);
     final newMap = toMap(newList, compareProperty);

@@ -2,46 +2,18 @@ import 'package:flutter/material.dart';
 import '../../manager/l10n_manager.dart';
 import '../common/common_text_form_field.dart';
 import '../../theme/theme_spacing.dart';
+import '../../models/self_host_form_data.dart';
+import '../../enums/self_host_form_type.dart';
+import 'server_url_field.dart';
 
-/// 表单数据
-class SelfHostFormData {
-  final String serverUrl;
-  final String username;
-  final String password;
-  final String? nickname;
-  final String? phone;
-  final String? email;
-  final String? bookName;
-
-  const SelfHostFormData({
-    required this.serverUrl,
-    required this.username,
-    required this.password,
-    this.nickname,
-    this.phone,
-    this.email,
-    this.bookName,
-  });
-}
-
-enum SelfHostFormType {
-  login,
-  register,
-}
 
 class SelfHostForm extends StatefulWidget {
-  final bool isChecking;
-  final bool serverValid;
   final bool isLoading;
-  final void Function(String serverUrl) onCheckServer;
   final void Function(SelfHostFormData data, SelfHostFormType type) onSubmit;
 
   const SelfHostForm({
     super.key,
-    this.isChecking = false,
-    this.serverValid = false,
     this.isLoading = false,
-    required this.onCheckServer,
     required this.onSubmit,
   });
 
@@ -53,7 +25,7 @@ class _SelfHostFormState extends State<SelfHostForm> {
   final _formKey = GlobalKey<FormState>();
   SelfHostFormType _formType = SelfHostFormType.login;
 
-  final _serverUrlController = TextEditingController(text:"http://192.168.2.199:3000");
+  final _serverUrlController = TextEditingController(text:"http://192.168.2.181:3000");
   final _usernameController = TextEditingController(text: "admin");
   final _passwordController = TextEditingController(text: "123456");
   final _nicknameController = TextEditingController(text: "admin");
@@ -97,44 +69,8 @@ class _SelfHostFormState extends State<SelfHostForm> {
       key: _formKey,
       child: Column(
         children: [
-          CommonTextFormField(
+          ServerUrlField(
             controller: _serverUrlController,
-            labelText: L10nManager.l10n.serverAddress,
-            hintText: 'http://example.com',
-            prefixIcon: Icons.computer,
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.isChecking)
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                else
-                  Icon(
-                    widget.serverValid ? Icons.check_circle : Icons.error,
-                    color: widget.serverValid ? Colors.green : Colors.red,
-                  ),
-                IconButton(
-                  onPressed: widget.isChecking ? null : () => widget.onCheckServer(_serverUrlController.text.trim()),
-                  icon: const Icon(Icons.refresh),
-                  tooltip: L10nManager.l10n.checkServer,
-                ),
-              ],
-            ),
-            required: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return L10nManager.l10n.pleaseInput(L10nManager.l10n.serverAddress);
-              }
-              return null;
-            },
-            onSaved: (value) {
-              if (value != null && value.isNotEmpty) {
-                widget.onCheckServer(value.trim());
-              }
-            },
           ),
           SizedBox(height: spacing.formGroupSpacing),
           // 登录注册切换
@@ -167,7 +103,7 @@ class _SelfHostFormState extends State<SelfHostForm> {
           _formType == SelfHostFormType.register ? _buildRegisterForm(spacing) : _buildLoginForm(spacing),
           SizedBox(height: spacing.formGroupSpacing),
           FilledButton(
-            onPressed: widget.isLoading || !widget.serverValid ? null : _handleSubmit,
+            onPressed: widget.isLoading ? null : _handleSubmit,
             child: widget.isLoading
                 ? const SizedBox(
                     width: 20,

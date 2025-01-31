@@ -5,7 +5,6 @@ import '../models/common.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
 import '../utils/id_util.dart';
-import '../enums/symbol_type.dart';
 import 'base_service.dart';
 
 class AccountBookService extends BaseService {

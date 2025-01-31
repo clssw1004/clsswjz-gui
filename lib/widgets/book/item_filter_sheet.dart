@@ -4,7 +4,6 @@ import '../../enums/symbol_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
-import '../../theme/theme_spacing.dart';
 import '../common/common_bottom_sheet.dart';
 import '../common/multi_select_dialog.dart';
 

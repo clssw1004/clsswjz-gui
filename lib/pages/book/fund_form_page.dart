@@ -106,43 +106,9 @@ class _FundFormPageState extends State<FundFormPage> {
     }
   }
 
-  /// 构建操作按钮
-  Widget _buildActionChip({
-    required String label,
-    required bool selected,
-    required ValueChanged<bool> onSelected,
-    required ColorScheme colorScheme,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => onSelected(!selected),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: selected ? colorScheme.primaryContainer : Colors.transparent,
-            border: Border.all(
-              color: selected ? colorScheme.primaryContainer : colorScheme.outline,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
 
     return Scaffold(

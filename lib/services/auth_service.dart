@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../enums/self_host_form_type.dart';
 import '../models/api_response.dart';
 import '../models/auth_response.dart';
+import '../models/self_host_form_data.dart';
 import '../utils/device.util.dart';
-import '../widgets/setting/self_host_form.dart';
 
 class AuthService {
   final String baseUrl;

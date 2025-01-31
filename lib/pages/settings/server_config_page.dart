@@ -3,9 +3,10 @@ import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../enums/self_host_form_type.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/self_host_form_data.dart';
 import '../../services/auth_service.dart';
-import '../../services/health_service.dart';
 import '../../utils/device.util.dart';
 import '../../utils/toast_util.dart';
 
@@ -26,19 +27,8 @@ class ServerConfigPage extends StatefulWidget {
 class _ServerConfigPageState extends State<ServerConfigPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final bool _isChecking = false;
-  bool _serverValid = false;
   StorageMode _storageMode = StorageMode.selfHost;
 
-  Future<void> _checkServer(String serverUrl) async {
-    setState(() => _isLoading = true);
-    final healthService = HealthService(serverUrl);
-    final result = await healthService.checkHealth();
-    setState(() {
-      _isLoading = false;
-      _serverValid = result.ok;
-    });
-  }
 
   /// 初始化离线模式
   Future<void> _initOffline(OfflineFormData data) async {
@@ -123,10 +113,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
             SizedBox(height: spacing.formItemSpacing),
             if (_storageMode == StorageMode.selfHost)
               SelfHostForm(
-                isChecking: _isChecking,
-                serverValid: _serverValid,
                 isLoading: _isLoading,
-                onCheckServer: _checkServer,
                 onSubmit: _initSelfhost,
               ),
             if (_storageMode == StorageMode.offline)
