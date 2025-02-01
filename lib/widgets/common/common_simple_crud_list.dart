@@ -176,7 +176,6 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
       try {
         if (item == null) {
           // 创建
-          final code = inputName.toLowerCase().replaceAll(' ', '_');
           final result = await widget.config.createItem(inputName, selectedType);
           if (result.ok) {
             await _loadData();

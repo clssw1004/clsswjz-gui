@@ -100,7 +100,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           tooltip: L10nManager.l10n.language,
           itemBuilder: (context) => [
-            PopupMenuItem(
+          PopupMenuItem(
               value: 'zh',
               child: Row(
                 children: [

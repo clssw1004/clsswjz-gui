@@ -648,5 +648,9 @@
     "clear": "Clear",
     "@clear": {
         "description": "Clear button text"
+    },
+    "accessToken": "Access Token",
+    "@accessToken": {
+        "description": "Access token label"
     }
 }

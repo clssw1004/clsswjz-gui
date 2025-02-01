@@ -665,5 +665,9 @@
     "clear": "清空",
     "@clear": {
         "description": "清空按钮文本"
+    },
+    "accessToken": "同步凭证",
+    "@accessToken": {
+        "description": "同步凭证标签"
     }
 }

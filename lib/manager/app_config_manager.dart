@@ -5,6 +5,7 @@ import '../drivers/driver_factory.dart';
 import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
 import '../models/dto/item_filter_dto.dart';
+import '../utils/digest_util.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
 import 'cache_manager.dart';
@@ -253,7 +254,8 @@ class AppConfigManager {
     await CacheManager.instance.setBool(_isStorageInitKey, true);
   }
 
-  Future<void> _setDatabaseName(String databaseName) async {
+  Future<void> setDatabaseName({String? url, required String userId}) async {
+    final databaseName = DigestUtil.toMd5("${url ?? ''}${userId}");
     _databaseName = databaseName;
     await CacheManager.instance.setString(_databaseNameKey, databaseName);
   }
@@ -289,7 +291,7 @@ class AppConfigManager {
     final userId = IdUtil.genId();
     await _instance.setStorageType(StorageMode.offline);
     await _instance.setUserId(userId);
-    await _instance._setDatabaseName(userId);
+    await _instance.setDatabaseName(userId: userId);
     await DatabaseManager.init();
     await ServiceManager.init();
 
@@ -313,7 +315,7 @@ class AppConfigManager {
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
     await _instance.setUserId(userId);
-    await _instance._setDatabaseName(userId);
+    await _instance.setDatabaseName(userId: userId, url: serverUrl);
     await HttpClient.refresh(
       serverUrl: serverUrl,
       accessToken: accessToken,
