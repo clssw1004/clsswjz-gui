@@ -31,7 +31,8 @@ class ResetAuthPage extends StatefulWidget {
 
 class _ResetAuthPageState extends State<ResetAuthPage> {
   final _formKey = GlobalKey<FormState>();
-  final _serverController = TextEditingController(text: "http://139.224.41.190:13999");
+  final _serverController =
+      TextEditingController(text: "http://139.224.41.190:13999");
   final _usernameController = TextEditingController(text: "cuiwei");
   final _passwordController = TextEditingController(text: "cuiwei");
 
@@ -51,47 +52,92 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
 
   Future<void> _showConfirmDialog() async {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    int countdown = 5;
+    bool canConfirm = false;
+
     final result = await CommonDialog.show<bool>(
       context: context,
       title: L10nManager.l10n.warning,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      titleStyle: theme.textTheme.titleLarge?.copyWith(
+        color: colorScheme.error,
+        fontWeight: FontWeight.w600,
+      ),
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          if (!canConfirm) {
+            Future.delayed(const Duration(seconds: 1), () {
+              if (countdown > 0) {
+                setState(() => countdown--);
+              } else {
+                setState(() => canConfirm = true);
+              }
+            });
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.warning_amber_rounded,
-                color: theme.colorScheme.error,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  L10nManager.l10n.resetAuthConfirmation,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.5,
-                  ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: colorScheme.onErrorContainer,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        L10nManager.l10n.resetAuthConfirmation,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          height: 1.5,
+                          color: colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(L10nManager.l10n.cancel),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(L10nManager.l10n.cancel),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.error,
+                      foregroundColor: colorScheme.onError,
+                      elevation: 0,
+                      disabledBackgroundColor: colorScheme.error.withAlpha(128),
+                      disabledForegroundColor:
+                          colorScheme.onError.withAlpha(128),
+                    ),
+                    onPressed: canConfirm
+                        ? () => Navigator.of(context).pop(true)
+                        : null,
+                    child: Text(canConfirm
+                        ? L10nManager.l10n.confirm
+                        : "${L10nManager.l10n.confirm} (${countdown}s)"),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(L10nManager.l10n.confirm),
-              ),
             ],
-          ),
-        ],
+          );
+        },
       ),
       showCloseButton: false,
     );

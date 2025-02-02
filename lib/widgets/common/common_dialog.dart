@@ -40,8 +40,8 @@ class CommonDialog extends StatelessWidget {
     this.showCloseButton = true,
     this.width,
     this.height,
-    this.contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    this.titlePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.contentPadding = const EdgeInsets.all(24),
+    this.titlePadding = const EdgeInsets.fromLTRB(24, 16, 16, 16),
     this.titleStyle,
     this.backgroundColor,
     this.borderRadius,
@@ -55,12 +55,25 @@ class CommonDialog extends StatelessWidget {
 
     return Dialog(
       backgroundColor: Colors.transparent,
+      elevation: 0,
       child: Container(
-        width: width,
+        width: width ?? MediaQuery.of(context).size.width * 0.85,
         height: height,
+        constraints: BoxConstraints(
+          maxWidth: 450,
+          minWidth: 280,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         decoration: BoxDecoration(
           color: backgroundColor ?? colorScheme.surface,
           borderRadius: BorderRadius.circular(borderRadius ?? radius),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withAlpha(38),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -76,27 +89,45 @@ class CommonDialog extends StatelessWidget {
                         child: Text(
                           title!,
                           style: titleStyle ??
-                              theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+                              theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
                               ),
                         ),
                       ),
                     if (showCloseButton)
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        icon: Icon(
-                          Icons.close,
-                          color: colorScheme.onSurfaceVariant,
+                      Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        clipBehavior: Clip.antiAlias,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          style: IconButton.styleFrom(
+                            shape: const CircleBorder(),
+                          ),
+                          icon: Icon(
+                            Icons.close,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
                       ),
                   ],
                 ),
               ),
-            if (title != null || showCloseButton) const Divider(height: 1),
+            if (title != null || showCloseButton)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: colorScheme.outlineVariant.withAlpha(128),
+              ),
             Flexible(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: contentPadding,
                 child: content,
               ),
@@ -115,8 +146,8 @@ class CommonDialog extends StatelessWidget {
     bool showCloseButton = true,
     double? width,
     double? height,
-    EdgeInsetsGeometry contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    EdgeInsetsGeometry contentPadding = const EdgeInsets.all(24),
+    EdgeInsetsGeometry titlePadding = const EdgeInsets.fromLTRB(24, 16, 16, 16),
     TextStyle? titleStyle,
     Color? backgroundColor,
     double borderRadius = 16,
