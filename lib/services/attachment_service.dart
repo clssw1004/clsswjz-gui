@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import '../enums/business_type.dart';
 import '../manager/dao_manager.dart';
+import '../manager/database_manager.dart';
 import 'base_service.dart';
 import '../models/vo/attachment_vo.dart';
 
@@ -31,7 +32,7 @@ class AttachmentService extends BaseService {
     BusinessType businessType,
     String businessId,
   ) async {
-    final attachments = await (db.select(db.attachmentTable)
+    final attachments = await (DatabaseManager.db.select(DatabaseManager.db.attachmentTable)
           ..where((t) => t.businessId.equals(businessId) & t.businessCode.equals(businessType.code)))
         .get();
     final attachmentVOs = <AttachmentVO>[];

@@ -2,7 +2,6 @@ import '../services/health_service.dart';
 import '../services/statistic_service.dart';
 import '../services/account_book_service.dart';
 import '../services/sync_service.dart';
-import '../utils/http_client.dart';
 import '../services/attachment_service.dart';
 import '../services/base_service.dart';
 import 'app_config_manager.dart';
@@ -20,13 +19,14 @@ class ServiceManager extends BaseService {
 
   ServiceManager._();
 
-  static Future<void> init({bool syncInit = false}) async {
-    if (_isInit) return;
+  static Future<void> init({bool syncInit = false, bool force = false}) async {
+    if (_isInit && !force) return;
     // 初始化所有服务
     _accountBookService = AccountBookService();
     if (syncInit) {
-      _syncService = SyncService(httpClient: HttpClient.instance);
-      _currentHealthService = HealthService(AppConfigManager.instance.serverUrl);
+      _syncService = SyncService();
+      _currentHealthService =
+          HealthService(AppConfigManager.instance.serverUrl);
     }
     _attachmentService = AttachmentService();
     _statisticService = StatisticService();

@@ -1,10 +1,8 @@
 import 'package:drift/drift.dart';
 import '../manager/database_manager.dart';
-import '../database/database.dart';
 import '../utils/id_util.dart';
 
 abstract class BaseService {
-  final AppDatabase db = DatabaseManager.db;
 
   /// 生成UUID
   String generateUuid() {
@@ -25,7 +23,7 @@ abstract class BaseService {
     for (var i = 0; i < rows.length; i += batchSize) {
       final end = (i + batchSize < rows.length) ? i + batchSize : rows.length;
       final batch = rows.sublist(i, end);
-      await db.batch((batchObj) {
+      await DatabaseManager.db.batch((batchObj) {
         for (var row in batch) {
           batchObj.insert(table, row, mode: InsertMode.insertOrReplace);
         }

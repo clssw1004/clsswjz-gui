@@ -1,6 +1,7 @@
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:clsswjz/utils/collection_util.dart';
 import '../database/database.dart';
+import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
@@ -40,7 +41,7 @@ class AccountBookService extends BaseService {
   /// 获取账本信息
   Future<UserBookVO?> getAccountBook(String userId, String bookId) async {
     // 1. 从关联表中查询用户的账本权限
-    final userBooks = await (db.select(db.relAccountbookUserTable)
+    final userBooks = await (DatabaseManager.db.select(DatabaseManager.db.relAccountbookUserTable)
           ..where((tbl) => tbl.accountBookId.equals(bookId)))
         .get();
 
@@ -109,7 +110,7 @@ class AccountBookService extends BaseService {
   /// 获取用户的账本列表及权限
   Future<List<UserBookVO>> getBooksByUserId(String userId) async {
     // 1. 从关联表中查询用户的账本权限
-    final userBooks = await (db.select(db.relAccountbookUserTable)
+    final userBooks = await (DatabaseManager.db.select(DatabaseManager.db.relAccountbookUserTable)
           ..where((tbl) => tbl.userId.equals(userId)))
         .get();
 
@@ -124,7 +125,7 @@ class AccountBookService extends BaseService {
     final books = await DaoManager.bookDao.findByIds(bookIds);
 
     // 4. 查询所有账本的成员关系
-    final allBookMembers = await (db.select(db.relAccountbookUserTable)
+    final allBookMembers = await (DatabaseManager.db.select(DatabaseManager.db.relAccountbookUserTable)
           ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
         .get();
 

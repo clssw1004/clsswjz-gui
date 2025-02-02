@@ -21,7 +21,7 @@ class HttpClient {
   }) async {
     _instance = HttpClient(
       baseUrl: serverUrl,
-      accessToken: accessToken,
+      accessToken: accessToken ?? _instance.accessToken,
     );
   }
 

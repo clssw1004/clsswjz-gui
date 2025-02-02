@@ -652,5 +652,13 @@
     "accessToken": "Access Token",
     "@accessToken": {
         "description": "Access token label"
+    },
+    "resetAuthConfirmation": "This operation will clear local data and re-sync. Are you sure to continue?",
+    "@resetAuthConfirmation": {
+        "description": "Confirmation prompt when resetting authentication"
+    },
+    "warning": "Warning",
+    "@warning": {
+        "description": "Warning dialog title"
     }
 }

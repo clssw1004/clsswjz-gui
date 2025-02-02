@@ -12,15 +12,29 @@ import '../database/dao/user_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
-  static BookDao bookDao = BookDao(DatabaseManager.db);
-  static CategoryDao categoryDao = CategoryDao(DatabaseManager.db);
-  static ItemDao itemDao = ItemDao(DatabaseManager.db);
-  static FundDao fundDao = FundDao(DatabaseManager.db);
-  static ShopDao shopDao = ShopDao(DatabaseManager.db);
-  static SymbolDao symbolDao = SymbolDao(DatabaseManager.db);
-  static RelBookUserDao relbookUserDao = RelBookUserDao(DatabaseManager.db);
-  static LogSyncDao logSyncDao = LogSyncDao(DatabaseManager.db);
-  static UserDao userDao = UserDao(DatabaseManager.db);
-  static AttachmentDao attachmentDao = AttachmentDao(DatabaseManager.db);
-  static NoteDao noteDao = NoteDao(DatabaseManager.db);
+  static late BookDao bookDao;
+  static late CategoryDao categoryDao;
+  static late ItemDao itemDao;
+  static late FundDao fundDao;
+  static late ShopDao shopDao;
+  static late SymbolDao symbolDao;
+  static late RelBookUserDao relbookUserDao;
+  static late LogSyncDao logSyncDao;
+  static late UserDao userDao;
+  static late AttachmentDao attachmentDao;
+  static late NoteDao noteDao;
+
+  static Future<void> refreshDaos() async {
+    bookDao = BookDao(DatabaseManager.db);
+    categoryDao = CategoryDao(DatabaseManager.db);
+    itemDao = ItemDao(DatabaseManager.db);
+    fundDao = FundDao(DatabaseManager.db);
+    shopDao = ShopDao(DatabaseManager.db);
+    symbolDao = SymbolDao(DatabaseManager.db);
+    relbookUserDao = RelBookUserDao(DatabaseManager.db);
+    logSyncDao = LogSyncDao(DatabaseManager.db);
+    userDao = UserDao(DatabaseManager.db);
+    attachmentDao = AttachmentDao(DatabaseManager.db);
+    noteDao = NoteDao(DatabaseManager.db);
+  }
 }

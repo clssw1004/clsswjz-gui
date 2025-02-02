@@ -88,7 +88,7 @@ class AppConfigManager {
   String get databaseName => _databaseName!;
 
   late int? _lastSyncTime;
-  int? get lastSyncTime => _lastSyncTime;
+  int? get lastSyncTime => _lastSyncTime == 0 ? null : _lastSyncTime;
 
   late ItemViewMode _itemViewMode;
   ItemViewMode get accountItemViewMode => _itemViewMode;
@@ -254,15 +254,20 @@ class AppConfigManager {
     await CacheManager.instance.setBool(_isStorageInitKey, true);
   }
 
+  Future<void> makeStorageUnInit() async {
+    _isStorageInit = false;
+    await CacheManager.instance.setBool(_isStorageInitKey, false);
+  }
+
   Future<void> setDatabaseName({String? url, required String userId}) async {
     final databaseName = DigestUtil.toMd5("${url ?? ''}${userId}");
     _databaseName = databaseName;
     await CacheManager.instance.setString(_databaseNameKey, databaseName);
   }
 
-  Future<void> setLastSyncTime(int time) async {
+  Future<void> setLastSyncTime(int? time) async {
     _lastSyncTime = time;
-    await CacheManager.instance.setInt(_lastSyncTimeKey, time);
+    await CacheManager.instance.setInt(_lastSyncTimeKey, time ?? 0);
   }
 
   Future<void> setAccountItemViewMode(ItemViewMode mode) async {
@@ -281,7 +286,7 @@ class AppConfigManager {
     return _instance.isStorageInit;
   }
 
-  static Future<void> storageOfflineMode(BuildContext context,
+  static Future<void> storageOfflineMode(
       {required String username,
       required String nickname,
       String? email,
@@ -309,8 +314,16 @@ class AppConfigManager {
 
   /// 设置服务器信息
   static Future<void> storgeSelfhostMode(
-      String serverUrl, String userId, String accessToken,
-      {String? bookName}) async {
+      {required String serverUrl,
+      required String userId,
+      required String accessToken,
+      bool clearData = false,
+      String? bookName}) async {
+    if (clearData) {
+      await _instance.setLastSyncTime(null);
+      await DatabaseManager.clearDatabase();
+      await _instance.makeStorageUnInit();
+    }
     _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);
     await _instance.setAccessToken(accessToken);
@@ -321,12 +334,11 @@ class AppConfigManager {
       accessToken: accessToken,
     );
     await DatabaseManager.init();
-    await ServiceManager.init(syncInit: true);
+    await ServiceManager.init(syncInit: true, force: true);
 
     if (bookName != null) {
       await _createBook(bookName, userId);
     }
-
     await _instance.makeStorageInit();
   }
 

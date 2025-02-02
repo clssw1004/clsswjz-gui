@@ -47,46 +47,53 @@ class _ServerUrlFieldState extends State<ServerUrlField> {
 
   @override
   Widget build(BuildContext context) {
-    return CommonTextFormField(
-      controller: widget.controller,
-      labelText: L10nManager.l10n.serverAddress,
-      hintText: 'http://example.com',
-      prefixIcon: Icons.computer,
-      suffixIcon: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_isChecking)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else
-            Icon(
-              _serverValid ? Icons.check_circle : Icons.error,
-              color: _serverValid ? Colors.green : Colors.red,
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (!hasFocus) {
+          _handleCheckServer();
+        }
+      },
+      child: CommonTextFormField(
+        controller: widget.controller,
+        labelText: L10nManager.l10n.serverAddress,
+        hintText: 'http://192.168.2.1:3000',
+        prefixIcon: Icons.computer,
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isChecking)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              Icon(
+                _serverValid ? Icons.check_circle : Icons.error,
+                color: _serverValid ? Colors.green : Colors.red,
+              ),
+            IconButton(
+              onPressed: _isChecking ? null : _handleCheckServer,
+              icon: const Icon(Icons.refresh),
+              tooltip: L10nManager.l10n.checkServer,
             ),
-          IconButton(
-            onPressed: _isChecking ? null : _handleCheckServer,
-            icon: const Icon(Icons.refresh),
-            tooltip: L10nManager.l10n.checkServer,
-          ),
-        ],
+          ],
+        ),
+        required: true,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return L10nManager.l10n.pleaseInput(L10nManager.l10n.serverAddress);
+          }
+          return null;
+        },
+        onChanged: (value) {
+          if (_serverValid) {
+            setState(() {
+              _serverValid = false;
+            });
+          }
+        },
       ),
-      required: true,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return L10nManager.l10n.pleaseInput(L10nManager.l10n.serverAddress);
-        }
-        return null;
-      },
-      onChanged: (value) {
-        if (_serverValid) {
-          setState(() {
-            _serverValid = false;
-          });
-        }
-      },
     );
   }
 }

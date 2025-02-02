@@ -1,5 +1,7 @@
 {
   "zh_Hant": [
-    "accessToken"
+    "accessToken",
+    "resetAuthConfirmation",
+    "warning"
   ]
 }

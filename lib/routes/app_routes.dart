@@ -24,6 +24,7 @@ import '../pages/settings/about_page.dart';
 import '../pages/settings/sync_settings_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
+import '../pages/settings/reset_auth_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -75,6 +76,8 @@ class AppRoutes {
   static const String noteAdd = '/note_add';
 
   static const String noteEdit = '/note_edit';
+
+  static const String resetAuth = '/reset_auth';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -128,6 +131,10 @@ class AppRoutes {
     about: (context) => const AboutPage(),
     syncSettings: (context) => const SyncSettingsPage(),
     import: (context) => const ImportPage(),
+    resetAuth: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as String;
+      return ResetAuthPage(serverUrl: args);
+    },
     noteAdd: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as UserBookVO;

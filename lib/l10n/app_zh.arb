@@ -669,5 +669,13 @@
     "accessToken": "同步凭证",
     "@accessToken": {
         "description": "同步凭证标签"
+    },
+    "resetAuthConfirmation": "该操作将清空本地数据并重新同步，确认继续？",
+    "@resetAuthConfirmation": {
+        "description": "重置认证时的确认提示"
+    },
+    "warning": "警告",
+    "@warning": {
+        "description": "警告对话框标题"
     }
 }

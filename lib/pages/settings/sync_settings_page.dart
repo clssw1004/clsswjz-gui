@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 
 import '../../manager/l10n_manager.dart';
 import '../../providers/sync_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
-import '../../widgets/setting/self_host_auth_form.dart';
+import '../../widgets/setting/server_url_field.dart';
 
 class SyncSettingsPage extends StatefulWidget {
   const SyncSettingsPage({super.key});
@@ -34,29 +35,43 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
     _serverUrl = AppConfigManager.instance.serverUrl;
   }
 
-  Future<void> _handleSubmit(
-      String serverUrl, String username, String password) async {
-    // 先保存服务器URL配置
-    await AppConfigManager.instance.setServerUrl(serverUrl);
-    await HttpClient.refresh(serverUrl: serverUrl);
-    // 再进行同步
-    if (!mounted) return;
-    final syncProvider = context.read<SyncProvider>();
-    await syncProvider.syncData();
-    Navigator.of(context).pop();
-  }
-
-  void _showConfigDialog() {
-    final syncProvider = context.read<SyncProvider>();
+  void _showEditServerUrlDialog() {
+    final controller = TextEditingController(text: _serverUrl);
     CommonDialog.show(
       context: context,
-      title: L10nManager.l10n.serverConfig,
-      content: SelfHostAuthForm(
-        isLoading: syncProvider.syncing,
-        onSubmit: _handleSubmit,
-        initServerUrl: _serverUrl,
-        submitText:
-            "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}",
+      title: L10nManager.l10n.serverAddress,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ServerUrlField(controller: controller),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(L10nManager.l10n.cancel),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () async {
+                  final newUrl = controller.text.trim();
+                  if (newUrl.isNotEmpty && newUrl != _serverUrl) {
+                    await AppConfigManager.instance.setServerUrl(newUrl);
+                    await HttpClient.refresh(serverUrl: newUrl);
+                    if (!mounted) return;
+                    setState(() {
+                      _serverUrl = newUrl;
+                    });
+                  }
+                  if (!mounted) return;
+                  Navigator.of(context).pop();
+                },
+                child: Text(L10nManager.l10n.confirm),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -69,13 +84,6 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.syncSettings),
-        actions: [
-          IconButton(
-            onPressed: _showConfigDialog,
-            icon: const Icon(Icons.refresh),
-            tooltip: L10nManager.l10n.reset,
-          ),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -86,6 +94,11 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
               leading: const Icon(Icons.computer),
               title: Text(L10nManager.l10n.serverAddress),
               subtitle: Text(_serverUrl),
+              trailing: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: _showEditServerUrlDialog,
+                tooltip: L10nManager.l10n.edit,
+              ),
               tileColor: theme.colorScheme.onInverseSurface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -97,6 +110,16 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                 leading: const Icon(Icons.key),
                 title: Text(L10nManager.l10n.accessToken),
                 subtitle: Text(_maskedAccessToken!),
+                trailing: TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.resetAuth,
+                      arguments: _serverUrl,
+                    );
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: Text(L10nManager.l10n.reset),
+                ),
                 tileColor: theme.colorScheme.onInverseSurface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

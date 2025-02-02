@@ -37,9 +37,7 @@ class SyncService extends BaseService {
   static const double progressCompletePre = 99.0;
   static const double progressComplete = 100.0;
 
-  final HttpClient _httpClient;
-
-  SyncService({required HttpClient httpClient}) : _httpClient = httpClient;
+  SyncService();
 
   Future<void> syncChanges({Function(double percent, String message)? onProgress}) async {
     try {
@@ -145,7 +143,7 @@ class SyncService extends BaseService {
     // 同步附件
     await _uploadFiles(localChanges: logs, syncTimestamp: syncTimeStamp, onProgress: onProgress);
     await _processOnProgress(onProgress, progressSyncLocalChanges, l10n.syncingLocalChanges(logs.length));
-    final response = await _httpClient.post<SyncResponseDTO>(
+    final response = await HttpClient.instance.post<SyncResponseDTO>(
       path: '/api/sync/changes',
       data: {
         'logs': logs.map((e) => e.toJson()).toList(),

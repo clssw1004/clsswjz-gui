@@ -29,12 +29,10 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
   bool _isLoading = false;
   StorageMode _storageMode = StorageMode.selfHost;
 
-
   /// 初始化离线模式
   Future<void> _initOffline(OfflineFormData data) async {
     setState(() => _isLoading = true);
     await AppConfigManager.storageOfflineMode(
-      context,
       username: data.username,
       nickname: data.nickname,
       email: data.email ?? '',
@@ -49,7 +47,8 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     }
   }
 
-  Future<void> _initSelfhost(SelfHostFormData data, SelfHostFormType type) async {
+  Future<void> _initSelfhost(
+      SelfHostFormData data, SelfHostFormType type) async {
     if (_isLoading) {
       return;
     }
@@ -60,9 +59,9 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
       final result = await authService.loginOrRegister(type, data, deviceInfo);
       if (result.ok && result.data != null) {
         await AppConfigManager.storgeSelfhostMode(
-          data.serverUrl,
-          result.data!.userId,
-          result.data!.accessToken,
+          serverUrl: data.serverUrl,
+          userId: result.data!.userId,
+          accessToken: result.data!.accessToken,
           bookName: data.bookName,
         );
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
