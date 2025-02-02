@@ -8,7 +8,6 @@ import '../../models/self_host_form_data.dart';
 import '../../providers/sync_provider.dart';
 import '../../services/auth_service.dart';
 import '../../utils/device.util.dart';
-import '../../utils/http_client.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
@@ -31,10 +30,9 @@ class ResetAuthPage extends StatefulWidget {
 
 class _ResetAuthPageState extends State<ResetAuthPage> {
   final _formKey = GlobalKey<FormState>();
-  final _serverController =
-      TextEditingController(text: "http://139.224.41.190:13999");
-  final _usernameController = TextEditingController(text: "cuiwei");
-  final _passwordController = TextEditingController(text: "cuiwei");
+  final _serverController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
