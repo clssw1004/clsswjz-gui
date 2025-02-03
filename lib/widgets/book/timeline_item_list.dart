@@ -67,6 +67,7 @@ class _TimelineItemListState extends State<TimelineItemList> {
   void _onScroll() {
     if (!widget.hasMore || _loadingMore || widget.onLoadMore == null) return;
 
+    // 当距离底部还有 200 像素时开始加载
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       _loadMore();
     }
@@ -92,6 +93,12 @@ class _TimelineItemListState extends State<TimelineItemList> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialItems != widget.initialItems) {
       _items = widget.initialItems;
+      // 重置加载状态
+      _loadingMore = false;
+    }
+    // 当 hasMore 状态改变时，也重置加载状态
+    if (oldWidget.hasMore != widget.hasMore) {
+      _loadingMore = false;
     }
   }
 

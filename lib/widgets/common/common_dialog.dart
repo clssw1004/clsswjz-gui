@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/theme_radius.dart';
+import '../../manager/l10n_manager.dart';
 
 /// 通用弹窗组件
 class CommonDialog extends StatelessWidget {
@@ -166,6 +167,100 @@ class CommonDialog extends StatelessWidget {
         backgroundColor: backgroundColor,
         borderRadius: borderRadius,
       ),
+    );
+  }
+
+  /// 显示警告弹窗
+  static Future<bool?> showWarning({
+    required BuildContext context,
+    required String message,
+    int countdown = 5,
+  }) async {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    bool canConfirm = false;
+    int currentCountdown = countdown;
+
+    return CommonDialog.show<bool>(
+      context: context,
+      title: L10nManager.l10n.warning,
+      titleStyle: theme.textTheme.titleLarge?.copyWith(
+        color: colorScheme.error,
+        fontWeight: FontWeight.w600,
+      ),
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          if (!canConfirm) {
+            Future.delayed(const Duration(seconds: 1), () {
+              if (currentCountdown > 0) {
+                setState(() => currentCountdown--);
+              } else {
+                setState(() => canConfirm = true);
+              }
+            });
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: colorScheme.onErrorContainer,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          height: 1.5,
+                          color: colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(L10nManager.l10n.cancel),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.error,
+                      foregroundColor: colorScheme.onError,
+                      elevation: 0,
+                      disabledBackgroundColor: colorScheme.error.withAlpha(128),
+                      disabledForegroundColor: colorScheme.onError.withAlpha(128),
+                    ),
+                    onPressed: canConfirm ? () => Navigator.of(context).pop(true) : null,
+                    child: Text(canConfirm
+                        ? L10nManager.l10n.confirm
+                        : "${L10nManager.l10n.confirm} (${currentCountdown}s)"),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      showCloseButton: false,
     );
   }
 }

@@ -99,6 +99,30 @@ class BooksProvider extends ChangeNotifier {
     EventBus.instance.emit(BookChangedEvent(book));
   }
 
+  /// 删除账本
+  Future<bool> deleteBook(String bookId) async {
+    try {
+      final result = await DriverFactory.driver.deleteBook(
+        AppConfigManager.instance.userId,
+        bookId,
+      );
+
+      if (result.ok) {
+        // 如果删除的是当前选中的账本，清除选中状态
+        if (_selectedBook?.id == bookId) {
+          AppConfigManager.instance.setDefaultBookId(null);
+          _selectedBook = null;
+        }
+        // 重新加载账本列表
+        await loadBooks(AppConfigManager.instance.userId);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _subscription.cancel();

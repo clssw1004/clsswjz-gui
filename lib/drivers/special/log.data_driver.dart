@@ -105,7 +105,7 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<void>> deleteBook(String userId, String bookId) async {
-    await DeleteLog.buildBook(userId, bookId).execute();
+    await BookDLog.delete(userId, bookId).execute();
     return OperateResult.success(null);
   }
 

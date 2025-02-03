@@ -43,29 +43,41 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   static BookCULog create(String who,
-      {required String name, String? description, CurrencySymbol? currencySymbol = CurrencySymbol.cny, String? icon}) {
-    return BookCULog().who(who).doCreate().withData(AccountBookTable.toCreateCompanion(who,
-        name: name,
-        description: description,
-        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-        icon: icon)) as BookCULog;
+      {required String name,
+      String? description,
+      CurrencySymbol? currencySymbol = CurrencySymbol.cny,
+      String? icon}) {
+    return BookCULog().who(who).doCreate().withData(
+        AccountBookTable.toCreateCompanion(who,
+            name: name,
+            description: description,
+            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+            icon: icon)) as BookCULog;
   }
 
   static BookCULog update(String who, String bookId,
-      {String? name, String? description, CurrencySymbol? currencySymbol, String? icon, List<BookMemberVO>? members}) {
-    return BookCULog().inBook(bookId).doUpdate().who(who).withData(AccountBookTable.toUpdateCompanion(who,
-        name: name,
-        description: description,
-        currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-        icon: icon)) as BookCULog;
+      {String? name,
+      String? description,
+      CurrencySymbol? currencySymbol,
+      String? icon,
+      List<BookMemberVO>? members}) {
+    return BookCULog().inBook(bookId).doUpdate().who(who).withData(
+        AccountBookTable.toUpdateCompanion(who,
+            name: name,
+            description: description,
+            currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
+            icon: icon)) as BookCULog;
   }
 
   static BookCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create ? BookCULog.fromCreateLog(log) : BookCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? BookCULog.fromCreateLog(log)
+        : BookCULog.fromUpdateLog(log));
   }
 
   static BookCULog fromCreateLog(LogSync log) {
-    return BookCULog().who(log.operatorId).doCreate().withData(AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+    return BookCULog().who(log.operatorId).doCreate().withData(
+            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
         as BookCULog;
   }
 
@@ -76,5 +88,27 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
         description: data['description'],
         currencySymbol: CurrencySymbol.fromSymbol(data['currencySymbol']),
         icon: data['icon']);
+  }
+}
+
+class BookDLog extends DeleteLog {
+  BookDLog() : super() {
+    doWith(BusinessType.book);
+  }
+
+  @override
+  Future<void> executeLog() async {
+    await DaoManager.attachmentDao.deleteByBook(businessId!);
+    await DaoManager.categoryDao.deleteByBook(businessId!);
+    await DaoManager.shopDao.deleteByBook(businessId!);
+    await DaoManager.noteDao.deleteByBook(businessId!);
+    await DaoManager.symbolDao.deleteByBook(businessId!);
+    await DaoManager.relbookUserDao.deleteByBook(businessId!);
+    await DaoManager.itemDao.deleteByBook(businessId!);
+    await DaoManager.bookDao.delete(businessId!);
+  }
+
+  static BookDLog delete(String who, String bookId) {
+    return BookDLog().who(who).inBook(bookId).target(bookId) as BookDLog;
   }
 }

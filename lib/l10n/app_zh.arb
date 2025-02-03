@@ -677,5 +677,9 @@
     "warning": "警告",
     "@warning": {
         "description": "警告对话框标题"
+    },
+    "deleteBookWarning": "警告：删除账本将会永久删除该账本下的所有数据，包括账目记录、分类、标签、项目、商户及笔记等信息。此操作不可恢复，请谨慎操作！",
+    "@deleteBookWarning": {
+        "description": "删除账本时的警告提示"
     }
 }

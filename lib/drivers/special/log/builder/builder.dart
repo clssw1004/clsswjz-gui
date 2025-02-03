@@ -248,8 +248,6 @@ class DeleteLog extends LogBuilder<String, void> {
   @override
   Future<void> executeLog() {
     switch (businessType) {
-      case BusinessType.book:
-        return DaoManager.bookDao.delete(businessId!);
       case BusinessType.category:
         return DaoManager.categoryDao.delete(businessId!);
       case BusinessType.item:

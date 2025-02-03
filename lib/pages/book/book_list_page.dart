@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
+import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/shared_badge.dart';
 import '../../widgets/common/empty_data_view.dart';
 import 'book_form_page.dart';
@@ -36,7 +39,7 @@ class _BookListPageState extends State<BookListPage> {
       ),
       body: Consumer<BooksProvider>(
         builder: (context, provider, child) {
-          if (provider.books.isEmpty) {
+          if (provider.loading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -50,16 +53,71 @@ class _BookListPageState extends State<BookListPage> {
           }
 
           return RefreshIndicator(
-            onRefresh: () => provider.loadBooks(AppConfigManager.instance.userId),
+            onRefresh: () =>
+                provider.loadBooks(AppConfigManager.instance.userId),
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: provider.books.length,
               itemBuilder: (context, index) {
                 final book = provider.books[index];
-                return _AccountBookCard(
-                  book: book,
-                  userId: AppConfigManager.instance.userId,
-                  onEdit: () => _showAccountBookForm(context, book),
+                return Dismissible(
+                  key: Key(book.id),
+                  direction: book.permission.canDeleteBook
+                      ? DismissDirection.endToStart
+                      : DismissDirection.none,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.onError,
+                    ),
+                  ),
+                  confirmDismiss: (direction) async {
+                    if (!book.permission.canDeleteBook) return false;
+
+                    final result = await CommonDialog.showWarning(
+                      context: context,
+                      message:
+                          '${L10nManager.l10n.deleteConfirmMessage(book.name)}\n${L10nManager.l10n.deleteBookWarning}',
+                    );
+
+                    if (result != true || !mounted) return false;
+
+                    try {
+                      final deleteResult = await context
+                          .read<BooksProvider>()
+                          .deleteBook(book.id);
+
+                      if (!deleteResult) {
+                        if (mounted) {
+                          ToastUtil.showError(L10nManager.l10n.deleteFailed(
+                            L10nManager.l10n.accountBook,
+                            '',
+                          ));
+                        }
+                        return false;
+                      }
+                      return true;
+                    } catch (e) {
+                      if (mounted) {
+                        ToastUtil.showError(L10nManager.l10n.deleteFailed(
+                          L10nManager.l10n.accountBook,
+                          e.toString(),
+                        ));
+                      }
+                      return false;
+                    }
+                  },
+                  child: _AccountBookCard(
+                    book: book,
+                    userId: AppConfigManager.instance.userId,
+                    onEdit: () => _showAccountBookForm(context, book),
+                  ),
                 );
               },
             ),
@@ -74,7 +132,8 @@ class _BookListPageState extends State<BookListPage> {
     );
   }
 
-  Future<void> _showAccountBookForm(BuildContext context, [UserBookVO? book]) async {
+  Future<void> _showAccountBookForm(BuildContext context,
+      [UserBookVO? book]) async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (context) => BookFormPage(book: book),
@@ -166,7 +225,8 @@ class _AccountBookCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
@@ -182,7 +242,8 @@ class _AccountBookCard extends StatelessWidget {
               if (book.members.isNotEmpty) ...[
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),

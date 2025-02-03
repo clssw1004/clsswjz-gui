@@ -2,6 +2,7 @@
   "zh_Hant": [
     "accessToken",
     "resetAuthConfirmation",
-    "warning"
+    "warning",
+    "deleteBookWarning"
   ]
 }

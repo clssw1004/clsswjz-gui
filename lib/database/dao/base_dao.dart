@@ -48,15 +48,23 @@ abstract class BaseDao<T extends StringIdTable, D> {
   }
 
   Future<bool> existById(String id) async {
-    final result = await (db.select(table)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final result = await (db.select(table)..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
     return result != null;
   }
 
   TableInfo<T, D> get table;
 }
 
-abstract class BaseBookDao<T extends BaseAccountBookTable, D> extends BaseDao<T, D> {
+abstract class BaseBookDao<T extends BaseAccountBookTable, D>
+    extends BaseDao<T, D> {
   BaseBookDao(super.db);
+
+  Future<void> deleteByBook(String accountBookId) async {
+    final query = db.delete(table)
+      ..where((t) => t.accountBookId.equals(accountBookId));
+    await query.go();
+  }
 
   Future<List<D>> listByBook(String accountBookId, {int? limit, int? offset}) {
     final query = (db.select(table)

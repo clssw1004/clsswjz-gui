@@ -34,6 +34,9 @@ class ItemListProvider extends ChangeNotifier {
   /// 当前账本ID
   String? _currentBookId;
 
+  /// 是否正在加载更多
+  bool _loadingMore = false;
+
   /// 获取账目列表
   List<UserItemVO> get items => _items;
 
@@ -45,6 +48,9 @@ class ItemListProvider extends ChangeNotifier {
 
   /// 获取当前筛选条件
   ItemFilterDTO? get filter => _filter;
+
+  /// 获取是否正在加载更多
+  bool get loadingMore => _loadingMore;
 
   /// 设置筛选条件
   void setFilter(ItemFilterDTO? filter) {
@@ -103,6 +109,7 @@ class ItemListProvider extends ChangeNotifier {
         }
         _items.addAll(result.data ?? []);
         _hasMore = (result.data?.length ?? 0) >= _pageSize;
+        _page++;
       }
     } finally {
       _loading = false;
@@ -112,8 +119,17 @@ class ItemListProvider extends ChangeNotifier {
 
   /// 加载更多账目
   Future<void> loadMore() async {
-    _page++;
-    await loadItems(refresh: false);
+    if (_loadingMore || !_hasMore) return;
+
+    _loadingMore = true;
+    notifyListeners();
+
+    try {
+      await loadItems(refresh: false);
+    } finally {
+      _loadingMore = false;
+      notifyListeners();
+    }
   }
 
   @override
