@@ -431,16 +431,27 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
     // 获取要显示的选项
     List<T> displayItems = [];
     if (showMore) {
-      // 如果需要显示更多按钮，则显示expandCount-1个选项
+      // 如果需要显示更多按钮，则显示expandCount个选项
       displayItems = List.from(widget.items.take(widget.expandCount));
     } else {
       // 否则显示所有选项
       displayItems = List.from(widget.items);
     }
 
-    // 如果选中项不在显示列表中，替换最后一个选项
-    if (_selectedItem != null && !displayItems.contains(_selectedItem)) {
-      if (displayItems.isNotEmpty) {
+    // 如果选中项不在显示列表中，添加到列表末尾
+    if (_selectedItem != null && displayItems.where((item) => widget.keyField(item) == widget.value).isEmpty) {
+      if (showMore) {
+        // 如果显示更多按钮，确保不超过expandCount
+        if (displayItems.length >= widget.expandCount) {
+          displayItems[widget.expandCount - 1] = _selectedItem as T;
+        } else {
+          displayItems.add(_selectedItem as T);
+        }
+      } else if (!showAdd || displayItems.length < widget.expandCount) {
+        // 如果不显示更多按钮，且（不显示新增按钮或还有空间），直接添加
+        displayItems.add(_selectedItem as T);
+      } else if (displayItems.isNotEmpty) {
+        // 如果要显示新增按钮且没有空间，替换最后一项
         displayItems[displayItems.length - 1] = _selectedItem as T;
       }
     }
@@ -449,10 +460,13 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
     final rows = <List<T>>[];
     for (var i = 0; i < displayItems.length; i += itemsPerRow) {
       final endIndex = i + itemsPerRow;
-      // 如果是最后一行且需要显示更多或新增按钮，则少显示一个选项
+      // 计算实际结束索引
       final actualEndIndex = endIndex > displayItems.length
           ? displayItems.length
-          : (i + itemsPerRow == displayItems.length && (showMore || showAdd) && displayItems.length % itemsPerRow == 0)
+          : (i + itemsPerRow == displayItems.length && // 是最后一行
+                (showMore || showAdd) && // 需要显示按钮
+                displayItems.length % itemsPerRow == 0 && // 正好填满一行
+                displayItems.length >= itemsPerRow) // 不是第一行
               ? endIndex - 1
               : endIndex;
       rows.add(displayItems.sublist(i, actualEndIndex));
