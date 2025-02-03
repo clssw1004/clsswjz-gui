@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
@@ -31,6 +32,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// 是否显示主题模式选择
   final bool showThemeSelector;
 
+  /// 是否居中标题（仅在 Android 下生效）
+  final bool centerTitle;
+
   const CommonAppBar({
     super.key,
     this.title,
@@ -41,6 +45,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showBackButton = true,
     this.showLanguageSelector = false,
     this.showThemeSelector = false,
+    this.centerTitle = true,
   });
 
   /// 切换语言
@@ -72,10 +77,23 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    // 获取当前语言
     final currentLocale = Localizations.localeOf(context).toString();
+    final isIOS = Platform.isIOS;
 
+    // 构建返回按钮
+    Widget? leadingWidget;
+    if (showBackButton) {
+      leadingWidget = IconButton(
+        icon: Icon(
+          isIOS ? Icons.arrow_back_ios_new : Icons.arrow_back,
+          color: colorScheme.onSurface,
+          size: isIOS ? 20 : 24,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
+      );
+    }
+
+    // 构建右侧按钮
     final List<Widget> finalActions = [
       ...?actions,
       if (showThemeSelector)
@@ -86,6 +104,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: Icon(
                 isDark ? Icons.dark_mode : Icons.light_mode,
                 color: colorScheme.onSurface,
+                size: isIOS ? 20 : 24,
               ),
               tooltip: isDark ? L10nManager.l10n.lightMode : L10nManager.l10n.darkMode,
               onPressed: () => _changeThemeMode(context),
@@ -97,10 +116,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Icon(
             Icons.language,
             color: colorScheme.onSurface,
+            size: isIOS ? 20 : 24,
           ),
           tooltip: L10nManager.l10n.language,
+          position: PopupMenuPosition.under,
           itemBuilder: (context) => [
-          PopupMenuItem(
+            PopupMenuItem(
               value: 'zh',
               child: Row(
                 children: [
@@ -155,23 +176,23 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       backgroundColor: backgroundColor ?? colorScheme.surface,
-      automaticallyImplyLeading: showBackButton,
-      leading: showBackButton
-          ? IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: colorScheme.onSurface,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            )
-          : null,
+      automaticallyImplyLeading: false,
+      leading: leadingWidget,
       title: DefaultTextStyle(
-        style: theme.textTheme.titleLarge ?? const TextStyle(),
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontSize: isIOS ? 17 : null,
+          fontWeight: isIOS ? FontWeight.w600 : null,
+        ) ?? const TextStyle(),
         child: title ?? const SizedBox(),
       ),
+      centerTitle: isIOS ? true : centerTitle,
+      titleSpacing: isIOS ? NavigationToolbar.kMiddleSpacing : NavigationToolbar.kMiddleSpacing,
       actions: finalActions,
       bottom: bottom,
-      leadingWidth: showBackButton ? null : 0,
+      leadingWidth: showBackButton ? (isIOS ? 44 : null) : 0,
+      toolbarHeight: isIOS ? 44 : kToolbarHeight,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           bottom: bottom == null ? Radius.circular(theme.extension<ThemeRadius>()?.radius ?? 0) : Radius.zero,
@@ -181,5 +202,5 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
+  Size get preferredSize => Size.fromHeight((Platform.isIOS ? 44 : kToolbarHeight) + (bottom?.preferredSize.height ?? 0.0));
 }
