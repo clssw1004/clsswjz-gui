@@ -6,19 +6,9 @@ import '../../models/vo/user_book_vo.dart';
 import '../../utils/color_util.dart';
 import '../../theme/theme_spacing.dart';
 import 'item_tile_advance.dart';
-import 'item_tile_simple.dart';
 
-/// 日期收支统计数据
-class DailyStatistics {
-  final String date;
-  final double income;
-  final double expense;
-
-  DailyStatistics(this.date, this.income, this.expense);
-}
-
-/// 账目列表
-class ItemList extends StatefulWidget {
+/// 账目列表基类
+abstract class BaseItemList extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
 
@@ -34,16 +24,10 @@ class ItemList extends StatefulWidget {
   /// 加载更多回调
   final Future<void> Function()? onLoadMore;
 
-  /// 删除账目回调
-  final Future<bool> Function(UserItemVO item)? onDelete;
-
   /// 是否还有更多数据
   final bool hasMore;
 
-  /// 是否使用简约视图
-  final bool useSimpleView;
-
-  const ItemList({
+  const BaseItemList({
     super.key,
     required this.accountBook,
     this.initialItems,
@@ -51,15 +35,40 @@ class ItemList extends StatefulWidget {
     this.onItemTap,
     this.onLoadMore,
     this.hasMore = true,
-    this.useSimpleView = false,
+  });
+}
+
+/// 高级模式账目列表
+class AdvanceItemList extends BaseItemList {
+  /// 删除账目回调
+  final Future<bool> Function(UserItemVO item)? onDelete;
+
+  const AdvanceItemList({
+    super.key,
+    required super.accountBook,
+    super.initialItems,
+    super.loading = false,
+    super.onItemTap,
+    super.onLoadMore,
+    super.hasMore = true,
     this.onDelete,
   });
 
   @override
-  State<ItemList> createState() => _ItemListState();
+  State<AdvanceItemList> createState() => _AdvanceItemListState();
 }
 
-class _ItemListState extends State<ItemList> {
+/// 日期收支统计数据
+class DailyStatistics {
+  final String date;
+  final double income;
+  final double expense;
+
+  DailyStatistics(this.date, this.income, this.expense);
+}
+
+/// 基类状态
+abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
   /// 账目列表
   List<UserItemVO>? _items;
 
@@ -87,7 +96,8 @@ class _ItemListState extends State<ItemList> {
   void _onScroll() {
     if (!widget.hasMore || _loadingMore || widget.onLoadMore == null) return;
 
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _loadMore();
     }
   }
@@ -107,8 +117,94 @@ class _ItemListState extends State<ItemList> {
     }
   }
 
+  @override
+  void didUpdateWidget(T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialItems != widget.initialItems) {
+      _items = widget.initialItems;
+    }
+  }
+
+  /// 构建加载更多指示器
+  Widget _buildLoadMoreIndicator(ThemeData theme) {
+    if (!widget.hasMore) {
+      return Container(
+        padding: theme.spacing.loadMorePadding,
+        child: Center(
+          child: Text(
+            L10nManager.l10n.noMore,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.outline,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: theme.spacing.loadMorePadding,
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            SizedBox(width: theme.spacing.listItemSpacing),
+            Text(
+              L10nManager.l10n.loading,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建空状态
+  Widget _buildEmptyState(ThemeData theme) {
+    return ListView(
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      padding: theme.spacing.listPadding,
+      children: [
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.receipt_long,
+                size: 48,
+                color: theme.colorScheme.outline,
+              ),
+              SizedBox(height: theme.spacing.listItemSpacing * 2),
+              Text(
+                L10nManager.l10n.noAccountItems,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建加载状态
+  Widget _buildLoadingState() {
+    return Center(child: Text(L10nManager.l10n.loading));
+  }
+
   /// 获取处理后的列表项（包含日期分隔）
-  List<dynamic> _getItemsWithDateHeaders() {
+  List<dynamic> _getItemsWithDateHeaders({bool includeStats = false}) {
     if (_items == null || _items!.isEmpty) return [];
 
     final result = <dynamic>[];
@@ -123,19 +219,21 @@ class _ItemListState extends State<ItemList> {
     }
 
     // 按日期降序排序
-    final sortedDates = itemsByDate.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedDates = itemsByDate.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     for (final date in sortedDates) {
       final dailyItems = itemsByDate[date]!;
       currentIncome = 0;
       currentExpense = 0;
 
-      // 简约模式下不计算统计数据
-      if (!widget.useSimpleView) {
+      // 计算统计数据
+      if (includeStats) {
         for (final item in dailyItems) {
           if (AccountItemType.fromCode(item.type) == AccountItemType.income) {
             currentIncome += item.amount;
-          } else if (AccountItemType.fromCode(item.type) == AccountItemType.expense) {
+          } else if (AccountItemType.fromCode(item.type) ==
+              AccountItemType.expense) {
             currentExpense += item.amount;
           }
         }
@@ -147,37 +245,13 @@ class _ItemListState extends State<ItemList> {
 
     return result;
   }
+}
 
-  @override
-  void didUpdateWidget(ItemList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems) {
-      _items = widget.initialItems;
-    }
-  }
-
+/// 高级模式状态
+class _AdvanceItemListState extends _BaseItemListState<AdvanceItemList> {
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
     final spacing = theme.spacing;
-
-    if (widget.useSimpleView) {
-      return Container(
-        margin: EdgeInsets.only(top: spacing.listItemSpacing),
-        padding: EdgeInsets.fromLTRB(
-          spacing.listItemPadding.left,
-          spacing.listItemSpacing,
-          spacing.listItemPadding.right,
-          spacing.listItemSpacing / 2,
-        ),
-        child: Text(
-          stats.date,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.outline,
-            letterSpacing: 0.5,
-          ),
-        ),
-      );
-    }
 
     return Container(
       margin: EdgeInsets.only(bottom: spacing.listItemSpacing),
@@ -256,51 +330,9 @@ class _ItemListState extends State<ItemList> {
     );
   }
 
-  /// 构建加载更多指示器
-  Widget _buildLoadMoreIndicator(ThemeData theme) {
-    if (!widget.hasMore) {
-      return Container(
-        padding: theme.spacing.loadMorePadding,
-        child: Center(
-          child: Text(
-            L10nManager.l10n.noMore,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: theme.spacing.loadMorePadding,
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            SizedBox(width: theme.spacing.listItemSpacing),
-            Text(
-              L10nManager.l10n.loading,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// 构建账目列表项
-  Widget _buildAccountItem(UserItemVO item, ThemeData theme, int index, List<dynamic> itemsWithHeaders) {
+  Widget _buildAccountItem(
+      UserItemVO item, int index, List<dynamic> itemsWithHeaders) {
     // 计算实际的账目索引（排除日期分隔）
     int itemIndex = 0;
     for (int i = 0; i < index; i++) {
@@ -309,71 +341,35 @@ class _ItemListState extends State<ItemList> {
       }
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-          child: widget.useSimpleView
-              ? ItemTileSimple(
-                  item: item,
-                  currencySymbol: widget.accountBook.currencySymbol.symbol,
-                  index: itemIndex,
-                )
-              : ItemTileAdvance(
-                  item: item,
-                  currencySymbol: widget.accountBook.currencySymbol.symbol,
-                  index: itemIndex,
-                  onDelete: widget.onDelete,
-                ),
-        ),
-      ],
+    return InkWell(
+      onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
+      child: ItemTileAdvance(
+        item: item,
+        currencySymbol: widget.accountBook.currencySymbol.symbol,
+        index: itemIndex,
+        onDelete: widget.onDelete,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
 
     if (widget.loading && (_items == null || _items!.isEmpty)) {
-      return Center(child: Text(L10nManager.l10n.loading));
+      return _buildLoadingState();
     }
 
     if (_items == null || _items!.isEmpty) {
-      return ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        padding: spacing.listPadding,
-        children: [
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.receipt_long,
-                  size: 48,
-                  color: colorScheme.outline,
-                ),
-                SizedBox(height: spacing.listItemSpacing * 2),
-                Text(
-                  L10nManager.l10n.noAccountItems,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.outline,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
+      return _buildEmptyState(theme);
     }
 
-    final itemsWithHeaders = _getItemsWithDateHeaders();
+    final itemsWithHeaders = _getItemsWithDateHeaders(includeStats: true);
 
     return ListView.builder(
       controller: _scrollController,
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       itemCount: itemsWithHeaders.length + 1,
       itemBuilder: (context, index) {
         if (index == itemsWithHeaders.length) {
@@ -386,8 +382,8 @@ class _ItemListState extends State<ItemList> {
           return _buildDateHeader(item, theme);
         }
 
-        return _buildAccountItem(item, theme, index, itemsWithHeaders);
+        return _buildAccountItem(item, index, itemsWithHeaders);
       },
     );
   }
-}
+} 

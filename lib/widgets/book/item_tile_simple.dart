@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../utils/color_util.dart';
+import '../../enums/account_type.dart';
 
 /// 简略版账目列表项
 class ItemTileSimple extends StatelessWidget {
@@ -13,11 +14,19 @@ class ItemTileSimple extends StatelessWidget {
   /// 在列表中的索引
   final int index;
 
+  /// 是否显示日期分割线
+  final bool showDateHeader;
+
+  /// 日期
+  final String? date;
+
   const ItemTileSimple({
     super.key,
     required this.item,
     required this.currencySymbol,
     required this.index,
+    this.showDateHeader = false,
+    this.date,
   });
 
   @override
@@ -32,70 +41,96 @@ class ItemTileSimple extends StatelessWidget {
 
     // 获取金额颜色
     final amountColor = ColorUtil.getAmountColor(item.type);
+    
+    // 判断是否为支出
+    final isExpense = AccountItemType.fromCode(item.type) == AccountItemType.expense;
+
+    // 构建账目内容
+    Widget buildItemContent({required bool isLeft}) {
+      return Container(
+        width: 140,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: isLeft ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            // 时间
+            Text(
+              timeString,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.outline,
+                fontSize: 10,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // 分类名称
+            Text(
+              item.categoryName ?? '',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            // 金额
+            Text(
+              '${isExpense ? '' : '+'}${item.amount.toStringAsFixed(2)}',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: amountColor,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.5,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            if (item.description?.isNotEmpty == true) ...[
+              const SizedBox(height: 2),
+              // 备注
+              Text(
+                item.description ?? '',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.outline,
+                  height: 1.2,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      );
+    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: IntrinsicHeight(
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 时间线
-            SizedBox(
-              width: 48,
+            // 左侧内容（支出）
+            if (isExpense)
+              buildItemContent(isLeft: true)
+            else
+              const SizedBox(width: 140),
+            
+            // 时间点
+            Container(
+              width: 40,
               child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.centerRight,
                 children: [
-                  // 竖线
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    right: 5,
-                    child: Container(
-                      width: 2,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            colorScheme.outlineVariant.withAlpha(128),
-                            colorScheme.outlineVariant,
-                            colorScheme.outlineVariant.withAlpha(128),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                   // 时间点
-                  Positioned(
-                    right: 0,
+                  Center(
                     child: Container(
-                      width: 12,
-                      height: 12,
+                      width: 8,
+                      height: 8,
                       decoration: BoxDecoration(
-                        color: colorScheme.surface,
+                        color: colorScheme.primary.withAlpha(32),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: amountColor.withAlpha(204),
-                          width: 3,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 时间文本
-                  Positioned(
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        timeString,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                          color: colorScheme.primary.withAlpha(128),
+                          width: 1,
                         ),
                       ),
                     ),
@@ -103,60 +138,12 @@ class ItemTileSimple extends StatelessWidget {
                 ],
               ),
             ),
-            // 内容区域
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: colorScheme.outlineVariant,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // 分类
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.categoryName ?? '',
-                            style: theme.textTheme.titleMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item.description ?? '',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.outline,
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // 金额
-                    Text(
-                      '${item.amount > 0 ? '+' : ''}${item.amount.toStringAsFixed(2)}',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: amountColor,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: -0.5,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            
+            // 右侧内容（非支出）
+            if (!isExpense)
+              buildItemContent(isLeft: false)
+            else
+              const SizedBox(width: 140),
           ],
         ),
       ),

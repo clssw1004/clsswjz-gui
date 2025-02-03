@@ -10,7 +10,8 @@ import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/item_filter_sheet.dart';
-import '../../widgets/book/item_list.dart';
+import '../../widgets/book/advance_item_list.dart';
+import '../../widgets/book/timeline_item_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/item_view_mode.dart';
@@ -197,26 +198,44 @@ class _ItemsTabState extends State<ItemsTab> {
                         : CustomRefreshIndicator(
                             onRefresh: _handleRefresh,
                             builder: (context, child, controller) => child,
-                            child: ItemList(
-                              accountBook: accountBook,
-                              initialItems: itemListProvider.items,
-                              loading: itemListProvider.loading,
-                              hasMore: itemListProvider.hasMore,
-                              onDelete: itemListProvider.deleteItem,
-                              useSimpleView: _viewMode == ItemViewMode.simple,
-                              onLoadMore: () => itemListProvider.loadMore(),
-                              onItemTap: (item) {
-                                Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.itemEdit,
-                                  arguments: [accountBook, item],
-                                ).then((updated) {
-                                  if (updated == true) {
-                                    itemListProvider.loadItems();
-                                  }
-                                });
-                              },
-                            ),
+                            child: _viewMode == ItemViewMode.simple
+                                ? TimelineItemList(
+                                    accountBook: accountBook,
+                                    initialItems: itemListProvider.items,
+                                    loading: itemListProvider.loading,
+                                    hasMore: itemListProvider.hasMore,
+                                    onItemTap: (item) {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.itemEdit,
+                                        arguments: [accountBook, item],
+                                      ).then((updated) {
+                                        if (updated == true) {
+                                          itemListProvider.loadItems();
+                                        }
+                                      });
+                                    },
+                                    onLoadMore: () => itemListProvider.loadMore(),
+                                  )
+                                : AdvanceItemList(
+                                    accountBook: accountBook,
+                                    initialItems: itemListProvider.items,
+                                    loading: itemListProvider.loading,
+                                    hasMore: itemListProvider.hasMore,
+                                    onItemTap: (item) {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.itemEdit,
+                                        arguments: [accountBook, item],
+                                      ).then((updated) {
+                                        if (updated == true) {
+                                          itemListProvider.loadItems();
+                                        }
+                                      });
+                                    },
+                                    onDelete: itemListProvider.deleteItem,
+                                    onLoadMore: () => itemListProvider.loadMore(),
+                                  ),
                           ),
                   ),
                 ],
