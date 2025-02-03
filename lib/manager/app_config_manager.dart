@@ -323,6 +323,7 @@ class AppConfigManager {
       await _instance.setLastSyncTime(null);
       await DatabaseManager.clearDatabase();
       await _instance.makeStorageUnInit();
+      await _instance.setDefaultBookId(null);
     }
     _instance.setStorageType(StorageMode.selfHost);
     await _instance.setServerUrl(serverUrl);

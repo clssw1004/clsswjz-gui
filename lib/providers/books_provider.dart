@@ -75,11 +75,12 @@ class BooksProvider extends ChangeNotifier {
           );
         } else if (_books.isNotEmpty) {
           selectedBook = _books.first;
-          AppConfigManager.instance.setDefaultBookId(selectedBook.id);
         }
-
         // 如果有选中的账本，发送切换事件
         if (selectedBook != null) {
+          if (defaultBookId == null) {
+            AppConfigManager.instance.setDefaultBookId(selectedBook.id);
+          }
           _selectedBook =
               await ServiceManager.accountBookService.toBookMeta(selectedBook);
           EventBus.instance.emit(BookChangedEvent(_selectedBook!));

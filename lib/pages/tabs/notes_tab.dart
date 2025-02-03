@@ -9,7 +9,7 @@ import '../../routes/app_routes.dart';
 import '../../widgets/book/note_list.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
-import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/common_search_field.dart';
 
 class NotesTab extends StatefulWidget {
   const NotesTab({super.key});
@@ -25,6 +25,10 @@ class _NotesTabState extends State<NotesTab> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<NoteListProvider>();
+      provider.loadNotes();
+    });
   }
 
   @override
@@ -55,72 +59,26 @@ class _NotesTabState extends State<NotesTab> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<NoteListProvider>();
-      provider.loadNotes();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BooksProvider>(context);
     final noteListProvider = Provider.of<NoteListProvider>(context);
     final l10n = L10nManager.l10n;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(l10n.tabNotes),
         showBackButton: false,
+        centerTitle: false,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: SizedBox(
+            child: CommonSearchField(
               width: size.width * 0.35,
-              child: Theme(
-                data: theme.copyWith(
-                  inputDecorationTheme: InputDecorationTheme(
-                    filled: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(
-                        color: colorScheme.primary,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-                child: CommonTextFormField(
-                  controller: _searchController,
-                  hintText: l10n.search,
-                  maxLines: 1,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.0,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.search_rounded,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                    onPressed: _handleSearch,
-                  ),
-                ),
-              ),
+              controller: _searchController,
+              hintText: l10n.search,
+              onSubmitted: (_) => _handleSearch(),
+              onClear: _handleSearch,
             ),
           ),
         ],
