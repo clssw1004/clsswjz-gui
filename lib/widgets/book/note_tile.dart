@@ -8,7 +8,7 @@ import '../../manager/l10n_manager.dart';
 import '../common/common_card_container.dart';
 
 /// 笔记列表项组件
-class NoteTile extends StatelessWidget {
+class NoteTile extends StatefulWidget {
   /// 笔记数据
   final UserNoteVO note;
 
@@ -29,6 +29,55 @@ class NoteTile extends StatelessWidget {
     this.onDelete,
   });
 
+  @override
+  State<NoteTile> createState() => _NoteTileState();
+}
+
+class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late final AnimationController _controller;
+  late final Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpand() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  Document? _getDocument(String? content) {
+    if (content == null || content.isEmpty) return null;
+    try {
+      final delta = jsonDecode(content);
+      return Document.fromJson(delta);
+    } catch (e) {
+      return null;
+    }
+  }
+
   String _getPlainText(String? content) {
     if (content == null || content.isEmpty) return '';
     try {
@@ -36,154 +85,46 @@ class NoteTile extends StatelessWidget {
       final document = Document.fromJson(delta);
       return document.toPlainText();
     } catch (e) {
-      return content;
+      return content ?? '';
     }
   }
 
-  List<Widget> _buildListItems(String? content, BuildContext context) {
-    if (content == null || content.isEmpty) return [];
+  Widget _buildContent(BuildContext context, Document document) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    final controller = QuillController(
+      document: document,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
 
-    try {
-      final delta = jsonDecode(content);
-      final document = Document.fromJson(delta);
-      final operations = document.toDelta().toList();
-      final List<Widget> items = [];
-      final theme = Theme.of(context);
-      final colorScheme = theme.colorScheme;
-      
-      String? currentListType;
-      StringBuffer currentText = StringBuffer();
-      
-      // 遍历文档中的每个操作
-      for (var operation in operations) {
-        final attributes = operation.attributes;
-        final text = operation.data as String;
-        
-        // 检查是否是列表项
-        if (attributes != null && attributes.containsKey('list')) {
-          // 如果之前有未处理的列表项，先添加到列表中
-          if (currentText.isNotEmpty && currentListType != null) {
-            items.add(_buildListItem(
-              context,
-              currentText.toString().trim(),
-              currentListType!,
-              items.length,
-              theme,
-              colorScheme,
-            ));
-            currentText.clear();
-          }
-          
-          currentListType = attributes['list'] as String;
-          currentText.write(text);
-        } 
-        // 如果是换行符，说明当前列表项结束
-        else if (text == '\n') {
-          if (currentText.isNotEmpty && currentListType != null) {
-            items.add(_buildListItem(
-              context,
-              currentText.toString().trim(),
-              currentListType!,
-              items.length,
-              theme,
-              colorScheme,
-            ));
-            currentText.clear();
-            currentListType = null;
-          }
-        }
-        // 如果是列表项的延续内容
-        else if (currentListType != null) {
-          currentText.write(text);
-        }
-      }
-      
-      // 处理最后一个列表项
-      if (currentText.isNotEmpty && currentListType != null) {
-        items.add(_buildListItem(
-          context,
-          currentText.toString().trim(),
-          currentListType,
-          items.length,
-          theme,
-          colorScheme,
-        ));
-      }
-      
-      return items;
-    } catch (e) {
-      print('Error parsing list items: $e');
-      return [];
-    }
-  }
-
-  Widget _buildListItem(
-    BuildContext context,
-    String text,
-    String listType,
-    int index,
-    ThemeData theme,
-    ColorScheme colorScheme,
-  ) {
-    // 构建列表项图标
-    Widget icon;
-    if (listType == 'checked' || listType == 'unchecked') {
-      // 待办列表
-      icon = Icon(
-        listType == 'checked' ? Icons.check_box : Icons.check_box_outline_blank,
-        size: 16,
-        color: colorScheme.primary.withAlpha(
-          listType == 'checked' ? 255 : 128
-        ),
-      );
-    } else if (listType == 'bullet') {
-      // 无序列表
-      icon = Container(
-        width: 6,
-        height: 6,
-        margin: const EdgeInsets.only(right: 8, top: 8),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorScheme.onSurfaceVariant,
-        ),
-      );
-    } else {
-      // 有序列表
-      icon = Container(
-        margin: const EdgeInsets.only(right: 8),
-        child: Text(
-          '${index + 1}.',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
+    return Theme(
+      data: theme.copyWith(
+        textTheme: theme.textTheme.copyWith(
+          bodyMedium: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+            height: 1.4,
+            letterSpacing: 0.25,
           ),
         ),
-      );
-    }
-    
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          icon,
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                height: 1.4,
-                letterSpacing: 0.25,
-                decoration: listType == 'checked' 
-                  ? TextDecoration.lineThrough 
-                  : null,
-                decorationColor: colorScheme.primary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 300),
+        child: AbsorbPointer(
+          child: QuillEditor(
+            controller: controller,
+            scrollController: ScrollController(),
+            focusNode: FocusNode(),
+            configurations: const QuillEditorConfigurations(
+              autoFocus: false,
+              expands: false,
+              padding: EdgeInsets.zero,
+              showCursor: false,
+              enableInteractiveSelection: false,
+              placeholder: null,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -219,7 +160,7 @@ class NoteTile extends StatelessWidget {
     );
 
     if (confirmed == true) {
-      final result = await onDelete?.call(note);
+      final result = await widget.onDelete?.call(widget.note);
       return result ?? false;
     }
 
@@ -231,17 +172,17 @@ class NoteTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
-    final plainText = _getPlainText(note.content);
-    final listItems = _buildListItems(note.content, context);
+    final document = _getDocument(widget.note.content);
+    final plainText = _getPlainText(widget.note.content);
 
     return SizedBox(
       width: double.infinity,
       child: CommonCardContainer(
-        onTap: onTap,
+        onTap: widget.onTap,
         margin: spacing.listItemMargin,
         padding: EdgeInsets.zero,
         child: Slidable(
-          key: ValueKey(note.id),
+          key: ValueKey(widget.note.id),
           endActionPane: ActionPane(
             motion: const ScrollMotion(),
             extentRatio: 0.20,
@@ -269,62 +210,85 @@ class NoteTile extends StatelessWidget {
               ),
             ],
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: spacing.listItemPadding.left,
-              vertical: spacing.listItemPadding.top / 1.5,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 标题
-                if (note.title?.isNotEmpty == true) ...[
-                  Text(
-                    note.title!,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                      height: 1.4,
-                      letterSpacing: 0.15,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          child: Stack(
+            children: [
+              InkWell(
+                onTap: widget.onTap,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.listItemPadding.left,
+                    vertical: spacing.listItemPadding.top / 1.5,
                   ),
-                  SizedBox(height: spacing.listItemSpacing / 2),
-                ],
-                if (listItems.isNotEmpty) ...[
-                  ...listItems,
-                ] else ...[
-                  Text(
-                    plainText,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      height: 1.4,
-                      letterSpacing: 0.25,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.note.title?.isNotEmpty == true) ...[
+                        Text(
+                          widget.note.title!,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                            letterSpacing: 0.15,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: spacing.listItemSpacing / 2),
+                      ],
+                      if (_isExpanded && document != null)
+                        _buildContent(context, document)
+                      else
+                        Text(
+                          plainText,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface,
+                            height: 1.4,
+                            letterSpacing: 0.25,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      SizedBox(height: spacing.listItemSpacing / 2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.note.createdAt!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              letterSpacing: 0.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 40),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-                SizedBox(height: spacing.listItemSpacing / 2),
-                // 日期和其他信息
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // 日期
-                    Text(
-                      note.createdAt!,
-                      style: theme.textTheme.bodySmall?.copyWith(
+                ),
+              ),
+              Positioned(
+                right: spacing.listItemPadding.right,
+                bottom: spacing.listItemPadding.bottom,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: _toggleExpand,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                         color: colorScheme.onSurfaceVariant,
-                        letterSpacing: 0.5,
-                        fontWeight: FontWeight.w500,
+                        size: 20,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
