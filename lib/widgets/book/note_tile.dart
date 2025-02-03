@@ -40,6 +40,154 @@ class NoteTile extends StatelessWidget {
     }
   }
 
+  List<Widget> _buildListItems(String? content, BuildContext context) {
+    if (content == null || content.isEmpty) return [];
+
+    try {
+      final delta = jsonDecode(content);
+      final document = Document.fromJson(delta);
+      final operations = document.toDelta().toList();
+      final List<Widget> items = [];
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      
+      String? currentListType;
+      StringBuffer currentText = StringBuffer();
+      
+      // 遍历文档中的每个操作
+      for (var operation in operations) {
+        final attributes = operation.attributes;
+        final text = operation.data as String;
+        
+        // 检查是否是列表项
+        if (attributes != null && attributes.containsKey('list')) {
+          // 如果之前有未处理的列表项，先添加到列表中
+          if (currentText.isNotEmpty && currentListType != null) {
+            items.add(_buildListItem(
+              context,
+              currentText.toString().trim(),
+              currentListType!,
+              items.length,
+              theme,
+              colorScheme,
+            ));
+            currentText.clear();
+          }
+          
+          currentListType = attributes['list'] as String;
+          currentText.write(text);
+        } 
+        // 如果是换行符，说明当前列表项结束
+        else if (text == '\n') {
+          if (currentText.isNotEmpty && currentListType != null) {
+            items.add(_buildListItem(
+              context,
+              currentText.toString().trim(),
+              currentListType!,
+              items.length,
+              theme,
+              colorScheme,
+            ));
+            currentText.clear();
+            currentListType = null;
+          }
+        }
+        // 如果是列表项的延续内容
+        else if (currentListType != null) {
+          currentText.write(text);
+        }
+      }
+      
+      // 处理最后一个列表项
+      if (currentText.isNotEmpty && currentListType != null) {
+        items.add(_buildListItem(
+          context,
+          currentText.toString().trim(),
+          currentListType,
+          items.length,
+          theme,
+          colorScheme,
+        ));
+      }
+      
+      return items;
+    } catch (e) {
+      print('Error parsing list items: $e');
+      return [];
+    }
+  }
+
+  Widget _buildListItem(
+    BuildContext context,
+    String text,
+    String listType,
+    int index,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    // 构建列表项图标
+    Widget icon;
+    if (listType == 'checked' || listType == 'unchecked') {
+      // 待办列表
+      icon = Icon(
+        listType == 'checked' ? Icons.check_box : Icons.check_box_outline_blank,
+        size: 16,
+        color: colorScheme.primary.withAlpha(
+          listType == 'checked' ? 255 : 128
+        ),
+      );
+    } else if (listType == 'bullet') {
+      // 无序列表
+      icon = Container(
+        width: 6,
+        height: 6,
+        margin: const EdgeInsets.only(right: 8, top: 8),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colorScheme.onSurfaceVariant,
+        ),
+      );
+    } else {
+      // 有序列表
+      icon = Container(
+        margin: const EdgeInsets.only(right: 8),
+        child: Text(
+          '${index + 1}.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          icon,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+                height: 1.4,
+                letterSpacing: 0.25,
+                decoration: listType == 'checked' 
+                  ? TextDecoration.lineThrough 
+                  : null,
+                decorationColor: colorScheme.primary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 显示删除确认对话框
   Future<bool> _showDeleteConfirmDialog(BuildContext context) async {
     final l10n = L10nManager.l10n;
@@ -84,6 +232,7 @@ class NoteTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
     final plainText = _getPlainText(note.content);
+    final listItems = _buildListItems(note.content, context);
 
     return SizedBox(
       width: double.infinity,
@@ -144,17 +293,20 @@ class NoteTile extends StatelessWidget {
                   ),
                   SizedBox(height: spacing.listItemSpacing / 2),
                 ],
-                // 内容预览
-                Text(
-                  plainText,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    height: 1.4,
-                    letterSpacing: 0.25,
+                if (listItems.isNotEmpty) ...[
+                  ...listItems,
+                ] else ...[
+                  Text(
+                    plainText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                      height: 1.4,
+                      letterSpacing: 0.25,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
                 SizedBox(height: spacing.listItemSpacing / 2),
                 // 日期和其他信息
                 Row(

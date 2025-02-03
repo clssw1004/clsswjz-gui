@@ -24,7 +24,7 @@ class DaoManager {
   static late AttachmentDao attachmentDao;
   static late NoteDao noteDao;
 
-  static Future<void> refreshDaos() async {
+  static void refreshDaos() {
     bookDao = BookDao(DatabaseManager.db);
     categoryDao = CategoryDao(DatabaseManager.db);
     itemDao = ItemDao(DatabaseManager.db);

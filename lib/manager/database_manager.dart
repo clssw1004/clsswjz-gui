@@ -19,7 +19,7 @@ class DatabaseManager {
     _db = AppDatabase(NativeDatabase(file));
     _instance ??= DatabaseManager._();
     // 初始化DAO管理器
-    await DaoManager.refreshDaos();
+    DaoManager.refreshDaos();
     _isInit = true;
   }
 
