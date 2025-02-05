@@ -14,6 +14,7 @@ import '../../widgets/common/common_select_form_field.dart';
 import '../../enums/currency_symbol.dart';
 import '../../widgets/common/common_icon_picker.dart';
 import '../../theme/theme_spacing.dart';
+import '../../widgets/common/common_card_container.dart';
 
 /// 账本详情编辑页面
 class BookFormPage extends StatefulWidget {
@@ -54,6 +55,8 @@ class _BookFormPageState extends State<BookFormPage> {
   /// 是否为新增模式
   bool get isCreateMode => widget.book == null;
 
+  final inviteCodeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +75,7 @@ class _BookFormPageState extends State<BookFormPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -115,7 +119,8 @@ class _BookFormPageState extends State<BookFormPage> {
 
       if (!result.ok) {
         if (mounted) {
-          ToastUtil.showError(L10nManager.l10n.saveFailed(result.message ?? ''));
+          ToastUtil.showError(
+              L10nManager.l10n.saveFailed(result.message ?? ''));
         }
         return;
       }
@@ -149,7 +154,6 @@ class _BookFormPageState extends State<BookFormPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    String inviteCode = '';
     BookMemberVO? foundMember;
     bool isSearching = false;
     bool hasSearched = false;
@@ -158,54 +162,72 @@ class _BookFormPageState extends State<BookFormPage> {
       context: context,
       title: L10nManager.l10n.findUserByInviteCode,
       width: 320,
-      height: 250,
+      height: 320,
       content: StatefulBuilder(
         builder: (context, setState) {
           final bool isMemberExists = foundMember != null &&
-              (_members.any((m) => m.userId == foundMember!.userId) || foundMember!.userId == widget.book!.createdBy);
+              (_members.any((m) => m.userId == foundMember!.userId) ||
+                  foundMember!.userId == widget.book!.createdBy);
 
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CommonTextFormField(
-                labelText: L10nManager.l10n.inviteCode,
-                required: true,
-                onChanged: (value) {
-                  inviteCode = value;
-                  if (hasSearched) {
-                    setState(() {
-                      foundMember = null;
-                      hasSearched = false;
-                    });
-                  }
-                },
-                suffixIcon: IconButton(
-                  icon: isSearching
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.search),
-                  onPressed: inviteCode.isEmpty || isSearching
-                      ? null
-                      : () async {
-                          setState(() {
-                            isSearching = true;
-                            hasSearched = true;
-                          });
-                          try {
-                            final result = await ServiceManager.accountBookService.gernerateDefaultMemberByInviteCode(inviteCode);
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant.withOpacity(0.5),
+                  ),
+                ),
+                child: CommonTextFormField(
+                  controller: inviteCodeController,
+                  labelText: L10nManager.l10n.inviteCode,
+                  required: true,
+                  onChanged: (value) {
+                    if (hasSearched) {
+                      setState(() {
+                        foundMember = null;
+                        hasSearched = false;
+                      });
+                    }
+                  },
+                  suffixIcon: IconButton(
+                    icon: isSearching
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            Icons.search,
+                            color: inviteCodeController.text.isEmpty
+                                ? colorScheme.outline
+                                : colorScheme.primary,
+                          ),
+                    onPressed: isSearching
+                        ? null
+                        : () async {
                             setState(() {
-                              foundMember = result.ok ? result.data : null;
+                              isSearching = true;
+                              hasSearched = true;
                             });
-                          } finally {
-                            setState(() {
-                              isSearching = false;
-                            });
-                          }
-                        },
+                            try {
+                              final result = await ServiceManager
+                                  .accountBookService
+                                  .gernerateDefaultMemberByInviteCode(
+                                      inviteCodeController.text);
+                              setState(() {
+                                foundMember = result.ok ? result.data : null;
+                              });
+                            } finally {
+                              setState(() {
+                                isSearching = false;
+                              });
+                            }
+                          },
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -222,23 +244,51 @@ class _BookFormPageState extends State<BookFormPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 12,
-                      horizontal: 8,
+                      horizontal: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: isMemberExists ? colorScheme.outline : colorScheme.primaryContainer.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: isMemberExists
+                          ? colorScheme.surfaceContainerHighest
+                          : colorScheme.primaryContainer.withAlpha(100),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isMemberExists
+                            ? colorScheme.outlineVariant
+                            : colorScheme.primary.withAlpha(100),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.person_outline),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: isMemberExists
+                                ? colorScheme.surfaceContainerHigh
+                                : colorScheme.primaryContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person_outline,
+                            color: isMemberExists
+                                ? colorScheme.onSurfaceVariant
+                                : colorScheme.onPrimaryContainer,
+                            size: 24,
+                          ),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                foundMember!.nickname ?? L10nManager.l10n.unknownUser,
-                                style: theme.textTheme.bodyLarge,
+                                foundMember!.nickname ??
+                                    L10nManager.l10n.unknownUser,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: isMemberExists
+                                      ? colorScheme.onSurfaceVariant
+                                      : colorScheme.onSurface,
+                                ),
                               ),
                               if (isMemberExists)
                                 Text(
@@ -246,27 +296,55 @@ class _BookFormPageState extends State<BookFormPage> {
                                       ? L10nManager.l10n.bookCreator
                                       : L10nManager.l10n.memberAlreadyExists,
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.outline,
+                                    color: colorScheme.error,
                                   ),
                                 ),
                             ],
                           ),
                         ),
                         if (!isMemberExists)
-                          Icon(
-                            Icons.person_add_outlined,
-                            color: colorScheme.primary,
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.person_add_outlined,
+                              color: colorScheme.primary,
+                              size: 18,
+                            ),
                           ),
                       ],
                     ),
                   ),
                 )
               else if (hasSearched && !isSearching)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    L10nManager.l10n.userNotFound,
-                    style: TextStyle(color: colorScheme.error),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.errorContainer.withAlpha(100),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colorScheme.error.withAlpha(100),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: colorScheme.error,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        L10nManager.l10n.userNotFound,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
@@ -284,17 +362,30 @@ class _BookFormPageState extends State<BookFormPage> {
   }
 
   /// 更新成员权限
-  void _updateMemberPermission(BookMemberVO member, String permissionKey, bool value) {
+  void _updateMemberPermission(
+      BookMemberVO member, String permissionKey, bool value) {
     final index = _members.indexOf(member);
     if (index == -1) return;
 
     final newPermission = AccountBookPermissionVO(
-      canViewBook: permissionKey == 'canViewBook' ? value : member.permission.canViewBook,
-      canEditBook: permissionKey == 'canEditBook' ? value : member.permission.canEditBook,
-      canDeleteBook: permissionKey == 'canDeleteBook' ? value : member.permission.canDeleteBook,
-      canViewItem: permissionKey == 'canViewItem' ? value : member.permission.canViewItem,
-      canEditItem: permissionKey == 'canEditItem' ? value : member.permission.canEditItem,
-      canDeleteItem: permissionKey == 'canDeleteItem' ? value : member.permission.canDeleteItem,
+      canViewBook: permissionKey == 'canViewBook'
+          ? value
+          : member.permission.canViewBook,
+      canEditBook: permissionKey == 'canEditBook'
+          ? value
+          : member.permission.canEditBook,
+      canDeleteBook: permissionKey == 'canDeleteBook'
+          ? value
+          : member.permission.canDeleteBook,
+      canViewItem: permissionKey == 'canViewItem'
+          ? value
+          : member.permission.canViewItem,
+      canEditItem: permissionKey == 'canEditItem'
+          ? value
+          : member.permission.canEditItem,
+      canDeleteItem: permissionKey == 'canDeleteItem'
+          ? value
+          : member.permission.canDeleteItem,
     );
 
     setState(() {
@@ -315,8 +406,9 @@ class _BookFormPageState extends State<BookFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(
-            isCreateMode ? L10nManager.l10n.addNew(L10nManager.l10n.accountBook) : L10nManager.l10n.editTo(L10nManager.l10n.accountBook)),
+        title: Text(isCreateMode
+            ? L10nManager.l10n.addNew(L10nManager.l10n.accountBook)
+            : L10nManager.l10n.editTo(L10nManager.l10n.accountBook)),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -351,7 +443,10 @@ class _BookFormPageState extends State<BookFormPage> {
                   width: 48,
                   height: 48,
                   child: Icon(
-                    _icon != null ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons') : Icons.book_outlined,
+                    _icon != null
+                        ? IconData(int.parse(_icon!),
+                            fontFamily: 'MaterialIcons')
+                        : Icons.book_outlined,
                     color: colorScheme.primary,
                   ),
                 ),
@@ -419,13 +514,19 @@ class _BookFormPageState extends State<BookFormPage> {
                   physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _members.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final member = _members[index];
-                    return _MemberItem(
-                      member: member,
-                      onRemove: () => _removeMember(member),
-                      onPermissionChanged: (key, value) => _updateMemberPermission(member, key, value),
+                    return CommonCardContainer(
+                      padding: EdgeInsets.zero,
+                      margin: EdgeInsets.zero,
+                      child: _MemberItem(
+                        member: member,
+                        onRemove: () => _removeMember(member),
+                        onPermissionChanged: (key, value) =>
+                            _updateMemberPermission(member, key, value),
+                      ),
                     );
                   },
                 ),
@@ -451,67 +552,204 @@ class _MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(member.nickname ?? L10nManager.l10n.unknownUser),
-      leading: const Icon(Icons.person_outline),
-      trailing: IconButton(
-        icon: const Icon(Icons.remove_circle_outline),
-        onPressed: onRemove,
-      ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canViewBook,
-          'canViewBook',
-          member.permission.canViewBook,
+        // 用户信息头部
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_outline,
+                  color: colorScheme.onPrimaryContainer,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      member.nickname ?? L10nManager.l10n.unknownUser,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      member.userId,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.remove_circle_outline,
+                  color: colorScheme.error,
+                ),
+                onPressed: onRemove,
+              ),
+            ],
+          ),
         ),
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canEditBook,
-          'canEditBook',
-          member.permission.canEditBook,
-        ),
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canDeleteBook,
-          'canDeleteBook',
-          member.permission.canDeleteBook,
-        ),
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canViewItem,
-          'canViewItem',
-          member.permission.canViewItem,
-        ),
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canEditItem,
-          'canEditItem',
-          member.permission.canEditItem,
-        ),
-        _buildPermissionSwitch(
-          context,
-          L10nManager.l10n.canDeleteItem,
-          'canDeleteItem',
-          member.permission.canDeleteItem,
+        const Divider(height: 1),
+        // 权限设置区域
+        Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.admin_panel_settings_outlined,
+                    size: 16,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '权限设置',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canViewBook,
+                        'canViewBook',
+                        member.permission.canViewBook,
+                        Icons.visibility_outlined,
+                      ),
+                    ),
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canEditBook,
+                        'canEditBook',
+                        member.permission.canEditBook,
+                        Icons.edit_outlined,
+                      ),
+                    ),
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canDeleteBook,
+                        'canDeleteBook',
+                        member.permission.canDeleteBook,
+                        Icons.delete_outline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canViewItem,
+                        'canViewItem',
+                        member.permission.canViewItem,
+                        Icons.visibility_outlined,
+                      ),
+                    ),
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canEditItem,
+                        'canEditItem',
+                        member.permission.canEditItem,
+                        Icons.edit_outlined,
+                      ),
+                    ),
+                    _buildPermissionItem(
+                      context,
+                      _PermissionItem(
+                        L10nManager.l10n.canDeleteItem,
+                        'canDeleteItem',
+                        member.permission.canDeleteItem,
+                        Icons.delete_outline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildPermissionSwitch(
-    BuildContext context,
-    String label,
-    String key,
-    bool value,
-  ) {
-    return SwitchListTile(
-      title: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-      value: value,
-      onChanged: (newValue) => onPermissionChanged(key, newValue),
+  Widget _buildPermissionItem(BuildContext context, _PermissionItem item) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          onPressed: () => onPermissionChanged(item.key, !item.value),
+          icon: Icon(
+            item.icon,
+            size: 20,
+            color:
+                item.value ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          ),
+          style: IconButton.styleFrom(
+            backgroundColor:
+                item.value ? colorScheme.primaryContainer.withAlpha(100) : null,
+            padding: const EdgeInsets.all(8),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          item.label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: item.value
+                ? colorScheme.onSurface
+                : colorScheme.onSurfaceVariant,
+            fontSize: 10,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
+}
+
+class _PermissionItem {
+  final String label;
+  final String key;
+  final bool value;
+  final IconData icon;
+
+  _PermissionItem(this.label, this.key, this.value, this.icon);
 }

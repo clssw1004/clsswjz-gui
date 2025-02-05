@@ -25,6 +25,12 @@ class CommonTextFormField extends StatefulWidget {
   /// 值改变回调
   final ValueChanged<String>? onChanged;
 
+  /// 粘贴回调
+  final ValueChanged<String>? onPaste;
+
+  /// 提交回调
+  final ValueChanged<String>? onSubmitted;
+
   /// 验证器
   final String? Function(String?)? validator;
 
@@ -58,6 +64,18 @@ class CommonTextFormField extends StatefulWidget {
   /// 编辑完成回调
   final VoidCallback? onEditingComplete;
 
+  /// 是否只读
+  final bool readOnly;
+
+  /// 是否自动聚焦
+  final bool autofocus;
+
+  /// 最大长度
+  final int? maxLength;
+
+  /// 文本输入动作
+  final TextInputAction? textInputAction;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -68,6 +86,8 @@ class CommonTextFormField extends StatefulWidget {
     this.suffixIcon,
     this.enabled = true,
     this.onChanged,
+    this.onPaste,
+    this.onSubmitted,
     this.validator,
     this.onSaved,
     this.obscureText = false,
@@ -78,6 +98,10 @@ class CommonTextFormField extends StatefulWidget {
     this.minLines,
     this.style,
     this.onEditingComplete,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.maxLength,
+    this.textInputAction,
   });
 
   @override
@@ -87,36 +111,32 @@ class CommonTextFormField extends StatefulWidget {
 class _CommonTextFormFieldState extends State<CommonTextFormField> {
   final _formKey = GlobalKey<FormFieldState>();
   final _focusNode = FocusNode();
-  late TextEditingController _internalController;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    // 如果外部提供了controller就使用外部的，否则创建内部的
-    _internalController = widget.controller ?? TextEditingController();
-    // 如果没有外部controller但有initialValue，设置initialValue
-    if (widget.controller == null && widget.initialValue != null) {
-      _internalController.text = widget.initialValue!;
-    }
-  }
-
-  @override
-  void didUpdateWidget(CommonTextFormField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // 如果initialValue改变且没有外部controller，更新文本
-    if (widget.controller == null && widget.initialValue != oldWidget.initialValue) {
-      _internalController.text = widget.initialValue ?? '';
-    }
+    _controller = widget.controller ?? TextEditingController(text: widget.initialValue);
+    _controller.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
-    // 只有在使用内部controller时才dispose
     if (widget.controller == null) {
-      _internalController.dispose();
+      _controller.removeListener(_onTextChanged);
+      _controller.dispose();
     }
     _focusNode.dispose();
     super.dispose();
+  }
+
+  String? _lastText;
+  void _onTextChanged() {
+    final newText = _controller.text;
+    if (_lastText != newText) {
+      widget.onChanged?.call(newText);
+      _lastText = newText;
+    }
   }
 
   Widget? _buildIcon(dynamic icon) {
@@ -130,6 +150,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       color: theme.colorScheme.surface,
@@ -145,10 +166,12 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
           child: TextFormField(
             key: _formKey,
             focusNode: _focusNode,
-            controller: _internalController,
+            controller: _controller,
             enabled: widget.enabled,
             maxLines: widget.maxLines,
             minLines: widget.minLines ?? widget.maxLines,
+            maxLength: widget.maxLength,
+            textInputAction: widget.textInputAction,
             style: widget.style ?? theme.textTheme.bodyLarge,
             decoration: InputDecoration(
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
@@ -192,8 +215,12 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
                 () {
                   _focusNode.unfocus();
                 },
-            onFieldSubmitted: (_) {
-              _focusNode.unfocus();
+            onFieldSubmitted: widget.onSubmitted,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            onAppPrivateCommand: (command, params) {
+              if (command == 'paste' && widget.onPaste != null) {
+                widget.onPaste!(_controller.text);
+              }
             },
           ),
         ),
