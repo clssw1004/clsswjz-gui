@@ -398,6 +398,75 @@ class _BookFormPageState extends State<BookFormPage> {
     });
   }
 
+  /// 构建权限项
+  Widget _buildPermissionItem(
+    BuildContext context,
+    String label,
+    bool value,
+    ValueChanged<bool> onChanged,
+    IconData icon,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        decoration: BoxDecoration(
+          color: value 
+              ? colorScheme.primaryContainer 
+              : colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: value 
+                ? colorScheme.primary
+                : colorScheme.outlineVariant,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: value 
+                    ? colorScheme.primary.withOpacity(0.2)
+                    : colorScheme.surfaceContainerHigh,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: value 
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: value 
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+                fontWeight: value ? FontWeight.w600 : null,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -460,13 +529,6 @@ class _BookFormPageState extends State<BookFormPage> {
               onChanged: (value) => _nameController.text = value,
             ),
             SizedBox(height: spacing.formItemSpacing),
-            CommonTextFormField(
-              initialValue: _descriptionController.text,
-              labelText: L10nManager.l10n.description,
-              prefixIcon: Icons.description_outlined,
-              onChanged: (value) => _descriptionController.text = value,
-            ),
-            SizedBox(height: spacing.formItemSpacing),
             CommonSelectFormField<CurrencySymbol>(
               items: CurrencySymbol.values,
               value: _currencySymbol.symbol,
@@ -481,6 +543,13 @@ class _BookFormPageState extends State<BookFormPage> {
                   _currencySymbol = value;
                 });
               },
+            ),
+            SizedBox(height: spacing.formItemSpacing),
+            CommonTextFormField(
+              initialValue: _descriptionController.text,
+              labelText: L10nManager.l10n.description,
+              prefixIcon: Icons.description_outlined,
+              onChanged: (value) => _descriptionController.text = value,
             ),
             if (!isCreateMode) ...[
               SizedBox(height: spacing.formItemSpacing),
@@ -587,19 +656,22 @@ class _MemberItem extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Text(
-                      member.userId,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
                   ],
                 ),
               ),
               IconButton(
-                icon: Icon(
-                  Icons.remove_circle_outline,
-                  color: colorScheme.error,
+                icon: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: colorScheme.errorContainer.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: colorScheme.error,
+                  ),
                 ),
                 onPressed: onRemove,
               ),
@@ -633,70 +705,62 @@ class _MemberItem extends StatelessWidget {
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.start,
                   children: [
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canViewBook,
-                        'canViewBook',
-                        member.permission.canViewBook,
-                        Icons.visibility_outlined,
-                      ),
+                      L10nManager.l10n.canViewBook,
+                      member.permission.canViewBook,
+                      (value) => onPermissionChanged('canViewBook', value),
+                      Icons.visibility_outlined,
                     ),
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canEditBook,
-                        'canEditBook',
-                        member.permission.canEditBook,
-                        Icons.edit_outlined,
-                      ),
+                      L10nManager.l10n.canEditBook,
+                      member.permission.canEditBook,
+                      (value) => onPermissionChanged('canEditBook', value),
+                      Icons.edit_outlined,
                     ),
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canDeleteBook,
-                        'canDeleteBook',
-                        member.permission.canDeleteBook,
-                        Icons.delete_outline,
-                      ),
+                      L10nManager.l10n.canDeleteBook,
+                      member.permission.canDeleteBook,
+                      (value) => onPermissionChanged('canDeleteBook', value),
+                      Icons.delete_outline,
                     ),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.start,
                   children: [
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canViewItem,
-                        'canViewItem',
-                        member.permission.canViewItem,
-                        Icons.visibility_outlined,
-                      ),
+                      L10nManager.l10n.canViewItem,
+                      member.permission.canViewItem,
+                      (value) => onPermissionChanged('canViewItem', value),
+                      Icons.visibility_outlined,
                     ),
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canEditItem,
-                        'canEditItem',
-                        member.permission.canEditItem,
-                        Icons.edit_outlined,
-                      ),
+                      L10nManager.l10n.canEditItem,
+                      member.permission.canEditItem,
+                      (value) => onPermissionChanged('canEditItem', value),
+                      Icons.edit_outlined,
                     ),
                     _buildPermissionItem(
                       context,
-                      _PermissionItem(
-                        L10nManager.l10n.canDeleteItem,
-                        'canDeleteItem',
-                        member.permission.canDeleteItem,
-                        Icons.delete_outline,
-                      ),
+                      L10nManager.l10n.canDeleteItem,
+                      member.permission.canDeleteItem,
+                      (value) => onPermissionChanged('canDeleteItem', value),
+                      Icons.delete_outline,
                     ),
                   ],
                 ),
@@ -708,48 +772,71 @@ class _MemberItem extends StatelessWidget {
     );
   }
 
-  Widget _buildPermissionItem(BuildContext context, _PermissionItem item) {
+  Widget _buildPermissionItem(
+    BuildContext context,
+    String label,
+    bool value,
+    ValueChanged<bool> onChanged,
+    IconData icon,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          onPressed: () => onPermissionChanged(item.key, !item.value),
-          icon: Icon(
-            item.icon,
-            size: 20,
-            color:
-                item.value ? colorScheme.primary : colorScheme.onSurfaceVariant,
-          ),
-          style: IconButton.styleFrom(
-            backgroundColor:
-                item.value ? colorScheme.primaryContainer.withAlpha(100) : null,
-            padding: const EdgeInsets.all(8),
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        decoration: BoxDecoration(
+          color: value 
+              ? colorScheme.primaryContainer 
+              : colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: value 
+                ? colorScheme.primary
+                : colorScheme.outlineVariant,
+            width: 1,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          item.label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: item.value
-                ? colorScheme.onSurface
-                : colorScheme.onSurfaceVariant,
-            fontSize: 10,
-          ),
-          textAlign: TextAlign.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: value 
+                    ? colorScheme.primary.withOpacity(0.2)
+                    : colorScheme.surfaceContainerHigh,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: value 
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: value 
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+                fontWeight: value ? FontWeight.w600 : null,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
-}
-
-class _PermissionItem {
-  final String label;
-  final String key;
-  final bool value;
-  final IconData icon;
-
-  _PermissionItem(this.label, this.key, this.value, this.icon);
 }

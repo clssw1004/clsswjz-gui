@@ -274,34 +274,61 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
     }
   }
 
+  /// 构建图标
+  Widget? _buildIcon(IconData? icon) {
+    if (icon == null) return null;
+    return Icon(
+      icon,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+      size: 24,
+    );
+  }
+
   /// 构建图标文本模式
   Widget _buildIconTextMode() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return TextFormField(
-      readOnly: true,
-      onTap: _showSelectDialog,
-      decoration: InputDecoration(
-        labelText: widget.required ? '${widget.label} *' : widget.label,
-        hintText: widget.hint,
-        errorText: widget.errorText,
-        prefixIcon: widget.icon != null ? Icon(widget.icon) : null,
-        suffixIcon: const Icon(Icons.arrow_drop_down),
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        border: const UnderlineInputBorder(),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.outline),
+    return Container(
+      color: theme.colorScheme.surface,
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+      child: TextFormField(
+        readOnly: true,
+        onTap: _showSelectDialog,
+        decoration: InputDecoration(
+          labelText: widget.required ? '${widget.label} *' : widget.label,
+          hintText: widget.hint ?? (widget.required ? null : L10nManager.l10n.optional),
+          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.4),
+          ),
+          errorText: widget.errorText,
+          prefixIcon: _buildIcon(widget.icon),
+          suffixIcon: Icon(
+            Icons.arrow_drop_down,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          contentPadding: const EdgeInsets.all(16),
+          border: UnderlineInputBorder(
+            borderSide: BorderSide(color: theme.colorScheme.outline),
+          ),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: theme.colorScheme.outline),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: theme.colorScheme.primary),
+          ),
+          disabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.5),
+            ),
+          ),
         ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.primary),
+        controller: TextEditingController(
+          text: _selectedItem != null ? widget.displayField(_selectedItem as T) : '',
         ),
+        style: theme.textTheme.bodyLarge,
       ),
-      controller: TextEditingController(
-        text: _selectedItem != null ? widget.displayField(_selectedItem as T) : '',
-      ),
-      style: theme.textTheme.bodyLarge,
     );
   }
 
