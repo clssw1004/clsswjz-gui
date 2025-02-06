@@ -19,12 +19,20 @@ class AttachmentDao extends BaseDao<AttachmentTable, Attachment> {
   }
 
   Future<void> deleteByBook(String accountBookId) async {
-    final query = db.delete(table)
-      ..where((t) =>
-          t.businessCode.equals(BusinessType.book.code) &
-          t.businessId.isInQuery(db.select(db.accountItemTable)
-            ..where((t) => t.accountBookId.equals(accountBookId))
-            ..addColumns([db.accountItemTable.id])));
-    await query.go();
+    try {
+      final query = db.delete(table)
+        ..where((t) =>
+            t.businessCode.equals(BusinessType.item.code) &
+            t.businessId.isInQuery(
+              db.selectOnly(db.accountItemTable)
+                ..addColumns([db.accountItemTable.id])
+                ..where(
+                    db.accountItemTable.accountBookId.equals(accountBookId)),
+            ));
+      await query.go();
+    } catch (e, stackTrace) {
+      print(stackTrace);
+      rethrow;
+    }
   }
 }
