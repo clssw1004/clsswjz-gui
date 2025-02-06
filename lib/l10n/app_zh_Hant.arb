@@ -603,5 +603,6 @@
     "clear": "清空",
     "@clear": {
         "description": "清空按鈕文本"
-    }
+    },
+    "permissionSettings": "權限設置"
 }

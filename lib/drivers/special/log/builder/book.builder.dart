@@ -111,4 +111,8 @@ class BookDLog extends DeleteLog {
   static BookDLog delete(String who, String bookId) {
     return BookDLog().who(who).inBook(bookId).target(bookId) as BookDLog;
   }
+
+  static BookDLog fromLog(LogSync log) {
+    return BookDLog().who(log.operatorId).inBook(log.parentId).target(log.businessId) as BookDLog;
+  }
 }

@@ -187,49 +187,126 @@ class _TimelineItemListState extends State<TimelineItemList> {
         top: theme.spacing.listItemSpacing * 2,
         bottom: theme.spacing.listItemSpacing,
       ),
-      child: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.spacing.listItemSpacing * 2,
-            vertical: theme.spacing.listItemSpacing / 2,
-          ),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: theme.colorScheme.outlineVariant.withOpacity(0.2),
-              width: 1,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 1,
+              margin: const EdgeInsets.only(left: 16, right: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.outlineVariant.withOpacity(0),
+                    theme.colorScheme.outlineVariant.withOpacity(0.5),
+                  ],
+                ),
+              ),
             ),
           ),
-          child: Text(
-            date,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.5,
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.listItemSpacing * 1.5,
+              vertical: theme.spacing.listItemSpacing / 2,
+            ),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14,
+                  color: theme.colorScheme.primary.withOpacity(0.8),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  date,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
+          Expanded(
+            child: Container(
+              height: 1,
+              margin: const EdgeInsets.only(left: 8, right: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.outlineVariant.withOpacity(0.5),
+                    theme.colorScheme.outlineVariant.withOpacity(0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   /// 构建时间线
   Widget _buildTimeline(ThemeData theme) {
-    return Container(
-      width: 1.5,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            theme.colorScheme.primary.withOpacity(0.1),
-            theme.colorScheme.primary.withOpacity(0.3),
-            theme.colorScheme.primary.withOpacity(0.1),
-          ],
+    return Stack(
+      children: [
+        Container(
+          width: 2,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                theme.colorScheme.primary.withOpacity(0.1),
+                theme.colorScheme.primary.withOpacity(0.3),
+                theme.colorScheme.primary.withOpacity(0.1),
+              ],
+            ),
+          ),
         ),
-      ),
+        // 添加动画效果的小球
+        Container(
+          width: 2,
+          height: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Flow(
+                delegate: _TimelineFlowDelegate(
+                  scrollController: _scrollController,
+                  maxHeight: constraints.maxHeight,
+                ),
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.8),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -275,57 +352,110 @@ class _TimelineItemListState extends State<TimelineItemList> {
 
     final itemsWithHeaders = _getItemsWithDateHeaders();
 
-    return Stack(
-      children: [
-        // 时间线背景
-        Positioned.fill(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 40,
-                alignment: Alignment.center,
-                child: _buildTimeline(theme),
-              ),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            theme.colorScheme.surface,
+            theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            theme.colorScheme.surface,
+          ],
         ),
-        // 列表内容
-        ListView.builder(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.spacing.listItemPadding.left,
-            vertical: theme.spacing.listItemSpacing,
-          ),
-          itemCount: itemsWithHeaders.length + 1,
-          itemBuilder: (context, index) {
-            if (index == itemsWithHeaders.length) {
-              return _buildLoadMoreIndicator(theme);
-            }
-
-            final item = itemsWithHeaders[index];
-
-            if (item is String) {
-              // 日期分割线
-              return _buildDateHeader(item, theme);
-            }
-
-            if (item is UserItemVO) {
-              return InkWell(
-                onTap: widget.onItemTap == null ? null : () => widget.onItemTap!(item),
-                child: ItemTileSimple(
-                  item: item,
-                  currencySymbol: widget.accountBook.currencySymbol.symbol,
-                  index: index,
+      ),
+      child: Stack(
+        children: [
+          // 时间线背景
+          Positioned.fill(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: _buildTimeline(theme),
                 ),
-              );
-            }
+              ],
+            ),
+          ),
+          // 列表内容
+          ListView.builder(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            padding: EdgeInsets.symmetric(
+              vertical: theme.spacing.listItemSpacing,
+            ),
+            itemCount: itemsWithHeaders.length + 1,
+            itemBuilder: (context, index) {
+              if (index == itemsWithHeaders.length) {
+                return _buildLoadMoreIndicator(theme);
+              }
 
-            return const SizedBox.shrink();
-          },
-        ),
-      ],
+              final item = itemsWithHeaders[index];
+
+              if (item is String) {
+                // 日期分割线
+                return _buildDateHeader(item, theme);
+              }
+
+              if (item is UserItemVO) {
+                return InkWell(
+                  onTap: widget.onItemTap == null
+                      ? null
+                      : () => widget.onItemTap!(item),
+                  child: ItemTileSimple(
+                    item: item,
+                    currencySymbol: widget.accountBook.currencySymbol.symbol,
+                    index: index,
+                  ),
+                );
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
     );
+  }
+}
+
+/// 时间线动画委托
+class _TimelineFlowDelegate extends FlowDelegate {
+  final ScrollController scrollController;
+  final double maxHeight;
+
+  _TimelineFlowDelegate({
+    required this.scrollController,
+    required this.maxHeight,
+  }) : super(repaint: scrollController);
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    final scrollFraction = scrollController.hasClients
+        ? (scrollController.offset / (maxHeight * 2)).clamp(0.0, 1.0)
+        : 0.0;
+    
+    final child = context.getChildSize(0);
+    if (child == null) return;
+
+    final yOffset = maxHeight * scrollFraction;
+    context.paintChild(
+      0,
+      transform: Matrix4.translationValues(
+        -child.width / 2,
+        yOffset - child.height / 2,
+        0,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_TimelineFlowDelegate oldDelegate) {
+    return scrollController != oldDelegate.scrollController ||
+        maxHeight != oldDelegate.maxHeight;
   }
 } 

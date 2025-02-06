@@ -664,5 +664,9 @@
     "deleteBookWarning": "Warning: Deleting this account book will permanently delete all associated data, including account records, categories, tags, projects, merchants, and notes. This operation cannot be undone, please proceed with caution!",
     "@deleteBookWarning": {
         "description": "Warning message when deleting an account book"
+    },
+    "permissionSettings": "Permission Settings",
+    "@permissionSettings": {
+        "description": "Permission settings title"
     }
 }

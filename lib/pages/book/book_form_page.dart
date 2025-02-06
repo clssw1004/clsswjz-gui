@@ -178,7 +178,7 @@ class _BookFormPageState extends State<BookFormPage> {
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: colorScheme.outlineVariant.withOpacity(0.5),
+                    color: colorScheme.outlineVariant.withAlpha(128),
                   ),
                 ),
                 child: CommonTextFormField(
@@ -307,7 +307,7 @@ class _BookFormPageState extends State<BookFormPage> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
+                              color: colorScheme.primary.withAlpha(25),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -396,75 +396,6 @@ class _BookFormPageState extends State<BookFormPage> {
         permission: newPermission,
       );
     });
-  }
-
-  /// 构建权限项
-  Widget _buildPermissionItem(
-    BuildContext context,
-    String label,
-    bool value,
-    ValueChanged<bool> onChanged,
-    IconData icon,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return InkWell(
-      onTap: () => onChanged(!value),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        decoration: BoxDecoration(
-          color: value 
-              ? colorScheme.primaryContainer 
-              : colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: value 
-                ? colorScheme.primary
-                : colorScheme.outlineVariant,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: value 
-                    ? colorScheme.primary.withOpacity(0.2)
-                    : colorScheme.surfaceContainerHigh,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: value 
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: value 
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-                fontWeight: value ? FontWeight.w600 : null,
-                height: 1.2,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -664,7 +595,7 @@ class _MemberItem extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: colorScheme.errorContainer.withOpacity(0.5),
+                    color: colorScheme.errorContainer.withAlpha(128),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -694,7 +625,7 @@ class _MemberItem extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '权限设置',
+                    L10nManager.l10n.permissionSettings,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.w600,

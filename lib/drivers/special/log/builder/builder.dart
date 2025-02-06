@@ -170,9 +170,11 @@ abstract class LogBuilder<T, RunResult> {
 
     if (operateType == OperateType.delete) {
       if (businessType == BusinessType.book) {
-        return DeleteLog.buildBook(log.operatorId, log.businessId) as LogBuilder<T, RunResult>;
+        return BookDLog.fromLog(log) as LogBuilder<T, RunResult>;
       } else {
-        return DeleteLog.buildBookSub(log.operatorId, log.parentId, businessType!, log.businessId) as LogBuilder<T, RunResult>;
+        return DeleteLog.buildBookSub(
+                log.operatorId, log.parentId, businessType!, log.businessId)
+            as LogBuilder<T, RunResult>;
       }
     }
 
@@ -198,7 +200,8 @@ abstract class LogBuilder<T, RunResult> {
       case BusinessType.note:
         return NoteCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
-        throw UnimplementedError('Unsupported business type: ${log.businessType}');
+        throw UnimplementedError(
+            'Unsupported business type: ${log.businessType}');
     }
   }
 
@@ -268,19 +271,36 @@ class DeleteLog extends LogBuilder<String, void> {
   }
 
   static DeleteLog buildBook(String who, String bookId) {
-    return DeleteLog().who(who).doWith(BusinessType.book).inBook(bookId).target(bookId) as DeleteLog;
+    return DeleteLog()
+        .who(who)
+        .doWith(BusinessType.book)
+        .inBook(bookId)
+        .target(bookId) as DeleteLog;
   }
 
-  static DeleteLog buildBookSub(String who, String bookId, BusinessType businessType, String subjectId) {
-    return DeleteLog().who(who).doWith(businessType).inBook(bookId).target(subjectId) as DeleteLog;
+  static DeleteLog buildBookSub(
+      String who, String bookId, BusinessType businessType, String subjectId) {
+    return DeleteLog()
+        .who(who)
+        .doWith(businessType)
+        .inBook(bookId)
+        .target(subjectId) as DeleteLog;
   }
 
-  static DeleteLog build(String who, BusinessType businessType, String subjectId) {
-    return DeleteLog().who(who).doWith(businessType).withOutBook().target(subjectId) as DeleteLog;
+  static DeleteLog build(
+      String who, BusinessType businessType, String subjectId) {
+    return DeleteLog()
+        .who(who)
+        .doWith(businessType)
+        .withOutBook()
+        .target(subjectId) as DeleteLog;
   }
 
   static DeleteLog fromLog(LogSync log) {
-    return DeleteLog().who(log.operatorId).inBook(log.parentId).doWith(BusinessType.fromCode(log.businessType)!).target(log.businessId)
-        as DeleteLog;
+    return DeleteLog()
+        .who(log.operatorId)
+        .inBook(log.parentId)
+        .doWith(BusinessType.fromCode(log.businessType)!)
+        .target(log.businessId) as DeleteLog;
   }
 }
