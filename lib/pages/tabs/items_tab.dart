@@ -10,8 +10,8 @@ import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/item_filter_sheet.dart';
-import '../../widgets/book/advance_item_list.dart';
-import '../../widgets/book/timeline_item_list.dart';
+import '../../widgets/book/item_list_advance.dart';
+import '../../widgets/book/item_list_timeline.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/item_view_mode.dart';
@@ -142,19 +142,19 @@ class _ItemsTabState extends State<ItemsTab> {
           IconButton(
             onPressed: () {
               setState(() {
-                _viewMode = _viewMode == ItemViewMode.detail
-                    ? ItemViewMode.simple
-                    : ItemViewMode.detail;
+                _viewMode = _viewMode == ItemViewMode.advance
+                    ? ItemViewMode.timeline
+                    : ItemViewMode.advance;
                 AppConfigManager.instance.setAccountItemViewMode(_viewMode);
               });
             },
             icon: Icon(
-              _viewMode == ItemViewMode.detail
+              _viewMode == ItemViewMode.advance
                   ? Icons.view_headline_outlined
                   : Icons.view_timeline_outlined,
               color: theme.colorScheme.primary,
             ),
-            tooltip: _viewMode == ItemViewMode.detail
+            tooltip: _viewMode == ItemViewMode.advance
                 ? L10nManager.l10n.simpleView
                 : L10nManager.l10n.detailView,
           ),
@@ -198,8 +198,8 @@ class _ItemsTabState extends State<ItemsTab> {
                         : CustomRefreshIndicator(
                             onRefresh: _handleRefresh,
                             builder: (context, child, controller) => child,
-                            child: _viewMode == ItemViewMode.simple
-                                ? TimelineItemList(
+                            child: _viewMode == ItemViewMode.timeline
+                                ? ItemListTimeline(
                                     accountBook: accountBook,
                                     initialItems: itemListProvider.items,
                                     loading: itemListProvider.loading,
@@ -217,7 +217,7 @@ class _ItemsTabState extends State<ItemsTab> {
                                     },
                                     onLoadMore: () => itemListProvider.loadMore(),
                                   )
-                                : AdvanceItemList(
+                                : ItemListAdvance(
                                     accountBook: accountBook,
                                     initialItems: itemListProvider.items,
                                     loading: itemListProvider.loading,

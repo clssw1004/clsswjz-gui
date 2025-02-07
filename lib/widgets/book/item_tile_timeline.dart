@@ -4,7 +4,7 @@ import '../../utils/color_util.dart';
 import '../../enums/account_type.dart';
 
 /// 简略版账目列表项
-class ItemTileSimple extends StatelessWidget {
+class ItemTileTimeline extends StatelessWidget {
   /// 账目数据
   final UserItemVO item;
 
@@ -20,7 +20,7 @@ class ItemTileSimple extends StatelessWidget {
   /// 日期
   final String? date;
 
-  const ItemTileSimple({
+  const ItemTileTimeline({
     super.key,
     required this.item,
     required this.currencySymbol,

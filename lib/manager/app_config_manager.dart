@@ -156,7 +156,7 @@ class AppConfigManager {
     final accountItemListStyleString =
         CacheManager.instance.getString(_accountItemListStyleKey);
     _itemViewMode = accountItemListStyleString == null
-        ? ItemViewMode.detail
+        ? ItemViewMode.advance
         : ItemViewMode.fromCode(accountItemListStyleString);
 
     // 初始化账目筛选条件

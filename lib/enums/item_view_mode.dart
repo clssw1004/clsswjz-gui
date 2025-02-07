@@ -1,10 +1,10 @@
 /// 账目列表显示模式
 enum ItemViewMode {
   /// 详细模式
-  detail('DETAIL'),
+  advance('ADVANCE'),
 
   /// 简约模式
-  simple('SIMPLE');
+  timeline('TIMELINE');
 
   /// 编码
   final String code;
@@ -15,7 +15,7 @@ enum ItemViewMode {
   static ItemViewMode fromCode(String code) {
     return ItemViewMode.values.firstWhere(
       (e) => e.code == code,
-      orElse: () => ItemViewMode.detail,
+      orElse: () => ItemViewMode.advance,
     );
   }
 }

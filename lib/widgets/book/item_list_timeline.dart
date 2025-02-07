@@ -3,10 +3,10 @@ import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
-import 'item_tile_simple.dart';
+import 'item_tile_timeline.dart';
 
 /// 时间线账目列表
-class TimelineItemList extends StatefulWidget {
+class ItemListTimeline extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
 
@@ -25,7 +25,7 @@ class TimelineItemList extends StatefulWidget {
   /// 是否还有更多数据
   final bool hasMore;
 
-  const TimelineItemList({
+  const ItemListTimeline({
     super.key,
     required this.accountBook,
     this.initialItems,
@@ -36,10 +36,10 @@ class TimelineItemList extends StatefulWidget {
   });
 
   @override
-  State<TimelineItemList> createState() => _TimelineItemListState();
+  State<ItemListTimeline> createState() => _ItemListTimelineState();
 }
 
-class _TimelineItemListState extends State<TimelineItemList> {
+class _ItemListTimelineState extends State<ItemListTimeline> {
   /// 账目列表
   List<UserItemVO>? _items;
 
@@ -89,7 +89,7 @@ class _TimelineItemListState extends State<TimelineItemList> {
   }
 
   @override
-  void didUpdateWidget(TimelineItemList oldWidget) {
+  void didUpdateWidget(ItemListTimeline oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialItems != widget.initialItems) {
       _items = widget.initialItems;
@@ -406,7 +406,7 @@ class _TimelineItemListState extends State<TimelineItemList> {
                   onTap: widget.onItemTap == null
                       ? null
                       : () => widget.onItemTap!(item),
-                  child: ItemTileSimple(
+                  child: ItemTileTimeline(
                     item: item,
                     currencySymbol: widget.accountBook.currencySymbol.symbol,
                     index: index,

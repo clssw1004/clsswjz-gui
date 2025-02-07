@@ -39,11 +39,11 @@ abstract class BaseItemList extends StatefulWidget {
 }
 
 /// 高级模式账目列表
-class AdvanceItemList extends BaseItemList {
+class ItemListAdvance extends BaseItemList {
   /// 删除账目回调
   final Future<bool> Function(UserItemVO item)? onDelete;
 
-  const AdvanceItemList({
+  const ItemListAdvance({
     super.key,
     required super.accountBook,
     super.initialItems,
@@ -55,7 +55,7 @@ class AdvanceItemList extends BaseItemList {
   });
 
   @override
-  State<AdvanceItemList> createState() => _AdvanceItemListState();
+  State<ItemListAdvance> createState() => _AdvanceItemListState();
 }
 
 /// 日期收支统计数据
@@ -248,7 +248,7 @@ abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
 }
 
 /// 高级模式状态
-class _AdvanceItemListState extends _BaseItemListState<AdvanceItemList> {
+class _AdvanceItemListState extends _BaseItemListState<ItemListAdvance> {
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
     final spacing = theme.spacing;
