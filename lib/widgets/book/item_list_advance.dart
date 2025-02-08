@@ -1,61 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../enums/account_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../providers/item_list_provider.dart';
 import '../../utils/color_util.dart';
 import '../../theme/theme_spacing.dart';
 import 'item_tile_advance.dart';
 
-/// 账目列表基类
-abstract class BaseItemList extends StatefulWidget {
+/// 高级模式账目列表
+class ItemListAdvance extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
-
-  /// 初始账目列表
-  final List<UserItemVO>? initialItems;
-
-  /// 是否加载中
-  final bool loading;
 
   /// 点击账目回调
   final void Function(UserItemVO item)? onItemTap;
 
-  /// 加载更多回调
-  final Future<void> Function()? onLoadMore;
-
-  /// 是否还有更多数据
-  final bool hasMore;
-
-  const BaseItemList({
-    super.key,
-    required this.accountBook,
-    this.initialItems,
-    this.loading = false,
-    this.onItemTap,
-    this.onLoadMore,
-    this.hasMore = true,
-  });
-}
-
-/// 高级模式账目列表
-class ItemListAdvance extends BaseItemList {
   /// 删除账目回调
   final Future<bool> Function(UserItemVO item)? onDelete;
 
   const ItemListAdvance({
     super.key,
-    required super.accountBook,
-    super.initialItems,
-    super.loading = false,
-    super.onItemTap,
-    super.onLoadMore,
-    super.hasMore = true,
+    required this.accountBook,
+    this.onItemTap,
     this.onDelete,
   });
 
   @override
-  State<ItemListAdvance> createState() => _AdvanceItemListState();
+  State<ItemListAdvance> createState() => _ItemListAdvanceState();
 }
 
 /// 日期收支统计数据
@@ -67,13 +40,16 @@ class DailyStatistics {
   DailyStatistics(this.date, this.income, this.expense);
 }
 
-/// 基类状态
-abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
+class _ItemListAdvanceState extends State<ItemListAdvance> {
   /// 账目列表
   List<UserItemVO>? _items;
 
-  /// 是否正在加载更多
-  bool _loadingMore = false;
+  /// 是否正在加载
+  bool _loading = false;
+
+  /// 是否还有更多数据
+  bool _hasMore = true;
+
 
   /// 滚动控制器
   final ScrollController _scrollController = ScrollController();
@@ -81,7 +57,7 @@ abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
   @override
   void initState() {
     super.initState();
-    _items = widget.initialItems;
+    _loadData();
     _scrollController.addListener(_onScroll);
   }
 
@@ -94,40 +70,71 @@ abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
 
   /// 滚动监听
   void _onScroll() {
-    if (!widget.hasMore || _loadingMore || widget.onLoadMore == null) return;
+    if (_loading || !_hasMore) return;
 
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
+      _loadMoreData();
+    }
+  }
+
+  /// 加载数据
+  Future<void> _loadData() async {
+    if (_loading) return;
+    setState(() {
+      _loading = true;
+    });
+
+    try {
+      final provider = context.read<ItemListProvider>();
+      await provider.loadItems(refresh: true);
+      if (mounted) {
+        setState(() {
+          _items = provider.items;
+          _hasMore = provider.hasMore;
+          _loading = false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   /// 加载更多数据
-  Future<void> _loadMore() async {
-    if (_loadingMore || !widget.hasMore) return;
-
-    setState(() => _loadingMore = true);
+  Future<void> _loadMoreData() async {
+    if (_loading || !_hasMore) return;
+    setState(() => _loading = true);
 
     try {
-      await widget.onLoadMore?.call();
+      final provider = context.read<ItemListProvider>();
+      await provider.loadMore();
+      if (mounted) {
+        setState(() {
+          _items = provider.items;
+          _hasMore = provider.hasMore;
+          _loading = false;
+        });
+      }
     } finally {
       if (mounted) {
-        setState(() => _loadingMore = false);
+        setState(() => _loading = false);
       }
     }
   }
 
   @override
-  void didUpdateWidget(T oldWidget) {
+  void didUpdateWidget(ItemListAdvance oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems) {
-      _items = widget.initialItems;
+    if (oldWidget.accountBook.id != widget.accountBook.id) {
+      _loadData();
     }
   }
 
   /// 构建加载更多指示器
   Widget _buildLoadMoreIndicator(ThemeData theme) {
-    if (!widget.hasMore) {
+    if (!_hasMore) {
       return Container(
         padding: theme.spacing.loadMorePadding,
         child: Center(
@@ -245,10 +252,7 @@ abstract class _BaseItemListState<T extends BaseItemList> extends State<T> {
 
     return result;
   }
-}
 
-/// 高级模式状态
-class _AdvanceItemListState extends _BaseItemListState<ItemListAdvance> {
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
     final spacing = theme.spacing;
@@ -356,7 +360,8 @@ class _AdvanceItemListState extends _BaseItemListState<ItemListAdvance> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (widget.loading && (_items == null || _items!.isEmpty)) {
+    if (context.read<ItemListProvider>().loading &&
+        (_items == null || _items!.isEmpty)) {
       return _buildLoadingState();
     }
 
@@ -386,4 +391,4 @@ class _AdvanceItemListState extends _BaseItemListState<ItemListAdvance> {
       },
     );
   }
-} 
+}

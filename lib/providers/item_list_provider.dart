@@ -52,21 +52,6 @@ class ItemListProvider extends ChangeNotifier {
   /// 获取是否正在加载更多
   bool get loadingMore => _loadingMore;
 
-  /// 设置筛选条件
-  void setFilter(ItemFilterDTO? filter) {
-    _filter = filter;
-    AppConfigManager.instance.setItemFilter(_filter);
-    loadItems(refresh: true);
-    notifyListeners();
-  }
-
-  /// 清除筛选条件
-  void clearFilter() {
-    _filter = null;
-    loadItems(refresh: true);
-    notifyListeners();
-  }
-
   ItemListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     _filter = AppConfigManager.instance.itemFilter;
@@ -82,8 +67,55 @@ class ItemListProvider extends ChangeNotifier {
     });
   }
 
-  /// 加载账目列表
-  /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
+  /// 设置筛选条件
+  void setFilter(ItemFilterDTO? filter) {
+    _filter = filter;
+    AppConfigManager.instance.setItemFilter(_filter);
+    loadItems(refresh: true);
+    notifyListeners();
+  }
+
+  /// 清除筛选条件
+  void clearFilter() {
+    _filter = null;
+    loadItems(refresh: true);
+    notifyListeners();
+  }
+
+  /// 加载指定日期范围的账目
+  Future<List<UserItemVO>> loadItemsByDateRange(DateTime start, DateTime end) async {
+    final userId = AppConfigManager.instance.userId;
+    final bookId = _currentBookId;
+    if (bookId == null) return [];
+
+    try {
+      final result = await DriverFactory.driver.listItemsByBook(
+        userId,
+        bookId,
+        limit: -1,
+        filter: _filter?.copyWith(
+          startDate: start.toIso8601String().substring(0, 10),
+          endDate: end.toIso8601String().substring(0, 10),
+        ),
+      );
+      
+      if (result.ok) {
+        return result.data ?? [];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// 加载指定天数的账目
+  Future<List<UserItemVO>> loadItemsByDays(int days) async {
+    final end = DateTime.now();
+    final start = end.subtract(Duration(days: days));
+    return loadItemsByDateRange(start, end);
+  }
+
+  /// 加载账目列表（分页）
   Future<void> loadItems({bool refresh = true}) async {
     final userId = AppConfigManager.instance.userId;
     final bookId = _currentBookId;
@@ -132,13 +164,6 @@ class ItemListProvider extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    _bookSubscription.cancel();
-    _syncSubscription.cancel();
-    super.dispose();
-  }
-
   /// 删除账目
   Future<bool> deleteItem(UserItemVO item) async {
     final result = await DriverFactory.driver.deleteItem(
@@ -151,5 +176,12 @@ class ItemListProvider extends ChangeNotifier {
       notifyListeners();
     }
     return result.ok;
+  }
+
+  @override
+  void dispose() {
+    _bookSubscription.cancel();
+    _syncSubscription.cancel();
+    super.dispose();
   }
 }

@@ -1,3 +1,5 @@
+import 'package:clsswjz/models/vo/user_book_vo.dart';
+import 'package:clsswjz/models/vo/user_item_vo.dart';
 import 'package:clsswjz/providers/item_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -173,61 +175,38 @@ class _ItemsTabState extends State<ItemsTab> {
       case ItemViewMode.advance:
         return ItemListAdvance(
           accountBook: selectedBook,
-          initialItems: provider.items,
-          loading: provider.loading,
           onItemTap: (item) {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.itemEdit,
-              arguments: [item, selectedBook],
-            ).then((updated) {
-              if (updated == true) {
-                provider.loadItems();
-              }
-            });
+            _onTabItem(provider, item, selectedBook);
           },
-          onLoadMore: provider.loadMore,
-          hasMore: provider.hasMore,
         );
       case ItemViewMode.timeline:
         return ItemListTimeline(
           accountBook: selectedBook,
-          initialItems: provider.items,
-          loading: provider.loading,
           onItemTap: (item) {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.itemEdit,
-              arguments: [item, selectedBook],
-            ).then((updated) {
-              if (updated == true) {
-                provider.loadItems();
-              }
-            });
+            _onTabItem(provider, item, selectedBook);
           },
-          onLoadMore: provider.loadMore,
-          hasMore: provider.hasMore,
         );
       case ItemViewMode.calendar:
         return ItemListCalendar(
           accountBook: selectedBook,
-          initialItems: provider.items,
-          loading: provider.loading,
           onItemTap: (item) {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.itemEdit,
-              arguments: [item, selectedBook],
-            ).then((updated) {
-              if (updated == true) {
-                provider.loadItems();
-              }
-            });
+            _onTabItem(provider, item, selectedBook);
           },
-          onLoadMore: provider.loadMore,
-          hasMore: provider.hasMore,
         );
     }
+  }
+
+  void _onTabItem(
+      ItemListProvider itemListProvider, UserItemVO item, UserBookVO book) {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.itemEdit,
+      arguments: [item, book],
+    ).then((updated) {
+      if (updated == true) {
+        itemListProvider.loadItems();
+      }
+    });
   }
 
   @override

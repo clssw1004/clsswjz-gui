@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../providers/item_list_provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
 import '../../theme/theme_radius.dart';
@@ -11,29 +13,13 @@ class ItemListTimeline extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
 
-  /// 初始账目列表
-  final List<UserItemVO>? initialItems;
-
-  /// 是否加载中
-  final bool loading;
-
   /// 点击账目回调
   final void Function(UserItemVO item)? onItemTap;
-
-  /// 加载更多回调
-  final Future<void> Function()? onLoadMore;
-
-  /// 是否还有更多数据
-  final bool hasMore;
 
   const ItemListTimeline({
     super.key,
     required this.accountBook,
-    this.initialItems,
-    this.loading = false,
     this.onItemTap,
-    this.onLoadMore,
-    this.hasMore = true,
   });
 
   @override
@@ -44,8 +30,11 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   /// 账目列表
   List<UserItemVO>? _items;
 
-  /// 是否正在加载更多
-  bool _loadingMore = false;
+  /// 是否正在加载
+  bool _loading = false;
+
+  /// 是否还有更多数据
+  bool _hasMore = true;
 
   /// 滚动控制器
   final ScrollController _scrollController = ScrollController();
@@ -53,7 +42,7 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   @override
   void initState() {
     super.initState();
-    _items = widget.initialItems;
+    _loadData();
     _scrollController.addListener(_onScroll);
   }
 
@@ -66,25 +55,55 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
 
   /// 滚动监听
   void _onScroll() {
-    if (!widget.hasMore || _loadingMore || widget.onLoadMore == null) return;
+    if (_loading || !_hasMore) return;
 
-    // 当距离底部还有 200 像素时开始加载
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
+    // 当距离底部还有 200 像素时加载更多
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadMoreData();
+    }
+  }
+
+  /// 加载数据
+  Future<void> _loadData() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+
+    try {
+      final provider = context.read<ItemListProvider>();
+      await provider.loadItems(refresh: true);
+      if (mounted) {
+        setState(() {
+          _items = provider.items;
+          _hasMore = provider.hasMore;
+          _loading = false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   /// 加载更多数据
-  Future<void> _loadMore() async {
-    if (_loadingMore || !widget.hasMore) return;
-
-    setState(() => _loadingMore = true);
+  Future<void> _loadMoreData() async {
+    if (_loading || !_hasMore) return;
+    setState(() => _loading = true);
 
     try {
-      await widget.onLoadMore?.call();
+      final provider = context.read<ItemListProvider>();
+      await provider.loadMore();
+      if (mounted) {
+        setState(() {
+          _items = provider.items;
+          _hasMore = provider.hasMore;
+          _loading = false;
+        });
+      }
     } finally {
       if (mounted) {
-        setState(() => _loadingMore = false);
+        setState(() => _loading = false);
       }
     }
   }
@@ -92,14 +111,8 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   @override
   void didUpdateWidget(ItemListTimeline oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems) {
-      _items = widget.initialItems;
-      // 重置加载状态
-      _loadingMore = false;
-    }
-    // 当 hasMore 状态改变时，也重置加载状态
-    if (oldWidget.hasMore != widget.hasMore) {
-      _loadingMore = false;
+    if (oldWidget.accountBook.id != widget.accountBook.id) {
+      _loadData();
     }
   }
 
@@ -121,11 +134,8 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
 
     for (final date in sortedDates) {
       final dailyItems = itemsByDate[date]!;
-      // 只有当日期下有账目时才添加日期分割线和账目
-      if (dailyItems.isNotEmpty) {
-        result.add(date);
-        result.addAll(dailyItems);
-      }
+      result.add(date);
+      result.addAll(dailyItems);
     }
 
     return result;
@@ -135,9 +145,8 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
 
-    if (widget.loading && (_items == null || _items!.isEmpty)) {
+    if (_loading && (_items == null || _items!.isEmpty)) {
       return _buildLoadingState();
     }
 
@@ -154,7 +163,7 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
           end: Alignment.bottomCenter,
           colors: [
             colorScheme.surface,
-            colorScheme.surfaceVariant.withOpacity(0.3),
+            colorScheme.surfaceContainerHighest.withAlpha(32),
             colorScheme.surface,
           ],
         ),
@@ -183,10 +192,10 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
             padding: EdgeInsets.symmetric(
               vertical: theme.spacing.listItemSpacing,
             ),
-            itemCount: itemsWithHeaders.length + 1,
+            itemCount: itemsWithHeaders.length + (_hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == itemsWithHeaders.length) {
-                return _buildLoadMoreIndicator(theme);
+                return _loading ? _buildLoadMoreIndicator(theme) : const SizedBox.shrink();
               }
 
               final item = itemsWithHeaders[index];
@@ -317,7 +326,7 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
           ),
         ),
         // 添加动画效果的小球
-        Container(
+        SizedBox(
           width: 2,
           height: double.infinity,
           child: LayoutBuilder(
@@ -356,20 +365,6 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   Widget _buildLoadMoreIndicator(ThemeData theme) {
     final colorScheme = theme.colorScheme;
     
-    if (!widget.hasMore) {
-      return Container(
-        padding: theme.spacing.loadMorePadding,
-        child: Center(
-          child: Text(
-            L10nManager.l10n.noMore,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.outline,
-            ),
-          ),
-        ),
-      );
-    }
-
     return Container(
       padding: theme.spacing.loadMorePadding,
       child: Center(

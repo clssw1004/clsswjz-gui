@@ -76,7 +76,7 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
     query = query..orderBy([...defaultOrderBy()]);
 
     // 应用分页
-    if (limit != null) {
+    if (limit != null && limit > 0) {
       query = query..limit(limit, offset: offset);
     }
 

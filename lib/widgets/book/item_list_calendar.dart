@@ -1,40 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../providers/item_list_provider.dart';
 import '../../manager/l10n_manager.dart';
-import '../../utils/color_util.dart';
 import '../../theme/theme_radius.dart';
+import '../../utils/color_util.dart';
 
-/// 日历账目列表
+/// 日历视图账目列表
 class ItemListCalendar extends StatefulWidget {
   /// 账本
   final UserBookVO accountBook;
 
-  /// 初始账目列表
-  final List<UserItemVO>? initialItems;
-
-  /// 是否加载中
-  final bool loading;
-
   /// 点击账目回调
   final void Function(UserItemVO item)? onItemTap;
-
-  /// 加载更多回调
-  final Future<void> Function()? onLoadMore;
-
-  /// 是否还有更多数据
-  final bool hasMore;
 
   const ItemListCalendar({
     super.key,
     required this.accountBook,
-    this.initialItems,
-    this.loading = false,
     this.onItemTap,
-    this.onLoadMore,
-    this.hasMore = true,
   });
 
   @override
@@ -43,58 +29,57 @@ class ItemListCalendar extends StatefulWidget {
 
 class _ItemListCalendarState extends State<ItemListCalendar> {
   /// 当前选中的日期
-  DateTime _selectedDay = DateTime.now();
-
-  /// 当前显示的月份
-  DateTime _focusedDay = DateTime.now();
-
-  /// 账目按日期分组的Map
-  Map<DateTime, List<UserItemVO>> _itemsByDay = {};
+  DateTime _selectedDate = DateTime.now();
+  
+  /// 当前月份的账目数据
+  List<UserItemVO>? _monthItems;
+  
+  /// 是否正在加载
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _groupItemsByDay();
+    _loadMonthData();
+  }
+
+  /// 加载当前月份的数据
+  Future<void> _loadMonthData() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+
+    try {
+      final provider = context.read<ItemListProvider>();
+      final start = DateTime(_selectedDate.year, _selectedDate.month, 1);
+      final end = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+      
+      final items = await provider.loadItemsByDateRange(start, end);
+      if (mounted) {
+        setState(() {
+          _monthItems = items;
+          _loading = false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
   }
 
   @override
   void didUpdateWidget(ItemListCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialItems != widget.initialItems) {
-      _groupItemsByDay();
+    if (oldWidget.accountBook.id != widget.accountBook.id) {
+      _loadMonthData();
     }
-  }
-
-  /// 将账目按日期分组
-  void _groupItemsByDay() {
-    if (widget.initialItems == null) return;
-
-    _itemsByDay = {};
-    for (var item in widget.initialItems!) {
-      final dateParts = item.accountDateOnly.split('-');
-      if (dateParts.length == 3) {
-        final date = DateTime(
-          int.parse(dateParts[0]),
-          int.parse(dateParts[1]),
-          int.parse(dateParts[2]),
-        ).toLocal();
-
-        final key = DateTime(date.year, date.month, date.day);
-        if (!_itemsByDay.containsKey(key)) {
-          _itemsByDay[key] = [];
-        }
-        _itemsByDay[key]!.add(item);
-      }
-    }
-
-    setState(() {});
   }
 
   /// 构建日期单元格装饰
   BoxDecoration? _buildCellDecoration(DateTime day, ThemeData theme) {
     final key = DateTime(day.year, day.month, day.day);
-    final hasItems = _itemsByDay.containsKey(key);
-    if (!hasItems) return null;
+    final hasItems = _monthItems?.any((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10));
+    if (hasItems != true) return null;
 
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
     return BoxDecoration(
@@ -111,14 +96,14 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
   Widget? _buildCellMarker(DateTime day, ThemeData theme,
       {bool isSelected = false}) {
     final key = DateTime(day.year, day.month, day.day);
-    final items = _itemsByDay[key] ?? [];
-    if (items.isEmpty) return null;
+    final items = _monthItems?.where((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10)).toList();
+    if (items?.isEmpty ?? true) return null;
 
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
     // 计算当天总收支
     double income = 0;
     double expense = 0;
-    for (var item in items) {
+    for (var item in items!) {
       if (item.amount > 0) {
         income += item.amount;
       } else {
@@ -188,9 +173,9 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
 
   /// 构建选中日期的账目列表
   Widget _buildSelectedDayItems(ThemeData theme) {
-    final key = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
-    final items = _itemsByDay[key] ?? [];
-    if (items.isEmpty) {
+    final key = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    final items = _monthItems?.where((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10)).toList();
+    if (items?.isEmpty ?? true) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Center(
@@ -218,7 +203,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     // 计算当天总收支
     double income = 0;
     double expense = 0;
-    for (var item in items) {
+    for (var item in items!) {
       if (item.amount > 0) {
         income += item.amount;
       } else {
@@ -254,7 +239,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      dateFormat.format(_selectedDay),
+                      dateFormat.format(key),
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: theme.colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.w600,
@@ -546,8 +531,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
     final locale = Localizations.localeOf(context).toString();
 
-    if (widget.loading &&
-        (widget.initialItems == null || widget.initialItems!.isEmpty)) {
+    if (_loading && (_monthItems == null || _monthItems!.isEmpty)) {
       return Center(child: Text(L10nManager.l10n.loading));
     }
 
@@ -574,8 +558,8 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                 TableCalendar<UserItemVO>(
                   firstDay: DateTime.utc(2010, 1, 1),
                   lastDay: DateTime.now(),
-                  focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  focusedDay: _selectedDate,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
                   calendarFormat: CalendarFormat.month,
                   startingDayOfWeek: StartingDayOfWeek.monday,
                   locale: locale,
@@ -667,12 +651,14 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                   ),
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
+                      _selectedDate = selectedDay;
                     });
                   },
                   onPageChanged: (focusedDay) {
-                    _focusedDay = focusedDay;
+                    setState(() {
+                      _selectedDate = focusedDay;
+                    });
+                    _loadMonthData();
                   },
                   calendarBuilders: CalendarBuilders(
                     defaultBuilder: (context, day, focusedDay) {
