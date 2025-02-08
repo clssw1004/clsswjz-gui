@@ -29,7 +29,7 @@ class ItemListProvider extends ChangeNotifier {
   int _page = 1;
 
   /// 每页数量
-  static const int _pageSize = 50;
+  static const int _pageSize = 200;
 
   /// 当前账本ID
   String? _currentBookId;

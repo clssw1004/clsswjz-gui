@@ -3,6 +3,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
+import '../../theme/theme_radius.dart';
 import 'item_tile_timeline.dart';
 
 /// 时间线账目列表
@@ -102,214 +103,6 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
     }
   }
 
-  /// 构建加载更多指示器
-  Widget _buildLoadMoreIndicator(ThemeData theme) {
-    if (!widget.hasMore) {
-      return Container(
-        padding: theme.spacing.loadMorePadding,
-        child: Center(
-          child: Text(
-            L10nManager.l10n.noMore,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: theme.spacing.loadMorePadding,
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            SizedBox(width: theme.spacing.listItemSpacing),
-            Text(
-              L10nManager.l10n.loading,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 构建空状态
-  Widget _buildEmptyState(ThemeData theme) {
-    return ListView(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: theme.spacing.listPadding,
-      children: [
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.receipt_long,
-                size: 48,
-                color: theme.colorScheme.outline,
-              ),
-              SizedBox(height: theme.spacing.listItemSpacing * 2),
-              Text(
-                L10nManager.l10n.noAccountItems,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.outline,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 构建加载状态
-  Widget _buildLoadingState() {
-    return Center(child: Text(L10nManager.l10n.loading));
-  }
-
-  /// 构建日期头部
-  Widget _buildDateHeader(String date, ThemeData theme) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(
-        top: theme.spacing.listItemSpacing * 2,
-        bottom: theme.spacing.listItemSpacing,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              margin: const EdgeInsets.only(left: 16, right: 8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.outlineVariant.withOpacity(0),
-                    theme.colorScheme.outlineVariant.withOpacity(0.5),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.listItemSpacing * 1.5,
-              vertical: theme.spacing.listItemSpacing / 2,
-            ),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.1),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 14,
-                  color: theme.colorScheme.primary.withOpacity(0.8),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  date,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: theme.colorScheme.primary.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 1,
-              margin: const EdgeInsets.only(left: 8, right: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.outlineVariant.withOpacity(0.5),
-                    theme.colorScheme.outlineVariant.withOpacity(0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 构建时间线
-  Widget _buildTimeline(ThemeData theme) {
-    return Stack(
-      children: [
-        Container(
-          width: 2,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                theme.colorScheme.primary.withOpacity(0.1),
-                theme.colorScheme.primary.withOpacity(0.3),
-                theme.colorScheme.primary.withOpacity(0.1),
-              ],
-            ),
-          ),
-        ),
-        // 添加动画效果的小球
-        Container(
-          width: 2,
-          height: double.infinity,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Flow(
-                delegate: _TimelineFlowDelegate(
-                  scrollController: _scrollController,
-                  maxHeight: constraints.maxHeight,
-                ),
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.8),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 4,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   /// 获取处理后的列表项（包含日期分隔）
   List<dynamic> _getItemsWithDateHeaders() {
     if (_items == null || _items!.isEmpty) return [];
@@ -341,6 +134,8 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
 
     if (widget.loading && (_items == null || _items!.isEmpty)) {
       return _buildLoadingState();
@@ -358,9 +153,9 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            theme.colorScheme.surface,
-            theme.colorScheme.surfaceVariant.withOpacity(0.3),
-            theme.colorScheme.surface,
+            colorScheme.surface,
+            colorScheme.surfaceVariant.withOpacity(0.3),
+            colorScheme.surface,
           ],
         ),
       ),
@@ -397,7 +192,6 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
               final item = itemsWithHeaders[index];
 
               if (item is String) {
-                // 日期分割线
                 return _buildDateHeader(item, theme);
               }
 
@@ -417,6 +211,232 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
               return const SizedBox.shrink();
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建日期头部
+  Widget _buildDateHeader(String date, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(
+        top: theme.spacing.listItemSpacing * 2,
+        bottom: theme.spacing.listItemSpacing,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 1,
+              margin: const EdgeInsets.only(left: 16, right: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.outlineVariant.withAlpha(0),
+                    colorScheme.outlineVariant.withAlpha(128),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.listItemSpacing * 1.5,
+              vertical: theme.spacing.listItemSpacing / 2,
+            ),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withAlpha(26),
+              borderRadius: BorderRadius.circular(radius * 2.5),
+              border: Border.all(
+                color: colorScheme.primary.withAlpha(51),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  date,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 1,
+              margin: const EdgeInsets.only(left: 8, right: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.outlineVariant.withAlpha(128),
+                    colorScheme.outlineVariant.withAlpha(0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建时间线
+  Widget _buildTimeline(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    
+    return Stack(
+      children: [
+        Container(
+          width: 2,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colorScheme.primary.withAlpha(26),
+                colorScheme.primary.withAlpha(77),
+                colorScheme.primary.withAlpha(26),
+              ],
+            ),
+          ),
+        ),
+        // 添加动画效果的小球
+        Container(
+          width: 2,
+          height: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Flow(
+                delegate: _TimelineFlowDelegate(
+                  scrollController: _scrollController,
+                  maxHeight: constraints.maxHeight,
+                ),
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withAlpha(77),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建加载更多指示器
+  Widget _buildLoadMoreIndicator(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    
+    if (!widget.hasMore) {
+      return Container(
+        padding: theme.spacing.loadMorePadding,
+        child: Center(
+          child: Text(
+            L10nManager.l10n.noMore,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.outline,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: theme.spacing.loadMorePadding,
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: colorScheme.primary,
+              ),
+            ),
+            SizedBox(width: theme.spacing.listItemSpacing),
+            Text(
+              L10nManager.l10n.loading,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建空状态
+  Widget _buildEmptyState(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    
+    return ListView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      padding: theme.spacing.listPadding,
+      children: [
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.receipt_long,
+                size: 48,
+                color: colorScheme.outline,
+              ),
+              SizedBox(height: theme.spacing.listItemSpacing * 2),
+              Text(
+                L10nManager.l10n.noAccountItems,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.outline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建加载状态
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(L10nManager.l10n.loading),
         ],
       ),
     );
