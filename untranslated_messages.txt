@@ -3,6 +3,9 @@
     "accessToken",
     "resetAuthConfirmation",
     "warning",
-    "deleteBookWarning"
+    "deleteBookWarning",
+    "advanceMode",
+    "timelineMode",
+    "calendarMode"
   ]
 }

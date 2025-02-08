@@ -37,6 +37,8 @@ dependencies:
   flutter_quill: ^10.8.5
   flutter_quill_extensions: ^11.0.0-dev.0
   flutter_slidable: ^4.0.0
+  table_calendar: ^3.0.9
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

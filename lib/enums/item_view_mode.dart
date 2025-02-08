@@ -4,7 +4,10 @@ enum ItemViewMode {
   advance('ADVANCE'),
 
   /// 简约模式
-  timeline('TIMELINE');
+  timeline('TIMELINE'),
+  
+  /// 日历模式
+  calendar('CALENDAR');
 
   /// 编码
   final String code;

@@ -12,6 +12,7 @@ import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/item_filter_sheet.dart';
 import '../../widgets/book/item_list_advance.dart';
 import '../../widgets/book/item_list_timeline.dart';
+import '../../widgets/book/item_list_calendar.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/item_view_mode.dart';
@@ -91,6 +92,144 @@ class _ItemsTabState extends State<ItemsTab> {
     );
   }
 
+  /// 构建视图切换按钮
+  Widget _buildViewModeButton(ThemeData theme) {
+    return PopupMenuButton<ItemViewMode>(
+      icon: Icon(
+        _viewMode == ItemViewMode.advance
+            ? Icons.view_agenda
+            : _viewMode == ItemViewMode.timeline
+                ? Icons.timeline
+                : Icons.calendar_month,
+        color: theme.colorScheme.primary,
+      ),
+      onSelected: (mode) {
+        setState(() {
+          _viewMode = mode;
+          AppConfigManager.instance.setAccountItemViewMode(mode);
+        });
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: ItemViewMode.advance,
+          child: Row(
+            children: [
+              Icon(
+                Icons.view_agenda,
+                color: _viewMode == ItemViewMode.advance
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
+              ),
+              const SizedBox(width: 8),
+              Text(L10nManager.l10n.advanceMode),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: ItemViewMode.timeline,
+          child: Row(
+            children: [
+              Icon(
+                Icons.timeline,
+                color: _viewMode == ItemViewMode.timeline
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
+              ),
+              const SizedBox(width: 8),
+              Text(L10nManager.l10n.timelineMode),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: ItemViewMode.calendar,
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_month,
+                color: _viewMode == ItemViewMode.calendar
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
+              ),
+              const SizedBox(width: 8),
+              Text(L10nManager.l10n.calendarMode),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 构建账目列表
+  Widget _buildItemList() {
+    final provider = context.read<ItemListProvider>();
+    final bookProvider = context.read<BooksProvider>();
+    final selectedBook = bookProvider.selectedBook;
+
+    if (selectedBook == null) {
+      return const SizedBox.shrink();
+    }
+
+    switch (_viewMode) {
+      case ItemViewMode.advance:
+        return ItemListAdvance(
+          accountBook: selectedBook,
+          initialItems: provider.items,
+          loading: provider.loading,
+          onItemTap: (item) {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.itemEdit,
+              arguments: [item, selectedBook],
+            ).then((updated) {
+              if (updated == true) {
+                provider.loadItems();
+              }
+            });
+          },
+          onLoadMore: provider.loadMore,
+          hasMore: provider.hasMore,
+        );
+      case ItemViewMode.timeline:
+        return ItemListTimeline(
+          accountBook: selectedBook,
+          initialItems: provider.items,
+          loading: provider.loading,
+          onItemTap: (item) {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.itemEdit,
+              arguments: [item, selectedBook],
+            ).then((updated) {
+              if (updated == true) {
+                provider.loadItems();
+              }
+            });
+          },
+          onLoadMore: provider.loadMore,
+          hasMore: provider.hasMore,
+        );
+      case ItemViewMode.calendar:
+        return ItemListCalendar(
+          accountBook: selectedBook,
+          initialItems: provider.items,
+          loading: provider.loading,
+          onItemTap: (item) {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.itemEdit,
+              arguments: [item, selectedBook],
+            ).then((updated) {
+              if (updated == true) {
+                provider.loadItems();
+              }
+            });
+          },
+          onLoadMore: provider.loadMore,
+          hasMore: provider.hasMore,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -139,25 +278,7 @@ class _ItemsTabState extends State<ItemsTab> {
             tooltip: '筛选',
           ),
           // 视图切换按钮
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _viewMode = _viewMode == ItemViewMode.advance
-                    ? ItemViewMode.timeline
-                    : ItemViewMode.advance;
-                AppConfigManager.instance.setAccountItemViewMode(_viewMode);
-              });
-            },
-            icon: Icon(
-              _viewMode == ItemViewMode.advance
-                  ? Icons.view_headline_outlined
-                  : Icons.view_timeline_outlined,
-              color: theme.colorScheme.primary,
-            ),
-            tooltip: _viewMode == ItemViewMode.advance
-                ? L10nManager.l10n.simpleView
-                : L10nManager.l10n.detailView,
-          ),
+          _buildViewModeButton(theme),
         ],
       ),
       body: Consumer3<BooksProvider, ItemListProvider, SyncProvider>(
@@ -198,44 +319,7 @@ class _ItemsTabState extends State<ItemsTab> {
                         : CustomRefreshIndicator(
                             onRefresh: _handleRefresh,
                             builder: (context, child, controller) => child,
-                            child: _viewMode == ItemViewMode.timeline
-                                ? ItemListTimeline(
-                                    accountBook: accountBook,
-                                    initialItems: itemListProvider.items,
-                                    loading: itemListProvider.loading,
-                                    hasMore: itemListProvider.hasMore,
-                                    onItemTap: (item) {
-                                      Navigator.pushNamed(
-                                        context,
-                                        AppRoutes.itemEdit,
-                                        arguments: [accountBook, item],
-                                      ).then((updated) {
-                                        if (updated == true) {
-                                          itemListProvider.loadItems();
-                                        }
-                                      });
-                                    },
-                                    onLoadMore: () => itemListProvider.loadMore(),
-                                  )
-                                : ItemListAdvance(
-                                    accountBook: accountBook,
-                                    initialItems: itemListProvider.items,
-                                    loading: itemListProvider.loading,
-                                    hasMore: itemListProvider.hasMore,
-                                    onItemTap: (item) {
-                                      Navigator.pushNamed(
-                                        context,
-                                        AppRoutes.itemEdit,
-                                        arguments: [accountBook, item],
-                                      ).then((updated) {
-                                        if (updated == true) {
-                                          itemListProvider.loadItems();
-                                        }
-                                      });
-                                    },
-                                    onDelete: itemListProvider.deleteItem,
-                                    onLoadMore: () => itemListProvider.loadMore(),
-                                  ),
+                            child: _buildItemList(),
                           ),
                   ),
                 ],

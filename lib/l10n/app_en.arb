@@ -20,7 +20,7 @@
     "database": "Database",
     "about": "About",
     "selectAccountBook": "Select Account Book",
-    "loading": "Loading",
+    "loading": "Loading...",
     "loadFailed": "Load Failed",
     "noAccountBooks": "No Account Books",
     "simplifiedChinese": "Simplified Chinese",
@@ -668,5 +668,8 @@
     "permissionSettings": "Permission Settings",
     "@permissionSettings": {
         "description": "Permission settings title"
-    }
+    },
+    "advanceMode": "Advance Mode",
+    "timelineMode": "Timeline",
+    "calendarMode": "Calendar"
 }
