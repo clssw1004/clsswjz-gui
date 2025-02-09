@@ -201,7 +201,7 @@ class _ItemsTabState extends State<ItemsTab> {
     Navigator.pushNamed(
       context,
       AppRoutes.itemEdit,
-      arguments: [item, book],
+      arguments: [book, item],
     ).then((updated) {
       if (updated == true) {
         itemListProvider.loadItems();
