@@ -1,0 +1,11 @@
+{
+  "zh_Hant": [
+    "accessToken",
+    "resetAuthConfirmation",
+    "warning",
+    "deleteBookWarning",
+    "advanceMode",
+    "timelineMode",
+    "calendarMode"
+  ]
+}
