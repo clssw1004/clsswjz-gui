@@ -671,5 +671,23 @@
     },
     "advanceMode": "Advance Mode",
     "timelineMode": "Timeline",
-    "calendarMode": "Calendar"
+    "calendarMode": "Calendar",
+    "note": "Note",
+    "@note": {
+        "description": "Note type"
+    },
+    "todo": "Todo",
+    "@todo": {
+        "description": "Todo type"
+    },
+    "debt": "Debt",
+    "@debt": {
+        "description": "Debt type"
+    },
+    "lend": "Lend",
+    "borrow": "Borrow",
+    "debtor": "Debtor",
+    "debtorHint": "Enter debtor name",
+    "amountHint": "Enter amount",
+    "invalidAmount": "Please enter a valid amount"
 }

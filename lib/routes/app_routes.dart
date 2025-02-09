@@ -1,3 +1,4 @@
+import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ import '../pages/settings/sync_settings_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
+import '../pages/book/debt_form_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -78,6 +80,10 @@ class AppRoutes {
   static const String noteEdit = '/note_edit';
 
   static const String resetAuth = '/reset_auth';
+
+  static const String debtAdd = '/debt/add';
+
+  static const String todoAdd = '/todo/add';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -145,6 +151,11 @@ class AppRoutes {
       final note = args[0] as UserNoteVO;
       final accountBook = args[1] as UserBookVO;
       return NoteFormPage(note: note, book: accountBook);
+    },
+    debtAdd: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as BookMetaVO;
+      return DebtFormPage(book: accountBook);
     },
   };
 }

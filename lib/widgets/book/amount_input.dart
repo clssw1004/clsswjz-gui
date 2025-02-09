@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../manager/l10n_manager.dart';
 import 'calculator_panel.dart';
-import '../../utils/color_util.dart';
 
 class AmountInput extends StatefulWidget {
-  final String type;
   final TextEditingController controller;
   final FocusNode? focusNode;
   final ValueChanged<double> onChanged;
+  final Color? color;
 
   const AmountInput({
     super.key,
-    required this.type,
     required this.controller,
     this.focusNode,
     required this.onChanged,
+    this.color,
   });
 
   @override
@@ -63,9 +62,6 @@ class _AmountInputState extends State<AmountInput> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // 获取金额颜色
-    final amountColor = ColorUtil.getAmountColor(widget.type);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -99,7 +95,7 @@ class _AmountInputState extends State<AmountInput> {
                       Text(
                         widget.controller.text.isEmpty ? L10nManager.l10n.pleaseInput(L10nManager.l10n.amount) : widget.controller.text,
                         style: theme.textTheme.headlineMedium?.copyWith(
-                          color: widget.controller.text.isEmpty ? colorScheme.onSurfaceVariant : amountColor,
+                          color: widget.controller.text.isEmpty ? colorScheme.onSurfaceVariant : widget.color ?? colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

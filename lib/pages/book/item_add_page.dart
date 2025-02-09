@@ -244,9 +244,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               }
             },
             child: AmountInput(
-              type: item.type,
               controller: _amountController,
               focusNode: _amountFocusNode,
+              color: ColorUtil.getAmountColor(item.type),
               onChanged: (value) {
                 provider.updateAmount(value);
               },

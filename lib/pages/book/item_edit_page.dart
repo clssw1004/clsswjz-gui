@@ -217,8 +217,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               }
             },
             child: AmountInput(
-              type: item.type,
               controller: _amountController,
+              color: ColorUtil.getAmountColor(item.type),
               onChanged: (value) async {
                 await provider.updateAmountAndSave(value);
               },

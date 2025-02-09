@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import '../../enums/note_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/note_list_provider.dart';
@@ -18,13 +19,20 @@ class NotesTab extends StatefulWidget {
   State<NotesTab> createState() => _NotesTabState();
 }
 
-class _NotesTabState extends State<NotesTab> {
+class _NotesTabState extends State<NotesTab>
+    with SingleTickerProviderStateMixin {
   bool _isRefreshing = false;
   final TextEditingController _searchController = TextEditingController();
+  late final AnimationController _fabController;
+  bool _isFabExpanded = false;
 
   @override
   void initState() {
     super.initState();
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<NoteListProvider>();
       provider.loadNotes();
@@ -34,6 +42,7 @@ class _NotesTabState extends State<NotesTab> {
   @override
   void dispose() {
     _searchController.dispose();
+    _fabController.dispose();
     super.dispose();
   }
 
@@ -58,12 +67,83 @@ class _NotesTabState extends State<NotesTab> {
     provider.setKeyword(_searchController.text);
   }
 
+  void _toggleFab() {
+    setState(() {
+      _isFabExpanded = !_isFabExpanded;
+      if (_isFabExpanded) {
+        _fabController.forward();
+      } else {
+        _fabController.reverse();
+      }
+    });
+  }
+
+  void _addTo(BuildContext context, NoteType type) {
+    String route;
+    switch (type) {
+      case NoteType.debt:
+        route = AppRoutes.debtAdd;
+        break;
+      case NoteType.todo:
+        route = AppRoutes.todoAdd;
+        break;
+      case NoteType.note:
+        route = AppRoutes.noteAdd;
+        break;
+      default:
+        throw UnimplementedError('Unsupported note type: $type');
+    }
+    final provider = Provider.of<BooksProvider>(context, listen: false);
+    _toggleFab();
+    Navigator.pushNamed(
+      context,
+      route,
+      arguments: [provider.selectedBook, type],
+    ).then((added) {
+      if (added == true) {
+        Provider.of<NoteListProvider>(context, listen: false).loadNotes();
+      }
+    });
+  }
+
+  Widget _buildFabItem(
+    BuildContext context,
+    NoteType type,
+    IconData icon,
+    String label,
+    Animation<double> animation,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ScaleTransition(
+      scale: animation,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        child: FloatingActionButton.extended(
+          heroTag: type.code,
+          elevation: 2,
+          backgroundColor: colorScheme.secondaryContainer,
+          foregroundColor: colorScheme.onSecondaryContainer,
+          onPressed: () => _addTo(context, type),
+          icon: Icon(icon, size: 20),
+          label: Text(label),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BooksProvider>(context);
-    final noteListProvider = Provider.of<NoteListProvider>(context);
     final l10n = L10nManager.l10n;
     final size = MediaQuery.of(context).size;
+
+    final fabScale = CurvedAnimation(
+      parent: _fabController,
+      curve: Curves.easeOut,
+      reverseCurve: Curves.easeIn,
+    );
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -126,19 +206,42 @@ class _NotesTabState extends State<NotesTab> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.noteAdd,
-            arguments: [provider.selectedBook],
-          ).then((added) {
-            if (added == true) {
-              noteListProvider.loadNotes();
-            }
-          });
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (_isFabExpanded) ...[
+            _buildFabItem(
+              context,
+              NoteType.debt,
+              Icons.account_balance_wallet_outlined,
+              l10n.addNew(l10n.debt),
+              fabScale,
+            ),
+            _buildFabItem(
+              context,
+              NoteType.todo,
+              Icons.check_circle_outline,
+              l10n.addNew(l10n.todo),
+              fabScale,
+            ),
+            _buildFabItem(
+              context,
+              NoteType.note,
+              Icons.note_outlined,
+              l10n.addNew(l10n.note),
+              fabScale,
+            ),
+          ],
+          FloatingActionButton(
+            onPressed: _toggleFab,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: 200),
+              turns: _isFabExpanded ? 0.125 : 0,
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ],
       ),
     );
   }

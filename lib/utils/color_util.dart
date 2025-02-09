@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../enums/account_type.dart';
+import '../enums/debt_type.dart';
 
 /// 颜色工具类
 class ColorUtil {
@@ -14,7 +15,8 @@ class ColorUtil {
 
   /// 获取账目金额颜色
   static Color getAmountColor(String? type) {
-    final currentType = AccountItemType.fromCode(type) ?? AccountItemType.expense;
+    final currentType =
+        AccountItemType.fromCode(type) ?? AccountItemType.expense;
     switch (currentType) {
       case AccountItemType.expense:
         return EXPENSE;
@@ -22,6 +24,16 @@ class ColorUtil {
         return INCOME;
       case AccountItemType.transfer:
         return TRANSFER;
+    }
+  }
+
+  /// 获取债务金额颜色
+  static Color getDebtAmountColor(DebtType type) {
+    switch (type) {
+      case DebtType.lend:
+        return EXPENSE;
+      case DebtType.borrow:
+        return INCOME;
     }
   }
 }

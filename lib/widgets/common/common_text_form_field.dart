@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../manager/l10n_manager.dart';
 
@@ -76,6 +77,9 @@ class CommonTextFormField extends StatefulWidget {
   /// 文本输入动作
   final TextInputAction? textInputAction;
 
+  /// 输入格式化器
+  final List<TextInputFormatter>? inputFormatters;
+
   const CommonTextFormField({
     super.key,
     this.controller,
@@ -102,6 +106,7 @@ class CommonTextFormField extends StatefulWidget {
     this.autofocus = false,
     this.maxLength,
     this.textInputAction,
+    this.inputFormatters,
   });
 
   @override
@@ -172,6 +177,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
             minLines: widget.minLines ?? widget.maxLines,
             maxLength: widget.maxLength,
             textInputAction: widget.textInputAction,
+            inputFormatters: widget.inputFormatters,
             style: widget.style ?? theme.textTheme.bodyLarge,
             decoration: InputDecoration(
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,

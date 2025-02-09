@@ -34,7 +34,10 @@ enum BusinessType {
   user('user'),
 
   /// 附件
-  attachment('attachment');
+  attachment('attachment'),
+
+  /// 债务
+  debt('debt');
 
   final String code;
   const BusinessType(this.code);

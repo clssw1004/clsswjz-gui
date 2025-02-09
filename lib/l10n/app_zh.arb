@@ -688,5 +688,23 @@
     },
     "advanceMode": "详细模式",
     "timelineMode": "时间线",
-    "calendarMode": "日历"
+    "calendarMode": "日历",
+    "note": "笔记",
+    "@note": {
+        "description": "笔记类型"
+    },
+    "todo": "待办",
+    "@todo": {
+        "description": "待办类型"
+    },
+    "debt": "债务",
+    "@debt": {
+        "description": "债务类型"
+    },
+    "lend": "借出",
+    "borrow": "借入",
+    "debtor": "债务人",
+    "debtorHint": "请输入债务人姓名",
+    "amountHint": "请输入金额",
+    "invalidAmount": "请输入有效的金额"
 }

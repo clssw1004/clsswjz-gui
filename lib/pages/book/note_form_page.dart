@@ -16,7 +16,11 @@ class NoteFormPage extends StatefulWidget {
   final UserNoteVO? note;
   final UserBookVO book;
 
-  const NoteFormPage({super.key, this.note, required this.book});
+  const NoteFormPage({
+    super.key, 
+    this.note, 
+    required this.book,
+  });
 
   @override
   State<NoteFormPage> createState() => _NoteFormPageState();

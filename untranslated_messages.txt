@@ -6,6 +6,15 @@
     "deleteBookWarning",
     "advanceMode",
     "timelineMode",
-    "calendarMode"
+    "calendarMode",
+    "note",
+    "todo",
+    "debt",
+    "lend",
+    "borrow",
+    "debtor",
+    "debtorHint",
+    "amountHint",
+    "invalidAmount"
   ]
 }

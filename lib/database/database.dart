@@ -6,25 +6,28 @@ import 'tables/account_item_table.dart';
 import 'tables/account_note_table.dart';
 import 'tables/account_shop_table.dart';
 import 'tables/account_symbol_table.dart';
-import 'tables/rel_accountbook_user_table.dart';
-import 'tables/user_table.dart';
 import 'tables/attachment_table.dart';
 import 'tables/log_sync_table.dart';
+import 'tables/rel_accountbook_user_table.dart';
+import 'tables/user_table.dart';
+import 'tables/account_debt_table.dart';
+
 part 'database.g.dart';
 
 @DriftDatabase(
   tables: [
+    UserTable,
     AccountBookTable,
-    LogSyncTable,
+    AccountItemTable,
     AccountCategoryTable,
     AccountFundTable,
-    AccountItemTable,
-    AccountNoteTable,
     AccountShopTable,
     AccountSymbolTable,
     RelAccountbookUserTable,
-    UserTable,
+    LogSyncTable,
     AttachmentTable,
+    AccountNoteTable,
+    AccountDebtTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
