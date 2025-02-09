@@ -37,7 +37,7 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   @override
   void initState() {
     super.initState();
-    // _serverController.text = widget.serverUrl;
+    _serverController.text = widget.serverUrl;
   }
 
   @override
