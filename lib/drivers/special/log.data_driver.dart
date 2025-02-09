@@ -17,6 +17,7 @@ import 'package:clsswjz/utils/digest_util.dart';
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
+import '../../enums/note_type.dart';
 import '../../manager/service_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -563,10 +564,14 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createNote(String who, String bookId,
       {String? title,
+      required NoteType noteType,
       required String content,
       required String plainContent}) async {
     final id = await NoteCULog.create(who, bookId,
-            title: title, content: content, plainContent: plainContent)
+            title: title,
+            noteType: noteType,
+            content: content,
+            plainContent: plainContent)
         .execute();
     return OperateResult.success(id);
   }

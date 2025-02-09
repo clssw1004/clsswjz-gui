@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill/quill_delta.dart';
+import '../../enums/note_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_note_vo.dart';
@@ -78,6 +79,7 @@ class _NoteFormPageState extends State<NoteFormPage> {
               userId,
               widget.book.id,
               title: note.title,
+              noteType: NoteType.note,
               content: note.content,
               plainContent: note.plainContent,
             )

@@ -5,6 +5,7 @@ import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../database/database.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/fund_type.dart';
+import '../enums/note_type.dart';
 import '../models/common.dart';
 import '../models/dto/item_filter_dto.dart';
 import '../models/vo/user_item_vo.dart';
@@ -173,7 +174,7 @@ abstract class BookDataDriver {
   /// 获取用户记事列表
   Future<OperateResult<List<UserNoteVO>>> listNotesByBook(String who, String bookId, {int limit = 200, int offset = 0, String? keyword});
 
-  Future<OperateResult<String>> createNote(String who, String bookId, {String? title, required String content, required String plainContent});
+  Future<OperateResult<String>> createNote(String who, String bookId, {String? title, required NoteType noteType, required String content, required String plainContent});
 
   Future<OperateResult<void>> deleteNote(String who, String bookId, String noteId);
 

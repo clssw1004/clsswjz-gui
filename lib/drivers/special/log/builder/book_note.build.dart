@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_note_table.dart';
 import '../../../../enums/business_type.dart';
+import '../../../../enums/note_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
 import 'builder.dart';
@@ -37,13 +38,19 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String who,
     String bookId, {
     String? title,
+    required NoteType noteType,
     String? content,
     String? plainContent,
   }) {
-    return NoteCULog().who(who).inBook(bookId).doCreate().withData(AccountNoteTable.toCreateCompanion(
+    return NoteCULog()
+        .who(who)
+        .inBook(bookId)
+        .doCreate()
+        .withData(AccountNoteTable.toCreateCompanion(
           who,
           bookId,
           title: title,
+          noteType: noteType.code,
           content: content,
           plainContent: plainContent,
         )) as NoteCULog;
@@ -57,7 +64,12 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? content,
     String? plainContent,
   }) {
-    return NoteCULog().who(userId).inBook(bookId).target(noteId).doUpdate().withData(AccountNoteTable.toUpdateCompanion(
+    return NoteCULog()
+        .who(userId)
+        .inBook(bookId)
+        .target(noteId)
+        .doUpdate()
+        .withData(AccountNoteTable.toUpdateCompanion(
           userId,
           title: title,
           content: content,
@@ -70,7 +82,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountNote.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as NoteCULog;
+        .withData(AccountNote.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as NoteCULog;
   }
 
   static NoteCULog fromUpdateLog(LogSync log) {
@@ -86,6 +99,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
   }
 
   static NoteCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create ? NoteCULog.fromCreateLog(log) : NoteCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? NoteCULog.fromCreateLog(log)
+        : NoteCULog.fromUpdateLog(log));
   }
 }

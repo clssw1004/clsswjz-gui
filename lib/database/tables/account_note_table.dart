@@ -12,6 +12,7 @@ class AccountNoteTable extends BaseAccountBookTable {
   TextColumn get title => text().nullable().named('title')();
   TextColumn get content =>
       text().nullable().named('content').withLength(max: 4294967295)();
+  TextColumn get noteType => text().named('note_type')();
   TextColumn get plainContent =>
       text().nullable().named('plain_content').withLength(max: 4294967295)();
 
@@ -38,6 +39,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     String who,
     String accountBookId, {
     String? title,
+    String? noteType,
     String? content,
     String? plainContent,
   }) =>
@@ -45,6 +47,7 @@ class AccountNoteTable extends BaseAccountBookTable {
         id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
         title: Value.absentIfNull(title),
+        noteType: Value.absentIfNull(noteType),
         content: Value.absentIfNull(content),
         plainContent: Value.absentIfNull(plainContent),
         createdBy: Value(who),
