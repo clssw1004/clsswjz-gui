@@ -11,6 +11,7 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
   List<OrderClauseGenerator<AccountItemTable>> defaultOrderBy() {
     return [
       (t) => OrderingTerm.desc(t.accountDate),
+      (t) => OrderingTerm.desc(t.createdAt),
     ];
   }
 
