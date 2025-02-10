@@ -224,7 +224,8 @@ abstract class BookDataDriver {
   /// 债务相关
   /// 获取债务列表
   Future<OperateResult<List<AccountDebt>>> listDebtsByBook(
-      String userId, String bookId);
+      String userId, String bookId,
+      {int limit = 200, int offset = 0, String? keyword});
 
   /// 创建债务
   Future<OperateResult<String>> createDebt(String userId, String bookId,

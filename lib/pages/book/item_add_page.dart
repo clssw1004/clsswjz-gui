@@ -115,7 +115,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
     } else {
       // 编辑账目，使用已有时间
       _selectedDate = widget.provider.item.accountDateOnly;
-      _selectedTime = widget.provider.item.accountTimeOnly.substring(0, 5); // 只显示HH:mm
+      _selectedTime = widget.provider.item.accountTimeOnly; // 只显示HH:mm
 
       // 加载附件
       widget.provider.loadAttachments();
@@ -174,7 +174,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
     final spacing = theme.spacing;
 
     // 获取当前账目类型
-    final currentType = AccountItemType.fromCode(item.type) ?? AccountItemType.expense;
+    final currentType =
+        AccountItemType.fromCode(item.type) ?? AccountItemType.expense;
 
     return Form(
       key: _formKey,
@@ -256,7 +257,10 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
           // 分类选择
           CommonSelectFormField<AccountCategory>(
-            items: provider.categories.where((category) => category.categoryType == item.type).toList().cast<AccountCategory>(),
+            items: provider.categories
+                .where((category) => category.categoryType == item.type)
+                .toList()
+                .cast<AccountCategory>(),
             value: item.categoryCode,
             displayMode: DisplayMode.expand,
             displayField: (item) => item.name,
@@ -275,7 +279,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               );
               if (result.ok) {
                 await provider.loadCategories();
-                return provider.categories.cast<AccountCategory>().firstWhere((category) => category.name == value);
+                return provider.categories
+                    .cast<AccountCategory>()
+                    .firstWhere((category) => category.name == value);
               }
               return null;
             },
@@ -340,7 +346,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               );
               if (result.data != null) {
                 await provider.loadShops();
-                return provider.shops.cast<AccountShop>().firstWhere((shop) => shop.code == value);
+                return provider.shops
+                    .cast<AccountShop>()
+                    .firstWhere((shop) => shop.code == value);
               }
               return null;
             },
@@ -381,7 +389,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     );
                     if (result.data != null) {
                       await provider.loadTags();
-                      return provider.tags.cast<AccountSymbol>().firstWhere((tag) => tag.code == value);
+                      return provider.tags
+                          .cast<AccountSymbol>()
+                          .firstWhere((tag) => tag.code == value);
                     }
                     return null;
                   },
@@ -412,7 +422,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     );
                     if (result.data != null) {
                       await provider.loadProjects();
-                      return provider.projects.cast<AccountSymbol>().firstWhere((project) => project.code == value);
+                      return provider.projects
+                          .cast<AccountSymbol>()
+                          .firstWhere((project) => project.code == value);
                     }
                     return null;
                   },
@@ -448,7 +460,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           CommonTextFormField(
             initialValue: _descriptionController.text,
             labelText: L10nManager.l10n.description,
-            hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
+            hintText:
+                L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: provider.updateDescription,
             keyboardType: TextInputType.multiline,
@@ -473,12 +486,15 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   .toList();
 
               // 只更新provider中的附件列表，不保存到数据库
-              provider.updateAttachments([...provider.attachments, ...attachments]);
+              provider
+                  .updateAttachments([...provider.attachments, ...attachments]);
             },
             onDelete: (attachment) async {
               // 只从provider中移除附件，不从数据库中删除
               provider.updateAttachments(
-                provider.attachments.where((a) => a.id != attachment.id).toList(),
+                provider.attachments
+                    .where((a) => a.id != attachment.id)
+                    .toList(),
               );
             },
             onTap: (attachment) async {
@@ -522,7 +538,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               label: Text(L10nManager.l10n.save),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
             ),
           ),

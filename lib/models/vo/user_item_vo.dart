@@ -24,7 +24,7 @@ class UserItemVO {
   String get accountDateOnly => accountDate.split(' ')[0];
 
   /// 账目时间（格式：HH:mm:ss）
-  String get accountTimeOnly => accountDate.split(' ')[1];
+  String get accountTimeOnly => accountDate.split(' ')[1].substring(0, 5);
 
   /// 账本ID
   String accountBookId;

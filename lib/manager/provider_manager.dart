@@ -11,6 +11,7 @@ import '../providers/sync_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/restart_widget.dart';
+import '../providers/debt_list_provider.dart';
 
 /// Provider 管理器
 class ProviderManager {
@@ -41,6 +42,7 @@ class ProviderManager {
           ChangeNotifierProvider<NoteListProvider>(
             create: (_) => NoteListProvider(),
           ),
+          ChangeNotifierProvider(create: (_) => DebtListProvider()),
         ],
         child: child,
       ),

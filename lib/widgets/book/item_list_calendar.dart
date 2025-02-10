@@ -30,10 +30,10 @@ class ItemListCalendar extends StatefulWidget {
 class _ItemListCalendarState extends State<ItemListCalendar> {
   /// 当前选中的日期
   DateTime _selectedDate = DateTime.now();
-  
+
   /// 当前月份的账目数据
   List<UserItemVO>? _monthItems;
-  
+
   /// 是否正在加载
   bool _loading = false;
 
@@ -52,7 +52,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
       final provider = context.read<ItemListProvider>();
       final start = DateTime(_selectedDate.year, _selectedDate.month, 1);
       final end = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
-      
+
       final items = await provider.loadItemsByDateRange(start, end);
       if (mounted) {
         setState(() {
@@ -78,7 +78,8 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
   /// 构建日期单元格装饰
   BoxDecoration? _buildCellDecoration(DateTime day, ThemeData theme) {
     final key = DateTime(day.year, day.month, day.day);
-    final hasItems = _monthItems?.any((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10));
+    final hasItems = _monthItems?.any(
+        (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10));
     if (hasItems != true) return null;
 
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
@@ -96,7 +97,10 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
   Widget? _buildCellMarker(DateTime day, ThemeData theme,
       {bool isSelected = false}) {
     final key = DateTime(day.year, day.month, day.day);
-    final items = _monthItems?.where((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10)).toList();
+    final items = _monthItems
+        ?.where(
+            (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10))
+        .toList();
     if (items?.isEmpty ?? true) return null;
 
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
@@ -173,8 +177,12 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
 
   /// 构建选中日期的账目列表
   Widget _buildSelectedDayItems(ThemeData theme) {
-    final key = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
-    final items = _monthItems?.where((e) => e.accountDateOnly == key.toIso8601String().substring(0, 10)).toList();
+    final key =
+        DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    final items = _monthItems
+        ?.where(
+            (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10))
+        .toList();
     if (items?.isEmpty ?? true) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
@@ -397,7 +405,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                           Row(
                             children: [
                               Text(
-                                item.accountTimeOnly.substring(0, 5),
+                                item.accountTimeOnly,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant
                                       .withAlpha(128),

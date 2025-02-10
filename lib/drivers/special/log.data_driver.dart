@@ -598,8 +598,10 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<List<AccountDebt>>> listDebtsByBook(
-      String userId, String bookId) async {
-    final debts = await DaoManager.debtDao.listByBook(bookId);
+      String userId, String bookId,
+      {int limit = 200, int offset = 0, String? keyword}) async {
+    final debts = await DaoManager.debtDao
+        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
     return OperateResult.success(debts);
   }
 

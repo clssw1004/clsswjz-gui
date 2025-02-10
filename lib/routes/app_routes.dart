@@ -27,6 +27,7 @@ import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
 import '../pages/book/debt_form_page.dart';
+import '../pages/book/items_list_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -52,6 +53,9 @@ class AppRoutes {
 
   /// 账目编辑页面
   static const String itemEdit = '/item_edit';
+
+  /// 账目列表页面
+  static const String itemsList = '/items_list';
 
   /// 账本创建页面
   static const String bookForm = '/book_form';
@@ -112,6 +116,10 @@ class AppRoutes {
       final accountBook = args[0] as UserBookVO;
       final item = args[1] as UserItemVO;
       return ItemEditPage(accountBook: accountBook, item: item);
+    },
+    itemsList: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return ItemsListPage(accountBook: args);
     },
     serverConfig: (context) => const ServerConfigPage(),
     merchants: (context) {

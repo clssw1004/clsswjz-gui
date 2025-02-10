@@ -90,7 +90,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
     // 初始化日期和时间
     _selectedDate = widget.provider.item.accountDateOnly;
-    _selectedTime = widget.provider.item.accountTimeOnly.substring(0, 5); // 只显示HH:mm
+    _selectedTime = widget.provider.item.accountTimeOnly; // 只显示HH:mm
 
     // 加载附件
     widget.provider.loadAttachments();
