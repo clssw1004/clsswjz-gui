@@ -1,5 +1,3 @@
-import 'package:clsswjz/drivers/driver_factory.dart';
-import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
@@ -15,25 +13,28 @@ import '../../widgets/book/amount_input.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/color_util.dart';
+import '../../drivers/driver_factory.dart';
+import '../../manager/app_config_manager.dart';
 
-class DebtFormPage extends StatefulWidget {
+class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
+  final AccountDebt debt;
 
-  const DebtFormPage({
+  const DebtEditPage({
     super.key,
     required this.book,
+    required this.debt,
   });
 
   @override
-  State<DebtFormPage> createState() => _DebtFormPageState();
+  State<DebtEditPage> createState() => _DebtEditPageState();
 }
 
-class _DebtFormPageState extends State<DebtFormPage> {
+class _DebtEditPageState extends State<DebtEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _debtorController = TextEditingController();
-  final _amountController = TextEditingController(text: '0.00');
-  final _amountFocusNode = FocusNode();
-  DebtType _debtType = DebtType.lend;
+  final _amountController = TextEditingController();
+  late DebtType _debtType;
   String? _selectedAccountId;
   bool _saving = false;
   late String _selectedDate;
@@ -43,15 +44,21 @@ class _DebtFormPageState extends State<DebtFormPage> {
   @override
   void initState() {
     super.initState();
-    // 初始化日期为当前日期
-    _selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _initData();
+  }
+
+  void _initData() {
+    _debtType = DebtType.fromCode(widget.debt.debtType);
+    _debtorController.text = widget.debt.debtor;
+    _amountController.text = widget.debt.amount.toString();
+    _selectedAccountId = widget.debt.fundId;
+    _selectedDate = widget.debt.debtDate;
   }
 
   @override
   void dispose() {
     _debtorController.dispose();
     _amountController.dispose();
-    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -80,11 +87,11 @@ class _DebtFormPageState extends State<DebtFormPage> {
     });
 
     try {
-      await DriverFactory.driver.createDebt(
+      await DriverFactory.driver.updateDebt(
         AppConfigManager.instance.userId,
         widget.book.id,
+        widget.debt.id,
         debtor: _debtorController.text,
-        debtType: _debtType,
         amount: double.parse(_amountController.text),
         fundId: _selectedAccountId!,
         debtDate: _selectedDate,
@@ -105,6 +112,57 @@ class _DebtFormPageState extends State<DebtFormPage> {
     }
   }
 
+  Future<void> _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(L10nManager.l10n.warning),
+        content:
+            Text(L10nManager.l10n.deleteConfirmMessage(widget.debt.debtor)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(L10nManager.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(L10nManager.l10n.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _saving = true;
+    });
+
+    try {
+      final result = await DriverFactory.driver.deleteDebt(
+        AppConfigManager.instance.userId,
+        widget.book.id,
+        widget.debt.id,
+      );
+      if (result.ok) {
+        if (mounted) {
+          Navigator.of(context).pop(true);
+        }
+      } else {
+        if (mounted) {
+          ToastUtil.showError(result.message ??
+              L10nManager.l10n.deleteFailed(L10nManager.l10n.debt, ''));
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -113,8 +171,15 @@ class _DebtFormPageState extends State<DebtFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(L10nManager.l10n.addNew(L10nManager.l10n.debt)),
+        title: Text(L10nManager.l10n.editTo(L10nManager.l10n.debt)),
         actions: [
+          IconButton(
+            onPressed: _saving ? null : _delete,
+            icon: Icon(
+              Icons.delete_outline,
+              color: colorScheme.error,
+            ),
+          ),
           IconButton(
             onPressed: _saving ? null : _save,
             icon: _saving
@@ -136,25 +201,23 @@ class _DebtFormPageState extends State<DebtFormPage> {
           padding: spacing.formPadding,
           children: [
             // 债务类型选择
-            CommonSegmentedButton<DebtType>(
-              segments: [
-                ButtonSegment<DebtType>(
-                  value: DebtType.lend,
-                  label: Text(L10nManager.l10n.lend),
-                  icon: const Icon(Icons.arrow_circle_up_outlined),
-                ),
-                ButtonSegment<DebtType>(
-                  value: DebtType.borrow,
-                  label: Text(L10nManager.l10n.borrow),
-                  icon: const Icon(Icons.arrow_circle_down_outlined),
-                ),
-              ],
-              selected: {_debtType},
-              onSelectionChanged: (Set<DebtType> selected) {
-                setState(() {
-                  _debtType = selected.first;
-                });
-              },
+            AbsorbPointer(
+              child: CommonSegmentedButton<DebtType>(
+                segments: [
+                  ButtonSegment<DebtType>(
+                    value: DebtType.lend,
+                    label: Text(L10nManager.l10n.lend),
+                    icon: const Icon(Icons.arrow_circle_up_outlined),
+                  ),
+                  ButtonSegment<DebtType>(
+                    value: DebtType.borrow,
+                    label: Text(L10nManager.l10n.borrow),
+                    icon: const Icon(Icons.arrow_circle_down_outlined),
+                  ),
+                ],
+                selected: {_debtType},
+                onSelectionChanged: (_) {},
+              ),
             ),
             SizedBox(height: spacing.formItemSpacing),
             // 债务人
@@ -165,36 +228,28 @@ class _DebtFormPageState extends State<DebtFormPage> {
               prefixIcon: const Icon(Icons.person_outline),
               required: true,
               maxLength: 50,
+              enabled: false,
             ),
             SizedBox(height: spacing.formItemSpacing),
             // 账户选择
-            CommonSelectFormField<AccountFund>(
-              items: _accounts,
-              value: _selectedAccountId,
-              displayMode: DisplayMode.iconText,
-              displayField: (item) => item.name,
-              keyField: (item) => item.id,
-              icon: Icons.account_balance_wallet_outlined,
-              label: L10nManager.l10n.account,
-              required: true,
-              onChanged: (value) {
-                final account = value as AccountFund?;
-                if (account != null) {
-                  setState(() {
-                    _selectedAccountId = account.id;
-                  });
-                } else {
-                  setState(() {
-                    _selectedAccountId = null;
-                  });
-                }
-              },
-              validator: (value) {
-                if (value == null) {
-                  return L10nManager.l10n.required;
-                }
-                return null;
-              },
+            AbsorbPointer(
+              child: CommonSelectFormField<AccountFund>(
+                items: _accounts,
+                value: _selectedAccountId,
+                displayMode: DisplayMode.iconText,
+                displayField: (item) => item.name,
+                keyField: (item) => item.id,
+                icon: Icons.account_balance_wallet_outlined,
+                label: L10nManager.l10n.account,
+                required: true,
+                onChanged: (_) {},
+                validator: (value) {
+                  if (value == null) {
+                    return L10nManager.l10n.required;
+                  }
+                  return null;
+                },
+              ),
             ),
             SizedBox(height: spacing.formItemSpacing),
             // 金额
@@ -206,7 +261,6 @@ class _DebtFormPageState extends State<DebtFormPage> {
               },
               child: AmountInput(
                 controller: _amountController,
-                focusNode: _amountFocusNode,
                 color: ColorUtil.getDebtAmountColor(_debtType),
                 onChanged: (value) {
                   setState(() {});

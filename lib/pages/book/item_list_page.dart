@@ -17,19 +17,19 @@ import '../../widgets/book/item_filter_sheet.dart';
 import '../../models/vo/book_meta.dart';
 import '../../manager/service_manager.dart';
 
-class ItemsListPage extends StatefulWidget {
+class ItemListPage extends StatefulWidget {
   final UserBookVO accountBook;
 
-  const ItemsListPage({
+  const ItemListPage({
     super.key,
     required this.accountBook,
   });
 
   @override
-  State<ItemsListPage> createState() => _ItemsListPageState();
+  State<ItemListPage> createState() => _ItemListPageState();
 }
 
-class _ItemsListPageState extends State<ItemsListPage> {
+class _ItemListPageState extends State<ItemListPage> {
   bool _isRefreshing = false;
   ItemViewMode _viewMode = ItemViewMode.advance;
   late BookMetaVO _bookMeta;

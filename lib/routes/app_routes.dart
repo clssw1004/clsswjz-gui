@@ -1,3 +1,4 @@
+import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
@@ -26,8 +27,10 @@ import '../pages/settings/sync_settings_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
-import '../pages/book/debt_form_page.dart';
-import '../pages/book/items_list_page.dart';
+import '../pages/book/debt_add_page.dart';
+import '../pages/book/item_list_page.dart';
+import '../pages/book/debt_list_page.dart';
+import '../pages/book/debt_edit_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -87,6 +90,10 @@ class AppRoutes {
 
   static const String debtAdd = '/debt/add';
 
+  static const String debtList = '/debt/list';
+
+  static const String debtEdit = '/debt/edit';
+
   static const String todoAdd = '/todo/add';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -119,7 +126,7 @@ class AppRoutes {
     },
     itemsList: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
-      return ItemsListPage(accountBook: args);
+      return ItemListPage(accountBook: args);
     },
     serverConfig: (context) => const ServerConfigPage(),
     merchants: (context) {
@@ -163,7 +170,17 @@ class AppRoutes {
     debtAdd: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as BookMetaVO;
-      return DebtFormPage(book: accountBook);
+      return DebtAddPage(book: accountBook);
+    },
+    debtList: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      return DebtListPage(accountBook: args);
+    },
+    debtEdit: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as BookMetaVO;
+      final debt = args[1] as AccountDebt;
+      return DebtEditPage(book: accountBook, debt: debt);
     },
   };
 }
