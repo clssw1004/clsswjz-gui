@@ -10,6 +10,7 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/id_util.dart';
 import 'attachment.builder.dart';
 import 'book_category.builder.dart';
+import 'book_debt.build.dart';
 import 'book_item.builder.dart';
 import 'book_member.builder.dart';
 import 'book_note.build.dart';
@@ -199,6 +200,8 @@ abstract class LogBuilder<T, RunResult> {
         return UserCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.note:
         return NoteCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.debt:
+        return DebtCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
