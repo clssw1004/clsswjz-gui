@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_debt_table.dart';
 import '../../../../enums/business_type.dart';
+import '../../../../enums/debt_clear_state.dart';
 import '../../../../enums/debt_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
@@ -43,6 +44,7 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
     required double amount,
     required String fundId,
     required String debtDate,
+    String? expectedClearDate,
   }) {
     return DebtCULog()
         .who(who)
@@ -56,6 +58,7 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
           amount: amount,
           fundId: fundId,
           debtDate: debtDate,
+          expectedClearDate: expectedClearDate,
         )) as DebtCULog;
   }
 
@@ -67,6 +70,9 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
     double? amount,
     String? fundId,
     String? debtDate,
+    String? expectedClearDate,
+    String? clearDate,
+    DebtClearState? clearState,
   }) {
     return DebtCULog()
         .who(userId)
@@ -79,6 +85,9 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
           amount: amount,
           fundId: fundId,
           debtDate: debtDate,
+          expectedClearDate: expectedClearDate,
+          clearDate: clearDate,
+          clearState: clearState,
         )) as DebtCULog;
   }
 

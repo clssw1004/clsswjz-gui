@@ -604,5 +604,21 @@
     "@clear": {
         "description": "清空按鈕文本"
     },
-    "permissionSettings": "權限設置"
+    "permissionSettings": "權限設置",
+    "debtor": "債務人",
+    "debtorHint": "請輸入債務人姓名",
+    "amountHint": "請輸入金額",
+    "invalidAmount": "請輸入有效的金額",
+    "debtStatus": "債務狀態",
+    "debtStatusUncleared": "未結清",
+    "debtStatusCleared": "已結清",
+    "debtStatusVoided": "已作廢",
+    "expectedClearDate": "預計結清日期",
+    "actualClearDate": "實際結清日期",
+    "clearDebt": "結清",
+    "voidDebt": "作廢",
+    "debtDate": "債務日期",
+    "@debtDate": {
+        "description": "債務日期標籤"
+    }
 }

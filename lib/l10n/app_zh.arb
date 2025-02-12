@@ -706,5 +706,17 @@
     "debtor": "债务人",
     "debtorHint": "请输入债务人姓名",
     "amountHint": "请输入金额",
-    "invalidAmount": "请输入有效的金额"
+    "invalidAmount": "请输入有效的金额",
+    "debtStatus": "债务状态",
+    "debtStatusUncleared": "未结清",
+    "debtStatusCleared": "已结清",
+    "debtStatusVoided": "已作废",
+    "expectedClearDate": "预计结清日期",
+    "actualClearDate": "实际结清日期",
+    "clearDebt": "结清",
+    "voidDebt": "作废",
+    "debtDate": "债务日期",
+    "@debtDate": {
+        "description": "债务日期标签"
+    }
 }

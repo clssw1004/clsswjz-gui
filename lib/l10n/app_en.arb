@@ -687,7 +687,19 @@
     "lend": "Lend",
     "borrow": "Borrow",
     "debtor": "Debtor",
-    "debtorHint": "Enter debtor name",
-    "amountHint": "Enter amount",
-    "invalidAmount": "Please enter a valid amount"
+    "debtorHint": "Please enter the debtor's name",
+    "amountHint": "Please enter the amount",
+    "invalidAmount": "Please enter a valid amount",
+    "debtStatus": "Debt Status",
+    "debtStatusUncleared": "Uncleared",
+    "debtStatusCleared": "Cleared",
+    "debtStatusVoided": "Voided",
+    "expectedClearDate": "Expected Clear Date",
+    "actualClearDate": "Actual Clear Date",
+    "clearDebt": "Clear Debt",
+    "voidDebt": "Void Debt",
+    "debtDate": "Debt Date",
+    "@debtDate": {
+        "description": "Label for debt date"
+    }
 }

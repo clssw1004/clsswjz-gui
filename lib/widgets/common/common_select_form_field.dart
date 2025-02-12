@@ -291,7 +291,6 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
 
     return Container(
       color: theme.colorScheme.surface,
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
       child: TextFormField(
         readOnly: true,
         onTap: _showSelectDialog,
@@ -299,7 +298,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
           labelText: widget.required ? '${widget.label} *' : widget.label,
           hintText: widget.hint ?? (widget.required ? null : L10nManager.l10n.optional),
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.4),
+            color: theme.colorScheme.onSurface.withAlpha(60),
           ),
           errorText: widget.errorText,
           prefixIcon: _buildIcon(widget.icon),

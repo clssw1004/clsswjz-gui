@@ -4,6 +4,7 @@ import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../database/database.dart';
 import '../enums/currency_symbol.dart';
+import '../enums/debt_clear_state.dart';
 import '../enums/debt_type.dart';
 import '../enums/fund_type.dart';
 import '../enums/note_type.dart';
@@ -233,15 +234,20 @@ abstract class BookDataDriver {
       required DebtType debtType,
       required double amount,
       required String fundId,
-      required String debtDate});
+      required String debtDate,
+      String? expectedClearDate,
+      DebtClearState? clearState});
 
   /// 更新债务
   Future<OperateResult<void>> updateDebt(
       String userId, String bookId, String debtId,
-      {required String debtor,
-      required double amount,
-      required String fundId,
-      required String debtDate});
+      {String? debtor,
+      double? amount,
+      String? fundId,
+      String? debtDate,
+      String? expectedClearDate,
+      String? clearDate,
+      DebtClearState? clearState});
 
   /// 删除债务
   Future<OperateResult<void>> deleteDebt(

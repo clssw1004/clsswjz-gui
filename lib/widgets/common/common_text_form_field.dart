@@ -155,11 +155,9 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Container(
       color: theme.colorScheme.surface,
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
       child: Focus(
         onFocusChange: (hasFocus) {
           if (!hasFocus) {

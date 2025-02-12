@@ -35,7 +35,8 @@ class _DebtAddPageState extends State<DebtAddPage> {
   DebtType _debtType = DebtType.lend;
   String? _selectedAccountId;
   bool _saving = false;
-  late String _selectedDate;
+  late String _debtDate;
+  String? _expectedClearDate;
 
   List<AccountFund> get _accounts => widget.book.funds ?? [];
 
@@ -43,7 +44,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
   void initState() {
     super.initState();
     // 初始化日期为当前日期
-    _selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _debtDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
 
   @override
@@ -57,14 +58,32 @@ class _DebtAddPageState extends State<DebtAddPage> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateFormat('yyyy-MM-dd').parse(_selectedDate),
+      initialDate: DateFormat('yyyy-MM-dd').parse(_debtDate),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
     if (picked != null) {
       setState(() {
-        _selectedDate = DateFormat('yyyy-MM-dd').format(picked);
+        _debtDate = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  /// 选择预计结清日期
+  Future<void> _selectExpectedClearDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _expectedClearDate != null
+          ? DateFormat('yyyy-MM-dd').parse(_expectedClearDate!)
+          : DateFormat('yyyy-MM-dd').parse(_debtDate),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _expectedClearDate = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
@@ -85,7 +104,8 @@ class _DebtAddPageState extends State<DebtAddPage> {
         debtType: _debtType,
         amount: double.parse(_amountController.text),
         fundId: _selectedAccountId!,
-        debtDate: _selectedDate,
+        debtDate: _debtDate,
+        expectedClearDate: _expectedClearDate,
       );
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -155,6 +175,22 @@ class _DebtAddPageState extends State<DebtAddPage> {
               },
             ),
             SizedBox(height: spacing.formItemSpacing),
+            // 金额
+            Focus(
+              onFocusChange: (hasFocus) {
+                if (!hasFocus) {
+                  setState(() {});
+                }
+              },
+              child: AmountInput(
+                controller: _amountController,
+                color: ColorUtil.getDebtAmountColor(_debtType),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
+            ),
+            SizedBox(height: spacing.formItemSpacing),
             // 债务人
             CommonTextFormField(
               controller: _debtorController,
@@ -162,12 +198,13 @@ class _DebtAddPageState extends State<DebtAddPage> {
               hintText: L10nManager.l10n.debtorHint,
               prefixIcon: const Icon(Icons.person_outline),
               required: true,
-              maxLength: 50,
             ),
             SizedBox(height: spacing.formItemSpacing),
+
             // 账户选择
             CommonSelectFormField<AccountFund>(
               items: _accounts,
+              hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
               value: _selectedAccountId,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.name,
@@ -194,33 +231,23 @@ class _DebtAddPageState extends State<DebtAddPage> {
                 return null;
               },
             ),
-            SizedBox(height: spacing.formItemSpacing),
-            // 金额
-            Focus(
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  setState(() {});
-                }
-              },
-              child: AmountInput(
-                controller: _amountController,
-                color: ColorUtil.getDebtAmountColor(_debtType),
-                onChanged: (value) {
-                  setState(() {});
-                },
-              ),
-            ),
+
             SizedBox(height: spacing.formItemSpacing),
             // 日期选择
-            Row(
-              children: [
-                CommonBadge(
-                  icon: Icons.calendar_today_outlined,
-                  text: _selectedDate,
-                  onTap: _selectDate,
-                  borderColor: colorScheme.outline.withAlpha(51),
-                ),
-              ],
+            CommonTextFormField(
+              controller: TextEditingController(text: _debtDate),
+              labelText: L10nManager.l10n.debtDate,
+              prefixIcon: const Icon(Icons.calendar_today_outlined),
+              readOnly: true,
+              onTap: _selectDate,
+            ),
+            SizedBox(height: spacing.formItemSpacing),
+            CommonTextFormField(
+              controller: TextEditingController(text: _expectedClearDate ?? ''),
+              labelText: L10nManager.l10n.expectedClearDate,
+              prefixIcon: const Icon(Icons.event_available_outlined),
+              readOnly: true,
+              onTap: _selectExpectedClearDate,
             ),
           ],
         ),

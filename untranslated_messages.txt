@@ -11,10 +11,6 @@
     "todo",
     "debt",
     "lend",
-    "borrow",
-    "debtor",
-    "debtorHint",
-    "amountHint",
-    "invalidAmount"
+    "borrow"
   ]
 }

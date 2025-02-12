@@ -166,12 +166,25 @@ class _DebtTile extends StatelessWidget {
                   color: amountColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(
-                  debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: amountColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      debtType == DebtType.lend 
+                        ? Icons.arrow_circle_up_outlined 
+                        : Icons.arrow_circle_down_outlined,
+                      size: 16,
+                      color: amountColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: amountColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),
@@ -214,20 +227,30 @@ class _DebtTile extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               // 金额
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: amountColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  debt.amount.toString(),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: amountColor,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
-                    height: 1.2,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+              Hero(
+                tag: 'debt_amount_${debt.id}',
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: amountColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: amountColor.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    debt.amount.toString(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: amountColor,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ),
@@ -237,4 +260,4 @@ class _DebtTile extends StatelessWidget {
       ),
     );
   }
-} 
+}

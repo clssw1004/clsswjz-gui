@@ -17,6 +17,7 @@ import 'package:clsswjz/utils/digest_util.dart';
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../enums/business_type.dart';
+import '../../enums/debt_clear_state.dart';
 import '../../enums/debt_type.dart';
 import '../../enums/note_type.dart';
 import '../../manager/service_manager.dart';
@@ -611,34 +612,48 @@ class LogDataDriver implements BookDataDriver {
       required DebtType debtType,
       required double amount,
       required String fundId,
-      required String debtDate}) async {
-    final id = await DebtCULog.create(userId, bookId,
+      required String debtDate,
+      String? expectedClearDate,
+      DebtClearState? clearState}) async {
+    final id = await DebtCULog.create(
+      userId,
+      bookId,
+      debtor: debtor,
+      debtType: debtType,
+      amount: amount,
+      fundId: fundId,
+      debtDate: debtDate,
+      expectedClearDate: expectedClearDate,
+    ).execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> updateDebt(
+      String userId, String bookId, String debtId,
+      {String? debtor,
+      double? amount,
+      String? fundId,
+      String? debtDate,
+      String? expectedClearDate,
+      String? clearDate,
+      DebtClearState? clearState}) async {
+    await DebtCULog.update(userId, bookId, debtId,
             debtor: debtor,
-            debtType: debtType,
             amount: amount,
             fundId: fundId,
-            debtDate: debtDate)
+            debtDate: debtDate,
+            expectedClearDate: expectedClearDate,
+            clearDate: clearDate,
+            clearState: clearState)
         .execute();
-    return OperateResult.success(id);
+    return OperateResult.success(null);
   }
 
   @override
   Future<OperateResult<void>> deleteDebt(
       String userId, String bookId, String debtId) async {
     await DeleteLog.buildBookSub(userId, bookId, BusinessType.debt, debtId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> updateDebt(
-      String userId, String bookId, String debtId,
-      {required String debtor,
-      required double amount,
-      required String fundId,
-      required String debtDate}) async {
-    await DebtCULog.update(userId, bookId, debtId,
-            debtor: debtor, amount: amount, fundId: fundId, debtDate: debtDate)
         .execute();
     return OperateResult.success(null);
   }
