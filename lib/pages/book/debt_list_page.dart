@@ -157,45 +157,39 @@ class _DebtTile extends StatelessWidget {
         children: [
           // 顶部信息栏
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // 借入/借出标识
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: amountColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: amountColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               // 债务人和日期
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 债务人和标签
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            debt.debtor,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.2,
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: amountColor.withAlpha(32),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: amountColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
+                    // 债务人
+                    Text(
+                      debt.debtor,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     // 日期
@@ -203,10 +197,10 @@ class _DebtTile extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.calendar_today_outlined,
-                          size: 14,
+                          size: 16,
                           color: colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 6),
                         Text(
                           debt.debtDate,
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -221,16 +215,16 @@ class _DebtTile extends StatelessWidget {
               const SizedBox(width: 16),
               // 金额
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: amountColor.withAlpha(20),
+                  color: amountColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   debt.amount.toString(),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: amountColor,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     height: 1.2,
                     fontFeatures: const [FontFeature.tabularFigures()],
