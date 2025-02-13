@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:clsswjz/enums/account_type.dart';
+import 'package:clsswjz/enums/debt_type.dart';
 
 import '../enums/fund_type.dart';
 import '../enums/symbol_type.dart';
@@ -19,11 +20,23 @@ class DefaultBookData {
   });
 }
 
+final _debtCategoryData = [
+  CategoryData(
+      name: DebtType.borrow.text,
+      categoryType: AccountItemType.transfer,
+      code: DebtType.borrow.code),
+  CategoryData(
+      name: DebtType.lend.text,
+      categoryType: AccountItemType.transfer,
+      code: DebtType.lend.code),
+];
+
 class CategoryData {
   final String name;
+  final String? code;
   final AccountItemType categoryType;
 
-  CategoryData({required this.name, required this.categoryType});
+  CategoryData({required this.name, required this.categoryType, this.code});
 }
 
 class SymbolData {
@@ -51,6 +64,7 @@ final _defaultBookDataCN = DefaultBookData(
     CategoryData(name: '奖金', categoryType: AccountItemType.income),
     CategoryData(name: '投资', categoryType: AccountItemType.income),
     CategoryData(name: '其他', categoryType: AccountItemType.income),
+    ..._debtCategoryData,
   ],
   shop: const ['淘宝', '京东', '美团', '饿了么'],
   symbols: [
@@ -78,6 +92,7 @@ final _defaultBookDataEN = DefaultBookData(
     CategoryData(name: 'Bonus', categoryType: AccountItemType.income),
     CategoryData(name: 'Investment', categoryType: AccountItemType.income),
     CategoryData(name: 'Other', categoryType: AccountItemType.income),
+    ..._debtCategoryData,
   ],
   shop: const ['AMAZON'],
   symbols: [

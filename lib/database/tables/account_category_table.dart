@@ -11,7 +11,8 @@ class AccountCategoryTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get categoryType => text().named('category_type')();
-  DateTimeColumn get lastAccountItemAt => dateTime().nullable().named('last_account_item_at')();
+  DateTimeColumn get lastAccountItemAt =>
+      dateTime().nullable().named('last_account_item_at')();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
@@ -40,11 +41,12 @@ class AccountCategoryTable extends BaseAccountBookTable {
     String accountBookId, {
     required String name,
     required String categoryType,
+    String? code,
   }) =>
       AccountCategoryTableCompanion(
         id: Value(IdUtil.genId()),
         name: Value(name),
-        code: Value(IdUtil.genNanoId8()),
+        code: Value(code ?? IdUtil.genNanoId8()),
         accountBookId: Value(accountBookId),
         categoryType: Value(categoryType),
         createdBy: Value(who),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import '../database/database.dart';
+import '../enums/account_type.dart';
 import '../enums/currency_symbol.dart';
 import '../enums/debt_clear_state.dart';
 import '../enums/debt_type.dart';
@@ -56,13 +57,15 @@ abstract class BookDataDriver {
   Future<OperateResult<String>> createItem(String userId, String bookId,
       {required double amount,
       String? description,
-      required String type,
+      required AccountItemType type,
       String? categoryCode,
       required String accountDate,
       String? fundId,
       String? shopCode,
       String? tagCode,
       String? projectCode,
+      String? source,
+      String? sourceId,
       List<File>? files});
 
   /// 更新账目
@@ -72,7 +75,7 @@ abstract class BookDataDriver {
     String itemId, {
     double? amount,
     String? description,
-    String? type,
+    AccountItemType? type,
     String? categoryCode,
     String? accountDate,
     String? fundId,

@@ -30,21 +30,34 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return AccountCategoryTable.toJsonString(data as AccountCategoryTableCompanion);
+      return AccountCategoryTable.toJsonString(
+          data as AccountCategoryTableCompanion);
     }
   }
 
-  static CategoryCULog create(String who, String bookId, {required String name, required String categoryType}) {
-    return CategoryCULog().who(who).inBook(bookId).doCreate().withData(AccountCategoryTable.toCreateCompanion(
+  static CategoryCULog create(String who, String bookId,
+      {required String name, required String categoryType, String? code}) {
+    return CategoryCULog()
+        .who(who)
+        .inBook(bookId)
+        .doCreate()
+        .withData(AccountCategoryTable.toCreateCompanion(
           who,
           bookId,
           name: name,
           categoryType: categoryType,
+          code: code,
         )) as CategoryCULog;
   }
 
-  static CategoryCULog update(String userId, String bookId, String categoryId, {String? name, DateTime? lastAccountItemAt}) {
-    return CategoryCULog().who(userId).inBook(bookId).target(categoryId).doUpdate().withData(AccountCategoryTable.toUpdateCompanion(
+  static CategoryCULog update(String userId, String bookId, String categoryId,
+      {String? name, DateTime? lastAccountItemAt}) {
+    return CategoryCULog()
+        .who(userId)
+        .inBook(bookId)
+        .target(categoryId)
+        .doUpdate()
+        .withData(AccountCategoryTable.toUpdateCompanion(
           userId,
           name: name,
           lastAccountItemAt: lastAccountItemAt,
@@ -62,7 +75,8 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountCategory.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as CategoryCULog;
+        .withData(AccountCategory.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as CategoryCULog;
   }
 
   static CategoryCULog fromUpdateLog(LogSync log) {

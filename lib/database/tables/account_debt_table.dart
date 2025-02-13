@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import '../../enums/debt_clear_state.dart';
+import '../../enums/debt_type.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
@@ -65,7 +66,7 @@ class AccountDebtTable extends BaseAccountBookTable {
   static AccountDebtTableCompanion toCreateCompanion(
     String who,
     String accountBookId, {
-    required String debtType,
+    required DebtType debtType,
     required String debtor,
     required double amount,
     required String fundId,
@@ -75,7 +76,7 @@ class AccountDebtTable extends BaseAccountBookTable {
       AccountDebtTableCompanion(
         id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
-        debtType: Value(debtType),
+        debtType: Value(debtType.code),
         debtor: Value(debtor),
         amount: Value(amount),
         fundId: Value(fundId),

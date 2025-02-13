@@ -97,7 +97,7 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 更新类型并保存
-  Future<void> updateTypeAndSave(String type) async {
+  Future<void> updateTypeAndSave(AccountItemType type) async {
     updateType(type);
     await partUpdate(type: type);
   }
@@ -158,38 +158,47 @@ class ItemFormProvider extends ChangeNotifier {
 
   /// 加载分类
   Future<void> loadCategories() async {
-    final result = await DriverFactory.driver.listCategoriesByBook(AppConfigManager.instance.userId, item.accountBookId);
+    final result = await DriverFactory.driver.listCategoriesByBook(
+        AppConfigManager.instance.userId, item.accountBookId);
     _categories = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载账户
   Future<void> loadFunds() async {
-    final result = await DriverFactory.driver.listFundsByBook(AppConfigManager.instance.userId, item.accountBookId);
+    final result = await DriverFactory.driver
+        .listFundsByBook(AppConfigManager.instance.userId, item.accountBookId);
     _funds = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载商户
   Future<void> loadShops() async {
-    final result = await DriverFactory.driver.listShopsByBook(AppConfigManager.instance.userId, item.accountBookId);
+    final result = await DriverFactory.driver
+        .listShopsByBook(AppConfigManager.instance.userId, item.accountBookId);
     _shops = result.data ?? [];
     notifyListeners();
   }
 
   /// 加载标签和项目
   Future<void> loadSymbols() async {
-    final result = await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId, item.accountBookId);
+    final result = await DriverFactory.driver.listSymbolsByBook(
+        AppConfigManager.instance.userId, item.accountBookId);
     final symbols = result.data as List<AccountSymbol>;
-    _tags = symbols.where((symbol) => symbol.symbolType == SymbolType.tag.code).toList();
-    _projects = symbols.where((symbol) => symbol.symbolType == SymbolType.project.code).toList();
+    _tags = symbols
+        .where((symbol) => symbol.symbolType == SymbolType.tag.code)
+        .toList();
+    _projects = symbols
+        .where((symbol) => symbol.symbolType == SymbolType.project.code)
+        .toList();
     notifyListeners();
   }
 
   /// 加载标签
   Future<void> loadTags() async {
-    final result =
-        await DriverFactory.driver.listSymbolsByBook(AppConfigManager.instance.userId, item.accountBookId, symbolType: SymbolType.tag);
+    final result = await DriverFactory.driver.listSymbolsByBook(
+        AppConfigManager.instance.userId, item.accountBookId,
+        symbolType: SymbolType.tag);
     _tags = result.data ?? [];
     notifyListeners();
   }
@@ -209,7 +218,8 @@ class ItemFormProvider extends ChangeNotifier {
   Future<void> loadAttachments() async {
     if (item.id.isEmpty) return;
 
-    _attachments = await ServiceManager.attachmentService.getAttachmentsByBusiness(
+    _attachments =
+        await ServiceManager.attachmentService.getAttachmentsByBusiness(
       BusinessType.item,
       item.id,
     );
@@ -224,7 +234,7 @@ class ItemFormProvider extends ChangeNotifier {
     result = await DriverFactory.driver.createItem(
       userId,
       _item.accountBookId,
-      type: _item.type,
+      type: AccountItemType.fromCode(item.type) ?? AccountItemType.expense,
       amount: _item.amount,
       description: _item.description,
       categoryCode: _item.categoryCode,
@@ -233,7 +243,10 @@ class ItemFormProvider extends ChangeNotifier {
       tagCode: _item.tagCode,
       projectCode: _item.projectCode,
       accountDate: _item.accountDate,
-      files: _attachments.where((attachment) => attachment.file != null).map((attachment) => attachment.file!).toList(),
+      files: _attachments
+          .where((attachment) => attachment.file != null)
+          .map((attachment) => attachment.file!)
+          .toList(),
     );
     _item = _item.copyWith(id: result.data!);
 
@@ -247,7 +260,7 @@ class ItemFormProvider extends ChangeNotifier {
 
   /// 保存账目
   Future<bool> partUpdate({
-    String? type,
+    AccountItemType? type,
     double? amount,
     String? description,
     String? categoryCode,
@@ -296,9 +309,9 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 更新类型
-  void updateType(String type) {
+  void updateType(AccountItemType type) {
     _item = _item.copyWith(
-      type: type,
+      type: type.code,
       categoryCode: null,
     );
     notifyListeners();
@@ -307,7 +320,9 @@ class ItemFormProvider extends ChangeNotifier {
   /// 更新金额
   void updateAmount(double amount) {
     // 根据类型转换金额正负
-    final finalAmount = _item.type == AccountItemType.expense.code ? -amount.abs() : amount.abs();
+    final finalAmount = _item.type == AccountItemType.expense.code
+        ? -amount.abs()
+        : amount.abs();
     _item = _item.copyWith(amount: finalAmount);
     notifyListeners();
   }

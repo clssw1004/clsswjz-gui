@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import '../../enums/account_type.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
@@ -18,12 +19,16 @@ class AccountItemTable extends BaseAccountBookTable {
   TextColumn get shopCode => text().nullable().named('shop_code')();
   TextColumn get tagCode => text().nullable().named('tag_code')();
   TextColumn get projectCode => text().nullable().named('project_code')();
+  /// 账目来源
+  TextColumn get source => text().nullable().named('source')();
+  /// 账目来源ID
+  TextColumn get sourceId => text().nullable().named('source_id')();
 
   static AccountItemTableCompanion toUpdateCompanion(
     String who, {
     double? amount,
     String? description,
-    String? type,
+    AccountItemType? type,
     String? categoryCode,
     String? accountDate,
     String? accountBookId,
@@ -37,7 +42,7 @@ class AccountItemTable extends BaseAccountBookTable {
       updatedAt: Value(DateUtil.now()),
       amount: Value.absentIfNull(amount),
       description: Value.absentIfNull(description),
-      type: Value.absentIfNull(type),
+      type: Value.absentIfNull(type?.code),
       categoryCode: Value.absentIfNull(categoryCode),
       accountDate: Value.absentIfNull(accountDate),
       accountBookId: Value.absentIfNull(accountBookId),
@@ -55,20 +60,22 @@ class AccountItemTable extends BaseAccountBookTable {
     String accountBookId, {
     required double amount,
     String? description,
-    required String type,
+    required AccountItemType type,
     String? categoryCode,
     required String accountDate,
     String? fundId,
     String? shopCode,
     String? tagCode,
     String? projectCode,
+    String? source,
+    String? sourceId,
   }) =>
       AccountItemTableCompanion(
         id: Value(IdUtil.genId()),
         accountBookId: Value(accountBookId),
         amount: Value(amount),
         description: Value.absentIfNull(description),
-        type: Value(type),
+        type: Value(type.code),
         categoryCode: Value.absentIfNull(categoryCode),
         accountDate: Value(accountDate),
         fundId: Value.absentIfNull(fundId),
@@ -79,6 +86,8 @@ class AccountItemTable extends BaseAccountBookTable {
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
         updatedAt: Value(DateUtil.now()),
+        source: Value.absentIfNull(source),
+        sourceId: Value.absentIfNull(sourceId),
       );
 
   static String toJsonString(AccountItemTableCompanion companion) {
@@ -98,6 +107,8 @@ class AccountItemTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'shopCode', companion.shopCode);
     MapUtil.setIfPresent(map, 'tagCode', companion.tagCode);
     MapUtil.setIfPresent(map, 'projectCode', companion.projectCode);
+    MapUtil.setIfPresent(map, 'source', companion.source);
+    MapUtil.setIfPresent(map, 'sourceId', companion.sourceId);
     return jsonEncode(map);
   }
 }

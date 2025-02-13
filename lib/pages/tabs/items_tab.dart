@@ -10,6 +10,7 @@ import '../../widgets/book/book_selector.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
+import '../../providers/debt_list_provider.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -172,6 +173,7 @@ class _ItemsTabState extends State<ItemsTab> with SingleTickerProviderStateMixin
                     ).then((added) {
                       if (added == true) {
                         context.read<ItemListProvider>().loadItems();
+                        context.read<DebtListProvider>().loadDebts();
                       }
                     });
                   },

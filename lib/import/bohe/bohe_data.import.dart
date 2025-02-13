@@ -78,7 +78,7 @@ class BoheDataImport extends ImportInterface {
             bookId: bookMeta.id, symbolMap: projectMap, symbolType: SymbolType.project, record: record);
         await DriverFactory.driver.createItem(who, bookMeta.id,
             amount: record.amount,
-            type: record.type,
+            type: AccountItemType.fromCode(record.type) ?? AccountItemType.expense,
             description: record.description,
             accountDate: record.date.toString(),
             categoryCode: category?.code,

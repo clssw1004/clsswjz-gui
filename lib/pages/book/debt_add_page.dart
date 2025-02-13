@@ -32,6 +32,8 @@ class _DebtAddPageState extends State<DebtAddPage> {
   final _formKey = GlobalKey<FormState>();
   final _debtorController = TextEditingController();
   final _amountController = TextEditingController(text: '0.00');
+  final _debtDateController = TextEditingController();
+  final _expectedClearDateController = TextEditingController();
   DebtType _debtType = DebtType.lend;
   String? _selectedAccountId;
   bool _saving = false;
@@ -45,12 +47,15 @@ class _DebtAddPageState extends State<DebtAddPage> {
     super.initState();
     // 初始化日期为当前日期
     _debtDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _debtDateController.text = _debtDate;
   }
 
   @override
   void dispose() {
     _debtorController.dispose();
     _amountController.dispose();
+    _debtDateController.dispose();
+    _expectedClearDateController.dispose();
     super.dispose();
   }
 
@@ -66,6 +71,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
     if (picked != null) {
       setState(() {
         _debtDate = DateFormat('yyyy-MM-dd').format(picked);
+        _debtDateController.text = _debtDate;
       });
     }
   }
@@ -84,6 +90,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
     if (picked != null) {
       setState(() {
         _expectedClearDate = DateFormat('yyyy-MM-dd').format(picked);
+        _expectedClearDateController.text = _expectedClearDate ?? '';
       });
     }
   }
@@ -234,20 +241,26 @@ class _DebtAddPageState extends State<DebtAddPage> {
 
             SizedBox(height: spacing.formItemSpacing),
             // 日期选择
-            CommonTextFormField(
-              controller: TextEditingController(text: _debtDate),
-              labelText: L10nManager.l10n.debtDate,
-              prefixIcon: const Icon(Icons.calendar_today_outlined),
-              readOnly: true,
+            InkWell(
               onTap: _selectDate,
+              child: CommonTextFormField(
+                controller: _debtDateController,
+                labelText: L10nManager.l10n.debtDate,
+                prefixIcon: const Icon(Icons.calendar_today_outlined),
+                readOnly: true,
+                enabled: false,
+              ),
             ),
             SizedBox(height: spacing.formItemSpacing),
-            CommonTextFormField(
-              controller: TextEditingController(text: _expectedClearDate ?? ''),
-              labelText: L10nManager.l10n.expectedClearDate,
-              prefixIcon: const Icon(Icons.event_available_outlined),
-              readOnly: true,
+            InkWell(
               onTap: _selectExpectedClearDate,
+              child: CommonTextFormField(
+                controller: _expectedClearDateController,
+                labelText: L10nManager.l10n.expectedClearDate,
+                prefixIcon: const Icon(Icons.event_available_outlined),
+                readOnly: true,
+                enabled: false,
+              ),
             ),
           ],
         ),

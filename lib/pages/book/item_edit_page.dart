@@ -175,7 +175,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             selected: {currentType},
             onSelectionChanged: (Set<AccountItemType> selected) async {
               if (selected.isNotEmpty) {
-                await provider.updateTypeAndSave(selected.first.code);
+                await provider.updateTypeAndSave(selected.first);
               }
             },
             style: ButtonStyle(

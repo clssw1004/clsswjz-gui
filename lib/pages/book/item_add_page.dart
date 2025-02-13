@@ -203,7 +203,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             selected: {currentType},
             onSelectionChanged: (Set<AccountItemType> selected) {
               if (selected.isNotEmpty) {
-                provider.updateType(selected.first.code);
+                provider.updateType(selected.first);
               }
             },
             style: ButtonStyle(

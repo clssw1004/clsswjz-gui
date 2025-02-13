@@ -4,6 +4,7 @@ import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/drivers/special/log/builder/book_note.build.dart';
 import 'package:clsswjz/drivers/special/log/builder/user.builder.dart';
 import 'package:clsswjz/drivers/vo_transfer.dart';
+import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/enums/symbol_type.dart';
 import 'package:clsswjz/drivers/special/log/builder/attachment.builder.dart';
 import 'package:clsswjz/drivers/special/log/builder/book.builder.dart';
@@ -85,7 +86,9 @@ class LogDataDriver implements BookDataDriver {
     if (defaultData.category.isNotEmpty) {
       for (var category in defaultData.category) {
         await createCategory(userId, bookId,
-            name: category.name, categoryType: category.categoryType.code);
+            name: category.name,
+            categoryType: category.categoryType.code,
+            code: category.code);
       }
     }
     if (defaultData.shop.isNotEmpty) {
@@ -175,13 +178,15 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<String>> createItem(String who, String bookId,
       {required amount,
       String? description,
-      required String type,
+      required AccountItemType type,
       String? categoryCode,
       required String accountDate,
       String? fundId,
       String? shopCode,
       String? tagCode,
       String? projectCode,
+      String? source,
+      String? sourceId,
       List<File>? files}) async {
     final id = await ItemCULog.create(who, bookId,
             amount: amount,
@@ -192,7 +197,9 @@ class LogDataDriver implements BookDataDriver {
             fundId: fundId,
             shopCode: shopCode,
             tagCode: tagCode,
-            projectCode: projectCode)
+            projectCode: projectCode,
+            source: source,
+            sourceId: sourceId)
         .execute();
     if (files != null && files.isNotEmpty) {
       for (var file in files) {
@@ -209,7 +216,7 @@ class LogDataDriver implements BookDataDriver {
       String who, String bookId, String itemId,
       {double? amount,
       String? description,
-      String? type,
+      AccountItemType? type,
       String? categoryCode,
       String? accountDate,
       String? fundId,
@@ -252,9 +259,11 @@ class LogDataDriver implements BookDataDriver {
 
   @override
   Future<OperateResult<String>> createCategory(String who, String bookId,
-      {required String name, required String categoryType}) async {
+      {required String name,
+      required String categoryType,
+      String? code}) async {
     final id = await CategoryCULog.create(who, bookId,
-            name: name, categoryType: categoryType)
+            name: name, categoryType: categoryType, code: code)
         .execute();
     return OperateResult.success(id);
   }
@@ -625,6 +634,16 @@ class LogDataDriver implements BookDataDriver {
       debtDate: debtDate,
       expectedClearDate: expectedClearDate,
     ).execute();
+    await ItemCULog.create(userId, bookId,
+            amount: amount,
+            type: AccountItemType.transfer,
+            accountDate: '${debtDate} 00:00:00',
+            fundId: fundId,
+            categoryCode: debtType.code,
+            description: '${debtType.text} $debtor',
+            source: BusinessType.debt.code,
+            sourceId: id)
+        .execute();
     return OperateResult.success(id);
   }
 

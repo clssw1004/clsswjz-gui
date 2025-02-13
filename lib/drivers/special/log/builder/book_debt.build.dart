@@ -53,7 +53,7 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
         .withData(AccountDebtTable.toCreateCompanion(
           who,
           bookId,
-          debtType: debtType.code,
+          debtType: debtType,
           debtor: debtor,
           amount: amount,
           fundId: fundId,
