@@ -718,5 +718,21 @@
     "debtDate": "债务日期",
     "@debtDate": {
         "description": "债务日期标签"
+    },
+    "collection": "收款",
+    "@collection": {
+        "description": "收款按钮文本"
+    },
+    "repayment": "还款",
+    "@repayment": {
+        "description": "还款按钮文本"
+    },
+    "collectionDate": "收款日期",
+    "@collectionDate": {
+        "description": "收款日期标签"
+    },
+    "repaymentDate": "还款日期",
+    "@repaymentDate": {
+        "description": "还款日期标签"
     }
 }

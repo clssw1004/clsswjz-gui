@@ -11,6 +11,10 @@
     "todo",
     "debt",
     "lend",
-    "borrow"
+    "borrow",
+    "collection",
+    "repayment",
+    "collectionDate",
+    "repaymentDate"
   ]
 }

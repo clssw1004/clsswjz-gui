@@ -13,6 +13,7 @@ import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../enums/debt_clear_state.dart';
 import '../../widgets/common/common_card_container.dart';
+import '../../pages/book/debt_payment_page.dart';
 
 class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
@@ -373,11 +374,50 @@ class _DebtEditPageState extends State<DebtEditPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        L10nManager.l10n.debtDate,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (_clearState == DebtClearState.pending)
+                        TextButton.icon(
+                          onPressed: _saving ? null : () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => DebtPaymentPage(
+                                  book: widget.book,
+                                  debt: widget.debt,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.add,
+                            size: 20,
+                            color: colorScheme.primary,
+                          ),
+                          label: Text(
+                            _debtType == DebtType.lend
+                                ? L10nManager.l10n.collection
+                                : L10nManager.l10n.repayment,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                          ),
+                        ),
+                    ],
+                  ),
                   ListTile(
                     leading: Icon(Icons.calendar_today_outlined,
                         color: theme.colorScheme.primary),
-                    title: Text(L10nManager.l10n.debtDate),
-                    subtitle: Text(_selectedDate),
+                    title: Text(_selectedDate),
                     contentPadding: EdgeInsets.zero,
                   ),
                   Divider(height: 1),

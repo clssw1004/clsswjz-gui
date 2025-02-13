@@ -701,5 +701,18 @@
     "debtDate": "Debt Date",
     "@debtDate": {
         "description": "Label for debt date"
-    }
+    },
+    "collection": "Collection",
+    "@collection": {
+        "description": "Collection button text"
+    },
+    "repayment": "Repayment",
+    "@repayment": {
+        "description": "Repayment button text"
+    },
+    "collectionDate": "Collection Date",
+    "@collectionDate": {
+        "description": "Collection date label"
+    },
+    "repaymentDate": "Repayment Date"
 }
