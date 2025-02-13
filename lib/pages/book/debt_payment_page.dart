@@ -81,12 +81,13 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
     });
 
     try {
-      DriverFactory.driver.createItem(AppConfigManager.instance.userId, 
-      widget.book.id, 
-        amount: double.parse(_amountController.text), 
-      type: AccountItemType.transfer,
-       description: _remarkController.text,
-      accountDate: _paymentDate);
+      DriverFactory.driver.createItem(
+          AppConfigManager.instance.userId, widget.book.id,
+          amount: double.parse(_amountController.text),
+          categoryCode: _debtType.operationCategory,
+          type: AccountItemType.transfer,
+          description: _remarkController.text,
+          accountDate: '$_paymentDate 00:00:00');
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -107,9 +108,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(_debtType == DebtType.lend 
-          ? L10nManager.l10n.collection 
-          : L10nManager.l10n.repayment),
+        title: Text(_debtType == DebtType.lend
+            ? L10nManager.l10n.collection
+            : L10nManager.l10n.repayment),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
@@ -184,9 +185,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
               onTap: _selectDate,
               child: CommonTextFormField(
                 controller: _paymentDateController,
-                labelText: _debtType == DebtType.lend 
-                  ? L10nManager.l10n.collectionDate 
-                  : L10nManager.l10n.repaymentDate,
+                labelText: _debtType == DebtType.lend
+                    ? L10nManager.l10n.collectionDate
+                    : L10nManager.l10n.repaymentDate,
                 prefixIcon: const Icon(Icons.calendar_today_outlined),
                 readOnly: true,
                 enabled: false,
@@ -205,4 +206,4 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
       ),
     );
   }
-} 
+}

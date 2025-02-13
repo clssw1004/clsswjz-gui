@@ -714,5 +714,5 @@
     "@collectionDate": {
         "description": "Collection date label"
     },
-    "repaymentDate": "Repayment Date"
+    "repaymentDate": "Repayment Date",
 }

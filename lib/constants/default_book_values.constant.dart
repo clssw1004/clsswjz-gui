@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:clsswjz/enums/account_type.dart';
 import 'package:clsswjz/enums/debt_type.dart';
+import 'package:clsswjz/manager/l10n_manager.dart';
 
 import '../enums/fund_type.dart';
 import '../enums/symbol_type.dart';
@@ -29,6 +30,14 @@ final _debtCategoryData = [
       name: DebtType.lend.text,
       categoryType: AccountItemType.transfer,
       code: DebtType.lend.code),
+  CategoryData(
+      name: DebtType.lend.operationText,
+      categoryType: AccountItemType.transfer,
+      code: DebtType.lend.operationCategory),
+  CategoryData(
+      name: DebtType.borrow.operationText,
+      categoryType: AccountItemType.transfer,
+      code: DebtType.borrow.operationCategory),
 ];
 
 class CategoryData {

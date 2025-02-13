@@ -18,6 +18,24 @@ enum DebtType {
     }
   }
 
+  String get operationText {
+    switch (this) {
+      case DebtType.lend:
+        return L10nManager.l10n.collection;
+      case DebtType.borrow:
+        return L10nManager.l10n.repayment;
+    }
+  }
+
+  String get operationCategory {
+    switch (this) {
+      case DebtType.lend:
+        return 'collection';
+      case DebtType.borrow:
+        return 'repayment';
+    }
+  }
+
   static DebtType fromCode(String code) {
     return DebtType.values.firstWhere(
       (type) => type.code == code,
