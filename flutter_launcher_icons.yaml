@@ -3,7 +3,7 @@ flutter_launcher_icons:
   android: true
   image_path: "assets/images/app_logo.png"
   adaptive_icon_background: "#FFFFFF" # 设置自适应图标的背景色
-  adaptive_icon_foreground: "assets/images/app_logo_foreground.png" # 设置带有安全边距的前景图
+  adaptive_icon_foreground: "assets/images/app_logo.png" # 设置带有安全边距的前景图
   min_sdk_android: 21 # android min sdk min:16, default 21
 
   ios: true
