@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
 import '../../enums/account_type.dart';
+import '../../enums/business_type.dart';
 import '../../enums/debt_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
+import '../../models/vo/user_debt_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
@@ -15,7 +17,7 @@ import '../../theme/theme_spacing.dart';
 
 class DebtPaymentPage extends StatefulWidget {
   final BookMetaVO book;
-  final AccountDebt debt;
+  final UserDebtVO debt;
 
   const DebtPaymentPage({
     super.key,
@@ -87,7 +89,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           categoryCode: _debtType.operationCategory,
           type: AccountItemType.transfer,
           description: _remarkController.text,
-          accountDate: '$_paymentDate 00:00:00');
+          accountDate: '$_paymentDate 00:00:00',
+          source: BusinessType.debt.code,
+          sourceId: widget.debt.id);
       if (mounted) {
         Navigator.of(context).pop(true);
       }

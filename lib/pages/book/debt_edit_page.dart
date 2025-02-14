@@ -1,28 +1,34 @@
+import 'package:clsswjz/models/vo/user_item_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
+import '../../drivers/driver_factory.dart';
+import '../../enums/business_type.dart';
 import '../../enums/debt_type.dart';
+import '../../enums/debt_clear_state.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
+import '../../models/vo/user_debt_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/common/common_badge.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/color_util.dart';
-import '../../drivers/driver_factory.dart';
-import '../../manager/app_config_manager.dart';
-import '../../enums/debt_clear_state.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../pages/book/debt_payment_page.dart';
 
 class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
-  final AccountDebt debt;
+  final UserDebtVO debt;
+  final List<UserItemVO> items;
 
   const DebtEditPage({
     super.key,
     required this.book,
     required this.debt,
+    required this.items,
   });
 
   @override
@@ -39,8 +45,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
   late String _selectedDate;
   late DebtClearState _clearState;
 
-  List<AccountFund> get _accounts => widget.book.funds ?? [];
-
   @override
   void initState() {
     super.initState();
@@ -53,7 +57,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
     _amountController.text = widget.debt.amount.toString();
     _selectedAccountId = widget.debt.fundId;
     _selectedDate = widget.debt.debtDate;
-    _clearState = DebtClearState.fromCode(widget.debt.clearState);
+    _clearState = widget.debt.clearState;
   }
 
   @override
@@ -299,142 +303,393 @@ class _DebtEditPageState extends State<DebtEditPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 第一行：债务类型、债务人和状态
+                  Row(
+                    children: [
+                      // 借出/借入标签
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: ColorUtil.getDebtAmountColor(_debtType)
+                              .withAlpha(24),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _debtType == DebtType.lend
+                                  ? Icons.arrow_circle_up_outlined
+                                  : Icons.arrow_circle_down_outlined,
+                              color: ColorUtil.getDebtAmountColor(_debtType),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.debt.debtType == DebtType.lend.code
+                                  ? L10nManager.l10n.lend
+                                  : L10nManager.l10n.borrow,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: ColorUtil.getDebtAmountColor(_debtType),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // 债务人
+                      Expanded(
+                        child: Text(
+                          widget.debt.debtor,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // 状态标签
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _clearState.color.withAlpha(24),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _clearState.color.withAlpha(50),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          _clearState.text,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: _clearState.color,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // 第二行：金额显示
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color:
+                          ColorUtil.getDebtAmountColor(_debtType).withAlpha(12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.book.currencySymbol.symbol,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: ColorUtil.getDebtAmountColor(_debtType),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _amountController.text,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: ColorUtil.getDebtAmountColor(_debtType),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // 第三行：日期和账户信息
+                  Row(
+                    children: [
+                      // 日期
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              size: 16,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _selectedDate,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // 账户
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet_outlined,
+                              size: 16,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.debt.fundName,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 第一个卡片：借出/借入记录
+            CommonCardContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 标题
                   Row(
                     children: [
                       Icon(
                         _debtType == DebtType.lend
                             ? Icons.arrow_circle_up_outlined
                             : Icons.arrow_circle_down_outlined,
-                        color: ColorUtil.getDebtAmountColor(_debtType),
+                        size: 20,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        widget.debt.debtType == DebtType.lend.code
+                        _debtType == DebtType.lend
                             ? L10nManager.l10n.lend
                             : L10nManager.l10n.borrow,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: ColorUtil.getDebtAmountColor(_debtType),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.debt.debtor,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      CommonBadge(
-                        text: _clearState.text,
-                        textColor: _clearState.color,
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: spacing.formItemSpacing),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${widget.book.currencySymbol.symbol} ${_amountController.text}',
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            color: ColorUtil.getDebtAmountColor(_debtType),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.account_balance_wallet_outlined,
-                          color: theme.colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        _accounts
-                            .firstWhere(
-                                (account) => account.id == _selectedAccountId)
-                            .name,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
+                  ),
+                  // 借出/借入记录列表
+                  _buildItemList(
+                    context,
+                    widget.items
+                        .where((item) =>
+                            item.categoryCode ==
+                            (_debtType == DebtType.lend ? 'lend' : 'borrow'))
+                        .toList(),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: spacing.formItemSpacing),
+            const SizedBox(height: 16),
+            // 第二个卡片：收款/还款记录
             CommonCardContainer(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 标题
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Icon(
+                        _debtType == DebtType.lend
+                            ? Icons.arrow_circle_down_outlined
+                            : Icons.arrow_circle_up_outlined,
+                        size: 20,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
                       Text(
-                        L10nManager.l10n.debtDate,
+                        _debtType == DebtType.lend
+                            ? L10nManager.l10n.collection
+                            : L10nManager.l10n.repayment,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (_clearState == DebtClearState.pending)
-                        TextButton.icon(
-                          onPressed: _saving ? null : () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => DebtPaymentPage(
-                                  book: widget.book,
-                                  debt: widget.debt,
-                                ),
+                      const Spacer(),
+                      // 添加还款/借款按钮
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DebtPaymentPage(
+                                book: widget.book,
+                                debt: widget.debt,
                               ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            size: 20,
-                            color: colorScheme.primary,
-                          ),
-                          label: Text(
-                            _debtType == DebtType.lend
-                                ? L10nManager.l10n.collection
-                                : L10nManager.l10n.repayment,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: colorScheme.primary,
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                          ),
+                          ).then((updated) {
+                            if (updated == true) {
+                              // 刷新数据
+                              // _loadItems();
+                            }
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          minimumSize: const Size(0, 32),
+                          foregroundColor: theme.colorScheme.primary,
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.add,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(_debtType == DebtType.lend
+                                ? L10nManager.l10n.collection
+                                : L10nManager.l10n.repayment),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  ListTile(
-                    leading: Icon(Icons.calendar_today_outlined,
-                        color: theme.colorScheme.primary),
-                    title: Text(_selectedDate),
-                    contentPadding: EdgeInsets.zero,
+                  // 收款/还款记录列表
+                  _buildItemList(
+                    context,
+                    widget.items
+                        .where((item) =>
+                            item.categoryCode ==
+                            (_debtType == DebtType.lend
+                                ? 'collection'
+                                : 'repayment'))
+                        .toList(),
                   ),
-                  Divider(height: 1),
-                  if (widget.debt.expectedClearDate != null)
-                    ListTile(
-                      leading: Icon(Icons.event_available_outlined,
-                          color: theme.colorScheme.primary),
-                      title: Text(L10nManager.l10n.expectedClearDate),
-                      subtitle: Text(widget.debt.expectedClearDate!),
-                      contentPadding: EdgeInsets.zero,
-                    ),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildItemList(BuildContext context, List<UserItemVO> items) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Text(
+            L10nManager.l10n.noData,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 12),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
+        color: colorScheme.outlineVariant.withAlpha(40),
+      ),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              // 日期
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      item.accountDate?.split(' ')[0] ?? '',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // 账户
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      item.fundName ?? '',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // 金额
+              Text(
+                item.amount.toString(),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: ColorUtil.getDebtAmountColor(_debtType),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

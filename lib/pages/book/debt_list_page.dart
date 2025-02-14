@@ -1,26 +1,29 @@
+import 'package:clsswjz/drivers/driver_factory.dart';
+import 'package:clsswjz/enums/business_type.dart';
+import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import '../../models/vo/user_book_vo.dart';
+import '../../manager/app_config_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../models/vo/user_debt_vo.dart';
 import '../../providers/debt_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../manager/l10n_manager.dart';
-import '../../database/database.dart';
 import '../../enums/debt_type.dart';
 import '../../utils/color_util.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_card_container.dart';
-import '../../manager/service_manager.dart';
 import '../../routes/app_routes.dart';
 
 class DebtListPage extends StatefulWidget {
-  final UserBookVO accountBook;
+  final BookMetaVO bookMeta;
 
   const DebtListPage({
     super.key,
-    required this.accountBook,
+    required this.bookMeta,
   });
 
   @override
@@ -81,12 +84,21 @@ class _DebtListPageState extends State<DebtListPage> {
                     return _DebtTile(
                       debt: debt,
                       onTap: () async {
-                        final bookMeta = await ServiceManager.accountBookService.toBookMeta(widget.accountBook);
                         if (context.mounted) {
+                          final itemResult = await DriverFactory.driver
+                              .listItemsByBook(AppConfigManager.instance.userId,
+                                  widget.bookMeta.id,
+                                  filter: ItemFilterDTO(
+                                      source: BusinessType.debt.code,
+                                      sourceIds: [debt.id]));
                           Navigator.pushNamed(
                             context,
                             AppRoutes.debtEdit,
-                            arguments: [bookMeta, debt],
+                            arguments: [
+                              widget.bookMeta,
+                              debt,
+                              itemResult.ok ? itemResult.data : [],
+                            ],
                           ).then((updated) {
                             if (updated == true) {
                               context.read<DebtListProvider>().loadDebts();
@@ -118,7 +130,7 @@ class _DebtListPageState extends State<DebtListPage> {
           Navigator.pushNamed(
             context,
             '/debt/add',
-            arguments: [widget.accountBook],
+            arguments: [widget.bookMeta],
           ).then((added) {
             if (added == true) {
               context.read<DebtListProvider>().loadDebts();
@@ -132,7 +144,7 @@ class _DebtListPageState extends State<DebtListPage> {
 }
 
 class _DebtTile extends StatelessWidget {
-  final AccountDebt debt;
+  final UserDebtVO debt;
   final VoidCallback? onTap;
 
   const _DebtTile({
@@ -170,15 +182,17 @@ class _DebtTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      debtType == DebtType.lend 
-                        ? Icons.arrow_circle_up_outlined 
-                        : Icons.arrow_circle_down_outlined,
+                      debtType == DebtType.lend
+                          ? Icons.arrow_circle_up_outlined
+                          : Icons.arrow_circle_down_outlined,
                       size: 16,
                       color: amountColor,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
+                      debtType == DebtType.lend
+                          ? L10nManager.l10n.lend
+                          : L10nManager.l10n.borrow,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: amountColor,
                         fontWeight: FontWeight.bold,
@@ -230,7 +244,8 @@ class _DebtTile extends StatelessWidget {
               Hero(
                 tag: 'debt_amount_${debt.id}',
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: amountColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),

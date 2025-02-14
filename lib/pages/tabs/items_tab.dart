@@ -135,7 +135,7 @@ class _ItemsTabState extends State<ItemsTab> with SingleTickerProviderStateMixin
                     },
                   ),
                   DebtsContainer(
-                    accountBook: accountBook,
+                    bookMeta: bookProvider.selectedBook,
                     loading: itemListProvider.loading,
                   ),
                 ],

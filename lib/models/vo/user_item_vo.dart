@@ -86,6 +86,12 @@ class UserItemVO {
   /// 更新时间（格式化）
   String updatedAtString;
 
+  /// 账目来源
+  String? source;
+
+  /// 账目来源ID
+  String? sourceId;
+
   UserItemVO({
     required this.id,
     required this.amount,
@@ -111,6 +117,8 @@ class UserItemVO {
     this.updatedByName,
     required this.createdAtString,
     required this.updatedAtString,
+    this.source,
+    this.sourceId,
   });
 
   /// 从账目对象创建视图对象
@@ -147,6 +155,8 @@ class UserItemVO {
       projectName: projectName,
       createdByName: createdByName,
       updatedByName: updatedByName,
+      source: item.source,
+      sourceId: item.sourceId,
       createdAtString: _formatTimestamp(item.createdAt),
       updatedAtString: _formatTimestamp(item.updatedAt),
     );

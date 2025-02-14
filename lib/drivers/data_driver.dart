@@ -11,6 +11,7 @@ import '../enums/fund_type.dart';
 import '../enums/note_type.dart';
 import '../models/common.dart';
 import '../models/dto/item_filter_dto.dart';
+import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/vo/attachment_vo.dart';
 import '../models/vo/user_fund_vo.dart';
@@ -227,7 +228,7 @@ abstract class BookDataDriver {
 
   /// 债务相关
   /// 获取债务列表
-  Future<OperateResult<List<AccountDebt>>> listDebtsByBook(
+  Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
       String userId, String bookId,
       {int limit = 200, int offset = 0, String? keyword});
 

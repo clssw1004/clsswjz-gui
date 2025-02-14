@@ -1,22 +1,26 @@
+import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../drivers/driver_factory.dart';
+import '../../enums/business_type.dart';
+import '../../manager/app_config_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/user_debt_vo.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../routes/app_routes.dart';
 import '../../enums/debt_type.dart';
 import '../../utils/color_util.dart';
 import '../../providers/debt_list_provider.dart';
-import '../../database/database.dart';
-import '../../manager/service_manager.dart';
 
 class DebtsContainer extends StatelessWidget {
-  final UserBookVO? accountBook;
+  final BookMetaVO? bookMeta;
   final bool loading;
 
   const DebtsContainer({
     super.key,
-    this.accountBook,
+    required this.bookMeta,
     this.loading = false,
   });
 
@@ -44,14 +48,14 @@ class DebtsContainer extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: accountBook == null
-                      ? null
-                      : () {
+                  onPressed: bookMeta?.permission.canViewItem == true
+                      ? () {
                           Navigator.of(context).pushNamed(
                             AppRoutes.debtList,
-                            arguments: accountBook,
+                            arguments: bookMeta,
                           );
-                        },
+                        }
+                      : null,
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),
@@ -115,12 +119,21 @@ class DebtsContainer extends StatelessWidget {
                   return _DebtItem(
                     debt: debt,
                     onTap: () async {
-                      final bookMeta = await ServiceManager.accountBookService.toBookMeta(accountBook!);
                       if (context.mounted) {
+                        final itemResult = await DriverFactory.driver
+                            .listItemsByBook(
+                                AppConfigManager.instance.userId, bookMeta!.id,
+                                filter: ItemFilterDTO(
+                                    source: BusinessType.debt.code,
+                                    sourceIds: [debt.id]));
                         Navigator.pushNamed(
                           context,
                           AppRoutes.debtEdit,
-                          arguments: [bookMeta, debt],
+                          arguments: [
+                            bookMeta,
+                            debt,
+                            itemResult.ok ? itemResult.data : [],
+                          ],
                         ).then((updated) {
                           if (updated == true) {
                             context.read<DebtListProvider>().loadDebts();
@@ -140,7 +153,7 @@ class DebtsContainer extends StatelessWidget {
 }
 
 class _DebtItem extends StatelessWidget {
-  final AccountDebt debt;
+  final UserDebtVO debt;
   final VoidCallback? onTap;
 
   const _DebtItem({
@@ -179,7 +192,9 @@ class _DebtItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                debtType == DebtType.lend ? L10nManager.l10n.lend : L10nManager.l10n.borrow,
+                debtType == DebtType.lend
+                    ? L10nManager.l10n.lend
+                    : L10nManager.l10n.borrow,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: ColorUtil.getDebtAmountColor(debtType),
                   fontWeight: FontWeight.w500,
@@ -213,4 +228,4 @@ class _DebtItem extends StatelessWidget {
       ),
     );
   }
-} 
+}

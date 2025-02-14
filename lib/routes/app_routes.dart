@@ -1,10 +1,10 @@
-import 'package:clsswjz/database/database.dart';
 import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
 import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
+import '../models/vo/user_debt_vo.dart';
 import '../pages/book/book_list_page.dart';
 import '../pages/book/item_add_page.dart';
 import '../pages/book/item_edit_page.dart';
@@ -98,7 +98,9 @@ class AppRoutes {
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
-      builder: (context) => AppConfigManager.isAppInit() ? const HomePage() : const ServerConfigPage(),
+      builder: (context) => AppConfigManager.isAppInit()
+          ? const HomePage()
+          : const ServerConfigPage(),
     );
   }
 
@@ -115,7 +117,8 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
       final accountBook = args[0] as UserBookVO;
-      final item = args.length > 1 && args[1] != null ? args[1] as UserItemVO : null;
+      final item =
+          args.length > 1 && args[1] != null ? args[1] as UserItemVO : null;
       return ItemAddPage(accountBook: accountBook, item: item);
     },
     itemEdit: (context) {
@@ -173,14 +176,15 @@ class AppRoutes {
       return DebtAddPage(book: accountBook);
     },
     debtList: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
-      return DebtListPage(accountBook: args);
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
+      return DebtListPage(bookMeta: args);
     },
     debtEdit: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as BookMetaVO;
-      final debt = args[1] as AccountDebt;
-      return DebtEditPage(book: accountBook, debt: debt);
+      final debt = args[1] as UserDebtVO;
+      final items = args[2] as List<UserItemVO>;
+      return DebtEditPage(book: accountBook, debt: debt,items:items);
     },
   };
 }

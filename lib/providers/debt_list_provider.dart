@@ -6,6 +6,7 @@ import '../events/event_bus.dart';
 import '../events/event_sync.dart';
 import '../manager/app_config_manager.dart';
 import '../database/database.dart';
+import '../models/vo/user_debt_vo.dart';
 
 /// 债务列表数据提供者
 class DebtListProvider extends ChangeNotifier {
@@ -13,7 +14,7 @@ class DebtListProvider extends ChangeNotifier {
   late final StreamSubscription _syncSubscription;
 
   /// 债务列表
-  final List<AccountDebt> _debts = [];
+  final List<UserDebtVO> _debts = [];
 
   /// 是否正在加载债务列表
   bool _loading = false;
@@ -34,7 +35,7 @@ class DebtListProvider extends ChangeNotifier {
   bool _loadingMore = false;
 
   /// 获取债务列表
-  List<AccountDebt> get debts => _debts;
+  List<UserDebtVO> get debts => _debts;
 
   /// 获取是否正在加载债务列表
   bool get loading => _loading;

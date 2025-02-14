@@ -35,32 +35,38 @@ class ItemFilterDTO {
   /// 结束日期
   final String? endDate;
 
-  const ItemFilterDTO({
-    this.types,
-    this.categoryCodes,
-    this.shopCodes,
-    this.fundIds,
-    this.tagCodes,
-    this.projectCodes,
-    this.minAmount,
-    this.maxAmount,
-    this.startDate,
-    this.endDate,
-  });
+  final String? source;
+
+  final List<String>? sourceIds;
+
+  const ItemFilterDTO(
+      {this.types,
+      this.categoryCodes,
+      this.shopCodes,
+      this.fundIds,
+      this.tagCodes,
+      this.projectCodes,
+      this.minAmount,
+      this.maxAmount,
+      this.startDate,
+      this.endDate,
+      this.source,
+      this.sourceIds});
 
   /// 复制并修改
-  ItemFilterDTO copyWith({
-    List<String>? types,
-    List<String>? categoryCodes,
-    List<String>? shopCodes,
-    List<String>? fundIds,
-    List<String>? tagCodes,
-    List<String>? projectCodes,
-    double? minAmount,
-    double? maxAmount,
-    String? startDate,
-    String? endDate,
-  }) {
+  ItemFilterDTO copyWith(
+      {List<String>? types,
+      List<String>? categoryCodes,
+      List<String>? shopCodes,
+      List<String>? fundIds,
+      List<String>? tagCodes,
+      List<String>? projectCodes,
+      double? minAmount,
+      double? maxAmount,
+      String? startDate,
+      String? endDate,
+      String? source,
+      String? sourceId}) {
     return ItemFilterDTO(
       types: types ?? this.types,
       categoryCodes: categoryCodes ?? this.categoryCodes,
@@ -72,6 +78,8 @@ class ItemFilterDTO {
       maxAmount: maxAmount ?? this.maxAmount,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      source: source ?? this.source,
+      sourceIds: sourceIds ?? this.sourceIds,
     );
   }
 
@@ -106,6 +114,8 @@ class ItemFilterDTO {
       maxAmount: map['maxAmount']?.toDouble(),
       startDate: map['startDate']?.toString(),
       endDate: map['endDate']?.toString(),
+      source: map['source']?.toString(),
+      sourceIds: (map['sourceIds'] as List?)?.map((e) => e.toString()).toList(),
     );
     return filter;
   }
@@ -142,6 +152,12 @@ class ItemFilterDTO {
     }
     if (filter.endDate != null) {
       map['endDate'] = filter.endDate;
+    }
+    if (filter.source != null) {
+      map['source'] = filter.source;
+    }
+    if (filter.sourceIds?.isNotEmpty == true) {
+      map['sourceIds'] = filter.sourceIds;
     }
     return jsonEncode(map);
   }

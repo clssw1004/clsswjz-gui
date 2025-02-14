@@ -23,6 +23,7 @@ import '../../enums/debt_type.dart';
 import '../../enums/note_type.dart';
 import '../../manager/service_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
+import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -607,12 +608,12 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<AccountDebt>>> listDebtsByBook(
+  Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
       String userId, String bookId,
       {int limit = 200, int offset = 0, String? keyword}) async {
     final debts = await DaoManager.debtDao
         .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
-    return OperateResult.success(debts);
+    return OperateResult.success(await VOTransfer.transferDebts(debts));
   }
 
   @override
