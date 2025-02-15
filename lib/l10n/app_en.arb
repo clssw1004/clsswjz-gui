@@ -98,12 +98,21 @@
         "description": "Add new item text",
         "placeholders": {
             "value": {
-                "type": "String",
+                "type": "Object",
                 "example": "Category"
             }
         }
     },
     "editTo": "Edit {value}",
+    "@editTo": {
+        "description": "Edit something",
+        "placeholders": {
+            "value": {
+                "type": "Object",
+                "example": "Category"
+            }
+        }
+    },
     "amountLabel": "Amount",
     "amount": "Amount",
     "@amount": {

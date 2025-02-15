@@ -1,4 +1,5 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../generated/l10n/app_localizations.dart';
 
 /// 国际化管理器
 class L10nManager {

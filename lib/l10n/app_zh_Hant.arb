@@ -98,7 +98,7 @@
         "description": "新增選項文本",
         "placeholders": {
             "value": {
-                "type": "String",
+                "type": "Object",
                 "example": "分類"
             }
         }
@@ -108,7 +108,7 @@
         "description": "編輯某項內容",
         "placeholders": {
             "value": {
-                "type": "String",
+                "type": "Object",
                 "example": "分類"
             }
         }
