@@ -448,7 +448,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                          color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -475,7 +475,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                          color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -608,10 +608,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                     context,
                     _items
                         .where((item) =>
-                            item.categoryCode ==
-                            (_debtType == DebtType.lend
-                                ? 'collection'
-                                : 'repayment'))
+                            item.categoryCode == _debtType.operationCategory)
                         .toList(),
                   ),
                 ],
@@ -634,7 +631,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
           child: Text(
             L10nManager.l10n.noData,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+              color: colorScheme.onSurfaceVariant.withAlpha(191),
             ),
           ),
         ),
@@ -660,7 +657,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                  color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -686,7 +683,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                  color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(

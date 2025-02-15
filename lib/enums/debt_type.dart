@@ -30,9 +30,9 @@ enum DebtType {
   String get operationCategory {
     switch (this) {
       case DebtType.lend:
-        return 'collection';
+        return 'COLLECTION';
       case DebtType.borrow:
-        return 'repayment';
+        return 'REPAYMENT';
     }
   }
 
