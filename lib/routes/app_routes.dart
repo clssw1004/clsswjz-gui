@@ -183,8 +183,7 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as BookMetaVO;
       final debt = args[1] as UserDebtVO;
-      final items = args[2] as List<UserItemVO>;
-      return DebtEditPage(book: accountBook, debt: debt,items:items);
+      return DebtEditPage(book: accountBook, debt: debt);
     },
   };
 }

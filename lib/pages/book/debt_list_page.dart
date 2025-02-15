@@ -85,19 +85,12 @@ class _DebtListPageState extends State<DebtListPage> {
                       debt: debt,
                       onTap: () async {
                         if (context.mounted) {
-                          final itemResult = await DriverFactory.driver
-                              .listItemsByBook(AppConfigManager.instance.userId,
-                                  widget.bookMeta.id,
-                                  filter: ItemFilterDTO(
-                                      source: BusinessType.debt.code,
-                                      sourceIds: [debt.id]));
                           Navigator.pushNamed(
                             context,
                             AppRoutes.debtEdit,
                             arguments: [
                               widget.bookMeta,
                               debt,
-                              itemResult.ok ? itemResult.data : [],
                             ],
                           ).then((updated) {
                             if (updated == true) {

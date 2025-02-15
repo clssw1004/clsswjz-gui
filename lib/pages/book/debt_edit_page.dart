@@ -22,13 +22,11 @@ import '../../pages/book/debt_payment_page.dart';
 class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
   final UserDebtVO debt;
-  final List<UserItemVO> items;
 
   const DebtEditPage({
     super.key,
     required this.book,
     required this.debt,
-    required this.items,
   });
 
   @override
@@ -44,11 +42,14 @@ class _DebtEditPageState extends State<DebtEditPage> {
   bool _saving = false;
   late String _selectedDate;
   late DebtClearState _clearState;
+  List<UserItemVO> _items = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _initData();
+    _loadItems();
   }
 
   void _initData() {
@@ -65,6 +66,37 @@ class _DebtEditPageState extends State<DebtEditPage> {
     _debtorController.dispose();
     _amountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadItems() async {
+    setState(() {
+      _loading = true;
+    });
+
+    try {
+      final itemResult = await DriverFactory.driver.listItemsByBook(
+        AppConfigManager.instance.userId,
+        widget.book.id,
+        filter: ItemFilterDTO(
+          source: BusinessType.debt.code,
+          sourceIds: [widget.debt.id],
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _items = itemResult.ok ? itemResult.data ?? [] : [];
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _items = [];
+          _loading = false;
+        });
+      }
+    }
   }
 
   Future<void> _markAsCleared() async {
@@ -499,10 +531,8 @@ class _DebtEditPageState extends State<DebtEditPage> {
                   // 借出/借入记录列表
                   _buildItemList(
                     context,
-                    widget.items
-                        .where((item) =>
-                            item.categoryCode ==
-                            (_debtType == DebtType.lend ? 'lend' : 'borrow'))
+                    _items
+                        .where((item) => item.categoryCode == _debtType.code)
                         .toList(),
                   ),
                 ],
@@ -548,7 +578,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                           ).then((updated) {
                             if (updated == true) {
                               // 刷新数据
-                              // _loadItems();
+                              _loadItems();
                             }
                           });
                         },
@@ -576,7 +606,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                   // 收款/还款记录列表
                   _buildItemList(
                     context,
-                    widget.items
+                    _items
                         .where((item) =>
                             item.categoryCode ==
                             (_debtType == DebtType.lend

@@ -120,19 +120,12 @@ class DebtsContainer extends StatelessWidget {
                     debt: debt,
                     onTap: () async {
                       if (context.mounted) {
-                        final itemResult = await DriverFactory.driver
-                            .listItemsByBook(
-                                AppConfigManager.instance.userId, bookMeta!.id,
-                                filter: ItemFilterDTO(
-                                    source: BusinessType.debt.code,
-                                    sourceIds: [debt.id]));
                         Navigator.pushNamed(
                           context,
                           AppRoutes.debtEdit,
                           arguments: [
                             bookMeta,
                             debt,
-                            itemResult.ok ? itemResult.data : [],
                           ],
                         ).then((updated) {
                           if (updated == true) {
