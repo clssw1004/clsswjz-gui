@@ -723,5 +723,16 @@
     "@collectionDate": {
         "description": "Collection date label"
     },
-    "repaymentDate": "Repayment Date"
+    "repaymentDate": "Repayment Date",
+    "@repaymentDate": {
+        "description": "Repayment date label"
+    },
+    "remainingReceivable": "Remaining Receivable",
+    "@remainingReceivable": {
+        "description": "Remaining receivable amount label"
+    },
+    "remainingPayable": "Remaining Payable",
+    "@remainingPayable": {
+        "description": "Remaining payable amount label"
+    }
 }

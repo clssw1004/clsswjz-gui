@@ -734,5 +734,13 @@
     "repaymentDate": "还款日期",
     "@repaymentDate": {
         "description": "还款日期标签"
+    },
+    "remainingReceivable": "待收金额",
+    "@remainingReceivable": {
+        "description": "待收金额标签"
+    },
+    "remainingPayable": "待还金额",
+    "@remainingPayable": {
+        "description": "待还金额标签"
     }
 }

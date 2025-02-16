@@ -34,7 +34,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
   final _amountController = TextEditingController(text: '0.00');
   final _remarkController = TextEditingController();
   final _paymentDateController = TextEditingController();
-  String? _selectedAccountId;
+  String? _fundId;
   bool _saving = false;
   late String _paymentDate;
 
@@ -89,6 +89,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           categoryCode: _debtType.operationCategory,
           type: AccountItemType.transfer,
           description: _remarkController.text,
+          fundId: _fundId,
           accountDate: '$_paymentDate 00:00:00',
           source: BusinessType.debt.code,
           sourceId: widget.debt.id);
@@ -156,7 +157,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
             CommonSelectFormField<AccountFund>(
               items: _accounts,
               hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
-              value: _selectedAccountId,
+              value: _fundId,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.name,
               keyField: (item) => item.id,
@@ -167,11 +168,11 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                 final account = value as AccountFund?;
                 if (account != null) {
                   setState(() {
-                    _selectedAccountId = account.id;
+                    _fundId = account.id;
                   });
                 } else {
                   setState(() {
-                    _selectedAccountId = null;
+                    _fundId = null;
                   });
                 }
               },

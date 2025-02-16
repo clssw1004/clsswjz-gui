@@ -1638,11 +1638,23 @@ abstract class AppLocalizations {
   /// **'Collection Date'**
   String get collectionDate;
 
-  /// No description provided for @repaymentDate.
+  /// Repayment date label
   ///
   /// In en, this message translates to:
   /// **'Repayment Date'**
   String get repaymentDate;
+
+  /// Remaining receivable amount label
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining Receivable'**
+  String get remainingReceivable;
+
+  /// Remaining payable amount label
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining Payable'**
+  String get remainingPayable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

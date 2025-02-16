@@ -1,3 +1,5 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -835,6 +837,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get repaymentDate => '还款日期';
+
+  @override
+  String get remainingReceivable => '待收金额';
+
+  @override
+  String get remainingPayable => '待还金额';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1622,4 +1630,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get debtDate => '債務日期';
+
+  @override
+  String get remainingReceivable => '待收金額';
+
+  @override
+  String get remainingPayable => '待還金額';
 }

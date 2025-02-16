@@ -620,5 +620,13 @@
     "debtDate": "債務日期",
     "@debtDate": {
         "description": "債務日期標籤"
+    },
+    "remainingReceivable": "待收金額",
+    "@remainingReceivable": {
+        "description": "待收金額標籤"
+    },
+    "remainingPayable": "待還金額",
+    "@remainingPayable": {
+        "description": "待還金額標籤"
     }
 }

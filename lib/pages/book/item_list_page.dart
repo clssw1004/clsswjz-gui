@@ -41,7 +41,8 @@ class _ItemListPageState extends State<ItemListPage> {
   }
 
   Future<void> _initBookMeta() async {
-    final meta = await ServiceManager.accountBookService.toBookMeta(widget.accountBook);
+    final meta =
+        await ServiceManager.accountBookService.toBookMeta(widget.accountBook);
     if (mounted) {
       setState(() {
         _bookMeta = meta!;
@@ -169,6 +170,10 @@ class _ItemListPageState extends State<ItemListPage> {
           accountBook: widget.accountBook,
           onItemTap: (item) {
             _onTabItem(provider, item);
+          },
+          onDelete: (item) async {
+            await provider.deleteItem(item);
+            return true;
           },
         );
       case ItemViewMode.timeline:
