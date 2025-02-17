@@ -10,7 +10,6 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_segmented_button.dart';
 import '../../widgets/common/common_select_form_field.dart';
-import '../../widgets/common/common_badge.dart';
 import '../../widgets/book/amount_input.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';

@@ -90,8 +90,6 @@ class _NotesTabState extends State<NotesTab>
       case NoteType.note:
         route = AppRoutes.noteAdd;
         break;
-      default:
-        throw UnimplementedError('Unsupported note type: $type');
     }
     final provider = Provider.of<BooksProvider>(context, listen: false);
     _toggleFab();

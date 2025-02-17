@@ -36,7 +36,6 @@ class NoteTile extends StatefulWidget {
 class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
   late final AnimationController _controller;
-  late final Animation<double> _expandAnimation;
 
   @override
   void initState() {
@@ -45,10 +44,7 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _expandAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+
   }
 
   @override
@@ -85,7 +81,7 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
       final document = Document.fromJson(delta);
       return document.toPlainText();
     } catch (e) {
-      return content ?? '';
+      return content;
     }
   }
 

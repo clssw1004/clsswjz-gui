@@ -1,7 +1,6 @@
 import 'package:clsswjz/models/vo/user_item_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../enums/business_type.dart';
 import '../../enums/debt_type.dart';
@@ -16,10 +15,7 @@ import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/color_util.dart';
 import '../../widgets/common/common_card_container.dart';
-import '../../pages/book/debt_payment_page.dart';
 import '../../routes/app_routes.dart';
-import 'package:provider/provider.dart';
-import '../../providers/debt_list_provider.dart';
 import '../../widgets/common/common_tag.dart';
 
 class DebtEditPage extends StatefulWidget {

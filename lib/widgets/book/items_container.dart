@@ -158,9 +158,9 @@ class ItemsContainer extends StatelessWidget {
                             const SizedBox(width: 11),
                             // 时间
                             Text(
-                              item.accountTimeOnly?.toString() ?? '',
+                              item.accountTimeOnly.toString(),
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+                                color: colorScheme.onSurfaceVariant.withAlpha(100),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -169,7 +169,7 @@ class ItemsContainer extends StatelessWidget {
                               Text(
                                 item.shopName!,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+                                  color: colorScheme.onSurfaceVariant.withAlpha(100),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -182,7 +182,7 @@ class ItemsContainer extends StatelessWidget {
                                 child: Text(
                                   item.description!,
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+                                    color: colorScheme.onSurfaceVariant.withAlpha(100),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -194,7 +194,7 @@ class ItemsContainer extends StatelessWidget {
                             Text(
                               item.fundName ?? '',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+                                color: colorScheme.onSurfaceVariant.withAlpha(100),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
