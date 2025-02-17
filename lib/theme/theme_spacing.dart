@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// 主题间距配置
+@immutable
 class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
   /// 表单项垂直间距
   final double formItemSpacing;
@@ -36,22 +37,26 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
   /// 加载更多区域内边距
   final EdgeInsets loadMorePadding;
 
+  /// 页面内边距
+  final EdgeInsets pagePadding;
+
   /// 底部弹出组件内边距
   final EdgeInsets bottomSheetPadding;
 
   const ThemeSpacing({
-    required this.formItemSpacing,
-    required this.formGroupSpacing,
-    required this.formPadding,
-    required this.formItemPadding,
-    required this.formGroupPadding,
-    required this.contentPadding,
-    required this.listPadding,
-    required this.listItemMargin,
-    required this.listItemPadding,
-    required this.listItemSpacing,
-    required this.loadMorePadding,
-    required this.bottomSheetPadding,
+    this.formItemSpacing = 16.0,
+    this.formGroupSpacing = 24.0,
+    this.formPadding = const EdgeInsets.all(16.0),
+    this.formItemPadding = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+    this.formGroupPadding = const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+    this.contentPadding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+    this.listPadding = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+    this.listItemMargin = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+    this.listItemPadding = const EdgeInsets.all(12.0),
+    this.listItemSpacing = 8.0,
+    this.loadMorePadding = const EdgeInsets.symmetric(vertical: 8.0),
+    this.bottomSheetPadding = const EdgeInsets.all(16.0),
+    this.pagePadding = const EdgeInsets.all(16.0),
   });
 
   /// 根据屏幕尺寸创建间距配置
@@ -106,6 +111,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
         horizontal: 16,
         vertical: 16,
       ),
+      pagePadding: EdgeInsets.all(horizontalPadding),
     );
   }
 
@@ -123,6 +129,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     double? listItemSpacing,
     EdgeInsets? loadMorePadding,
     EdgeInsets? bottomSheetPadding,
+    EdgeInsets? pagePadding,
   }) {
     return ThemeSpacing(
       formItemSpacing: formItemSpacing ?? this.formItemSpacing,
@@ -137,6 +144,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemSpacing: listItemSpacing ?? this.listItemSpacing,
       loadMorePadding: loadMorePadding ?? this.loadMorePadding,
       bottomSheetPadding: bottomSheetPadding ?? this.bottomSheetPadding,
+      pagePadding: pagePadding ?? this.pagePadding,
     );
   }
 
@@ -162,6 +170,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listItemSpacing: lerpDouble(listItemSpacing, other.listItemSpacing, t)!,
       loadMorePadding: EdgeInsets.lerp(loadMorePadding, other.loadMorePadding, t)!,
       bottomSheetPadding: EdgeInsets.lerp(bottomSheetPadding, other.bottomSheetPadding, t)!,
+      pagePadding: EdgeInsets.lerp(pagePadding, other.pagePadding, t)!,
     );
   }
 }
@@ -169,4 +178,8 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
 /// 获取主题间距配置
 extension ThemeSpacingExtension on ThemeData {
   ThemeSpacing get spacing => extension<ThemeSpacing>()!;
+}
+
+double lerpDouble(double a, double b, double t) {
+  return a + (b - a) * t;
 }
