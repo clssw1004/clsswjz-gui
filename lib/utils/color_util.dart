@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../enums/account_type.dart';
 import '../enums/debt_type.dart';
+import '../models/vo/user_item_vo.dart' show UserItemVO;
 
 /// 颜色工具类
 class ColorUtil {
@@ -35,5 +36,29 @@ class ColorUtil {
       case DebtType.borrow:
         return INCOME;
     }
+  }
+
+  /// 获取债务金额颜色反转
+  static Color getDebtAmountReverseColor(DebtType type) {
+    switch (type) {
+      case DebtType.lend:
+        return INCOME;
+      case DebtType.borrow:
+        return EXPENSE;
+    }
+  }
+
+  /// 获取转账分类颜色
+  static Color getTransferCategoryColor(UserItemVO item) {
+    final category = item.categoryCode;
+    if (category == DebtType.borrow.code ||
+        category == DebtType.lend.operationCategory) {
+      return INCOME;
+    }
+    if (category == DebtType.lend.code ||
+        category == DebtType.borrow.operationCategory) {
+      return EXPENSE;
+    }
+    return TRANSFER;
   }
 }

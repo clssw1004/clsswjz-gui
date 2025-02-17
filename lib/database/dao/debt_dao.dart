@@ -27,4 +27,4 @@ class DebtDao extends BaseBookDao<AccountDebtTable, AccountDebt> {
     }
     return query.get();
   }
-} 
+}

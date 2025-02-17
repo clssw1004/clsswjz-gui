@@ -18,10 +18,12 @@ import '../../utils/color_util.dart';
 
 class DebtAddPage extends StatefulWidget {
   final BookMetaVO book;
+  final String? debtor;
 
   const DebtAddPage({
     super.key,
     required this.book,
+    this.debtor,
   });
 
   @override
@@ -48,6 +50,10 @@ class _DebtAddPageState extends State<DebtAddPage> {
     // 初始化日期为当前日期
     _debtDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _debtDateController.text = _debtDate;
+    // 如果传入了债务人，则初始化债务人文本控制器
+    if (widget.debtor != null) {
+      _debtorController.text = widget.debtor!;
+    }
   }
 
   @override

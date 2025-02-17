@@ -11,7 +11,6 @@ import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
-import '../../models/vo/user_item_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
@@ -19,6 +18,8 @@ import '../../utils/color_util.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../pages/book/debt_payment_page.dart';
 import '../../routes/app_routes.dart';
+import 'package:provider/provider.dart';
+import '../../providers/debt_list_provider.dart';
 
 class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
@@ -44,15 +45,28 @@ class _DebtEditPageState extends State<DebtEditPage> {
   late String _selectedDate;
   late DebtClearState _clearState;
   List<UserItemVO> _items = [];
-  bool _loading = true;
+
+  List<UserItemVO> get _debtItems {
+    return _items.where((item) => item.categoryCode == _debtType.code).toList();
+  }
+
+  List<UserItemVO> get _operationItems {
+    return _items
+        .where((item) => item.categoryCode == _debtType.operationCategory)
+        .toList();
+  }
+
+  double get _debtAmount {
+    return _debtItems.fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double get _operationAmount {
+    return _operationItems.fold(0.0, (sum, item) => sum + item.amount);
+  }
 
   /// 获取剩余金额
   double get _remainingAmount {
-    final totalAmount = widget.debt.amount;
-    final paidAmount = _items
-        .where((item) => item.categoryCode == _debtType.operationCategory)
-        .fold(0.0, (sum, item) => sum + item.amount);
-    return totalAmount - paidAmount;
+    return _debtAmount - _operationAmount;
   }
 
   @override
@@ -79,10 +93,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
   }
 
   Future<void> _loadItems() async {
-    setState(() {
-      _loading = true;
-    });
-
     try {
       final itemResult = await DriverFactory.driver.listItemsByBook(
         AppConfigManager.instance.userId,
@@ -96,14 +106,12 @@ class _DebtEditPageState extends State<DebtEditPage> {
       if (mounted) {
         setState(() {
           _items = itemResult.ok ? itemResult.data ?? [] : [];
-          _loading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _items = [];
-          _loading = false;
         });
       }
     }
@@ -556,12 +564,43 @@ class _DebtEditPageState extends State<DebtEditPage> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 8),
                       Text(
-                        widget.debt.amount.toString(),
+                        _debtAmount.toString(),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: ColorUtil.getDebtAmountColor(_debtType),
                           fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.debtPayment,
+                            arguments: [
+                              _debtType == DebtType.lend
+                                  ? L10nManager.l10n.lend
+                                  : L10nManager.l10n.borrow,
+                              widget.book,
+                              widget.debt,
+                              _debtType.code,
+                            ],
+                          ).then((added) {
+                            if (added == true) {
+                              _loadItems();
+                            }
+                          });
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 32),
+                        ),
+                        icon: const Icon(Icons.add, size: 20),
+                        label: Text(
+                          _debtType == DebtType.lend
+                              ? L10nManager.l10n.lend
+                              : L10nManager.l10n.borrow,
                         ),
                       ),
                     ],
@@ -569,9 +608,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                   // 借出/借入记录列表
                   _buildItemList(
                     context,
-                    _items
-                        .where((item) => item.categoryCode == _debtType.code)
-                        .toList(),
+                    _debtItems,
                   ),
                 ],
               ),
@@ -603,15 +640,9 @@ class _DebtEditPageState extends State<DebtEditPage> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _items
-                            .where((item) =>
-                                item.categoryCode ==
-                                _debtType.operationCategory)
-                            .fold<double>(
-                                0, (sum, item) => sum + (item.amount ?? 0))
-                            .toString(),
+                        _operationAmount.toString(),
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: ColorUtil.getDebtAmountColor(_debtType),
+                          color: ColorUtil.getDebtAmountReverseColor(_debtType),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -619,14 +650,17 @@ class _DebtEditPageState extends State<DebtEditPage> {
                       // 添加还款/借款按钮
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushNamed(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => DebtPaymentPage(
-                                book: widget.book,
-                                debt: widget.debt,
-                              ),
-                            ),
+                            AppRoutes.debtPayment,
+                            arguments: [
+                              _debtType == DebtType.lend
+                                  ? L10nManager.l10n.collection
+                                  : L10nManager.l10n.repayment,
+                              widget.book,
+                              widget.debt,
+                              _debtType.operationCategory,
+                            ],
                           ).then((updated) {
                             if (updated == true) {
                               // 刷新数据
@@ -658,10 +692,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                   // 收款/还款记录列表
                   _buildItemList(
                     context,
-                    _items
-                        .where((item) =>
-                            item.categoryCode == _debtType.operationCategory)
-                        .toList(),
+                    _operationItems,
                   ),
                 ],
               ),
@@ -780,7 +811,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
                 Text(
                   item.amount.toString(),
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: ColorUtil.getDebtAmountColor(_debtType),
+                    color: ColorUtil.getTransferCategoryColor(item),
                     fontWeight: FontWeight.w600,
                   ),
                 ),

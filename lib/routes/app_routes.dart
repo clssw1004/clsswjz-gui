@@ -2,9 +2,12 @@ import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
+import '../enums/debt_type.dart';
+import '../manager/l10n_manager.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../models/vo/user_debt_vo.dart';
+import '../models/vo/user_item_vo.dart';
 import '../pages/book/book_list_page.dart';
 import '../pages/book/item_add_page.dart';
 import '../pages/book/item_edit_page.dart';
@@ -16,7 +19,6 @@ import '../pages/settings/language_settings_page.dart';
 import '../pages/settings/server_config_page.dart';
 import '../pages/settings/theme_settings_page.dart';
 import '../pages/user_info_page.dart';
-import '../models/vo/user_item_vo.dart';
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import '../pages/book/tags_page.dart';
 import '../pages/book/projects_page.dart';
@@ -31,6 +33,7 @@ import '../pages/book/debt_add_page.dart';
 import '../pages/book/item_list_page.dart';
 import '../pages/book/debt_list_page.dart';
 import '../pages/book/debt_edit_page.dart';
+import '../pages/book/debt_payment_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -93,6 +96,8 @@ class AppRoutes {
   static const String debtList = '/debt/list';
 
   static const String debtEdit = '/debt/edit';
+
+  static const String debtPayment = '/debt/payment';
 
   static const String todoAdd = '/todo/add';
 
@@ -173,7 +178,8 @@ class AppRoutes {
     debtAdd: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as BookMetaVO;
-      return DebtAddPage(book: accountBook);
+      final debtor = args.length > 1 ? args[1] as String? : null;
+      return DebtAddPage(book: accountBook, debtor: debtor);
     },
     debtList: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
@@ -184,6 +190,20 @@ class AppRoutes {
       final accountBook = args[0] as BookMetaVO;
       final debt = args[1] as UserDebtVO;
       return DebtEditPage(book: accountBook, debt: debt);
+    },
+    debtPayment: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final title = args[0] as String;
+      final accountBook = args[1] as BookMetaVO;
+      final debt = args[2] as UserDebtVO;
+      final categoryCode = args[3] as String;
+
+      return DebtPaymentPage(
+        title: title,
+        book: accountBook,
+        debt: debt,
+        categoryCode: categoryCode,
+      );
     },
   };
 }

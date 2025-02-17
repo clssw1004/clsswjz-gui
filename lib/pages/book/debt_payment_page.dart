@@ -18,11 +18,15 @@ import '../../theme/theme_spacing.dart';
 class DebtPaymentPage extends StatefulWidget {
   final BookMetaVO book;
   final UserDebtVO debt;
+  final String categoryCode;
+  final String title;
 
   const DebtPaymentPage({
     super.key,
+    required this.title,
     required this.book,
     required this.debt,
+    required this.categoryCode,
   });
 
   @override
@@ -86,7 +90,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
       DriverFactory.driver.createItem(
           AppConfigManager.instance.userId, widget.book.id,
           amount: double.parse(_amountController.text),
-          categoryCode: _debtType.operationCategory,
+          categoryCode: widget.categoryCode,
           type: AccountItemType.transfer,
           description: _remarkController.text,
           fundId: _fundId,
@@ -113,9 +117,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(_debtType == DebtType.lend
-            ? L10nManager.l10n.collection
-            : L10nManager.l10n.repayment),
+        title: Text(widget.title),
         actions: [
           IconButton(
             onPressed: _saving ? null : _save,
