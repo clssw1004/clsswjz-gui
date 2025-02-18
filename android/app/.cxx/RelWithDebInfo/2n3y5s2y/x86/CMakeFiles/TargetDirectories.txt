@@ -1,0 +1,2 @@
+/Users/cuiwei/wspec/clsswjz-gui/android/app/.cxx/RelWithDebInfo/2n3y5s2y/x86/CMakeFiles/edit_cache.dir
+/Users/cuiwei/wspec/clsswjz-gui/android/app/.cxx/RelWithDebInfo/2n3y5s2y/x86/CMakeFiles/rebuild_cache.dir

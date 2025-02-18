@@ -1,0 +1,2 @@
+/Users/cuiwei/wspec/clsswjz-gui/android/app/.cxx/Debug/3w6e3t38/x86_64/CMakeFiles/edit_cache.dir
+/Users/cuiwei/wspec/clsswjz-gui/android/app/.cxx/Debug/3w6e3t38/x86_64/CMakeFiles/rebuild_cache.dir

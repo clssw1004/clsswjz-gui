@@ -21,6 +21,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tabNotes => '记事';
 
   @override
+  String get tabStatistics => '统计';
+
+  @override
   String get settings => '设置';
 
   @override
@@ -860,6 +863,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get tabNotes => '記事';
+
+  @override
+  String get tabStatistics => '統計';
 
   @override
   String get settings => '設置';

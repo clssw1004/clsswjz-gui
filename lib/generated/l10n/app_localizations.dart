@@ -111,7 +111,7 @@ abstract class AppLocalizations {
   /// No description provided for @tabMine.
   ///
   /// In en, this message translates to:
-  /// **'MY'**
+  /// **'Mine'**
   String get tabMine;
 
   /// No description provided for @tabNotes.
@@ -119,6 +119,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get tabNotes;
+
+  /// No description provided for @tabStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get tabStatistics;
 
   /// No description provided for @settings.
   ///

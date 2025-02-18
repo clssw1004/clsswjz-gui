@@ -20,7 +20,8 @@ class ItemsTab extends StatefulWidget {
   State<ItemsTab> createState() => _ItemsTabState();
 }
 
-class _ItemsTabState extends State<ItemsTab> with SingleTickerProviderStateMixin {
+class _ItemsTabState extends State<ItemsTab>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _fabController;
   bool _isFabExpanded = false;
 
@@ -139,72 +140,6 @@ class _ItemsTabState extends State<ItemsTab> with SingleTickerProviderStateMixin
                     loading: itemListProvider.loading,
                   ),
                 ],
-              ),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: Consumer<BooksProvider>(
-        builder: (context, provider, child) {
-          final accountBook = provider.selectedBook;
-          if (accountBook == null) return const SizedBox.shrink();
-
-          final fabScale = CurvedAnimation(
-            parent: _fabController,
-            curve: Curves.easeOut,
-            reverseCurve: Curves.easeIn,
-          );
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (_isFabExpanded) ...[                
-                _buildFabItem(
-                  context,
-                  Icons.account_balance_wallet_outlined,
-                  L10nManager.l10n.addNew(L10nManager.l10n.debt),
-                  () {
-                    _toggleFab();
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.debtAdd,
-                      arguments: [accountBook],
-                    ).then((added) {
-                      if (added == true) {
-                        context.read<ItemListProvider>().loadItems();
-                        context.read<DebtListProvider>().loadDebts();
-                      }
-                    });
-                  },
-                  fabScale,
-                ),
-                _buildFabItem(
-                  context,
-                  Icons.add_circle_outline,
-                  L10nManager.l10n.addNew(L10nManager.l10n.tabAccountItems),
-                  () {
-                    _toggleFab();
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.itemAdd,
-                      arguments: [accountBook],
-                    ).then((added) {
-                      if (added == true) {
-                        context.read<ItemListProvider>().loadItems();
-                      }
-                    });
-                  },
-                  fabScale,
-                ),
-              ],
-              FloatingActionButton(
-                onPressed: _toggleFab,
-                child: AnimatedRotation(
-                  duration: const Duration(milliseconds: 200),
-                  turns: _isFabExpanded ? 0.125 : 0,
-                  child: const Icon(Icons.add),
-                ),
               ),
             ],
           );

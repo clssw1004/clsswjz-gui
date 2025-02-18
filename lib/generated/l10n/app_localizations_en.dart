@@ -15,10 +15,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabAccountItems => 'Records';
 
   @override
-  String get tabMine => 'MY';
+  String get tabMine => 'Mine';
 
   @override
   String get tabNotes => 'Notes';
+
+  @override
+  String get tabStatistics => 'Statistics';
 
   @override
   String get settings => 'Settings';
