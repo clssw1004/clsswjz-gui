@@ -2,8 +2,6 @@ import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
-import '../enums/debt_type.dart';
-import '../manager/l10n_manager.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../models/vo/user_debt_vo.dart';
@@ -121,40 +119,40 @@ class AppRoutes {
     itemAdd: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
-      final accountBook = args[0] as UserBookVO;
+      final accountBook = args[0] as BookMetaVO;
       final item =
           args.length > 1 && args[1] != null ? args[1] as UserItemVO : null;
       return ItemAddPage(accountBook: accountBook, item: item);
     },
     itemEdit: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as UserBookVO;
+      final accountBook = args[0] as BookMetaVO;
       final item = args[1] as UserItemVO;
       return ItemEditPage(accountBook: accountBook, item: item);
     },
     itemsList: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return ItemListPage(accountBook: args);
     },
     serverConfig: (context) => const ServerConfigPage(),
     merchants: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return MerchantsPage(accountBook: args);
     },
     tags: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return TagsPage(accountBook: args);
     },
     projects: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return ProjectsPage(accountBook: args);
     },
     categories: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return AccountCategoriesPage(accountBook: args);
     },
     funds: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as UserBookVO;
+      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return FundListPage(accountBook: args);
     },
     about: (context) => const AboutPage(),

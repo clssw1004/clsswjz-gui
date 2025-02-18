@@ -26,7 +26,6 @@ dependencies:
   crypto: ^3.0.6
   url_launcher: ^6.3.1
   mime: ^2.0.0
-  open_filex: ^4.6.0
   file_picker: ^8.1.7
   pull_to_refresh: ^2.0.0
   json_annotation: ^4.9.0
@@ -39,6 +38,7 @@ dependencies:
   flutter_slidable: ^4.0.0
   table_calendar: ^3.0.9
   cupertino_icons: ^1.0.2
+  # open_filex: ^4.6.0
 
 dev_dependencies:
   flutter_test:
