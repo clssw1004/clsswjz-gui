@@ -7,6 +7,7 @@ import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../routes/app_routes.dart';
+import '../enums/note_type.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -190,7 +191,7 @@ class _HomePageState extends State<HomePage>
         height: 72,
         backgroundColor: theme.colorScheme.surface,
         indicatorColor: theme.colorScheme.secondaryContainer,
-        selectedIndex: _currentIndex,
+        selectedIndex: _currentIndex > 1 ? _currentIndex + 1 : _currentIndex,
         onDestinationSelected: (index) {
           if (index == 2) {
             // 点击中间的新增按钮
@@ -199,9 +200,23 @@ class _HomePageState extends State<HomePage>
               return;
             }
             final provider = Provider.of<BooksProvider>(context, listen: false);
-            Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
-              provider.selectedBook,
-            ]);
+            // 根据当前tab执行不同操作
+            switch (_currentIndex) {
+              case 0: // 记账tab
+                Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
+                  provider.selectedBook,
+                ]);
+                break;
+              case 1: // 记事tab
+                Navigator.pushNamed(context, AppRoutes.noteAdd, arguments: [
+                  provider.selectedBook,
+                  NoteType.note,
+                ]);
+                break;
+              default: // 其他tab
+                _toggleMenu();
+                break;
+            }
             return;
           }
           if (_isMenuOpen) {
@@ -231,11 +246,24 @@ class _HomePageState extends State<HomePage>
                   _toggleMenu();
                   return;
                 }
-                final provider =
-                    Provider.of<BooksProvider>(context, listen: false);
-                Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
-                  provider.selectedBook,
-                ]);
+                final provider = Provider.of<BooksProvider>(context, listen: false);
+                // 根据当前tab执行不同操作
+                switch (_currentIndex) {
+                  case 0: // 记账tab
+                    Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
+                      provider.selectedBook,
+                    ]);
+                    break;
+                  case 1: // 记事tab
+                    Navigator.pushNamed(context, AppRoutes.noteAdd, arguments: [
+                      provider.selectedBook,
+                      NoteType.note,
+                    ]);
+                    break;
+                  default: // 其他tab
+                    _toggleMenu();
+                    break;
+                }
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
