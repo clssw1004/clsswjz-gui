@@ -2,12 +2,15 @@ import 'package:clsswjz/providers/books_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' show Provider;
 import '../manager/l10n_manager.dart';
+import '../providers/item_list_provider.dart';
+import '../providers/note_list_provider.dart';
 import 'tabs/items_tab.dart';
 import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../routes/app_routes.dart';
 import '../enums/note_type.dart';
+import '../utils/navigation_util.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -123,9 +126,31 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  /// 根据当前tab处理新增按钮点击
+  Future<void> _handleAddButtonTap(BuildContext context) async {
+    if (_isMenuOpen) {
+      _toggleMenu();
+      return;
+    }
+
+    final provider = Provider.of<BooksProvider>(context, listen: false);
+    switch (_currentIndex) {
+      case 0: // 记账tab
+        await NavigationUtil.toItemAdd(context);
+        break;
+      case 1: // 记事tab
+        await NavigationUtil.toNoteAdd(context);
+        break;
+      default: // 其他tab
+        _toggleMenu();
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final provider = Provider.of<BooksProvider>(context, listen: false);
     return Scaffold(
       body: Stack(
         children: [
@@ -147,13 +172,7 @@ class _HomePageState extends State<HomePage>
               label: L10nManager.l10n.addNew(L10nManager.l10n.accountItem),
               backgroundColor: theme.colorScheme.primary,
               iconColor: theme.colorScheme.onPrimary,
-              onPressed: () {
-                final provider =
-                    Provider.of<BooksProvider>(context, listen: false);
-                Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
-                  provider.selectedBook,
-                ]);
-              },
+              onPressed: () => NavigationUtil.toItemAdd(context),
             ),
             _buildExpandingActionButton(
               padding: 20 + cenerIconSize,
@@ -161,13 +180,7 @@ class _HomePageState extends State<HomePage>
               label: L10nManager.l10n.addNew(L10nManager.l10n.note),
               backgroundColor: theme.colorScheme.secondary,
               iconColor: theme.colorScheme.onSecondary,
-              onPressed: () {
-                final provider =
-                    Provider.of<BooksProvider>(context, listen: false);
-                Navigator.pushNamed(context, AppRoutes.noteAdd, arguments: [
-                  provider.selectedBook,
-                ]);
-              },
+              onPressed: () => NavigationUtil.toNoteAdd(context),
             ),
             _buildExpandingActionButton(
               padding: 15,
@@ -175,13 +188,7 @@ class _HomePageState extends State<HomePage>
               label: L10nManager.l10n.addNew(L10nManager.l10n.debt),
               backgroundColor: theme.colorScheme.tertiary,
               iconColor: theme.colorScheme.onTertiary,
-              onPressed: () {
-                final provider =
-                    Provider.of<BooksProvider>(context, listen: false);
-                Navigator.pushNamed(context, AppRoutes.debtAdd, arguments: [
-                  provider.selectedBook,
-                ]);
-              },
+              onPressed: () => NavigationUtil.toDebtAdd(context),
             ),
           ],
         ],
@@ -195,28 +202,7 @@ class _HomePageState extends State<HomePage>
         onDestinationSelected: (index) {
           if (index == 2) {
             // 点击中间的新增按钮
-            if (_isMenuOpen) {
-              _toggleMenu();
-              return;
-            }
-            final provider = Provider.of<BooksProvider>(context, listen: false);
-            // 根据当前tab执行不同操作
-            switch (_currentIndex) {
-              case 0: // 记账tab
-                Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
-                  provider.selectedBook,
-                ]);
-                break;
-              case 1: // 记事tab
-                Navigator.pushNamed(context, AppRoutes.noteAdd, arguments: [
-                  provider.selectedBook,
-                  NoteType.note,
-                ]);
-                break;
-              default: // 其他tab
-                _toggleMenu();
-                break;
-            }
+            _handleAddButtonTap(context);
             return;
           }
           if (_isMenuOpen) {
@@ -241,30 +227,7 @@ class _HomePageState extends State<HomePage>
           NavigationDestination(
             icon: GestureDetector(
               onLongPress: _toggleMenu,
-              onTap: () {
-                if (_isMenuOpen) {
-                  _toggleMenu();
-                  return;
-                }
-                final provider = Provider.of<BooksProvider>(context, listen: false);
-                // 根据当前tab执行不同操作
-                switch (_currentIndex) {
-                  case 0: // 记账tab
-                    Navigator.pushNamed(context, AppRoutes.itemAdd, arguments: [
-                      provider.selectedBook,
-                    ]);
-                    break;
-                  case 1: // 记事tab
-                    Navigator.pushNamed(context, AppRoutes.noteAdd, arguments: [
-                      provider.selectedBook,
-                      NoteType.note,
-                    ]);
-                    break;
-                  default: // 其他tab
-                    _toggleMenu();
-                    break;
-                }
-              },
+              onTap: () => _handleAddButtonTap(context),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(top: 2),
