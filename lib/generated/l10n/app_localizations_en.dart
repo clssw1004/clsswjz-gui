@@ -846,4 +846,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remainingPayable => 'Remaining Payable';
+
+  @override
+  String get incomeTrend => 'Income & Expense Trend';
+
+  @override
+  String get categoryDistribution => 'Category Distribution';
+
+  @override
+  String get monthlyComparison => 'Monthly Comparison';
 }

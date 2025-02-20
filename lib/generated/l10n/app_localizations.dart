@@ -1661,6 +1661,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remaining Payable'**
   String get remainingPayable;
+
+  /// Title for income and expense trend chart
+  ///
+  /// In en, this message translates to:
+  /// **'Income & Expense Trend'**
+  String get incomeTrend;
+
+  /// Title for category distribution chart
+  ///
+  /// In en, this message translates to:
+  /// **'Category Distribution'**
+  String get categoryDistribution;
+
+  /// Title for monthly comparison chart
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Comparison'**
+  String get monthlyComparison;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

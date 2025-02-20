@@ -846,6 +846,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get remainingPayable => '待还金额';
+
+  @override
+  String get incomeTrend => '收支趋势';
+
+  @override
+  String get categoryDistribution => '收支类别占比';
+
+  @override
+  String get monthlyComparison => '月度收支对比';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1642,4 +1651,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get remainingPayable => '待還金額';
+
+  @override
+  String get incomeTrend => '收支趨勢';
+
+  @override
+  String get categoryDistribution => '收支類別佔比';
+
+  @override
+  String get monthlyComparison => '月度收支對比';
 }

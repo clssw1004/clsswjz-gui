@@ -735,5 +735,17 @@
     "remainingPayable": "Remaining Payable",
     "@remainingPayable": {
         "description": "Remaining payable amount label"
+    },
+    "incomeTrend": "Income & Expense Trend",
+    "@incomeTrend": {
+        "description": "Title for income and expense trend chart"
+    },
+    "categoryDistribution": "Category Distribution",
+    "@categoryDistribution": {
+        "description": "Title for category distribution chart"
+    },
+    "monthlyComparison": "Monthly Comparison",
+    "@monthlyComparison": {
+        "description": "Title for monthly comparison chart"
     }
 }
