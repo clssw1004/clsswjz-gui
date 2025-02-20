@@ -2,14 +2,10 @@ import 'package:clsswjz/providers/books_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' show Provider;
 import '../manager/l10n_manager.dart';
-import '../providers/item_list_provider.dart';
-import '../providers/note_list_provider.dart';
 import 'tabs/items_tab.dart';
 import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
-import '../routes/app_routes.dart';
-import '../enums/note_type.dart';
 import '../utils/navigation_util.dart';
 
 class HomePage extends StatefulWidget {
@@ -168,14 +164,6 @@ class _HomePageState extends State<HomePage>
           ...[
             _buildExpandingActionButton(
               padding: 25 + cenerIconSize * 2,
-              icon: Icons.account_balance_wallet,
-              label: L10nManager.l10n.addNew(L10nManager.l10n.accountItem),
-              backgroundColor: theme.colorScheme.primary,
-              iconColor: theme.colorScheme.onPrimary,
-              onPressed: () => NavigationUtil.toItemAdd(context),
-            ),
-            _buildExpandingActionButton(
-              padding: 20 + cenerIconSize,
               icon: Icons.note_alt,
               label: L10nManager.l10n.addNew(L10nManager.l10n.note),
               backgroundColor: theme.colorScheme.secondary,
@@ -183,12 +171,20 @@ class _HomePageState extends State<HomePage>
               onPressed: () => NavigationUtil.toNoteAdd(context),
             ),
             _buildExpandingActionButton(
-              padding: 15,
+              padding: 20 + cenerIconSize,
               icon: Icons.money,
               label: L10nManager.l10n.addNew(L10nManager.l10n.debt),
               backgroundColor: theme.colorScheme.tertiary,
               iconColor: theme.colorScheme.onTertiary,
               onPressed: () => NavigationUtil.toDebtAdd(context),
+            ),
+            _buildExpandingActionButton(
+              padding: 15,
+              icon: Icons.account_balance_wallet,
+              label: L10nManager.l10n.addNew(L10nManager.l10n.accountItem),
+              backgroundColor: theme.colorScheme.primary,
+              iconColor: theme.colorScheme.onPrimary,
+              onPressed: () => NavigationUtil.toItemAdd(context),
             ),
           ],
         ],

@@ -743,5 +743,17 @@
     "remainingPayable": "待还金额",
     "@remainingPayable": {
         "description": "待还金额标签"
+    },
+    "incomeTrend": "收支趋势",
+    "@incomeTrend": {
+        "description": "收支趋势图标题"
+    },
+    "categoryDistribution": "收支类别占比",
+    "@categoryDistribution": {
+        "description": "收支类别占比图标题"
+    },
+    "monthlyComparison": "月度收支对比",
+    "@monthlyComparison": {
+        "description": "月度收支对比图标题"
     }
 }

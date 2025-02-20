@@ -38,6 +38,7 @@ dependencies:
   flutter_slidable: ^4.0.0
   table_calendar: ^3.0.9
   cupertino_icons: ^1.0.2
+  fl_chart: ^0.70.2
   # open_filex: ^4.6.0
 
 dev_dependencies:
