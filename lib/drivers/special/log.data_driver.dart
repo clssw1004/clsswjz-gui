@@ -263,6 +263,11 @@ class LogDataDriver implements BookDataDriver {
       {required String name,
       required String categoryType,
       String? code}) async {
+    final category =
+        await DaoManager.categoryDao.findByBookAndName(bookId, name);
+    if (category != null) {
+      return OperateResult.success(category.id);
+    }
     final id = await CategoryCULog.create(who, bookId,
             name: name, categoryType: categoryType, code: code)
         .execute();
@@ -283,6 +288,10 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createShop(String who, String bookId,
       {required String name}) async {
+    final shop = await DaoManager.shopDao.findByBookAndName(bookId, name);
+    if (shop != null) {
+      return OperateResult.success(shop.id);
+    }
     final id = await ShopCULog.create(who, bookId, name: name).execute();
     return OperateResult.success(id);
   }
@@ -299,6 +308,10 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<String>> createSymbol(String who, String bookId,
       {required String name, required SymbolType symbolType}) async {
+    final symbol = await DaoManager.symbolDao.findByBookAndName(bookId, name);
+    if (symbol != null) {
+      return OperateResult.success(symbol.id);
+    }
     final id = await SymbolCULog.create(who, bookId,
             name: name, symbolType: symbolType)
         .execute();

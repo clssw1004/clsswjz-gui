@@ -2,6 +2,7 @@ import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -45,7 +46,8 @@ class ItemEditPage extends StatelessWidget {
         builder: (context, provider, child) {
           return Scaffold(
             appBar: CommonAppBar(
-              title: Text(L10nManager.l10n.editTo(L10nManager.l10n.tabAccountItems)),
+              title: Text(
+                  L10nManager.l10n.editTo(L10nManager.l10n.tabAccountItems)),
             ),
             body: provider.loading
                 ? const Center(child: CircularProgressIndicator())
@@ -81,6 +83,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
   final _descriptionController = TextEditingController();
   late String _selectedDate;
   late String _selectedTime;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -90,7 +93,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
     // 初始化日期和时间
     _selectedDate = widget.provider.item.accountDateOnly;
-    _selectedTime = widget.provider.item.accountTimeOnly; // 只显示HH:mm
+    _selectedTime = widget.provider.item.accountTimeOnly;
 
     // 加载附件
     widget.provider.loadAttachments();
@@ -100,7 +103,14 @@ class _AccountItemFormState extends State<_AccountItemForm> {
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  /// 防抖处理
+  void _debounce(VoidCallback callback) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), callback);
   }
 
   /// 选择日期
@@ -134,7 +144,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
         _selectedTime = '${picked.hour.toString().padLeft(2, '0')}:'
             '${picked.minute.toString().padLeft(2, '0')}';
       });
-      await widget.provider.updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
+      await widget.provider
+          .updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
     }
   }
 
@@ -147,7 +158,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
     final spacing = theme.spacing;
 
     // 获取当前账目类型
-    final currentType = AccountItemType.fromCode(item.type) ?? AccountItemType.expense;
+    final currentType =
+        AccountItemType.fromCode(item.type) ?? AccountItemType.expense;
 
     return Form(
       key: _formKey,
@@ -210,25 +222,23 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
 
           // 金额输入
-          Focus(
-            onFocusChange: (hasFocus) async {
-              if (!hasFocus) {
-                await provider.partUpdate();
-              }
+          AmountInput(
+            controller: _amountController,
+            color: ColorUtil.getAmountColor(item.type),
+            onChanged: (value) {
+              _debounce(() {
+                provider.updateAmountAndSave(value);
+              });
             },
-            child: AmountInput(
-              controller: _amountController,
-              color: ColorUtil.getAmountColor(item.type),
-              onChanged: (value) async {
-                await provider.updateAmountAndSave(value);
-              },
-            ),
           ),
           SizedBox(height: spacing.formItemSpacing),
 
           // 分类选择
           CommonSelectFormField<AccountCategory>(
-            items: provider.categories.where((category) => category.categoryType == item.type).toList().cast<AccountCategory>(),
+            items: provider.categories
+                .where((category) => category.categoryType == item.type)
+                .toList()
+                .cast<AccountCategory>(),
             value: item.categoryCode,
             displayMode: DisplayMode.expand,
             displayField: (item) => item.name,
@@ -247,14 +257,17 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               );
               if (result.ok) {
                 await provider.loadCategories();
-                return provider.categories.cast<AccountCategory>().firstWhere((category) => category.name == value);
+                return provider.categories
+                    .cast<AccountCategory>()
+                    .firstWhere((category) => category.name == value);
               }
               return null;
             },
             onChanged: (value) async {
               final category = value as AccountCategory?;
               if (category != null) {
-                await provider.updateCategoryAndSave(category.code, category.name);
+                await provider.updateCategoryAndSave(
+                    category.code, category.name);
               } else {
                 await provider.updateCategoryAndSave(null, null);
               }
@@ -312,7 +325,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               );
               if (result.data != null) {
                 await provider.loadShops();
-                return provider.shops.cast<AccountShop>().firstWhere((shop) => shop.code == value);
+                final shop = provider.shops
+                    .cast<AccountShop>()
+                    .firstWhere((shop) => shop.name == value);
+                await provider.updateShopAndSave(shop.code, shop.name);
+                return shop;
               }
               return null;
             },
@@ -353,7 +370,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     );
                     if (result.data != null) {
                       await provider.loadTags();
-                      return provider.tags.cast<AccountSymbol>().firstWhere((tag) => tag.code == value);
+                      return provider.tags
+                          .cast<AccountSymbol>()
+                          .firstWhere((tag) => tag.code == value);
                     }
                     return null;
                   },
@@ -384,14 +403,17 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     );
                     if (result.data != null) {
                       await provider.loadProjects();
-                      return provider.projects.cast<AccountSymbol>().firstWhere((project) => project.code == value);
+                      return provider.projects
+                          .cast<AccountSymbol>()
+                          .firstWhere((project) => project.code == value);
                     }
                     return null;
                   },
                   onChanged: (value) async {
                     final project = value as AccountSymbol?;
                     if (project != null) {
-                      await provider.updateProjectAndSave(project.code, project.name);
+                      await provider.updateProjectAndSave(
+                          project.code, project.name);
                     } else {
                       await provider.updateProjectAndSave(null, null);
                     }
@@ -417,22 +439,19 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
 
           // 描述输入
-          Focus(
-            onFocusChange: (hasFocus) async {
-              if (!hasFocus) {
-                await provider.partUpdate();
-              }
+          CommonTextFormField(
+            initialValue: _descriptionController.text,
+            labelText: L10nManager.l10n.description,
+            hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
+            prefixIcon: const Icon(Icons.description_outlined),
+            onChanged: (value) {
+              _debounce(() {
+                provider.updateDescription(value);
+              });
             },
-            child: CommonTextFormField(
-              initialValue: _descriptionController.text,
-              labelText: L10nManager.l10n.description,
-              hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
-              prefixIcon: const Icon(Icons.description_outlined),
-              onChanged: provider.updateDescription,
-              keyboardType: TextInputType.multiline,
-              minLines: 1,
-              maxLines: 9,
-            ),
+            keyboardType: TextInputType.multiline,
+            minLines: 1,
+            maxLines: 9,
           ),
 
           // 附件上传
@@ -451,11 +470,14 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       ))
                   .toList();
 
-              await provider.updateAttachmentsAndSave([...provider.attachments, ...attachments]);
+              await provider.updateAttachmentsAndSave(
+                  [...provider.attachments, ...attachments]);
             },
             onDelete: (attachment) async {
               await provider.updateAttachmentsAndSave(
-                provider.attachments.where((a) => a.id != attachment.id).toList(),
+                provider.attachments
+                    .where((a) => a.id != attachment.id)
+                    .toList(),
               );
             },
             onTap: (attachment) async {
