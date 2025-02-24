@@ -348,7 +348,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 await provider.loadShops();
                 return provider.shops
                     .cast<AccountShop>()
-                    .firstWhere((shop) => shop.code == value);
+                    .firstWhere((shop) => shop.name == value);
               }
               return null;
             },

@@ -8,11 +8,19 @@ class ShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
   ShopDao(super.db);
 
   Future<List<AccountShop>> findByCodes(List<String> codes) {
-    return (db.select(db.accountShopTable)..where((t) => t.code.isIn(codes))).get();
+    return (db.select(db.accountShopTable)..where((t) => t.code.isIn(codes)))
+        .get();
   }
 
   Future<AccountShop?> findByCode(String code) {
-    return (db.select(db.accountShopTable)..where((t) => t.code.equals(code))).getSingleOrNull();
+    return (db.select(db.accountShopTable)..where((t) => t.code.equals(code)))
+        .getSingleOrNull();
+  }
+
+  Future<AccountShop?> findByBookAndName(String bookId, String name) {
+    return (db.select(db.accountShopTable)
+          ..where((t) => t.accountBookId.equals(bookId) & t.name.equals(name)))
+        .getSingleOrNull();
   }
 
   Future<void> createShop({

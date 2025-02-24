@@ -4,10 +4,7 @@ enum NoteType {
   note('NOTE'),
 
   /// 待办事项
-  todo('TODO'),
-  
-  /// 债务记录
-  debt('DEBT');
+  todo('TODO');
 
   /// 编码
   final String code;
@@ -21,4 +18,4 @@ enum NoteType {
       orElse: () => NoteType.note,
     );
   }
-} 
+}
