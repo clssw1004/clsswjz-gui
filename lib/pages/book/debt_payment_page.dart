@@ -14,6 +14,7 @@ import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/book/amount_input.dart';
 import '../../theme/theme_spacing.dart';
+import '../../widgets/common/common_badge.dart';
 
 class DebtPaymentPage extends StatefulWidget {
   final BookMetaVO book;
@@ -37,27 +38,26 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController(text: '0.00');
   final _remarkController = TextEditingController();
-  final _paymentDateController = TextEditingController();
   String? _fundId;
   bool _saving = false;
-  late String _paymentDate;
+  late String _selectedDate;
+  late String _selectedTime;
 
   List<AccountFund> get _accounts => widget.book.funds ?? [];
-  DebtType get _debtType => DebtType.fromCode(widget.debt.debtType);
 
   @override
   void initState() {
     super.initState();
-    // 初始化日期为当前日期
-    _paymentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _paymentDateController.text = _paymentDate;
+    // 初始化日期和时间为当前时间
+    final now = DateTime.now();
+    _selectedDate = DateFormat('yyyy-MM-dd').format(now);
+    _selectedTime = DateFormat('HH:mm').format(now);
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _remarkController.dispose();
-    _paymentDateController.dispose();
     super.dispose();
   }
 
@@ -65,15 +65,38 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateFormat('yyyy-MM-dd').parse(_paymentDate),
+      initialDate: DateFormat('yyyy-MM-dd').parse(_selectedDate),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
 
     if (picked != null) {
       setState(() {
-        _paymentDate = DateFormat('yyyy-MM-dd').format(picked);
-        _paymentDateController.text = _paymentDate;
+        _selectedDate = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  /// 选择时间
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialEntryMode: TimePickerEntryMode.input,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+      initialTime: TimeOfDay.fromDateTime(
+        DateTime.parse('2024-01-01 $_selectedTime:00'),
+      ),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = '${picked.hour.toString().padLeft(2, '0')}:'
+            '${picked.minute.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -94,7 +117,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           type: AccountItemType.transfer,
           description: _remarkController.text,
           fundId: _fundId,
-          accountDate: '$_paymentDate 00:00:00',
+          accountDate: '$_selectedDate $_selectedTime:00',
           source: BusinessType.debt.code,
           sourceId: widget.debt.id);
       if (mounted) {
@@ -140,18 +163,11 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           padding: spacing.formPadding,
           children: [
             // 金额
-            Focus(
-              onFocusChange: (hasFocus) {
-                if (!hasFocus) {
-                  setState(() {});
-                }
+            AmountInput(
+              controller: _amountController,
+              onChanged: (value) {
+                setState(() {});
               },
-              child: AmountInput(
-                controller: _amountController,
-                onChanged: (value) {
-                  setState(() {});
-                },
-              ),
             ),
             SizedBox(height: spacing.formItemSpacing),
 
@@ -187,26 +203,39 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
             ),
 
             SizedBox(height: spacing.formItemSpacing),
-            // 日期选择
-            InkWell(
-              onTap: _selectDate,
-              child: CommonTextFormField(
-                controller: _paymentDateController,
-                labelText: _debtType == DebtType.lend
-                    ? L10nManager.l10n.collectionDate
-                    : L10nManager.l10n.repaymentDate,
-                prefixIcon: const Icon(Icons.calendar_today_outlined),
-                readOnly: true,
-                enabled: false,
-              ),
-            ),
-            SizedBox(height: spacing.formItemSpacing),
             // 备注
             CommonTextFormField(
               controller: _remarkController,
               labelText: L10nManager.l10n.remark,
               prefixIcon: const Icon(Icons.note_outlined),
               maxLines: 3,
+            ),
+            SizedBox(height: spacing.formItemSpacing),
+
+            // 日期和时间选择
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.start,
+                children: [
+                  // 日期选择徽章
+                  CommonBadge(
+                    icon: Icons.calendar_today_outlined,
+                    text: _selectedDate,
+                    onTap: _selectDate,
+                    borderColor: colorScheme.outline.withAlpha(51),
+                  ),
+                  // 时间选择徽章
+                  CommonBadge(
+                    icon: Icons.access_time_outlined,
+                    text: _selectedTime,
+                    onTap: _selectTime,
+                    borderColor: colorScheme.outline.withAlpha(51),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
