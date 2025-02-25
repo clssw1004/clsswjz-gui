@@ -291,6 +291,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             icon: Icons.account_balance_wallet_outlined,
             label: L10nManager.l10n.account,
             required: true,
+            allowCreate: false,
             onChanged: (value) async {
               final fund = value as UserFundVO?;
               if (fund != null) {
