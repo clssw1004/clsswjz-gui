@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../database/database.dart';
 import '../../enums/account_type.dart';
 import '../../enums/business_type.dart';
-import '../../enums/debt_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';

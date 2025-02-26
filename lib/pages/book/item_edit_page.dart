@@ -134,8 +134,14 @@ class _AccountItemFormState extends State<_AccountItemForm> {
   Future<void> _selectTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
       initialTime: TimeOfDay.fromDateTime(
-        DateFormat('HH:mm').parse(_selectedTime),
+        DateTime.parse('2024-01-01 $_selectedTime:00'),
       ),
     );
 
@@ -144,8 +150,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
         _selectedTime = '${picked.hour.toString().padLeft(2, '0')}:'
             '${picked.minute.toString().padLeft(2, '0')}';
       });
-      await widget.provider
-          .updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
+      await widget.provider.updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
     }
   }
 
