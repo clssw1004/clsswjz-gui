@@ -139,6 +139,6 @@ coverage/
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat
-**/android/**/configure_fingerprint
+**/android/**/configure_fingerprint.bin
 
 .vscode/

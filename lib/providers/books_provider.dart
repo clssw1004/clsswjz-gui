@@ -97,6 +97,7 @@ class BooksProvider extends ChangeNotifier {
     _selectedBook = await ServiceManager.accountBookService.toBookMeta(book);
     AppConfigManager.instance.setDefaultBookId(book.id);
     EventBus.instance.emit(BookChangedEvent(book));
+    notifyListeners();
   }
 
   /// 删除账本

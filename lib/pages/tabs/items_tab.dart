@@ -56,10 +56,8 @@ class _ItemsTabState extends State<ItemsTab>
         showBackButton: false,
         title: Consumer<BooksProvider>(
           builder: (context, provider, child) {
-            final key = ValueKey(
-                '${provider.selectedBook?.id ?? ''}_${provider.books.length}');
             return BookSelector(
-              key: key,
+              key: ValueKey(provider.selectedBook?.id),
               userId: AppConfigManager.instance.userId,
               books: provider.books,
               selectedBook: provider.selectedBook,
