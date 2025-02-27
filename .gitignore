@@ -120,10 +120,25 @@ coverage/
 *.gr.dart
 *.gen.dart
 
-
-
 # Android key properties
 **/android/key.properties
 **/android/*.keystore
+
+# Android build/configuration files
+**/android/**/build/
+**/android/**/.gradle/
+**/android/**/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/.settings/
+**/android/**/.project
+**/android/**/.classpath
+**/android/**/*.iml
+**/android/**/.idea/
+**/android/**/gradle-wrapper.properties
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/**/configure_fingerprint
 
 .vscode/
