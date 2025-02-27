@@ -7,6 +7,7 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_text_form_field.dart';
@@ -46,6 +47,12 @@ class _BookFormPageState extends State<BookFormPage> {
   /// 货币符号
   CurrencySymbol _currencySymbol = CurrencySymbol.cny;
 
+  /// 默认资金账户ID
+  String? _defaultFundId;
+
+  /// 资金账户列表
+  List<UserFundVO> _funds = [];
+
   /// 成员列表
   late List<BookMemberVO> _members;
 
@@ -65,10 +72,25 @@ class _BookFormPageState extends State<BookFormPage> {
       _descriptionController.text = widget.book!.description ?? '';
       _icon = widget.book!.icon;
       _currencySymbol = widget.book!.currencySymbol;
+      _defaultFundId = widget.book!.defaultFundId;
       _members = List.from(widget.book!.members);
     } else {
       _members = [];
     }
+    _loadFunds();
+  }
+
+  /// 加载资金账户列表
+  Future<void> _loadFunds() async {
+    if (isCreateMode) return;
+
+    final result = await DriverFactory.driver.listFundsByBook(
+      AppConfigManager.instance.userId,
+      widget.book!.id,
+    );
+    setState(() {
+      _funds = result.data ?? [];
+    });
   }
 
   @override
@@ -88,6 +110,7 @@ class _BookFormPageState extends State<BookFormPage> {
       currencySymbol: _currencySymbol,
       icon: _icon,
       members: _members,
+      defaultFundId: _defaultFundId,
     );
   }
 
@@ -102,6 +125,7 @@ class _BookFormPageState extends State<BookFormPage> {
       icon: _icon,
       description: _descriptionController.text,
       members: _members,
+      defaultFundId: _defaultFundId,
     );
   }
 
@@ -475,6 +499,25 @@ class _BookFormPageState extends State<BookFormPage> {
                 });
               },
             ),
+            if (!isCreateMode) ...[
+              SizedBox(height: spacing.formItemSpacing),
+              CommonSelectFormField<UserFundVO>(
+                items: _funds,
+                value: _defaultFundId,
+                displayMode: DisplayMode.iconText,
+                displayField: (item) => item.name,
+                keyField: (item) => item.id,
+                icon: Icons.account_balance_wallet_outlined,
+                label: L10nManager.l10n.defaultFund,
+                hint: L10nManager.l10n.optional,
+                onChanged: (value) {
+                  final fund = value as UserFundVO?;
+                  setState(() {
+                    _defaultFundId = fund?.id;
+                  });
+                },
+              ),
+            ],
             SizedBox(height: spacing.formItemSpacing),
             CommonTextFormField(
               initialValue: _descriptionController.text,
@@ -720,14 +763,12 @@ class _MemberItem extends StatelessWidget {
         width: 100,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
-          color: value 
-              ? colorScheme.primaryContainer 
+          color: value
+              ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: value 
-                ? colorScheme.primary
-                : colorScheme.outlineVariant,
+            color: value ? colorScheme.primary : colorScheme.outlineVariant,
             width: 1,
           ),
         ),
@@ -738,7 +779,7 @@ class _MemberItem extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: value 
+                color: value
                     ? colorScheme.primary.withOpacity(0.2)
                     : colorScheme.surfaceContainerHigh,
                 shape: BoxShape.circle,
@@ -746,16 +787,15 @@ class _MemberItem extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 20,
-                color: value 
-                    ? colorScheme.primary
-                    : colorScheme.onSurfaceVariant,
+                color:
+                    value ? colorScheme.primary : colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: value 
+                color: value
                     ? colorScheme.onPrimaryContainer
                     : colorScheme.onSurfaceVariant,
                 fontWeight: value ? FontWeight.w600 : null,

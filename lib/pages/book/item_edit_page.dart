@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_item_vo.dart';
-import '../../models/vo/user_book_vo.dart';
 import '../../providers/item_form_provider.dart';
 import '../../utils/color_util.dart';
 import '../../utils/toast_util.dart';
@@ -27,12 +27,12 @@ import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_attachment_field.dart';
 
 class ItemEditPage extends StatelessWidget {
-  final UserBookVO accountBook;
+  final BookMetaVO bookMeta;
   final UserItemVO item;
 
   const ItemEditPage({
     super.key,
-    required this.accountBook,
+    required this.bookMeta,
     required this.item,
   });
 
@@ -41,7 +41,7 @@ class ItemEditPage extends StatelessWidget {
     final spacing = Theme.of(context).spacing;
 
     return ChangeNotifierProvider(
-      create: (context) => ItemFormProvider(accountBook, item),
+      create: (context) => ItemFormProvider(bookMeta, item),
       child: Consumer<ItemFormProvider>(
         builder: (context, provider, child) {
           return Scaffold(
@@ -150,7 +150,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
         _selectedTime = '${picked.hour.toString().padLeft(2, '0')}:'
             '${picked.minute.toString().padLeft(2, '0')}';
       });
-      await widget.provider.updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
+      await widget.provider
+          .updateDateTimeAndSave(_selectedDate, '$_selectedTime:00');
     }
   }
 
@@ -256,7 +257,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createCategory(
                 AppConfigManager.instance.userId,
-                provider.accountBook.id,
+                provider.bookMeta.id,
                 name: value,
                 categoryType: item.type,
               );
@@ -326,7 +327,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createShop(
                 AppConfigManager.instance.userId,
-                provider.accountBook.id,
+                provider.bookMeta.id,
                 name: value,
               );
               if (result.data != null) {
@@ -370,7 +371,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId,
-                      provider.accountBook.id,
+                      provider.bookMeta.id,
                       name: value,
                       symbolType: SymbolType.tag,
                     );
@@ -403,7 +404,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId,
-                      provider.accountBook.id,
+                      provider.bookMeta.id,
                       name: value,
                       symbolType: SymbolType.project,
                     );
@@ -448,7 +449,8 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           CommonTextFormField(
             initialValue: _descriptionController.text,
             labelText: L10nManager.l10n.description,
-            hintText: L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
+            hintText:
+                L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: (value) {
               _debounce(() {

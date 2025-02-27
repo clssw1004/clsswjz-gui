@@ -16,6 +16,8 @@ class BookMetaVO extends UserBookVO {
   }) : super(
             id: bookInfo.id,
             name: bookInfo.name,
+            description: bookInfo.description,
+            icon: bookInfo.icon,
             currencySymbol: bookInfo.currencySymbol,
             createdBy: bookInfo.createdBy,
             createdByName: bookInfo.createdByName,
@@ -23,5 +25,7 @@ class BookMetaVO extends UserBookVO {
             updatedByName: bookInfo.updatedByName,
             createdAt: bookInfo.createdAt,
             updatedAt: bookInfo.updatedAt,
-            permission: bookInfo.permission);
+            permission: bookInfo.permission,
+            members: bookInfo.members,
+            defaultFundId: bookInfo.defaultFundId);
 }

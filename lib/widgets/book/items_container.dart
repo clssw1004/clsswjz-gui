@@ -24,7 +24,7 @@ class ItemsContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    final secondColor = colorScheme.onSurfaceVariant.withAlpha(180);
     return CommonCardContainer(
       margin: const EdgeInsets.all(8),
       padding: EdgeInsets.zero,
@@ -160,7 +160,7 @@ class ItemsContainer extends StatelessWidget {
                             Text(
                               item.accountTimeOnly.toString(),
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withAlpha(100),
+                                color: secondColor,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -169,7 +169,7 @@ class ItemsContainer extends StatelessWidget {
                               Text(
                                 item.shopName!,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant.withAlpha(100),
+                                  color: secondColor,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -182,19 +182,19 @@ class ItemsContainer extends StatelessWidget {
                                 child: Text(
                                   item.description!,
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.onSurfaceVariant.withAlpha(100),
+                                    color: secondColor,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            if (item.description?.isEmpty == true) 
+                            if (item.description?.isEmpty == true)
                               const Spacer(),
                             // 账户
                             Text(
                               item.fundName ?? '',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant.withAlpha(100),
+                                color: secondColor,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

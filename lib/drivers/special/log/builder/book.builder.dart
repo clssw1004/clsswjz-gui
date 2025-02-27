@@ -46,13 +46,15 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
       {required String name,
       String? description,
       CurrencySymbol? currencySymbol = CurrencySymbol.cny,
-      String? icon}) {
+      String? icon,
+      String? defaultFundId}) {
     return BookCULog().who(who).doCreate().withData(
         AccountBookTable.toCreateCompanion(who,
             name: name,
             description: description,
             currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-            icon: icon)) as BookCULog;
+            icon: icon,
+            defaultFundId: defaultFundId)) as BookCULog;
   }
 
   static BookCULog update(String who, String bookId,
@@ -60,13 +62,15 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundId,
       List<BookMemberVO>? members}) {
     return BookCULog().inBook(bookId).doUpdate().who(who).withData(
         AccountBookTable.toUpdateCompanion(who,
             name: name,
             description: description,
             currencySymbol: currencySymbol?.symbol ?? CurrencySymbol.cny.symbol,
-            icon: icon)) as BookCULog;
+            icon: icon,
+            defaultFundId: defaultFundId)) as BookCULog;
   }
 
   static BookCULog fromLog(LogSync log) {
@@ -87,7 +91,8 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
         name: data['name'],
         description: data['description'],
         currencySymbol: CurrencySymbol.fromSymbol(data['currencySymbol']),
-        icon: data['icon']);
+        icon: data['icon'],
+        defaultFundId: data['defaultFundId']);
   }
 }
 
@@ -113,6 +118,9 @@ class BookDLog extends DeleteLog {
   }
 
   static BookDLog fromLog(LogSync log) {
-    return BookDLog().who(log.operatorId).inBook(log.parentId).target(log.businessId) as BookDLog;
+    return BookDLog()
+        .who(log.operatorId)
+        .inBook(log.parentId)
+        .target(log.businessId) as BookDLog;
   }
 }

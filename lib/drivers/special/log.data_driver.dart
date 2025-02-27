@@ -48,6 +48,7 @@ class LogDataDriver implements BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundId,
       String? defaultFundName,
       String? defaultCategoryName,
       String? defaultShopName,
@@ -136,12 +137,14 @@ class LogDataDriver implements BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundId,
       List<BookMemberVO> members = const []}) async {
     await BookCULog.update(who, bookId,
             name: name,
             description: description,
             currencySymbol: currencySymbol,
-            icon: icon)
+            icon: icon,
+            defaultFundId: defaultFundId)
         .execute();
     final book = await getBook(who, bookId);
     final diff =

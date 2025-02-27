@@ -142,3 +142,4 @@ coverage/
 **/android/**/configure_fingerprint.bin
 
 .vscode/
+android/app/.cxx/**/configure_fingerprint.bin

@@ -44,6 +44,9 @@ class UserBookVO {
   /// 账本成员（不包含创建者）
   final List<BookMemberVO> members;
 
+  /// 默认资金账户ID
+  final String? defaultFundId;
+
   const UserBookVO({
     required this.id,
     required this.name,
@@ -58,6 +61,7 @@ class UserBookVO {
     required this.updatedAt,
     required this.permission,
     this.members = const [],
+    this.defaultFundId,
   });
 
   /// 从账本对象创建视图对象
@@ -82,6 +86,7 @@ class UserBookVO {
       updatedAt: accountBook.updatedAt,
       permission: permission,
       members: members,
+      defaultFundId: accountBook.defaultFundId,
     );
   }
 
@@ -97,6 +102,7 @@ class UserBookVO {
       updatedBy: updatedBy,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      defaultFundId: defaultFundId,
     );
   }
 }

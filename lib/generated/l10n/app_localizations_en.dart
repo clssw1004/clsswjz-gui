@@ -855,4 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get monthlyComparison => 'Monthly Comparison';
+
+  @override
+  String get defaultFund => 'Default Fund Account';
 }

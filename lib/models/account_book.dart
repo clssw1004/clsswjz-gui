@@ -6,6 +6,7 @@ class AccountBook {
   final String? icon;
   final String? currency;
   final bool isDefault;
+  final String? defaultFundId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -16,6 +17,7 @@ class AccountBook {
     this.icon,
     this.currency,
     this.isDefault = false,
+    this.defaultFundId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -27,6 +29,7 @@ class AccountBook {
     String? icon,
     String? currency,
     bool? isDefault,
+    String? defaultFundId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -37,6 +40,7 @@ class AccountBook {
       icon: icon ?? this.icon,
       currency: currency ?? this.currency,
       isDefault: isDefault ?? this.isDefault,
+      defaultFundId: defaultFundId ?? this.defaultFundId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -50,6 +54,7 @@ class AccountBook {
       'icon': icon,
       'currency': currency,
       'isDefault': isDefault,
+      'defaultFundId': defaultFundId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -63,6 +68,7 @@ class AccountBook {
       icon: json['icon'] as String?,
       currency: json['currency'] as String?,
       isDefault: json['isDefault'] as bool? ?? false,
+      defaultFundId: json['defaultFundId'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

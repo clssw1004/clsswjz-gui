@@ -747,5 +747,9 @@
     "monthlyComparison": "Monthly Comparison",
     "@monthlyComparison": {
         "description": "Title for monthly comparison chart"
+    },
+    "defaultFund": "Default Fund Account",
+    "@defaultFund": {
+        "description": "Default fund account label"
     }
 }

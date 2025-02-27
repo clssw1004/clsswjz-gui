@@ -755,5 +755,9 @@
     "monthlyComparison": "月度收支对比",
     "@monthlyComparison": {
         "description": "月度收支对比图标题"
+    },
+    "defaultFund": "默认资金账户",
+    "@defaultFund": {
+        "description": "默认资金账户标签"
     }
 }

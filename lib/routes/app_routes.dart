@@ -120,15 +120,13 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
       final accountBook = args[0] as BookMetaVO;
-      final item =
-          args.length > 1 && args[1] != null ? args[1] as UserItemVO : null;
-      return ItemAddPage(accountBook: accountBook, item: item);
+      return ItemAddPage(bookMeta: accountBook);
     },
     itemEdit: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
       final accountBook = args[0] as BookMetaVO;
       final item = args[1] as UserItemVO;
-      return ItemEditPage(accountBook: accountBook, item: item);
+      return ItemEditPage(bookMeta: accountBook, item: item);
     },
     itemsList: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;

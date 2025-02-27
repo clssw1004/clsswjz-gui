@@ -3,11 +3,11 @@ import 'package:clsswjz/enums/business_type.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/common.dart';
-import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 import '../enums/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
+import '../models/vo/book_meta.dart';
 import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
@@ -15,8 +15,8 @@ import '../models/vo/attachment_vo.dart';
 /// 账目表单状态管理
 class ItemFormProvider extends ChangeNotifier {
   /// 账本数据
-  final UserBookVO _accountBook;
-  UserBookVO get accountBook => _accountBook;
+  final BookMetaVO _bookMeta;
+  BookMetaVO get bookMeta => _bookMeta;
 
   /// 账目数据
   UserItemVO _item;
@@ -61,12 +61,13 @@ class ItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  ItemFormProvider(UserBookVO accountBook, UserItemVO? item)
-      : _accountBook = accountBook,
+  ItemFormProvider(BookMetaVO bookMeta, UserItemVO? item)
+      : _bookMeta = bookMeta,
         _item = item ??
             UserItemVO(
               id: '',
-              accountBookId: accountBook.id,
+              accountBookId: bookMeta.id,
+              fundId: bookMeta.defaultFundId,
               type: AccountItemType.expense.code,
               amount: 0,
               accountDate: DateTime.now().toString().substring(0, 10),
@@ -279,7 +280,7 @@ class ItemFormProvider extends ChangeNotifier {
     try {
       final result = await DriverFactory.driver.updateItem(
         AppConfigManager.instance.userId,
-        _accountBook.id,
+        _bookMeta.id,
         _item.id,
         type: type,
         amount: amount,

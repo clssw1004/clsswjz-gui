@@ -641,5 +641,9 @@
     "monthlyComparison": "月度收支對比",
     "@monthlyComparison": {
         "description": "月度收支對比圖標題"
+    },
+    "defaultFund": "預設資金賬戶",
+    "@defaultFund": {
+        "description": "預設資金賬戶標籤"
     }
 }

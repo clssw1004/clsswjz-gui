@@ -26,6 +26,7 @@ abstract class BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundId,
       String? defaultFundName,
       String? defaultCategoryName,
       String? defaultShopName,
@@ -37,6 +38,7 @@ abstract class BookDataDriver {
       String? description,
       CurrencySymbol? currencySymbol,
       String? icon,
+      String? defaultFundId,
       List<BookMemberVO> members = const []});
 
   /// 删除账本

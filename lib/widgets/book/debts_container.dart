@@ -91,7 +91,7 @@ class DebtsContainer extends StatelessWidget {
                     child: Text(
                       L10nManager.l10n.noData,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant.withOpacity(0.75),
+                        color: colorScheme.onSurfaceVariant.withAlpha(180),
                       ),
                     ),
                   ),

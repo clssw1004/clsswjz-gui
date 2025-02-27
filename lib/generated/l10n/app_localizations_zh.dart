@@ -855,6 +855,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get monthlyComparison => '月度收支对比';
+
+  @override
+  String get defaultFund => '默认资金账户';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1660,4 +1663,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get monthlyComparison => '月度收支對比';
+
+  @override
+  String get defaultFund => '預設資金賬戶';
 }

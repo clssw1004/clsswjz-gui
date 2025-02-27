@@ -1679,6 +1679,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly Comparison'**
   String get monthlyComparison;
+
+  /// Default fund account label
+  ///
+  /// In en, this message translates to:
+  /// **'Default Fund Account'**
+  String get defaultFund;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

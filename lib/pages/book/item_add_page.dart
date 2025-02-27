@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_item_vo.dart';
-import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../providers/item_form_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -26,12 +26,12 @@ import '../../widgets/common/common_attachment_field.dart';
 import '../../utils/color_util.dart';
 
 class ItemAddPage extends StatelessWidget {
-  final UserBookVO accountBook;
+  final BookMetaVO bookMeta;
   final UserItemVO? item;
 
   const ItemAddPage({
     super.key,
-    required this.accountBook,
+    required this.bookMeta,
     this.item,
   });
 
@@ -40,7 +40,7 @@ class ItemAddPage extends StatelessWidget {
     final spacing = Theme.of(context).spacing;
 
     return ChangeNotifierProvider(
-      create: (context) => ItemFormProvider(accountBook, item),
+      create: (context) => ItemFormProvider(bookMeta, item),
       child: Consumer<ItemFormProvider>(
         builder: (context, provider, child) {
           return Scaffold(
@@ -279,7 +279,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createCategory(
                 AppConfigManager.instance.userId,
-                provider.accountBook.id,
+                provider.bookMeta.id,
                 name: value,
                 categoryType: item.type,
               );
@@ -347,7 +347,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createShop(
                 AppConfigManager.instance.userId,
-                provider.accountBook.id,
+                provider.bookMeta.id,
                 name: value,
               );
               if (result.data != null) {
@@ -389,7 +389,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId,
-                      provider.accountBook.id,
+                      provider.bookMeta.id,
                       name: value,
                       symbolType: SymbolType.tag,
                     );
@@ -422,7 +422,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                   onCreateItem: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId,
-                      provider.accountBook.id,
+                      provider.bookMeta.id,
                       name: value,
                       symbolType: SymbolType.project,
                     );
