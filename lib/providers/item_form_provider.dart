@@ -297,7 +297,6 @@ class ItemFormProvider extends ChangeNotifier {
         _error = result.message;
         return false;
       }
-
       return true;
     } catch (e) {
       _error = e.toString();

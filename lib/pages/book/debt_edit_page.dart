@@ -10,6 +10,7 @@ import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
+import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
@@ -485,7 +486,8 @@ class _DebtRecordCard extends StatelessWidget {
               TextButton.icon(
                 onPressed: onAddPressed,
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   foregroundColor: colorScheme.primary,
                 ),
                 icon: Icon(
@@ -555,15 +557,8 @@ class _DebtItemList extends StatelessWidget {
         final item = items[index];
         return ListTile(
           onTap: () {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.itemEdit,
-              arguments: [book, item],
-            ).then((value) {
-              if (value == true) {
-                onRefresh();
-              }
-            });
+            NavigationUtil.toItemEdit(context, item);
+            onRefresh();
           },
           title: Row(
             children: [

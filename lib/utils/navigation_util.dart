@@ -115,6 +115,35 @@ class NavigationUtil {
     }
   }
 
+  /// 跳转到记账编辑页面
+  static Future<void> toItemEdit(
+    BuildContext context,
+    dynamic item,
+  ) async {
+    final accountBook = _getCurrentBook(context);
+    if (accountBook == null) {
+      debugPrint('账本不能为空');
+      return;
+    }
+    if (item == null) {
+      debugPrint('记账不能为空');
+      return;
+    }
+
+    try {
+      final result = await Navigator.pushNamed(
+        context,
+        AppRoutes.itemEdit,
+        arguments: [accountBook, item],
+      );
+      if (result == true) {
+        _refreshItemList(context);
+      }
+    } catch (e) {
+      debugPrint('跳转记账编辑页面失败: $e');
+    }
+  }
+
   /// 跳转到记事编辑页面
   static Future<void> toNoteEdit(
     BuildContext context,
@@ -143,4 +172,4 @@ class NavigationUtil {
       debugPrint('跳转记事编辑页面失败: $e');
     }
   }
-} 
+}

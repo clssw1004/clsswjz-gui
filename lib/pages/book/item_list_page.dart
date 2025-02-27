@@ -8,6 +8,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/navigation_util.dart';
 import '../../widgets/book/item_list_advance.dart';
 import '../../widgets/book/item_list_timeline.dart';
 import '../../widgets/book/item_list_calendar.dart';
@@ -194,15 +195,7 @@ class _ItemListPageState extends State<ItemListPage> {
   }
 
   void _onTabItem(ItemListProvider itemListProvider, UserItemVO item) {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.itemEdit,
-      arguments: [widget.accountBook, item],
-    ).then((updated) {
-      if (updated == true) {
-        itemListProvider.loadItems();
-      }
-    });
+    NavigationUtil.toItemEdit(context, item);
   }
 
   @override
