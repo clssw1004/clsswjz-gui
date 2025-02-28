@@ -18,8 +18,8 @@ class CommonCardContainer extends StatelessWidget {
     super.key,
     required this.child,
     this.onTap,
-    this.padding = const EdgeInsets.all(12),
-    this.margin = const EdgeInsets.only(bottom: 12),
+    this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    this.margin = const EdgeInsets.only(bottom: 8),
   });
 
   @override

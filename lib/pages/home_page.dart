@@ -128,8 +128,6 @@ class _HomePageState extends State<HomePage>
       _toggleMenu();
       return;
     }
-
-    final provider = Provider.of<BooksProvider>(context, listen: false);
     switch (_currentIndex) {
       case 0: // 记账tab
         await NavigationUtil.toItemAdd(context);
@@ -146,7 +144,6 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final provider = Provider.of<BooksProvider>(context, listen: false);
     return Scaffold(
       body: Stack(
         children: [

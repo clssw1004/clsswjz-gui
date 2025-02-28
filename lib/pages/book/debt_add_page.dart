@@ -36,12 +36,12 @@ class _DebtAddPageState extends State<DebtAddPage> {
   final _debtDateController = TextEditingController();
   final _expectedClearDateController = TextEditingController();
   DebtType _debtType = DebtType.lend;
-  String? _selectedAccountId;
+  String? _selectedFundId;
   bool _saving = false;
   late String _debtDate;
   String? _expectedClearDate;
 
-  List<AccountFund> get _accounts => widget.book.funds ?? [];
+  List<AccountFund> get _funds => widget.book.funds ?? [];
 
   @override
   void initState() {
@@ -49,6 +49,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
     // 初始化日期为当前日期
     _debtDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _debtDateController.text = _debtDate;
+    _selectedFundId = widget.book.defaultFundId;
     // 如果传入了债务人，则初始化债务人文本控制器
     if (widget.debtor != null) {
       _debtorController.text = widget.debtor!;
@@ -115,7 +116,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
         debtor: _debtorController.text,
         debtType: _debtType,
         amount: double.parse(_amountController.text),
-        fundId: _selectedAccountId!,
+        fundId: _selectedFundId!,
         debtDate: _debtDate,
         expectedClearDate: _expectedClearDate,
       );
@@ -215,9 +216,9 @@ class _DebtAddPageState extends State<DebtAddPage> {
 
             // 账户选择
             CommonSelectFormField<AccountFund>(
-              items: _accounts,
+              items: _funds,
               hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
-              value: _selectedAccountId,
+              value: _selectedFundId,
               displayMode: DisplayMode.iconText,
               displayField: (item) => item.name,
               keyField: (item) => item.id,
@@ -228,11 +229,11 @@ class _DebtAddPageState extends State<DebtAddPage> {
                 final account = value as AccountFund?;
                 if (account != null) {
                   setState(() {
-                    _selectedAccountId = account.id;
+                    _selectedFundId = account.id;
                   });
                 } else {
                   setState(() {
-                    _selectedAccountId = null;
+                    _selectedFundId = null;
                   });
                 }
               },

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../enums/note_type.dart';
 import '../models/vo/book_meta.dart';
 import '../providers/books_provider.dart';
+import '../providers/debt_list_provider.dart';
 import '../providers/item_list_provider.dart';
 import '../providers/note_list_provider.dart';
 import '../routes/app_routes.dart';
@@ -30,6 +31,17 @@ class NavigationUtil {
     try {
       final provider = Provider.of<ItemListProvider>(context, listen: false);
       provider.loadItems();
+    } catch (e) {
+      debugPrint('刷新记账列表失败: $e');
+    }
+  }
+
+  /// 刷新记账列表数据
+  static void _refreshDebtList(BuildContext context) {
+    if (!context.mounted) return;
+    try {
+      final provider = Provider.of<DebtListProvider>(context, listen: false);
+      provider.loadDebts();
     } catch (e) {
       debugPrint('刷新记账列表失败: $e');
     }
@@ -108,6 +120,7 @@ class NavigationUtil {
         arguments: [accountBook],
       );
       if (result == true) {
+        _refreshDebtList(context);
         _refreshItemList(context);
       }
     } catch (e) {

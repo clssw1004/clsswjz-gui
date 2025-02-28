@@ -1,6 +1,7 @@
 ---
 description: 美化、优化样式规则
 globs: *.dart
+alwaysApply: false
 ---
 1. 所有样式布局设计需要遵循material design 3规范，添加新的组件或页面时需要适配当前主题（颜色、边距、圆角等要从主题中获取或使用全局统一配置的）
 2. 除非要求，不得修改数据层的数据结构
@@ -8,4 +9,4 @@ globs: *.dart
 4. 要注意兼容多种系统平台（Android、IOS、WEB、Windows、MacOS、Linux），兼容多种屏幕尺寸
 5. 所有新添加的界面UI文字需要支持国际化设置（中文、英文、繁体中文），国际化设置添加新的词组时需要检查已有国际化文件是否已存在该词组，或是否可通过参数化的方式提供以便于后面复用，在使用国际化文本变量时，使用L10nManager.l10n实例，不要再从context中获取
 6. 除非明确要求，不得随意修改通用组件
-7. 不要使用过时的API（尤其是withOpacity这个过时的API与surfaceVariant过时的颜色）
+7. 不要使用过时的API（尤其是不要使用withOpacity这个过时的API，与surfaceVariant过时的颜色值）

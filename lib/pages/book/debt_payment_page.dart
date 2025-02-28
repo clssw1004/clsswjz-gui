@@ -51,6 +51,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
     final now = DateTime.now();
     _selectedDate = DateFormat('yyyy-MM-dd').format(now);
     _selectedTime = DateFormat('HH:mm').format(now);
+    _fundId = widget.debt.fundId;
   }
 
   @override
@@ -67,6 +68,15 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
       initialDate: DateFormat('yyyy-MM-dd').parse(_selectedDate),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme,
+            dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null) {
@@ -84,7 +94,13 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-          child: child!,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: Theme.of(context).colorScheme,
+              dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+            ),
+            child: child!,
+          ),
         );
       },
       initialTime: TimeOfDay.fromDateTime(
@@ -153,90 +169,191 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                     ),
                   )
                 : const Icon(Icons.save_outlined),
+            tooltip: L10nManager.l10n.save,
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: spacing.formPadding,
-          children: [
-            // 金额
-            AmountInput(
-              controller: _amountController,
-              onChanged: (value) {
-                setState(() {});
-              },
-            ),
-            SizedBox(height: spacing.formItemSpacing),
-
-            // 账户选择
-            CommonSelectFormField<AccountFund>(
-              items: _accounts,
-              hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
-              value: _fundId,
-              displayMode: DisplayMode.iconText,
-              displayField: (item) => item.name,
-              keyField: (item) => item.id,
-              icon: Icons.account_balance_wallet_outlined,
-              label: L10nManager.l10n.account,
-              required: true,
-              onChanged: (value) {
-                final account = value as AccountFund?;
-                if (account != null) {
-                  setState(() {
-                    _fundId = account.id;
-                  });
-                } else {
-                  setState(() {
-                    _fundId = null;
-                  });
-                }
-              },
-              validator: (value) {
-                if (value == null) {
-                  return L10nManager.l10n.required;
-                }
-                return null;
-              },
-            ),
-
-            SizedBox(height: spacing.formItemSpacing),
-            // 备注
-            CommonTextFormField(
-              controller: _remarkController,
-              labelText: L10nManager.l10n.remark,
-              prefixIcon: const Icon(Icons.note_outlined),
-              maxLines: 3,
-            ),
-            SizedBox(height: spacing.formItemSpacing),
-
-            // 日期和时间选择
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.start,
-                children: [
-                  // 日期选择徽章
-                  CommonBadge(
-                    icon: Icons.calendar_today_outlined,
-                    text: _selectedDate,
-                    onTap: _selectDate,
-                    borderColor: colorScheme.outline.withAlpha(51),
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: spacing.formPadding,
+            children: [
+              // 金额输入卡片
+              Card(
+                margin: EdgeInsets.zero,
+                elevation: 0,
+                color: colorScheme.surfaceContainerLow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(spacing.formItemSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        L10nManager.l10n.amount,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      SizedBox(height: spacing.listItemSpacing),
+                      // 金额
+                      AmountInput(
+                        controller: _amountController,
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                      ),
+                    ],
                   ),
-                  // 时间选择徽章
-                  CommonBadge(
-                    icon: Icons.access_time_outlined,
-                    text: _selectedTime,
-                    onTap: _selectTime,
-                    borderColor: colorScheme.outline.withAlpha(51),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              
+              SizedBox(height: spacing.formItemSpacing),
+
+              // 账户和备注卡片
+              Card(
+                margin: EdgeInsets.zero,
+                elevation: 0,
+                color: colorScheme.surfaceContainerLow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(spacing.formItemSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 账户选择
+                      CommonSelectFormField<AccountFund>(
+                        items: _accounts,
+                        hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
+                        value: _fundId,
+                        displayMode: DisplayMode.iconText,
+                        displayField: (item) => item.name,
+                        keyField: (item) => item.id,
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: L10nManager.l10n.account,
+                        required: true,
+                        onChanged: (value) {
+                          final account = value as AccountFund?;
+                          if (account != null) {
+                            setState(() {
+                              _fundId = account.id;
+                            });
+                          } else {
+                            setState(() {
+                              _fundId = null;
+                            });
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return L10nManager.l10n.required;
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: spacing.formItemSpacing),
+                      
+                      // 备注
+                      CommonTextFormField(
+                        controller: _remarkController,
+                        labelText: L10nManager.l10n.remark,
+                        prefixIcon: const Icon(Icons.note_outlined),
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: spacing.formItemSpacing),
+
+              // 日期和时间卡片
+              Card(
+                margin: EdgeInsets.zero,
+                elevation: 0,
+                color: colorScheme.surfaceContainerLow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(spacing.formItemSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.categoryCode == 'debt_repayment' 
+                            ? L10nManager.l10n.repaymentDate 
+                            : L10nManager.l10n.collectionDate,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      SizedBox(height: spacing.listItemSpacing),
+                      // 日期和时间选择
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          spacing: spacing.listItemSpacing,
+                          runSpacing: spacing.listItemSpacing,
+                          alignment: WrapAlignment.start,
+                          children: [
+                            // 日期选择徽章
+                            CommonBadge(
+                              icon: Icons.calendar_today_outlined,
+                              text: _selectedDate,
+                              onTap: _selectDate,
+                              borderColor: colorScheme.outline.withAlpha(51),
+                              backgroundColor: colorScheme.surfaceContainerHigh.withAlpha(50),
+                            ),
+                            // 时间选择徽章
+                            CommonBadge(
+                              icon: Icons.access_time_outlined,
+                              text: _selectedTime,
+                              onTap: _selectTime,
+                              borderColor: colorScheme.outline.withAlpha(51),
+                              backgroundColor: colorScheme.surfaceContainerHigh.withAlpha(50),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              SizedBox(height: spacing.formGroupSpacing),
+              
+              // 保存按钮
+              FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(L10nManager.l10n.save),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

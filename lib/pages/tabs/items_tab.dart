@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../manager/app_config_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
-import '../../routes/app_routes.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/book/book_selector.dart';
 import '../../widgets/common/common_app_bar.dart';
