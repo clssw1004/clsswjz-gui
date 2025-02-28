@@ -124,9 +124,9 @@ class AppConfigManager {
     _themeMode = themeModeString != null
         ? ThemeMode.values.firstWhere(
             (mode) => mode.toString() == themeModeString,
-            orElse: () => ThemeMode.system,
+            orElse: () => ThemeMode.light,
           )
-        : ThemeMode.system;
+        : ThemeMode.light;
 
     // 初始化字体大小
     _fontSize = CacheManager.instance.getDouble(_fontSizeKey) ?? 1.0;
@@ -163,7 +163,7 @@ class AppConfigManager {
     final itemFilterString = CacheManager.instance.getString(_itemFilterKey);
     _itemFilter = itemFilterString != null
         ? ItemFilterDTO.fromJson(itemFilterString)
-        : ItemFilterDTO();
+        : const ItemFilterDTO();
   }
 
   /// 初始化
