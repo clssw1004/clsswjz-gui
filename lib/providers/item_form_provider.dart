@@ -4,9 +4,12 @@ import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/service_manager.dart';
 import 'package:clsswjz/models/common.dart';
 import 'package:flutter/material.dart';
+import '../enums/operate_type.dart';
 import '../enums/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
+import '../events/event_bus.dart';
+import '../events/special/event_item.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
@@ -255,7 +258,7 @@ class ItemFormProvider extends ChangeNotifier {
       _error = result.message;
       return false;
     }
-
+    EventBus.instance.emit(ItemChangedEvent(OperateType.create, _item));
     return true;
   }
 
@@ -298,6 +301,7 @@ class ItemFormProvider extends ChangeNotifier {
         _error = result.message;
         return false;
       }
+      EventBus.instance.emit(ItemChangedEvent(OperateType.update, _item));
       return true;
     } catch (e) {
       _error = e.toString();

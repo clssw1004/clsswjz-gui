@@ -49,7 +49,7 @@ class CommonCardContainer extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: colorScheme.outline.withOpacity(0.18),
+          color: colorScheme.outline.withAlpha(46),
         ),
       ),
       child: content,

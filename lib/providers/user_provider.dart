@@ -8,7 +8,7 @@ import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../events/event_bus.dart';
-import '../events/event_sync.dart';
+import '../events/special/event_sync.dart';
 
 /// 用户信息状态管理
 class UserProvider extends ChangeNotifier {

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
-import '../events/event_book.dart';
+import '../enums/operate_type.dart';
+import '../events/special/event_book.dart';
 import '../events/event_bus.dart';
-import '../events/event_sync.dart';
+import '../events/special/event_item.dart';
+import '../events/special/event_sync.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/dto/item_filter_dto.dart';
@@ -173,6 +175,7 @@ class ItemListProvider extends ChangeNotifier {
       item.id,
     );
     if (result.ok) {
+      EventBus.instance.emit(ItemChangedEvent(OperateType.delete, item));
       _items.remove(item);
       notifyListeners();
     }

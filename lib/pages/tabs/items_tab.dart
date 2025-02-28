@@ -6,6 +6,7 @@ import '../../providers/books_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/book/book_selector.dart';
+import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
@@ -48,7 +49,7 @@ class _ItemsTabState extends State<ItemsTab>
       provider.loadItems();
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,8 +75,16 @@ class _ItemsTabState extends State<ItemsTab>
           final accountBook = bookProvider.selectedBook;
           return Stack(
             children: [
-              Column(
+              ListView(
+                padding: const EdgeInsets.only(bottom: 16),
                 children: [
+                  // 账本统计卡片
+                  BookStatisticCard(
+                    statisticInfo: bookProvider.statisticInfo,
+                    onTap: () => bookProvider.loadStatisticInfo(),
+                  ),
+                  
+                  // 最近账目
                   ItemsContainer(
                     accountBook: accountBook,
                     items: itemListProvider.items.take(3).toList(),
@@ -84,6 +93,8 @@ class _ItemsTabState extends State<ItemsTab>
                       NavigationUtil.toItemEdit(context, item);
                     },
                   ),
+                  
+                  // 债务信息
                   DebtsContainer(
                     bookMeta: bookProvider.selectedBook,
                     loading: itemListProvider.loading,

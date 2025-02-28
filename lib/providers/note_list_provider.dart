@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../events/event_bus.dart';
-import '../events/event_sync.dart';
-import '../events/event_book.dart';
+import '../events/special/event_sync.dart';
+import '../events/special/event_book.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/user_note_vo.dart';
 
@@ -53,6 +53,7 @@ class NoteListProvider extends ChangeNotifier {
     _syncSubscription.cancel();
     super.dispose();
   }
+
   Future<void> setKeyword(String keyword) async {
     _keyword = keyword;
     loadNotes(true);

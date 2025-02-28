@@ -15,3 +15,20 @@ class UserStatisticVO {
     required this.dayCount,
   });
 }
+
+class BookStatisticVO {
+  /// 收入
+  final double income;
+
+  /// 支出
+  final double expense;
+
+  /// 结余
+  final double balance;
+
+  const BookStatisticVO({
+    this.income = 0,
+    this.expense = 0,
+    this.balance = 0,
+  });
+}

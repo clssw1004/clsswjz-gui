@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
-import '../events/event_book.dart';
+import '../events/special/event_book.dart';
 import '../events/event_bus.dart';
-import '../events/event_sync.dart';
+import '../events/special/event_sync.dart';
 import '../manager/app_config_manager.dart';
 import '../database/database.dart';
 import '../models/vo/user_debt_vo.dart';

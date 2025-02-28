@@ -37,7 +37,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
   final _debtorController = TextEditingController();
   final _amountController = TextEditingController();
   late DebtType _debtType;
-  bool _saving = false;
   late DebtClearState _clearState;
   List<UserItemVO> _items = [];
 
@@ -106,90 +105,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
     }
   }
 
-  Future<void> _updateDebtState(DebtClearState state, String message) async {
-    final confirmed = await _showConfirmDialog(message);
-    if (confirmed != true) return;
-
-    setState(() => _saving = true);
-    try {
-      await DriverFactory.driver.updateDebt(
-        AppConfigManager.instance.userId,
-        widget.book.id,
-        widget.debt.id,
-        clearState: state,
-        clearDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      );
-      if (mounted) {
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ToastUtil.showError(e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _saving = false);
-      }
-    }
-  }
-
-  Future<bool?> _showConfirmDialog(String? message) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(L10nManager.l10n.warning),
-        content: Text(message ?? ''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(L10nManager.l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(L10nManager.l10n.confirm),
-          ),
-        ],
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: colorScheme.surfaceTint,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _delete() async {
-    final confirmed = await _showConfirmDialog(
-      '确定要删除[${widget.debt.debtor}]吗？',
-    );
-    if (confirmed != true) return;
-
-    setState(() => _saving = true);
-    try {
-      final result = await DriverFactory.driver.deleteDebt(
-        AppConfigManager.instance.userId,
-        widget.book.id,
-        widget.debt.id,
-      );
-      if (result.ok) {
-        if (mounted) {
-          Navigator.of(context).pop(true);
-        }
-      } else {
-        if (mounted) {
-          ToastUtil.showError(result.message ?? '删除${L10nManager.l10n.debt}失败');
-        }
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _saving = false);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -198,7 +113,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.editTo(L10nManager.l10n.debt)),
-        actions: _buildAppBarActions(),
       ),
       body: SafeArea(
         child: ListView(
@@ -243,44 +157,6 @@ class _DebtEditPageState extends State<DebtEditPage> {
         ),
       ),
     );
-  }
-
-  List<Widget> _buildAppBarActions() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return [
-      if (_clearState == DebtClearState.pending) ...[
-        IconButton(
-          onPressed: _saving
-              ? null
-              : () => _updateDebtState(
-                    DebtClearState.cleared,
-                    '确认将此债务标记为已结清？',
-                  ),
-          icon: const Icon(Icons.check_circle_outline),
-          tooltip: '标记为已结清',
-        ),
-        IconButton(
-          onPressed: _saving
-              ? null
-              : () => _updateDebtState(
-                    DebtClearState.cancelled,
-                    '确认将此债务标记为已作废？',
-                  ),
-          icon: const Icon(Icons.cancel_outlined),
-          tooltip: '标记为已作废',
-        ),
-      ],
-      IconButton(
-        onPressed: _saving ? null : _delete,
-        icon: Icon(
-          Icons.delete_outline,
-          color: colorScheme.error,
-        ),
-        tooltip: L10nManager.l10n.delete(""),
-      ),
-    ];
   }
 
   Future<void> _navigateToPayment(String categoryCode) async {
@@ -347,11 +223,11 @@ class _DebtInfoCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              CommonTag(
-                label: clearState.text,
-                color: clearState.color,
-                outlined: true,
-              ),
+              // CommonTag(
+              //   label: clearState.text,
+              //   color: clearState.color,
+              //   outlined: true,
+              // ),
             ],
           ),
           SizedBox(height: spacing.formItemSpacing),
