@@ -13,7 +13,6 @@ import '../../models/vo/user_debt_vo.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
-import '../../utils/toast_util.dart';
 import '../../utils/color_util.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../routes/app_routes.dart';
@@ -60,7 +59,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
 
   /// 获取剩余金额
   double get _remainingAmount {
-    return _debtAmount - _operationAmount;
+    return _debtAmount + _operationAmount;
   }
 
   @override
@@ -68,7 +67,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
     super.initState();
     _debtType = DebtType.fromCode(widget.debt.debtType);
     _debtorController.text = widget.debt.debtor;
-    _amountController.text = widget.debt.amount.toString();
+    _amountController.text = widget.debt.remainAmount.toString();
     _clearState = widget.debt.clearState;
     _loadItems();
   }
@@ -164,9 +163,9 @@ class _DebtEditPageState extends State<DebtEditPage> {
       context,
       AppRoutes.debtPayment,
       arguments: [
-        _debtType == DebtType.lend
-            ? L10nManager.l10n.collection
-            : L10nManager.l10n.repayment,
+        _debtType.code == categoryCode
+            ? _debtType.text
+            : _debtType.operationText,
         widget.book,
         widget.debt,
         categoryCode,

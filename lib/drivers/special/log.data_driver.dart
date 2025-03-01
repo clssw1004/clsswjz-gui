@@ -629,7 +629,8 @@ class LogDataDriver implements BookDataDriver {
       {int limit = 200, int offset = 0, String? keyword}) async {
     final debts = await DaoManager.debtDao
         .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
-    return OperateResult.success(await VOTransfer.transferDebts(debts));
+    return OperateResult.success(
+        await VOTransfer.transferDebts(bookId, userId, debts));
   }
 
   @override

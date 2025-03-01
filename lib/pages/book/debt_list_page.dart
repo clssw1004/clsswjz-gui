@@ -247,7 +247,7 @@ class _DebtTile extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    debt.amount.toString(),
+                    debt.remainAmount.toString(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: amountColor,
                       fontWeight: FontWeight.bold,

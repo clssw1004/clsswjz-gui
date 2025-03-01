@@ -1,7 +1,6 @@
 import 'package:clsswjz/database/database.dart';
 
 import '../../enums/debt_clear_state.dart';
-import 'user_item_vo.dart';
 
 class UserDebtVO {
   final String id;
@@ -14,8 +13,11 @@ class UserDebtVO {
   /// 债务人
   final String debtor;
 
-  /// 金额
-  final double amount;
+  /// 债务剩余金额
+  final double remainAmount;
+
+  /// 债务总金额
+  final double totalAmount;
 
   /// 账户ID
   final String fundId;
@@ -45,7 +47,8 @@ class UserDebtVO {
     required this.accountBookId,
     required this.debtType,
     required this.debtor,
-    required this.amount,
+    required this.totalAmount,
+    required this.remainAmount,
     required this.fundId,
     required this.debtDate,
     required this.clearState,
@@ -60,6 +63,8 @@ class UserDebtVO {
 
   static UserDebtVO fromDebt({
     required AccountDebt debt,
+    required double totalAmount,
+    required double remainAmount,
     required String fundName,
   }) {
     return UserDebtVO(
@@ -67,7 +72,8 @@ class UserDebtVO {
       accountBookId: debt.accountBookId,
       debtType: debt.debtType,
       debtor: debt.debtor,
-      amount: debt.amount,
+      totalAmount: totalAmount,
+      remainAmount: remainAmount,
       fundId: debt.fundId,
       clearState: DebtClearState.fromCode(debt.clearState),
       debtDate: debt.debtDate,

@@ -1,3 +1,4 @@
+import 'package:clsswjz/providers/debt_list_provider.dart';
 import 'package:clsswjz/providers/item_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
+import '../../routes/app_routes.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -49,7 +51,7 @@ class _ItemsTabState extends State<ItemsTab>
       provider.loadItems();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,9 +71,10 @@ class _ItemsTabState extends State<ItemsTab>
           },
         ),
       ),
-      body: Consumer3<BooksProvider, ItemListProvider, SyncProvider>(
-        builder:
-            (context, bookProvider, itemListProvider, syncProvider, child) {
+      body: Consumer4<BooksProvider, ItemListProvider, DebtListProvider,
+          SyncProvider>(
+        builder: (context, bookProvider, itemListProvider, debtListProvider,
+            syncProvider, child) {
           final accountBook = bookProvider.selectedBook;
           return Stack(
             children: [
@@ -83,7 +86,7 @@ class _ItemsTabState extends State<ItemsTab>
                     statisticInfo: bookProvider.statisticInfo,
                     onTap: () => bookProvider.loadStatisticInfo(),
                   ),
-                  
+
                   // 最近账目
                   ItemsContainer(
                     accountBook: accountBook,
@@ -93,11 +96,27 @@ class _ItemsTabState extends State<ItemsTab>
                       NavigationUtil.toItemEdit(context, item);
                     },
                   ),
-                  
+
                   // 债务信息
                   DebtsContainer(
+                    debts: debtListProvider.debts.take(3).toList(),
                     bookMeta: bookProvider.selectedBook,
-                    loading: itemListProvider.loading,
+                    loading: debtListProvider.loading,
+                    onItemTap: (debt) {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.debtEdit,
+                        arguments: [
+                          bookProvider.selectedBook,
+                          debt,
+                        ],
+                      ).then((updated) {
+                        if (updated == true) {
+                          debtListProvider.loadDebts();
+                        }
+                      });
+                    },
+                    onRefresh: () => debtListProvider.loadDebts(),
                   ),
                 ],
               ),

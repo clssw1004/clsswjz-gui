@@ -1,4 +1,5 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
+import 'package:clsswjz/enums/debt_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
@@ -72,7 +73,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme,
-            dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+            dialogTheme: DialogTheme(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+            ),
           ),
           child: child!,
         );
@@ -97,7 +100,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           child: Theme(
             data: Theme.of(context).copyWith(
               colorScheme: Theme.of(context).colorScheme,
-              dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+              dialogTheme: DialogTheme(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+              ),
             ),
             child: child!,
           ),
@@ -125,9 +130,19 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
     });
 
     try {
-      DriverFactory.driver.createItem(
+      // 根据categoryCode调整金额的正负号
+      // 借出(LEND)或还款(REPAYMENT)时为负数，反之为正数
+      double amount = double.parse(_amountController.text);
+      if (widget.categoryCode == DebtType.lend.code ||
+          widget.categoryCode == DebtType.borrow.operationCategory) {
+        amount = -amount.abs(); // 确保为负数
+      } else {
+        amount = amount.abs(); // 确保为正数
+      }
+
+      await DriverFactory.driver.createItem(
           AppConfigManager.instance.userId, widget.book.id,
-          amount: double.parse(_amountController.text),
+          amount: amount,
           categoryCode: widget.categoryCode,
           type: AccountItemType.transfer,
           description: _remarkController.text,
@@ -211,7 +226,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                   ),
                 ),
               ),
-              
+
               SizedBox(height: spacing.formItemSpacing),
 
               // 账户和备注卡片
@@ -230,7 +245,8 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                       // 账户选择
                       CommonSelectFormField<AccountFund>(
                         items: _accounts,
-                        hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.account),
+                        hint: L10nManager.l10n
+                            .pleaseSelect(L10nManager.l10n.account),
                         value: _fundId,
                         displayMode: DisplayMode.iconText,
                         displayField: (item) => item.name,
@@ -259,7 +275,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                       ),
 
                       SizedBox(height: spacing.formItemSpacing),
-                      
+
                       // 备注
                       CommonTextFormField(
                         controller: _remarkController,
@@ -288,8 +304,8 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.categoryCode == 'debt_repayment' 
-                            ? L10nManager.l10n.repaymentDate 
+                        widget.categoryCode == 'debt_repayment'
+                            ? L10nManager.l10n.repaymentDate
                             : L10nManager.l10n.collectionDate,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w500,
@@ -311,7 +327,8 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                               text: _selectedDate,
                               onTap: _selectDate,
                               borderColor: colorScheme.outline.withAlpha(51),
-                              backgroundColor: colorScheme.surfaceContainerHigh.withAlpha(50),
+                              backgroundColor: colorScheme.surfaceContainerHigh
+                                  .withAlpha(50),
                             ),
                             // 时间选择徽章
                             CommonBadge(
@@ -319,7 +336,8 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                               text: _selectedTime,
                               onTap: _selectTime,
                               borderColor: colorScheme.outline.withAlpha(51),
-                              backgroundColor: colorScheme.surfaceContainerHigh.withAlpha(50),
+                              backgroundColor: colorScheme.surfaceContainerHigh
+                                  .withAlpha(50),
                             ),
                           ],
                         ),
@@ -328,9 +346,9 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
                   ),
                 ),
               ),
-              
+
               SizedBox(height: spacing.formGroupSpacing),
-              
+
               // 保存按钮
               FilledButton.icon(
                 onPressed: _saving ? null : _save,

@@ -1,22 +1,27 @@
 import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../routes/app_routes.dart';
 import '../../enums/debt_type.dart';
 import '../../utils/color_util.dart';
-import '../../providers/debt_list_provider.dart';
 
 class DebtsContainer extends StatelessWidget {
   final BookMetaVO? bookMeta;
+  final List<UserDebtVO> debts;
   final bool loading;
+  final Function(UserDebtVO)? onItemTap;
+  final VoidCallback? onRefresh;
 
   const DebtsContainer({
     super.key,
     required this.bookMeta,
+    required this.debts,
     this.loading = false,
+    this.onItemTap,
+    this.onRefresh,
   });
 
   @override
@@ -72,68 +77,46 @@ class DebtsContainer extends StatelessWidget {
           ),
           Divider(
             height: 1,
-            color: colorScheme.outlineVariant.withOpacity(0.2),
+            color: colorScheme.outlineVariant.withAlpha(50),
           ),
           // 内容区域
-          Consumer<DebtListProvider>(
-            builder: (context, provider, child) {
-              if (provider.loading) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              if (provider.debts.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: Text(
-                      L10nManager.l10n.noData,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurfaceVariant.withAlpha(180),
-                      ),
-                    ),
+          if (loading)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (debts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: Text(
+                  L10nManager.l10n.noData,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant.withAlpha(180),
                   ),
-                );
-              }
-
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                itemCount: provider.debts.length,
-                separatorBuilder: (context, index) => Divider(
-                  height: 1,
-                  indent: 16,
-                  endIndent: 16,
-                  color: colorScheme.outlineVariant.withAlpha(40),
                 ),
-                itemBuilder: (context, index) {
-                  final debt = provider.debts[index];
-                  return _DebtItem(
-                    debt: debt,
-                    onTap: () async {
-                      if (context.mounted) {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.debtEdit,
-                          arguments: [
-                            bookMeta,
-                            debt,
-                          ],
-                        ).then((updated) {
-                          if (updated == true) {
-                            context.read<DebtListProvider>().loadDebts();
-                          }
-                        });
-                      }
-                    },
-                  );
-                },
-              );
-            },
-          ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              itemCount: debts.length,
+              separatorBuilder: (context, index) => Divider(
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+                color: colorScheme.outlineVariant.withAlpha(40),
+              ),
+              itemBuilder: (context, index) {
+                final debt = debts[index];
+                return _DebtItem(
+                  debt: debt,
+                  onTap: onItemTap != null ? () => onItemTap!(debt) : null,
+                );
+              },
+            ),
         ],
       ),
     );
@@ -154,64 +137,143 @@ class _DebtItem extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final debtType = DebtType.fromCode(debt.debtType);
+    final amountColor = ColorUtil.getDebtAmountColor(debtType);
+    final isLending = debtType == DebtType.lend;
+    
+    // 创建格式化工具
+    final formatter = NumberFormat('#,##0.00');
+    
+    // 债务标签图标
+    final debtIcon = isLending 
+        ? Icons.arrow_circle_up_outlined
+        : Icons.arrow_circle_down_outlined;
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
+    return Card(
+      elevation: 1,
+      shadowColor: colorScheme.shadow.withAlpha(30),
+      surfaceTintColor: colorScheme.surfaceTint,
+      color: colorScheme.surface,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withAlpha(40),
+          width: 0.5,
         ),
-        child: Row(
-          children: [
-            // 日期
-            Text(
-              debt.debtDate,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant.withAlpha(178),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 上部分：债务人和总金额
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // 债务类型图标
+                  Icon(
+                    debtIcon,
+                    color: amountColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  // 债务类型标签
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: amountColor.withAlpha(24),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      isLending
+                          ? L10nManager.l10n.lend
+                          : L10nManager.l10n.borrow,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: amountColor,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // 债务人
+                  Expanded(
+                    child: Text(
+                      debt.debtor,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface,
+                        letterSpacing: 0.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // 总金额
+                  Text(
+                    formatter.format(debt.totalAmount),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: amountColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 12),
-            // 借入/借出标识
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: ColorUtil.getDebtAmountColor(debtType).withAlpha(32),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                debtType == DebtType.lend
-                    ? L10nManager.l10n.lend
-                    : L10nManager.l10n.borrow,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: ColorUtil.getDebtAmountColor(debtType),
-                  fontWeight: FontWeight.w500,
+              
+              // 底部：剩余金额信息 - 右对齐显示
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 28),
+                child: Row(
+                  children: [
+                    // 进度指示
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: LinearProgressIndicator(
+                          value: debt.remainAmount / debt.totalAmount,
+                          backgroundColor: colorScheme.surfaceVariant,
+                          color: amountColor.withAlpha(150),
+                          minHeight: 4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // 剩余金额
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isLending
+                              ? L10nManager.l10n.remainingReceivable
+                              : L10nManager.l10n.remainingPayable,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 11,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          formatter.format(debt.remainAmount),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: amountColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            // 债务人
-            Expanded(
-              child: Text(
-                debt.debtor,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 16),
-            // 金额
-            Text(
-              debt.amount.toString(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: ColorUtil.getDebtAmountColor(debtType),
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
