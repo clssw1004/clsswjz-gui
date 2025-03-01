@@ -103,18 +103,7 @@ class _ItemsTabState extends State<ItemsTab>
                     bookMeta: bookProvider.selectedBook,
                     loading: debtListProvider.loading,
                     onItemTap: (debt) {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.debtEdit,
-                        arguments: [
-                          bookProvider.selectedBook,
-                          debt,
-                        ],
-                      ).then((updated) {
-                        if (updated == true) {
-                          debtListProvider.loadDebts();
-                        }
-                      });
+                      NavigationUtil.toDebtEdit(context, debt);
                     },
                     onRefresh: () => debtListProvider.loadDebts(),
                   ),

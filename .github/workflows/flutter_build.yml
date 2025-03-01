@@ -73,7 +73,7 @@ jobs:
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=clsswjz.keystore" >> android/key.properties
+          echo "storeFile=app/clsswjz.keystore" >> android/key.properties
 
       - name: Build ${{ matrix.platform }}
         run: ${{ matrix.build-command }}
