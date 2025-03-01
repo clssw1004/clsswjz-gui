@@ -12,6 +12,7 @@ import '../providers/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/common/restart_widget.dart';
 import '../providers/debt_list_provider.dart';
+import 'sync_manager.dart';
 
 /// Provider 管理器
 class ProviderManager {
@@ -31,7 +32,12 @@ class ProviderManager {
             create: (_) => UserProvider()..refreshUserInfo(),
           ),
           ChangeNotifierProvider<SyncProvider>(
-            create: (_) => SyncProvider(),
+            create: (context) {
+              final syncProvider = SyncProvider();
+              // 初始化同步管理器
+              SyncManager().initialize(syncProvider);
+              return syncProvider;
+            },
           ),
           ChangeNotifierProvider<BooksProvider>(
             create: (_) => BooksProvider()..init(AppConfigManager.instance.userId),

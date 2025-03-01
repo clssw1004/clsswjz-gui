@@ -172,7 +172,7 @@ class _DebtItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 上部分：债务人和总金额
+              // 上部分：债务人和待收/待还金额（突出显示）
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -215,19 +215,34 @@ class _DebtItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  // 总金额
-                  Text(
-                    formatter.format(debt.totalAmount),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: amountColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                  // 待收/待还金额（突出显示）
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        isLending
+                            ? L10nManager.l10n.remainingReceivable
+                            : L10nManager.l10n.remainingPayable,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: amountColor.withAlpha(200),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        formatter.format(debt.remainAmount),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: amountColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
               
-              // 底部：剩余金额信息 - 右对齐显示
+              // 底部：总金额信息 - 右对齐显示（弱化显示）
               Padding(
                 padding: const EdgeInsets.only(top: 8, left: 28),
                 child: Row(
@@ -245,15 +260,13 @@ class _DebtItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // 剩余金额
+                    // 总金额（弱化显示）
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isLending
-                              ? L10nManager.l10n.remainingReceivable
-                              : L10nManager.l10n.remainingPayable,
+                          L10nManager.l10n.amount,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                             fontSize: 11,
@@ -261,10 +274,11 @@ class _DebtItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          formatter.format(debt.remainAmount),
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: amountColor,
-                            fontWeight: FontWeight.w600,
+                          formatter.format(debt.totalAmount),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
                           ),
                         ),
                       ],
