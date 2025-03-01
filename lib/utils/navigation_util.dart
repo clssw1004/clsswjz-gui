@@ -119,10 +119,8 @@ class NavigationUtil {
         AppRoutes.debtAdd,
         arguments: [accountBook],
       );
-      if (result == true) {
-        _refreshDebtList(context);
-        _refreshItemList(context);
-      }
+      _refreshDebtList(context);
+      _refreshItemList(context);
     } catch (e) {
       debugPrint('跳转债务新增页面失败: $e');
     }
@@ -183,6 +181,36 @@ class NavigationUtil {
       }
     } catch (e) {
       debugPrint('跳转记事编辑页面失败: $e');
+    }
+  }
+
+  /// 跳转到债务编辑页面
+  static Future<void> toDebtEdit(
+    BuildContext context,
+    dynamic debt,
+  ) async {
+    final accountBook = _getCurrentBook(context);
+    if (accountBook == null) {
+      debugPrint('账本不能为空');
+      return;
+    }
+
+    if (debt == null) {
+      debugPrint('债务不能为空');
+      return;
+    }
+
+    try {
+      await Navigator.pushNamed(
+        context,
+        AppRoutes.debtEdit,
+        arguments: [accountBook, debt],
+      );
+
+      _refreshDebtList(context);
+      _refreshItemList(context);
+    } catch (e) {
+      debugPrint('跳转债务编辑页面失败: $e');
     }
   }
 }
