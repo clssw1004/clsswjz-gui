@@ -388,7 +388,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tabFunds => '资金账户';
 
   @override
-  String get balance => '余额';
+  String get balance => '结余';
 
   @override
   String get defaultBook => '默认账本';
@@ -858,6 +858,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get defaultFund => '默认资金账户';
+
+  @override
+  String get lastDay => '最近一天';
+
+  @override
+  String get statistics => '统计';
+
+  @override
+  String get total => '总计';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1666,4 +1675,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get defaultFund => '預設資金賬戶';
+
+  @override
+  String get lastDay => '最近一天';
+
+  @override
+  String get statistics => '統計';
+
+  @override
+  String get total => '總計';
 }

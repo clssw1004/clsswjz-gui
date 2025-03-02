@@ -85,6 +85,7 @@ class _ItemsTabState extends State<ItemsTab>
                   BookStatisticCard(
                     statisticInfo: bookProvider.statisticInfo,
                     onTap: () => bookProvider.loadStatisticInfo(),
+                    mode: StatisticCardMode.lastDay,
                   ),
 
                   // 最近账目

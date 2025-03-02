@@ -1685,6 +1685,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default Fund Account'**
   String get defaultFund;
+
+  /// Label for last day statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Last Day'**
+  String get lastDay;
+
+  /// Statistics label
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statistics;
+
+  /// Total label
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

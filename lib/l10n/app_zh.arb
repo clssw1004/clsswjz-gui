@@ -297,7 +297,7 @@
     "retry": "重试",
     "noData": "暂无数据",
     "tabFunds": "资金账户",
-    "balance": "余额",
+    "balance": "结余",
     "defaultBook": "默认账本",
     "fundTypeCash": "现金",
     "fundTypeDebitCard": "储蓄卡",
@@ -759,5 +759,17 @@
     "defaultFund": "默认资金账户",
     "@defaultFund": {
         "description": "默认资金账户标签"
+    },
+    "lastDay": "最近一天",
+    "@lastDay": {
+        "description": "最近一天的统计标签"
+    },
+    "statistics": "统计",
+    "@statistics": {
+        "description": "统计标签"
+    },
+    "total": "总计",
+    "@total": {
+        "description": "总计标签"
     }
 }

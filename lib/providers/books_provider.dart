@@ -146,10 +146,10 @@ class BooksProvider extends ChangeNotifier {
       if (result.ok && result.data != null) {
         _statisticInfo = result.data;
       } else {
-        _statisticInfo = const BookStatisticVO(income: 0, expense: 0, balance: 0);
+        _statisticInfo = const BookStatisticVO(totalIncome: 0, totalExpense: 0, totalBalance: 0);
       }
     } catch (e) {
-      _statisticInfo = const BookStatisticVO(income: 0, expense: 0, balance: 0);
+      _statisticInfo = const BookStatisticVO(totalIncome: 0, totalExpense: 0, totalBalance: 0);
     } finally {
       _loadingStatistic = false;
       notifyListeners();

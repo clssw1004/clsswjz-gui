@@ -645,5 +645,17 @@
     "defaultFund": "預設資金賬戶",
     "@defaultFund": {
         "description": "預設資金賬戶標籤"
+    },
+    "lastDay": "最近一天",
+    "@lastDay": {
+        "description": "最近一天的統計標籤"
+    },
+    "statistics": "統計",
+    "@statistics": {
+        "description": "統計標籤"
+    },
+    "total": "總計",
+    "@total": {
+        "description": "總計標籤"
     }
 }

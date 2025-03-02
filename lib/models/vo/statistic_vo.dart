@@ -18,17 +18,33 @@ class UserStatisticVO {
 
 class BookStatisticVO {
   /// 收入
-  final double income;
+  final double totalIncome;
 
   /// 支出
-  final double expense;
+  final double totalExpense;
 
   /// 结余
-  final double balance;
+  final double totalBalance;
+
+  /// 最后一天收入
+  final double lastDayIncome;
+
+  /// 最后一天支出
+  final double lastDayExpense;
+
+  /// 最后一天结余
+  final double lastDayBalance;
+  
+  /// 最后一天日期
+  final String? lastDate;
 
   const BookStatisticVO({
-    this.income = 0,
-    this.expense = 0,
-    this.balance = 0,
+    this.totalIncome = 0,
+    this.totalExpense = 0,
+    this.totalBalance = 0,
+    this.lastDayIncome = 0,
+    this.lastDayExpense = 0,
+    this.lastDayBalance = 0,
+    this.lastDate,
   });
 }

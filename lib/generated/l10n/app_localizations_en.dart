@@ -858,4 +858,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultFund => 'Default Fund Account';
+
+  @override
+  String get lastDay => 'Last Day';
+
+  @override
+  String get statistics => 'Statistics';
+
+  @override
+  String get total => 'Total';
 }

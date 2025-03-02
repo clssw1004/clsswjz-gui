@@ -91,10 +91,56 @@ class StatisticService {
     // 计算结余（收入减去支出）
     final balance = income + expense;
 
+    // 获取最近一天的日期
+    final lastDayQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          (db.accountItemTable.type.equals(AccountItemType.income.code) |
+              db.accountItemTable.type.equals(AccountItemType.expense.code)))
+      ..orderBy([OrderingTerm.desc(db.accountItemTable.accountDate)])
+      ..limit(1)
+      ..addColumns([db.accountItemTable.accountDate]);
+
+    final lastDayResult = await lastDayQuery.getSingleOrNull();
+
+    double lastDayIncome = 0.0;
+    double lastDayExpense = 0.0;
+    double lastDayBalance = 0.0;
+    String lastDay = '';
+    if (lastDayResult != null) {
+      lastDay = lastDayResult.read(db.accountItemTable.accountDate) ?? '';
+      // 查询最近一天的收入
+      final lastDayIncomeQuery = db.selectOnly(db.accountItemTable)
+        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+            db.accountItemTable.type.equals(AccountItemType.income.code) &
+            db.accountItemTable.accountDate.equals(lastDay))
+        ..addColumns([db.accountItemTable.amount.sum()]);
+
+      final lastDayIncomeResult = await lastDayIncomeQuery.getSingle();
+      lastDayIncome =
+          lastDayIncomeResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+      // 查询最近一天的支出
+      final lastDayExpenseQuery = db.selectOnly(db.accountItemTable)
+        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+            db.accountItemTable.type.equals(AccountItemType.expense.code) &
+            db.accountItemTable.accountDate.equals(lastDay))
+        ..addColumns([db.accountItemTable.amount.sum()]);
+
+      final lastDayExpenseResult = await lastDayExpenseQuery.getSingle();
+      lastDayExpense =
+          lastDayExpenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      // 计算最近一天的结余
+      lastDayBalance = lastDayIncome + lastDayExpense;
+    }
+
     return OperateResult.success(BookStatisticVO(
-      income: income,
-      expense: expense,
-      balance: balance,
+      totalIncome: income,
+      totalExpense: expense,
+      totalBalance: balance,
+      lastDayIncome: lastDayIncome,
+      lastDayExpense: lastDayExpense,
+      lastDayBalance: lastDayBalance,
+      lastDate: lastDay,
     ));
   }
 }

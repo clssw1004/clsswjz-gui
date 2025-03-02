@@ -751,5 +751,17 @@
     "defaultFund": "Default Fund Account",
     "@defaultFund": {
         "description": "Default fund account label"
+    },
+    "lastDay": "Last Day",
+    "@lastDay": {
+        "description": "Label for last day statistics"
+    },
+    "statistics": "Statistics",
+    "@statistics": {
+        "description": "Statistics label"
+    },
+    "total": "Total",
+    "@total": {
+        "description": "Total label"
     }
 }
