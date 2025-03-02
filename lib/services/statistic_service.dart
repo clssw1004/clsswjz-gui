@@ -108,11 +108,15 @@ class StatisticService {
     String lastDay = '';
     if (lastDayResult != null) {
       lastDay = lastDayResult.read(db.accountItemTable.accountDate) ?? '';
+      // 获取最近一天的起始时间和结束时间
+      final lastDayStart = '${lastDay.split(' ')[0]} 00:00:00';
+      final lastDayEnd = '${lastDay.split(' ')[0]} 23:59:59';
+      
       // 查询最近一天的收入
       final lastDayIncomeQuery = db.selectOnly(db.accountItemTable)
         ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
             db.accountItemTable.type.equals(AccountItemType.income.code) &
-            db.accountItemTable.accountDate.equals(lastDay))
+            db.accountItemTable.accountDate.isBetweenValues(lastDayStart, lastDayEnd))
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final lastDayIncomeResult = await lastDayIncomeQuery.getSingle();
@@ -123,7 +127,7 @@ class StatisticService {
       final lastDayExpenseQuery = db.selectOnly(db.accountItemTable)
         ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
             db.accountItemTable.type.equals(AccountItemType.expense.code) &
-            db.accountItemTable.accountDate.equals(lastDay))
+            db.accountItemTable.accountDate.isBetweenValues(lastDayStart, lastDayEnd))
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final lastDayExpenseResult = await lastDayExpenseQuery.getSingle();
