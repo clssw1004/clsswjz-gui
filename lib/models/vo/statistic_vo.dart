@@ -1,3 +1,5 @@
+import '../../enums/account_type.dart';
+
 /// 用户统计信息
 class UserStatisticVO {
   /// 账本数量
@@ -34,7 +36,7 @@ class BookStatisticVO {
 
   /// 最后一天结余
   final double lastDayBalance;
-  
+
   /// 最后一天日期
   final String? lastDate;
 
@@ -46,5 +48,35 @@ class BookStatisticVO {
     this.lastDayExpense = 0,
     this.lastDayBalance = 0,
     this.lastDate,
+  });
+}
+
+class CategoryStatisticVO {
+  /// 分类编码
+  final String categoryCode;
+
+  /// 分类名称
+  final String categoryName;
+
+  /// 金额
+  final double amount;
+
+  const CategoryStatisticVO({
+    required this.categoryCode,
+    required this.categoryName,
+    required this.amount,
+  });
+}
+
+class CategoryStatisticGroupVO {
+  /// 分类名称
+  final AccountItemType itemType;
+
+  /// 金额
+  final List<CategoryStatisticVO> categoryGroupList;
+
+  const CategoryStatisticGroupVO({
+    required this.itemType,
+    required this.categoryGroupList,
   });
 }

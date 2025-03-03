@@ -111,12 +111,13 @@ class StatisticService {
       // 获取最近一天的起始时间和结束时间
       final lastDayStart = '${lastDay.split(' ')[0]} 00:00:00';
       final lastDayEnd = '${lastDay.split(' ')[0]} 23:59:59';
-      
+
       // 查询最近一天的收入
       final lastDayIncomeQuery = db.selectOnly(db.accountItemTable)
         ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
             db.accountItemTable.type.equals(AccountItemType.income.code) &
-            db.accountItemTable.accountDate.isBetweenValues(lastDayStart, lastDayEnd))
+            db.accountItemTable.accountDate
+                .isBetweenValues(lastDayStart, lastDayEnd))
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final lastDayIncomeResult = await lastDayIncomeQuery.getSingle();
@@ -127,7 +128,8 @@ class StatisticService {
       final lastDayExpenseQuery = db.selectOnly(db.accountItemTable)
         ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
             db.accountItemTable.type.equals(AccountItemType.expense.code) &
-            db.accountItemTable.accountDate.isBetweenValues(lastDayStart, lastDayEnd))
+            db.accountItemTable.accountDate
+                .isBetweenValues(lastDayStart, lastDayEnd))
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final lastDayExpenseResult = await lastDayExpenseQuery.getSingle();
@@ -146,5 +148,90 @@ class StatisticService {
       lastDayBalance: lastDayBalance,
       lastDate: lastDay,
     ));
+  }
+
+  /// 按照分类查询统计收入、支出各分类的金额和
+  Future<OperateResult<List<CategoryStatisticGroupVO>>>
+      statisticGroupByCategory(String accountBookId) async {
+    final db = DatabaseManager.db;
+    final List<CategoryStatisticGroupVO> result = [];
+
+    // 统计收入类别
+    final incomeQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.income.code))
+      ..addColumns([
+        db.accountItemTable.categoryCode,
+        db.accountItemTable.amount.sum(),
+      ])
+      ..groupBy([db.accountItemTable.categoryCode]);
+
+    final incomeResults = await incomeQuery.get();
+    if (incomeResults.isNotEmpty) {
+      // 获取分类名称
+      final categoryCodes = incomeResults
+          .map((row) => row.read(db.accountItemTable.categoryCode))
+          .whereType<String>()
+          .toList();
+      final categories = await (db.select(db.accountCategoryTable)
+            ..where((tbl) => tbl.code.isIn(categoryCodes)))
+          .get();
+      final categoryMap = {for (var c in categories) c.code: c.name};
+
+      result.add(
+        CategoryStatisticGroupVO(
+          itemType: AccountItemType.income,
+          categoryGroupList: incomeResults.map((row) {
+            final categoryCode = row.read(db.accountItemTable.categoryCode);
+            return CategoryStatisticVO(
+              categoryName:
+                  categoryCode != null ? categoryMap[categoryCode] ?? '' : '',
+              amount: row.read(db.accountItemTable.amount.sum()) ?? 0.0,
+              categoryCode: categoryCode ?? '',
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    // 统计支出类别
+    final expenseQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.expense.code))
+      ..addColumns([
+        db.accountItemTable.categoryCode,
+        db.accountItemTable.amount.sum(),
+      ])
+      ..groupBy([db.accountItemTable.categoryCode]);
+
+    final expenseResults = await expenseQuery.get();
+    if (expenseResults.isNotEmpty) {
+      // 获取分类名称
+      final categoryCodes = expenseResults
+          .map((row) => row.read(db.accountItemTable.categoryCode))
+          .whereType<String>()
+          .toList();
+      final categories = await (db.select(db.accountCategoryTable)
+            ..where((tbl) => tbl.code.isIn(categoryCodes)))
+          .get();
+      final categoryMap = {for (var c in categories) c.code: c.name};
+
+      result.add(
+        CategoryStatisticGroupVO(
+          itemType: AccountItemType.expense,
+          categoryGroupList: expenseResults.map((row) {
+            final categoryCode = row.read(db.accountItemTable.categoryCode);
+            return CategoryStatisticVO(
+              categoryName:
+                  categoryCode != null ? categoryMap[categoryCode] ?? '' : '',
+              amount: row.read(db.accountItemTable.amount.sum()) ?? 0.0,
+              categoryCode: categoryCode ?? '',
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    return OperateResult.success(result);
   }
 }

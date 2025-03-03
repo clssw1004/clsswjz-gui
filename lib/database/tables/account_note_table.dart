@@ -65,6 +65,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
     MapUtil.setIfPresent(map, 'title', companion.title);
     MapUtil.setIfPresent(map, 'content', companion.content);
+    MapUtil.setIfPresent(map, 'noteType', companion.noteType);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     return jsonEncode(map);
   }
