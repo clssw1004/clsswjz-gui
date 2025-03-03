@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../manager/l10n_manager.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -65,21 +66,30 @@ class AboutPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 // 版本号
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: colorScheme.outlineVariant.withOpacity(0.2),
-                    ),
-                  ),
-                  child: Text(
-                    '${L10nManager.l10n.version}: 1.0.0-alpha.4',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    final String versionText = snapshot.connectionState == ConnectionState.done && snapshot.hasData
+                        ? '${L10nManager.l10n.version}: ${snapshot.data!.version}'
+                        : '${L10nManager.l10n.version}: ...';
+                    
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Text(
+                        versionText,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
