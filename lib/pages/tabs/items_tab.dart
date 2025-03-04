@@ -89,6 +89,7 @@ class _ItemsTabState extends State<ItemsTab>
                   BookStatisticCard(
                     statisticInfo: statisticsProvider.lastDayStatistic,
                     showBalance: false,
+                    title: statisticsProvider.lastDayStatistic?.date ?? '',
                   ),
 
                   // 最近账目

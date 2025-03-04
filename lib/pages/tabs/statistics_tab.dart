@@ -95,6 +95,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
         BookStatisticCard(
           statisticInfo: statisticsProvider.allTimeStatistic,
           margin: const EdgeInsets.only(bottom: 16),
+          title: L10nManager.l10n.total,
         ),
 
         // 分类选择器（收入/支出）
