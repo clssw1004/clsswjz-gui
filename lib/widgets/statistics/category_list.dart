@@ -6,10 +6,21 @@ import '../../models/vo/statistic_vo.dart';
 import '../../providers/statistics_provider.dart';
 
 /// 分类统计列表组件
-class CategoryList extends StatelessWidget {
+class CategoryList extends StatefulWidget {
+  /// 默认展示的分类数量
+  final int defaultDisplayCount;
+
   const CategoryList({
     super.key,
+    this.defaultDisplayCount = 5,
   });
+
+  @override
+  State<CategoryList> createState() => _CategoryListState();
+}
+
+class _CategoryListState extends State<CategoryList> {
+  bool _showAll = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +35,14 @@ class CategoryList extends StatelessWidget {
     
     final sortedItems = statisticsProvider.sortedCategoryList;
     final total = statisticsProvider.totalAmount;
+    
+    // 根据_showAll状态决定显示的项目数量
+    final displayItems = _showAll 
+        ? sortedItems 
+        : sortedItems.take(widget.defaultDisplayCount).toList();
+    
+    // 是否需要显示"更多"按钮
+    final showMoreButton = sortedItems.length > widget.defaultDisplayCount;
     
     return Card(
       elevation: 0,
@@ -44,10 +63,58 @@ class CategoryList extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Divider(height: 1),
-            ...sortedItems.map(
+            ...displayItems.map(
               (item) => _buildCategoryItem(context, item, total),
             ),
+            // 显示"更多"按钮
+            if (showMoreButton)
+              _buildShowMoreButton(context),
           ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildShowMoreButton(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = L10nManager.l10n;
+    
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _showAll = !_showAll;
+        });
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: theme.colorScheme.outlineVariant.withAlpha(128),
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _showAll ? l10n.showLess : l10n.showMore,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                _showAll ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                size: 16,
+                color: theme.colorScheme.primary,
+              ),
+            ],
+          ),
         ),
       ),
     );

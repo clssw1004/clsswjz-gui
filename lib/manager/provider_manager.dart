@@ -41,7 +41,8 @@ class ProviderManager {
             },
           ),
           ChangeNotifierProvider<BooksProvider>(
-            create: (_) => BooksProvider()..init(AppConfigManager.instance.userId),
+            create: (_) =>
+                BooksProvider()..init(AppConfigManager.instance.userId),
           ),
           ChangeNotifierProvider<ItemListProvider>(
             create: (_) => ItemListProvider(),

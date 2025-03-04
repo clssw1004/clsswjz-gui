@@ -18,36 +18,25 @@ class UserStatisticVO {
   });
 }
 
+/// 账本统计信息
 class BookStatisticVO {
   /// 收入
-  final double totalIncome;
+  final double income;
 
   /// 支出
-  final double totalExpense;
+  final double expense;
 
   /// 结余
-  final double totalBalance;
+  final double balance;
 
-  /// 最后一天收入
-  final double lastDayIncome;
-
-  /// 最后一天支出
-  final double lastDayExpense;
-
-  /// 最后一天结余
-  final double lastDayBalance;
-
-  /// 最后一天日期
-  final String? lastDate;
+  /// 日期
+  final String? date;
 
   const BookStatisticVO({
-    this.totalIncome = 0,
-    this.totalExpense = 0,
-    this.totalBalance = 0,
-    this.lastDayIncome = 0,
-    this.lastDayExpense = 0,
-    this.lastDayBalance = 0,
-    this.lastDate,
+    this.income = 0,
+    this.expense = 0,
+    this.balance = 0,
+    this.date,
   });
 }
 

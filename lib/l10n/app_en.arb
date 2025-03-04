@@ -763,5 +763,13 @@
     "total": "Total",
     "@total": {
         "description": "Total label"
+    },
+    "showMore": "Show More",
+    "@showMore": {
+        "description": "Show more button text"
+    },
+    "showLess": "Show Less",
+    "@showLess": {
+        "description": "Show less button text"
     }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../manager/app_config_manager.dart';
 import '../../providers/books_provider.dart';
+import '../../providers/statistics_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/book/book_selector.dart';
@@ -11,7 +12,6 @@ import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
-import '../../routes/app_routes.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -47,8 +47,8 @@ class _ItemsTabState extends State<ItemsTab>
   void didChangeDependencies() {
     super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<ItemListProvider>();
-      provider.loadItems();
+      final itemProvider = context.read<ItemListProvider>();
+      itemProvider.loadItems();
     });
   }
 
@@ -66,16 +66,20 @@ class _ItemsTabState extends State<ItemsTab>
               selectedBook: provider.selectedBook,
               onSelected: (book) {
                 provider.setSelectedBook(book);
+                // 切换账本时重新加载统计数据
+                context
+                    .read<StatisticsProvider>()
+                    .loadBookStatisticInfo(book.id);
               },
             );
           },
         ),
       ),
-      body: Consumer4<BooksProvider, ItemListProvider, DebtListProvider,
-          SyncProvider>(
+      body: Consumer5<BooksProvider, ItemListProvider, DebtListProvider,
+          SyncProvider, StatisticsProvider>(
         builder: (context, bookProvider, itemListProvider, debtListProvider,
-            syncProvider, child) {
-          final accountBook = bookProvider.selectedBook;
+            syncProvider, statisticsProvider, child) {
+          final bookMeta = bookProvider.selectedBook;
           return Stack(
             children: [
               ListView(
@@ -83,14 +87,13 @@ class _ItemsTabState extends State<ItemsTab>
                 children: [
                   // 账本统计卡片
                   BookStatisticCard(
-                    statisticInfo: bookProvider.statisticInfo,
-                    onTap: () => bookProvider.loadStatisticInfo(),
-                    mode: StatisticCardMode.lastDay,
+                    statisticInfo: statisticsProvider.lastDayStatistic,
+                    showBalance: false,
                   ),
 
                   // 最近账目
                   ItemsContainer(
-                    accountBook: accountBook,
+                    accountBook: bookMeta,
                     items: itemListProvider.items.take(3).toList(),
                     loading: itemListProvider.loading,
                     onItemTap: (item) {

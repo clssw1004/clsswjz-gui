@@ -657,5 +657,13 @@
     "total": "總計",
     "@total": {
         "description": "總計標籤"
+    },
+    "showMore": "查看更多",
+    "@showMore": {
+        "description": "查看更多按鈕文本"
+    },
+    "showLess": "收起",
+    "@showLess": {
+        "description": "收起按鈕文本"
     }
 }

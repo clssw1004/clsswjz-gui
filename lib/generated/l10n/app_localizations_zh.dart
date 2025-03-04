@@ -867,6 +867,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get total => '总计';
+
+  @override
+  String get showMore => '查看更多';
+
+  @override
+  String get showLess => '收起';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1684,4 +1690,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get total => '總計';
+
+  @override
+  String get showMore => '查看更多';
+
+  @override
+  String get showLess => '收起';
 }

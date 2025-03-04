@@ -6,16 +6,12 @@ import '../events/special/event_book.dart';
 import '../events/special/event_item.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/book_meta.dart';
-import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
-import '../services/statistic_service.dart';
 
 /// 账本数据提供者
 class BooksProvider extends ChangeNotifier {
-  final StatisticService _statisticService = StatisticService();
-  
   BooksProvider() {
     // 监听同步完成事件
     _subscription = EventBus.instance.on<SyncCompletedEvent>((event) async {
@@ -26,12 +22,14 @@ class BooksProvider extends ChangeNotifier {
       // 刷新账本列表
       await loadBooks(AppConfigManager.instance.userId);
     });
-    
+
     // 监听账目变更事件，更新统计信息
-    _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) async {
+    _itemChangedSubscription =
+        EventBus.instance.on<ItemChangedEvent>((event) async {
       // 如果当前选中的账本与变更的账目所属账本一致，则更新统计信息
-      if (_selectedBook != null && event.item.accountBookId == _selectedBook!.id) {
-        await loadStatisticInfo();
+      if (_selectedBook != null &&
+          event.item.accountBookId == _selectedBook!.id) {
+        // 统计信息已移动到StatisticsProvider中，这里不再处理
       }
     });
   }
@@ -47,24 +45,12 @@ class BooksProvider extends ChangeNotifier {
 
   /// 是否正在加载账本列表
   bool _loading = false;
-  
-  /// 统计信息
-  BookStatisticVO? _statisticInfo;
-  
-  /// 是否正在加载统计信息
-  bool _loadingStatistic = false;
 
   /// 获取账本列表
   List<UserBookVO> get books => _books;
 
   /// 获取选中的账本
   BookMetaVO? get selectedBook => _selectedBook;
-  
-  /// 获取账本统计信息
-  BookStatisticVO? get statisticInfo => _statisticInfo;
-  
-  /// 获取是否正在加载统计信息
-  bool get loadingStatistic => _loadingStatistic;
 
   /// 获取是否正在加载账本列表
   bool get loading => _loading;
@@ -85,10 +71,6 @@ class BooksProvider extends ChangeNotifier {
       final result = await DriverFactory.driver.listBooksByUser(userId);
       if (result.ok) {
         _books.clear();
-        _selectedBook = null;
-        _statisticInfo = null;
-        notifyListeners();
-
         _books.addAll(result.data ?? []);
 
         // 获取默认账本ID
@@ -108,12 +90,7 @@ class BooksProvider extends ChangeNotifier {
           if (defaultBookId == null) {
             AppConfigManager.instance.setDefaultBookId(selectedBook.id);
           }
-          _selectedBook =
-              await ServiceManager.accountBookService.toBookMeta(selectedBook);
-          EventBus.instance.emit(BookChangedEvent(_selectedBook!));
-          
-          // 加载统计数据
-          await loadStatisticInfo();
+          setSelectedBook(selectedBook);
         }
       }
     } finally {
@@ -128,32 +105,6 @@ class BooksProvider extends ChangeNotifier {
     AppConfigManager.instance.setDefaultBookId(book.id);
     EventBus.instance.emit(BookChangedEvent(book));
     notifyListeners();
-    
-    // 加载新选中账本的统计数据
-    await loadStatisticInfo();
-  }
-  
-  /// 加载账本统计信息
-  Future<void> loadStatisticInfo() async {
-    if (_selectedBook == null || _loadingStatistic) return;
-    
-    _loadingStatistic = true;
-    notifyListeners();
-    
-    try {
-      final result = await _statisticService.getBookStatisticInfo(_selectedBook!.id);
-      
-      if (result.ok && result.data != null) {
-        _statisticInfo = result.data;
-      } else {
-        _statisticInfo = const BookStatisticVO(totalIncome: 0, totalExpense: 0, totalBalance: 0);
-      }
-    } catch (e) {
-      _statisticInfo = const BookStatisticVO(totalIncome: 0, totalExpense: 0, totalBalance: 0);
-    } finally {
-      _loadingStatistic = false;
-      notifyListeners();
-    }
   }
 
   /// 删除账本
@@ -169,7 +120,6 @@ class BooksProvider extends ChangeNotifier {
         if (_selectedBook?.id == bookId) {
           AppConfigManager.instance.setDefaultBookId(null);
           _selectedBook = null;
-          _statisticInfo = null;
         }
         // 重新加载账本列表
         await loadBooks(AppConfigManager.instance.userId);

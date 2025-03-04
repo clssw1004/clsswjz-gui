@@ -1,10 +1,12 @@
 import '../manager/database_manager.dart';
+import '../manager/l10n_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../enums/account_type.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:intl/intl.dart';
 
 class StatisticService {
   // 统计当前用户的账本数、账目数、记账天数
@@ -65,8 +67,113 @@ class StatisticService {
     ));
   }
 
-  /// 查询指定账本的收入、支出、结余统计信息
-  Future<OperateResult<BookStatisticVO>> getBookStatisticInfo(
+  /// 获取最近一天的统计数据
+  Future<OperateResult<BookStatisticVO>> getLastDayStatistic(
+      String accountBookId) async {
+    final db = DatabaseManager.db;
+
+    // 获取最近一天的日期
+    final lastDayQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          (db.accountItemTable.type.equals(AccountItemType.income.code) |
+              db.accountItemTable.type.equals(AccountItemType.expense.code)))
+      ..orderBy([OrderingTerm.desc(db.accountItemTable.accountDate)])
+      ..limit(1)
+      ..addColumns([db.accountItemTable.accountDate]);
+
+    final lastDayResult = await lastDayQuery.getSingleOrNull();
+
+    if (lastDayResult == null) {
+      // 如果没有数据，返回空结果
+      return OperateResult.success(
+          const BookStatisticVO(income: 0, expense: 0, balance: 0));
+    }
+
+    final lastDay = lastDayResult.read(db.accountItemTable.accountDate) ?? '';
+    // 获取最近一天的起始时间和结束时间
+    final lastDayStart = '${lastDay.split(' ')[0]} 00:00:00';
+    final lastDayEnd = '${lastDay.split(' ')[0]} 23:59:59';
+
+    // 查询最近一天的收入
+    final incomeQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.income.code) &
+          db.accountItemTable.accountDate
+              .isBetweenValues(lastDayStart, lastDayEnd))
+      ..addColumns([db.accountItemTable.amount.sum()]);
+
+    final incomeResult = await incomeQuery.getSingle();
+    final income = incomeResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+    // 查询最近一天的支出
+    final expenseQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.expense.code) &
+          db.accountItemTable.accountDate
+              .isBetweenValues(lastDayStart, lastDayEnd))
+      ..addColumns([db.accountItemTable.amount.sum()]);
+
+    final expenseResult = await expenseQuery.getSingle();
+    final expense = expenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+    // 计算结余（收入减去支出）
+    final balance = income + expense;
+
+    return OperateResult.success(BookStatisticVO(
+      income: income,
+      expense: expense,
+      balance: balance,
+      date: lastDay.split(' ')[0],
+    ));
+  }
+
+  /// 获取本月（从1号开始）的统计数据
+  Future<OperateResult<BookStatisticVO>> getCurrentMonthStatistic(
+      String accountBookId) async {
+    final db = DatabaseManager.db;
+
+    // 获取当前月份的起始日期和结束日期
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+    final monthStart =
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(firstDayOfMonth);
+    final monthEnd = DateFormat('yyyy-MM-dd HH:mm:ss').format(lastDayOfMonth);
+
+    // 查询本月的收入
+    final incomeQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.income.code) &
+          db.accountItemTable.accountDate.isBetweenValues(monthStart, monthEnd))
+      ..addColumns([db.accountItemTable.amount.sum()]);
+
+    final incomeResult = await incomeQuery.getSingle();
+    final income = incomeResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+    // 查询本月的支出
+    final expenseQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.expense.code) &
+          db.accountItemTable.accountDate.isBetweenValues(monthStart, monthEnd))
+      ..addColumns([db.accountItemTable.amount.sum()]);
+
+    final expenseResult = await expenseQuery.getSingle();
+    final expense = expenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+    // 计算结余（收入减去支出）
+    final balance = income + expense;
+
+    return OperateResult.success(BookStatisticVO(
+      income: income,
+      expense: expense,
+      balance: balance,
+      date: DateFormat('yyyy-MM').format(now),
+    ));
+  }
+
+  /// 获取所有时间的统计数据
+  Future<OperateResult<BookStatisticVO>> getAllTimeStatistic(
       String accountBookId) async {
     final db = DatabaseManager.db;
 
@@ -91,62 +198,10 @@ class StatisticService {
     // 计算结余（收入减去支出）
     final balance = income + expense;
 
-    // 获取最近一天的日期
-    final lastDayQuery = db.selectOnly(db.accountItemTable)
-      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-          (db.accountItemTable.type.equals(AccountItemType.income.code) |
-              db.accountItemTable.type.equals(AccountItemType.expense.code)))
-      ..orderBy([OrderingTerm.desc(db.accountItemTable.accountDate)])
-      ..limit(1)
-      ..addColumns([db.accountItemTable.accountDate]);
-
-    final lastDayResult = await lastDayQuery.getSingleOrNull();
-
-    double lastDayIncome = 0.0;
-    double lastDayExpense = 0.0;
-    double lastDayBalance = 0.0;
-    String lastDay = '';
-    if (lastDayResult != null) {
-      lastDay = lastDayResult.read(db.accountItemTable.accountDate) ?? '';
-      // 获取最近一天的起始时间和结束时间
-      final lastDayStart = '${lastDay.split(' ')[0]} 00:00:00';
-      final lastDayEnd = '${lastDay.split(' ')[0]} 23:59:59';
-
-      // 查询最近一天的收入
-      final lastDayIncomeQuery = db.selectOnly(db.accountItemTable)
-        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-            db.accountItemTable.type.equals(AccountItemType.income.code) &
-            db.accountItemTable.accountDate
-                .isBetweenValues(lastDayStart, lastDayEnd))
-        ..addColumns([db.accountItemTable.amount.sum()]);
-
-      final lastDayIncomeResult = await lastDayIncomeQuery.getSingle();
-      lastDayIncome =
-          lastDayIncomeResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
-
-      // 查询最近一天的支出
-      final lastDayExpenseQuery = db.selectOnly(db.accountItemTable)
-        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-            db.accountItemTable.type.equals(AccountItemType.expense.code) &
-            db.accountItemTable.accountDate
-                .isBetweenValues(lastDayStart, lastDayEnd))
-        ..addColumns([db.accountItemTable.amount.sum()]);
-
-      final lastDayExpenseResult = await lastDayExpenseQuery.getSingle();
-      lastDayExpense =
-          lastDayExpenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
-      // 计算最近一天的结余
-      lastDayBalance = lastDayIncome + lastDayExpense;
-    }
-
     return OperateResult.success(BookStatisticVO(
-      totalIncome: income,
-      totalExpense: expense,
-      totalBalance: balance,
-      lastDayIncome: lastDayIncome,
-      lastDayExpense: lastDayExpense,
-      lastDayBalance: lastDayBalance,
-      lastDate: lastDay,
+      income: income,
+      expense: expense,
+      balance: balance,
     ));
   }
 
