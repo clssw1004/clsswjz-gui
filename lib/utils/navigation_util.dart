@@ -4,9 +4,6 @@ import 'package:provider/provider.dart';
 import '../enums/note_type.dart';
 import '../models/vo/book_meta.dart';
 import '../providers/books_provider.dart';
-import '../providers/debt_list_provider.dart';
-import '../providers/item_list_provider.dart';
-import '../providers/note_list_provider.dart';
 import '../routes/app_routes.dart';
 
 /// 导航工具类
@@ -25,39 +22,6 @@ class NavigationUtil {
     }
   }
 
-  /// 刷新记账列表数据
-  static void _refreshItemList(BuildContext context) {
-    if (!context.mounted) return;
-    try {
-      final provider = Provider.of<ItemListProvider>(context, listen: false);
-      provider.loadItems();
-    } catch (e) {
-      debugPrint('刷新记账列表失败: $e');
-    }
-  }
-
-  /// 刷新记账列表数据
-  static void _refreshDebtList(BuildContext context) {
-    if (!context.mounted) return;
-    try {
-      final provider = Provider.of<DebtListProvider>(context, listen: false);
-      provider.loadDebts();
-    } catch (e) {
-      debugPrint('刷新记账列表失败: $e');
-    }
-  }
-
-  /// 刷新记事列表数据
-  static void _refreshNoteList(BuildContext context) {
-    if (!context.mounted) return;
-    try {
-      final provider = Provider.of<NoteListProvider>(context, listen: false);
-      provider.loadNotes();
-    } catch (e) {
-      debugPrint('刷新记事列表失败: $e');
-    }
-  }
-
   /// 跳转到记账新增页面
   static Future<void> toItemAdd(BuildContext context) async {
     final accountBook = _getCurrentBook(context);
@@ -65,16 +29,12 @@ class NavigationUtil {
       debugPrint('账本不能为空');
       return;
     }
-
     try {
-      final result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         AppRoutes.itemAdd,
         arguments: [accountBook],
       );
-      if (result == true) {
-        _refreshItemList(context);
-      }
     } catch (e) {
       debugPrint('跳转记账新增页面失败: $e');
     }
@@ -92,14 +52,11 @@ class NavigationUtil {
     }
 
     try {
-      final result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         AppRoutes.noteAdd,
         arguments: [accountBook, type],
       );
-      if (result == true) {
-        _refreshNoteList(context);
-      }
     } catch (e) {
       debugPrint('跳转记事新增页面失败: $e');
     }
@@ -114,13 +71,11 @@ class NavigationUtil {
     }
 
     try {
-      final result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         AppRoutes.debtAdd,
         arguments: [accountBook],
       );
-      _refreshDebtList(context);
-      _refreshItemList(context);
     } catch (e) {
       debugPrint('跳转债务新增页面失败: $e');
     }
@@ -142,14 +97,11 @@ class NavigationUtil {
     }
 
     try {
-      final result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         AppRoutes.itemEdit,
         arguments: [accountBook, item],
       );
-      if (result == true) {
-        _refreshItemList(context);
-      }
     } catch (e) {
       debugPrint('跳转记账编辑页面失败: $e');
     }
@@ -171,14 +123,11 @@ class NavigationUtil {
     }
 
     try {
-      final result = await Navigator.pushNamed(
+      await Navigator.pushNamed(
         context,
         AppRoutes.noteEdit,
         arguments: [note, accountBook],
       );
-      if (result == true) {
-        _refreshNoteList(context);
-      }
     } catch (e) {
       debugPrint('跳转记事编辑页面失败: $e');
     }
@@ -206,9 +155,6 @@ class NavigationUtil {
         AppRoutes.debtEdit,
         arguments: [accountBook, debt],
       );
-
-      _refreshDebtList(context);
-      _refreshItemList(context);
     } catch (e) {
       debugPrint('跳转债务编辑页面失败: $e');
     }

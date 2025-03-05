@@ -3,7 +3,6 @@ import 'package:clsswjz/manager/service_manager.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../events/special/event_book.dart';
-import '../events/special/event_item.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';

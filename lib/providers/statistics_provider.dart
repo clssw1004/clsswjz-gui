@@ -12,6 +12,7 @@ import '../services/statistic_service.dart';
 class StatisticsProvider extends ChangeNotifier {
   final StatisticService _statisticService = StatisticService();
   late final StreamSubscription _bookChangedSubscription;
+  late final StreamSubscription _itemChangedSubscription;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -48,14 +49,19 @@ class StatisticsProvider extends ChangeNotifier {
       loadBookStatisticInfo(event.book.id);
       loadStatistics(event.book.id);
     });
+
+    _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
+      loadStatistics(event.item.accountBookId);
+      loadBookStatisticInfo(event.item.accountBookId);
+    });
   }
 
   @override
   void dispose() {
     _bookChangedSubscription.cancel();
+    _itemChangedSubscription.cancel();
     super.dispose();
   }
-
 
   /// 切换显示收入或支出
   void switchTab(String tab) {
@@ -133,9 +139,12 @@ class StatisticsProvider extends ChangeNotifier {
     try {
       // 并行加载所有统计数据
       final results = await Future.wait([
-        _loadStatisticData(bookId, 'all', _statisticService.getAllTimeStatistic),
-        _loadStatisticData(bookId, 'month', _statisticService.getCurrentMonthStatistic),
-        _loadStatisticData(bookId, 'day', _statisticService.getLastDayStatistic),
+        _loadStatisticData(
+            bookId, 'all', _statisticService.getAllTimeStatistic),
+        _loadStatisticData(
+            bookId, 'month', _statisticService.getCurrentMonthStatistic),
+        _loadStatisticData(
+            bookId, 'day', _statisticService.getLastDayStatistic),
       ]);
 
       // 直接赋值结果

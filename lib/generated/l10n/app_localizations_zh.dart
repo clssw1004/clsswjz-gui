@@ -860,6 +860,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get defaultFund => '默认资金账户';
 
   @override
+  String get currentMonth => '本月';
+
+  @override
   String get lastDay => '最近一天';
 
   @override
@@ -1681,6 +1684,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get defaultFund => '預設資金賬戶';
+
+  @override
+  String get currentMonth => '本月';
 
   @override
   String get lastDay => '最近一天';

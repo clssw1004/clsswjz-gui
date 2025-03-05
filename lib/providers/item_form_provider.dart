@@ -9,7 +9,8 @@ import '../enums/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../events/event_bus.dart';
-import '../events/special/event_item.dart';
+import '../events/special/event_book.dart';
+import '../manager/dao_manager.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
@@ -253,12 +254,13 @@ class ItemFormProvider extends ChangeNotifier {
           .toList(),
     );
     _item = _item.copyWith(id: result.data!);
-
-    if (!result.ok) {
+    if (result.ok) {
+      final item = await DaoManager.itemDao.findById(result.data!);
+      EventBus.instance.emit(ItemChangedEvent(OperateType.create, item!));
+    } else {
       _error = result.message;
       return false;
     }
-    EventBus.instance.emit(ItemChangedEvent(OperateType.create, _item));
     return true;
   }
 
@@ -296,12 +298,13 @@ class ItemFormProvider extends ChangeNotifier {
         projectCode: projectCode,
         attachments: attachments,
       );
-
-      if (!result.ok) {
+      if (result.ok) {
+        final item = await DaoManager.itemDao.findById(_item.id);
+        EventBus.instance.emit(ItemChangedEvent(OperateType.update, item!));
+      } else {
         _error = result.message;
         return false;
       }
-      EventBus.instance.emit(ItemChangedEvent(OperateType.update, _item));
       return true;
     } catch (e) {
       _error = e.toString();

@@ -646,6 +646,10 @@
     "@defaultFund": {
         "description": "預設資金賬戶標籤"
     },
+    "currentMonth": "本月",
+    "@currentMonth": {
+        "description": "本月的統計標籤"
+    },
     "lastDay": "最近一天",
     "@lastDay": {
         "description": "最近一天的統計標籤"

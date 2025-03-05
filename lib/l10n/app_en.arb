@@ -752,6 +752,10 @@
     "@defaultFund": {
         "description": "Default fund account label"
     },
+    "currentMonth": "Current Month",
+    "@currentMonth": {
+        "description": "Label for current month statistics"
+    },
     "lastDay": "Last Day",
     "@lastDay": {
         "description": "Label for last day statistics"

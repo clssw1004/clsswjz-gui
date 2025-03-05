@@ -293,11 +293,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             value: item.fundId,
             displayMode: DisplayMode.iconText,
             displayField: (item) => item.name,
+            allowCreate: false,
             keyField: (item) => item.id,
             icon: Icons.account_balance_wallet_outlined,
             label: L10nManager.l10n.account,
             required: true,
-            allowCreate: false,
             onChanged: (value) async {
               final fund = value as UserFundVO?;
               if (fund != null) {
@@ -379,7 +379,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       await provider.loadTags();
                       return provider.tags
                           .cast<AccountSymbol>()
-                          .firstWhere((tag) => tag.code == value);
+                          .firstWhere((tag) => tag.name == value);
                     }
                     return null;
                   },
@@ -412,7 +412,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       await provider.loadProjects();
                       return provider.projects
                           .cast<AccountSymbol>()
-                          .firstWhere((project) => project.code == value);
+                          .firstWhere((project) => project.name == value);
                     }
                     return null;
                   },

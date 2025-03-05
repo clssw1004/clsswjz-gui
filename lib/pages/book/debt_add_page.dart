@@ -1,9 +1,14 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
+import 'package:clsswjz/drivers/vo_transfer.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
+import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
 import '../../enums/debt_type.dart';
+import '../../enums/operate_type.dart';
+import '../../events/event_bus.dart';
+import '../../events/special/event_book.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -110,7 +115,7 @@ class _DebtAddPageState extends State<DebtAddPage> {
     });
 
     try {
-      await DriverFactory.driver.createDebt(
+      final result = await DriverFactory.driver.createDebt(
         AppConfigManager.instance.userId,
         widget.book.id,
         debtor: _debtorController.text,
@@ -120,6 +125,10 @@ class _DebtAddPageState extends State<DebtAddPage> {
         debtDate: _debtDate,
         expectedClearDate: _expectedClearDate,
       );
+      if (result.ok) {
+        final debt = await DaoManager.debtDao.findById(result.data!);
+        EventBus.instance.emit(DebtChangedEvent(OperateType.create, debt!));
+      }
       if (mounted) {
         Navigator.of(context).pop(true);
       }

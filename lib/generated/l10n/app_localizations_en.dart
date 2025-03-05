@@ -860,6 +860,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultFund => 'Default Fund Account';
 
   @override
+  String get currentMonth => 'Current Month';
+
+  @override
   String get lastDay => 'Last Day';
 
   @override

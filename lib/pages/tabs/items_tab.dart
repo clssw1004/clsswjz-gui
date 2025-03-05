@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/l10n_manager.dart';
 import 'package:clsswjz/providers/debt_list_provider.dart';
 import 'package:clsswjz/providers/item_list_provider.dart';
 import 'package:flutter/material.dart';
@@ -87,9 +88,9 @@ class _ItemsTabState extends State<ItemsTab>
                 children: [
                   // 账本统计卡片
                   BookStatisticCard(
-                    statisticInfo: statisticsProvider.lastDayStatistic,
+                    statisticInfo: statisticsProvider.currentMonthStatistic,
                     showBalance: false,
-                    title: statisticsProvider.lastDayStatistic?.date ?? '',
+                    title: L10nManager.l10n.currentMonth,
                   ),
 
                   // 最近账目

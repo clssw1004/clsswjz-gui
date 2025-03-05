@@ -25,50 +25,55 @@ class ItemsContainer extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final secondColor = colorScheme.onSurfaceVariant.withAlpha(180);
+    
+    // 定义导航到账目列表的函数
+    void navigateToItemsList() {
+      Navigator.of(context).pushNamed(
+        AppRoutes.itemsList,
+        arguments: accountBook,
+      );
+    }
+    
     return CommonCardContainer(
       margin: const EdgeInsets.all(8),
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 标题行
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-            child: Row(
-              children: [
-                Text(
-                  L10nManager.l10n.accountItem,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+          // 标题行 - 添加InkWell使整个标题栏可点击
+          InkWell(
+            onTap: accountBook == null ? null : navigateToItemsList,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              child: Row(
+                children: [
+                  Text(
+                    L10nManager.l10n.accountItem,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: accountBook == null
-                      ? null
-                      : () {
-                          Navigator.of(context).pushNamed(
-                            AppRoutes.itemsList,
-                            arguments: accountBook,
-                          );
-                        },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(0, 32),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: accountBook == null ? null : navigateToItemsList,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(L10nManager.l10n.more),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: theme.textTheme.labelLarge?.color,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(L10nManager.l10n.more),
-                      Icon(
-                        Icons.chevron_right,
-                        size: 18,
-                        color: theme.textTheme.labelLarge?.color,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Divider(

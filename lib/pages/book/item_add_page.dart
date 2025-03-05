@@ -312,6 +312,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           CommonSelectFormField<UserFundVO>(
             items: provider.funds.cast<UserFundVO>(),
             value: item.fundId,
+            allowCreate: false,
             displayMode: DisplayMode.iconText,
             displayField: (item) => item.name,
             keyField: (item) => item.id,
@@ -397,7 +398,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       await provider.loadTags();
                       return provider.tags
                           .cast<AccountSymbol>()
-                          .firstWhere((tag) => tag.code == value);
+                          .firstWhere((tag) => tag.name == value);
                     }
                     return null;
                   },
@@ -430,7 +431,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       await provider.loadProjects();
                       return provider.projects
                           .cast<AccountSymbol>()
-                          .firstWhere((project) => project.code == value);
+                          .firstWhere((project) => project.name == value);
                     }
                     return null;
                   },

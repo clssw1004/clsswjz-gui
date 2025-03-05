@@ -8,8 +8,9 @@ import '../manager/app_config_manager.dart';
 import '../models/vo/user_note_vo.dart';
 
 class NoteListProvider extends ChangeNotifier {
-  late final StreamSubscription _subscription;
+  late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
+  late final StreamSubscription _noteChangedSubscription;
 
   /// 笔记列表
   final List<UserNoteVO> _notes = [];
@@ -37,7 +38,7 @@ class NoteListProvider extends ChangeNotifier {
 
   NoteListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
-    _subscription = EventBus.instance.on<BookChangedEvent>((event) {
+    _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
       _currentBookId = event.book.id;
       loadNotes();
     });
@@ -45,11 +46,15 @@ class NoteListProvider extends ChangeNotifier {
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
       loadNotes();
     });
+
+    _noteChangedSubscription = EventBus.instance.on<NoteChangedEvent>((event) {
+      loadNotes();
+    });
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _bookSubscription.cancel();
     _syncSubscription.cancel();
     super.dispose();
   }

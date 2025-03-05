@@ -3,9 +3,14 @@ import 'dart:convert';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill/quill_delta.dart';
 import '../../enums/note_type.dart';
+import '../../enums/operate_type.dart';
+import '../../events/event_bus.dart';
+import '../../events/special/event_book.dart';
+import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_note_vo.dart';
+import '../../models/common.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../manager/app_config_manager.dart';
@@ -17,8 +22,8 @@ class NoteFormPage extends StatefulWidget {
   final UserBookVO book;
 
   const NoteFormPage({
-    super.key, 
-    this.note, 
+    super.key,
+    this.note,
     required this.book,
   });
 
@@ -79,22 +84,8 @@ class _NoteFormPageState extends State<NoteFormPage> {
       );
 
       final result = widget.note == null
-          ? await DriverFactory.driver.createNote(
-              userId,
-              widget.book.id,
-              title: note.title,
-              noteType: NoteType.note,
-              content: note.content,
-              plainContent: note.plainContent,
-            )
-          : await DriverFactory.driver.updateNote(
-              userId,
-              widget.book.id,
-              note.id,
-              title: note.title,
-              content: note.content,
-              plainContent: note.plainContent,
-            );
+          ? await _create(userId, note)
+          : await _update(userId, note);
 
       if (result.ok) {
         if (mounted) {
@@ -113,6 +104,40 @@ class _NoteFormPageState extends State<NoteFormPage> {
         });
       }
     }
+  }
+
+  /// 创建笔记
+  Future<OperateResult<dynamic>> _create(String userId, UserNoteVO note) async {
+    final result = await DriverFactory.driver.createNote(
+      userId,
+      widget.book.id,
+      title: note.title,
+      noteType: NoteType.note,
+      content: note.content,
+      plainContent: note.plainContent,
+    );
+    if (result.ok) {
+      final note = await DaoManager.noteDao.findById(result.data!);
+      EventBus.instance.emit(NoteChangedEvent(OperateType.create, note!));
+    }
+    return result;
+  }
+
+  /// 更新笔记
+  Future<OperateResult<dynamic>> _update(String userId, UserNoteVO note) async {
+    final result = await DriverFactory.driver.updateNote(
+      userId,
+      widget.book.id,
+      note.id,
+      title: note.title,
+      content: note.content,
+      plainContent: note.plainContent,
+    );
+    if (result.ok) {
+      final note = await DaoManager.noteDao.findById(widget.note!.id);
+      EventBus.instance.emit(NoteChangedEvent(OperateType.update, note!));
+    }
+    return result;
   }
 
   @override

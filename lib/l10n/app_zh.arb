@@ -760,6 +760,10 @@
     "@defaultFund": {
         "description": "默认资金账户标签"
     },
+    "currentMonth": "本月",
+    "@currentMonth": {
+        "description": "本月的统计标签"
+    },
     "lastDay": "最近一天",
     "@lastDay": {
         "description": "最近一天的统计标签"

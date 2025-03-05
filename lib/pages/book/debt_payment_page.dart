@@ -1,11 +1,15 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
 import 'package:clsswjz/enums/debt_type.dart';
+import 'package:clsswjz/events/event_bus.dart';
+import 'package:clsswjz/events/special/event_book.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../database/database.dart';
 import '../../enums/account_type.dart';
 import '../../enums/business_type.dart';
+import '../../enums/operate_type.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
@@ -140,7 +144,7 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
         amount = amount.abs(); // 确保为正数
       }
 
-      await DriverFactory.driver.createItem(
+      final result = await DriverFactory.driver.createItem(
           AppConfigManager.instance.userId, widget.book.id,
           amount: amount,
           categoryCode: widget.categoryCode,
@@ -150,6 +154,13 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           accountDate: '$_selectedDate $_selectedTime:00',
           source: BusinessType.debt.code,
           sourceId: widget.debt.id);
+
+      if (result.ok) {
+        final debt = await DaoManager.debtDao.findById(widget.debt.id);
+        EventBus.instance.emit(DebtChangedEvent(OperateType.create, debt!));
+        final item = await DaoManager.itemDao.findById(result.data!);
+        EventBus.instance.emit(ItemChangedEvent(OperateType.create, item!));
+      }
       if (mounted) {
         Navigator.of(context).pop(true);
       }

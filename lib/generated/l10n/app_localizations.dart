@@ -1686,6 +1686,12 @@ abstract class AppLocalizations {
   /// **'Default Fund Account'**
   String get defaultFund;
 
+  /// Label for current month statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Current Month'**
+  String get currentMonth;
+
   /// Label for last day statistics
   ///
   /// In en, this message translates to:

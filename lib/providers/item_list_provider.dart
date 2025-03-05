@@ -4,9 +4,9 @@ import '../drivers/driver_factory.dart';
 import '../enums/operate_type.dart';
 import '../events/special/event_book.dart';
 import '../events/event_bus.dart';
-import '../events/special/event_item.dart';
 import '../events/special/event_sync.dart';
 import '../manager/app_config_manager.dart';
+import '../manager/dao_manager.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/dto/item_filter_dto.dart';
 
@@ -14,10 +14,11 @@ import '../models/dto/item_filter_dto.dart';
 class ItemListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
+  late final StreamSubscription _itemChangedSubscription;
+  late final StreamSubscription _debtChangedSubscription;
 
   /// 账目列表
   final List<UserItemVO> _items = [];
-
 
   /// 是否正在加载账目列表
   bool _loading = false;
@@ -68,6 +69,16 @@ class ItemListProvider extends ChangeNotifier {
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
       loadItems();
     });
+
+    // 监听账目变化事件
+    _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
+      loadItems();
+    });
+
+    // 监听债务变动事件
+    _debtChangedSubscription = EventBus.instance.on<DebtChangedEvent>((event) {
+      loadItems();
+    });
   }
 
   /// 设置筛选条件
@@ -86,7 +97,8 @@ class ItemListProvider extends ChangeNotifier {
   }
 
   /// 加载指定日期范围的账目
-  Future<List<UserItemVO>> loadItemsByDateRange(DateTime start, DateTime end) async {
+  Future<List<UserItemVO>> loadItemsByDateRange(
+      DateTime start, DateTime end) async {
     final userId = AppConfigManager.instance.userId;
     final bookId = _currentBookId;
     if (bookId == null) return [];
@@ -101,7 +113,7 @@ class ItemListProvider extends ChangeNotifier {
           endDate: end.toIso8601String().substring(0, 10),
         ),
       );
-      
+
       if (result.ok) {
         return result.data ?? [];
       }
@@ -168,24 +180,29 @@ class ItemListProvider extends ChangeNotifier {
   }
 
   /// 删除账目
-  Future<bool> deleteItem(UserItemVO item) async {
-    final result = await DriverFactory.driver.deleteItem(
-      AppConfigManager.instance.userId,
-      item.accountBookId,
-      item.id,
-    );
-    if (result.ok) {
-      EventBus.instance.emit(ItemChangedEvent(OperateType.delete, item));
-      _items.remove(item);
-      notifyListeners();
+  Future<bool> deleteItem(UserItemVO itemVo) async {
+    final item = await DaoManager.itemDao.findById(itemVo.id);
+    if (item != null) {
+      final result = await DriverFactory.driver.deleteItem(
+        AppConfigManager.instance.userId,
+        itemVo.accountBookId,
+        itemVo.id,
+      );
+      if (result.ok) {
+        EventBus.instance.emit(ItemChangedEvent(OperateType.delete, item));
+        _items.remove(itemVo);
+        notifyListeners();
+      }
+      return result.ok;
     }
-    return result.ok;
+    return true;
   }
 
   @override
   void dispose() {
     _bookSubscription.cancel();
     _syncSubscription.cancel();
+    _itemChangedSubscription.cancel();
     super.dispose();
   }
 }

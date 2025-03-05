@@ -29,50 +29,54 @@ class DebtsContainer extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // 定义导航到债务列表的函数
+    void navigateToDebtList() {
+      Navigator.of(context).pushNamed(
+        AppRoutes.debtList,
+        arguments: bookMeta,
+      );
+    }
+
     return CommonCardContainer(
       margin: const EdgeInsets.all(8),
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 标题行
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-            child: Row(
-              children: [
-                Text(
-                  L10nManager.l10n.debt,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+          // 标题行 - 添加InkWell使整个标题栏可点击
+          InkWell(
+            onTap: bookMeta?.permission.canViewItem == true ? navigateToDebtList : null,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+              child: Row(
+                children: [
+                  Text(
+                    L10nManager.l10n.debt,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: bookMeta?.permission.canViewItem == true
-                      ? () {
-                          Navigator.of(context).pushNamed(
-                            AppRoutes.debtList,
-                            arguments: bookMeta,
-                          );
-                        }
-                      : null,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(0, 32),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: bookMeta?.permission.canViewItem == true ? navigateToDebtList : null,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(L10nManager.l10n.more),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: theme.textTheme.labelLarge?.color,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(L10nManager.l10n.more),
-                      Icon(
-                        Icons.chevron_right,
-                        size: 18,
-                        color: theme.textTheme.labelLarge?.color,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Divider(

@@ -121,6 +121,13 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
   /// 搜索关键字
   String _searchText = '';
 
+  /// 检查是否有完全匹配的选项
+  bool _hasExactMatch() {
+    if (_searchText.isEmpty) return false;
+    return widget.items.any((item) => 
+      widget.displayField(item).toLowerCase() == _searchText.toLowerCase());
+  }
+
   /// 过滤后的数据列表
   List<T> get _filteredItems {
     if (_searchText.isEmpty) return widget.items;
@@ -228,7 +235,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
                       )
                     : ListView.builder(
                         shrinkWrap: true,
-                        itemCount: _filteredItems.length + (_searchText.isNotEmpty && widget.allowCreate ? 1 : 0),
+                        itemCount: _filteredItems.length + (_searchText.isNotEmpty && widget.allowCreate && !_hasExactMatch() ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == _filteredItems.length) {
                             // 显示新增选项

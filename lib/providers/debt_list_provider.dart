@@ -12,6 +12,7 @@ import '../models/vo/user_debt_vo.dart';
 class DebtListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
+  late final StreamSubscription _debtChangedSubscription;
 
   /// 债务列表
   final List<UserDebtVO> _debts = [];
@@ -56,6 +57,11 @@ class DebtListProvider extends ChangeNotifier {
 
     // 监听同步完成事件
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
+      loadDebts();
+    });
+
+    // 监听债务变动事件
+    _debtChangedSubscription = EventBus.instance.on<DebtChangedEvent>((event) {
       loadDebts();
     });
   }
@@ -128,4 +134,4 @@ class DebtListProvider extends ChangeNotifier {
     _syncSubscription.cancel();
     super.dispose();
   }
-} 
+}
