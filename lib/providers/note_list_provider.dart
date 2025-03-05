@@ -56,6 +56,7 @@ class NoteListProvider extends ChangeNotifier {
   void dispose() {
     _bookSubscription.cancel();
     _syncSubscription.cancel();
+    _noteChangedSubscription.cancel();
     super.dispose();
   }
 

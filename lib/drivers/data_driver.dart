@@ -105,7 +105,7 @@ abstract class BookDataDriver {
   /// 更新分类
   Future<OperateResult<void>> updateCategory(
       String userId, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt});
+      {String? name, String? lastAccountItemAt});
 
   /// 删除分类
   Future<OperateResult<void>> deleteCategory(

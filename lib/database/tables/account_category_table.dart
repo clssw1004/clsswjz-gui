@@ -11,8 +11,7 @@ class AccountCategoryTable extends BaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get categoryType => text().named('category_type')();
-  DateTimeColumn get lastAccountItemAt =>
-      dateTime().nullable().named('last_account_item_at')();
+  TextColumn get lastAccountItemAt => text().nullable().named('last_account_item_at')();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
@@ -23,7 +22,7 @@ class AccountCategoryTable extends BaseAccountBookTable {
   static AccountCategoryTableCompanion toUpdateCompanion(
     String who, {
     String? name,
-    DateTime? lastAccountItemAt,
+    String? lastAccountItemAt,
   }) {
     return AccountCategoryTableCompanion(
       updatedBy: Value(who),

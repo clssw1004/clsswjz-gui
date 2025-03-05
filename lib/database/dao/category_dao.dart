@@ -12,6 +12,12 @@ class CategoryDao extends BaseBookDao<AccountCategoryTable, AccountCategory> {
         .get();
   }
 
+  Future<AccountCategory?> findByBookAndCode(String bookId, String code) {
+    return (db.select(db.accountCategoryTable)
+          ..where((t) => t.accountBookId.equals(bookId) & t.code.equals(code)))
+        .getSingleOrNull();
+  }
+
   Future<AccountCategory?> findByBookAndName(String bookId, String name) {
     return (db.select(db.accountCategoryTable)
           ..where((t) => t.accountBookId.equals(bookId) & t.name.equals(name)))
@@ -25,6 +31,11 @@ class CategoryDao extends BaseBookDao<AccountCategoryTable, AccountCategory> {
     if (categoryType != null) {
       query.where((t) => t.categoryType.equals(categoryType));
     }
+    query.orderBy([
+      (t) => OrderingTerm.desc(t.lastAccountItemAt),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ]);
+
     return query.get();
   }
 

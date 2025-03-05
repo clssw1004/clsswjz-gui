@@ -1969,9 +1969,9 @@ class $AccountCategoryTableTable extends AccountCategoryTable
   static const VerificationMeta _lastAccountItemAtMeta =
       const VerificationMeta('lastAccountItemAt');
   @override
-  late final GeneratedColumn<DateTime> lastAccountItemAt =
-      GeneratedColumn<DateTime>('last_account_item_at', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  late final GeneratedColumn<String> lastAccountItemAt =
+      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -2090,8 +2090,7 @@ class $AccountCategoryTableTable extends AccountCategoryTable
       categoryType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}category_type'])!,
       lastAccountItemAt: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}last_account_item_at']),
+          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
     );
   }
 
@@ -2111,7 +2110,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
   final String name;
   final String code;
   final String categoryType;
-  final DateTime? lastAccountItemAt;
+  final String? lastAccountItemAt;
   const AccountCategory(
       {required this.accountBookId,
       required this.createdBy,
@@ -2136,7 +2135,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
     map['code'] = Variable<String>(code);
     map['category_type'] = Variable<String>(categoryType);
     if (!nullToAbsent || lastAccountItemAt != null) {
-      map['last_account_item_at'] = Variable<DateTime>(lastAccountItemAt);
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
     }
     return map;
   }
@@ -2172,7 +2171,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       code: serializer.fromJson<String>(json['code']),
       categoryType: serializer.fromJson<String>(json['categoryType']),
       lastAccountItemAt:
-          serializer.fromJson<DateTime?>(json['lastAccountItemAt']),
+          serializer.fromJson<String?>(json['lastAccountItemAt']),
     );
   }
   @override
@@ -2188,7 +2187,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       'name': serializer.toJson<String>(name),
       'code': serializer.toJson<String>(code),
       'categoryType': serializer.toJson<String>(categoryType),
-      'lastAccountItemAt': serializer.toJson<DateTime?>(lastAccountItemAt),
+      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
     };
   }
 
@@ -2202,7 +2201,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           String? name,
           String? code,
           String? categoryType,
-          Value<DateTime?> lastAccountItemAt = const Value.absent()}) =>
+          Value<String?> lastAccountItemAt = const Value.absent()}) =>
       AccountCategory(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -2284,7 +2283,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   final Value<String> name;
   final Value<String> code;
   final Value<String> categoryType;
-  final Value<DateTime?> lastAccountItemAt;
+  final Value<String?> lastAccountItemAt;
   final Value<int> rowid;
   const AccountCategoryTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -2330,7 +2329,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     Expression<String>? name,
     Expression<String>? code,
     Expression<String>? categoryType,
-    Expression<DateTime>? lastAccountItemAt,
+    Expression<String>? lastAccountItemAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2358,7 +2357,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       Value<String>? name,
       Value<String>? code,
       Value<String>? categoryType,
-      Value<DateTime?>? lastAccountItemAt,
+      Value<String?>? lastAccountItemAt,
       Value<int>? rowid}) {
     return AccountCategoryTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -2406,7 +2405,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       map['category_type'] = Variable<String>(categoryType.value);
     }
     if (lastAccountItemAt.present) {
-      map['last_account_item_at'] = Variable<DateTime>(lastAccountItemAt.value);
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -7850,7 +7849,7 @@ typedef $$AccountCategoryTableTableCreateCompanionBuilder
   required String name,
   required String code,
   required String categoryType,
-  Value<DateTime?> lastAccountItemAt,
+  Value<String?> lastAccountItemAt,
   Value<int> rowid,
 });
 typedef $$AccountCategoryTableTableUpdateCompanionBuilder
@@ -7864,7 +7863,7 @@ typedef $$AccountCategoryTableTableUpdateCompanionBuilder
   Value<String> name,
   Value<String> code,
   Value<String> categoryType,
-  Value<DateTime?> lastAccountItemAt,
+  Value<String?> lastAccountItemAt,
   Value<int> rowid,
 });
 
@@ -7904,7 +7903,7 @@ class $$AccountCategoryTableTableFilterComposer
   ColumnFilters<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get lastAccountItemAt => $composableBuilder(
+  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
       column: $table.lastAccountItemAt,
       builder: (column) => ColumnFilters(column));
 }
@@ -7947,7 +7946,7 @@ class $$AccountCategoryTableTableOrderingComposer
       column: $table.categoryType,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get lastAccountItemAt => $composableBuilder(
+  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
       column: $table.lastAccountItemAt,
       builder: (column) => ColumnOrderings(column));
 }
@@ -7988,7 +7987,7 @@ class $$AccountCategoryTableTableAnnotationComposer
   GeneratedColumn<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastAccountItemAt => $composableBuilder(
+  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
       column: $table.lastAccountItemAt, builder: (column) => column);
 }
 
@@ -8030,7 +8029,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String> code = const Value.absent(),
             Value<String> categoryType = const Value.absent(),
-            Value<DateTime?> lastAccountItemAt = const Value.absent(),
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion(
@@ -8056,7 +8055,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             required String name,
             required String code,
             required String categoryType,
-            Value<DateTime?> lastAccountItemAt = const Value.absent(),
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion.insert(

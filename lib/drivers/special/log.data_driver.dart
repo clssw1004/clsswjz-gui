@@ -212,6 +212,15 @@ class LogDataDriver implements BookDataDriver {
             .execute();
       }
     }
+    if (categoryCode != null) {
+      final category =
+          await DaoManager.categoryDao.findByBookAndCode(bookId, categoryCode);
+      if (category != null) {
+        CategoryCULog.update(who, bookId, category.id,
+                lastAccountItemAt: accountDate)
+            .execute();
+      }
+    }
     return OperateResult.success(id);
   }
 
@@ -280,7 +289,7 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateCategory(
       String who, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt}) async {
+      {String? name, String? lastAccountItemAt}) async {
     await CategoryCULog.update(who, bookId, categoryId,
             name: name, lastAccountItemAt: lastAccountItemAt)
         .execute();

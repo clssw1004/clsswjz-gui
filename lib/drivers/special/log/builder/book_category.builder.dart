@@ -51,7 +51,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   }
 
   static CategoryCULog update(String userId, String bookId, String categoryId,
-      {String? name, DateTime? lastAccountItemAt}) {
+      {String? name, String? lastAccountItemAt}) {
     return CategoryCULog()
         .who(userId)
         .inBook(bookId)

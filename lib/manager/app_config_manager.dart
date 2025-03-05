@@ -309,7 +309,6 @@ class AppConfigManager {
         email: email,
         phone: phone);
     await _createBook(bookName, userId);
-    await _instance.makeStorageInit();
   }
 
   /// 设置服务器信息
@@ -340,7 +339,6 @@ class AppConfigManager {
     if (bookName != null) {
       await _createBook(bookName, userId);
     }
-    await _instance.makeStorageInit();
   }
 
   static Future<void> _createBook(String bookName, String userId) async {

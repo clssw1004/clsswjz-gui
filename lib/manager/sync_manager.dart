@@ -1,3 +1,4 @@
+import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/foundation.dart';
 import '../providers/sync_provider.dart';
 
@@ -17,21 +18,23 @@ class SyncManager {
     if (_isInitialized) return;
     _isInitialized = true;
     _syncProvider = syncProvider;
-    
+
     // 应用启动时检查同步
     _syncOnAppLaunch();
   }
-  
+
   /// 应用启动时同步
   Future<void> _syncOnAppLaunch() async {
     try {
-      debugPrint('应用启动，触发数据同步');
-      await _syncProvider?.syncData();
+      if (AppConfigManager.isAppInit()) {
+        debugPrint('应用启动，触发数据同步');
+        await _syncProvider?.syncData();
+      }
     } catch (e) {
       debugPrint('应用启动同步失败: $e');
     }
   }
-  
+
   /// 手动触发同步
   Future<void> manualSync() async {
     try {
@@ -40,4 +43,4 @@ class SyncManager {
       debugPrint('手动同步失败: $e');
     }
   }
-} 
+}

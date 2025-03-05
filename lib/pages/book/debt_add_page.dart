@@ -1,5 +1,4 @@
 import 'package:clsswjz/drivers/driver_factory.dart';
-import 'package:clsswjz/drivers/vo_transfer.dart';
 import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:clsswjz/manager/dao_manager.dart';
 import 'package:flutter/material.dart';

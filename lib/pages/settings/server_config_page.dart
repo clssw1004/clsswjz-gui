@@ -40,6 +40,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
       bookName: data.bookName,
       bookIcon: data.bookIcon,
     );
+    await AppConfigManager.instance.makeStorageInit();
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted) {
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -66,6 +67,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
         );
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
         await syncProvider.syncData();
+        await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
           RestartWidget.restartApp(context);
