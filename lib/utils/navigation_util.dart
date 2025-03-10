@@ -107,6 +107,34 @@ class NavigationUtil {
     }
   }
 
+  /// 跳转到记账退款页面
+  static Future<bool> toItemRefund(
+    BuildContext context,
+    dynamic item,
+  ) async {
+    final accountBook = _getCurrentBook(context);
+    if (accountBook == null) {
+      debugPrint('账本不能为空');
+      return false;
+    }
+    if (item == null) {
+      debugPrint('记账不能为空');
+      return false;
+    }
+
+    try {
+      final result = await Navigator.pushNamed(
+        context,
+        AppRoutes.itemRefund,
+        arguments: [accountBook, item],
+      );
+      return result == true;
+    } catch (e) {
+      debugPrint('跳转记账退款页面失败: $e');
+      return false;
+    }
+  }
+
   /// 跳转到记事编辑页面
   static Future<void> toNoteEdit(
     BuildContext context,

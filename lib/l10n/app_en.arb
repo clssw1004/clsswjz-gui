@@ -775,5 +775,13 @@
     "showLess": "Show Less",
     "@showLess": {
         "description": "Show less button text"
+    },
+    "refund": "Refund",
+    "@refund": {
+        "description": "Refund operation label"
+    },
+    "originalRecord": "Original Record",
+    "@originalRecord": {
+        "description": "Original record label"
     }
 }

@@ -669,5 +669,13 @@
     "showLess": "收起",
     "@showLess": {
         "description": "收起按鈕文本"
+    },
+    "refund": "退款",
+    "@refund": {
+        "description": "退款操作標籤"
+    },
+    "originalRecord": "原始記錄",
+    "@originalRecord": {
+        "description": "原始記錄標籤"
     }
 }

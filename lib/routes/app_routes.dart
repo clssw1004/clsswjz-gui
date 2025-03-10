@@ -11,6 +11,7 @@ import '../pages/book/item_add_page.dart';
 import '../pages/book/item_edit_page.dart';
 import '../pages/book/book_form_page.dart';
 import '../pages/book/merchants_page.dart';
+import '../pages/book/refund_form_page.dart';
 import '../pages/home_page.dart';
 import '../pages/import/import_page.dart';
 import '../pages/settings/language_settings_page.dart';
@@ -57,6 +58,9 @@ class AppRoutes {
 
   /// 账目编辑页面
   static const String itemEdit = '/item_edit';
+
+  /// 账目退款页面
+  static const String itemRefund = '/item_refund';
 
   /// 账目列表页面
   static const String itemsList = '/items_list';
@@ -127,6 +131,12 @@ class AppRoutes {
       final accountBook = args[0] as BookMetaVO;
       final item = args[1] as UserItemVO;
       return ItemEditPage(bookMeta: accountBook, item: item);
+    },
+    itemRefund: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final accountBook = args[0] as BookMetaVO;
+      final item = args[1] as UserItemVO;
+      return RefundFormPage(bookMeta: accountBook, originalItem: item);
     },
     itemsList: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;

@@ -876,6 +876,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get showLess => '收起';
+
+  @override
+  String get refund => '退款';
+
+  @override
+  String get originalRecord => '原始记录';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1702,4 +1708,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get showLess => '收起';
+
+  @override
+  String get refund => '退款';
+
+  @override
+  String get originalRecord => '原始記錄';
 }

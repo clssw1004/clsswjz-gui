@@ -876,4 +876,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showLess => 'Show Less';
+
+  @override
+  String get refund => 'Refund';
+
+  @override
+  String get originalRecord => 'Original Record';
 }

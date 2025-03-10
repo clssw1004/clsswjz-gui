@@ -783,5 +783,13 @@
     "showLess": "收起",
     "@showLess": {
         "description": "收起按钮文本"
+    },
+    "refund": "退款",
+    "@refund": {
+        "description": "退款操作标签"
+    },
+    "originalRecord": "原始记录",
+    "@originalRecord": {
+        "description": "原始记录标签"
     }
 }

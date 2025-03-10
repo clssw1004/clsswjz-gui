@@ -10,6 +10,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_form_provider.dart';
 import '../../utils/color_util.dart';
 import '../../utils/toast_util.dart';
+import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../enums/symbol_type.dart';
@@ -44,10 +45,22 @@ class ItemEditPage extends StatelessWidget {
       create: (context) => ItemFormProvider(bookMeta, item),
       child: Consumer<ItemFormProvider>(
         builder: (context, provider, child) {
+          // 判断是否为支出类型
+          final isExpense = provider.item.type == AccountItemType.expense.code;
+          
           return Scaffold(
             appBar: CommonAppBar(
               title: Text(
                   L10nManager.l10n.editTo(L10nManager.l10n.tabAccountItems)),
+              actions: [
+                // 只有支出类型才显示退款按钮
+                if (isExpense)
+                  IconButton(
+                    icon: const Icon(Icons.currency_exchange),
+                    tooltip: L10nManager.l10n.refund,
+                    onPressed: () => _navigateToRefundPage(context),
+                  ),
+              ],
             ),
             body: provider.loading
                 ? const Center(child: CircularProgressIndicator())
@@ -63,6 +76,16 @@ class ItemEditPage extends StatelessWidget {
         },
       ),
     );
+  }
+  
+  // 跳转到退款页面
+  void _navigateToRefundPage(BuildContext context) async {
+    final result = await NavigationUtil.toItemRefund(context, item);
+    
+    // 如果退款成功，返回到上一页
+    if (result && context.mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 }
 

@@ -6,6 +6,9 @@ enum BusinessType {
   /// 账目
   item('item'),
 
+  /// 退款
+  refund('refund'),
+
   /// 记事
   note('note'),
 
