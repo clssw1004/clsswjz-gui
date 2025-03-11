@@ -4,7 +4,7 @@ import '../../utils/date_util.dart';
 import '../tables/account_shop_table.dart';
 import 'base_dao.dart';
 
-class ShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
+class ShopDao extends DateBaseBookDao<AccountShopTable, AccountShop> {
   ShopDao(super.db);
 
   Future<List<AccountShop>> findByCodes(List<String> codes) {
@@ -14,6 +14,12 @@ class ShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
 
   Future<AccountShop?> findByCode(String code) {
     return (db.select(db.accountShopTable)..where((t) => t.code.equals(code)))
+        .getSingleOrNull();
+  }
+
+  Future<AccountShop?> findByBookAndCode(String bookId, String code) {
+    return (db.select(db.accountShopTable)
+          ..where((t) => t.accountBookId.equals(bookId) & t.code.equals(code)))
         .getSingleOrNull();
   }
 
@@ -46,6 +52,5 @@ class ShopDao extends BaseBookDao<AccountShopTable, AccountShop> {
   }
 
   @override
-  // TODO: implement table
   TableInfo<AccountShopTable, AccountShop> get table => db.accountShopTable;
 }

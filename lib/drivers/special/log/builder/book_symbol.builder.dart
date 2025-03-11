@@ -30,12 +30,18 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return AccountSymbolTable.toJsonString(data as AccountSymbolTableCompanion);
+      return AccountSymbolTable.toJsonString(
+          data as AccountSymbolTableCompanion);
     }
   }
 
-  static SymbolCULog create(String who, String bookId, {required String name, required SymbolType symbolType}) {
-    return SymbolCULog().who(who).inBook(bookId).doCreate().withData(AccountSymbolTable.toCreateCompanion(
+  static SymbolCULog create(String who, String bookId,
+      {required String name, required SymbolType symbolType}) {
+    return SymbolCULog()
+        .who(who)
+        .inBook(bookId)
+        .doCreate()
+        .withData(AccountSymbolTable.toCreateCompanion(
           who,
           bookId,
           name: name,
@@ -43,10 +49,17 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
         )) as SymbolCULog;
   }
 
-  static SymbolCULog update(String userId, String bookId, String symbolId, {String? name}) {
-    return SymbolCULog().who(userId).inBook(bookId).target(symbolId).doUpdate().withData(AccountSymbolTable.toUpdateCompanion(
+  static SymbolCULog update(String userId, String bookId, String symbolId,
+      {String? name, String? lastAccountItemAt}) {
+    return SymbolCULog()
+        .who(userId)
+        .inBook(bookId)
+        .target(symbolId)
+        .doUpdate()
+        .withData(AccountSymbolTable.toUpdateCompanion(
           userId,
           name: name,
+          lastAccountItemAt: lastAccountItemAt,
         )) as SymbolCULog;
   }
 
@@ -55,15 +68,19 @@ class SymbolCULog extends LogBuilder<AccountSymbolTableCompanion, String> {
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData)).toCompanion(true)) as SymbolCULog;
+        .withData(AccountSymbol.fromJson(jsonDecode(log.operateData))
+            .toCompanion(true)) as SymbolCULog;
   }
 
   static SymbolCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return SymbolCULog.update(log.operatorId, log.parentId, log.businessId, name: data['name']);
+    return SymbolCULog.update(log.operatorId, log.parentId, log.businessId,
+        name: data['name']);
   }
 
   static SymbolCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create ? SymbolCULog.fromCreateLog(log) : SymbolCULog.fromUpdateLog(log));
+    return (OperateType.fromCode(log.operateType) == OperateType.create
+        ? SymbolCULog.fromCreateLog(log)
+        : SymbolCULog.fromUpdateLog(log));
   }
 }

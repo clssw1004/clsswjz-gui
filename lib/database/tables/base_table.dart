@@ -20,7 +20,13 @@ class BaseBusinessTable extends BaseTable {
   TextColumn get updatedBy => text().named('updated_by')();
 }
 
-@DataClassName('BaseAccountBookTable')
+@DataClassName('BaseAccountBook')
 class BaseAccountBookTable extends BaseBusinessTable {
   TextColumn get accountBookId => text().named('account_book_id')();
+}
+
+@DataClassName('DateBaseAccountBook')
+class DateBaseAccountBookTable extends BaseAccountBookTable {
+  TextColumn get lastAccountItemAt =>
+      text().nullable().named('last_account_item_at')();
 }

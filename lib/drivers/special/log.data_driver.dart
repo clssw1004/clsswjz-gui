@@ -43,6 +43,86 @@ import 'log/builder/book_symbol.builder.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
+  Future<OperateResult<String>> register(
+      {String? userId,
+      required String username,
+      required String password,
+      required String nickname,
+      String? email,
+      String? phone,
+      String? language,
+      String? timezone,
+      String? avatar}) async {
+    // 检查用户名是否已存在
+    if (await DaoManager.userDao.isUsernameExists(username)) {
+      return OperateResult.failWithMessage(message: '用户名已存在');
+    }
+    final id = await UserCULog.create(
+            userId: userId,
+            username: username,
+            password: password,
+            nickname: nickname,
+            email: email,
+            phone: phone)
+        .execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> updateUser(String userId,
+      {String? oldPassword,
+      String? newPassword,
+      String? nickname,
+      String? email,
+      String? phone,
+      String? language,
+      String? timezone,
+      File? avatar}) async {
+    String? attachId;
+    if (avatar != null) {
+      attachId = await AttachmentCULog.fromFile(userId,
+              belongType: BusinessType.user, belongId: userId, file: avatar)
+          .execute();
+    }
+
+    String? hashedPassword;
+    if (newPassword != null && oldPassword != null) {
+      final user = await DaoManager.userDao.findById(userId);
+      if (user == null) {
+        return OperateResult.failWithMessage(message: '用户不存在');
+      }
+      if (!await verifyPassword(user, oldPassword)) {
+        return OperateResult.failWithMessage(message: '旧密码错误');
+      }
+      hashedPassword = encryptPassword(newPassword);
+    }
+    await UserCULog.update(userId,
+            password: hashedPassword,
+            nickname: nickname,
+            email: email,
+            phone: phone,
+            language: language,
+            timezone: timezone,
+            avatar: attachId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  /// 获取用户信息
+  @override
+  Future<OperateResult<UserVO>> getUserInfo(String id) async {
+    final user = await DaoManager.userDao.findById(id);
+    if (user == null) {
+      return OperateResult.failWithMessage(message: '用户不存在');
+    }
+    return OperateResult.success(UserVO.fromUser(
+        user: user,
+        avatar: user.avatar != defaultAvatar
+            ? await ServiceManager.attachmentService.getAttachment(user.avatar)
+            : null));
+  }
+
+  @override
   Future<OperateResult<String>> createBook(String userId,
       {required String name,
       String? description,
@@ -82,53 +162,10 @@ class LogDataDriver implements BookDataDriver {
     return OperateResult.success(bookId);
   }
 
-  Future<void> initDefaultBookData(String userId, String bookId) async {
-    DefaultBookData defaultData =
-        getDefaultDataByLocale(AppConfigManager.instance.locale);
-    if (defaultData.category.isNotEmpty) {
-      for (var category in defaultData.category) {
-        await createCategory(userId, bookId,
-            name: category.name,
-            categoryType: category.categoryType.code,
-            code: category.code);
-      }
-    }
-    if (defaultData.shop.isNotEmpty) {
-      for (var shop in defaultData.shop) {
-        await createShop(userId, bookId, name: shop);
-      }
-    }
-    if (defaultData.symbols.isNotEmpty) {
-      for (var symbol in defaultData.symbols) {
-        await createSymbol(userId, bookId,
-            name: symbol.name, symbolType: symbol.symbolType);
-      }
-    }
-    if (defaultData.funds.isNotEmpty) {
-      for (var fund in defaultData.funds) {
-        await createFund(userId, bookId,
-            name: fund.name, fundType: fund.fundType);
-      }
-    }
-  }
-
   @override
   Future<OperateResult<void>> deleteBook(String userId, String bookId) async {
     await BookDLog.delete(userId, bookId).execute();
     return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<UserBookVO>> getBook(String who, String bookId) async {
-    return OperateResult.successIfNotNull(
-        await ServiceManager.accountBookService.getAccountBook(who, bookId));
-  }
-
-  @override
-  Future<OperateResult<List<UserBookVO>>> listBooksByUser(String userId) async {
-    List<UserBookVO> books =
-        await ServiceManager.accountBookService.getBooksByUserId(userId);
-    return OperateResult.success(books);
   }
 
   @override
@@ -170,12 +207,16 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<UserItemVO>>> listItemsByBook(
-      String userId, String bookId,
-      {int limit = 20, int offset = 0, ItemFilterDTO? filter}) async {
-    final items = await DaoManager.itemDao
-        .listByBook(bookId, limit: limit, offset: offset, filter: filter);
-    return OperateResult.success(await VOTransfer.transferAccountItem(items));
+  Future<OperateResult<UserBookVO>> getBook(String who, String bookId) async {
+    return OperateResult.successIfNotNull(
+        await ServiceManager.accountBookService.getAccountBook(who, bookId));
+  }
+
+  @override
+  Future<OperateResult<List<UserBookVO>>> listBooksByUser(String userId) async {
+    List<UserBookVO> books =
+        await ServiceManager.accountBookService.getBooksByUserId(userId);
+    return OperateResult.success(books);
   }
 
   @override
@@ -216,12 +257,45 @@ class LogDataDriver implements BookDataDriver {
       final category =
           await DaoManager.categoryDao.findByBookAndCode(bookId, categoryCode);
       if (category != null) {
-        CategoryCULog.update(who, bookId, category.id,
-                lastAccountItemAt: accountDate)
-            .execute();
+        updateCategory(who, bookId, category.id,
+            lastAccountItemAt: accountDate);
+      }
+    }
+    if (shopCode != null) {
+      final shop = await DaoManager.shopDao.findByBookAndCode(bookId, shopCode);
+      if (shop != null) {
+        updateShop(who, bookId, shop.id, lastAccountItemAt: accountDate);
+      }
+    }
+    if (tagCode != null) {
+      final tag = await DaoManager.symbolDao
+          .findByBookAndCode(bookId, SymbolType.tag.code, tagCode);
+      if (tag != null) {
+        updateSymbol(who, bookId, tag.id, lastAccountItemAt: accountDate);
+      }
+    }
+    if (projectCode != null) {
+      final project = await DaoManager.symbolDao
+          .findByBookAndCode(bookId, SymbolType.project.code, projectCode);
+      if (project != null) {
+        updateSymbol(who, bookId, project.id, lastAccountItemAt: accountDate);
+      }
+    }
+    if (fundId != null) {
+      final fund = await DaoManager.fundDao.findById(fundId);
+      if (fund != null) {
+        updateFund(who, bookId, fund.id, lastAccountItemAt: accountDate);
       }
     }
     return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteItem(
+      String who, String bookId, String itemId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.item, itemId)
+        .execute();
+    return OperateResult.success(null);
   }
 
   @override
@@ -271,6 +345,15 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<List<UserItemVO>>> listItemsByBook(
+      String userId, String bookId,
+      {int limit = 20, int offset = 0, ItemFilterDTO? filter}) async {
+    final items = await DaoManager.itemDao
+        .listByBook(bookId, limit: limit, offset: offset, filter: filter);
+    return OperateResult.success(await VOTransfer.transferAccountItem(items));
+  }
+
+  @override
   Future<OperateResult<String>> createCategory(String who, String bookId,
       {required String name,
       required String categoryType,
@@ -287,6 +370,14 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<void>> deleteCategory(
+      String who, String bookId, String categoryId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.category, categoryId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
   Future<OperateResult<void>> updateCategory(
       String who, String bookId, String categoryId,
       {String? name, String? lastAccountItemAt}) async {
@@ -294,6 +385,15 @@ class LogDataDriver implements BookDataDriver {
             name: name, lastAccountItemAt: lastAccountItemAt)
         .execute();
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(
+      String userId, String bookId,
+      {String? categoryType}) async {
+    final categories = await DaoManager.categoryDao
+        .listCategoriesByBook(bookId, categoryType: categoryType);
+    return OperateResult.success(categories);
   }
 
   // 创建商家
@@ -308,13 +408,30 @@ class LogDataDriver implements BookDataDriver {
     return OperateResult.success(id);
   }
 
+  @override
+  Future<OperateResult<void>> deleteShop(
+      String who, String bookId, String shopId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.shop, shopId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
   // 更新商家
   @override
   Future<OperateResult<void>> updateShop(
       String who, String bookId, String shopId,
-      {required String name}) async {
-    await ShopCULog.update(who, bookId, shopId, name: name).execute();
+      {String? name, String? lastAccountItemAt}) async {
+    await ShopCULog.update(who, bookId, shopId,
+            name: name, lastAccountItemAt: lastAccountItemAt)
+        .execute();
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<AccountShop>>> listShopsByBook(
+      String userId, String bookId) async {
+    final shops = await DaoManager.shopDao.listByBook(bookId);
+    return OperateResult.success(shops);
   }
 
   @override
@@ -331,43 +448,30 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<void>> updateSymbol(
-      String who, String bookId, String tagId,
-      {required String name}) async {
-    await SymbolCULog.update(who, bookId, tagId, name: name).execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteCategory(
-      String who, String bookId, String categoryId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.category, categoryId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteItem(
-      String who, String bookId, String itemId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.item, itemId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteShop(
-      String who, String bookId, String shopId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.shop, shopId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
   Future<OperateResult<void>> deleteSymbol(
       String who, String bookId, String symbolId) async {
     await DeleteLog.buildBookSub(who, bookId, BusinessType.symbol, symbolId)
         .execute();
     return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> updateSymbol(
+      String who, String bookId, String tagId,
+      {String? name, String? lastAccountItemAt}) async {
+    await SymbolCULog.update(who, bookId, tagId,
+            name: name, lastAccountItemAt: lastAccountItemAt)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(
+      String userId, String bookId,
+      {SymbolType? symbolType}) async {
+    final symbols = await DaoManager.symbolDao
+        .listSymbolsByBook(bookId, symbolType: symbolType);
+    return OperateResult.success(symbols);
   }
 
   @override
@@ -391,6 +495,14 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<void>> deleteFund(
+      String who, String bookId, String fundId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.fund, fundId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
   Future<OperateResult<void>> updateFund(
     String who,
     String bookId,
@@ -399,20 +511,14 @@ class LogDataDriver implements BookDataDriver {
     FundType? fundType,
     double? fundBalance,
     String? fundRemark,
+    String? lastAccountItemAt,
   }) async {
     await FundCULog.update(who, bookId, fundId,
             name: name,
             fundType: fundType,
             fundBalance: fundBalance,
-            fundRemark: fundRemark)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteFund(
-      String who, String bookId, String fundId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.fund, fundId)
+            fundRemark: fundRemark,
+            lastAccountItemAt: lastAccountItemAt)
         .execute();
     return OperateResult.success(null);
   }
@@ -422,6 +528,158 @@ class LogDataDriver implements BookDataDriver {
       String who, String bookId, String fundId) async {
     final fund = await DaoManager.fundDao.findById(fundId);
     return OperateResult.successIfNotNull(await VOTransfer.transferFund(fund));
+  }
+
+  @override
+  Future<OperateResult<List<UserFundVO>>> listFundsByBook(
+      String userId, String bookId) async {
+    final funds = await DaoManager.fundDao.listByBook(bookId);
+    return OperateResult.successIfNotNull(
+        await VOTransfer.transferFunds(funds));
+  }
+
+  @override
+  Future<OperateResult<String>> createNote(String who, String bookId,
+      {String? title,
+      required NoteType noteType,
+      required String content,
+      required String plainContent}) async {
+    final id = await NoteCULog.create(who, bookId,
+            title: title,
+            noteType: noteType,
+            content: content,
+            plainContent: plainContent)
+        .execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteNote(
+      String who, String bookId, String noteId) async {
+    await DeleteLog.buildBookSub(who, bookId, BusinessType.note, noteId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> updateNote(
+      String who, String bookId, String noteId,
+      {String? title, String? content, String? plainContent}) async {
+    await NoteCULog.update(who, bookId, noteId,
+            title: title, content: content, plainContent: plainContent)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<UserNoteVO>>> listNotesByBook(
+      String userId, String bookId,
+      {int limit = 200, int offset = 0, String? keyword}) async {
+    final notes = await DaoManager.noteDao
+        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
+    return OperateResult.success(await VOTransfer.transferNote(notes));
+  }
+
+  @override
+  Future<OperateResult<String>> createDebt(String userId, String bookId,
+      {required String debtor,
+      required DebtType debtType,
+      required double amount,
+      required String fundId,
+      required String debtDate,
+      String? expectedClearDate,
+      DebtClearState? clearState}) async {
+    final id = await DebtCULog.create(
+      userId,
+      bookId,
+      debtor: debtor,
+      debtType: debtType,
+      amount: amount,
+      fundId: fundId,
+      debtDate: debtDate,
+      expectedClearDate: expectedClearDate,
+    ).execute();
+    await ItemCULog.create(userId, bookId,
+            amount: amount,
+            type: AccountItemType.transfer,
+            accountDate: '${debtDate} 00:00:00',
+            fundId: fundId,
+            categoryCode: debtType.code,
+            description: '${debtType.text} $debtor',
+            source: BusinessType.debt.code,
+            sourceId: id)
+        .execute();
+    return OperateResult.success(id);
+  }
+
+  @override
+  Future<OperateResult<void>> deleteDebt(
+      String userId, String bookId, String debtId) async {
+    await DeleteLog.buildBookSub(userId, bookId, BusinessType.debt, debtId)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<void>> updateDebt(
+      String userId, String bookId, String debtId,
+      {String? debtor,
+      double? amount,
+      String? fundId,
+      String? debtDate,
+      String? expectedClearDate,
+      String? clearDate,
+      DebtClearState? clearState}) async {
+    await DebtCULog.update(userId, bookId, debtId,
+            debtor: debtor,
+            amount: amount,
+            fundId: fundId,
+            debtDate: debtDate,
+            expectedClearDate: expectedClearDate,
+            clearDate: clearDate,
+            clearState: clearState)
+        .execute();
+    return OperateResult.success(null);
+  }
+
+  @override
+  Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
+      String userId, String bookId,
+      {int limit = 200, int offset = 0, String? keyword}) async {
+    final debts = await DaoManager.debtDao
+        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
+    return OperateResult.success(
+        await VOTransfer.transferDebts(bookId, userId, debts));
+  }
+
+  Future<void> initDefaultBookData(String userId, String bookId) async {
+    DefaultBookData defaultData =
+        getDefaultDataByLocale(AppConfigManager.instance.locale);
+    if (defaultData.category.isNotEmpty) {
+      for (var category in defaultData.category) {
+        await createCategory(userId, bookId,
+            name: category.name,
+            categoryType: category.categoryType.code,
+            code: category.code);
+      }
+    }
+    if (defaultData.shop.isNotEmpty) {
+      for (var shop in defaultData.shop) {
+        await createShop(userId, bookId, name: shop);
+      }
+    }
+    if (defaultData.symbols.isNotEmpty) {
+      for (var symbol in defaultData.symbols) {
+        await createSymbol(userId, bookId,
+            name: symbol.name, symbolType: symbol.symbolType);
+      }
+    }
+    if (defaultData.funds.isNotEmpty) {
+      for (var fund in defaultData.funds) {
+        await createFund(userId, bookId,
+            name: fund.name, fundType: fund.fundType);
+      }
+    }
   }
 
   Future<String> addBookMember(String who, String bookId,
@@ -467,94 +725,6 @@ class LogDataDriver implements BookDataDriver {
         .execute();
   }
 
-  @override
-  Future<OperateResult<List<UserFundVO>>> listFundsByBook(
-      String userId, String bookId) async {
-    final funds = await DaoManager.fundDao.listByBook(bookId);
-    return OperateResult.successIfNotNull(
-        await VOTransfer.transferFunds(funds));
-  }
-
-  @override
-  Future<OperateResult<String>> register(
-      {String? userId,
-      required String username,
-      required String password,
-      required String nickname,
-      String? email,
-      String? phone,
-      String? language,
-      String? timezone,
-      String? avatar}) async {
-    // 检查用户名是否已存在
-    if (await DaoManager.userDao.isUsernameExists(username)) {
-      return OperateResult.failWithMessage(message: '用户名已存在');
-    }
-    final id = await UserCULog.create(
-            userId: userId,
-            username: username,
-            password: password,
-            nickname: nickname,
-            email: email,
-            phone: phone)
-        .execute();
-    return OperateResult.success(id);
-  }
-
-  /// 获取用户信息
-  @override
-  Future<OperateResult<UserVO>> getUserInfo(String id) async {
-    final user = await DaoManager.userDao.findById(id);
-    if (user == null) {
-      return OperateResult.failWithMessage(message: '用户不存在');
-    }
-    return OperateResult.success(UserVO.fromUser(
-        user: user,
-        avatar: user.avatar != defaultAvatar
-            ? await ServiceManager.attachmentService.getAttachment(user.avatar)
-            : null));
-  }
-
-  @override
-  Future<OperateResult<void>> updateUser(String userId,
-      {String? oldPassword,
-      String? newPassword,
-      String? nickname,
-      String? email,
-      String? phone,
-      String? language,
-      String? timezone,
-      File? avatar}) async {
-    String? attachId;
-    if (avatar != null) {
-      attachId = await AttachmentCULog.fromFile(userId,
-              belongType: BusinessType.user, belongId: userId, file: avatar)
-          .execute();
-    }
-
-    String? hashedPassword;
-    if (newPassword != null && oldPassword != null) {
-      final user = await DaoManager.userDao.findById(userId);
-      if (user == null) {
-        return OperateResult.failWithMessage(message: '用户不存在');
-      }
-      if (!await verifyPassword(user, oldPassword)) {
-        return OperateResult.failWithMessage(message: '旧密码错误');
-      }
-      hashedPassword = encryptPassword(newPassword);
-    }
-    await UserCULog.update(userId,
-            password: hashedPassword,
-            nickname: nickname,
-            email: email,
-            phone: phone,
-            language: language,
-            timezone: timezone,
-            avatar: attachId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
   /// 验证密码
   Future<bool> verifyPassword(User user, String password) async {
     final hashedPassword = encryptPassword(password);
@@ -563,144 +733,5 @@ class LogDataDriver implements BookDataDriver {
 
   String encryptPassword(String password) {
     return DigestUtil.toSha256(password);
-  }
-
-  @override
-  Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(
-      String userId, String bookId,
-      {String? categoryType}) async {
-    final categories = await DaoManager.categoryDao
-        .listCategoriesByBook(bookId, categoryType: categoryType);
-    return OperateResult.success(categories);
-  }
-
-  @override
-  Future<OperateResult<List<AccountShop>>> listShopsByBook(
-      String userId, String bookId) async {
-    final shops = await DaoManager.shopDao.listByBook(bookId);
-    return OperateResult.success(shops);
-  }
-
-  @override
-  Future<OperateResult<List<AccountSymbol>>> listSymbolsByBook(
-      String userId, String bookId,
-      {SymbolType? symbolType}) async {
-    final symbols = await DaoManager.symbolDao
-        .listSymbolsByBook(bookId, symbolType: symbolType);
-    return OperateResult.success(symbols);
-  }
-
-  @override
-  Future<OperateResult<List<UserNoteVO>>> listNotesByBook(
-      String userId, String bookId,
-      {int limit = 200, int offset = 0, String? keyword}) async {
-    final notes = await DaoManager.noteDao
-        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
-    return OperateResult.success(await VOTransfer.transferNote(notes));
-  }
-
-  @override
-  Future<OperateResult<String>> createNote(String who, String bookId,
-      {String? title,
-      required NoteType noteType,
-      required String content,
-      required String plainContent}) async {
-    final id = await NoteCULog.create(who, bookId,
-            title: title,
-            noteType: noteType,
-            content: content,
-            plainContent: plainContent)
-        .execute();
-    return OperateResult.success(id);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteNote(
-      String who, String bookId, String noteId) async {
-    await DeleteLog.buildBookSub(who, bookId, BusinessType.note, noteId)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> updateNote(
-      String who, String bookId, String noteId,
-      {String? title, String? content, String? plainContent}) async {
-    await NoteCULog.update(who, bookId, noteId,
-            title: title, content: content, plainContent: plainContent)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
-      String userId, String bookId,
-      {int limit = 200, int offset = 0, String? keyword}) async {
-    final debts = await DaoManager.debtDao
-        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
-    return OperateResult.success(
-        await VOTransfer.transferDebts(bookId, userId, debts));
-  }
-
-  @override
-  Future<OperateResult<String>> createDebt(String userId, String bookId,
-      {required String debtor,
-      required DebtType debtType,
-      required double amount,
-      required String fundId,
-      required String debtDate,
-      String? expectedClearDate,
-      DebtClearState? clearState}) async {
-    final id = await DebtCULog.create(
-      userId,
-      bookId,
-      debtor: debtor,
-      debtType: debtType,
-      amount: amount,
-      fundId: fundId,
-      debtDate: debtDate,
-      expectedClearDate: expectedClearDate,
-    ).execute();
-    await ItemCULog.create(userId, bookId,
-            amount: amount,
-            type: AccountItemType.transfer,
-            accountDate: '${debtDate} 00:00:00',
-            fundId: fundId,
-            categoryCode: debtType.code,
-            description: '${debtType.text} $debtor',
-            source: BusinessType.debt.code,
-            sourceId: id)
-        .execute();
-    return OperateResult.success(id);
-  }
-
-  @override
-  Future<OperateResult<void>> updateDebt(
-      String userId, String bookId, String debtId,
-      {String? debtor,
-      double? amount,
-      String? fundId,
-      String? debtDate,
-      String? expectedClearDate,
-      String? clearDate,
-      DebtClearState? clearState}) async {
-    await DebtCULog.update(userId, bookId, debtId,
-            debtor: debtor,
-            amount: amount,
-            fundId: fundId,
-            debtDate: debtDate,
-            expectedClearDate: expectedClearDate,
-            clearDate: clearDate,
-            clearState: clearState)
-        .execute();
-    return OperateResult.success(null);
-  }
-
-  @override
-  Future<OperateResult<void>> deleteDebt(
-      String userId, String bookId, String debtId) async {
-    await DeleteLog.buildBookSub(userId, bookId, BusinessType.debt, debtId)
-        .execute();
-    return OperateResult.success(null);
   }
 }

@@ -8,7 +8,7 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountSymbol')
-class AccountSymbolTable extends BaseAccountBookTable {
+class AccountSymbolTable extends DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get symbolType => text().named('symbol_type')();
@@ -17,12 +17,14 @@ class AccountSymbolTable extends BaseAccountBookTable {
   static AccountSymbolTableCompanion toUpdateCompanion(
     String who, {
     String? name,
+    String? lastAccountItemAt,
     String? accountBookId,
   }) {
     return AccountSymbolTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
       name: Value.absentIfNull(name),
+      lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
     );
@@ -59,6 +61,7 @@ class AccountSymbolTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'code', companion.code);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'symbolType', companion.symbolType);
+    MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     return jsonEncode(map);
   }
 }

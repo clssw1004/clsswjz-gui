@@ -1915,6 +1915,12 @@ class $AccountCategoryTableTable extends AccountCategoryTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AccountCategoryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _lastAccountItemAtMeta =
+      const VerificationMeta('lastAccountItemAt');
+  @override
+  late final GeneratedColumn<String> lastAccountItemAt =
+      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _accountBookIdMeta =
       const VerificationMeta('accountBookId');
   @override
@@ -1966,14 +1972,9 @@ class $AccountCategoryTableTable extends AccountCategoryTable
   late final GeneratedColumn<String> categoryType = GeneratedColumn<String>(
       'category_type', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _lastAccountItemAtMeta =
-      const VerificationMeta('lastAccountItemAt');
-  @override
-  late final GeneratedColumn<String> lastAccountItemAt =
-      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
-          type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
+        lastAccountItemAt,
         accountBookId,
         createdBy,
         updatedBy,
@@ -1982,8 +1983,7 @@ class $AccountCategoryTableTable extends AccountCategoryTable
         id,
         name,
         code,
-        categoryType,
-        lastAccountItemAt
+        categoryType
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1995,6 +1995,12 @@ class $AccountCategoryTableTable extends AccountCategoryTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('last_account_item_at')) {
+      context.handle(
+          _lastAccountItemAtMeta,
+          lastAccountItemAt.isAcceptableOrUnknown(
+              data['last_account_item_at']!, _lastAccountItemAtMeta));
+    }
     if (data.containsKey('account_book_id')) {
       context.handle(
           _accountBookIdMeta,
@@ -2052,12 +2058,6 @@ class $AccountCategoryTableTable extends AccountCategoryTable
     } else if (isInserting) {
       context.missing(_categoryTypeMeta);
     }
-    if (data.containsKey('last_account_item_at')) {
-      context.handle(
-          _lastAccountItemAtMeta,
-          lastAccountItemAt.isAcceptableOrUnknown(
-              data['last_account_item_at']!, _lastAccountItemAtMeta));
-    }
     return context;
   }
 
@@ -2071,6 +2071,8 @@ class $AccountCategoryTableTable extends AccountCategoryTable
   AccountCategory map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return AccountCategory(
+      lastAccountItemAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
       accountBookId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
       createdBy: attachedDatabase.typeMapping
@@ -2089,8 +2091,6 @@ class $AccountCategoryTableTable extends AccountCategoryTable
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
       categoryType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}category_type'])!,
-      lastAccountItemAt: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
     );
   }
 
@@ -2101,6 +2101,7 @@ class $AccountCategoryTableTable extends AccountCategoryTable
 }
 
 class AccountCategory extends DataClass implements Insertable<AccountCategory> {
+  final String? lastAccountItemAt;
   final String accountBookId;
   final String createdBy;
   final String updatedBy;
@@ -2110,9 +2111,9 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
   final String name;
   final String code;
   final String categoryType;
-  final String? lastAccountItemAt;
   const AccountCategory(
-      {required this.accountBookId,
+      {this.lastAccountItemAt,
+      required this.accountBookId,
       required this.createdBy,
       required this.updatedBy,
       required this.createdAt,
@@ -2120,11 +2121,13 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       required this.id,
       required this.name,
       required this.code,
-      required this.categoryType,
-      this.lastAccountItemAt});
+      required this.categoryType});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || lastAccountItemAt != null) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
+    }
     map['account_book_id'] = Variable<String>(accountBookId);
     map['created_by'] = Variable<String>(createdBy);
     map['updated_by'] = Variable<String>(updatedBy);
@@ -2134,14 +2137,14 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
     map['name'] = Variable<String>(name);
     map['code'] = Variable<String>(code);
     map['category_type'] = Variable<String>(categoryType);
-    if (!nullToAbsent || lastAccountItemAt != null) {
-      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
-    }
     return map;
   }
 
   AccountCategoryTableCompanion toCompanion(bool nullToAbsent) {
     return AccountCategoryTableCompanion(
+      lastAccountItemAt: lastAccountItemAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAccountItemAt),
       accountBookId: Value(accountBookId),
       createdBy: Value(createdBy),
       updatedBy: Value(updatedBy),
@@ -2151,9 +2154,6 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       name: Value(name),
       code: Value(code),
       categoryType: Value(categoryType),
-      lastAccountItemAt: lastAccountItemAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastAccountItemAt),
     );
   }
 
@@ -2161,6 +2161,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AccountCategory(
+      lastAccountItemAt:
+          serializer.fromJson<String?>(json['lastAccountItemAt']),
       accountBookId: serializer.fromJson<String>(json['accountBookId']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       updatedBy: serializer.fromJson<String>(json['updatedBy']),
@@ -2170,14 +2172,13 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       name: serializer.fromJson<String>(json['name']),
       code: serializer.fromJson<String>(json['code']),
       categoryType: serializer.fromJson<String>(json['categoryType']),
-      lastAccountItemAt:
-          serializer.fromJson<String?>(json['lastAccountItemAt']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
       'accountBookId': serializer.toJson<String>(accountBookId),
       'createdBy': serializer.toJson<String>(createdBy),
       'updatedBy': serializer.toJson<String>(updatedBy),
@@ -2187,12 +2188,12 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       'name': serializer.toJson<String>(name),
       'code': serializer.toJson<String>(code),
       'categoryType': serializer.toJson<String>(categoryType),
-      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
     };
   }
 
   AccountCategory copyWith(
-          {String? accountBookId,
+          {Value<String?> lastAccountItemAt = const Value.absent(),
+          String? accountBookId,
           String? createdBy,
           String? updatedBy,
           int? createdAt,
@@ -2200,9 +2201,11 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           String? id,
           String? name,
           String? code,
-          String? categoryType,
-          Value<String?> lastAccountItemAt = const Value.absent()}) =>
+          String? categoryType}) =>
       AccountCategory(
+        lastAccountItemAt: lastAccountItemAt.present
+            ? lastAccountItemAt.value
+            : this.lastAccountItemAt,
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
         updatedBy: updatedBy ?? this.updatedBy,
@@ -2212,12 +2215,12 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
         name: name ?? this.name,
         code: code ?? this.code,
         categoryType: categoryType ?? this.categoryType,
-        lastAccountItemAt: lastAccountItemAt.present
-            ? lastAccountItemAt.value
-            : this.lastAccountItemAt,
       );
   AccountCategory copyWithCompanion(AccountCategoryTableCompanion data) {
     return AccountCategory(
+      lastAccountItemAt: data.lastAccountItemAt.present
+          ? data.lastAccountItemAt.value
+          : this.lastAccountItemAt,
       accountBookId: data.accountBookId.present
           ? data.accountBookId.value
           : this.accountBookId,
@@ -2231,15 +2234,13 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       categoryType: data.categoryType.present
           ? data.categoryType.value
           : this.categoryType,
-      lastAccountItemAt: data.lastAccountItemAt.present
-          ? data.lastAccountItemAt.value
-          : this.lastAccountItemAt,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('AccountCategory(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -2248,19 +2249,19 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('code: $code, ')
-          ..write('categoryType: $categoryType, ')
-          ..write('lastAccountItemAt: $lastAccountItemAt')
+          ..write('categoryType: $categoryType')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, name, code, categoryType, lastAccountItemAt);
+  int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
+      updatedBy, createdAt, updatedAt, id, name, code, categoryType);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AccountCategory &&
+          other.lastAccountItemAt == this.lastAccountItemAt &&
           other.accountBookId == this.accountBookId &&
           other.createdBy == this.createdBy &&
           other.updatedBy == this.updatedBy &&
@@ -2269,11 +2270,11 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           other.id == this.id &&
           other.name == this.name &&
           other.code == this.code &&
-          other.categoryType == this.categoryType &&
-          other.lastAccountItemAt == this.lastAccountItemAt);
+          other.categoryType == this.categoryType);
 }
 
 class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
+  final Value<String?> lastAccountItemAt;
   final Value<String> accountBookId;
   final Value<String> createdBy;
   final Value<String> updatedBy;
@@ -2283,9 +2284,9 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   final Value<String> name;
   final Value<String> code;
   final Value<String> categoryType;
-  final Value<String?> lastAccountItemAt;
   final Value<int> rowid;
   const AccountCategoryTableCompanion({
+    this.lastAccountItemAt = const Value.absent(),
     this.accountBookId = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.updatedBy = const Value.absent(),
@@ -2295,10 +2296,10 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     this.name = const Value.absent(),
     this.code = const Value.absent(),
     this.categoryType = const Value.absent(),
-    this.lastAccountItemAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountCategoryTableCompanion.insert({
+    this.lastAccountItemAt = const Value.absent(),
     required String accountBookId,
     required String createdBy,
     required String updatedBy,
@@ -2308,7 +2309,6 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     required String name,
     required String code,
     required String categoryType,
-    this.lastAccountItemAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -2320,6 +2320,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
         code = Value(code),
         categoryType = Value(categoryType);
   static Insertable<AccountCategory> custom({
+    Expression<String>? lastAccountItemAt,
     Expression<String>? accountBookId,
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -2329,10 +2330,10 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     Expression<String>? name,
     Expression<String>? code,
     Expression<String>? categoryType,
-    Expression<String>? lastAccountItemAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (lastAccountItemAt != null) 'last_account_item_at': lastAccountItemAt,
       if (accountBookId != null) 'account_book_id': accountBookId,
       if (createdBy != null) 'created_by': createdBy,
       if (updatedBy != null) 'updated_by': updatedBy,
@@ -2342,13 +2343,13 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       if (name != null) 'name': name,
       if (code != null) 'code': code,
       if (categoryType != null) 'category_type': categoryType,
-      if (lastAccountItemAt != null) 'last_account_item_at': lastAccountItemAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   AccountCategoryTableCompanion copyWith(
-      {Value<String>? accountBookId,
+      {Value<String?>? lastAccountItemAt,
+      Value<String>? accountBookId,
       Value<String>? createdBy,
       Value<String>? updatedBy,
       Value<int>? createdAt,
@@ -2357,9 +2358,9 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       Value<String>? name,
       Value<String>? code,
       Value<String>? categoryType,
-      Value<String?>? lastAccountItemAt,
       Value<int>? rowid}) {
     return AccountCategoryTableCompanion(
+      lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
       accountBookId: accountBookId ?? this.accountBookId,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
@@ -2369,7 +2370,6 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       name: name ?? this.name,
       code: code ?? this.code,
       categoryType: categoryType ?? this.categoryType,
-      lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2377,6 +2377,9 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (lastAccountItemAt.present) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
+    }
     if (accountBookId.present) {
       map['account_book_id'] = Variable<String>(accountBookId.value);
     }
@@ -2404,9 +2407,6 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     if (categoryType.present) {
       map['category_type'] = Variable<String>(categoryType.value);
     }
-    if (lastAccountItemAt.present) {
-      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2416,6 +2416,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   @override
   String toString() {
     return (StringBuffer('AccountCategoryTableCompanion(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -2425,7 +2426,6 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
           ..write('name: $name, ')
           ..write('code: $code, ')
           ..write('categoryType: $categoryType, ')
-          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2438,6 +2438,12 @@ class $AccountFundTableTable extends AccountFundTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AccountFundTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _lastAccountItemAtMeta =
+      const VerificationMeta('lastAccountItemAt');
+  @override
+  late final GeneratedColumn<String> lastAccountItemAt =
+      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _accountBookIdMeta =
       const VerificationMeta('accountBookId');
   @override
@@ -2510,6 +2516,7 @@ class $AccountFundTableTable extends AccountFundTable
       defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
+        lastAccountItemAt,
         accountBookId,
         createdBy,
         updatedBy,
@@ -2532,6 +2539,12 @@ class $AccountFundTableTable extends AccountFundTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('last_account_item_at')) {
+      context.handle(
+          _lastAccountItemAtMeta,
+          lastAccountItemAt.isAcceptableOrUnknown(
+              data['last_account_item_at']!, _lastAccountItemAtMeta));
+    }
     if (data.containsKey('account_book_id')) {
       context.handle(
           _accountBookIdMeta,
@@ -2606,6 +2619,8 @@ class $AccountFundTableTable extends AccountFundTable
   AccountFund map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return AccountFund(
+      lastAccountItemAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
       accountBookId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
       createdBy: attachedDatabase.typeMapping
@@ -2638,6 +2653,7 @@ class $AccountFundTableTable extends AccountFundTable
 }
 
 class AccountFund extends DataClass implements Insertable<AccountFund> {
+  final String? lastAccountItemAt;
   final String accountBookId;
   final String createdBy;
   final String updatedBy;
@@ -2650,7 +2666,8 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   final double fundBalance;
   final bool? isDefault;
   const AccountFund(
-      {required this.accountBookId,
+      {this.lastAccountItemAt,
+      required this.accountBookId,
       required this.createdBy,
       required this.updatedBy,
       required this.createdAt,
@@ -2664,6 +2681,9 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || lastAccountItemAt != null) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
+    }
     map['account_book_id'] = Variable<String>(accountBookId);
     map['created_by'] = Variable<String>(createdBy);
     map['updated_by'] = Variable<String>(updatedBy);
@@ -2684,6 +2704,9 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
 
   AccountFundTableCompanion toCompanion(bool nullToAbsent) {
     return AccountFundTableCompanion(
+      lastAccountItemAt: lastAccountItemAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAccountItemAt),
       accountBookId: Value(accountBookId),
       createdBy: Value(createdBy),
       updatedBy: Value(updatedBy),
@@ -2706,6 +2729,8 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AccountFund(
+      lastAccountItemAt:
+          serializer.fromJson<String?>(json['lastAccountItemAt']),
       accountBookId: serializer.fromJson<String>(json['accountBookId']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       updatedBy: serializer.fromJson<String>(json['updatedBy']),
@@ -2723,6 +2748,7 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
       'accountBookId': serializer.toJson<String>(accountBookId),
       'createdBy': serializer.toJson<String>(createdBy),
       'updatedBy': serializer.toJson<String>(updatedBy),
@@ -2738,7 +2764,8 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   }
 
   AccountFund copyWith(
-          {String? accountBookId,
+          {Value<String?> lastAccountItemAt = const Value.absent(),
+          String? accountBookId,
           String? createdBy,
           String? updatedBy,
           int? createdAt,
@@ -2750,6 +2777,9 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
           double? fundBalance,
           Value<bool?> isDefault = const Value.absent()}) =>
       AccountFund(
+        lastAccountItemAt: lastAccountItemAt.present
+            ? lastAccountItemAt.value
+            : this.lastAccountItemAt,
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
         updatedBy: updatedBy ?? this.updatedBy,
@@ -2764,6 +2794,9 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
       );
   AccountFund copyWithCompanion(AccountFundTableCompanion data) {
     return AccountFund(
+      lastAccountItemAt: data.lastAccountItemAt.present
+          ? data.lastAccountItemAt.value
+          : this.lastAccountItemAt,
       accountBookId: data.accountBookId.present
           ? data.accountBookId.value
           : this.accountBookId,
@@ -2785,6 +2818,7 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   @override
   String toString() {
     return (StringBuffer('AccountFund(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -2802,6 +2836,7 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
 
   @override
   int get hashCode => Object.hash(
+      lastAccountItemAt,
       accountBookId,
       createdBy,
       updatedBy,
@@ -2817,6 +2852,7 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AccountFund &&
+          other.lastAccountItemAt == this.lastAccountItemAt &&
           other.accountBookId == this.accountBookId &&
           other.createdBy == this.createdBy &&
           other.updatedBy == this.updatedBy &&
@@ -2831,6 +2867,7 @@ class AccountFund extends DataClass implements Insertable<AccountFund> {
 }
 
 class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
+  final Value<String?> lastAccountItemAt;
   final Value<String> accountBookId;
   final Value<String> createdBy;
   final Value<String> updatedBy;
@@ -2844,6 +2881,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
   final Value<bool?> isDefault;
   final Value<int> rowid;
   const AccountFundTableCompanion({
+    this.lastAccountItemAt = const Value.absent(),
     this.accountBookId = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.updatedBy = const Value.absent(),
@@ -2858,6 +2896,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
     this.rowid = const Value.absent(),
   });
   AccountFundTableCompanion.insert({
+    this.lastAccountItemAt = const Value.absent(),
     required String accountBookId,
     required String createdBy,
     required String updatedBy,
@@ -2879,6 +2918,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
         name = Value(name),
         fundType = Value(fundType);
   static Insertable<AccountFund> custom({
+    Expression<String>? lastAccountItemAt,
     Expression<String>? accountBookId,
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -2893,6 +2933,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (lastAccountItemAt != null) 'last_account_item_at': lastAccountItemAt,
       if (accountBookId != null) 'account_book_id': accountBookId,
       if (createdBy != null) 'created_by': createdBy,
       if (updatedBy != null) 'updated_by': updatedBy,
@@ -2909,7 +2950,8 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
   }
 
   AccountFundTableCompanion copyWith(
-      {Value<String>? accountBookId,
+      {Value<String?>? lastAccountItemAt,
+      Value<String>? accountBookId,
       Value<String>? createdBy,
       Value<String>? updatedBy,
       Value<int>? createdAt,
@@ -2922,6 +2964,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
       Value<bool?>? isDefault,
       Value<int>? rowid}) {
     return AccountFundTableCompanion(
+      lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
       accountBookId: accountBookId ?? this.accountBookId,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
@@ -2940,6 +2983,9 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (lastAccountItemAt.present) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
+    }
     if (accountBookId.present) {
       map['account_book_id'] = Variable<String>(accountBookId.value);
     }
@@ -2982,6 +3028,7 @@ class AccountFundTableCompanion extends UpdateCompanion<AccountFund> {
   @override
   String toString() {
     return (StringBuffer('AccountFundTableCompanion(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -3005,6 +3052,12 @@ class $AccountShopTableTable extends AccountShopTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AccountShopTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _lastAccountItemAtMeta =
+      const VerificationMeta('lastAccountItemAt');
+  @override
+  late final GeneratedColumn<String> lastAccountItemAt =
+      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _accountBookIdMeta =
       const VerificationMeta('accountBookId');
   @override
@@ -3052,6 +3105,7 @@ class $AccountShopTableTable extends AccountShopTable
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
+        lastAccountItemAt,
         accountBookId,
         createdBy,
         updatedBy,
@@ -3071,6 +3125,12 @@ class $AccountShopTableTable extends AccountShopTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('last_account_item_at')) {
+      context.handle(
+          _lastAccountItemAtMeta,
+          lastAccountItemAt.isAcceptableOrUnknown(
+              data['last_account_item_at']!, _lastAccountItemAtMeta));
+    }
     if (data.containsKey('account_book_id')) {
       context.handle(
           _accountBookIdMeta,
@@ -3129,6 +3189,8 @@ class $AccountShopTableTable extends AccountShopTable
   AccountShop map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return AccountShop(
+      lastAccountItemAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
       accountBookId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
       createdBy: attachedDatabase.typeMapping
@@ -3155,6 +3217,7 @@ class $AccountShopTableTable extends AccountShopTable
 }
 
 class AccountShop extends DataClass implements Insertable<AccountShop> {
+  final String? lastAccountItemAt;
   final String accountBookId;
   final String createdBy;
   final String updatedBy;
@@ -3164,7 +3227,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   final String name;
   final String code;
   const AccountShop(
-      {required this.accountBookId,
+      {this.lastAccountItemAt,
+      required this.accountBookId,
       required this.createdBy,
       required this.updatedBy,
       required this.createdAt,
@@ -3175,6 +3239,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || lastAccountItemAt != null) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
+    }
     map['account_book_id'] = Variable<String>(accountBookId);
     map['created_by'] = Variable<String>(createdBy);
     map['updated_by'] = Variable<String>(updatedBy);
@@ -3188,6 +3255,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
 
   AccountShopTableCompanion toCompanion(bool nullToAbsent) {
     return AccountShopTableCompanion(
+      lastAccountItemAt: lastAccountItemAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAccountItemAt),
       accountBookId: Value(accountBookId),
       createdBy: Value(createdBy),
       updatedBy: Value(updatedBy),
@@ -3203,6 +3273,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AccountShop(
+      lastAccountItemAt:
+          serializer.fromJson<String?>(json['lastAccountItemAt']),
       accountBookId: serializer.fromJson<String>(json['accountBookId']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       updatedBy: serializer.fromJson<String>(json['updatedBy']),
@@ -3217,6 +3289,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
       'accountBookId': serializer.toJson<String>(accountBookId),
       'createdBy': serializer.toJson<String>(createdBy),
       'updatedBy': serializer.toJson<String>(updatedBy),
@@ -3229,7 +3302,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   }
 
   AccountShop copyWith(
-          {String? accountBookId,
+          {Value<String?> lastAccountItemAt = const Value.absent(),
+          String? accountBookId,
           String? createdBy,
           String? updatedBy,
           int? createdAt,
@@ -3238,6 +3312,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           String? name,
           String? code}) =>
       AccountShop(
+        lastAccountItemAt: lastAccountItemAt.present
+            ? lastAccountItemAt.value
+            : this.lastAccountItemAt,
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
         updatedBy: updatedBy ?? this.updatedBy,
@@ -3249,6 +3326,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       );
   AccountShop copyWithCompanion(AccountShopTableCompanion data) {
     return AccountShop(
+      lastAccountItemAt: data.lastAccountItemAt.present
+          ? data.lastAccountItemAt.value
+          : this.lastAccountItemAt,
       accountBookId: data.accountBookId.present
           ? data.accountBookId.value
           : this.accountBookId,
@@ -3265,6 +3345,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   @override
   String toString() {
     return (StringBuffer('AccountShop(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -3278,12 +3359,13 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   }
 
   @override
-  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, name, code);
+  int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
+      updatedBy, createdAt, updatedAt, id, name, code);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AccountShop &&
+          other.lastAccountItemAt == this.lastAccountItemAt &&
           other.accountBookId == this.accountBookId &&
           other.createdBy == this.createdBy &&
           other.updatedBy == this.updatedBy &&
@@ -3295,6 +3377,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
 }
 
 class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
+  final Value<String?> lastAccountItemAt;
   final Value<String> accountBookId;
   final Value<String> createdBy;
   final Value<String> updatedBy;
@@ -3305,6 +3388,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   final Value<String> code;
   final Value<int> rowid;
   const AccountShopTableCompanion({
+    this.lastAccountItemAt = const Value.absent(),
     this.accountBookId = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.updatedBy = const Value.absent(),
@@ -3316,6 +3400,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     this.rowid = const Value.absent(),
   });
   AccountShopTableCompanion.insert({
+    this.lastAccountItemAt = const Value.absent(),
     required String accountBookId,
     required String createdBy,
     required String updatedBy,
@@ -3334,6 +3419,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
         name = Value(name),
         code = Value(code);
   static Insertable<AccountShop> custom({
+    Expression<String>? lastAccountItemAt,
     Expression<String>? accountBookId,
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -3345,6 +3431,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (lastAccountItemAt != null) 'last_account_item_at': lastAccountItemAt,
       if (accountBookId != null) 'account_book_id': accountBookId,
       if (createdBy != null) 'created_by': createdBy,
       if (updatedBy != null) 'updated_by': updatedBy,
@@ -3358,7 +3445,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   }
 
   AccountShopTableCompanion copyWith(
-      {Value<String>? accountBookId,
+      {Value<String?>? lastAccountItemAt,
+      Value<String>? accountBookId,
       Value<String>? createdBy,
       Value<String>? updatedBy,
       Value<int>? createdAt,
@@ -3368,6 +3456,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       Value<String>? code,
       Value<int>? rowid}) {
     return AccountShopTableCompanion(
+      lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
       accountBookId: accountBookId ?? this.accountBookId,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
@@ -3383,6 +3472,9 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (lastAccountItemAt.present) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
+    }
     if (accountBookId.present) {
       map['account_book_id'] = Variable<String>(accountBookId.value);
     }
@@ -3416,6 +3508,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   @override
   String toString() {
     return (StringBuffer('AccountShopTableCompanion(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -3436,6 +3529,12 @@ class $AccountSymbolTableTable extends AccountSymbolTable
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $AccountSymbolTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _lastAccountItemAtMeta =
+      const VerificationMeta('lastAccountItemAt');
+  @override
+  late final GeneratedColumn<String> lastAccountItemAt =
+      GeneratedColumn<String>('last_account_item_at', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _accountBookIdMeta =
       const VerificationMeta('accountBookId');
   @override
@@ -3489,6 +3588,7 @@ class $AccountSymbolTableTable extends AccountSymbolTable
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
+        lastAccountItemAt,
         accountBookId,
         createdBy,
         updatedBy,
@@ -3509,6 +3609,12 @@ class $AccountSymbolTableTable extends AccountSymbolTable
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('last_account_item_at')) {
+      context.handle(
+          _lastAccountItemAtMeta,
+          lastAccountItemAt.isAcceptableOrUnknown(
+              data['last_account_item_at']!, _lastAccountItemAtMeta));
+    }
     if (data.containsKey('account_book_id')) {
       context.handle(
           _accountBookIdMeta,
@@ -3575,6 +3681,8 @@ class $AccountSymbolTableTable extends AccountSymbolTable
   AccountSymbol map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return AccountSymbol(
+      lastAccountItemAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_account_item_at']),
       accountBookId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
       createdBy: attachedDatabase.typeMapping
@@ -3603,6 +3711,7 @@ class $AccountSymbolTableTable extends AccountSymbolTable
 }
 
 class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
+  final String? lastAccountItemAt;
   final String accountBookId;
   final String createdBy;
   final String updatedBy;
@@ -3613,7 +3722,8 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   final String code;
   final String symbolType;
   const AccountSymbol(
-      {required this.accountBookId,
+      {this.lastAccountItemAt,
+      required this.accountBookId,
       required this.createdBy,
       required this.updatedBy,
       required this.createdAt,
@@ -3625,6 +3735,9 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || lastAccountItemAt != null) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt);
+    }
     map['account_book_id'] = Variable<String>(accountBookId);
     map['created_by'] = Variable<String>(createdBy);
     map['updated_by'] = Variable<String>(updatedBy);
@@ -3639,6 +3752,9 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
 
   AccountSymbolTableCompanion toCompanion(bool nullToAbsent) {
     return AccountSymbolTableCompanion(
+      lastAccountItemAt: lastAccountItemAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAccountItemAt),
       accountBookId: Value(accountBookId),
       createdBy: Value(createdBy),
       updatedBy: Value(updatedBy),
@@ -3655,6 +3771,8 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AccountSymbol(
+      lastAccountItemAt:
+          serializer.fromJson<String?>(json['lastAccountItemAt']),
       accountBookId: serializer.fromJson<String>(json['accountBookId']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       updatedBy: serializer.fromJson<String>(json['updatedBy']),
@@ -3670,6 +3788,7 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'lastAccountItemAt': serializer.toJson<String?>(lastAccountItemAt),
       'accountBookId': serializer.toJson<String>(accountBookId),
       'createdBy': serializer.toJson<String>(createdBy),
       'updatedBy': serializer.toJson<String>(updatedBy),
@@ -3683,7 +3802,8 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   }
 
   AccountSymbol copyWith(
-          {String? accountBookId,
+          {Value<String?> lastAccountItemAt = const Value.absent(),
+          String? accountBookId,
           String? createdBy,
           String? updatedBy,
           int? createdAt,
@@ -3693,6 +3813,9 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
           String? code,
           String? symbolType}) =>
       AccountSymbol(
+        lastAccountItemAt: lastAccountItemAt.present
+            ? lastAccountItemAt.value
+            : this.lastAccountItemAt,
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
         updatedBy: updatedBy ?? this.updatedBy,
@@ -3705,6 +3828,9 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
       );
   AccountSymbol copyWithCompanion(AccountSymbolTableCompanion data) {
     return AccountSymbol(
+      lastAccountItemAt: data.lastAccountItemAt.present
+          ? data.lastAccountItemAt.value
+          : this.lastAccountItemAt,
       accountBookId: data.accountBookId.present
           ? data.accountBookId.value
           : this.accountBookId,
@@ -3723,6 +3849,7 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   @override
   String toString() {
     return (StringBuffer('AccountSymbol(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -3737,12 +3864,13 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
   }
 
   @override
-  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, name, code, symbolType);
+  int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
+      updatedBy, createdAt, updatedAt, id, name, code, symbolType);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AccountSymbol &&
+          other.lastAccountItemAt == this.lastAccountItemAt &&
           other.accountBookId == this.accountBookId &&
           other.createdBy == this.createdBy &&
           other.updatedBy == this.updatedBy &&
@@ -3755,6 +3883,7 @@ class AccountSymbol extends DataClass implements Insertable<AccountSymbol> {
 }
 
 class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
+  final Value<String?> lastAccountItemAt;
   final Value<String> accountBookId;
   final Value<String> createdBy;
   final Value<String> updatedBy;
@@ -3766,6 +3895,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
   final Value<String> symbolType;
   final Value<int> rowid;
   const AccountSymbolTableCompanion({
+    this.lastAccountItemAt = const Value.absent(),
     this.accountBookId = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.updatedBy = const Value.absent(),
@@ -3778,6 +3908,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
     this.rowid = const Value.absent(),
   });
   AccountSymbolTableCompanion.insert({
+    this.lastAccountItemAt = const Value.absent(),
     required String accountBookId,
     required String createdBy,
     required String updatedBy,
@@ -3798,6 +3929,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
         code = Value(code),
         symbolType = Value(symbolType);
   static Insertable<AccountSymbol> custom({
+    Expression<String>? lastAccountItemAt,
     Expression<String>? accountBookId,
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -3810,6 +3942,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (lastAccountItemAt != null) 'last_account_item_at': lastAccountItemAt,
       if (accountBookId != null) 'account_book_id': accountBookId,
       if (createdBy != null) 'created_by': createdBy,
       if (updatedBy != null) 'updated_by': updatedBy,
@@ -3824,7 +3957,8 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
   }
 
   AccountSymbolTableCompanion copyWith(
-      {Value<String>? accountBookId,
+      {Value<String?>? lastAccountItemAt,
+      Value<String>? accountBookId,
       Value<String>? createdBy,
       Value<String>? updatedBy,
       Value<int>? createdAt,
@@ -3835,6 +3969,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
       Value<String>? symbolType,
       Value<int>? rowid}) {
     return AccountSymbolTableCompanion(
+      lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
       accountBookId: accountBookId ?? this.accountBookId,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
@@ -3851,6 +3986,9 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (lastAccountItemAt.present) {
+      map['last_account_item_at'] = Variable<String>(lastAccountItemAt.value);
+    }
     if (accountBookId.present) {
       map['account_book_id'] = Variable<String>(accountBookId.value);
     }
@@ -3887,6 +4025,7 @@ class AccountSymbolTableCompanion extends UpdateCompanion<AccountSymbol> {
   @override
   String toString() {
     return (StringBuffer('AccountSymbolTableCompanion(')
+          ..write('lastAccountItemAt: $lastAccountItemAt, ')
           ..write('accountBookId: $accountBookId, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedBy: $updatedBy, ')
@@ -7840,6 +7979,7 @@ typedef $$AccountItemTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$AccountCategoryTableTableCreateCompanionBuilder
     = AccountCategoryTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   required String accountBookId,
   required String createdBy,
   required String updatedBy,
@@ -7849,11 +7989,11 @@ typedef $$AccountCategoryTableTableCreateCompanionBuilder
   required String name,
   required String code,
   required String categoryType,
-  Value<String?> lastAccountItemAt,
   Value<int> rowid,
 });
 typedef $$AccountCategoryTableTableUpdateCompanionBuilder
     = AccountCategoryTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   Value<String> accountBookId,
   Value<String> createdBy,
   Value<String> updatedBy,
@@ -7863,7 +8003,6 @@ typedef $$AccountCategoryTableTableUpdateCompanionBuilder
   Value<String> name,
   Value<String> code,
   Value<String> categoryType,
-  Value<String?> lastAccountItemAt,
   Value<int> rowid,
 });
 
@@ -7876,6 +8015,10 @@ class $$AccountCategoryTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => ColumnFilters(column));
 
@@ -7902,10 +8045,6 @@ class $$AccountCategoryTableTableFilterComposer
 
   ColumnFilters<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
-      column: $table.lastAccountItemAt,
-      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountCategoryTableTableOrderingComposer
@@ -7917,6 +8056,10 @@ class $$AccountCategoryTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId,
       builder: (column) => ColumnOrderings(column));
@@ -7945,10 +8088,6 @@ class $$AccountCategoryTableTableOrderingComposer
   ColumnOrderings<String> get categoryType => $composableBuilder(
       column: $table.categoryType,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
-      column: $table.lastAccountItemAt,
-      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountCategoryTableTableAnnotationComposer
@@ -7960,6 +8099,9 @@ class $$AccountCategoryTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt, builder: (column) => column);
+
   GeneratedColumn<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => column);
 
@@ -7986,9 +8128,6 @@ class $$AccountCategoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => column);
-
-  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
-      column: $table.lastAccountItemAt, builder: (column) => column);
 }
 
 class $$AccountCategoryTableTableTableManager extends RootTableManager<
@@ -8020,6 +8159,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
               $$AccountCategoryTableTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<String> accountBookId = const Value.absent(),
             Value<String> createdBy = const Value.absent(),
             Value<String> updatedBy = const Value.absent(),
@@ -8029,10 +8169,10 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String> code = const Value.absent(),
             Value<String> categoryType = const Value.absent(),
-            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8042,10 +8182,10 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             name: name,
             code: code,
             categoryType: categoryType,
-            lastAccountItemAt: lastAccountItemAt,
             rowid: rowid,
           ),
           createCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             required String accountBookId,
             required String createdBy,
             required String updatedBy,
@@ -8055,10 +8195,10 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             required String name,
             required String code,
             required String categoryType,
-            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion.insert(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8068,7 +8208,6 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             name: name,
             code: code,
             categoryType: categoryType,
-            lastAccountItemAt: lastAccountItemAt,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -8097,6 +8236,7 @@ typedef $$AccountCategoryTableTableProcessedTableManager
         PrefetchHooks Function()>;
 typedef $$AccountFundTableTableCreateCompanionBuilder
     = AccountFundTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   required String accountBookId,
   required String createdBy,
   required String updatedBy,
@@ -8112,6 +8252,7 @@ typedef $$AccountFundTableTableCreateCompanionBuilder
 });
 typedef $$AccountFundTableTableUpdateCompanionBuilder
     = AccountFundTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   Value<String> accountBookId,
   Value<String> createdBy,
   Value<String> updatedBy,
@@ -8135,6 +8276,10 @@ class $$AccountFundTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => ColumnFilters(column));
 
@@ -8178,6 +8323,10 @@ class $$AccountFundTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId,
       builder: (column) => ColumnOrderings(column));
@@ -8222,6 +8371,9 @@ class $$AccountFundTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt, builder: (column) => column);
+
   GeneratedColumn<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => column);
 
@@ -8283,6 +8435,7 @@ class $$AccountFundTableTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$AccountFundTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<String> accountBookId = const Value.absent(),
             Value<String> createdBy = const Value.absent(),
             Value<String> updatedBy = const Value.absent(),
@@ -8297,6 +8450,7 @@ class $$AccountFundTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountFundTableCompanion(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8311,6 +8465,7 @@ class $$AccountFundTableTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             required String accountBookId,
             required String createdBy,
             required String updatedBy,
@@ -8325,6 +8480,7 @@ class $$AccountFundTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountFundTableCompanion.insert(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8362,6 +8518,7 @@ typedef $$AccountFundTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$AccountShopTableTableCreateCompanionBuilder
     = AccountShopTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   required String accountBookId,
   required String createdBy,
   required String updatedBy,
@@ -8374,6 +8531,7 @@ typedef $$AccountShopTableTableCreateCompanionBuilder
 });
 typedef $$AccountShopTableTableUpdateCompanionBuilder
     = AccountShopTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   Value<String> accountBookId,
   Value<String> createdBy,
   Value<String> updatedBy,
@@ -8394,6 +8552,10 @@ class $$AccountShopTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => ColumnFilters(column));
 
@@ -8428,6 +8590,10 @@ class $$AccountShopTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId,
       builder: (column) => ColumnOrderings(column));
@@ -8463,6 +8629,9 @@ class $$AccountShopTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt, builder: (column) => column);
+
   GeneratedColumn<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => column);
 
@@ -8515,6 +8684,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$AccountShopTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<String> accountBookId = const Value.absent(),
             Value<String> createdBy = const Value.absent(),
             Value<String> updatedBy = const Value.absent(),
@@ -8526,6 +8696,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8537,6 +8708,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             required String accountBookId,
             required String createdBy,
             required String updatedBy,
@@ -8548,6 +8720,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion.insert(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8582,6 +8755,7 @@ typedef $$AccountShopTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$AccountSymbolTableTableCreateCompanionBuilder
     = AccountSymbolTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   required String accountBookId,
   required String createdBy,
   required String updatedBy,
@@ -8595,6 +8769,7 @@ typedef $$AccountSymbolTableTableCreateCompanionBuilder
 });
 typedef $$AccountSymbolTableTableUpdateCompanionBuilder
     = AccountSymbolTableCompanion Function({
+  Value<String?> lastAccountItemAt,
   Value<String> accountBookId,
   Value<String> createdBy,
   Value<String> updatedBy,
@@ -8616,6 +8791,10 @@ class $$AccountSymbolTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => ColumnFilters(column));
 
@@ -8653,6 +8832,10 @@ class $$AccountSymbolTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId,
       builder: (column) => ColumnOrderings(column));
@@ -8691,6 +8874,9 @@ class $$AccountSymbolTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get lastAccountItemAt => $composableBuilder(
+      column: $table.lastAccountItemAt, builder: (column) => column);
+
   GeneratedColumn<String> get accountBookId => $composableBuilder(
       column: $table.accountBookId, builder: (column) => column);
 
@@ -8747,6 +8933,7 @@ class $$AccountSymbolTableTableTableManager extends RootTableManager<
               $$AccountSymbolTableTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             Value<String> accountBookId = const Value.absent(),
             Value<String> createdBy = const Value.absent(),
             Value<String> updatedBy = const Value.absent(),
@@ -8759,6 +8946,7 @@ class $$AccountSymbolTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountSymbolTableCompanion(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -8771,6 +8959,7 @@ class $$AccountSymbolTableTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
+            Value<String?> lastAccountItemAt = const Value.absent(),
             required String accountBookId,
             required String createdBy,
             required String updatedBy,
@@ -8783,6 +8972,7 @@ class $$AccountSymbolTableTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountSymbolTableCompanion.insert(
+            lastAccountItemAt: lastAccountItemAt,
             accountBookId: accountBookId,
             createdBy: createdBy,
             updatedBy: updatedBy,

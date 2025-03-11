@@ -7,11 +7,10 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountCategory')
-class AccountCategoryTable extends BaseAccountBookTable {
+class AccountCategoryTable extends  DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get categoryType => text().named('category_type')();
-  TextColumn get lastAccountItemAt => text().nullable().named('last_account_item_at')();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [

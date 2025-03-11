@@ -82,3 +82,26 @@ abstract class BaseBookDao<T extends BaseAccountBookTable, D>
     ];
   }
 }
+
+abstract class DateBaseBookDao<T extends DateBaseAccountBookTable, D>
+    extends BaseBookDao<T, D> {
+  DateBaseBookDao(super.db);
+
+  @override
+  Future<List<D>> listByBook(String accountBookId, {int? limit, int? offset}) {
+    final query = (db.select(table)
+      ..where((t) => t.accountBookId.equals(accountBookId))
+      ..orderBy(defaultOrderBy()));
+    if (limit != null) {
+      query.limit(limit, offset: offset);
+    }
+    return query.get();
+  }
+
+  List<OrderClauseGenerator<T>> defaultOrderBy() {
+    return [
+      (t) => OrderingTerm.desc(t.lastAccountItemAt),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ];
+  }
+}

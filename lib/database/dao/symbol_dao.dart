@@ -4,7 +4,7 @@ import '../database.dart';
 import '../tables/account_symbol_table.dart';
 import 'base_dao.dart';
 
-class SymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
+class SymbolDao extends DateBaseBookDao<AccountSymbolTable, AccountSymbol> {
   SymbolDao(super.db);
 
   Future<List<AccountSymbol>> findByType(String symbolType) {
@@ -17,6 +17,16 @@ class SymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
     return (db.select(db.accountSymbolTable)
           ..where((t) => t.symbolType.isIn(symbolTypes)))
         .get();
+  }
+
+  Future<AccountSymbol?> findByBookAndCode(
+      String bookId, String symbolType, String code) {
+    return (db.select(db.accountSymbolTable)
+          ..where((t) =>
+              t.accountBookId.equals(bookId) &
+              t.symbolType.equals(symbolType) &
+              t.code.equals(code)))
+        .getSingleOrNull();
   }
 
   Future<List<AccountSymbol>> findByTypeAndCodes(
@@ -44,6 +54,10 @@ class SymbolDao extends BaseBookDao<AccountSymbolTable, AccountSymbol> {
     if (symbolType != null) {
       query.where((t) => t.symbolType.equals(symbolType.code));
     }
+    query.orderBy([
+      (t) => OrderingTerm.desc(t.lastAccountItemAt),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ]);
     return query.get();
   }
 

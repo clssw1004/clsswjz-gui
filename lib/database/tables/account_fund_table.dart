@@ -8,12 +8,16 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountFund')
-class AccountFundTable extends BaseAccountBookTable {
+class AccountFundTable extends DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get fundType => text().named('fund_type')();
   TextColumn get fundRemark => text().nullable().named('fund_remark')();
-  RealColumn get fundBalance => real().named('fund_balance').withDefault(const Constant(0.00))();
-  BoolColumn get isDefault => boolean().named('is_default').nullable().withDefault(const Constant(false))();
+  RealColumn get fundBalance =>
+      real().named('fund_balance').withDefault(const Constant(0.00))();
+  BoolColumn get isDefault => boolean()
+      .named('is_default')
+      .nullable()
+      .withDefault(const Constant(false))();
 
   /// 生成更新数据的伴生对象
   static AccountFundTableCompanion toUpdateCompanion(
@@ -23,6 +27,7 @@ class AccountFundTable extends BaseAccountBookTable {
     String? fundRemark,
     double? fundBalance,
     bool? isDefault,
+    String? lastAccountItemAt,
   }) {
     return AccountFundTableCompanion(
       updatedBy: Value(who),
@@ -32,6 +37,7 @@ class AccountFundTable extends BaseAccountBookTable {
       fundRemark: Value.absentIfNull(fundRemark),
       fundBalance: Value.absentIfNull(fundBalance),
       isDefault: Value.absentIfNull(isDefault),
+      lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
     );
@@ -69,6 +75,7 @@ class AccountFundTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
     MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
+    MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'name', companion.name);
     MapUtil.setIfPresent(map, 'fundType', companion.fundType);

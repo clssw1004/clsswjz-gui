@@ -7,7 +7,7 @@ import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('AccountShop')
-class AccountShopTable extends BaseAccountBookTable {
+class AccountShopTable extends DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
 
@@ -15,11 +15,13 @@ class AccountShopTable extends BaseAccountBookTable {
   static AccountShopTableCompanion toUpdateCompanion(
     String who, {
     String? name,
+    String? lastAccountItemAt,
   }) {
     return AccountShopTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
       name: Value.absentIfNull(name),
+      lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
     );
@@ -52,6 +54,7 @@ class AccountShopTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
     MapUtil.setIfPresent(map, 'name', companion.name);
     MapUtil.setIfPresent(map, 'code', companion.code);
+    MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     return jsonEncode(map);
   }

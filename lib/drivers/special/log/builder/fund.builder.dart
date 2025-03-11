@@ -49,7 +49,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
   }
 
   static FundCULog update(String userId, String bookId, String fundId,
-      {String? name, FundType? fundType, String? fundRemark, double? fundBalance, bool? isDefault}) {
+      {String? name, FundType? fundType, String? fundRemark, double? fundBalance, bool? isDefault, String? lastAccountItemAt}) {
     return FundCULog().who(userId).inBook(bookId).target(fundId).doUpdate().withData(AccountFundTable.toUpdateCompanion(
           userId,
           name: name,
@@ -57,6 +57,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
           fundRemark: fundRemark,
           fundBalance: fundBalance,
           isDefault: isDefault,
+          lastAccountItemAt: lastAccountItemAt,
         )) as FundCULog;
   }
 
