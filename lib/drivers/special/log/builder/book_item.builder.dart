@@ -108,7 +108,8 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       log.businessId,
       amount: data['amount'],
       description: data['description'],
-      type: data['type'],
+      type:
+          data['type'] != null ? AccountItemType.fromCode(data['type']) : null,
       categoryCode: data['categoryCode'],
       accountDate: data['accountDate'],
       fundId: data['fundId'],
