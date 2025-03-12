@@ -1,7 +1,7 @@
-import 'package:clsswjz/models/vo/book_meta.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../routes/app_routes.dart';

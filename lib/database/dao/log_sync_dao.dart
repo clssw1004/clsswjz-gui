@@ -1,5 +1,5 @@
-import 'package:clsswjz/enums/sync_state.dart';
 import 'package:drift/drift.dart';
+import '../../enums/sync_state.dart';
 import '../database.dart';
 import '../tables/log_sync_table.dart';
 import 'base_dao.dart';

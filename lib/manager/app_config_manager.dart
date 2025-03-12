@@ -1,6 +1,5 @@
-import 'package:clsswjz/constants/default_constant.dart';
-import 'package:clsswjz/manager/l10n_manager.dart';
 import 'package:flutter/material.dart';
+import '../constants/default_constant.dart';
 import '../drivers/driver_factory.dart';
 import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
@@ -10,6 +9,7 @@ import '../utils/http_client.dart';
 import '../utils/id_util.dart';
 import 'cache_manager.dart';
 import 'database_manager.dart';
+import 'l10n_manager.dart';
 import 'service_manager.dart';
 
 /// 应用配置管理

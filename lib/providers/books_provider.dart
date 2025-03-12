@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:clsswjz/manager/service_manager.dart';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../events/special/event_book.dart';
@@ -8,7 +7,7 @@ import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
-
+import '../manager/service_manager.dart';
 /// 账本数据提供者
 class BooksProvider extends ChangeNotifier {
   BooksProvider() {

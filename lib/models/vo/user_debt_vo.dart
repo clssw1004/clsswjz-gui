@@ -1,5 +1,4 @@
-import 'package:clsswjz/database/database.dart';
-
+import '../../database/database.dart';
 import '../../enums/debt_clear_state.dart';
 
 class UserDebtVO {

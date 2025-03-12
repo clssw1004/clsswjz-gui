@@ -1,8 +1,7 @@
-import 'package:clsswjz/providers/books_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../manager/l10n_manager.dart';
+import '../../providers/books_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/setting/user_info_card.dart';
 import '../../routes/app_routes.dart';

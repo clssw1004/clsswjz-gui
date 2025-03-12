@@ -1,9 +1,9 @@
-import 'package:clsswjz/models/vo/book_meta.dart';
-import 'package:clsswjz/models/vo/user_book_vo.dart';
 import 'package:flutter/material.dart';
 
 import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
+import '../models/vo/book_meta.dart';
+import '../models/vo/user_book_vo.dart' show UserBookVO;
 import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../pages/book/book_list_page.dart';

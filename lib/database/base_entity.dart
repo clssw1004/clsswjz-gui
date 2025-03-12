@@ -1,5 +1,6 @@
-import 'package:clsswjz/utils/date_util.dart';
-import 'package:clsswjz/utils/id_util.dart';
+
+import '../utils/date_util.dart';
+import '../utils/id_util.dart';
 
 class StringIdEntity {
   final String id;

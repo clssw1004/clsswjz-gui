@@ -1,6 +1,4 @@
-import 'package:clsswjz/providers/books_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart' show Provider;
 import '../manager/l10n_manager.dart';
 import 'tabs/items_tab.dart';
 import 'tabs/notes_tab.dart';

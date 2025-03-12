@@ -1,10 +1,9 @@
-import 'package:clsswjz/enums/account_type.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../manager/l10n_manager.dart';
 import '../../providers/statistics_provider.dart';
-
+import '../../enums/account_type.dart';
 /// 分类标签选择器
 class CategoryTabSelector extends StatelessWidget {
   const CategoryTabSelector({super.key});

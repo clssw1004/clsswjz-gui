@@ -1,6 +1,6 @@
-import 'package:clsswjz/manager/app_config_manager.dart';
 import 'package:flutter/foundation.dart';
 import '../providers/sync_provider.dart';
+import 'app_config_manager.dart';
 
 /// 同步管理器：负责在适当时机触发同步操作
 class SyncManager {

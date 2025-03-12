@@ -1,7 +1,7 @@
-import 'package:clsswjz/manager/cache_manager.dart';
 
 import '../drivers/driver_factory.dart';
 import '../models/vo/user_vo.dart';
+import 'cache_manager.dart';
 
 class UserConfigManager {
   static const _currentUserIdKey = 'current_user_id';

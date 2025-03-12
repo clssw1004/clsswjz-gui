@@ -1,4 +1,3 @@
-import 'package:clsswjz/models/vo/user_fund_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +5,7 @@ import 'dart:async';
 
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
+import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_form_provider.dart';
 import '../../utils/color_util.dart';

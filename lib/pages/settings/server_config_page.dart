@@ -1,11 +1,11 @@
-import 'package:clsswjz/enums/storage_mode.dart';
-import 'package:clsswjz/manager/app_config_manager.dart';
-import 'package:clsswjz/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../enums/self_host_form_type.dart';
+import '../../enums/storage_mode.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/self_host_form_data.dart';
+import '../../providers/sync_provider.dart';
 import '../../services/auth_service.dart';
 import '../../utils/device.util.dart';
 import '../../utils/toast_util.dart';

@@ -1,12 +1,10 @@
 import 'dart:convert';
-
-import 'package:clsswjz/database/tables/user_table.dart';
-import 'package:clsswjz/drivers/special/log/builder/builder.dart';
-
 import '../../../../database/database.dart';
+import '../../../../database/tables/user_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
+import 'builder.dart';
 
 class UserCULog extends LogBuilder<UserTableCompanion, String> {
   UserCULog() : super() {

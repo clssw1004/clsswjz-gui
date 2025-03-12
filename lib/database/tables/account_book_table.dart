@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:clsswjz/utils/id_util.dart';
 import 'package:drift/drift.dart';
 import '../../utils/date_util.dart';
+import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
 import '../database.dart';
 import 'base_table.dart';

@@ -1,4 +1,3 @@
-import 'package:clsswjz/models/vo/user_item_vo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../drivers/driver_factory.dart';
@@ -10,6 +9,7 @@ import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';

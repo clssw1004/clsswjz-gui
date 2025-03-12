@@ -1,5 +1,5 @@
-import 'package:clsswjz/enums/business_type.dart';
 import 'package:drift/drift.dart';
+import '../../enums/business_type.dart';
 import '../database.dart';
 import '../tables/attachment_table.dart';
 import 'base_dao.dart';

@@ -1,9 +1,6 @@
-import 'package:clsswjz/drivers/driver_factory.dart';
-import 'package:clsswjz/enums/business_type.dart';
-import 'package:clsswjz/manager/app_config_manager.dart';
-import 'package:clsswjz/manager/service_manager.dart';
-import 'package:clsswjz/models/common.dart';
+
 import 'package:flutter/material.dart';
+import '../enums/business_type.dart';
 import '../enums/operate_type.dart';
 import '../enums/symbol_type.dart';
 import '../database/database.dart';
@@ -11,10 +8,14 @@ import '../enums/account_type.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_book.dart';
 import '../manager/dao_manager.dart';
+import '../models/common.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
+import '../manager/app_config_manager.dart';
+import '../drivers/driver_factory.dart';
+import '../manager/service_manager.dart';
 
 /// 账目表单状态管理
 class ItemFormProvider extends ChangeNotifier {

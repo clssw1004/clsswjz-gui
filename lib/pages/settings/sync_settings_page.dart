@@ -1,10 +1,11 @@
-import 'package:clsswjz/manager/app_config_manager.dart';
-import 'package:clsswjz/utils/http_client.dart';
+
 import 'package:flutter/material.dart';
 
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
+import '../../utils/http_client.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/setting/server_url_field.dart';

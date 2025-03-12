@@ -1,10 +1,10 @@
-import 'package:clsswjz/manager/dao_manager.dart';
-import 'package:clsswjz/utils/collection_util.dart';
 import '../database/database.dart';
+import '../manager/dao_manager.dart';
 import '../manager/database_manager.dart';
 import '../models/common.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart';
+import '../utils/collection_util.dart';
 import '../utils/id_util.dart';
 import 'base_service.dart';
 

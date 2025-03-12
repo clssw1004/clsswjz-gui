@@ -1,5 +1,5 @@
-import 'package:clsswjz/enums/storage_mode.dart';
 
+import 'enums/storage_mode.dart';
 import 'manager/app_config_manager.dart';
 import 'manager/database_manager.dart';
 import 'manager/service_manager.dart';

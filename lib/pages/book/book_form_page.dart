@@ -1,13 +1,13 @@
-import 'package:clsswjz/models/common.dart';
-import 'package:clsswjz/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import '../../constants/account_book_icons.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/service_manager.dart';
+import '../../models/common.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_text_form_field.dart';

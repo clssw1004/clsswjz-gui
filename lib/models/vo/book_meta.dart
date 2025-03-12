@@ -1,5 +1,3 @@
-import 'package:clsswjz/models/vo/statistic_vo.dart';
-
 import '../../database/database.dart';
 import 'user_book_vo.dart';
 

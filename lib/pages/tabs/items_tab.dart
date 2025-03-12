@@ -1,10 +1,10 @@
-import 'package:clsswjz/manager/l10n_manager.dart';
-import 'package:clsswjz/providers/debt_list_provider.dart';
-import 'package:clsswjz/providers/item_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
+import '../../providers/debt_list_provider.dart';
+import '../../providers/item_list_provider.dart';
 import '../../providers/statistics_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/navigation_util.dart';

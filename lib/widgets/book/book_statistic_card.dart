@@ -1,6 +1,6 @@
-import 'package:clsswjz/utils/color_util.dart';
 import 'package:flutter/material.dart';
 import '../../models/vo/statistic_vo.dart';
+import '../../utils/color_util.dart';
 import '../common/common_card_container.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
