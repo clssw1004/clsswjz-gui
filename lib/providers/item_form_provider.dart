@@ -152,7 +152,7 @@ class ItemFormProvider extends ChangeNotifier {
   /// 更新日期时间并保存
   Future<void> updateDateTimeAndSave(String date, String time) async {
     _item.updateDateTime(date, time);
-    await partUpdate(accountDate: date);
+    await partUpdate(accountDate: '$date $time');
   }
 
   /// 更新附件并保存
