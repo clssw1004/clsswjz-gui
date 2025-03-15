@@ -1,7 +1,7 @@
 name: clsswjz_gui
 description: "GUI for clsswjz-server"
 publish_to: "none"
-version: 1.0.0-alpha.11
+version: 1.0.0-alpha.12
 
 environment:
   sdk: ^3.5.4
