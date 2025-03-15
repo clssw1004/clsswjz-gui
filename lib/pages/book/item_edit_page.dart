@@ -477,7 +477,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: (value) {
               _debounce(() {
-                provider.updateDescription(value);
+                provider.updateDescriptionAndSave(value);
               });
             },
             keyboardType: TextInputType.multiline,

@@ -882,4 +882,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get originalRecord => 'Original Record';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get file => 'File';
 }

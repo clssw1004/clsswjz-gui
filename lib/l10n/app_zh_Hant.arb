@@ -677,5 +677,13 @@
     "originalRecord": "原始記錄",
     "@originalRecord": {
         "description": "原始記錄標籤"
+    },
+    "gallery": "相簿",
+    "@gallery": {
+        "description": "相簿選項文本"
+    },
+    "file": "檔案",
+    "@file": {
+        "description": "檔案選項文本"
     }
 }

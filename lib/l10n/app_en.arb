@@ -783,5 +783,13 @@
     "originalRecord": "Original Record",
     "@originalRecord": {
         "description": "Original record label"
+    },
+    "gallery": "Gallery",
+    "@gallery": {
+        "description": "Gallery option text"
+    },
+    "file": "File",
+    "@file": {
+        "description": "File option text"
     }
 }

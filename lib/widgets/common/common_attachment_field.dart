@@ -62,6 +62,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     try {
       setState(() => _isUploading = true);
 
+      // 使用 file_picker 选择文件
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.any,
@@ -69,7 +70,10 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       );
 
       if (result != null && result.files.isNotEmpty) {
-        final files = result.files.where((file) => file.path != null).map((file) => File(file.path!)).toList();
+        final files = result.files
+            .where((file) => file.path != null)
+            .map((file) => File(file.path!))
+            .toList();
 
         if (files.isNotEmpty) {
           await widget.onUpload!(files);

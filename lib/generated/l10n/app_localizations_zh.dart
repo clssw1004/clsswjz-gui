@@ -882,6 +882,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get originalRecord => '原始记录';
+
+  @override
+  String get gallery => '相册';
+
+  @override
+  String get file => '文件';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1714,4 +1720,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get originalRecord => '原始記錄';
+
+  @override
+  String get gallery => '相簿';
+
+  @override
+  String get file => '檔案';
 }

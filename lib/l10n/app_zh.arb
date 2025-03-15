@@ -791,5 +791,13 @@
     "originalRecord": "原始记录",
     "@originalRecord": {
         "description": "原始记录标签"
+    },
+    "gallery": "相册",
+    "@gallery": {
+        "description": "相册选项文本"
+    },
+    "file": "文件",
+    "@file": {
+        "description": "文件选项文本"
     }
 }

@@ -1733,6 +1733,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Original Record'**
   String get originalRecord;
+
+  /// Gallery option text
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// File option text
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get file;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
