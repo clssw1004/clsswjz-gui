@@ -19,8 +19,13 @@ jobs:
         id: get_notes
         run: |
           VERSION="${{ github.ref_name }}"
+          echo "Original version: $VERSION"
           VERSION="${VERSION#v}"
+          echo "Version without v: $VERSION"
+          echo "Searching for pattern: ## [$VERSION]"
           NOTES=$(awk "/## \[$VERSION\]/,/## \[|$/{if(!/## \[/) print}" CHANGELOG.md | sed '/^$/d')
+          echo "Found release notes:"
+          echo "$NOTES"
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -119,14 +124,22 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
-          path: ${{ matrix.artifact-path }}${{ matrix.ext }}
+          path: ${{ matrix.artifact-name }}${{ matrix.ext }}
           compression-level: 0
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+  release:
+    needs: [extract_release_notes, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          files: ${{ matrix.artifact-name }}${{ matrix.ext }}
+          path: artifacts
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
           body: ${{ needs.extract_release_notes.outputs.release_notes }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
