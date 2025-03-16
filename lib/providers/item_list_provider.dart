@@ -44,6 +44,12 @@ class ItemListProvider extends ChangeNotifier {
   /// 获取账目列表
   List<UserItemVO> get items => _items;
 
+  String get lastDay =>
+      items.isNotEmpty ? items.first.accountDate.substring(0, 10) : "";
+
+  List<UserItemVO> get lastDayItems =>
+      _items.where((item) => item.accountDate.startsWith(lastDay)).toList();
+
   /// 获取是否正在加载账目列表
   bool get loading => _loading;
 
@@ -64,7 +70,6 @@ class ItemListProvider extends ChangeNotifier {
       _currentBookId = event.book.id;
       loadItems();
     });
-
     // 监听同步完成事件
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
       loadItems();
@@ -203,6 +208,7 @@ class ItemListProvider extends ChangeNotifier {
     _bookSubscription.cancel();
     _syncSubscription.cancel();
     _itemChangedSubscription.cancel();
+    _debtChangedSubscription.cancel();
     super.dispose();
   }
 }

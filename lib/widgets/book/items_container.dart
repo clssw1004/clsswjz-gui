@@ -1,3 +1,4 @@
+import 'package:clsswjz_gui/enums/account_type.dart';
 import 'package:flutter/material.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../utils/color_util.dart';
@@ -11,6 +12,7 @@ class ItemsContainer extends StatelessWidget {
   final Function(UserItemVO)? onItemTap;
   final bool loading;
   final UserBookVO? accountBook;
+  final String? lastDate;
 
   const ItemsContainer({
     super.key,
@@ -18,14 +20,32 @@ class ItemsContainer extends StatelessWidget {
     this.onItemTap,
     this.loading = false,
     this.accountBook,
+    this.lastDate,
   });
+
+  /// 计算支出和收入总额
+  (double expense, double income) _calculateTotals() {
+    double expense = 0;
+    double income = 0;
+    for (var item in items) {
+      if (item.type == AccountItemType.expense.code) {
+        expense += item.amount;
+      } else if (item.type == AccountItemType.income.code) {
+        income += item.amount;
+      }
+    }
+    return (expense, income);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final secondColor = colorScheme.onSurfaceVariant.withAlpha(180);
-    
+
+    // 计算总额
+    final (expense, income) = _calculateTotals();
+
     // 定义导航到账目列表的函数
     void navigateToItemsList() {
       Navigator.of(context).pushNamed(
@@ -33,7 +53,7 @@ class ItemsContainer extends StatelessWidget {
         arguments: accountBook,
       );
     }
-    
+
     return CommonCardContainer(
       margin: const EdgeInsets.all(8),
       padding: EdgeInsets.zero,
@@ -47,12 +67,76 @@ class ItemsContainer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
               child: Row(
                 children: [
-                  Text(
-                    L10nManager.l10n.accountItem,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                  // 标题
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        L10nManager.l10n.accountItem,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (lastDate != null) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          lastDate!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: secondColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
+                  // 统计金额
+                  if (!loading && items.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    // 支出金额
+                    if (expense < 0)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.arrow_circle_down_outlined,
+                            size: 14,
+                            color: ColorUtil.EXPENSE,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            expense.toStringAsFixed(2),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: ColorUtil.EXPENSE,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (expense > 0 && income > 0)
+                      const SizedBox(width: 8),
+                    // 收入金额
+                    if (income > 0)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.arrow_circle_up_outlined,
+                            size: 14,
+                            color: ColorUtil.INCOME,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            income.toStringAsFixed(2),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: ColorUtil.INCOME,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                   const Spacer(),
                   TextButton(
                     onPressed: accountBook == null ? null : navigateToItemsList,
@@ -143,12 +227,14 @@ class ItemsContainer extends StatelessWidget {
                                     children: [
                                       Text(
                                         item.categoryName ?? '',
-                                        style: theme.textTheme.titleMedium?.copyWith(
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
                                           fontWeight: FontWeight.w500,
                                           fontSize: 15,
                                         ),
                                       ),
-                                      if (item.fundName?.isNotEmpty == true) ...[
+                                      if (item.fundName?.isNotEmpty ==
+                                          true) ...[
                                         const SizedBox(width: 4),
                                         // 账户名称（徽章形式）
                                         Transform.translate(
@@ -160,17 +246,21 @@ class ItemsContainer extends StatelessWidget {
                                             ),
                                             decoration: BoxDecoration(
                                               border: Border.all(
-                                                color: colorScheme.outline.withOpacity(0.5),
+                                                color: colorScheme.outline
+                                                    .withOpacity(0.5),
                                                 width: 1,
                                               ),
-                                              borderRadius: BorderRadius.circular(3),
+                                              borderRadius:
+                                                  BorderRadius.circular(3),
                                             ),
                                             child: Text(
-                                              (item.fundName ?? '').length > 10 
+                                              (item.fundName ?? '').length > 10
                                                   ? '${(item.fundName ?? '').substring(0, 10)}...'
                                                   : (item.fundName ?? ''),
-                                              style: theme.textTheme.labelSmall?.copyWith(
-                                                color: colorScheme.outline.withOpacity(0.8),
+                                              style: theme.textTheme.labelSmall
+                                                  ?.copyWith(
+                                                color: colorScheme.outline
+                                                    .withOpacity(0.8),
                                                 fontSize: 11,
                                                 height: 1.2,
                                               ),
@@ -217,17 +307,20 @@ class ItemsContainer extends StatelessWidget {
                                   if (item.shopName?.isNotEmpty == true) ...[
                                     Text(
                                       item.shopName!,
-                                      style: theme.textTheme.bodySmall?.copyWith(
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
                                         color: secondColor,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    if (item.description?.isNotEmpty == true) ...[
+                                    if (item.description?.isNotEmpty ==
+                                        true) ...[
                                       const SizedBox(width: 8),
                                       Text(
                                         '·',
-                                        style: theme.textTheme.bodySmall?.copyWith(
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
                                           color: secondColor,
                                         ),
                                       ),
@@ -238,7 +331,8 @@ class ItemsContainer extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         item.description!,
-                                        style: theme.textTheme.bodySmall?.copyWith(
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
                                           color: secondColor,
                                         ),
                                         maxLines: 1,

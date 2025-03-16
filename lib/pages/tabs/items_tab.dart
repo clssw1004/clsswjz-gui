@@ -96,7 +96,8 @@ class _ItemsTabState extends State<ItemsTab>
                   // 最近账目
                   ItemsContainer(
                     accountBook: bookMeta,
-                    items: itemListProvider.items.take(3).toList(),
+                    lastDate: itemListProvider.lastDay,
+                    items: itemListProvider.lastDayItems,
                     loading: itemListProvider.loading,
                     onItemTap: (item) {
                       NavigationUtil.toItemEdit(context, item);
