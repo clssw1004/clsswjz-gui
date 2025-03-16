@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
@@ -55,14 +56,99 @@ class CommonAttachmentField extends StatefulWidget {
 class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
   bool _isUploading = false;
 
-  /// 选择文件
+  /// 选择文件来源
+  Future<void> _showSourceDialog() async {
+    if (_isUploading || widget.onUpload == null) return;
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final source = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                L10nManager.l10n.addAttachment,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(
+                Icons.photo_library_outlined,
+                color: colorScheme.primary,
+              ),
+              title: Text(
+                L10nManager.l10n.gallery,
+                style: theme.textTheme.bodyLarge,
+              ),
+              onTap: () => Navigator.pop(context, 'gallery'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.folder_outlined,
+                color: colorScheme.primary,
+              ),
+              title: Text(
+                L10nManager.l10n.file,
+                style: theme.textTheme.bodyLarge,
+              ),
+              onTap: () => Navigator.pop(context, 'file'),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+    
+    if (source == 'gallery') {
+      await _pickImages();
+    } else {
+      await _pickFiles();
+    }
+  }
+
+  /// 从相册选择图片
+  Future<void> _pickImages() async {
+    if (_isUploading || widget.onUpload == null) return;
+
+    try {
+      setState(() => _isUploading = true);
+
+      final result = await ImagePicker().pickMultiImage();
+      if (result != null && result.isNotEmpty) {
+        final files = result.map((xFile) => File(xFile.path)).toList();
+        if (files.isNotEmpty) {
+          await widget.onUpload!(files);
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploading = false);
+      }
+    }
+  }
+
+  /// 从文件管理器选择文件
   Future<void> _pickFiles() async {
     if (_isUploading || widget.onUpload == null) return;
 
     try {
       setState(() => _isUploading = true);
 
-      // 使用 file_picker 选择文件
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.any,
@@ -190,7 +276,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                     Tooltip(
                       message: L10nManager.l10n.addAttachment,
                       child: TextButton.icon(
-                        onPressed: _isUploading ? null : _pickFiles,
+                        onPressed: _isUploading ? null : _showSourceDialog,
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                           minimumSize: Size.zero,

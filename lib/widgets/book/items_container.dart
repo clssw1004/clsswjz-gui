@@ -135,14 +135,54 @@ class ItemsContainer extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text(
-                                item.categoryName ?? '',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 分类名称和徽章
+                                  Row(
+                                    children: [
+                                      Text(
+                                        item.categoryName ?? '',
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      if (item.fundName?.isNotEmpty == true) ...[
+                                        const SizedBox(width: 4),
+                                        // 账户名称（徽章形式）
+                                        Transform.translate(
+                                          offset: const Offset(0, -1),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                              vertical: 0,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: colorScheme.outline.withOpacity(0.5),
+                                                width: 1,
+                                              ),
+                                              borderRadius: BorderRadius.circular(3),
+                                            ),
+                                            child: Text(
+                                              (item.fundName ?? '').length > 10 
+                                                  ? '${(item.fundName ?? '').substring(0, 10)}...'
+                                                  : (item.fundName ?? ''),
+                                              style: theme.textTheme.labelSmall?.copyWith(
+                                                color: colorScheme.outline.withOpacity(0.8),
+                                                fontSize: 11,
+                                                height: 1.2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  // 占位空间
+                                  const Spacer(),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -157,8 +197,9 @@ class ItemsContainer extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // 第二行：时间、商户、备注、账户
+                        // 第二行：时间、商户、备注
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(width: 11),
                             // 时间
@@ -169,40 +210,43 @@ class ItemsContainer extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            // 商户
-                            if (item.shopName?.isNotEmpty == true) ...[
-                              Text(
-                                item.shopName!,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: secondColor,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            // 商户和备注
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  if (item.shopName?.isNotEmpty == true) ...[
+                                    Text(
+                                      item.shopName!,
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: secondColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (item.description?.isNotEmpty == true) ...[
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '·',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: secondColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                  ],
+                                  if (item.description?.isNotEmpty == true)
+                                    Expanded(
+                                      child: Text(
+                                        item.description!,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: secondColor,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                            ],
-                            // 备注
-                            if (item.description?.isNotEmpty == true)
-                              Expanded(
-                                child: Text(
-                                  item.description!,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: secondColor,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            if (item.description?.isEmpty == true)
-                              const Spacer(),
-                            // 账户
-                            Text(
-                              item.fundName ?? '',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: secondColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
