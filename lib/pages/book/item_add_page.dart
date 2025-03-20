@@ -209,7 +209,21 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             selected: {currentType},
             onSelectionChanged: (Set<AccountItemType> selected) {
               if (selected.isNotEmpty) {
-                provider.updateType(selected.first);
+                final newType = selected.first;
+                // 处理金额正负转换
+                final currentAmount = double.tryParse(_amountController.text) ?? 0;
+                if (currentAmount != 0) {
+                  if (currentType == AccountItemType.expense && newType == AccountItemType.income) {
+                    // 从支出切换到收入，转为正数
+                    _amountController.text = currentAmount.abs().toString();
+                  } else if (currentType == AccountItemType.income && newType == AccountItemType.expense) {
+                    // 从收入切换到支出，转为负数
+                    _amountController.text = (-currentAmount.abs()).toString();
+                  }
+                }
+                provider.updateType(newType);
+                // 更新金额
+                provider.updateAmount(double.parse(_amountController.text));
               }
             },
             style: ButtonStyle(
