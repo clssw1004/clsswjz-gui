@@ -19,16 +19,22 @@ jobs:
         id: get_notes
         run: |
           VERSION="${{ github.ref_name }}"
-          echo "Original version: $VERSION"
           VERSION="${VERSION#v}"
-          echo "Version without v: $VERSION"
-          echo "Searching for pattern: ## [$VERSION]"
-          NOTES=$(awk "/## \[$VERSION\]/,/## \[|$/{if(!/## \[/) print}" CHANGELOG.md | sed '/^$/d')
-          echo "Found release notes:"
-          echo "$NOTES"
-          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Searching for version: $VERSION"
+          
+          # 使用更可靠的方式提取发布说明
+          {
+            echo "release_notes<<EOF"
+            awk -v ver="$VERSION" '
+              BEGIN { found=0; first=1 }
+              /^## \[.*\]/ {
+                if (found==1) { exit }
+                if ($0 ~ "\\[" ver "\\]") { found=1; first=0; next }
+              }
+              found==1 { print $0 }
+            ' CHANGELOG.md | sed '1{/^$/d}'
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
   build:
     needs: extract_release_notes
