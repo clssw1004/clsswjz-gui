@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../manager/service_manager.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/http_client.dart';
@@ -58,6 +59,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                   if (newUrl.isNotEmpty && newUrl != _serverUrl) {
                     await AppConfigManager.instance.setServerUrl(newUrl);
                     await HttpClient.refresh(serverUrl: newUrl);
+                    await ServiceManager.refreshServer();
                     if (!mounted) return;
                     setState(() {
                       _serverUrl = newUrl;

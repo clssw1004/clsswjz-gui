@@ -34,6 +34,11 @@ class ServiceManager extends BaseService {
     _isInit = true;
   }
 
+  static Future<void> refreshServer() async {
+    _currentHealthService =
+        HealthService(AppConfigManager.instance.serverUrl);
+  }
+
   static Future<ServiceManager> get instance async {
     return _instance!;
   }

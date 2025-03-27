@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.15] - 2024-03-27
+
+### Enhancements
+- Enhanced data synchronization mechanism
+  - Added automatic sync trigger for newly created transactions
+  - Added automatic sync trigger for newly created notes
+  - Added automatic sync trigger for newly created debts
+  - Optimized sync state management to prevent duplicate syncs
+
+### Bug Fixes
+- Fixed sync service URL not taking effect immediately
+  - Previously required app restart to apply changes
+  - Now updates take effect as soon as the URL is modified
+
+### 功能优化
+- 增强数据同步机制
+  - 添加新建账目时自动触发同步
+  - 添加新建笔记时自动触发同步
+  - 添加新建债务时自动触发同步
+  - 优化同步状态管理，防止重复同步
+
+### 问题修复
+- 修复同步服务URL修改后不能立即生效的问题
+  - 之前需要重启应用才能生效
+  - 现在修改后立即生效
+
 ## [1.0.0-alpha.14] - 2024-03-20
 
 ### Enhancements
