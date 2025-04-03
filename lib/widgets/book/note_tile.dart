@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../../models/vo/user_note_vo.dart';
 import '../../theme/theme_spacing.dart';
 import '../../manager/l10n_manager.dart';
+import '../../utils/date_util.dart';
 import '../common/common_card_container.dart';
 
 /// 笔记列表项组件
@@ -251,7 +252,7 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.note.createdAt!,
+                            DateUtil.format(widget.note.createdAt!),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                               letterSpacing: 0.5,

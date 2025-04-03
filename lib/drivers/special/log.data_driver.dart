@@ -322,25 +322,7 @@ class LogDataDriver implements BookDataDriver {
             tagCode: tagCode,
             projectCode: projectCode)
         .execute();
-    final oldAttachments = await ServiceManager.attachmentService
-        .getAttachmentsByBusiness(BusinessType.item, itemId);
-    final diff = CollectionUtil.diff(oldAttachments, attachments, (e) => e.id);
-    if (diff.added != null && diff.added!.isNotEmpty) {
-      for (var attachment in diff.added!) {
-        await AttachmentCULog.fromVO(who,
-                belongType: BusinessType.item, belongId: itemId, vo: attachment)
-            .execute();
-      }
-    }
-    if (diff.removed != null && diff.removed!.isNotEmpty) {
-      for (var attachment in diff.removed!) {
-        await AttachmentDeleteLog.fromAttachmentId(who,
-                belongType: BusinessType.item,
-                belongId: itemId,
-                attachmentId: attachment.id)
-            .execute();
-      }
-    }
+    await updateAttachments(who, BusinessType.item, itemId, attachments ?? []);
     return OperateResult.success(null);
   }
 
@@ -543,13 +525,21 @@ class LogDataDriver implements BookDataDriver {
       {String? title,
       required NoteType noteType,
       required String content,
-      required String plainContent}) async {
+      required String plainContent,
+      List<File>? files}) async {
     final id = await NoteCULog.create(who, bookId,
             title: title,
             noteType: noteType,
             content: content,
             plainContent: plainContent)
         .execute();
+    if (files != null && files.isNotEmpty) {
+      for (var file in files) {
+        await AttachmentCULog.fromFile(who,
+                belongType: BusinessType.note, belongId: id, file: file)
+            .execute();
+      }
+    }
     return OperateResult.success(id);
   }
 
@@ -564,10 +554,14 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateNote(
       String who, String bookId, String noteId,
-      {String? title, String? content, String? plainContent}) async {
+      {String? title,
+      String? content,
+      String? plainContent,
+      List<AttachmentVO>? attachments}) async {
     await NoteCULog.update(who, bookId, noteId,
             title: title, content: content, plainContent: plainContent)
         .execute();
+    await updateAttachments(who, BusinessType.note, noteId, attachments ?? []);
     return OperateResult.success(null);
   }
 
@@ -733,5 +727,28 @@ class LogDataDriver implements BookDataDriver {
 
   String encryptPassword(String password) {
     return DigestUtil.toSha256(password);
+  }
+
+  Future<void> updateAttachments(String who, BusinessType businessType,
+      String businessId, List<AttachmentVO> attachments) async {
+    final oldAttachments = await ServiceManager.attachmentService
+        .getAttachmentsByBusiness(businessType, businessId);
+    final diff = CollectionUtil.diff(oldAttachments, attachments, (e) => e.id);
+    if (diff.added != null && diff.added!.isNotEmpty) {
+      for (var attachment in diff.added!) {
+        await AttachmentCULog.fromVO(who,
+                belongType: businessType, belongId: businessId, vo: attachment)
+            .execute();
+      }
+    }
+    if (diff.removed != null && diff.removed!.isNotEmpty) {
+      for (var attachment in diff.removed!) {
+        await AttachmentDeleteLog.fromAttachmentId(who,
+                belongType: businessType,
+                belongId: businessId,
+                attachmentId: attachment.id)
+            .execute();
+      }
+    }
   }
 }

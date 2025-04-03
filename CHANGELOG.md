@@ -3,6 +3,60 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.16] - 2024-04-03
+
+### Feature Enhancements
+- Added attachment support for notes
+  - Support uploading and managing multiple attachments in notes
+  - Support viewing and deleting attachments
+  - Support various file types including images and documents
+  - Optimized attachment storage and retrieval mechanism
+
+### Code Optimization
+- Enhanced note attachment handling
+  - Implemented efficient attachment state management
+  - Added robust error handling for file operations
+  - Improved attachment synchronization with backend
+  - Optimized attachment upload and deletion process
+
+### 功能增强
+- 添加记事附件支持
+  - 支持在记事中上传和管理多个附件
+  - 支持查看和删除附件
+  - 支持包括图片和文档在内的多种文件类型
+  - 优化附件存储和检索机制
+
+### 代码优化
+- 增强记事附件处理
+  - 实现高效的附件状态管理
+  - 添加健壮的文件操作错误处理
+  - 改进附件与后端的同步机制
+  - 优化附件上传和删除流程
+
+### Enhancements
+- Enhanced note editor functionality
+  - Migrated note form state management to Provider pattern
+  - Improved attachment handling with better error management
+  - Optimized UI responsiveness and state updates
+
+### Code Optimization
+- Refactored note form page structure
+  - Separated state management into dedicated provider
+  - Enhanced code maintainability and reusability
+  - Improved error handling and user feedback
+
+### 功能优化
+- 增强笔记编辑器功能
+  - 将笔记表单状态管理迁移到Provider模式
+  - 改进附件处理，提供更好的错误管理
+  - 优化UI响应性和状态更新
+
+### 代码优化
+- 重构笔记表单页面结构
+  - 将状态管理分离到专用provider
+  - 增强代码可维护性和复用性
+  - 改进错误处理和用户反馈
+
 ## [1.0.0-alpha.15] - 2024-03-27
 
 ### Enhancements

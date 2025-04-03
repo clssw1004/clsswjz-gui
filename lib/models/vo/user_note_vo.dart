@@ -1,5 +1,4 @@
 import '../../database/database.dart';
-import '../../utils/date_util.dart';
 
 class UserNoteVO {
   /// ID
@@ -18,10 +17,10 @@ class UserNoteVO {
   final String accountBookId;
 
   /// 创建时间
-  final String? createdAt;
+  final int? createdAt;
 
   /// 更新时间
-  final String? updatedAt;
+  final int? updatedAt;
 
   /// 创建人
   final String? createdBy;
@@ -47,8 +46,8 @@ class UserNoteVO {
     required String content,
     required String plainContent,
     String? accountBookId,
-    String? createdAt,
-    String? updatedAt,
+    int? createdAt,
+    int? updatedAt,
     String? createdBy,
     String? updatedBy,
   }) {
@@ -72,8 +71,8 @@ class UserNoteVO {
       content: note.content ?? '',
       plainContent: note.plainContent ?? '',
       accountBookId: note.accountBookId,
-      createdAt: DateUtil.format(note.createdAt),
-      updatedAt: DateUtil.format(note.updatedAt),
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
       createdBy: note.createdBy,
       updatedBy: note.updatedBy,
     );
