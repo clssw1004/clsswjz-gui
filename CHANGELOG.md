@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.17] - 2024-04-04
+
+### Feature Enhancements
+- Enhanced QuillEditor image support
+  - Added support for displaying uploaded images in QuillEditor
+  - Integrated with attachment system for image handling
+  - Improved image rendering and layout in editor
+  - Enhanced user experience with visual feedback
+
+### 功能增强
+- 增强 QuillEditor 图片支持
+  - 添加在 QuillEditor 中显示上传图片的功能
+  - 与附件系统集成以处理图片
+  - 改进编辑器中的图片渲染和布局
+  - 通过视觉反馈增强用户体验
+
+
 ## [1.0.0-alpha.16] - 2024-04-03
 
 ### Feature Enhancements

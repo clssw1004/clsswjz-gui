@@ -180,6 +180,80 @@ class _NoteFormPageState extends State<_NoteFormPage> {
                                         ),
                                       ),
                                     ),
+                                    // 附件上传
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      child: CommonAttachmentField(
+                                        attachments: provider.attachments,
+                                        label: L10nManager.l10n.attachments,
+                                        onUpload: (files) async {
+                                          final userId = provider.note.updatedBy ?? '';
+                                          final attachments = files
+                                              .map((file) => AttachmentUtil.generateVoFromFile(
+                                                    BusinessType.note,
+                                                    provider.note.id,
+                                                    file,
+                                                    userId,
+                                                  ))
+                                              .toList();
+
+                                          provider.updateAttachments([
+                                            ...provider.attachments,
+                                            ...attachments
+                                          ]);
+
+                                          // 处理图片类型的附件
+                                          for (final attachment in attachments) {
+                                            final fileName = attachment.originName.toLowerCase();
+                                            if (fileName.endsWith('.jpg') ||
+                                                fileName.endsWith('.jpeg') ||
+                                                fileName.endsWith('.png') ||
+                                                fileName.endsWith('.gif')) {
+                                              // 获取图片文件路径
+                                              final filePath = attachment.file?.path;
+                                              try {
+                                                // 确保文档以换行符结束
+                                                final delta = _quillController.document.toDelta();
+                                                if (!delta.isEmpty &&
+                                                    !delta.last.data.toString().endsWith('\n')) {
+                                                  _quillController.document.insert(delta.length, '\n');
+                                                }
+
+                                                // 构建图片Delta
+                                                final imageDelta = Delta()
+                                                  ..insert('\n')
+                                                  ..insert(
+                                                    {'image': filePath},
+                                                    {'align': 'left'},
+                                                  )
+                                                  ..insert('\n');
+
+                                                // 将Delta合并到文档中
+                                                _quillController.document.compose(
+                                                  imageDelta,
+                                                  ChangeSource.local,
+                                                );
+                                              } catch (e) {
+                                                print('插入图片时出错: $e');
+                                              }
+                                            }
+                                          }
+                                        },
+                                        onDelete: (attachment) async {
+                                          provider.updateAttachments(
+                                            provider.attachments
+                                                .where((a) => a.id != attachment.id)
+                                                .toList(),
+                                          );
+                                        },
+                                        onTap: (attachment) async {
+                                          final result = await FileUtil.openFile(attachment);
+                                          if (!result.ok && mounted) {
+                                            ToastUtil.showError(result.message ?? '打开文件失败');
+                                          }
+                                        },
+                                      ),
+                                    ),
                                     Container(
                                       padding: EdgeInsets.only(
                                           bottom: bottomPadding),
@@ -307,91 +381,6 @@ class _NoteFormPageState extends State<_NoteFormPage> {
                                       ),
                                     ),
                                   ],
-                                ),
-                              ),
-                              // 附件上传
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                child: CommonAttachmentField(
-                                  attachments: provider.attachments,
-                                  label: L10nManager.l10n.attachments,
-                                  onUpload: (files) async {
-                                    final userId =
-                                        provider.note.updatedBy ?? '';
-                                    final attachments = files
-                                        .map((file) =>
-                                            AttachmentUtil.generateVoFromFile(
-                                              BusinessType.note,
-                                              provider.note.id,
-                                              file,
-                                              userId,
-                                            ))
-                                        .toList();
-
-                                    provider.updateAttachments([
-                                      ...provider.attachments,
-                                      ...attachments
-                                    ]);
-
-                                    // 处理图片类型的附件
-                                    for (final attachment in attachments) {
-                                      final fileName =
-                                          attachment.originName.toLowerCase();
-                                      if (fileName.endsWith('.jpg') ||
-                                          fileName.endsWith('.jpeg') ||
-                                          fileName.endsWith('.png') ||
-                                          fileName.endsWith('.gif')) {
-                                        // 获取图片文件路径
-                                        final filePath = attachment.file?.path;
-                                        try {
-                                          // 确保文档以换行符结束
-                                          final delta = _quillController
-                                              .document
-                                              .toDelta();
-                                          if (!delta.isEmpty &&
-                                              !delta.last.data
-                                                  .toString()
-                                                  .endsWith('\n')) {
-                                            _quillController.document
-                                                .insert(delta.length, '\n');
-                                          }
-
-                                          // 构建图片Delta
-                                          final imageDelta = Delta()
-                                            ..insert('\n')
-                                            ..insert(
-                                              {'image': filePath},
-                                              {'align': 'left'},
-                                            )
-                                            ..insert('\n');
-
-                                          // 将Delta合并到文档中
-                                          _quillController.document.compose(
-                                            imageDelta,
-                                            ChangeSource.local,
-                                          );
-                                        } catch (e) {
-                                          print('插入图片时出错: $e');
-                                        }
-                                      }
-                                    }
-                                  },
-                                  onDelete: (attachment) async {
-                                    provider.updateAttachments(
-                                      provider.attachments
-                                          .where((a) => a.id != attachment.id)
-                                          .toList(),
-                                    );
-                                  },
-                                  onTap: (attachment) async {
-                                    final result =
-                                        await FileUtil.openFile(attachment);
-                                    if (!result.ok && mounted) {
-                                      ToastUtil.showError(
-                                          result.message ?? '打开文件失败');
-                                    }
-                                  },
                                 ),
                               ),
                             ],
