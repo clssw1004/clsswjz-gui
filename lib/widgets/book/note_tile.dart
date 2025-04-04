@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'dart:convert';
 import '../../models/vo/user_note_vo.dart';
@@ -34,7 +36,8 @@ class NoteTile extends StatefulWidget {
   State<NoteTile> createState() => _NoteTileState();
 }
 
-class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin {
+class _NoteTileState extends State<NoteTile>
+    with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
   late final AnimationController _controller;
 
@@ -45,7 +48,6 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-
   }
 
   @override
@@ -89,7 +91,7 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
   Widget _buildContent(BuildContext context, Document document) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final controller = QuillController(
       document: document,
       selection: const TextSelection.collapsed(offset: 0),
@@ -112,13 +114,16 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
             controller: controller,
             scrollController: ScrollController(),
             focusNode: FocusNode(),
-            configurations: const QuillEditorConfigurations(
+            config: QuillEditorConfig(
               autoFocus: false,
               expands: false,
               padding: EdgeInsets.zero,
               showCursor: false,
               enableInteractiveSelection: false,
               placeholder: null,
+              embedBuilders: kIsWeb
+                  ? FlutterQuillEmbeds.editorWebBuilders()
+                  : FlutterQuillEmbeds.editorBuilders(),
             ),
           ),
         ),
@@ -277,7 +282,9 @@ class _NoteTileState extends State<NoteTile> with SingleTickerProviderStateMixin
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         color: colorScheme.onSurfaceVariant,
                         size: 20,
                       ),

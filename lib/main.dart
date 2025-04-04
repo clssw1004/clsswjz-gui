@@ -2,6 +2,7 @@ import './manager/app_config_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'generated/l10n/app_localizations.dart';
 import 'manager/cache_manager.dart';
 import 'manager/l10n_manager.dart';
@@ -45,6 +46,7 @@ class ClsswjzApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
       ],
       supportedLocales: const [
         Locale('en'),

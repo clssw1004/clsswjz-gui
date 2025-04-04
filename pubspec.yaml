@@ -33,8 +33,6 @@ dependencies:
   custom_refresh_indicator: ^4.0.1
   device_info_plus: ^11.2.0
   csv: ^6.0.0
-  flutter_quill: ^10.8.5
-  flutter_quill_extensions: ^11.0.0-dev.0
   flutter_slidable: ^4.0.0
   table_calendar: ^3.0.9
   cupertino_icons: ^1.0.2
@@ -42,6 +40,8 @@ dependencies:
   syncfusion_flutter_charts: ^28.2.7
   package_info_plus: ^8.3.0
   open_filex: ^4.7.0
+  flutter_quill_extensions: ^11.0.0
+  flutter_quill: ^11.2.0
 
 dev_dependencies:
   flutter_test:
