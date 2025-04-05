@@ -103,6 +103,7 @@ class AttachmentVO {
     );
   }
 
+  /// 转换为Attachment
   Attachment toAttachment() {
     return Attachment(
       createdBy: createdBy,
@@ -116,6 +117,38 @@ class AttachmentVO {
       contentType: contentType,
       businessCode: businessCode,
       businessId: businessId,
+    );
+  }
+
+  AttachmentVO copyWith({
+    String? id,
+    String? originName,
+    int? fileLength,
+    String? extension,
+    String? contentType,
+    String? businessCode,
+    String? businessId,
+    String? createdBy,
+    String? updatedBy,
+    int? createdAt,
+    int? updatedAt,
+    File? file,
+    bool? isRemote,
+  }) {
+    return AttachmentVO(
+      id: id ?? this.id,
+      originName: originName ?? this.originName,
+      fileLength: fileLength ?? this.fileLength,
+      extension: extension ?? this.extension,
+      contentType: contentType ?? this.contentType,
+      businessCode: businessCode ?? this.businessCode,
+      businessId: businessId ?? this.businessId,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      file: file ?? this.file,
+      isRemote: isRemote ?? this.isRemote,
     );
   }
 }

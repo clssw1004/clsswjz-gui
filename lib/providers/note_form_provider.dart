@@ -134,10 +134,7 @@ class NoteFormProvider extends ChangeNotifier {
         noteType: NoteType.note,
         content: _content,
         plainContent: _note.plainContent,
-        files: _attachments
-            .where((attachment) => attachment.file != null)
-            .map((attachment) => attachment.file!)
-            .toList(),
+        attachments: _attachments,
       );
 
       if (result.ok) {

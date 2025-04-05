@@ -123,7 +123,13 @@ class _NoteTileState extends State<NoteTile>
               placeholder: null,
               embedBuilders: kIsWeb
                   ? FlutterQuillEmbeds.editorWebBuilders()
-                  : FlutterQuillEmbeds.editorBuilders(),
+                  : FlutterQuillEmbeds.editorBuilders(
+                      imageEmbedConfig: QuillEditorImageEmbedConfig(
+                        imageProviderBuilder: (context, imageUrl) {
+                          return null;
+                        },
+                      ),
+                    ),
             ),
           ),
         ),

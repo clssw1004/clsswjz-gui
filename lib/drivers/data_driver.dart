@@ -218,7 +218,7 @@ abstract class BookDataDriver {
       required NoteType noteType,
       required String content,
       required String plainContent,
-      List<File>? files});
+      List<AttachmentVO>? attachments});
 
   /// 删除记事
   Future<OperateResult<void>> deleteNote(
@@ -227,7 +227,10 @@ abstract class BookDataDriver {
   /// 更新记事
   Future<OperateResult<void>> updateNote(
       String who, String bookId, String noteId,
-      {String? title, String? content, String? plainContent,List<AttachmentVO>? attachments});
+      {String? title,
+      String? content,
+      String? plainContent,
+      List<AttachmentVO>? attachments});
 
   /// 获取用户记事列表
   Future<OperateResult<List<UserNoteVO>>> listNotesByBook(

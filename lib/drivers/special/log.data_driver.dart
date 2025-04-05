@@ -526,17 +526,18 @@ class LogDataDriver implements BookDataDriver {
       required NoteType noteType,
       required String content,
       required String plainContent,
-      List<File>? files}) async {
+      List<AttachmentVO>? attachments}) async {
     final id = await NoteCULog.create(who, bookId,
             title: title,
             noteType: noteType,
             content: content,
             plainContent: plainContent)
         .execute();
-    if (files != null && files.isNotEmpty) {
-      for (var file in files) {
-        await AttachmentCULog.fromFile(who,
-                belongType: BusinessType.note, belongId: id, file: file)
+    if (attachments != null && attachments.isNotEmpty) {
+      for (var attachment in attachments) {
+        final vo = attachment.copyWith(businessId: id);
+        await AttachmentCULog.fromVO(who,
+                belongType: BusinessType.note, belongId: id, vo: vo)
             .execute();
       }
     }
