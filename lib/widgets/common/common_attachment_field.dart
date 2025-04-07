@@ -5,7 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
+import '../../utils/file_util.dart';
+import '../../utils/toast_util.dart';
 import 'common_dialog.dart';
+import 'common_image_preview.dart';
 
 /// 通用附件组件
 class CommonAttachmentField extends StatefulWidget {
@@ -33,9 +36,6 @@ class CommonAttachmentField extends StatefulWidget {
   /// 附件删除回调
   final Future<void> Function(AttachmentVO attachment)? onDelete;
 
-  /// 附件点击回调
-  final void Function(AttachmentVO attachment)? onTap;
-
   const CommonAttachmentField({
     super.key,
     required this.attachments,
@@ -46,7 +46,6 @@ class CommonAttachmentField extends StatefulWidget {
     this.errorText,
     this.onUpload,
     this.onDelete,
-    this.onTap,
   });
 
   @override
@@ -113,7 +112,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     );
 
     if (source == null) return;
-    
+
     if (source == 'gallery') {
       await _pickImages();
     } else {
@@ -129,7 +128,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       setState(() => _isUploading = true);
 
       final result = await ImagePicker().pickMultiImage();
-      if (result != null && result.isNotEmpty) {
+      if (result.isNotEmpty) {
         final files = result.map((xFile) => File(xFile.path)).toList();
         if (files.isNotEmpty) {
           await widget.onUpload!(files);
@@ -179,6 +178,25 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     }
   }
 
+  /// 处理附件点击
+  Future<void> _handleAttachmentTap(AttachmentVO attachment) async {
+    if (attachment.file == null) return;
+
+    // 如果是图片，使用图片预览组件打开
+    if (FileUtil.isImage(attachment.originName)) {
+      if (mounted) {
+        await showImagePreview(
+          context,
+          attachment: attachment,
+        );
+      }
+      return;
+    } else {
+      // 非图片使用系统默认应用打开
+      await FileUtil.openFile(attachment);
+    }
+  }
+
   /// 弹出附件列表对话框
   void _showAttachmentDialog() {
     CommonDialog.show(
@@ -196,7 +214,12 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
             return ListTile(
               dense: true,
               horizontalTitleGap: 0,
-              leading: const Icon(Icons.attachment_outlined, size: 20),
+              leading: Icon(
+                FileUtil.isImage(attachment.originName)
+                    ? Icons.image_outlined
+                    : Icons.attachment_outlined,
+                size: 20,
+              ),
               title: Text(
                 attachment.originName,
                 overflow: TextOverflow.ellipsis,
@@ -216,7 +239,10 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                       },
                     )
                   : null,
-              onTap: widget.onTap != null ? () => widget.onTap!(attachment) : null,
+              onTap: () {
+                Navigator.of(context).pop();
+                _handleAttachmentTap(attachment);
+              },
             );
           },
         ),
@@ -246,9 +272,12 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextButton(
-                    onPressed: widget.attachments.isNotEmpty ? _showAttachmentDialog : null,
+                    onPressed: widget.attachments.isNotEmpty
+                        ? _showAttachmentDialog
+                        : null,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: colorScheme.primary,
@@ -278,7 +307,8 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
                       child: TextButton.icon(
                         onPressed: _isUploading ? null : _showSourceDialog,
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 4),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           foregroundColor: colorScheme.primary,

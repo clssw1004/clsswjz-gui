@@ -888,6 +888,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get file => '文件';
+
+  @override
+  String get saveToGallery => '保存到相册';
+
+  @override
+  String get openWithExternalApp => '使用其他应用打开';
+
+  @override
+  String get saveSuccess => '保存成功';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1726,4 +1735,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get file => '檔案';
+
+  @override
+  String get saveToGallery => '儲存至相簿';
+
+  @override
+  String get openWithExternalApp => '使用其他應用開啟';
+
+  @override
+  String get saveSuccess => '儲存成功';
 }

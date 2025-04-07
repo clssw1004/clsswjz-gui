@@ -47,7 +47,7 @@ class ItemEditPage extends StatelessWidget {
         builder: (context, provider, child) {
           // 判断是否为支出类型
           final isExpense = provider.item.type == AccountItemType.expense.code;
-          
+
           return Scaffold(
             appBar: CommonAppBar(
               title: Text(
@@ -77,11 +77,11 @@ class ItemEditPage extends StatelessWidget {
       ),
     );
   }
-  
+
   // 跳转到退款页面
   void _navigateToRefundPage(BuildContext context) async {
     final result = await NavigationUtil.toItemRefund(context, item);
-    
+
     // 如果退款成功，返回到上一页
     if (result && context.mounted) {
       Navigator.of(context).pop(true);
@@ -218,19 +218,23 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               if (selected.isNotEmpty) {
                 final newType = selected.first;
                 // 处理金额正负转换
-                final currentAmount = double.tryParse(_amountController.text) ?? 0;
+                final currentAmount =
+                    double.tryParse(_amountController.text) ?? 0;
                 if (currentAmount != 0) {
-                  if (currentType == AccountItemType.expense && newType == AccountItemType.income) {
+                  if (currentType == AccountItemType.expense &&
+                      newType == AccountItemType.income) {
                     // 从支出切换到收入，转为正数
                     _amountController.text = currentAmount.abs().toString();
-                  } else if (currentType == AccountItemType.income && newType == AccountItemType.expense) {
+                  } else if (currentType == AccountItemType.income &&
+                      newType == AccountItemType.expense) {
                     // 从收入切换到支出，转为负数
                     _amountController.text = (-currentAmount.abs()).toString();
                   }
                 }
                 // 更新类型和金额
                 await provider.updateTypeAndSave(newType);
-                await provider.updateAmountAndSave(double.parse(_amountController.text));
+                await provider
+                    .updateAmountAndSave(double.parse(_amountController.text));
               }
             },
             style: ButtonStyle(
@@ -524,12 +528,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     .where((a) => a.id != attachment.id)
                     .toList(),
               );
-            },
-            onTap: (attachment) async {
-              final result = await FileUtil.openFile(attachment);
-              if (!result.ok && mounted) {
-                ToastUtil.showError(result.message ?? '打开文件失败');
-              }
             },
           ),
           SizedBox(height: spacing.formItemSpacing),

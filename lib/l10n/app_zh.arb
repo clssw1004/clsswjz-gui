@@ -799,5 +799,17 @@
     "file": "文件",
     "@file": {
         "description": "文件选项文本"
+    },
+    "saveToGallery": "保存到相册",
+    "@saveToGallery": {
+        "description": "保存图片到相册按钮的提示文本"
+    },
+    "openWithExternalApp": "使用其他应用打开",
+    "@openWithExternalApp": {
+        "description": "使用其他应用打开图片按钮的提示文本"
+    },
+    "saveSuccess": "保存成功",
+    "@saveSuccess": {
+        "description": "保存成功提示文本"
     }
 }

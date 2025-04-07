@@ -42,6 +42,8 @@ dependencies:
   open_filex: ^4.7.0
   flutter_quill_extensions: ^11.0.0
   flutter_quill: ^11.2.0
+  photo_view: ^0.15.0
+  gal: ^2.3.1
 
 dev_dependencies:
   flutter_test:

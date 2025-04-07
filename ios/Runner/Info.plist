@@ -41,13 +41,15 @@
 	<key>NSCameraUsageDescription</key>
 	<string>需要访问相机以拍摄头像照片</string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>需要访问文档文件夹以打开文件</string>
+	<string>需要访问文档目录以保存图片</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>需要访问下载文件夹以打开文件</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>需要访问网络以同步数据</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>需要访问相册权限以保存图片</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>需要访问相册以选择头像图片</string>
+	<string>需要访问相册权限以保存图片</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>

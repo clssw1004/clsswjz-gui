@@ -791,5 +791,17 @@
     "file": "File",
     "@file": {
         "description": "File option text"
+    },
+    "saveToGallery": "Save to Gallery",
+    "@saveToGallery": {
+        "description": "Tooltip text for the save to gallery button"
+    },
+    "openWithExternalApp": "Open with External App",
+    "@openWithExternalApp": {
+        "description": "Tooltip text for the open with external app button"
+    },
+    "saveSuccess": "Save successful",
+    "@saveSuccess": {
+        "description": "Text shown when save is successful"
     }
 }

@@ -225,16 +225,13 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                       for (final attachment in attachments) {
                                         final fileName =
                                             attachment.originName.toLowerCase();
-                                        if (fileName.endsWith('.jpg') ||
-                                            fileName.endsWith('.jpeg') ||
-                                            fileName.endsWith('.png') ||
-                                            fileName.endsWith('.gif')) {
+                                        if (FileUtil.isImage(fileName)) {
                                           try {
                                             // 确保文档以换行符结束
                                             final delta = _quillController
                                                 .document
                                                 .toDelta();
-                                            if (!delta.isEmpty &&
+                                            if (delta.isNotEmpty &&
                                                 !delta.last.data
                                                     .toString()
                                                     .endsWith('\n')) {
@@ -268,14 +265,6 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                             .where((a) => a.id != attachment.id)
                                             .toList(),
                                       );
-                                    },
-                                    onTap: (attachment) async {
-                                      final result =
-                                          await FileUtil.openFile(attachment);
-                                      if (!result.ok && mounted) {
-                                        ToastUtil.showError(
-                                            result.message ?? '打开文件失败');
-                                      }
                                     },
                                   ),
                                 ),

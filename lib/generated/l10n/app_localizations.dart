@@ -1745,6 +1745,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'File'**
   String get file;
+
+  /// Tooltip text for the save to gallery button
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Gallery'**
+  String get saveToGallery;
+
+  /// Tooltip text for the open with external app button
+  ///
+  /// In en, this message translates to:
+  /// **'Open with External App'**
+  String get openWithExternalApp;
+
+  /// Text shown when save is successful
+  ///
+  /// In en, this message translates to:
+  /// **'Save successful'**
+  String get saveSuccess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

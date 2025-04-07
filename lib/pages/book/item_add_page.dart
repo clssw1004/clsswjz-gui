@@ -211,12 +211,15 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               if (selected.isNotEmpty) {
                 final newType = selected.first;
                 // 处理金额正负转换
-                final currentAmount = double.tryParse(_amountController.text) ?? 0;
+                final currentAmount =
+                    double.tryParse(_amountController.text) ?? 0;
                 if (currentAmount != 0) {
-                  if (currentType == AccountItemType.expense && newType == AccountItemType.income) {
+                  if (currentType == AccountItemType.expense &&
+                      newType == AccountItemType.income) {
                     // 从支出切换到收入，转为正数
                     _amountController.text = currentAmount.abs().toString();
-                  } else if (currentType == AccountItemType.income && newType == AccountItemType.expense) {
+                  } else if (currentType == AccountItemType.income &&
+                      newType == AccountItemType.expense) {
                     // 从收入切换到支出，转为负数
                     _amountController.text = (-currentAmount.abs()).toString();
                   }
@@ -517,12 +520,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     .where((a) => a.id != attachment.id)
                     .toList(),
               );
-            },
-            onTap: (attachment) async {
-              final result = await FileUtil.openFile(attachment);
-              if (!result.ok && mounted) {
-                ToastUtil.showError(result.message ?? '打开文件失败');
-              }
             },
           ),
 

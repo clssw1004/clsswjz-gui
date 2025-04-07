@@ -7,6 +7,27 @@ import '../models/vo/attachment_vo.dart';
 import '../models/common.dart';
 
 class FileUtil {
+  /// 支持的图片文件扩展名
+  static const List<String> _imageExtensions = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.webp',
+    '.bmp',
+  ];
+
+  /// 判断文件是否为图片
+  static bool isImage(String fileName) {
+    final extension = path.extension(fileName).toLowerCase();
+    return _imageExtensions.contains(extension);
+  }
+
+  /// 判断文件是否为图片（从文件对象）
+  static bool isImageFile(File file) {
+    return isImage(file.path);
+  }
+
   static Future<File> toCacheFile(AttachmentVO attachment) async {
     try {
       String cacheDir = (await getTemporaryDirectory()).path;

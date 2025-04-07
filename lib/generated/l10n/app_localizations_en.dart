@@ -888,4 +888,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get file => 'File';
+
+  @override
+  String get saveToGallery => 'Save to Gallery';
+
+  @override
+  String get openWithExternalApp => 'Open with External App';
+
+  @override
+  String get saveSuccess => 'Save successful';
 }
