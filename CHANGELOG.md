@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.18] - 2024-04-05
+
+### Feature Enhancements
+- Enhanced image preview functionality
+  - Added semi-transparent background for better visual experience
+  - Improved image preview controls and interactions
+  - Enhanced error handling and loading states
+  - Optimized image display performance
+
+### Code Optimization
+- Improved code structure and maintainability
+  - Removed deprecated API usage
+  - Enhanced error handling mechanisms
+  - Optimized file operations
+
+### Internationalization
+- Added new translations for image preview actions
+  - Save to gallery button text
+  - Open with external app button text
+  - Save success message
+  - Error message handling
+
+### 功能增强
+- 增强图片预览功能
+  - 添加半透明背景以提供更好的视觉体验
+  - 改进图片预览控制和交互
+  - 增强错误处理和加载状态
+  - 优化图片显示性能
+
+### 代码优化
+- 改进代码结构和可维护性
+  - 移除过时的API使用
+  - 增强错误处理机制
+  - 优化文件操作
+
+### 国际化
+- 添加图片预览操作的新翻译
+  - 保存到相册按钮文本
+  - 使用其他应用打开按钮文本
+  - 保存成功提示文本
+  - 错误消息处理
+
 ## [1.0.0-alpha.17] - 2024-04-04
 
 ### Feature Enhancements

@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- 修改 [pubspec.yaml](mdc:pubspec.yaml)文件版本到指定版本
+- 更新 [CHANGELOG.md](mdc:CHANGELOG.md)文件，添加版本注记，且注意日期要为当前日期
