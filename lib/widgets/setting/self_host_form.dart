@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../common/common_text_form_field.dart';
+import '../common/progress_indicator_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../models/self_host_form_data.dart';
 import '../../enums/self_host_form_type.dart';
+import '../../providers/sync_provider.dart';
 import 'server_url_field.dart';
-
 
 class SelfHostForm extends StatefulWidget {
   final bool isLoading;
@@ -40,10 +42,18 @@ class _SelfHostFormState extends State<SelfHostForm> {
       serverUrl: _serverUrlController.text.trim(),
       username: _usernameController.text.trim(),
       password: _passwordController.text,
-      nickname: _formType == SelfHostFormType.register ? _nicknameController.text.trim() : null,
-      phone: _formType == SelfHostFormType.register ? _phoneController.text.trim() : null,
-      email: _formType == SelfHostFormType.register ? _emailController.text.trim() : null,
-      bookName: _formType == SelfHostFormType.register ? _bookNameController.text.trim() : null,
+      nickname: _formType == SelfHostFormType.register
+          ? _nicknameController.text.trim()
+          : null,
+      phone: _formType == SelfHostFormType.register
+          ? _phoneController.text.trim()
+          : null,
+      email: _formType == SelfHostFormType.register
+          ? _emailController.text.trim()
+          : null,
+      bookName: _formType == SelfHostFormType.register
+          ? _bookNameController.text.trim()
+          : null,
     );
 
     widget.onSubmit(data, _formType);
@@ -93,15 +103,33 @@ class _SelfHostFormState extends State<SelfHostForm> {
                 : (values) {
                     if (values.isNotEmpty) {
                       setState(() {
-                        _formType = values.first ? SelfHostFormType.register : SelfHostFormType.login;
+                        _formType = values.first
+                            ? SelfHostFormType.register
+                            : SelfHostFormType.login;
                       });
                     }
                   },
             showSelectedIcon: false,
           ),
           SizedBox(height: spacing.formItemSpacing),
-          _formType == SelfHostFormType.register ? _buildRegisterForm(spacing) : _buildLoginForm(spacing),
+          _formType == SelfHostFormType.register
+              ? _buildRegisterForm(spacing)
+              : _buildLoginForm(spacing),
           SizedBox(height: spacing.formGroupSpacing),
+          Consumer<SyncProvider>(
+            builder: (context, syncProvider, child) {
+              if (syncProvider.syncing && syncProvider.currentStep != null) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+                  child: ProgressIndicatorBar(
+                    value: syncProvider.progress,
+                    label: syncProvider.currentStep!,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           FilledButton(
             onPressed: widget.isLoading ? null : _handleSubmit,
             child: widget.isLoading
@@ -110,7 +138,9 @@ class _SelfHostFormState extends State<SelfHostForm> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(_formType == SelfHostFormType.register ? L10nManager.l10n.registerAndSync : L10nManager.l10n.loginAndSync),
+                : Text(_formType == SelfHostFormType.register
+                    ? L10nManager.l10n.registerAndSync
+                    : L10nManager.l10n.loginAndSync),
           ),
         ],
       ),

@@ -2,7 +2,7 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
-    - lines_longer_than_80_chars # 设置行长度检查
+    lines_longer_than_80_chars: false # 设置行长度检查
 
 # 设置最大行宽
 dart_code_metrics:
