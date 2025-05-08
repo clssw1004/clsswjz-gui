@@ -94,6 +94,13 @@ class ItemListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 设置筛选条件
+  void setKeyword(String keyword) {
+    _filter = _filter?.copyWith(keyword: keyword);
+    loadItems(refresh: true);
+    notifyListeners();
+  }
+
   /// 清除筛选条件
   void clearFilter() {
     _filter = null;

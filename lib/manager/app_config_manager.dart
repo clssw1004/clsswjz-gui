@@ -276,7 +276,11 @@ class AppConfigManager {
   }
 
   Future<void> setItemFilter(ItemFilterDTO? filter) async {
-    _itemFilter = filter ?? const ItemFilterDTO();
+    if (filter == null) {
+      _itemFilter = const ItemFilterDTO();
+    } else {
+      _itemFilter = filter.copyWith(keyword: null);
+    }
     await CacheManager.instance
         .setString(_itemFilterKey, ItemFilterDTO.toJsonString(_itemFilter));
   }

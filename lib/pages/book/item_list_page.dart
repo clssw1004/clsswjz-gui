@@ -17,6 +17,7 @@ import '../../widgets/common/progress_indicator_bar.dart';
 import '../../widgets/book/item_filter_sheet.dart';
 import '../../models/vo/book_meta.dart';
 import '../../manager/service_manager.dart';
+import '../../widgets/common/common_search_field.dart';
 
 class ItemListPage extends StatefulWidget {
   final UserBookVO accountBook;
@@ -34,11 +35,18 @@ class _ItemListPageState extends State<ItemListPage> {
   bool _isRefreshing = false;
   ItemViewMode _viewMode = ItemViewMode.advance;
   late BookMetaVO _bookMeta;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _initBookMeta();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _initBookMeta() async {
@@ -64,6 +72,11 @@ class _ItemListPageState extends State<ItemListPage> {
         setState(() => _isRefreshing = false);
       }
     }
+  }
+
+  void _handleSearch() {
+    final provider = context.read<ItemListProvider>();
+    provider.setKeyword(_searchController.text);
   }
 
   /// 显示筛选面板
@@ -202,11 +215,23 @@ class _ItemListPageState extends State<ItemListPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.tabAccountItems),
         actions: [
+          // 搜索框
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: CommonSearchField(
+              width: size.width * 0.35,
+              controller: _searchController,
+              hintText: L10nManager.l10n.search,
+              onSubmitted: (_) => _handleSearch(),
+              onClear: _handleSearch,
+            ),
+          ),
           // 筛选按钮
           IconButton(
             onPressed: _showFilterSheet,

@@ -39,6 +39,10 @@ class ItemFilterDTO {
 
   final List<String>? sourceIds;
 
+  /// 关键字
+  /// 用于搜索账目description
+  final String? keyword;
+
   const ItemFilterDTO(
       {this.types,
       this.categoryCodes,
@@ -51,7 +55,8 @@ class ItemFilterDTO {
       this.startDate,
       this.endDate,
       this.source,
-      this.sourceIds});
+      this.sourceIds,
+      this.keyword});
 
   /// 复制并修改
   ItemFilterDTO copyWith(
@@ -66,7 +71,8 @@ class ItemFilterDTO {
       String? startDate,
       String? endDate,
       String? source,
-      String? sourceId}) {
+      String? sourceId,
+      String? keyword}) {
     return ItemFilterDTO(
       types: types ?? this.types,
       categoryCodes: categoryCodes ?? this.categoryCodes,
@@ -80,6 +86,7 @@ class ItemFilterDTO {
       endDate: endDate ?? this.endDate,
       source: source ?? this.source,
       sourceIds: sourceIds ?? this.sourceIds,
+      keyword: keyword ?? this.keyword,
     );
   }
 
@@ -94,7 +101,10 @@ class ItemFilterDTO {
       minAmount == null &&
       maxAmount == null &&
       startDate == null &&
-      endDate == null;
+      endDate == null &&
+      source == null &&
+      (sourceIds?.isEmpty ?? true) &&
+      (keyword == null || keyword!.isEmpty);
 
   /// 是否不为空
   bool get isNotEmpty => !isEmpty;
@@ -116,6 +126,7 @@ class ItemFilterDTO {
       endDate: map['endDate']?.toString(),
       source: map['source']?.toString(),
       sourceIds: (map['sourceIds'] as List?)?.map((e) => e.toString()).toList(),
+      keyword: map['keywords']?.toString(),
     );
     return filter;
   }
@@ -158,6 +169,9 @@ class ItemFilterDTO {
     }
     if (filter.sourceIds?.isNotEmpty == true) {
       map['sourceIds'] = filter.sourceIds;
+    }
+    if (filter.keyword?.isNotEmpty == true) {
+      map['keywords'] = filter.keyword;
     }
     return jsonEncode(map);
   }

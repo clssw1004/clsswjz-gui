@@ -78,6 +78,10 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
       if (filter.sourceIds?.isNotEmpty == true) {
         query = query..where((t) => t.sourceId.isIn(filter.sourceIds!));
       }
+      // 关键字筛选
+      if (filter.keyword != null && filter.keyword!.isNotEmpty) {
+        query = query..where((t) => t.description.contains(filter.keyword!));
+      }
     }
 
     // 按日期倒序排序

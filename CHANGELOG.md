@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.19] - 2025-05-08
+
+### Feature Enhancements
+- Added a search bar to the `item_list_page` navigation bar, styled similarly to the `notes_tab`.
+  - Integrated `CommonSearchField` for consistent design.
+  - Enabled search functionality to filter items based on keywords.
+
+### Code Improvements
+- Refactored `item_list_page` to include search functionality and improve user experience.
+
+### 功能增强
+- 在 `item_list_page` 的导航栏中添加了搜索框，样式与 `notes_tab` 类似。
+  - 集成了 `CommonSearchField` 以保持设计一致性。
+  - 启用了搜索功能，可根据关键字过滤项目。
+
+### 代码改进
+- 重构了 `item_list_page`，增加了搜索功能并提升了用户体验。
+
 ## [1.0.0-alpha.18] - 2024-04-05
 
 ### Feature Enhancements
@@ -570,4 +588,4 @@ All notable changes to this project will be documented in this file.
 - 基本会计功能
 - 多账本管理
 - 数据统计和分析
-- 基本设置功能 
+- 基本设置功能
