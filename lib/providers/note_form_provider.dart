@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../enums/business_type.dart';
 import '../enums/note_type.dart';
 import '../enums/operate_type.dart';
-import '../enums/account_type.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_book.dart';
 import '../manager/dao_manager.dart';

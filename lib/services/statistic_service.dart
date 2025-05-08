@@ -1,5 +1,4 @@
 import '../manager/database_manager.dart';
-import '../manager/l10n_manager.dart';
 import '../manager/user_config_manager.dart';
 import '../models/common.dart';
 import '../models/vo/statistic_vo.dart';

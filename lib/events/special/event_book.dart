@@ -1,9 +1,6 @@
 import '../../database/database.dart';
 import '../../enums/operate_type.dart';
 import '../../models/vo/user_book_vo.dart';
-import '../../models/vo/user_debt_vo.dart';
-import '../../models/vo/user_item_vo.dart';
-import '../../models/vo/user_note_vo.dart';
 
 /// 账本切换事件
 class BookChangedEvent {

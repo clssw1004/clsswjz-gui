@@ -78,6 +78,7 @@ unlinked_spec.ds
 **/android/key.properties
 *.jks
 local.properties
+android/app/.cxx/
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -153,3 +154,4 @@ app.*.symbols
 
 # Android
 **/android/app/.cxx/**/configure_fingerprint.bin
+untranslated_messages.txt
