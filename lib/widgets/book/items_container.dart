@@ -113,8 +113,12 @@ class ItemsContainer extends StatelessWidget {
                           ),
                         ],
                       ),
-                    if (expense > 0 && income > 0)
-                      const SizedBox(width: 8),
+                    if (expense < 0 && income > 0)
+                      Text(" | ",
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                          )),
                     // 收入金额
                     if (income > 0)
                       Row(
@@ -222,7 +226,7 @@ class ItemsContainer extends StatelessWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // 分类名称和徽章
+                                  // 分类名称和账户
                                   Row(
                                     children: [
                                       Text(
@@ -233,10 +237,8 @@ class ItemsContainer extends StatelessWidget {
                                           fontSize: 15,
                                         ),
                                       ),
-                                      if (item.fundName?.isNotEmpty ==
-                                          true) ...[
-                                        const SizedBox(width: 4),
-                                        // 账户名称（徽章形式）
+                                      if (item.tagName?.isNotEmpty == true) ...[
+                                        const SizedBox(width: 8),
                                         Transform.translate(
                                           offset: const Offset(0, -1),
                                           child: Container(
@@ -246,21 +248,18 @@ class ItemsContainer extends StatelessWidget {
                                             ),
                                             decoration: BoxDecoration(
                                               border: Border.all(
-                                                color: colorScheme.outline
-                                                    .withOpacity(0.5),
+                                                color: colorScheme.primary
+                                                    .withAlpha(128),
                                                 width: 1,
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(3),
                                             ),
                                             child: Text(
-                                              (item.fundName ?? '').length > 10
-                                                  ? '${(item.fundName ?? '').substring(0, 10)}...'
-                                                  : (item.fundName ?? ''),
+                                              item.tagName!,
                                               style: theme.textTheme.labelSmall
                                                   ?.copyWith(
-                                                color: colorScheme.outline
-                                                    .withOpacity(0.8),
+                                                color: colorScheme.primary,
                                                 fontSize: 11,
                                                 height: 1.2,
                                               ),
