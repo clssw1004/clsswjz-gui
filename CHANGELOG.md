@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.20] - 2025-07-02
+
+### Feature Enhancements
+- Added conditional rendering for tag badges with primary color styling
+
+### Code Improvements
+- Fixed syntax errors in conditional rendering logic
+- Replaced deprecated `withOpacity` method calls with `withAlpha`
+- Optimized layout structure for better maintainability
+- Adjusted UI element order and spacing for improved visual hierarchy
+
+### 功能增强
+- 为标签徽章添加条件渲染，使用主色调样式
+
+### 代码改进
+- 修复条件渲染逻辑中的语法错误
+- 将已弃用的`withOpacity`方法调用替换为`withAlpha`
+- 优化布局结构以提高可维护性
+- 调整UI元素顺序和间距，改善视觉层次结构
+
 ## [1.0.0-alpha.19] - 2025-05-08
 
 ### Feature Enhancements
