@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.21] - 2025-07-13
+
+### Feature Enhancements
+- Enhanced note group filtering functionality
+  - Added dynamic group filter component with multi-select support
+  - Implemented automatic group list refresh when new groups are created
+  - Added event-driven group list updates for real-time synchronization
+  - Optimized group filter layout with wrap display for better space utilization
+
+### 功能增强
+- 增强笔记分组筛选功能
+  - 添加支持多选的动态分组筛选组件
+  - 实现新建分组时自动刷新分组列表
+  - 添加事件驱动的分组列表更新，实现实时同步
+  - 优化分组筛选布局，使用换行显示以更好地利用空间
+
 ## [1.0.0-alpha.20] - 2025-07-02
 
 ### Feature Enhancements
