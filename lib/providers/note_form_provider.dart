@@ -12,6 +12,9 @@ import '../models/vo/attachment_vo.dart';
 import '../utils/date_util.dart';
 import '../manager/app_config_manager.dart';
 import '../drivers/driver_factory.dart';
+import '../database/database.dart';
+import '../enums/symbol_type.dart';
+import '../manager/l10n_manager.dart';
 
 /// 笔记表单状态管理
 class NoteFormProvider extends ChangeNotifier {
@@ -50,6 +53,15 @@ class NoteFormProvider extends ChangeNotifier {
   String _title = '';
   String get title => _title;
 
+  /// 分组列表
+  List<AccountSymbol> _groups = [];
+  List<AccountSymbol> get groups => _groups;
+
+  String _groupCode = '';
+
+  /// 当前分组ID
+  String get groupCode => _groupCode ?? '';
+
   NoteFormProvider(BookMetaVO bookMeta, UserNoteVO? note)
       : _bookMeta = bookMeta,
         _note = note ??
@@ -59,6 +71,8 @@ class NoteFormProvider extends ChangeNotifier {
               title: '',
               content: '',
               plainContent: '',
+              groupCode: 'none',
+              groupName: '全部分组',
               createdBy: AppConfigManager.instance.userId,
               updatedBy: AppConfigManager.instance.userId,
               createdAt: DateUtil.now(),
@@ -71,10 +85,16 @@ class NoteFormProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
+    await loadGroups();
+
     if (!isNew) {
       _title = _note.title ?? '';
       _content = _note.content;
+      _groupCode = _note.groupCode ?? 'none';
       await loadAttachments();
+    } else {
+      // 新建模式下设置默认值
+      _groupCode = 'none';
     }
 
     _loading = false;
@@ -89,6 +109,44 @@ class NoteFormProvider extends ChangeNotifier {
         await ServiceManager.attachmentService.getAttachmentsByBusiness(
       BusinessType.note,
       note.id,
+    );
+    notifyListeners();
+  }
+
+  /// 加载分组列表
+  Future<void> loadGroups() async {
+    final userId = AppConfigManager.instance.userId;
+    final result = await DriverFactory.driver.listSymbolsByBook(
+      userId,
+      _bookMeta.id,
+      symbolType: SymbolType.noteGroup,
+    );
+    _groups = [
+      AccountSymbol(
+        id: 'none',
+        name: L10nManager.l10n.noGroup ,
+        code: 'none',
+        accountBookId: _bookMeta.id,
+        symbolType: SymbolType.noteGroup.code,
+        createdBy: userId,
+        createdAt: 0,
+        updatedBy: userId,
+        updatedAt: 0,
+        lastAccountItemAt: null,
+      ),
+      ...?result.data
+    ];
+    notifyListeners();
+  }
+
+  /// 更新分组
+  void updateGroup(AccountSymbol group) {
+    _groupCode = group.code;
+    _note = _note.copyWith(
+      groupCode: group.code,
+      groupName: group.name,
+      content: _note.content,
+      plainContent: _note.plainContent,
     );
     notifyListeners();
   }
@@ -133,6 +191,7 @@ class NoteFormProvider extends ChangeNotifier {
         noteType: NoteType.note,
         content: _content,
         plainContent: _note.plainContent,
+        groupCode: groupCode,
         attachments: _attachments,
       );
 
@@ -172,6 +231,7 @@ class NoteFormProvider extends ChangeNotifier {
         title: _title,
         content: _content,
         plainContent: _note.plainContent,
+        groupCode: groupCode,
         attachments: _attachments,
       );
 

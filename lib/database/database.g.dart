@@ -5905,6 +5905,12 @@ class $AccountNoteTableTable extends AccountNoteTable
           GeneratedColumn.checkTextLength(maxTextLength: 4294967295),
       type: DriftSqlType.string,
       requiredDuringInsert: false);
+  static const VerificationMeta _groupCodeMeta =
+      const VerificationMeta('groupCode');
+  @override
+  late final GeneratedColumn<String> groupCode = GeneratedColumn<String>(
+      'groupCode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -5916,7 +5922,8 @@ class $AccountNoteTableTable extends AccountNoteTable
         title,
         content,
         noteType,
-        plainContent
+        plainContent,
+        groupCode
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5985,6 +5992,10 @@ class $AccountNoteTableTable extends AccountNoteTable
           plainContent.isAcceptableOrUnknown(
               data['plain_content']!, _plainContentMeta));
     }
+    if (data.containsKey('groupCode')) {
+      context.handle(_groupCodeMeta,
+          groupCode.isAcceptableOrUnknown(data['groupCode']!, _groupCodeMeta));
+    }
     return context;
   }
 
@@ -6014,6 +6025,8 @@ class $AccountNoteTableTable extends AccountNoteTable
           .read(DriftSqlType.string, data['${effectivePrefix}note_type'])!,
       plainContent: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}plain_content']),
+      groupCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}groupCode']),
     );
   }
 
@@ -6034,6 +6047,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
   final String? content;
   final String noteType;
   final String? plainContent;
+  final String? groupCode;
   const AccountNote(
       {required this.accountBookId,
       required this.createdBy,
@@ -6044,7 +6058,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       this.title,
       this.content,
       required this.noteType,
-      this.plainContent});
+      this.plainContent,
+      this.groupCode});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6063,6 +6078,9 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
     map['note_type'] = Variable<String>(noteType);
     if (!nullToAbsent || plainContent != null) {
       map['plain_content'] = Variable<String>(plainContent);
+    }
+    if (!nullToAbsent || groupCode != null) {
+      map['groupCode'] = Variable<String>(groupCode);
     }
     return map;
   }
@@ -6084,6 +6102,9 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       plainContent: plainContent == null && nullToAbsent
           ? const Value.absent()
           : Value(plainContent),
+      groupCode: groupCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupCode),
     );
   }
 
@@ -6101,6 +6122,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       content: serializer.fromJson<String?>(json['content']),
       noteType: serializer.fromJson<String>(json['noteType']),
       plainContent: serializer.fromJson<String?>(json['plainContent']),
+      groupCode: serializer.fromJson<String?>(json['groupCode']),
     );
   }
   @override
@@ -6117,6 +6139,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       'content': serializer.toJson<String?>(content),
       'noteType': serializer.toJson<String>(noteType),
       'plainContent': serializer.toJson<String?>(plainContent),
+      'groupCode': serializer.toJson<String?>(groupCode),
     };
   }
 
@@ -6130,7 +6153,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           Value<String?> title = const Value.absent(),
           Value<String?> content = const Value.absent(),
           String? noteType,
-          Value<String?> plainContent = const Value.absent()}) =>
+          Value<String?> plainContent = const Value.absent(),
+          Value<String?> groupCode = const Value.absent()}) =>
       AccountNote(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -6143,6 +6167,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
         noteType: noteType ?? this.noteType,
         plainContent:
             plainContent.present ? plainContent.value : this.plainContent,
+        groupCode: groupCode.present ? groupCode.value : this.groupCode,
       );
   AccountNote copyWithCompanion(AccountNoteTableCompanion data) {
     return AccountNote(
@@ -6160,6 +6185,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       plainContent: data.plainContent.present
           ? data.plainContent.value
           : this.plainContent,
+      groupCode: data.groupCode.present ? data.groupCode.value : this.groupCode,
     );
   }
 
@@ -6175,14 +6201,25 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('noteType: $noteType, ')
-          ..write('plainContent: $plainContent')
+          ..write('plainContent: $plainContent, ')
+          ..write('groupCode: $groupCode')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, title, content, noteType, plainContent);
+  int get hashCode => Object.hash(
+      accountBookId,
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      title,
+      content,
+      noteType,
+      plainContent,
+      groupCode);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6196,7 +6233,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           other.title == this.title &&
           other.content == this.content &&
           other.noteType == this.noteType &&
-          other.plainContent == this.plainContent);
+          other.plainContent == this.plainContent &&
+          other.groupCode == this.groupCode);
 }
 
 class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
@@ -6210,6 +6248,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
   final Value<String?> content;
   final Value<String> noteType;
   final Value<String?> plainContent;
+  final Value<String?> groupCode;
   final Value<int> rowid;
   const AccountNoteTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -6222,6 +6261,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     this.content = const Value.absent(),
     this.noteType = const Value.absent(),
     this.plainContent = const Value.absent(),
+    this.groupCode = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountNoteTableCompanion.insert({
@@ -6235,6 +6275,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     this.content = const Value.absent(),
     required String noteType,
     this.plainContent = const Value.absent(),
+    this.groupCode = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -6254,6 +6295,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     Expression<String>? content,
     Expression<String>? noteType,
     Expression<String>? plainContent,
+    Expression<String>? groupCode,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6267,6 +6309,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       if (content != null) 'content': content,
       if (noteType != null) 'note_type': noteType,
       if (plainContent != null) 'plain_content': plainContent,
+      if (groupCode != null) 'groupCode': groupCode,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6282,6 +6325,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       Value<String?>? content,
       Value<String>? noteType,
       Value<String?>? plainContent,
+      Value<String?>? groupCode,
       Value<int>? rowid}) {
     return AccountNoteTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -6294,6 +6338,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       content: content ?? this.content,
       noteType: noteType ?? this.noteType,
       plainContent: plainContent ?? this.plainContent,
+      groupCode: groupCode ?? this.groupCode,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6331,6 +6376,9 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     if (plainContent.present) {
       map['plain_content'] = Variable<String>(plainContent.value);
     }
+    if (groupCode.present) {
+      map['groupCode'] = Variable<String>(groupCode.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6350,6 +6398,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
           ..write('content: $content, ')
           ..write('noteType: $noteType, ')
           ..write('plainContent: $plainContent, ')
+          ..write('groupCode: $groupCode, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9829,6 +9878,7 @@ typedef $$AccountNoteTableTableCreateCompanionBuilder
   Value<String?> content,
   required String noteType,
   Value<String?> plainContent,
+  Value<String?> groupCode,
   Value<int> rowid,
 });
 typedef $$AccountNoteTableTableUpdateCompanionBuilder
@@ -9843,6 +9893,7 @@ typedef $$AccountNoteTableTableUpdateCompanionBuilder
   Value<String?> content,
   Value<String> noteType,
   Value<String?> plainContent,
+  Value<String?> groupCode,
   Value<int> rowid,
 });
 
@@ -9884,6 +9935,9 @@ class $$AccountNoteTableTableFilterComposer
 
   ColumnFilters<String> get plainContent => $composableBuilder(
       column: $table.plainContent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupCode => $composableBuilder(
+      column: $table.groupCode, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountNoteTableTableOrderingComposer
@@ -9926,6 +9980,9 @@ class $$AccountNoteTableTableOrderingComposer
   ColumnOrderings<String> get plainContent => $composableBuilder(
       column: $table.plainContent,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupCode => $composableBuilder(
+      column: $table.groupCode, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountNoteTableTableAnnotationComposer
@@ -9966,6 +10023,9 @@ class $$AccountNoteTableTableAnnotationComposer
 
   GeneratedColumn<String> get plainContent => $composableBuilder(
       column: $table.plainContent, builder: (column) => column);
+
+  GeneratedColumn<String> get groupCode =>
+      $composableBuilder(column: $table.groupCode, builder: (column) => column);
 }
 
 class $$AccountNoteTableTableTableManager extends RootTableManager<
@@ -10005,6 +10065,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             Value<String?> content = const Value.absent(),
             Value<String> noteType = const Value.absent(),
             Value<String?> plainContent = const Value.absent(),
+            Value<String?> groupCode = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountNoteTableCompanion(
@@ -10018,6 +10079,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             content: content,
             noteType: noteType,
             plainContent: plainContent,
+            groupCode: groupCode,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -10031,6 +10093,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             Value<String?> content = const Value.absent(),
             required String noteType,
             Value<String?> plainContent = const Value.absent(),
+            Value<String?> groupCode = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountNoteTableCompanion.insert(
@@ -10044,6 +10107,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             content: content,
             noteType: noteType,
             plainContent: plainContent,
+            groupCode: groupCode,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

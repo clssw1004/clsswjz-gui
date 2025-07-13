@@ -41,19 +41,15 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     required NoteType noteType,
     String? content,
     String? plainContent,
+    String? groupCode,
   }) {
-    return NoteCULog()
-        .who(who)
-        .inBook(bookId)
-        .doCreate()
-        .withData(AccountNoteTable.toCreateCompanion(
-          who,
-          bookId,
-          title: title,
-          noteType: noteType.code,
-          content: content,
-          plainContent: plainContent,
-        )) as NoteCULog;
+    return NoteCULog().who(who).inBook(bookId).doCreate().withData(
+        AccountNoteTable.toCreateCompanion(who, bookId,
+            title: title,
+            noteType: noteType.code,
+            content: content,
+            plainContent: plainContent,
+            groupCode: groupCode)) as NoteCULog;
   }
 
   static NoteCULog update(
@@ -63,18 +59,18 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? title,
     String? content,
     String? plainContent,
+    String? groupCode,
   }) {
     return NoteCULog()
         .who(userId)
         .inBook(bookId)
         .target(noteId)
         .doUpdate()
-        .withData(AccountNoteTable.toUpdateCompanion(
-          userId,
-          title: title,
-          content: content,
-          plainContent: plainContent,
-        )) as NoteCULog;
+        .withData(AccountNoteTable.toUpdateCompanion(userId,
+            title: title,
+            content: content,
+            plainContent: plainContent,
+            groupCode: groupCode)) as NoteCULog;
   }
 
   static NoteCULog fromCreateLog(LogSync log) {

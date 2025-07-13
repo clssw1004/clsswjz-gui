@@ -1116,6 +1116,12 @@ abstract class AppLocalizations {
   /// **'No Merchant'**
   String get noShop;
 
+  /// No description provided for @noGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'No Group'**
+  String get noGroup;
+
   /// No description provided for @attachments.
   ///
   /// In en, this message translates to:

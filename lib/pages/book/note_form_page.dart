@@ -19,6 +19,12 @@ import '../../utils/attachment.util.dart';
 import '../../utils/file_util.dart';
 import '../../providers/note_form_provider.dart';
 import '../../models/vo/book_meta.dart';
+import '../../database/database.dart';
+import '../../widgets/common/common_select_form_field.dart';
+import '../../drivers/driver_factory.dart';
+import '../../manager/app_config_manager.dart';
+import '../../enums/symbol_type.dart';
+import '../../widgets/common/common_badge.dart';
 
 class NoteFormPage extends StatelessWidget {
   final UserNoteVO? note;
@@ -58,21 +64,26 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<NoteFormProvider>();
-    _titleController.text = provider.title;
-    if (provider.content.isNotEmpty) {
-      try {
-        _quillController.document = Document.fromJson(
-          jsonDecode(provider.content),
-        );
-      } catch (e) {
-        _quillController.document = Document.fromDelta(
-          Delta.fromJson([
-            {"insert": provider.content},
-          ]),
-        );
+    // 延迟一帧后设置字段值，确保provider已初始化
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final provider = context.read<NoteFormProvider>();
+        _titleController.text = provider.title;
+        if (provider.content.isNotEmpty) {
+          try {
+            _quillController.document = Document.fromJson(
+              jsonDecode(provider.content),
+            );
+          } catch (e) {
+            _quillController.document = Document.fromDelta(
+              Delta.fromJson([
+                {"insert": provider.content},
+              ]),
+            );
+          }
+        }
       }
-    }
+    });
   }
 
   @override
@@ -110,6 +121,28 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     final mediaQuery = MediaQuery.of(context);
     final bottomPadding = mediaQuery.padding.bottom;
     final provider = context.watch<NoteFormProvider>();
+
+    // 监听provider的loading状态，当加载完成时设置字段值
+    if (!provider.loading && _titleController.text.isEmpty && provider.title.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _titleController.text = provider.title;
+          if (provider.content.isNotEmpty) {
+            try {
+              _quillController.document = Document.fromJson(
+                jsonDecode(provider.content),
+              );
+            } catch (e) {
+              _quillController.document = Document.fromDelta(
+                Delta.fromJson([
+                  {"insert": provider.content},
+                ]),
+              );
+            }
+          }
+        }
+      });
+    }
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -161,6 +194,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                             ),
                             onChanged: provider.updateTitle,
                           ),
+
                           // 内容编辑器
                           Expanded(
                             child: Column(
@@ -196,128 +230,197 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                     ),
                                   ),
                                 ),
-                                // 附件上传
-                                Padding(
+                                // 分组选择和附件上传
+                                Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: CommonAttachmentField(
-                                    attachments: provider.attachments,
-                                    label: L10nManager.l10n.attachments,
-                                    onUpload: (files) async {
-                                      final userId =
-                                          provider.note.updatedBy ?? '';
-                                      final attachments = files
-                                          .map((file) =>
-                                              AttachmentUtil.generateVoFromFile(
-                                                BusinessType.note,
-                                                provider.note.id,
-                                                file,
-                                                userId,
-                                              ))
-                                          .toList();
-
-                                      provider.updateAttachments([
-                                        ...provider.attachments,
-                                        ...attachments
-                                      ]);
-
-                                      // 处理图片类型的附件
-                                      for (final attachment in attachments) {
-                                        final fileName =
-                                            attachment.originName.toLowerCase();
-                                        if (FileUtil.isImage(fileName)) {
-                                          try {
-                                            // 确保文档以换行符结束
-                                            final delta = _quillController
-                                                .document
-                                                .toDelta();
-                                            if (delta.isNotEmpty &&
-                                                !delta.last.data
-                                                    .toString()
-                                                    .endsWith('\n')) {
-                                              _quillController.document
-                                                  .insert(delta.length, '\n');
-                                            }
-
-                                            // 构建图片Delta
-                                            final imageDelta = Delta()
-                                              ..insert('\n')
-                                              ..insert(
-                                                {'image': attachment.id},
-                                                {'align': 'left'},
-                                              )
-                                              ..insert('\n');
-
-                                            // 将Delta合并到文档中
-                                            _quillController.document.compose(
-                                              imageDelta,
-                                              ChangeSource.local,
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerLow,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: colorScheme.outline.withAlpha(15),
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // 分组选择徽章
+                                      Expanded(
+                                        child: Selector<NoteFormProvider, List<AccountSymbol>>(
+                                          selector: (_, p) => p.groups,
+                                          builder: (context, groups, _) {
+                                            return CommonSelectFormField<AccountSymbol>(
+                                              items: groups,
+                                              value: provider.groupCode,
+                                              displayMode: DisplayMode.badge,
+                                              displayField: (item) => item.name,
+                                              keyField: (item) => item.code,
+                                              icon: Icons.folder_outlined,
+                                              hint: '分组',
+                                              onChanged: (val) => provider.updateGroup(val as AccountSymbol),
+                                              allowCreate: true,
+                                              onCreateItem: (value) async {
+                                                final result = await DriverFactory.driver.createSymbol(
+                                                  AppConfigManager.instance.userId,
+                                                  provider.bookMeta.id,
+                                                  name: value,
+                                                  symbolType: SymbolType.noteGroup,
+                                                );
+                                                if (result.data != null) {
+                                                  await provider.loadGroups();
+                                                  return provider.groups
+                                                      .firstWhere((group) => group.name == value);
+                                                }
+                                                return null;
+                                              },
                                             );
-                                          } catch (e) {
-                                            print('插入图片时出错: $e');
-                                          }
-                                        }
-                                      }
-                                    },
-                                    onDelete: (attachment) async {
-                                      provider.updateAttachments(
-                                        provider.attachments
-                                            .where((a) => a.id != attachment.id)
-                                            .toList(),
-                                      );
-                                    },
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // 分隔线
+                                      Container(
+                                        width: 0.5,
+                                        height: 20,
+                                        color: colorScheme.outline.withAlpha(25),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // 附件上传
+                                      Expanded(
+                                        child: CommonAttachmentField(
+                                          attachments: provider.attachments,
+                                          label: L10nManager.l10n.attachments,
+                                          onUpload: (files) async {
+                                            final userId =
+                                                provider.note.updatedBy ?? '';
+                                            final attachments = files
+                                                .map((file) =>
+                                                    AttachmentUtil.generateVoFromFile(
+                                                      BusinessType.note,
+                                                      provider.note.id,
+                                                      file,
+                                                      userId,
+                                                    ))
+                                                .toList();
+
+                                            provider.updateAttachments([
+                                              ...provider.attachments,
+                                              ...attachments
+                                            ]);
+
+                                            // 处理图片类型的附件
+                                            for (final attachment in attachments) {
+                                              final fileName =
+                                                  attachment.originName.toLowerCase();
+                                              if (FileUtil.isImage(fileName)) {
+                                                try {
+                                                  // 确保文档以换行符结束
+                                                  final delta = _quillController
+                                                      .document
+                                                      .toDelta();
+                                                  if (delta.isNotEmpty &&
+                                                      !delta.last.data
+                                                          .toString()
+                                                          .endsWith('\n')) {
+                                                    _quillController.document
+                                                        .insert(delta.length, '\n');
+                                                  }
+
+                                                  // 构建图片Delta
+                                                  final imageDelta = Delta()
+                                                    ..insert('\n')
+                                                    ..insert(
+                                                      {'image': attachment.id},
+                                                      {'align': 'left'},
+                                                    )
+                                                    ..insert('\n');
+
+                                                  // 将Delta合并到文档中
+                                                  _quillController.document.compose(
+                                                    imageDelta,
+                                                    ChangeSource.local,
+                                                  );
+                                                } catch (e) {
+                                                  print('插入图片时出错: $e');
+                                                }
+                                              }
+                                            }
+                                          },
+                                          onDelete: (attachment) async {
+                                            provider.updateAttachments(
+                                              provider.attachments
+                                                  .where((a) => a.id != attachment.id)
+                                                  .toList(),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Container(
-                                  padding:
-                                      EdgeInsets.only(bottom: bottomPadding),
+                                  margin: const EdgeInsets.only(top: 4),
+                                  padding: EdgeInsets.only(
+                                    bottom: bottomPadding,
+                                    top: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: colorScheme.surface,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      topRight: Radius.circular(8),
+                                    ),
                                     border: Border(
                                       top: BorderSide(
                                           color: colorScheme.outline
-                                              .withAlpha(100)),
+                                              .withAlpha(50)),
                                     ),
                                   ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       // 展开按钮
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              _showFullToolbar =
-                                                  !_showFullToolbar;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  _showFullToolbar
-                                                      ? Icons.expand_more
-                                                      : Icons.expand_less,
-                                                  size: 20,
-                                                  color: colorScheme.primary,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  _showFullToolbar
-                                                      ? '收起'
-                                                      : '展开',
-                                                  style: theme
-                                                      .textTheme.bodySmall
-                                                      ?.copyWith(
+                                      Container(
+                                        margin: const EdgeInsets.symmetric(vertical: 2),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            borderRadius: BorderRadius.circular(6),
+                                            onTap: () {
+                                              setState(() {
+                                                _showFullToolbar =
+                                                    !_showFullToolbar;
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8, vertical: 4),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    _showFullToolbar
+                                                        ? Icons.expand_more
+                                                        : Icons.expand_less,
+                                                    size: 16,
                                                     color: colorScheme.primary,
                                                   ),
-                                                ),
-                                              ],
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    _showFullToolbar
+                                                        ? '收起'
+                                                        : '展开',
+                                                    style: theme
+                                                        .textTheme.bodySmall
+                                                        ?.copyWith(
+                                                      color: colorScheme.primary,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),

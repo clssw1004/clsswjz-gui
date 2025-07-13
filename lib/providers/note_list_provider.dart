@@ -6,6 +6,7 @@ import '../events/special/event_sync.dart';
 import '../events/special/event_book.dart';
 import '../manager/app_config_manager.dart';
 import '../models/vo/user_note_vo.dart';
+import '../models/dto/note_filter_dto.dart';
 
 class NoteListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
@@ -36,6 +37,10 @@ class NoteListProvider extends ChangeNotifier {
   String? _keyword;
   String? get keyword => _keyword;
 
+  /// 分组筛选代码列表
+  List<String>? _groupCodes;
+  List<String>? get groupCodes => _groupCodes;
+
   NoteListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
@@ -48,7 +53,8 @@ class NoteListProvider extends ChangeNotifier {
     });
 
     _noteChangedSubscription = EventBus.instance.on<NoteChangedEvent>((event) {
-      loadNotes();
+      // 保持当前的筛选状态，只刷新数据
+      loadNotes(true);
     });
   }
 
@@ -65,6 +71,12 @@ class NoteListProvider extends ChangeNotifier {
     loadNotes(true);
   }
 
+  /// 设置分组筛选
+  Future<void> setGroupCodes(List<String>? groupCodes) async {
+    _groupCodes = groupCodes;
+    loadNotes(true);
+  }
+
   /// 加载笔记列表
   /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
   Future<void> loadNotes([bool refresh = true]) async {
@@ -77,12 +89,15 @@ class NoteListProvider extends ChangeNotifier {
       _hasMore = true;
     }
     try {
+      // 创建筛选条件
+      final filter = NoteFilterDTO(_keyword, _groupCodes);
+      
       final result = await DriverFactory.driver.listNotesByBook(
         AppConfigManager.instance.userId,
         _currentBookId!,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
-        keyword: _keyword,
+        filter: filter,
       );
       if (result.ok) {
         if (refresh) {

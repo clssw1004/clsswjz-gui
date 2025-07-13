@@ -34,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -43,6 +43,10 @@ class AppDatabase extends _$AppDatabase {
         },
         onUpgrade: (Migrator m, int from, int to) async {
           // 处理数据库升级
+          if (from < 2) {
+            // 版本1到版本2的迁移：为 account_note_table 添加 groupCode 字段
+            await m.addColumn(accountNoteTable, accountNoteTable.groupCode);
+          }
         },
       );
 }

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
+
 import '../database/database.dart';
 import '../enums/account_type.dart';
 import '../enums/currency_symbol.dart';
@@ -218,6 +220,7 @@ abstract class BookDataDriver {
       required NoteType noteType,
       required String content,
       required String plainContent,
+      String? groupCode,
       List<AttachmentVO>? attachments});
 
   /// 删除记事
@@ -230,12 +233,13 @@ abstract class BookDataDriver {
       {String? title,
       String? content,
       String? plainContent,
+      String? groupCode,
       List<AttachmentVO>? attachments});
 
   /// 获取用户记事列表
   Future<OperateResult<List<UserNoteVO>>> listNotesByBook(
       String who, String bookId,
-      {int limit = 200, int offset = 0, String? keyword});
+      {int limit = 200, int offset = 0, NoteFilterDTO? filter});
 
   /// 债务相关
   /// 创建债务

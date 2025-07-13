@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:io';
+import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
+
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../database/database.dart';
@@ -526,12 +528,14 @@ class LogDataDriver implements BookDataDriver {
       required NoteType noteType,
       required String content,
       required String plainContent,
+      String? groupCode,
       List<AttachmentVO>? attachments}) async {
     final id = await NoteCULog.create(who, bookId,
             title: title,
             noteType: noteType,
             content: content,
-            plainContent: plainContent)
+            plainContent: plainContent,
+            groupCode: groupCode)
         .execute();
     if (attachments != null && attachments.isNotEmpty) {
       for (var attachment in attachments) {
@@ -558,9 +562,13 @@ class LogDataDriver implements BookDataDriver {
       {String? title,
       String? content,
       String? plainContent,
+      String? groupCode,
       List<AttachmentVO>? attachments}) async {
     await NoteCULog.update(who, bookId, noteId,
-            title: title, content: content, plainContent: plainContent)
+            title: title,
+            content: content,
+            plainContent: plainContent,
+            groupCode: groupCode)
         .execute();
     await updateAttachments(who, BusinessType.note, noteId, attachments ?? []);
     return OperateResult.success(null);
@@ -569,9 +577,9 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<List<UserNoteVO>>> listNotesByBook(
       String userId, String bookId,
-      {int limit = 200, int offset = 0, String? keyword}) async {
+      {int limit = 200, int offset = 0, NoteFilterDTO? filter}) async {
     final notes = await DaoManager.noteDao
-        .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
+        .listByBook(bookId, limit: limit, offset: offset, filter: filter);
     return OperateResult.success(await VOTransfer.transferNote(notes));
   }
 

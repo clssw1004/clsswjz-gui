@@ -1,4 +1,3 @@
-
 import '../database/database.dart';
 import '../enums/business_type.dart';
 import '../enums/symbol_type.dart';
@@ -97,9 +96,17 @@ class VOTransfer {
   }
 
   static Future<List<UserNoteVO>> transferNote(List<AccountNote>? notes) async {
-    return notes == null || notes.isEmpty
-        ? []
-        : notes.map((e) => UserNoteVO.fromAccountNote(e)).toList();
+    final groupMap = CollectionUtil.toMap(
+        await DaoManager.symbolDao.findByTypes([SymbolType.noteGroup.code]),
+        (s) => s.code);
+    if (notes == null || notes.isEmpty) {
+      return [];
+    } else {
+      return notes.map((e) {
+        final group = groupMap[e.groupCode];
+        return UserNoteVO.fromAccountNote(e, group?.name);
+      }).toList();
+    }
   }
 
   /// 将资金账户转换为视图对象

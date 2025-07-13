@@ -545,6 +545,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noShop => 'No Merchant';
 
   @override
+  String get noGroup => 'No Group';
+
+  @override
   String get attachments => 'Attachments';
 
   @override

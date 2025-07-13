@@ -5,7 +5,9 @@ enum SymbolType {
   tag('TAG', '标签'),
 
   /// 项目类型
-  project('PROJECT', '项目');
+  project('PROJECT', '项目'),
+  /// 笔记分组
+  noteGroup('NOTE_GROUP','笔记分组');
 
   /// 构造函数
   const SymbolType(this.code, this.name);

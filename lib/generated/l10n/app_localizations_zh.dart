@@ -545,6 +545,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noShop => '无商户';
 
   @override
+  String get noGroup => '无分组';
+
+  @override
   String get attachments => '附件';
 
   @override
@@ -1438,6 +1441,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get noShop => '無商戶';
+
+  @override
+  String get noGroup => '無分組';
 
   @override
   String get attachments => '附件';

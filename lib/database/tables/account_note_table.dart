@@ -15,6 +15,7 @@ class AccountNoteTable extends BaseAccountBookTable {
   TextColumn get noteType => text().named('note_type')();
   TextColumn get plainContent =>
       text().nullable().named('plain_content').withLength(max: 4294967295)();
+  TextColumn get groupCode => text().nullable().named('groupCode')();
 
   static AccountNoteTableCompanion toUpdateCompanion(
     String who, {
@@ -22,6 +23,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     String? content,
     String? plainContent,
     String? accountBookId,
+    String? groupCode,
   }) {
     return AccountNoteTableCompanion(
       updatedBy: Value(who),
@@ -29,6 +31,7 @@ class AccountNoteTable extends BaseAccountBookTable {
       title: Value.absentIfNull(title),
       content: Value.absentIfNull(content),
       plainContent: Value.absentIfNull(plainContent),
+      groupCode: Value.absentIfNull(groupCode),
       accountBookId: Value.absentIfNull(accountBookId),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -42,6 +45,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     String? noteType,
     String? content,
     String? plainContent,
+    String? groupCode,
   }) =>
       AccountNoteTableCompanion(
         id: Value(IdUtil.genId()),
@@ -50,6 +54,7 @@ class AccountNoteTable extends BaseAccountBookTable {
         noteType: Value.absentIfNull(noteType),
         content: Value.absentIfNull(content),
         plainContent: Value.absentIfNull(plainContent),
+        groupCode: Value.absentIfNull(groupCode),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
@@ -67,6 +72,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'content', companion.content);
     MapUtil.setIfPresent(map, 'noteType', companion.noteType);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
+    MapUtil.setIfPresent(map, 'groupCode', companion.groupCode);
     return jsonEncode(map);
   }
 }

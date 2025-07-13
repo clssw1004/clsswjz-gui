@@ -5,6 +5,7 @@ import 'manager/database_manager.dart';
 import 'manager/service_manager.dart';
 import 'manager/user_config_manager.dart';
 import 'utils/http_client.dart';
+import 'package:flutter/foundation.dart';
 
 /// 应用初始化
 Future<void> initApp({
@@ -14,6 +15,12 @@ Future<void> initApp({
   String? userPhone,
 }) async {
   if (AppConfigManager.isAppInit()) {
+    // 添加迁移测试（仅在调试模式下）
+    if (kDebugMode) {
+
+      
+    }
+    
     bool needSync = AppConfigManager.instance.storageType == StorageMode.selfHost;
     if (needSync) {
       //  初始化HTTP客户端

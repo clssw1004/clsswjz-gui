@@ -344,6 +344,7 @@
     "noCategory": "未分類",
     "cash": "現金",
     "noShop": "無商戶",
+    "noGroup": "無分組",
     "addAnother": "再記一筆",
     "@addAnother": {
         "description": "繼續記錄下一筆賬目的按鈕文本"
