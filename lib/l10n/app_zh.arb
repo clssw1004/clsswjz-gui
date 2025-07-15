@@ -812,5 +812,11 @@
     "saveSuccess": "保存成功",
     "@saveSuccess": {
         "description": "保存成功提示文本"
-    }
+    },
+    "selectTimeRange": "选择时间范围",
+    "timeRangeAll": "全部",
+    "timeRangeYear": "本年",
+    "timeRangeMonth": "本月",
+    "timeRangeWeek": "本周",
+    "timeRangeCustom": "自定义"
 }

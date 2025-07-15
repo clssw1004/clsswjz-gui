@@ -900,6 +900,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get saveSuccess => '保存成功';
+
+  @override
+  String get selectTimeRange => '选择时间范围';
+
+  @override
+  String get timeRangeAll => '全部';
+
+  @override
+  String get timeRangeYear => '本年';
+
+  @override
+  String get timeRangeMonth => '本月';
+
+  @override
+  String get timeRangeWeek => '本周';
+
+  @override
+  String get timeRangeCustom => '自定义';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1750,4 +1768,22 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get saveSuccess => '儲存成功';
+
+  @override
+  String get selectTimeRange => '選擇時間範圍';
+
+  @override
+  String get timeRangeAll => '全部';
+
+  @override
+  String get timeRangeYear => '本年';
+
+  @override
+  String get timeRangeMonth => '本月';
+
+  @override
+  String get timeRangeWeek => '本週';
+
+  @override
+  String get timeRangeCustom => '自訂';
 }

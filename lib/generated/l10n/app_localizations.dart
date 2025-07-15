@@ -1769,6 +1769,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save successful'**
   String get saveSuccess;
+
+  /// No description provided for @selectTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Time Range'**
+  String get selectTimeRange;
+
+  /// No description provided for @timeRangeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get timeRangeAll;
+
+  /// No description provided for @timeRangeYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get timeRangeYear;
+
+  /// No description provided for @timeRangeMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get timeRangeMonth;
+
+  /// No description provided for @timeRangeWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get timeRangeWeek;
+
+  /// No description provided for @timeRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get timeRangeCustom;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -83,14 +83,14 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// 加载分类统计数据
-  Future<void> loadStatistics(String? bookId) async {
+  Future<void> loadStatistics(String? bookId, {DateTime? start, DateTime? end}) async {
     if (bookId == null) return;
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      final result = await _statisticService.statisticGroupByCategory(bookId);
+      final result = await _statisticService.statisticGroupByCategory(bookId, start: start, end: end);
 
       if (result.data != null) {
         _categoryStatisticsList = result.data;
@@ -130,7 +130,7 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// 加载所有时间范围的账本统计信息
-  Future<void> loadBookStatisticInfo(String? bookId) async {
+  Future<void> loadBookStatisticInfo(String? bookId, {DateTime? start, DateTime? end}) async {
     if (bookId == null) return;
 
     _loadingBookStatistic = true;
@@ -140,11 +140,11 @@ class StatisticsProvider extends ChangeNotifier {
       // 并行加载所有统计数据
       final results = await Future.wait([
         _loadStatisticData(
-            bookId, 'all', _statisticService.getAllTimeStatistic),
+            bookId, 'all', (id) => _statisticService.getAllTimeStatistic(id, start: start, end: end)),
         _loadStatisticData(
-            bookId, 'month', _statisticService.getCurrentMonthStatistic),
+            bookId, 'month', (id) => _statisticService.getCurrentMonthStatistic(id, start: start, end: end)),
         _loadStatisticData(
-            bookId, 'day', _statisticService.getLastDayStatistic),
+            bookId, 'day', (id) => _statisticService.getLastDayStatistic(id, start: start, end: end)),
       ]);
 
       // 直接赋值结果

@@ -900,4 +900,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveSuccess => 'Save successful';
+
+  @override
+  String get selectTimeRange => 'Select Time Range';
+
+  @override
+  String get timeRangeAll => 'All';
+
+  @override
+  String get timeRangeYear => 'This Year';
+
+  @override
+  String get timeRangeMonth => 'This Month';
+
+  @override
+  String get timeRangeWeek => 'This Week';
+
+  @override
+  String get timeRangeCustom => 'Custom';
 }

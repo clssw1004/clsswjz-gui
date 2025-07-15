@@ -804,5 +804,11 @@
     "saveSuccess": "Save successful",
     "@saveSuccess": {
         "description": "Text shown when save is successful"
-    }
+    },
+    "selectTimeRange": "Select Time Range",
+    "timeRangeAll": "All",
+    "timeRangeYear": "This Year",
+    "timeRangeMonth": "This Month",
+    "timeRangeWeek": "This Week",
+    "timeRangeCustom": "Custom"
 }

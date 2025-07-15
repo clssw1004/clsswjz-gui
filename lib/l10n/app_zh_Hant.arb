@@ -698,5 +698,11 @@
     "saveSuccess": "儲存成功",
     "@saveSuccess": {
         "description": "保存成功提示文本"
-    }
+    },
+    "selectTimeRange": "選擇時間範圍",
+    "timeRangeAll": "全部",
+    "timeRangeYear": "本年",
+    "timeRangeMonth": "本月",
+    "timeRangeWeek": "本週",
+    "timeRangeCustom": "自訂"
 }

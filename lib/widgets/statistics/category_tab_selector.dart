@@ -58,7 +58,7 @@ class CategoryTabSelector extends StatelessWidget {
         onTap: () => statisticsProvider.switchTab(tab),
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 7),
           decoration: BoxDecoration(
             color: isSelected ? theme.colorScheme.primaryContainer : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
