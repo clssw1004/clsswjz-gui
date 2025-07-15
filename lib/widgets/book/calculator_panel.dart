@@ -45,18 +45,21 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       if (number == '.') {
         if (_expression.isEmpty) {
           _expression = '0.';
-        } else if (_expression.contains('.')) {
-          return;
-        } else if (_hasOperator) {
-          final parts = _expression.split(_operatorPattern);
-          if (parts.last.contains('.')) return;
+        } else {
+          // 获取当前数字部分（操作符后最后一段）
+          final parts = _expression.split(_operatorRegex);
+          final currentNumber = parts.isNotEmpty ? parts.last : '';
+          if (currentNumber.contains('.')) return;
+          if (_endsWithOperator(_expression)) {
+            _expression += '0.';
+            _displayText = _expression;
+            return;
+          }
         }
       }
 
       _expression += number;
       _displayText = _expression;
-
-      if (!_hasOperator) {}
     });
   }
 
@@ -138,7 +141,11 @@ class _CalculatorPanelState extends State<CalculatorPanel> {
       }
 
       setState(() {
-        _expression = result.toString().replaceAll(RegExp(r'\.0$'), '');
+        // 对结果进行格式化，避免精度丢失
+        String formattedResult = result.toStringAsFixed(2);
+        // 去除多余的0和小数点
+        formattedResult = formattedResult.replaceFirst(RegExp(r'([.]*0+)\$'), '');
+        _expression = formattedResult;
         _displayText = _expression;
         _hasOperator = false;
         _isCalculated = true;
