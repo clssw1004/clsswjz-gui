@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.22] - 2025-07-14
+
+### Feature Enhancements
+- Statistics page: Time range selector refactored as an independent component, with improved Material 3 style and theme adaptation
+- Statistics data now supports filtering by custom time range (all/year/month/week/custom)
+- Optimized time range selector padding for a more compact layout
+
+### Bug Fixes
+- Calculator panel: Fixed bug where only the first operand could have a decimal, now both operands support decimals
+- Calculator panel: Fixed floating-point precision issue when chaining operations (e.g., 1+2+3)
+
+### 功能增强
+- 统计页面：时间范围选择器重构为独立组件，采用Material 3风格并适配主题
+- 统计数据支持按自定义时间范围筛选（全部/本年/本月/本周/自定义）
+- 优化时间范围选择器内部padding，使布局更紧凑
+
+### 问题修复
+- 计算器面板：修复仅第一个数字可输入小数点的问题，现已支持任意操作数输入小数
+- 计算器面板：修复连续运算时浮点数精度丢失问题（如1+2+3）
+
 ## [1.0.0-alpha.21] - 2025-07-13
 
 ### Feature Enhancements
