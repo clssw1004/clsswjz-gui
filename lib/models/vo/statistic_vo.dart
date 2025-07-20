@@ -50,10 +50,14 @@ class CategoryStatisticVO {
   /// 金额
   final double amount;
 
+  /// 笔数
+  final int count;
+
   const CategoryStatisticVO({
     required this.categoryCode,
     required this.categoryName,
     required this.amount,
+    this.count = 0,
   });
 }
 

@@ -8,9 +8,8 @@ import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
-import '../../widgets/statistics/category_list.dart';
-import '../../widgets/statistics/category_pie_chart.dart';
 import '../../widgets/statistics/category_tab_selector.dart';
+import '../../widgets/statistics/category_statistic_card.dart';
 
 /// 时间范围选择器组件
 class TimeRangeSelector extends StatelessWidget {
@@ -59,7 +58,8 @@ class TimeRangeSelector extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               l10n.selectTimeRange,
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(width: 16),
             DropdownButtonHideUnderline(
@@ -82,7 +82,8 @@ class TimeRangeSelector extends StatelessWidget {
                       context: context,
                       firstDate: DateTime(now.year - 10),
                       lastDate: DateTime(now.year + 1, 12, 31),
-                      initialDateRange: customRange ?? DateTimeRange(start: now, end: now),
+                      initialDateRange:
+                          customRange ?? DateTimeRange(start: now, end: now),
                       builder: (context, child) {
                         return Theme(
                           data: theme.copyWith(
@@ -107,7 +108,8 @@ class TimeRangeSelector extends StatelessWidget {
                 child: Text(
                   '${customRange!.start.year}/${customRange!.start.month}/${customRange!.start.day} - '
                   '${customRange!.end.year}/${customRange!.end.month}/${customRange!.end.day}',
-                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary),
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: colorScheme.primary),
                 ),
               ),
           ],
@@ -126,16 +128,16 @@ class StatisticsTab extends StatefulWidget {
 }
 
 class _StatisticsTabState extends State<StatisticsTab> {
-  static const _timeRanges = [
-    'all',
-    'year',
-    'month',
-    'week',
-    'custom',
-  ];
-
-  String _selectedRange = 'all';
+  String _selectedRange = 'month';
   DateTimeRange? _customRange;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reloadStatistics(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +151,6 @@ class _StatisticsTabState extends State<StatisticsTab> {
       ),
       body: Consumer2<BooksProvider, StatisticsProvider>(
         builder: (context, booksProvider, statisticsProvider, child) {
-          // 初始化或依赖变化时加载数据
-          _loadStatisticsIfNeeded(booksProvider, statisticsProvider);
-
           // 检查是否有选中的账本
           if (booksProvider.selectedBook == null) {
             return CommonEmptyView(message: l10n.noData);
@@ -197,7 +196,8 @@ class _StatisticsTabState extends State<StatisticsTab> {
   /// 重新加载统计数据（根据时间范围）
   void _reloadStatistics(BuildContext context) {
     final booksProvider = Provider.of<BooksProvider>(context, listen: false);
-    final statisticsProvider = Provider.of<StatisticsProvider>(context, listen: false);
+    final statisticsProvider =
+        Provider.of<StatisticsProvider>(context, listen: false);
     if (booksProvider.selectedBook == null) return;
     final bookId = booksProvider.selectedBook!.id;
     DateTime? start;
@@ -215,7 +215,8 @@ class _StatisticsTabState extends State<StatisticsTab> {
       case 'week':
         final weekday = now.weekday;
         start = now.subtract(Duration(days: weekday - 1));
-        end = start.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+        end = start
+            .add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
         break;
       case 'custom':
         if (_customRange != null) {
@@ -232,30 +233,6 @@ class _StatisticsTabState extends State<StatisticsTab> {
     statisticsProvider.loadBookStatisticInfo(bookId, start: start, end: end);
   }
 
-  /// 如果需要，加载统计数据
-  void _loadStatisticsIfNeeded(
-      BooksProvider booksProvider, StatisticsProvider statisticsProvider) {
-    if (booksProvider.selectedBook == null) return;
-
-    final bookId = booksProvider.selectedBook!.id;
-
-    // 加载分类统计数据
-    if (statisticsProvider.categoryStatisticsList == null &&
-        !statisticsProvider.isLoading) {
-      Future.microtask(() {
-        statisticsProvider.loadStatistics(bookId);
-      });
-    }
-
-    // 加载账本统计信息（全部时间范围）
-    if (statisticsProvider.allTimeStatistic == null &&
-        !statisticsProvider.loadingBookStatistic) {
-      Future.microtask(() {
-        statisticsProvider.loadBookStatisticInfo(bookId);
-      });
-    }
-  }
-
   /// 构建统计视图
   Widget _buildStatisticsView(BuildContext context) {
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
@@ -265,23 +242,15 @@ class _StatisticsTabState extends State<StatisticsTab> {
       children: [
         // 账本统计卡片
         BookStatisticCard(
-          statisticInfo: statisticsProvider.allTimeStatistic,
+          statisticInfo: statisticsProvider.currentMonthStatistic,
           margin: const EdgeInsets.only(bottom: 16),
-          title: L10nManager.l10n.total,
+          title: L10nManager.l10n.currentMonth,
         ),
 
-        // 分类选择器（收入/支出）
+        // 分类统计卡片（可切换图表/列表）
         const CategoryTabSelector(),
-
         const SizedBox(height: 16),
-
-        // 饼图展示
-        const CategoryPieChart(),
-
-        const SizedBox(height: 16),
-
-        // 分类列表
-        const CategoryList(),
+        const CategoryStatisticCard(),
       ],
     );
   }

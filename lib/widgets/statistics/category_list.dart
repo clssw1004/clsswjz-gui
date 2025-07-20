@@ -44,34 +44,24 @@ class _CategoryListState extends State<CategoryList> {
     // 是否需要显示"更多"按钮
     final showMoreButton = sortedItems.length > widget.defaultDisplayCount;
     
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.category,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Divider(height: 1),
-            ...displayItems.map(
-              (item) => _buildCategoryItem(context, item, total),
-            ),
-            // 显示"更多"按钮
-            if (showMoreButton)
-              _buildShowMoreButton(context),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.category,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        Divider(height: 1),
+        ...displayItems.map(
+          (item) => _buildCategoryItem(context, item, total),
+        ),
+        // 显示"更多"按钮
+        if (showMoreButton)
+          _buildShowMoreButton(context),
+      ],
     );
   }
   
@@ -127,9 +117,7 @@ class _CategoryListState extends State<CategoryList> {
   ) {
     final theme = Theme.of(context);
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
-    
     final percentage = total > 0 ? (item.amount.abs() / total) * 100 : 0;
-    
     return Column(
       children: [
         Padding(
@@ -138,11 +126,23 @@ class _CategoryListState extends State<CategoryList> {
             children: [
               Expanded(
                 flex: 3,
-                child: Text(
-                  item.categoryName.isEmpty ? '未分类' : item.categoryName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      item.categoryName.isEmpty ? '未分类' : item.categoryName,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (item.count > 0) ...[
+                      const SizedBox(width: 6),
+                      Text('(${item.count})',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               Expanded(

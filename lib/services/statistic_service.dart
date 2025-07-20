@@ -247,6 +247,7 @@ class StatisticService {
       ..addColumns([
         db.accountItemTable.categoryCode,
         db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
       ])
       ..groupBy([db.accountItemTable.categoryCode]);
 
@@ -272,6 +273,7 @@ class StatisticService {
                   categoryCode != null ? categoryMap[categoryCode] ?? '' : '',
               amount: row.read(db.accountItemTable.amount.sum()) ?? 0.0,
               categoryCode: categoryCode ?? '',
+              count: row.read(db.accountItemTable.id.count()) ?? 0,
             );
           }).toList(),
         ),
@@ -291,6 +293,7 @@ class StatisticService {
       ..addColumns([
         db.accountItemTable.categoryCode,
         db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
       ])
       ..groupBy([db.accountItemTable.categoryCode]);
 
@@ -316,6 +319,7 @@ class StatisticService {
                   categoryCode != null ? categoryMap[categoryCode] ?? '' : '',
               amount: row.read(db.accountItemTable.amount.sum()) ?? 0.0,
               categoryCode: categoryCode ?? '',
+              count: row.read(db.accountItemTable.id.count()) ?? 0,
             );
           }).toList(),
         ),
