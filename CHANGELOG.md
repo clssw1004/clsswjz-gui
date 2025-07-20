@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 本文件记录项目的所有重要更改。
 
+## [1.0.0-alpha.23] - 2024-07-20
+
+### Feature Enhancements
+- Statistics page: Only loads and displays data for the currently selected time range, avoiding duplicate/overlapping data loads
+- Category statistics: Now displays the number of records (笔数) for each category in the list
+- UI: Category pie chart and list are now merged into a single card with toggle switch for better user experience
+
+### Bug Fixes
+- Fixed issue where statistics page would briefly show monthly data then switch to all data
+- Fixed duplicate data loading when switching books or time ranges
+
+### 功能增强
+- 统计页面：只加载并展示当前时间范围的数据，避免重复/覆盖
+- 分类统计：列表中支持显示每个分类的账目笔数
+- UI：分类饼图与列表合并为同一卡片，可切换视图，体验更佳
+
+### 问题修复
+- 修复统计页面先显示本月后又切换为全部数据的问题
+- 修复切换账本或时间范围时重复加载数据的问题
+
 ## [1.0.0-alpha.22] - 2025-07-14
 
 ### Feature Enhancements
