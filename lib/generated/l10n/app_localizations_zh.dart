@@ -764,7 +764,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get warning => '警告';
 
   @override
-  String get deleteBookWarning => '警告：删除账本将会永久删除该账本下的所有数据，包括账目记录、分类、标签、项目、商户及笔记等信息。此操作不可恢复，请谨慎操作！';
+  String get deleteBookWarning =>
+      '警告：删除账本将会永久删除该账本下的所有数据，包括账目记录、分类、标签、项目、商户及笔记等信息。此操作不可恢复，请谨慎操作！';
 
   @override
   String get permissionSettings => '权限设置';
@@ -922,7 +923,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
 class AppLocalizationsZhHant extends AppLocalizationsZh {
-  AppLocalizationsZhHant(): super('zh_Hant');
+  AppLocalizationsZhHant() : super('zh_Hant');
 
   @override
   String get appName => 'Clsswjz';

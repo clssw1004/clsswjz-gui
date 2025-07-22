@@ -32,7 +32,7 @@ class ThemeProvider extends ChangeNotifier {
 
   /// 设置主题颜色
   Future<void> setThemeColor(Color color) async {
-    if (themeColor.value == color.value) return;
+    if (themeColor == color) return;
 
     await AppConfigManager.instance.setThemeColor(color);
     notifyListeners();
@@ -158,8 +158,8 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   /// 获取卡片主题
-  CardTheme _getCardTheme() {
-    return CardTheme(
+  CardThemeData _getCardTheme() {
+    return CardThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),

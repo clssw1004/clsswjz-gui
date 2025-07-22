@@ -1,7 +1,7 @@
 name: clsswjz_gui
 description: "GUI for clsswjz-server"
 publish_to: "none"
-version: 1.0.0-alpha.23
+version: 1.0.0
 
 environment:
   sdk: ^3.5.4
@@ -20,13 +20,13 @@ dependencies:
   uuid: ^4.5.1
   http: ^1.2.2
   shared_preferences: ^2.3.4
-  intl: ^0.19.0
+  intl: ^0.20.2
   drift_db_viewer: ^2.1.0
   provider: ^6.1.2
   crypto: ^3.0.6
   url_launcher: ^6.3.1
   mime: ^2.0.0
-  file_picker: ^9.1.0
+  file_picker: ^10.2.0
   pull_to_refresh: ^2.0.0
   json_annotation: ^4.9.0
   image_picker: ^1.0.4
@@ -36,8 +36,8 @@ dependencies:
   flutter_slidable: ^4.0.0
   table_calendar: ^3.0.9
   cupertino_icons: ^1.0.2
-  fl_chart: ^0.70.2
-  syncfusion_flutter_charts: ^28.2.7
+  fl_chart: ^1.0.0
+  syncfusion_flutter_charts: ^30.1.41
   package_info_plus: ^8.3.0
   open_filex: ^4.7.0
   flutter_quill_extensions: ^11.0.0
@@ -48,7 +48,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
   drift_dev: ^2.22.1
   build_runner: ^2.4.13
   flutter_launcher_icons: ^0.14.2

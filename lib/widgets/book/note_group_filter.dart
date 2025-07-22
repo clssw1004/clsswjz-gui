@@ -7,6 +7,7 @@ import '../../manager/l10n_manager.dart';
 import '../../drivers/driver_factory.dart';
 import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
+import '../../theme/theme_spacing.dart';
 
 /// 笔记分组筛选组件
 class NoteGroupFilter extends StatefulWidget {
@@ -110,6 +111,7 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = L10nManager.l10n;
+    final spacing = theme.spacing;
 
     if (_loading) {
       return Container(
@@ -125,43 +127,39 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outline.withAlpha(50),
-            width: 1,
-          ),
-        ),
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: theme.colorScheme.surfaceContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          // 全部按钮
-          _buildGroupChip(
-            theme: theme,
-            label: '全部',
-            groupCode: 'all',
-            isSelected: _isAllSelected,
-          ),
-          // 无分组按钮
-          _buildGroupChip(
-            theme: theme,
-            label: l10n.noGroup,
-            groupCode: 'none',
-            isSelected: _isGroupSelected('none'),
-          ),
-          // 其他分组按钮
-          ..._groups.map((group) => _buildGroupChip(
-                theme: theme,
-                label: group.name,
-                groupCode: group.code,
-                isSelected: _isGroupSelected(group.code),
-              )),
-        ],
+      child: Padding(
+        padding: spacing.contentPadding.copyWith(top: 8, bottom: 8),
+        child: Wrap(
+          spacing: spacing.listItemSpacing,
+          runSpacing: spacing.listItemSpacing,
+          children: [
+            _buildGroupChip(
+              theme: theme,
+              label: '全部',
+              groupCode: 'all',
+              isSelected: _isAllSelected,
+            ),
+            _buildGroupChip(
+              theme: theme,
+              label: l10n.noGroup,
+              groupCode: 'none',
+              isSelected: _isGroupSelected('none'),
+            ),
+            ..._groups.map((group) => _buildGroupChip(
+                  theme: theme,
+                  label: group.name,
+                  groupCode: group.code,
+                  isSelected: _isGroupSelected(group.code),
+                )),
+          ],
+        ),
       ),
     );
   }
@@ -174,6 +172,7 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     required bool isSelected,
   }) {
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return FilterChip(
       label: Text(
@@ -188,19 +187,25 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
       selected: isSelected,
       showCheckmark: false,
       selectedColor: colorScheme.primaryContainer,
-      backgroundColor: colorScheme.surface,
+      backgroundColor: colorScheme.surfaceContainerLow,
       side: BorderSide(
         color: isSelected
             ? colorScheme.primary
-            : colorScheme.outline.withAlpha(80),
+            : colorScheme.outline.withAlpha(60),
         width: isSelected ? 1.5 : 1,
       ),
-      elevation: isSelected ? 2 : 0,
+      elevation: isSelected ? 1 : 0,
       shadowColor:
-          isSelected ? colorScheme.primary.withAlpha(80) : Colors.transparent,
-      visualDensity: VisualDensity.compact,
+          isSelected ? colorScheme.primary.withAlpha(40) : Colors.transparent,
+      visualDensity: VisualDensity.standard,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConfigManager.instance.radius),
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: spacing.listItemSpacing / 2,
+        vertical: spacing.listItemSpacing / 2,
+      ),
       onSelected: (selected) => _handleGroupSelection(groupCode),
     );
   }

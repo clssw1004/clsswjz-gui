@@ -647,7 +647,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get localChangeStatusSyncComplete => 'Local change status sync complete';
+  String get localChangeStatusSyncComplete =>
+      'Local change status sync complete';
 
   @override
   String syncingServerChanges(int count) {
@@ -758,13 +759,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accessToken => 'Access Token';
 
   @override
-  String get resetAuthConfirmation => 'This operation will clear local data and re-sync. Are you sure to continue?';
+  String get resetAuthConfirmation =>
+      'This operation will clear local data and re-sync. Are you sure to continue?';
 
   @override
   String get warning => 'Warning';
 
   @override
-  String get deleteBookWarning => 'Warning: Deleting this account book will permanently delete all associated data, including account records, categories, tags, projects, merchants, and notes. This operation cannot be undone, please proceed with caution!';
+  String get deleteBookWarning =>
+      'Warning: Deleting this account book will permanently delete all associated data, including account records, categories, tags, projects, merchants, and notes. This operation cannot be undone, please proceed with caution!';
 
   @override
   String get permissionSettings => 'Permission Settings';

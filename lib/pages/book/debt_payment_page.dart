@@ -77,9 +77,6 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme,
-            dialogTheme: DialogTheme(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-            ),
           ),
           child: child!,
         );
@@ -104,9 +101,6 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
           child: Theme(
             data: Theme.of(context).copyWith(
               colorScheme: Theme.of(context).colorScheme,
-              dialogTheme: DialogTheme(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-              ),
             ),
             child: child!,
           ),
