@@ -49,18 +49,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
             return CommonEmptyView(message: l10n.noData);
           }
 
-          // 加载中显示加载状态
-          if (statisticsProvider.isLoading) {
-            return const CommonLoadingView();
-          }
-
-          // 没有数据时显示空状态
-          final categoryList = statisticsProvider.categoryStatisticsList;
-          if (categoryList == null || categoryList.isEmpty) {
-            return CommonEmptyView(message: l10n.noData);
-          }
-
-          // 构建统计视图
+          // 构建主界面布局（时间范围选择器始终显示）
           return Column(
             children: [
               Padding(
@@ -78,7 +67,9 @@ class _StatisticsTabState extends State<StatisticsTab> {
                 ),
               ),
               const SizedBox(height: 8),
-              Expanded(child: _buildStatisticsView(context)),
+              Expanded(
+                child: _buildContentArea(context, statisticsProvider),
+              ),
             ],
           );
         },
@@ -124,6 +115,25 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     statisticsProvider.loadStatistics(bookId, start: start, end: end);
     statisticsProvider.loadBookStatisticInfo(bookId, start: start, end: end);
+  }
+
+  /// 构建内容区域
+  Widget _buildContentArea(BuildContext context, StatisticsProvider statisticsProvider) {
+    final l10n = L10nManager.l10n;
+
+    // 加载中显示加载状态
+    if (statisticsProvider.isLoading) {
+      return const CommonLoadingView();
+    }
+
+    // 没有数据时显示空状态
+    final categoryList = statisticsProvider.categoryStatisticsList;
+    if (categoryList == null || categoryList.isEmpty) {
+      return CommonEmptyView(message: l10n.noData);
+    }
+
+    // 有数据时显示统计视图
+    return _buildStatisticsView(context);
   }
 
   /// 构建统计视图
