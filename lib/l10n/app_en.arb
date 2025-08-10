@@ -420,6 +420,7 @@
     "noShop": "No Merchant",
     "noGroup": "No Group",
     "attachments": "Attachments",
+  "attachment": "Attachment",
     "noAttachments": "No attachments",
     "addAttachment": "Add attachment",
     "deleteAttachment": "Delete attachment",

@@ -1131,6 +1131,12 @@ abstract class AppLocalizations {
   /// **'Attachments'**
   String get attachments;
 
+  /// No description provided for @attachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment'**
+  String get attachment;
+
   /// No description provided for @noAttachments.
   ///
   /// In en, this message translates to:

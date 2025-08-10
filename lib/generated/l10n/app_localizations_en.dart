@@ -551,6 +551,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attachments => 'Attachments';
 
   @override
+  String get attachment => 'Attachment';
+
+  @override
   String get noAttachments => 'No attachments';
 
   @override

@@ -15,7 +15,9 @@ import '../../enums/symbol_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../manager/service_manager.dart';
+import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/dto/item_filter_dto.dart';
+import '../../models/vo/attachment_show_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -605,7 +607,7 @@ class LogDataDriver implements BookDataDriver {
     await ItemCULog.create(userId, bookId,
             amount: amount,
             type: AccountItemType.transfer,
-            accountDate: '${debtDate} 00:00:00',
+            accountDate: '$debtDate 00:00:00',
             fundId: fundId,
             categoryCode: debtType.code,
             description: '${debtType.text} $debtor',
@@ -759,5 +761,14 @@ class LogDataDriver implements BookDataDriver {
             .execute();
       }
     }
+  }
+
+  @override
+  Future<OperateResult<List<AttachmentShowVO>>> listAttachments(String userId,
+      {int limit = 200, int offset = 0, AttachmentFilterDTO? filter}) async {
+    final attachments = await DaoManager.attachmentDao
+        .listByBook(userId, limit: limit, offset: offset, filter: filter);
+    return OperateResult.success(
+        await VOTransfer.transferAttachments(attachments));
   }
 }

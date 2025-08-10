@@ -548,6 +548,7 @@
     },
     "importComplete": "導入完成",
     "attachments": "附件",
+  "attachment": "附件",
     "noAttachments": "暫無附件",
     "addAttachment": "添加附件",
     "deleteAttachment": "刪除附件",

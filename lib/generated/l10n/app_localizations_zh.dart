@@ -551,6 +551,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get attachments => '附件';
 
   @override
+  String get attachment => '附件';
+
+  @override
   String get noAttachments => '暂无附件';
 
   @override
@@ -1466,6 +1469,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get attachments => '附件';
+
+  @override
+  String get attachment => '附件';
 
   @override
   String get noAttachments => '暫無附件';

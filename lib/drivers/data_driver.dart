@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:clsswjz_gui/models/dto/attachment_filter_dto.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 
 import '../database/database.dart';
@@ -12,6 +13,7 @@ import '../enums/note_type.dart';
 import '../enums/symbol_type.dart';
 import '../models/common.dart';
 import '../models/dto/item_filter_dto.dart';
+import '../models/vo/attachment_show_vo.dart';
 import '../models/vo/user_book_vo.dart';
 import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
@@ -271,4 +273,11 @@ abstract class BookDataDriver {
   Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
       String userId, String bookId,
       {int limit = 200, int offset = 0, String? keyword});
+
+  /// 获取账本附件列表
+  Future<OperateResult<List<AttachmentShowVO>>> listAttachments(
+      String userId,
+      {int limit = 200,
+      int offset = 0,
+      AttachmentFilterDTO? filter});
 }

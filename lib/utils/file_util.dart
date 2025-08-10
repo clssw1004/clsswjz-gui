@@ -44,6 +44,19 @@ class FileUtil {
     }
   }
 
+  /// 格式化文件大小
+  static String formatFileSize(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    } else if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } else {
+      return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+    }
+  }
+
   /// 使用系统默认应用打开文件
   static Future<OperateResult<void>> openFile(AttachmentVO attachment) async {
     try {

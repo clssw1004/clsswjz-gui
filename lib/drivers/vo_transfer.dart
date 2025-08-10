@@ -3,6 +3,7 @@ import '../enums/business_type.dart';
 import '../enums/symbol_type.dart';
 import '../manager/dao_manager.dart';
 import '../models/dto/item_filter_dto.dart';
+import '../models/vo/attachment_show_vo.dart';
 import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/vo/user_fund_vo.dart';
@@ -156,5 +157,14 @@ class VOTransfer {
         fundName: fundMap[debt.fundId]?.name ?? '',
       );
     }).toList();
+  }
+
+  static Future<List<AttachmentShowVO>> transferAttachments(
+      List<Attachment>? attachments) async {
+    if (attachments == null || attachments.isEmpty) {
+      return [];
+    }
+    return await Future.wait(
+        attachments.map((e) => AttachmentShowVO.fromAttachment(e, "111")));
   }
 }

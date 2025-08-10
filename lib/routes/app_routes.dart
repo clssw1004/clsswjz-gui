@@ -33,6 +33,7 @@ import '../pages/book/item_list_page.dart';
 import '../pages/book/debt_list_page.dart';
 import '../pages/book/debt_edit_page.dart';
 import '../pages/book/debt_payment_page.dart';
+import '../pages/attachment/attachment_list_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -100,6 +101,8 @@ class AppRoutes {
   static const String debtEdit = '/debt/edit';
 
   static const String debtPayment = '/debt/payment';
+
+  static const String attachments = '/attachments';
 
   static const String todoAdd = '/todo/add';
 
@@ -211,5 +214,6 @@ class AppRoutes {
         categoryCode: categoryCode,
       );
     },
+    attachments: (context) => const AttachmentListPage(),
   };
 }

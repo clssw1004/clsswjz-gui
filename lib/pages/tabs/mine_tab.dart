@@ -140,6 +140,12 @@ class _MineTabView extends StatelessWidget {
                   L10nManager.l10n.import,
                   () => Navigator.pushNamed(context, '/import'),
                 ),
+                _buildFeatureItem(
+                  context,
+                  Icons.attachment,
+                  L10nManager.l10n.attachment,
+                  () => Navigator.pushNamed(context, AppRoutes.attachments),
+                ),
               ],
             ),
           ),

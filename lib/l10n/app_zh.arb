@@ -417,6 +417,7 @@
     "noShop": "无商户",
     "noGroup": "无分组",
     "attachments": "附件",
+  "attachment": "附件",
     "noAttachments": "暂无附件",
     "addAttachment": "添加附件",
     "deleteAttachment": "删除附件",
