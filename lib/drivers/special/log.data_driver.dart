@@ -336,7 +336,7 @@ class LogDataDriver implements BookDataDriver {
       {int limit = 20, int offset = 0, ItemFilterDTO? filter}) async {
     final items = await DaoManager.itemDao
         .listByBook(bookId, limit: limit, offset: offset, filter: filter);
-    return OperateResult.success(await VOTransfer.transferAccountItem(items));
+    return OperateResult.success(await VOTransfer.transferItems(items));
   }
 
   @override

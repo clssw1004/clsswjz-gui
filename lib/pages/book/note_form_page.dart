@@ -24,7 +24,6 @@ import '../../widgets/common/common_select_form_field.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../enums/symbol_type.dart';
-import '../../widgets/common/common_badge.dart';
 
 class NoteFormPage extends StatelessWidget {
   final UserNoteVO? note;

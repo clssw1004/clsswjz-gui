@@ -1,86 +1,55 @@
-import 'dart:io';
 import '../../database/database.dart';
-import '../../utils/attachment.util.dart';
+import 'attachment_vo.dart';
 
 /// 附件VO
-class AttachmentShowVO {
-  /// ID
-  final String id;
-
-  /// 原始文件名
-  final String originName;
-
-  /// 文件大小
-  final int fileLength;
-
-  /// 文件扩展名
-  final String extension;
-
-  /// 内容类型
-  final String contentType;
-
-  /// 业务代码
-  final String businessCode;
-
-  /// 业务ID
-  final String businessId;
-
-  /// 创建人
-  final String createdBy;
-
-  /// 更新人
-  final String updatedBy;
-
-  /// 创建时间
-  final int createdAt;
-
-  /// 更新时间
-  final int updatedAt;
-
+class AttachmentShowVO extends AttachmentVO {
   /// 来源标题 笔记：笔记标题、账目：账目日期+分类+金额+备注
   final String businessName;
 
-  /// 文件对象
-  final File? file;
-
   const AttachmentShowVO({
-    required this.id,
-    required this.originName,
-    required this.fileLength,
-    required this.extension,
-    required this.contentType,
-    required this.businessCode,
-    required this.businessId,
-    required this.createdBy,
-    required this.updatedBy,
-    required this.createdAt,
-    required this.updatedAt,
+    required super.id,
+    required super.originName,
+    required super.fileLength,
+    required super.extension,
+    required super.contentType,
+    required super.businessCode,
+    required super.businessId,
+    required super.createdBy,
+    required super.updatedBy,
+    required super.createdAt,
+    required super.updatedAt,
+    required super.file,
     required this.businessName,
-    this.file,
+    super.isRemote = false,
   });
+  factory AttachmentShowVO.fromAttachmentVo(
+      AttachmentVO attachmentVO, String businessName) {
+    return AttachmentShowVO(
+      id: attachmentVO.id,
+      originName: attachmentVO.originName,
+      fileLength: attachmentVO.fileLength,
+      extension: attachmentVO.extension,
+      contentType: attachmentVO.contentType,
+      businessCode: attachmentVO.businessCode,
+      businessId: attachmentVO.businessId,
+      createdBy: attachmentVO.createdBy,
+      updatedBy: attachmentVO.updatedBy,
+      createdAt: attachmentVO.createdAt,
+      updatedAt: attachmentVO.updatedAt,
+      businessName: businessName,
+      file: attachmentVO.file,
+    );
+  }
 
   /// 从Attachment和File创建VO
   static Future<AttachmentShowVO> fromAttachment(
     Attachment attachment,
     String businessName,
   ) async {
-    final filePath = await AttachmentUtil.getAttachmentPath(attachment.id);
-    final file = File(filePath);
-    final exists = await file.exists();
-    return AttachmentShowVO(
-      id: attachment.id,
-      originName: attachment.originName,
-      fileLength: attachment.fileLength,
-      extension: attachment.extension,
-      contentType: attachment.contentType,
-      businessCode: attachment.businessCode,
-      businessId: attachment.businessId,
-      createdBy: attachment.createdBy,
-      updatedBy: attachment.updatedBy,
-      createdAt: attachment.createdAt,
-      updatedAt: attachment.updatedAt,
-      businessName: businessName,
-      file: exists ? file : null,
+    final attachVO = await AttachmentVO.fromAttachment(attachment);
+    return AttachmentShowVO.fromAttachmentVo(
+      attachVO,
+      businessName,
     );
   }
 }

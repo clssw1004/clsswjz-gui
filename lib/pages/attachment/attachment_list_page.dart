@@ -10,6 +10,7 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
 import '../../utils/file_util.dart';
+import '../../utils/date_util.dart';
 
 /// 附件列表页面
 class AttachmentListPage extends StatefulWidget {
@@ -51,16 +52,28 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
               ? CommonEmptyView(message: l10n.noData)
               : RefreshIndicator(
                   onRefresh: _refresh,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: _attachments.length + (_hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == _attachments.length) {
-                        // 加载更多指示器
-                        return _buildLoadMoreIndicator();
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification.metrics.pixels >=
+                              notification.metrics.maxScrollExtent - 100 &&
+                          !_isLoading &&
+                          _hasMore) {
+                        _loadAttachments();
                       }
-                      return _buildAttachmentItem(_attachments[index]);
+                      return false;
                     },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      itemCount: _attachments.length + (_hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _attachments.length) {
+                          // 加载更多指示器
+                          return _buildLoadMoreIndicator();
+                        }
+                        return _buildAttachmentItem(_attachments[index]);
+                      },
+                    ),
                   ),
                 ),
     );
@@ -73,18 +86,20 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      elevation: 1,
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest.withAlpha(90),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+            color: colorScheme.outlineVariant.withAlpha(80), width: 1),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // TODO: 实现附件预览或下载功能
-        },
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => FileUtil.openFile(attachment),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildFileTypeIcon(attachment),
               const SizedBox(width: 16),
@@ -92,30 +107,30 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 来源标题
                     Text(
-                      attachment.originName,
+                      attachment.businessName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
+                    Text(
+                      attachment.originName,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
-                        _buildSourceIcon(attachment.businessCode),
                         const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            _getSourceText(attachment.businessCode),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
                         Text(
                           FileUtil.formatFileSize(attachment.fileLength),
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -123,11 +138,19 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        Text(
+                          DateUtil.format(attachment.createdAt),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right,
                 color: colorScheme.onSurfaceVariant,
@@ -192,15 +215,15 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
     }
 
     return Container(
-      width: 48,
-      height: 48,
+      width: 56,
+      height: 56,
       decoration: BoxDecoration(
         color: iconColor.withAlpha(20),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         iconData,
-        size: 24,
+        size: 28,
         color: iconColor,
       ),
     );
@@ -209,17 +232,17 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
   /// 构建图片预览
   Widget _buildImagePreview(File imageFile) {
     return Container(
-      width: 48,
-      height: 48,
+      width: 56,
+      height: 56,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.grey.withAlpha(50),
+          color: Colors.black.withAlpha(12),
           width: 1,
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(11),
+        borderRadius: BorderRadius.circular(13),
         child: Image.file(
           imageFile,
           fit: BoxFit.cover,
@@ -227,7 +250,7 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
             return Container(
               decoration: BoxDecoration(
                 color: Colors.green.withAlpha(20),
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(13),
               ),
               child: const Icon(
                 Icons.image,
@@ -287,10 +310,16 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
   Widget _buildLoadMoreIndicator() {
     if (!_hasMore) return const SizedBox.shrink();
 
-    return const Padding(
-      padding: EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Center(
-        child: CircularProgressIndicator(),
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+          ),
+        ),
       ),
     );
   }
@@ -320,7 +349,7 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
         booksProvider.selectedBook!.createdBy,
         limit: _pageSize,
         offset: _offset,
-        filter: AttachmentFilterDTO(
+        filter: const AttachmentFilterDTO(
           businessCode: null, // 获取所有类型的附件
         ),
       );

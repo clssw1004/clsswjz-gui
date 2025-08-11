@@ -1,3 +1,5 @@
+import 'package:clsswjz_gui/manager/l10n_manager.dart';
+
 import '../database/database.dart';
 import '../enums/business_type.dart';
 import '../enums/symbol_type.dart';
@@ -12,7 +14,7 @@ import '../utils/collection_util.dart';
 import 'driver_factory.dart';
 
 class VOTransfer {
-  static Future<List<UserItemVO>> transferAccountItem(
+  static Future<List<UserItemVO>> transferItems(
       List<AccountItem>? items) async {
     if (items == null || items.isEmpty) {
       return [];
@@ -164,7 +166,32 @@ class VOTransfer {
     if (attachments == null || attachments.isEmpty) {
       return [];
     }
-    return await Future.wait(
-        attachments.map((e) => AttachmentShowVO.fromAttachment(e, "111")));
+    final businessTypeMap = CollectionUtil.groupByWith(
+        attachments, (s) => s.businessCode, (s) => s.businessId);
+    final items = (businessTypeMap.containsKey(BusinessType.item.code)
+        ? await transferItems(await DaoManager.itemDao
+            .findByIds(businessTypeMap[BusinessType.item.code]!))
+        : []) as List<UserItemVO>;
+
+    final notes = (businessTypeMap.containsKey(BusinessType.note.code)
+        ? await transferNote(await DaoManager.noteDao
+            .findByIds(businessTypeMap[BusinessType.note.code]!))
+        : []) as List<UserNoteVO>;
+
+    final Map<String, String> businessNameMap = {};
+    for (var item in items) {
+      businessNameMap[item.id] =
+          '${L10nManager.l10n.accountItem}:${item.amount}:${item.categoryName} ${item.description ?? ""}';
+    }
+    for (var note in notes) {
+      businessNameMap[note.id] = note.title ?? "";
+    }
+
+    return await Future.wait(attachments.map((e) =>
+        AttachmentShowVO.fromAttachment(
+            e,
+            businessNameMap.containsKey(e.businessId)
+                ? businessNameMap[e.businessId]!
+                : " ")));
   }
 }
