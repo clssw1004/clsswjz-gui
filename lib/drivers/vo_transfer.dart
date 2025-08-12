@@ -181,7 +181,7 @@ class VOTransfer {
     final Map<String, String> businessNameMap = {};
     for (var item in items) {
       businessNameMap[item.id] =
-          '${L10nManager.l10n.accountItem}:${item.amount}:${item.categoryName} ${item.description ?? ""}';
+          '${item.categoryName}${item.description ?? ""}';
     }
     for (var note in notes) {
       businessNameMap[note.id] = note.title ?? "";

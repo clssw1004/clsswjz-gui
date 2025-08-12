@@ -56,7 +56,8 @@ class _MineTabView extends StatelessWidget {
                     Container(
                       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withAlpha(128),
+                        color:
+                            colorScheme.surfaceContainerHighest.withAlpha(128),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: colorScheme.outlineVariant.withAlpha(128),
@@ -71,82 +72,199 @@ class _MineTabView extends StatelessWidget {
             ),
           ),
           // 功能按钮区域
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            sliver: SliverGrid.count(
-              crossAxisCount: 4,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              children: [
-                _buildFeatureItem(
-                  context,
-                  Icons.book_outlined,
-                  L10nManager.l10n.accountBook,
-                  () => Navigator.pushNamed(context, AppRoutes.accountBooks),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.category_outlined,
-                  L10nManager.l10n.category,
-                  () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.categories,
-                    arguments: accountBook,
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                children: [
+                  // 当前账本功能区域
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withAlpha(30),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.primary.withAlpha(40),
+                        width: 1,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 标题：当前账本名称
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.book_outlined,
+                                  size: 18,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  accountBook?.name ?? '未选择账本',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // 功能按钮网格
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.category_outlined,
+                                  L10nManager.l10n.category,
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.categories,
+                                    arguments: accountBook,
+                                  ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: true,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.account_balance_wallet_outlined,
+                                  L10nManager.l10n.account,
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.funds,
+                                    arguments: accountBook,
+                                  ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: true,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.store_outlined,
+                                  L10nManager.l10n.merchant,
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.merchants,
+                                    arguments: accountBook,
+                                  ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: true,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.local_offer_outlined,
+                                  L10nManager.l10n.tag,
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.tags,
+                                    arguments: accountBook,
+                                  ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: true,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.folder_outlined,
+                                  L10nManager.l10n.project,
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.projects,
+                                    arguments: accountBook,
+                                  ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.account_balance_wallet_outlined,
-                  L10nManager.l10n.account,
-                  () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.funds,
-                    arguments: accountBook,
+                  const SizedBox(height: 12),
+                  // 全局功能区域
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest.withAlpha(40),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withAlpha(40),
+                        width: 1,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 功能按钮网格
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.book_outlined,
+                                  L10nManager.l10n.accountBook,
+                                  () => Navigator.pushNamed(
+                                      context, AppRoutes.accountBooks),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.file_upload_outlined,
+                                  L10nManager.l10n.import,
+                                  () => Navigator.pushNamed(context, '/import'),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.attachment,
+                                  L10nManager.l10n.attachment,
+                                  () => Navigator.pushNamed(
+                                      context, AppRoutes.attachments),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.store_outlined,
-                  L10nManager.l10n.merchant,
-                  () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.merchants,
-                    arguments: accountBook,
-                  ),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.local_offer_outlined,
-                  L10nManager.l10n.tag,
-                  () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.tags,
-                    arguments: accountBook,
-                  ),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.folder_outlined,
-                  L10nManager.l10n.project,
-                  () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.projects,
-                    arguments: accountBook,
-                  ),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.file_upload_outlined,
-                  L10nManager.l10n.import,
-                  () => Navigator.pushNamed(context, '/import'),
-                ),
-                _buildFeatureItem(
-                  context,
-                  Icons.attachment,
-                  L10nManager.l10n.attachment,
-                  () => Navigator.pushNamed(context, AppRoutes.attachments),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           // 系统设置区域
@@ -184,13 +302,15 @@ class _MineTabView extends StatelessWidget {
                     context,
                     Icons.language_outlined,
                     L10nManager.l10n.languageSettings,
-                    () => Navigator.pushNamed(context, AppRoutes.languageSettings),
+                    () => Navigator.pushNamed(
+                        context, AppRoutes.languageSettings),
                   ),
                   _buildSettingItem(
                     context,
                     Icons.storage_outlined,
                     L10nManager.l10n.database,
-                    () => Navigator.pushNamed(context, AppRoutes.databaseViewer),
+                    () =>
+                        Navigator.pushNamed(context, AppRoutes.databaseViewer),
                   ),
                   _buildSettingItem(
                     context,
@@ -208,47 +328,65 @@ class _MineTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(
+  Widget _buildCompactFeatureItem(
     BuildContext context,
     IconData icon,
     String label,
-    VoidCallback onTap,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    VoidCallback onTap, {
+    required ColorScheme colorScheme,
+    required TextTheme theme,
+    bool isAccountBookFeature = false,
+  }) {
     return Material(
-      color: colorScheme.surfaceContainerHighest.withAlpha(128),
-      borderRadius: BorderRadius.circular(16),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withAlpha(20),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                icon,
-                size: 24,
-                color: colorScheme.primary,
-              ),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isAccountBookFeature
+                ? colorScheme.surfaceContainerHighest.withAlpha(80)
+                : colorScheme.surfaceContainerHighest.withAlpha(40),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isAccountBookFeature
+                  ? colorScheme.outlineVariant.withAlpha(40)
+                  : colorScheme.outlineVariant.withAlpha(20),
+              width: 0.5,
             ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurface,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isAccountBookFeature
+                      ? colorScheme.primary.withAlpha(15)
+                      : colorScheme.primary.withAlpha(10),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  size: 16,
+                  color: colorScheme.primary,
+                ),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: theme.labelSmall?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -333,7 +471,8 @@ class _MineTabView extends StatelessWidget {
                   children: [
                     Text(
                       syncProvider.lastSyncTime != null
-                          ? L10nManager.l10n.lastSyncTime(DateUtil.format(syncProvider.lastSyncTime!))
+                          ? L10nManager.l10n.lastSyncTime(
+                              DateUtil.format(syncProvider.lastSyncTime!))
                           : L10nManager.l10n.notSynced,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
@@ -363,7 +502,8 @@ class _MineTabView extends StatelessWidget {
               IconButton.filledTonal(
                 visualDensity: VisualDensity.compact,
                 style: IconButton.styleFrom(
-                  backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(128),
+                  backgroundColor:
+                      colorScheme.surfaceContainerHighest.withAlpha(128),
                   minimumSize: const Size(36, 36),
                   padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
@@ -394,7 +534,8 @@ class _MineTabView extends StatelessWidget {
               IconButton.filledTonal(
                 visualDensity: VisualDensity.compact,
                 style: IconButton.styleFrom(
-                  backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(128),
+                  backgroundColor:
+                      colorScheme.surfaceContainerHighest.withAlpha(128),
                   minimumSize: const Size(36, 36),
                   padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
@@ -417,8 +558,10 @@ class _MineTabView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
                   value: syncProvider.progress,
-                  backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(128),
-                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                  backgroundColor:
+                      colorScheme.surfaceContainerHighest.withAlpha(128),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(colorScheme.primary),
                   minHeight: 2,
                 ),
               ),
