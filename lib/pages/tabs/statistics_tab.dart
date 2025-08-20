@@ -145,9 +145,13 @@ class _StatisticsTabState extends State<StatisticsTab> {
       children: [
         // 账本统计卡片
         BookStatisticCard(
-          statisticInfo: statisticsProvider.currentMonthStatistic,
+          statisticInfo: _selectedRange == 'month'
+              ? statisticsProvider.currentMonthStatistic
+              : statisticsProvider.allTimeStatistic,
           margin: const EdgeInsets.only(bottom: 16),
-          title: L10nManager.l10n.currentMonth,
+          title: _selectedRange == 'month'
+              ? L10nManager.l10n.currentMonth
+              : L10nManager.l10n.total,
         ),
 
         // 分类统计卡片（可切换图表/列表）

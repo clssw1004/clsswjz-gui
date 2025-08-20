@@ -14,7 +14,7 @@ class CategoryStatisticCard extends StatefulWidget {
 }
 
 class _CategoryStatisticCardState extends State<CategoryStatisticCard> {
-  bool showChart = true;
+  bool showChart = false;
 
   @override
   Widget build(BuildContext context) {

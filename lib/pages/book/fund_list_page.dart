@@ -9,6 +9,8 @@ import '../../models/vo/user_fund_vo.dart';
 import '../../utils/color_util.dart';
 import '../../widgets/common/common_data_list_page.dart';
 import 'fund_form_page.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../routes/app_routes.dart';
 
 /// 资金账户列表页面
 class FundListPage extends StatelessWidget {
@@ -80,14 +82,12 @@ class FundListPage extends StatelessWidget {
               ],
             ),
             onTap: () async {
-              final result = await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => FundFormPage(fund: item),
-                ),
+              // 跳转到账目列表，按账户过滤
+              final filter = ItemFilterDTO(fundIds: [item.id]);
+              Navigator.of(context).pushNamed(
+                AppRoutes.items,
+                arguments: [accountBook, filter, item.name],
               );
-              if (result == true) {
-                CommonDataListPage.refresh(context);
-              }
             },
           );
         },

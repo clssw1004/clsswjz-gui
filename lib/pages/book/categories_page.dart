@@ -6,6 +6,8 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_simple_crud_list.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../routes/app_routes.dart';
 
 class AccountCategoriesPage extends StatefulWidget {
   const AccountCategoriesPage({super.key, required this.accountBook});
@@ -50,6 +52,16 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           widget.accountBook.id,
           item.id,
         ),
+        onItemTap: (item) {
+          final filter = ItemFilterDTO(
+            categoryCodes: [item.code],
+            types: [_selectedType],
+          );
+          Navigator.of(context).pushNamed(
+            AppRoutes.items,
+            arguments: [widget.accountBook, filter, item.name],
+          );
+        },
         filterWidget: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Padding(

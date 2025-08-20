@@ -6,6 +6,8 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_simple_crud_list.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../routes/app_routes.dart';
 
 class TagsPage extends StatelessWidget {
   const TagsPage({super.key, required this.accountBook});
@@ -36,6 +38,13 @@ class TagsPage extends StatelessWidget {
           accountBook.id,
           item.id,
         ),
+        onItemTap: (item) {
+          final filter = ItemFilterDTO(tagCodes: [item.code]);
+          Navigator.of(context).pushNamed(
+            AppRoutes.items,
+            arguments: [accountBook, filter, item.name],
+          );
+        },
       ),
     );
   }

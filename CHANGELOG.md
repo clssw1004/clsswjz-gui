@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2025-08-20
+
+### Feature Enhancements
+- New ItemsPage for displaying transactions by filter, using ItemsProvider for state management
+- Route `AppRoutes.items` added, supports passing `BookMetaVO`, `ItemFilterDTO`, and optional `title`
+- Statistics page category click now navigates to ItemsPage with category filter and the selected time range applied
+- ItemsPage supports custom title (e.g., category name) and search; add button removed per design
+- Category statistics card defaults to list view instead of pie chart
+- Category, Fund, Merchant, Tag, and Project lists now support clicking an entry to navigate to ItemsPage with the corresponding filter applied
+- CommonSimpleCrudList supports optional onItemTap callback for page-level navigation (kept generic; no business logic inside component)
+
+### Bug Fixes
+- Fixed initial flicker where statistics briefly showed an incorrect overall range before switching to monthly
+- Ensured statistics load with a consistent initial time range (current month) and preserve the selected range
+
 ## [1.0.1] - 2025-08-12
 
 ### Feature Enhancements

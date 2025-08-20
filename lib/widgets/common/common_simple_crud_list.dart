@@ -41,6 +41,9 @@ class CommonSimpleCrudListConfig<T> {
   /// 筛选区域组件（可选）
   final PreferredSizeWidget? filterWidget;
 
+  /// 列表项点击事件（可选）
+  final void Function(T item)? onItemTap;
+
   const CommonSimpleCrudListConfig({
     required this.title,
     this.showType = false,
@@ -53,6 +56,7 @@ class CommonSimpleCrudListConfig<T> {
     required this.updateItem,
     required this.deleteItem,
     this.filterWidget,
+    this.onItemTap,
   });
 }
 
@@ -297,6 +301,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
                         return ListTile(
                           title: Text(widget.config.getName(item)),
                           subtitle: widget.config.showType && type != null ? Text(widget.config.getTypeText!(type)) : null,
+                          onTap: widget.config.onItemTap == null ? null : () => widget.config.onItemTap!(item),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

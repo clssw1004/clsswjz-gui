@@ -30,6 +30,8 @@ import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
 import '../pages/book/debt_add_page.dart';
 import '../pages/book/item_list_page.dart';
+import '../pages/book/items.page.dart';
+import '../models/dto/item_filter_dto.dart';
 import '../pages/book/debt_list_page.dart';
 import '../pages/book/debt_edit_page.dart';
 import '../pages/book/debt_payment_page.dart';
@@ -65,6 +67,9 @@ class AppRoutes {
 
   /// 账目列表页面
   static const String itemsList = '/items_list';
+
+  /// 通用账目列表页面（可接收筛选条件）
+  static const String items = '/items';
 
   /// 账本创建页面
   static const String bookForm = '/book_form';
@@ -144,6 +149,13 @@ class AppRoutes {
     itemsList: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
       return ItemListPage(accountBook: args);
+    },
+    items: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+      final bookMeta = args[0] as BookMetaVO;
+      final filter = args.length > 1 ? args[1] as ItemFilterDTO? : null;
+      final title = args.length > 2 ? args[2] as String? : null;
+      return ItemsPage(bookMeta: bookMeta, initialFilter: filter, title: title);
     },
     serverConfig: (context) => const ServerConfigPage(),
     merchants: (context) {

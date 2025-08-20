@@ -343,7 +343,7 @@ class _MineTabView extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isAccountBookFeature
                 ? colorScheme.surfaceContainerHighest.withAlpha(80)
@@ -360,8 +360,8 @@ class _MineTabView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: isAccountBookFeature
                       ? colorScheme.primary.withAlpha(15)
@@ -370,16 +370,17 @@ class _MineTabView extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  size: 16,
+                  size: 22,
                   color: colorScheme.primary,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               Text(
                 label,
-                style: theme.labelSmall?.copyWith(
+                style: theme.labelMedium?.copyWith(
                   color: colorScheme.onSurface,
-                  fontSize: 10,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,

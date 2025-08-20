@@ -21,6 +21,12 @@ class StatisticsProvider extends ChangeNotifier {
   List<CategoryStatisticGroupVO>? get categoryStatisticsList =>
       _categoryStatisticsList;
 
+  /// 当前统计使用的时间范围
+  DateTime? _currentStart;
+  DateTime? _currentEnd;
+  DateTime? get currentStart => _currentStart;
+  DateTime? get currentEnd => _currentEnd;
+
   String _selectedTab = AccountItemType.expense.code; // 默认显示支出分类
   String get selectedTab => _selectedTab;
 
@@ -45,14 +51,19 @@ class StatisticsProvider extends ChangeNotifier {
   bool get loadingBookStatistic => _loadingBookStatistic;
 
   StatisticsProvider() {
+    // 默认时间范围与页面初始一致：本月
+    final now = DateTime.now();
+    _currentStart = DateTime(now.year, now.month, 1);
+    _currentEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
     _bookChangedSubscription = EventBus.instance.on<BookChangedEvent>((event) {
-      loadBookStatisticInfo(event.book.id);
-      loadStatistics(event.book.id);
+      loadBookStatisticInfo(event.book.id, start: _currentStart, end: _currentEnd);
+      loadStatistics(event.book.id, start: _currentStart, end: _currentEnd);
     });
 
     _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
-      loadStatistics(event.item.accountBookId);
-      loadBookStatisticInfo(event.item.accountBookId);
+      loadStatistics(event.item.accountBookId, start: _currentStart, end: _currentEnd);
+      loadBookStatisticInfo(event.item.accountBookId, start: _currentStart, end: _currentEnd);
     });
   }
 
@@ -87,6 +98,8 @@ class StatisticsProvider extends ChangeNotifier {
     if (bookId == null) return;
 
     _isLoading = true;
+    _currentStart = start;
+    _currentEnd = end;
     notifyListeners();
 
     try {
