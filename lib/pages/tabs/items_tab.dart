@@ -104,16 +104,17 @@ class _ItemsTabState extends State<ItemsTab>
                     },
                   ),
 
-                  // 债务信息
-                  DebtsContainer(
-                    debts: debtListProvider.debts.take(3).toList(),
-                    bookMeta: bookProvider.selectedBook,
-                    loading: debtListProvider.loading,
-                    onItemTap: (debt) {
-                      NavigationUtil.toDebtEdit(context, debt);
-                    },
-                    onRefresh: () => debtListProvider.loadDebts(),
-                  ),
+                  // 债务信息 - 根据配置决定是否显示
+                  if (AppConfigManager.instance.uiConfig.itemTabShowDebt)
+                    DebtsContainer(
+                      debts: debtListProvider.debts.take(3).toList(),
+                      bookMeta: bookProvider.selectedBook,
+                      loading: debtListProvider.loading,
+                      onItemTap: (debt) {
+                        NavigationUtil.toDebtEdit(context, debt);
+                      },
+                      onRefresh: () => debtListProvider.loadDebts(),
+                    ),
                 ],
               ),
             ],

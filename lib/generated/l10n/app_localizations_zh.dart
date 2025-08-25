@@ -922,6 +922,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get timeRangeCustom => '自定义';
+
+  @override
+  String get uiLayoutSettings => '界面设置';
+
+  @override
+  String get accountingPage => '记账页';
+
+  @override
+  String get showDebt => '显示债务';
+
+  @override
+  String get showDebtDescription => '在记账页中显示债务信息';
+
+  @override
+  String get settingsSaved => '设置已保存';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1793,4 +1808,19 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get timeRangeCustom => '自訂';
+
+  @override
+  String get uiLayoutSettings => '介面設定';
+
+  @override
+  String get accountingPage => '記賬頁';
+
+  @override
+  String get showDebt => '顯示債務';
+
+  @override
+  String get showDebtDescription => '在記賬頁中顯示債務資訊';
+
+  @override
+  String get settingsSaved => '設定已儲存';
 }

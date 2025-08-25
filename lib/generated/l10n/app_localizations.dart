@@ -1814,6 +1814,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom'**
   String get timeRangeCustom;
+
+  /// Title for UI layout settings page
+  ///
+  /// In en, this message translates to:
+  /// **'UI Layout Settings'**
+  String get uiLayoutSettings;
+
+  /// Title for accounting page settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Accounting Page'**
+  String get accountingPage;
+
+  /// Label for show debt toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Show Debt'**
+  String get showDebt;
+
+  /// Description for show debt toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Display debt information in the accounting page'**
+  String get showDebtDescription;
+
+  /// Message shown when settings are saved
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved successfully'**
+  String get settingsSaved;
 }
 
 class _AppLocalizationsDelegate

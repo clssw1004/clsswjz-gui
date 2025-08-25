@@ -705,5 +705,25 @@
     "timeRangeYear": "本年",
     "timeRangeMonth": "本月",
     "timeRangeWeek": "本週",
-    "timeRangeCustom": "自訂"
+    "timeRangeCustom": "自訂",
+    "uiLayoutSettings": "介面設定",
+    "@uiLayoutSettings": {
+        "description": "介面設定頁面標題"
+    },
+    "accountingPage": "記賬頁",
+    "@accountingPage": {
+        "description": "記賬頁設定區域標題"
+    },
+    "showDebt": "顯示債務",
+    "@showDebt": {
+        "description": "顯示債務開關標籤"
+    },
+    "showDebtDescription": "在記賬頁中顯示債務資訊",
+    "@showDebtDescription": {
+        "description": "顯示債務開關的描述"
+    },
+    "settingsSaved": "設定已儲存",
+    "@settingsSaved": {
+        "description": "設定儲存成功的提示訊息"
+    }
 }

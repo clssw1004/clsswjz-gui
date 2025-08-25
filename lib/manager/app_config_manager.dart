@@ -4,6 +4,7 @@ import '../drivers/driver_factory.dart';
 import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
 import '../models/dto/item_filter_dto.dart';
+import '../models/dto/ui_config_dto.dart';
 import '../utils/digest_util.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -30,6 +31,7 @@ class AppConfigManager {
   static const String _lastSyncTimeKey = 'last_sync_time';
   static const String _accountItemListStyleKey = 'account_item_list_style';
   static const String _itemFilterKey = 'item_filter';
+  static const String _uiConfigKey = 'ui_config';
 
   static bool _isInit = false;
 
@@ -95,6 +97,9 @@ class AppConfigManager {
 
   late ItemFilterDTO _itemFilter;
   ItemFilterDTO get itemFilter => _itemFilter;
+
+  late UiConfigDTO _uiConfig;
+  UiConfigDTO get uiConfig => _uiConfig;
 
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
@@ -164,6 +169,12 @@ class AppConfigManager {
     _itemFilter = itemFilterString != null
         ? ItemFilterDTO.fromJson(itemFilterString)
         : const ItemFilterDTO();
+
+    // 初始化UI配置
+    final uiConfigString = CacheManager.instance.getString(_uiConfigKey);
+    _uiConfig = uiConfigString != null
+        ? UiConfigDTO.fromJsonString(uiConfigString)
+        : UiConfigDTO();
   }
 
   /// 初始化
@@ -283,6 +294,12 @@ class AppConfigManager {
     }
     await CacheManager.instance
         .setString(_itemFilterKey, ItemFilterDTO.toJsonString(_itemFilter));
+  }
+
+  Future<void> setUiConfig(UiConfigDTO uiConfig) async {
+    _uiConfig = uiConfig;
+    await CacheManager.instance
+        .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));
   }
 
   /// 是否已经配置过后台服务

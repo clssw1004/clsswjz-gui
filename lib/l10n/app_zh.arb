@@ -819,5 +819,25 @@
     "timeRangeYear": "本年",
     "timeRangeMonth": "本月",
     "timeRangeWeek": "本周",
-    "timeRangeCustom": "自定义"
+    "timeRangeCustom": "自定义",
+    "uiLayoutSettings": "界面设置",
+    "@uiLayoutSettings": {
+        "description": "界面设置页面标题"
+    },
+    "accountingPage": "记账页",
+    "@accountingPage": {
+        "description": "记账页设置区域标题"
+    },
+    "showDebt": "显示债务",
+    "@showDebt": {
+        "description": "显示债务开关标签"
+    },
+    "showDebtDescription": "在记账页中显示债务信息",
+    "@showDebtDescription": {
+        "description": "显示债务开关的描述"
+    },
+    "settingsSaved": "设置已保存",
+    "@settingsSaved": {
+        "description": "设置保存成功的提示消息"
+    }
 }

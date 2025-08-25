@@ -28,6 +28,7 @@ import '../pages/settings/sync_settings_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
+import '../pages/settings/ui_layout_config_page.dart';
 import '../pages/book/debt_add_page.dart';
 import '../pages/book/item_list_page.dart';
 import '../pages/book/items.page.dart';
@@ -52,6 +53,9 @@ class AppRoutes {
 
   /// 数据库查看器页面
   static const String databaseViewer = '/database_viewer';
+
+  /// UI布局设置页面
+  static const String uiLayoutSettings = '/ui_layout_settings';
 
   /// 账本列表页面
   static const String accountBooks = '/books';
@@ -126,6 +130,7 @@ class AppRoutes {
     themeSettings: (context) => const ThemeSettingsPage(),
     languageSettings: (context) => const LanguageSettingsPage(),
     databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
+    uiLayoutSettings: (context) => const UiConfigPage(),
     accountBooks: (context) => const BookListPage(),
     bookForm: (context) => const BookFormPage(),
     itemAdd: (context) {

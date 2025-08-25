@@ -36,7 +36,7 @@ class ProgressIndicatorBar extends StatelessWidget {
           LinearProgressIndicator(
             value: value,
             minHeight: height,
-            backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(128),
+            backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(180),
             color: colorScheme.primary.withAlpha(51),
           ),
           Text(

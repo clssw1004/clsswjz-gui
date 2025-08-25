@@ -307,6 +307,13 @@ class _MineTabView extends StatelessWidget {
                   ),
                   _buildSettingItem(
                     context,
+                    Icons.dashboard_outlined,
+                    L10nManager.l10n.uiLayoutSettings,
+                    () => Navigator.pushNamed(
+                        context, AppRoutes.uiLayoutSettings),
+                  ),
+                  _buildSettingItem(
+                    context,
                     Icons.storage_outlined,
                     L10nManager.l10n.database,
                     () =>

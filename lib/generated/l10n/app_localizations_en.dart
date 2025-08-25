@@ -924,4 +924,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timeRangeCustom => 'Custom';
+
+  @override
+  String get uiLayoutSettings => 'UI Layout Settings';
+
+  @override
+  String get accountingPage => 'Accounting Page';
+
+  @override
+  String get showDebt => 'Show Debt';
+
+  @override
+  String get showDebtDescription =>
+      'Display debt information in the accounting page';
+
+  @override
+  String get settingsSaved => 'Settings saved successfully';
 }

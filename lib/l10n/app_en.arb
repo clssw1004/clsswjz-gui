@@ -811,5 +811,25 @@
     "timeRangeYear": "This Year",
     "timeRangeMonth": "This Month",
     "timeRangeWeek": "This Week",
-    "timeRangeCustom": "Custom"
+    "timeRangeCustom": "Custom",
+    "uiLayoutSettings": "UI Layout Settings",
+    "@uiLayoutSettings": {
+        "description": "Title for UI layout settings page"
+    },
+    "accountingPage": "Accounting Page",
+    "@accountingPage": {
+        "description": "Title for accounting page settings section"
+    },
+    "showDebt": "Show Debt",
+    "@showDebt": {
+        "description": "Label for show debt toggle"
+    },
+    "showDebtDescription": "Display debt information in the accounting page",
+    "@showDebtDescription": {
+        "description": "Description for show debt toggle"
+    },
+    "settingsSaved": "Settings saved successfully",
+    "@settingsSaved": {
+        "description": "Message shown when settings are saved"
+    }
 }
