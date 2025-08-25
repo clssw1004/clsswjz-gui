@@ -13,6 +13,7 @@ import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
+import '../../widgets/statistics/daily_statistic_card.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -71,6 +72,10 @@ class _ItemsTabState extends State<ItemsTab>
                 context
                     .read<StatisticsProvider>()
                     .loadBookStatisticInfo(book.id);
+                // 加载每日统计数据
+                context
+                    .read<StatisticsProvider>()
+                    .loadDailyStatistics(book.id);
               },
             );
           },
@@ -103,6 +108,13 @@ class _ItemsTabState extends State<ItemsTab>
                       NavigationUtil.toItemEdit(context, item);
                     },
                   ),
+
+                  // 每日统计卡片 - 根据配置决定是否显示
+                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyStats)
+                    DailyStatisticCard(
+                      dailyStats: statisticsProvider.dailyStatistics ?? [],
+                      loading: statisticsProvider.loadingDailyStatistics,
+                    ),
 
                   // 债务信息 - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDebt)

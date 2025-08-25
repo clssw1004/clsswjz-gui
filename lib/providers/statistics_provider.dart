@@ -42,6 +42,14 @@ class StatisticsProvider extends ChangeNotifier {
   BookStatisticVO? _lastDayStatistic;
   BookStatisticVO? get lastDayStatistic => _lastDayStatistic;
 
+  /// 每日收支统计数据
+  List<DailyStatisticVO>? _dailyStatistics;
+  List<DailyStatisticVO>? get dailyStatistics => _dailyStatistics;
+
+  /// 是否正在加载每日统计数据
+  bool _loadingDailyStatistics = false;
+  bool get loadingDailyStatistics => _loadingDailyStatistics;
+
   /// 当前选中的统计类型（day, month, all）
   String _selectedStatisticType = 'all'; // 默认显示全部时间
   String get selectedStatisticType => _selectedStatisticType;
@@ -59,11 +67,13 @@ class StatisticsProvider extends ChangeNotifier {
     _bookChangedSubscription = EventBus.instance.on<BookChangedEvent>((event) {
       loadBookStatisticInfo(event.book.id, start: _currentStart, end: _currentEnd);
       loadStatistics(event.book.id, start: _currentStart, end: _currentEnd);
+      loadDailyStatistics(event.book.id);
     });
 
     _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
       loadStatistics(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadBookStatisticInfo(event.item.accountBookId, start: _currentStart, end: _currentEnd);
+      loadDailyStatistics(event.item.accountBookId);
     });
   }
 
@@ -166,6 +176,29 @@ class StatisticsProvider extends ChangeNotifier {
       _lastDayStatistic = results[2];
     } finally {
       _loadingBookStatistic = false;
+      notifyListeners();
+    }
+  }
+
+  /// 加载当月每日收支统计数据
+  Future<void> loadDailyStatistics(String? bookId) async {
+    if (bookId == null) return;
+
+    _loadingDailyStatistics = true;
+    notifyListeners();
+
+    try {
+      final result = await _statisticService.getCurrentMonthDailyStatistic(bookId);
+      if (result.ok && result.data != null) {
+        _dailyStatistics = result.data;
+      } else {
+        _dailyStatistics = [];
+      }
+    } catch (e) {
+      debugPrint('加载每日统计数据失败: $e');
+      _dailyStatistics = [];
+    } finally {
+      _loadingDailyStatistics = false;
       notifyListeners();
     }
   }

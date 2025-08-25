@@ -73,3 +73,25 @@ class CategoryStatisticGroupVO {
     required this.categoryGroupList,
   });
 }
+
+/// 每日收支统计信息
+class DailyStatisticVO {
+  /// 日期
+  final String date;
+  
+  /// 收入
+  final double income;
+  
+  /// 支出
+  final double expense;
+  
+  /// 结余
+  final double balance;
+
+  const DailyStatisticVO({
+    required this.date,
+    this.income = 0,
+    this.expense = 0,
+    this.balance = 0,
+  });
+}

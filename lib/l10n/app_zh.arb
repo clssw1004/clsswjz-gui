@@ -764,7 +764,11 @@
     },
     "currentMonth": "本月",
     "@currentMonth": {
-        "description": "本月的统计标签"
+        "description": "本月标签"
+    },
+    "currentDay": "今日",
+    "@currentDay": {
+        "description": "今日标签"
     },
     "lastDay": "最近一天",
     "@lastDay": {
@@ -839,5 +843,17 @@
     "settingsSaved": "设置已保存",
     "@settingsSaved": {
         "description": "设置保存成功的提示消息"
+    },
+    "dailyIncomeExpense": "每日收支",
+    "@dailyIncomeExpense": {
+        "description": "每日收支统计标题"
+    },
+    "showDailyStats": "显示每日统计",
+    "@showDailyStats": {
+        "description": "显示每日统计开关标签"
+    },
+    "showDailyStatsDescription": "在记账页中显示每日收支图表",
+    "@showDailyStatsDescription": {
+        "description": "显示每日统计开关的描述"
     }
 }

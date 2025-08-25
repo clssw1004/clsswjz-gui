@@ -1701,11 +1701,17 @@ abstract class AppLocalizations {
   /// **'Default Fund Account'**
   String get defaultFund;
 
-  /// Label for current month statistics
+  /// Current month label
   ///
   /// In en, this message translates to:
   /// **'Current Month'**
   String get currentMonth;
+
+  /// Current day label
+  ///
+  /// In en, this message translates to:
+  /// **'Current Day'**
+  String get currentDay;
 
   /// Label for last day statistics
   ///
@@ -1844,6 +1850,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings saved successfully'**
   String get settingsSaved;
+
+  /// Title for daily income and expense statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Income & Expense'**
+  String get dailyIncomeExpense;
+
+  /// Label for show daily statistics toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Show Daily Statistics'**
+  String get showDailyStats;
+
+  /// Description for show daily statistics toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Display daily income and expense chart in the accounting page'**
+  String get showDailyStatsDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -872,6 +872,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentMonth => 'Current Month';
 
   @override
+  String get currentDay => 'Current Day';
+
+  @override
   String get lastDay => 'Last Day';
 
   @override
@@ -940,4 +943,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSaved => 'Settings saved successfully';
+
+  @override
+  String get dailyIncomeExpense => 'Daily Income & Expense';
+
+  @override
+  String get showDailyStats => 'Show Daily Statistics';
+
+  @override
+  String get showDailyStatsDescription =>
+      'Display daily income and expense chart in the accounting page';
 }

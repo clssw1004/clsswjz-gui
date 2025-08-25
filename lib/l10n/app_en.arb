@@ -756,7 +756,11 @@
     },
     "currentMonth": "Current Month",
     "@currentMonth": {
-        "description": "Label for current month statistics"
+        "description": "Current month label"
+    },
+    "currentDay": "Current Day",
+    "@currentDay": {
+        "description": "Current day label"
     },
     "lastDay": "Last Day",
     "@lastDay": {
@@ -831,5 +835,17 @@
     "settingsSaved": "Settings saved successfully",
     "@settingsSaved": {
         "description": "Message shown when settings are saved"
+    },
+    "dailyIncomeExpense": "Daily Income & Expense",
+    "@dailyIncomeExpense": {
+        "description": "Title for daily income and expense statistics"
+    },
+    "showDailyStats": "Show Daily Statistics",
+    "@showDailyStats": {
+        "description": "Label for show daily statistics toggle"
+    },
+    "showDailyStatsDescription": "Display daily income and expense chart in the accounting page",
+    "@showDailyStatsDescription": {
+        "description": "Description for show daily statistics toggle"
     }
 }

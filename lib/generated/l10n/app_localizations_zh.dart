@@ -870,6 +870,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get currentMonth => '本月';
 
   @override
+  String get currentDay => '今日';
+
+  @override
   String get lastDay => '最近一天';
 
   @override
@@ -937,6 +940,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSaved => '设置已保存';
+
+  @override
+  String get dailyIncomeExpense => '每日收支';
+
+  @override
+  String get showDailyStats => '显示每日统计';
+
+  @override
+  String get showDailyStatsDescription => '在记账页中显示每日收支图表';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1756,6 +1768,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get currentMonth => '本月';
 
   @override
+  String get currentDay => '今日';
+
+  @override
   String get lastDay => '最近一天';
 
   @override
@@ -1823,4 +1838,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get settingsSaved => '設定已儲存';
+
+  @override
+  String get dailyIncomeExpense => '每日收支';
+
+  @override
+  String get showDailyStats => '顯示每日統計';
+
+  @override
+  String get showDailyStatsDescription => '在記賬頁中顯示每日收支圖表';
 }

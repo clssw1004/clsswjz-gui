@@ -650,7 +650,11 @@
     },
     "currentMonth": "本月",
     "@currentMonth": {
-        "description": "本月的統計標籤"
+        "description": "本月標籤"
+    },
+    "currentDay": "今日",
+    "@currentDay": {
+        "description": "今日標籤"
     },
     "lastDay": "最近一天",
     "@lastDay": {
@@ -725,5 +729,17 @@
     "settingsSaved": "設定已儲存",
     "@settingsSaved": {
         "description": "設定儲存成功的提示訊息"
+    },
+    "dailyIncomeExpense": "每日收支",
+    "@dailyIncomeExpense": {
+        "description": "每日收支統計標題"
+    },
+    "showDailyStats": "顯示每日統計",
+    "@showDailyStats": {
+        "description": "顯示每日統計開關標籤"
+    },
+    "showDailyStatsDescription": "在記賬頁中顯示每日收支圖表",
+    "@showDailyStatsDescription": {
+        "description": "顯示每日統計開關的描述"
     }
 }

@@ -328,4 +328,73 @@ class StatisticService {
 
     return OperateResult.success(result);
   }
+
+  /// 获取当月每天的收支统计数据
+  Future<OperateResult<List<DailyStatisticVO>>> getCurrentMonthDailyStatistic(
+      String accountBookId) async {
+    final db = DatabaseManager.db;
+
+    // 获取当前月份的起始日期和结束日期
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    final monthStart = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+    final monthEnd = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+
+    // 查询当月有收支记录的日期
+    final dateQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.accountDate.isBetweenValues('$monthStart 00:00:00', '$monthEnd 23:59:59'))
+      ..addColumns([db.accountItemTable.accountDate])
+      ..groupBy([db.accountItemTable.accountDate]);
+
+    final dateResults = await dateQuery.get();
+    final List<String> datesWithData = dateResults
+        .map((row) => DateFormat('yyyy-MM-dd').format(
+            DateTime.parse(row.read(db.accountItemTable.accountDate)!)))
+        .toSet()
+        .toList()
+      ..sort(); // 按日期排序
+
+    final List<DailyStatisticVO> dailyStats = [];
+
+    // 只为有数据的日期生成统计数据
+    for (final dateStr in datesWithData) {
+      final dateStart = '$dateStr 00:00:00';
+      final dateEnd = '$dateStr 23:59:59';
+
+      // 查询当天的收入
+      final incomeQuery = db.selectOnly(db.accountItemTable)
+        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+            db.accountItemTable.type.equals(AccountItemType.income.code) &
+            db.accountItemTable.accountDate.isBetweenValues(dateStart, dateEnd))
+        ..addColumns([db.accountItemTable.amount.sum()]);
+
+      final incomeResult = await incomeQuery.getSingleOrNull();
+      final income = incomeResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+      // 查询当天的支出
+      final expenseQuery = db.selectOnly(db.accountItemTable)
+        ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+            db.accountItemTable.type.equals(AccountItemType.expense.code) &
+            db.accountItemTable.accountDate.isBetweenValues(dateStart, dateEnd))
+        ..addColumns([db.accountItemTable.amount.sum()]);
+
+      final expenseResult = await expenseQuery.getSingleOrNull();
+      final expense = expenseResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
+
+      // 计算结余
+      final balance = income + expense;
+
+      dailyStats.add(DailyStatisticVO(
+        date: dateStr,
+        income: income,
+        expense: expense,
+        balance: balance,
+      ));
+    }
+
+    return OperateResult.success(dailyStats);
+  }
 }
