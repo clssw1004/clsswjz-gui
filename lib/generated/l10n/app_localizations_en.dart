@@ -948,9 +948,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyIncomeExpense => 'Daily Income & Expense';
 
   @override
-  String get showDailyStats => 'Show Daily Statistics';
+  String get showDailyStats => 'Daily Statistics (Bar Chart)';
 
   @override
   String get showDailyStatsDescription =>
-      'Display daily income and expense chart in the accounting page';
+      'Display daily income and expense bar chart in the accounting page';
+
+  @override
+  String get showDailyCalendar => 'Daily Statistics (Calendar)';
+
+  @override
+  String get showDailyCalendarDescription =>
+      'Display daily income and expense calendar in the accounting page';
 }

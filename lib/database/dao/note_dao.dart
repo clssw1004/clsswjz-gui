@@ -12,6 +12,14 @@ class NoteDao extends BaseBookDao<AccountNoteTable, AccountNote> {
   TableInfo<AccountNoteTable, AccountNote> get table => db.accountNoteTable;
 
   @override
+  List<OrderClauseGenerator<AccountNoteTable>> defaultOrderBy() {
+    return [
+      (t) => OrderingTerm.desc(t.updatedAt),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ];
+  }
+
+  @override
   Future<List<AccountNote>> listByBook(String accountBookId,
       {int? limit, int? offset, NoteFilterDTO? filter}) {
     final query = (db.select(table)

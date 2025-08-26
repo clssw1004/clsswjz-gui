@@ -1,86 +1,190 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
-import '../../models/vo/statistic_vo.dart';
-import '../../manager/l10n_manager.dart';
-import '../../utils/color_util.dart';
+import '../../../models/vo/statistic_vo.dart';
+import '../../../manager/l10n_manager.dart';
+import '../../common/common_card_container.dart';
+import '../../../utils/color_util.dart';
 
-/// 每日收支统计图表组件
-class DailyStatisticChart extends StatelessWidget {
+/// 每日收支统计卡片（合并了图表功能）
+class DailyStatisticBar extends StatefulWidget {
   /// 每日统计数据
   final List<DailyStatisticVO> dailyStats;
-
+  
   /// 加载状态
   final bool loading;
 
-  /// 高度
-  final double height;
-
-  /// 是否使用对数Y轴（当数据范围差异很大时建议启用）
-  final bool useLogarithmicYAxis;
-  
-  /// 是否显示收入（true显示收入，false显示支出）
-  final bool showIncome;
-
-  const DailyStatisticChart({
+  const DailyStatisticBar({
     super.key,
     required this.dailyStats,
     this.loading = false,
-    this.height = 200,
-    this.useLogarithmicYAxis = false,
-    this.showIncome = true,
   });
+
+  @override
+  State<DailyStatisticBar> createState() => _DailyStatisticBarState();
+}
+
+class _DailyStatisticBarState extends State<DailyStatisticBar> {
+  /// 是否显示收入（true显示收入，false显示支出）
+  bool _showIncome = false; // 默认显示支出
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    if (loading) {
-      return SizedBox(
-        height: height,
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+    if (widget.loading) {
+      return const SizedBox(
+        height: 280,
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (dailyStats.isEmpty) {
-      return SizedBox(
-        height: height,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.bar_chart_outlined,
-                size: 48,
-                color: colorScheme.onSurfaceVariant.withAlpha(100),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                L10nManager.l10n.noData,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+    if (widget.dailyStats.isEmpty) {
+      return CommonCardContainer(
+        child: SizedBox(
+          height: 220,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.bar_chart_outlined,
+                  size: 48,
+                  color: colorScheme.onSurfaceVariant.withAlpha(100),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '本月暂无收支记录',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant.withAlpha(150),
-                  fontSize: 12,
+                const SizedBox(height: 16),
+                Text(
+                  L10nManager.l10n.noData,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return SizedBox(
-      height: height,
-      child: _buildSfBarChart(context, colorScheme),
+    return CommonCardContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.bar_chart_outlined,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  L10nManager.l10n.dailyIncomeExpense,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 切换按钮 - 居中显示
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 支出按钮
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showIncome = false;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: !_showIncome 
+                          ? colorScheme.error.withAlpha(180)
+                          : colorScheme.surfaceContainerHighest.withAlpha(80),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: !_showIncome 
+                            ? colorScheme.error.withAlpha(150)
+                            : colorScheme.outline.withAlpha(80),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      L10nManager.l10n.expense,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: !_showIncome 
+                            ? colorScheme.onError 
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: !_showIncome 
+                            ? FontWeight.w600 
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // 收入按钮
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showIncome = true;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _showIncome 
+                          ? colorScheme.primary.withAlpha(180)
+                          : colorScheme.surfaceContainerHighest.withAlpha(80),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: _showIncome 
+                            ? colorScheme.primary.withAlpha(150)
+                            : colorScheme.outline.withAlpha(80),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      L10nManager.l10n.income,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: _showIncome 
+                            ? colorScheme.onPrimary 
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: _showIncome 
+                            ? FontWeight.w600 
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 图表
+          SizedBox(
+            height: 200,
+            child: _buildSfBarChart(context, colorScheme),
+          ),
+        ],
+      ),
     );
   }
 
@@ -89,7 +193,7 @@ class DailyStatisticChart extends StatelessWidget {
     final theme = Theme.of(context);
 
     // 准备图表数据，根据切换状态只显示收入或支出
-    final List<DailyChartData> chartData = dailyStats.map((stat) {
+    final List<DailyChartData> chartData = widget.dailyStats.map((stat) {
       final dateParts = stat.date.split('-');
       final day = dateParts.length >= 3 ? dateParts[2] : stat.date;
       return DailyChartData(
@@ -137,7 +241,7 @@ class DailyStatisticChart extends StatelessWidget {
         ),
         // 动态计算Y轴间隔
         interval: _calculateYAxisInterval(yAxisRange),
-        numberFormat: NumberFormat.compact(),
+        numberFormat: NumberFormat.decimalPattern(),
         majorTickLines: const MajorTickLines(size: 0),
         axisLine: AxisLine(
           color: colorScheme.outline.withAlpha(50),
@@ -164,7 +268,7 @@ class DailyStatisticChart extends StatelessWidget {
       plotAreaBorderWidth: 0,
       series: <CartesianSeries>[
         // 根据切换状态显示收入或支出
-        if (showIncome)
+        if (_showIncome)
           // 收入柱状图系列
           ColumnSeries<DailyChartData, String>(
             dataSource: chartData,
@@ -256,15 +360,15 @@ class DailyStatisticChart extends StatelessWidget {
 
   /// 计算X轴标签间隔
   double _calculateXAxisInterval() {
-    if (dailyStats.isEmpty) {
+    if (widget.dailyStats.isEmpty) {
       return 1.0; // 空数据时返回默认值
     }
 
-    if (dailyStats.length <= 10) {
+    if (widget.dailyStats.length <= 10) {
       return 1.0; // 数据点较少时，显示所有标签
-    } else if (dailyStats.length <= 20) {
+    } else if (widget.dailyStats.length <= 20) {
       return 2.0; // 数据点较多时，每2个显示一个标签
-    } else if (dailyStats.length <= 30) {
+    } else if (widget.dailyStats.length <= 30) {
       return 3.0; // 数据点更多时，每3个显示一个标签
     } else {
       return 5.0; // 数据点非常多时，每5个显示一个标签
@@ -273,16 +377,16 @@ class DailyStatisticChart extends StatelessWidget {
 
   /// 计算Y轴范围
   YAxisRange _calculateYAxisRange() {
-    if (dailyStats.isEmpty) {
+    if (widget.dailyStats.isEmpty) {
       return YAxisRange(min: 0, max: 100);
     }
 
     double minAmount = double.infinity;
     double maxAmount = -double.infinity;
 
-    for (final stat in dailyStats) {
+    for (final stat in widget.dailyStats) {
       // 根据当前显示的数据类型来计算
-      final value = showIncome ? stat.income : stat.expense.abs();
+      final value = _showIncome ? stat.income : stat.expense.abs();
       if (value < minAmount) {
         minAmount = value;
       }
@@ -345,11 +449,6 @@ class DailyStatisticChart extends StatelessWidget {
     // 最终检查：确保最小值不会太小，影响视觉效果
     if (minAmount > 0 && (maxAmount / minAmount) > 100) {
       minAmount = maxAmount / 100;
-    }
-
-    // 调试信息：打印Y轴范围调整前后的对比
-    if (originalMin != minAmount || originalMax != maxAmount) {
-      print('Y轴范围优化: 原始(${originalMin.toStringAsFixed(2)}, ${originalMax.toStringAsFixed(2)}) -> 调整后(${minAmount.toStringAsFixed(2)}, ${maxAmount.toStringAsFixed(2)})');
     }
 
     return YAxisRange(min: minAmount, max: maxAmount);

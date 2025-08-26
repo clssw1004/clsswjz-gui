@@ -734,12 +734,20 @@
     "@dailyIncomeExpense": {
         "description": "每日收支統計標題"
     },
-    "showDailyStats": "顯示每日統計",
+    "showDailyStats": "每日統計（柱狀圖）",
     "@showDailyStats": {
         "description": "顯示每日統計開關標籤"
     },
-    "showDailyStatsDescription": "在記賬頁中顯示每日收支圖表",
+    "showDailyStatsDescription": "在記賬頁中顯示每日收支柱狀圖",
     "@showDailyStatsDescription": {
         "description": "顯示每日統計開關的描述"
+    },
+    "showDailyCalendar": "每日統計（日曆）",
+    "@showDailyCalendar": {
+        "description": "顯示每日統計日曆開關標籤"
+    },
+    "showDailyCalendarDescription": "在記賬頁中顯示每日收支日曆",
+    "@showDailyCalendarDescription": {
+        "description": "顯示每日統計日曆開關的描述"
     }
 }

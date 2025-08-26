@@ -2,15 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.3] - 2025-08-25
+## [1.0.3] - 2025-08-27
 
 ### Feature Enhancements
 - Added UI Layout Configuration page with debt display toggle
   - New settings page accessible via "Mine" tab → "System Settings" → "UI Layout Settings"
   - Configurable debt information display in accounting page
 - Added daily income/expense statistics feature
-  - New daily statistics component with toggle between income and expense views
-  - Configurable display option in UI settings
+  - New daily statistics component (bar chart) with toggle between income and expense views
+  - New daily statistics component (calendar view)
+  - Configurable display options in UI settings
   - Integrated into accounting page with responsive chart visualization
 
 ## [1.0.2] - 2025-08-20

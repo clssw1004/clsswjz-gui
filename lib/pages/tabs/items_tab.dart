@@ -13,7 +13,8 @@ import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/book/items_container.dart';
 import '../../widgets/book/debts_container.dart';
-import '../../widgets/statistics/daily_statistic_card.dart';
+import '../../widgets/statistics/daily/daily_statistic_bar.dart';
+import '../../widgets/statistics/daily/daily_statistic_calendar.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -73,9 +74,7 @@ class _ItemsTabState extends State<ItemsTab>
                     .read<StatisticsProvider>()
                     .loadBookStatisticInfo(book.id);
                 // 加载每日统计数据
-                context
-                    .read<StatisticsProvider>()
-                    .loadDailyStatistics(book.id);
+                context.read<StatisticsProvider>().loadDailyStatistics(book.id);
               },
             );
           },
@@ -89,7 +88,7 @@ class _ItemsTabState extends State<ItemsTab>
           return Stack(
             children: [
               ListView(
-                padding: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                 children: [
                   // 账本统计卡片
                   BookStatisticCard(
@@ -109,23 +108,39 @@ class _ItemsTabState extends State<ItemsTab>
                     },
                   ),
 
-                  // 每日统计卡片 - 根据配置决定是否显示
-                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyStats)
-                    DailyStatisticCard(
-                      dailyStats: statisticsProvider.dailyStatistics ?? [],
-                      loading: statisticsProvider.loadingDailyStatistics,
+                  // 每日统计卡片（柱状图） - 根据配置决定是否显示
+                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyBar)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: DailyStatisticBar(
+                        dailyStats: statisticsProvider.dailyStatistics ?? [],
+                        loading: statisticsProvider.loadingDailyStatistics,
+                      ),
+                    ),
+
+                  // 每日统计（日历） - 根据配置决定是否显示
+                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: DailyStatisticCalendar(
+                        dailyStats: statisticsProvider.dailyStatistics ?? [],
+                        loading: statisticsProvider.loadingDailyStatistics,
+                      ),
                     ),
 
                   // 债务信息 - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDebt)
-                    DebtsContainer(
-                      debts: debtListProvider.debts.take(3).toList(),
-                      bookMeta: bookProvider.selectedBook,
-                      loading: debtListProvider.loading,
-                      onItemTap: (debt) {
-                        NavigationUtil.toDebtEdit(context, debt);
-                      },
-                      onRefresh: () => debtListProvider.loadDebts(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: DebtsContainer(
+                        debts: debtListProvider.debts.take(3).toList(),
+                        bookMeta: bookProvider.selectedBook,
+                        loading: debtListProvider.loading,
+                        onItemTap: (debt) {
+                          NavigationUtil.toDebtEdit(context, debt);
+                        },
+                        onRefresh: () => debtListProvider.loadDebts(),
+                      ),
                     ),
                 ],
               ),

@@ -945,10 +945,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dailyIncomeExpense => '每日收支';
 
   @override
-  String get showDailyStats => '显示每日统计';
+  String get showDailyStats => '每日统计（柱状图）';
 
   @override
-  String get showDailyStatsDescription => '在记账页中显示每日收支图表';
+  String get showDailyStatsDescription => '在记账页中显示每日收支柱状图';
+
+  @override
+  String get showDailyCalendar => '每日统计（日历）';
+
+  @override
+  String get showDailyCalendarDescription => '在记账页中显示每日收支日历';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1843,8 +1849,14 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get dailyIncomeExpense => '每日收支';
 
   @override
-  String get showDailyStats => '顯示每日統計';
+  String get showDailyStats => '每日統計（柱狀圖）';
 
   @override
-  String get showDailyStatsDescription => '在記賬頁中顯示每日收支圖表';
+  String get showDailyStatsDescription => '在記賬頁中顯示每日收支柱狀圖';
+
+  @override
+  String get showDailyCalendar => '每日統計（日曆）';
+
+  @override
+  String get showDailyCalendarDescription => '在記賬頁中顯示每日收支日曆';
 }

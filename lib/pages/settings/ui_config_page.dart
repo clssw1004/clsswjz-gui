@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/ui_config_dto.dart';
-import '../../utils/toast_util.dart';
 import '../../widgets/common/common_card_container.dart';
 
 /// UI布局配置页面
@@ -16,12 +15,14 @@ class UiConfigPage extends StatefulWidget {
 class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showDebt;
   late bool _showDailyStats;
+  late bool _showDailyCalendar;
 
   @override
   void initState() {
     super.initState();
     _showDebt = AppConfigManager.instance.uiConfig.itemTabShowDebt;
-    _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyStats;
+    _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyBar;
+    _showDailyCalendar = AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
   }
 
   @override
@@ -42,7 +43,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
           children: [
             // 记账页设置
             CommonCardContainer(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +106,6 @@ class _UiConfigPageState extends State<UiConfigPage> {
                   ),
                   
                   const SizedBox(height: 16),
-                  
                   // 每日收支统计展示开关
                   Row(
                     children: [
@@ -143,6 +143,45 @@ class _UiConfigPageState extends State<UiConfigPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  // 每日收支统计（日历）展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              L10nManager.l10n.showDailyCalendar,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              L10nManager.l10n.showDailyCalendarDescription,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showDailyCalendar,
+                        onChanged: (value) {
+                          setState(() {
+                            _showDailyCalendar = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -156,7 +195,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
   Future<void> _updateUiConfig() async {
     final newConfig = UiConfigDTO(
       itemTabShowDebt: _showDebt,
-      itemTabShowDailyStats: _showDailyStats,
+      itemTabShowDailyBar: _showDailyStats,
+      itemTabShowDailyCalendar: _showDailyCalendar,
     );
     await AppConfigManager.instance.setUiConfig(newConfig);
   }

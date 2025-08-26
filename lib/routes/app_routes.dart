@@ -28,7 +28,7 @@ import '../pages/settings/sync_settings_page.dart';
 import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
-import '../pages/settings/ui_layout_config_page.dart';
+import '../pages/settings/ui_config_page.dart';
 import '../pages/book/debt_add_page.dart';
 import '../pages/book/item_list_page.dart';
 import '../pages/book/items.page.dart';

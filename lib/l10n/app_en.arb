@@ -840,12 +840,20 @@
     "@dailyIncomeExpense": {
         "description": "Title for daily income and expense statistics"
     },
-    "showDailyStats": "Show Daily Statistics",
+    "showDailyStats": "Daily Statistics (Bar Chart)",
     "@showDailyStats": {
         "description": "Label for show daily statistics toggle"
     },
-    "showDailyStatsDescription": "Display daily income and expense chart in the accounting page",
+    "showDailyStatsDescription": "Display daily income and expense bar chart in the accounting page",
     "@showDailyStatsDescription": {
         "description": "Description for show daily statistics toggle"
+    },
+    "showDailyCalendar": "Daily Statistics (Calendar)",
+    "@showDailyCalendar": {
+        "description": "Label for show daily statistics calendar toggle"
+    },
+    "showDailyCalendarDescription": "Display daily income and expense calendar in the accounting page",
+    "@showDailyCalendarDescription": {
+        "description": "Description for show daily statistics calendar toggle"
     }
 }

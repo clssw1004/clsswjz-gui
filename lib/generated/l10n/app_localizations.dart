@@ -1860,14 +1860,26 @@ abstract class AppLocalizations {
   /// Label for show daily statistics toggle
   ///
   /// In en, this message translates to:
-  /// **'Show Daily Statistics'**
+  /// **'Daily Statistics (Bar Chart)'**
   String get showDailyStats;
 
   /// Description for show daily statistics toggle
   ///
   /// In en, this message translates to:
-  /// **'Display daily income and expense chart in the accounting page'**
+  /// **'Display daily income and expense bar chart in the accounting page'**
   String get showDailyStatsDescription;
+
+  /// Label for show daily statistics calendar toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Statistics (Calendar)'**
+  String get showDailyCalendar;
+
+  /// Description for show daily statistics calendar toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Display daily income and expense calendar in the accounting page'**
+  String get showDailyCalendarDescription;
 }
 
 class _AppLocalizationsDelegate
