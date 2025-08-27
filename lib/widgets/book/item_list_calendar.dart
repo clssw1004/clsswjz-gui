@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
@@ -36,6 +36,11 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
 
   /// 是否正在加载
   bool _loading = false;
+
+  /// 比较是否同一天（仅年月日）
+  bool _isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   @override
   void initState() {
@@ -468,7 +473,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(2),
+      margin: EdgeInsets.zero,
       width: 40,
       height: 40,
       decoration: BoxDecoration(
@@ -519,7 +524,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                   : isToday
                       ? colorScheme.primary
                       : null,
-              fontSize: 13,
+              fontSize: 15,
               height: 1.1,
               fontWeight: FontWeight.w600,
             ),
@@ -537,7 +542,6 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
-    final locale = Localizations.localeOf(context).toString();
 
     if (_loading && (_monthItems == null || _monthItems!.isEmpty)) {
       return Center(child: Text(L10nManager.l10n.loading));
@@ -563,121 +567,92 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
             ),
             child: Column(
               children: [
-                TableCalendar<UserItemVO>(
-                  firstDay: DateTime.utc(2010, 1, 1),
-                  lastDay: DateTime.now(),
-                  focusedDay: _selectedDate,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
-                  calendarFormat: CalendarFormat.month,
-                  startingDayOfWeek: StartingDayOfWeek.monday,
-                  locale: locale,
-                  availableCalendarFormats: const {
-                    CalendarFormat.month: '',
-                  },
-                  headerStyle: HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: true,
-                    titleTextStyle: theme.textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    leftChevronIcon: Icon(
-                      Icons.chevron_left,
-                      color: colorScheme.primary,
-                      size: 24,
-                    ),
-                    rightChevronIcon: Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.primary,
-                      size: 24,
-                    ),
-                    headerPadding: EdgeInsets.all(radius * 2),
-                    headerMargin: EdgeInsets.zero,
-                  ),
-                  daysOfWeekStyle: DaysOfWeekStyle(
-                    weekdayStyle: theme.textTheme.bodySmall!.copyWith(
-                      color: theme.colorScheme.onSurface.withAlpha(179),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    weekendStyle: theme.textTheme.bodySmall!.copyWith(
-                      color: ColorUtil.EXPENSE.withAlpha(204),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  calendarStyle: CalendarStyle(
-                    outsideDaysVisible: false,
-                    weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                      color: ColorUtil.EXPENSE.withAlpha(204),
-                    ),
-                    holidayTextStyle: theme.textTheme.bodyMedium!,
-                    todayDecoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          colorScheme.primary.withAlpha(26),
-                          colorScheme.primary.withAlpha(13),
-                        ],
-                      ),
+                SizedBox(
+                  height: 392,
+                  child: SfCalendar(
+                    view: CalendarView.month,
+                    showNavigationArrow: true,
+                    showDatePickerButton: false,
+                    initialDisplayDate: _selectedDate,
+                    initialSelectedDate: _selectedDate,
+                    minDate: DateTime.utc(2010, 1, 1),
+                    maxDate: DateTime.now(),
+                    selectionDecoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(radius),
                       border: Border.all(
                         color: colorScheme.primary.withAlpha(77),
                         width: 1.5,
                       ),
-                      borderRadius: BorderRadius.circular(radius),
                     ),
-                    todayTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w600,
+                    monthViewSettings: MonthViewSettings(
+                      numberOfWeeksInView: 6,
+                      showAgenda: false,
+                      showTrailingAndLeadingDates: false,
+                      appointmentDisplayMode: MonthAppointmentDisplayMode.none,
                     ),
-                    selectedDecoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          colorScheme.primary,
-                          colorScheme.primary.withAlpha(230),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(radius),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.primary.withAlpha(64),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                    headerStyle: CalendarHeaderStyle(
+                      textAlign: TextAlign.center,
+                      textStyle: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ) ??
+                          const TextStyle(),
                     ),
-                    selectedTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                      color: colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
+                    viewHeaderStyle: ViewHeaderStyle(
+                      dayTextStyle: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(179),
+                            fontWeight: FontWeight.w500,
+                          ) ??
+                          const TextStyle(fontSize: 11),
                     ),
-                    defaultTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    cellMargin: EdgeInsets.all(radius / 2),
-                    cellPadding: EdgeInsets.zero,
-                    rangeHighlightColor: colorScheme.primary.withAlpha(20),
-                  ),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDate = selectedDay;
-                    });
-                  },
-                  onPageChanged: (focusedDay) {
-                    setState(() {
-                      _selectedDate = focusedDay;
-                    });
-                    _loadMonthData();
-                  },
-                  calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, day, focusedDay) {
-                      return _buildDateCell(day, theme);
+                    monthCellBuilder: (context, details) {
+                      final DateTime day = DateTime(details.date.year, details.date.month, details.date.day);
+                      // 仅显示当前月份日期
+                      if (day.month != _selectedDate.month || day.year != _selectedDate.year) {
+                        return const SizedBox.shrink();
+                      }
+                      final bool isToday = _isSameDate(day, DateTime.now());
+                      final bool isSelected = _isSameDate(day, _selectedDate);
+                      // 直接复用已有单元格渲染（包含标记）
+                      return _buildDateCell(
+                        day,
+                        theme,
+                        isSelected: isSelected,
+                        isToday: isToday,
+                      );
                     },
-                    todayBuilder: (context, day, focusedDay) {
-                      return _buildDateCell(day, theme, isToday: true);
+                    onSelectionChanged: (details) {
+                      final DateTime? date = details.date;
+                      if (date == null) return;
+                      if (!mounted) return;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        setState(() {
+                          _selectedDate = DateTime(date.year, date.month, date.day);
+                        });
+                      });
                     },
-                    selectedBuilder: (context, day, focusedDay) {
-                      return _buildDateCell(day, theme, isSelected: true);
+                    onViewChanged: (details) {
+                      // 当月份切换时，加载对应月份数据
+                      final visible = details.visibleDates;
+                      if (visible.isEmpty) return;
+                      final mid = visible[visible.length ~/ 2];
+                      final monthAnchor = DateTime(mid.year, mid.month, 1);
+                      final currentAnchor = DateTime(_selectedDate.year, _selectedDate.month, 1);
+                      if (monthAnchor != currentAnchor) {
+                        if (!mounted) return;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          setState(() {
+                            _selectedDate = monthAnchor;
+                          });
+                          _loadMonthData();
+                        });
+                      }
                     },
+                    todayHighlightColor: colorScheme.primary,
+                    backgroundColor: Colors.transparent,
+                    cellBorderColor: colorScheme.outline.withAlpha(32),
                   ),
                 ),
               ],

@@ -112,25 +112,25 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: !_showIncome 
-                          ? colorScheme.error.withAlpha(180)
-                          : colorScheme.surfaceContainerHighest.withAlpha(80),
+                      color: !_showIncome
+                          ? theme.colorScheme.surfaceContainerHighest.withAlpha(40)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: !_showIncome 
-                            ? colorScheme.error.withAlpha(150)
-                            : colorScheme.outline.withAlpha(80),
+                        color: !_showIncome
+                            ? ColorUtil.EXPENSE
+                            : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
                     ),
                     child: Text(
                       L10nManager.l10n.expense,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: !_showIncome 
-                            ? colorScheme.onError 
-                            : colorScheme.onSurfaceVariant,
-                        fontWeight: !_showIncome 
-                            ? FontWeight.w600 
+                        color: !_showIncome
+                            ? ColorUtil.EXPENSE
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight: !_showIncome
+                            ? FontWeight.w600
                             : FontWeight.normal,
                       ),
                     ),
@@ -150,25 +150,25 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _showIncome 
-                          ? colorScheme.primary.withAlpha(180)
-                          : colorScheme.surfaceContainerHighest.withAlpha(80),
+                      color: _showIncome
+                          ? theme.colorScheme.surfaceContainerHighest.withAlpha(40)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: _showIncome 
-                            ? colorScheme.primary.withAlpha(150)
-                            : colorScheme.outline.withAlpha(80),
+                        color: _showIncome
+                            ? ColorUtil.INCOME
+                            : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
                     ),
                     child: Text(
                       L10nManager.l10n.income,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: _showIncome 
-                            ? colorScheme.onPrimary 
-                            : colorScheme.onSurfaceVariant,
-                        fontWeight: _showIncome 
-                            ? FontWeight.w600 
+                        color: _showIncome
+                            ? ColorUtil.INCOME
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight: _showIncome
+                            ? FontWeight.w600
                             : FontWeight.normal,
                       ),
                     ),

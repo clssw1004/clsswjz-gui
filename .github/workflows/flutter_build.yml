@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*"
-
 jobs:
   # 添加一个新的作业来提取发布说明
   extract_release_notes:
@@ -61,9 +60,7 @@ jobs:
             artifact-path: build/app/outputs/flutter-apk/app-release.apk
             artifact-name: clsswjz-${{ github.ref_name }}-android-arm64
             ext: .apk
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -78,7 +75,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.7"
+          flutter-version: "3.35.2"
           channel: "stable"
 
       - name: Install Linux dependencies
@@ -114,25 +111,21 @@ jobs:
         run: |
           cd build/windows/x64/runner/Release
           7z a ../../../../../${{ matrix.artifact-name }}${{ matrix.ext }} *
-
       - name: Create ZIP (Linux)
         if: matrix.platform == 'linux'
         run: |
           cd build/linux/x64/release/bundle
           zip -r ../../../../../${{ matrix.artifact-name }}${{ matrix.ext }} *
-
       - name: Copy APK
         if: matrix.platform == 'android'
         run: |
           cp build/app/outputs/flutter-apk/app-release.apk ${{ matrix.artifact-name }}${{ matrix.ext }}
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
           path: ${{ matrix.artifact-name }}${{ matrix.ext }}
           compression-level: 0
-
   release:
     needs: [extract_release_notes, build]
     runs-on: ubuntu-latest

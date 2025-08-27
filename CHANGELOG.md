@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4-alpha.1] - 2025-08-27
+
+### Feature Enhancements
+- Daily statistics (Calendar) rebuilt with Syncfusion SfCalendar
+  - Localized month/week labels; only current-month days shown
+  - New income/expense multi-select toggles; calendar cells render amounts per selection
+  - Visual polish: tighter cells, theme-adaptive colors, hidden overflow menu
+- Items calendar switched to SfCalendar with markers; improved selection style and no build-phase setState
+- Daily bar chart consolidated as `DailyStatisticBar` (unified card + chart)
+
+### Tooling/Config
+- Gradle 8.7, AGP 8.6.0, Kotlin 2.1.0; JDK 17 recommended
+- l10n: removed deprecated synthetic-package option
+
 ## [1.0.3] - 2025-08-27
 
 ### Feature Enhancements

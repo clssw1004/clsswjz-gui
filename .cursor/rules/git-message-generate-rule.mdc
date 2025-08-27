@@ -1,6 +1,0 @@
----
-description: rule for generate git commit message
-globs: 
----
-
-当我要求生成提交信息时，要详细描述上次提交至本次所有变更，且提交信息包包含英文版与中文版（分开，英文在上，中文在下），在一个codeblock中回复

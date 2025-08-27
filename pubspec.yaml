@@ -1,7 +1,7 @@
 name: clsswjz_gui
 description: "GUI for clsswjz-server"
 publish_to: "none"
-version: 1.0.3
+version: 1.0.4-alpha.1
 
 environment:
   sdk: ^3.5.4
@@ -34,10 +34,9 @@ dependencies:
   device_info_plus: ^11.2.0
   csv: ^6.0.0
   flutter_slidable: ^4.0.0
-  table_calendar: ^3.0.9
   cupertino_icons: ^1.0.2
-  fl_chart: ^1.0.0
-  syncfusion_flutter_charts: ^30.1.41
+  syncfusion_flutter_charts: ^30.2.7
+  syncfusion_flutter_calendar: ^30.2.7
   package_info_plus: ^8.3.0
   open_filex: ^4.7.0
   flutter_quill_extensions: ^11.0.0
