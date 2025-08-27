@@ -74,44 +74,47 @@ class _HomePageState extends State<HomePage>
           bottom: 0,
           child: Padding(
             padding: EdgeInsets.only(bottom: padding * _expandAnimation.value),
-            child: Opacity(
-              opacity: _expandAnimation.value,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Card(
-                    elevation: 2,
-                    color: Colors.white,
-                    surfaceTintColor: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          color: backgroundColor,
-                          fontWeight: FontWeight.w500,
+            child: IgnorePointer(
+              ignoring: _expandAnimation.value == 0,
+              child: Opacity(
+                opacity: _expandAnimation.value,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      elevation: 2,
+                      color: Colors.white,
+                      surfaceTintColor: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: backgroundColor,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: cenerIconSize,
-                    height: cenerIconSize,
-                    child: FloatingActionButton(
-                      heroTag: 'home_page_fab_$label',
-                      elevation: 2,
-                      backgroundColor: backgroundColor,
-                      foregroundColor: iconColor,
-                      onPressed: () {
-                        _toggleMenu();
-                        onPressed();
-                      },
-                      child: Icon(icon, size: 24),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: cenerIconSize,
+                      height: cenerIconSize,
+                      child: FloatingActionButton(
+                        heroTag: 'home_page_fab_$label',
+                        elevation: 2,
+                        backgroundColor: backgroundColor,
+                        foregroundColor: iconColor,
+                        onPressed: () {
+                          _toggleMenu();
+                          onPressed();
+                        },
+                        child: Icon(icon, size: 24),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

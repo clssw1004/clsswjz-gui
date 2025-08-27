@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4-alpha.2] - 2025-08-27
+
+### Bug Fixes
+- Bottom bar center “+” button: prevent taps on surrounding area from triggering expand/add; only the inner circular button responds
+
 ## [1.0.4-alpha.1] - 2025-08-27
 
 ### Feature Enhancements
