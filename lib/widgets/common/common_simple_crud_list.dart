@@ -114,6 +114,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   }
 
   Future<void> _showFormDialog({T? item}) async {
+    final theme = Theme.of(context);
     var inputName = item != null ? widget.config.getName(item) : '';
     String? selectedType;
     if (item != null) {
@@ -124,49 +125,77 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
     final result = await CommonDialog.show<bool>(
       context: context,
       title: item == null ? L10nManager.l10n.create : L10nManager.l10n.edit,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CommonTextFormField(
-            initialValue: inputName,
-            labelText: L10nManager.l10n.name,
-            hintText: L10nManager.l10n.required,
-            required: true,
-            onChanged: (value) => inputName = value,
-          ),
-          if (widget.config.showType && widget.config.typeOptions != null) ...[
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedType,
-              items: widget.config.typeOptions!.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(widget.config.getTypeText!(type)),
-                );
-              }).toList(),
-              onChanged: (value) => selectedType = value,
-              decoration: InputDecoration(
-                labelText: L10nManager.l10n.type,
-                border: const OutlineInputBorder(),
-              ),
+      content: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest.withAlpha(24),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withAlpha(60), width: 1),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CommonTextFormField(
+              initialValue: inputName,
+              labelText: L10nManager.l10n.name,
+              hintText: L10nManager.l10n.required,
+              required: true,
+              onChanged: (value) => inputName = value,
             ),
-          ],
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(L10nManager.l10n.cancel),
-              ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(L10nManager.l10n.confirm),
+            if (widget.config.showType && widget.config.typeOptions != null) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedType,
+                items: widget.config.typeOptions!.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(widget.config.getTypeText!(type)),
+                  );
+                }).toList(),
+                onChanged: (value) => selectedType = value,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: theme.colorScheme.surface,
+                  labelText: L10nManager.l10n.type,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(120)),
+                  ),
+                ),
               ),
             ],
-          ),
-        ],
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FilledButton.tonal(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(L10nManager.l10n.cancel),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    if (inputName.trim().isEmpty) {
+                      ToastUtil.showError(L10nManager.l10n.required);
+                      return;
+                    }
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text(L10nManager.l10n.confirm),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       showCloseButton: false,
     );
@@ -208,6 +237,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   }
 
   Future<void> _deleteItem(T item) async {
+    final theme = Theme.of(context);
     final confirm = await CommonDialog.show<bool>(
       context: context,
       title: L10nManager.l10n.confirmDelete,
@@ -225,6 +255,10 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
               ),
               const SizedBox(width: 8),
               FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                ),
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text(L10nManager.l10n.confirm),
               ),
@@ -265,62 +299,148 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    Widget _buildEmpty() {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_outlined, size: 48, color: colorScheme.onSurfaceVariant.withAlpha(128)),
+            const SizedBox(height: 12),
+            Text(L10nManager.l10n.noData, style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh),
+              label: Text(L10nManager.l10n.retry),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget _buildError() {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: colorScheme.error),
+            const SizedBox(height: 12),
+            Text(_error!, style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.error)),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh),
+              label: Text(L10nManager.l10n.retry),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final list = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : _error != null
+            ? _buildError()
+            : _items?.isEmpty == true
+                ? _buildEmpty()
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                    itemCount: _items?.length ?? 0,
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final item = _items![index];
+                      final type = widget.config.getType?.call(item);
+                      final title = widget.config.getName(item);
+                      final subtitle = widget.config.showType && type != null
+                          ? widget.config.getTypeText!(type)
+                          : null;
+
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: widget.config.onItemTap == null ? null : () => widget.config.onItemTap!(item),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerHighest.withAlpha(30),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: colorScheme.outlineVariant.withAlpha(60), width: 1),
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        title,
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          color: colorScheme.onSurface,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (subtitle != null) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          subtitle,
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: colorScheme.onSurfaceVariant,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton.filledTonal(
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => _showFormDialog(item: item),
+                                  icon: const Icon(Icons.edit_outlined, size: 18),
+                                ),
+                                const SizedBox(width: 4),
+                                IconButton.filledTonal(
+                                  visualDensity: VisualDensity.compact,
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: colorScheme.errorContainer,
+                                    foregroundColor: colorScheme.onErrorContainer,
+                                  ),
+                                  onPressed: () => _deleteItem(item),
+                                  icon: const Icon(Icons.delete_outline, size: 18),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(widget.config.title),
         bottom: widget.config.filterWidget,
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-                      TextButton(
-                        onPressed: _loadData,
-                        child: Text(L10nManager.l10n.retry),
-                      ),
-                    ],
-                  ),
-                )
-              : _items?.isEmpty == true
-                  ? Center(
-                      child: Text(L10nManager.l10n.noData),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _items?.length ?? 0,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final item = _items![index];
-                        final type = widget.config.getType?.call(item);
-
-                        return ListTile(
-                          title: Text(widget.config.getName(item)),
-                          subtitle: widget.config.showType && type != null ? Text(widget.config.getTypeText!(type)) : null,
-                          onTap: widget.config.onItemTap == null ? null : () => widget.config.onItemTap!(item),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: () => _showFormDialog(item: item),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline),
-                                onPressed: () => _deleteItem(item),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-      floatingActionButton: FloatingActionButton(
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: _loading || _error != null || (_items?.isEmpty ?? true)
+            ? SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(height: MediaQuery.of(context).size.height * 0.6, child: list),
+              )
+            : list,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showFormDialog(),
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: Text(L10nManager.l10n.addNew('')),
       ),
     );
   }
