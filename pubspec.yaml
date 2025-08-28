@@ -43,6 +43,7 @@ dependencies:
   flutter_quill: ^11.2.0
   photo_view: ^0.15.0
   gal: ^2.3.1
+  flutter_webrtc: ^1.1.0
 
 dev_dependencies:
   flutter_test:
