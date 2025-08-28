@@ -66,9 +66,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
   }
 
   Map<String, dynamic> _buildRtcConfig() {
-    final List<Map<String, dynamic>> iceServers = [
-      {'urls': 'stun:stun.l.google.com:19302'},
-    ];
+    final List<Map<String, dynamic>> iceServers = [];
     final ip = _turnIpCtl.text.trim();
     final port = _turnPortCtl.text.trim();
     final user = _turnUserCtl.text.trim();
@@ -92,6 +90,10 @@ class _VideoChatPageState extends State<VideoChatPage> {
         iceServers.add({'urls': url});
         _log('TURN without auth (anonymous)');
       }
+    } else {
+      // 如果没有配置 TURN，添加默认 STUN 作为后备
+      iceServers.add({'urls': 'stun:stun.l.google.com:19302'});
+      _log('No TURN configured, using fallback STUN');
     }
     
     final config = {
@@ -406,7 +408,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
       final testConfig = {
         'sdpSemantics': 'unified-plan',
         'iceServers': [
-          {'urls': 'stun:stun.l.google.com:19302'},
+          // 只测试 TURN，不使用 STUN
           if (user.isNotEmpty && pass.isNotEmpty) {
             'urls': 'turn:$ip:$port',
             'username': user,
