@@ -189,6 +189,67 @@ class _VideoChatPageState extends State<VideoChatPage> {
   // 检查视频状态
   void _checkVideoStatus() {
     _connectionManager.checkVideoStatus();
+    _checkRemoteVideoStatus();
+  }
+
+  // 强制刷新远端流
+  void _forceRefreshRemoteStream() {
+    _log('🔄 强制刷新远端流...');
+    _connectionManager.forceRefreshRemoteStream();
+    _checkRemoteVideoStatus();
+  }
+
+  // 检查权限
+  void _checkPermissions() {
+    _log('🔐 开始检查媒体设备权限...');
+    _connectionManager.checkMediaPermissions();
+  }
+
+  // 检查远端视频状态
+  void _checkRemoteVideoStatus() {
+    _log('🔍 === 远端视频状态检查 ===');
+    
+    if (_remoteRenderer.srcObject == null) {
+      _log('❌ 远端渲染器没有视频流');
+      _log('💡 可能的原因：');
+      _log('   1. onTrack事件未触发');
+      _log('   2. 远端流未正确设置');
+      _log('   3. SDP协商问题');
+      return;
+    }
+    
+    final remoteStream = _remoteRenderer.srcObject;
+    if (remoteStream != null) {
+      final videoTracks = remoteStream.getVideoTracks();
+      final audioTracks = remoteStream.getAudioTracks();
+      
+      _log('📹 远端流信息:');
+      _log('  流ID: ${remoteStream.id}');
+      _log('  视频轨道: ${videoTracks.length} 个');
+      _log('  音频轨道: ${audioTracks.length} 个');
+      
+      for (int i = 0; i < videoTracks.length; i++) {
+        final track = videoTracks[i];
+        _log('  视频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+        
+        if (!track.enabled) {
+          _log('⚠️ 远端视频轨道被禁用，尝试启用...');
+          track.enabled = true;
+          setState(() {}); // 刷新UI
+        }
+      }
+      
+      for (int i = 0; i < audioTracks.length; i++) {
+        final track = audioTracks[i];
+        _log('  音频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+      }
+      
+      _log('✅ 远端流状态检查完成');
+    } else {
+      _log('❌ 远端流为空');
+    }
+    
+    _log('🔍 === 检查完成 ===');
   }
 
   // 切换麦克风
@@ -312,6 +373,8 @@ class _VideoChatPageState extends State<VideoChatPage> {
               onSetRemoteOnly: _setRemoteOnly,
               onTestTurn: _testTurnServer,
               onCheckVideoStatus: _checkVideoStatus,
+              onForceRefreshRemote: _forceRefreshRemoteStream,
+              onCheckPermissions: _checkPermissions,
               onReconnect: _reconnect,
             ),
             const SizedBox(height: 12),

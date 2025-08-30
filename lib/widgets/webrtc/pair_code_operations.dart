@@ -11,6 +11,8 @@ class PairCodeOperations extends StatelessWidget {
   final VoidCallback onSetRemoteOnly;
   final VoidCallback onTestTurn;
   final VoidCallback onCheckVideoStatus;
+  final VoidCallback onForceRefreshRemote;
+  final VoidCallback onCheckPermissions;
   final VoidCallback? onReconnect;
 
   const PairCodeOperations({
@@ -24,6 +26,8 @@ class PairCodeOperations extends StatelessWidget {
     required this.onSetRemoteOnly,
     required this.onTestTurn,
     required this.onCheckVideoStatus,
+    required this.onForceRefreshRemote,
+    required this.onCheckPermissions,
     this.onReconnect,
   });
 
@@ -82,6 +86,20 @@ class PairCodeOperations extends StatelessWidget {
             FilledButton.tonal(
               onPressed: onCheckVideoStatus,
               child: const Text('检查视频状态'),
+            ),
+            const SizedBox(height: 8),
+            
+            // 强制刷新远端流按钮
+            FilledButton.tonal(
+              onPressed: onForceRefreshRemote,
+              child: const Text('强制刷新远端流'),
+            ),
+            const SizedBox(height: 8),
+            
+            // 权限检查按钮
+            FilledButton.tonal(
+              onPressed: onCheckPermissions,
+              child: const Text('检查权限'),
             ),
             const SizedBox(height: 8),
             

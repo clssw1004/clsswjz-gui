@@ -101,9 +101,43 @@ class WebRTCService {
     };
 
     _pc?.onTrack = (RTCTrackEvent event) {
+      onLog('🎯 onTrack事件触发: kind=${event.track.kind}, id=${event.track.id}');
+      onLog('🎯 远端轨道数量: ${event.streams.length}');
+      
       if (event.streams.isNotEmpty) {
-        onLog('Remote track added: kind=${event.track.kind}, stream=${event.streams.first.id}');
-        onRemoteStreamReceived(event.streams.first);
+        final stream = event.streams.first;
+        onLog('🎯 远端流ID: ${stream.id}');
+        onLog('🎯 远端流轨道数量: ${stream.getTracks().length}');
+        
+        // 检查视频轨道状态
+        final videoTracks = stream.getVideoTracks();
+        final audioTracks = stream.getAudioTracks();
+        
+        onLog('🎯 远端视频轨道: ${videoTracks.length} 个');
+        onLog('🎯 远端音频轨道: ${audioTracks.length} 个');
+        
+        for (int i = 0; i < videoTracks.length; i++) {
+          final track = videoTracks[i];
+          onLog('🎯 远端视频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+          
+          // 确保视频轨道启用
+          if (!track.enabled) {
+            onLog('⚠️ 远端视频轨道被禁用，尝试启用...');
+            track.enabled = true;
+          }
+        }
+        
+        for (int i = 0; i < audioTracks.length; i++) {
+          final track = audioTracks[i];
+          onLog('🎯 远端音频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+        }
+        
+        onLog('✅ 远端流准备就绪，通知UI层');
+        onLog('💡 重要：确保UI层正确设置 remoteRenderer.srcObject = stream');
+        onRemoteStreamReceived(stream);
+      } else {
+        onLog('⚠️ onTrack事件触发但流为空');
+        onLog('💡 这可能是正常的，某些情况下轨道可能没有关联的流');
       }
     };
   }
@@ -148,6 +182,8 @@ class WebRTCService {
   /// 打开摄像头和麦克风
   Future<void> _openCameraAndMic() async {
     try {
+      onLog('🎥 正在获取摄像头和麦克风权限...');
+      
       final mediaConstraints = {
         'audio': true,
         'video': {
@@ -157,18 +193,64 @@ class WebRTCService {
           'frameRate': {'ideal': 30},
         },
       };
+      
+      onLog('📱 媒体约束: ${jsonEncode(mediaConstraints)}');
+      
       final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       _localStream = stream;
-
-      final videoTrack = _localStream!.getVideoTracks().first;
-      final audioTrack = _localStream!.getAudioTracks().first;
       
-      await _pc?.addTransceiver(track: videoTrack, kind: RTCRtpMediaType.RTCRtpMediaTypeVideo);
-      await _pc?.addTransceiver(track: audioTrack, kind: RTCRtpMediaType.RTCRtpMediaTypeAudio);
-      onLog('Local media started: video+audio');
+      onLog('✅ 成功获取媒体流: ${stream.id}');
+      
+      // 检查轨道数量
+      final videoTracks = _localStream!.getVideoTracks();
+      final audioTracks = _localStream!.getAudioTracks();
+      
+      onLog('📹 视频轨道数量: ${videoTracks.length}');
+      onLog('🎤 音频轨道数量: ${audioTracks.length}');
+      
+      if (videoTracks.isEmpty) {
+        onLog('❌ 警告：没有获取到视频轨道！');
+        onLog('💡 可能原因：摄像头权限被拒绝或设备没有摄像头');
+      }
+      
+      if (audioTracks.isEmpty) {
+        onLog('❌ 警告：没有获取到音频轨道！');
+        onLog('💡 可能原因：麦克风权限被拒绝或设备没有麦克风');
+      }
+      
+      // 使用addTrack而不是addTransceiver，确保轨道正确添加
+      for (final videoTrack in videoTracks) {
+        onLog('➕ 添加视频轨道: ${videoTrack.id}, enabled=${videoTrack.enabled}');
+        await _pc?.addTrack(videoTrack, _localStream!);
+      }
+      
+      for (final audioTrack in audioTracks) {
+        onLog('➕ 添加音频轨道: ${audioTrack.id}, enabled=${audioTrack.enabled}');
+        await _pc?.addTrack(audioTrack, _localStream!);
+      }
+      
+      onLog('✅ 本地媒体轨道添加完成');
+      
+      // 检查当前PeerConnection的轨道数量
+      try {
+        final transceivers = await _pc?.getTransceivers();
+        onLog('📊 当前PeerConnection轨道数量: ${transceivers?.length ?? 0}');
+        
+        if (transceivers != null) {
+          for (int i = 0; i < transceivers.length; i++) {
+            final transceiver = transceivers[i];
+            onLog('  轨道 $i: kind=${transceiver.receiver.track?.kind}, mid=${transceiver.mid}');
+          }
+        }
+      } catch (e) {
+        onLog('⚠️ 无法获取轨道信息: $e');
+      }
+      
     } catch (e) {
       onLog('❌ Failed to open camera/mic: $e');
       onLog('💡 请检查摄像头和麦克风权限');
+      onLog('💡 Android: 检查AndroidManifest.xml中的CAMERA、RECORD_AUDIO权限');
+      onLog('💡 iOS: 检查Info.plist中的NSCameraUsageDescription、NSMicrophoneUsageDescription');
     }
   }
 
@@ -181,10 +263,51 @@ class WebRTCService {
     _iceGatheringComplete = false;
     
     try {
+      // 检查当前PeerConnection的轨道状态
+      try {
+        final transceivers = await _pc?.getTransceivers();
+        onLog('📊 Offer创建前轨道状态: ${transceivers?.length ?? 0} 个轨道');
+        
+        if (transceivers != null) {
+          for (int i = 0; i < transceivers.length; i++) {
+            final transceiver = transceivers[i];
+            final track = transceiver.receiver.track;
+            onLog('  轨道 $i: kind=${track?.kind}, enabled=${track?.enabled}, mid=${transceiver.mid}');
+          }
+        }
+      } catch (e) {
+        onLog('⚠️ 无法获取轨道状态: $e');
+      }
+      
       final offer = await _pc!.createOffer({
         'offerToReceiveAudio': 1, 
         'offerToReceiveVideo': 1
       });
+      
+      // 检查SDP内容，确保包含视频轨道
+      final sdp = offer.sdp ?? '';
+      onLog('📋 SDP Offer内容检查:');
+      onLog('  SDP长度: ${sdp.length} 字符');
+      
+      if (sdp.contains('m=video')) {
+        onLog('✅ SDP包含视频轨道 (m=video)');
+      } else {
+        onLog('❌ SDP缺少视频轨道！');
+        onLog('💡 可能原因：视频轨道未正确添加到PeerConnection');
+      }
+      
+      if (sdp.contains('m=audio')) {
+        onLog('✅ SDP包含音频轨道 (m=audio)');
+      } else {
+        onLog('❌ SDP缺少音频轨道！');
+      }
+      
+      // 统计SDP中的轨道数量
+      final videoLines = sdp.split('\n').where((line) => line.startsWith('m=video')).length;
+      final audioLines = sdp.split('\n').where((line) => line.startsWith('m=audio')).length;
+      onLog('  SDP中视频轨道数量: $videoLines');
+      onLog('  SDP中音频轨道数量: $audioLines');
+      
       await _pc!.setLocalDescription(offer);
       onLog('✅ Local offer set. Starting ICE gathering...');
       
@@ -490,30 +613,147 @@ class WebRTCService {
     onLog('Cam ${enabled ? 'enabled' : 'disabled'}');
   }
 
-  /// 检查视频状态
-  void checkVideoStatus() {
-    if (_localStream == null) {
-      onLog('❌ 本地视频流未初始化');
+  /// 检查媒体设备权限
+  Future<void> checkMediaPermissions() async {
+    onLog('🔐 === 媒体设备权限检查 ===');
+    
+    try {
+      // 检查摄像头权限
+      onLog('📹 检查摄像头权限...');
+      try {
+        final videoStream = await navigator.mediaDevices.getUserMedia({'video': true});
+        onLog('✅ 摄像头权限正常');
+        onLog('  摄像头轨道数量: ${videoStream.getVideoTracks().length}');
+        
+        // 检查摄像头轨道状态
+        for (final track in videoStream.getVideoTracks()) {
+          onLog('  轨道ID: ${track.id}, enabled: ${track.enabled}');
+        }
+        
+        // 清理测试流
+        videoStream.getTracks().forEach((track) => track.stop());
+      } catch (e) {
+        onLog('❌ 摄像头权限被拒绝: $e');
+        onLog('💡 解决方案：');
+        onLog('  Android: 检查AndroidManifest.xml中的<uses-permission android:name="android.permission.CAMERA" />');
+        onLog('  iOS: 检查Info.plist中的NSCameraUsageDescription');
+        onLog('  应用内: 确保用户已授予摄像头权限');
+      }
+      
+      // 检查麦克风权限
+      onLog('🎤 检查麦克风权限...');
+      try {
+        final audioStream = await navigator.mediaDevices.getUserMedia({'audio': true});
+        onLog('✅ 麦克风权限正常');
+        onLog('  麦克风轨道数量: ${audioStream.getAudioTracks().length}');
+        
+        // 检查音频轨道状态
+        for (final track in audioStream.getAudioTracks()) {
+          onLog('  轨道ID: ${track.id}, enabled: ${track.enabled}');
+        }
+        
+        // 清理测试流
+        audioStream.getTracks().forEach((track) => track.stop());
+      } catch (e) {
+        onLog('❌ 麦克风权限被拒绝: $e');
+        onLog('💡 解决方案：');
+        onLog('  Android: 检查AndroidManifest.xml中的<uses-permission android:name="android.permission.RECORD_AUDIO" />');
+        onLog('  iOS: 检查Info.plist中的NSMicrophoneUsageDescription');
+        onLog('  应用内: 确保用户已授予麦克风权限');
+      }
+      
+      // 检查设备列表
+      onLog('📱 检查可用设备...');
+      try {
+        final devices = await navigator.mediaDevices.enumerateDevices();
+        final videoDevices = devices.where((d) => d.kind == 'videoinput').toList();
+        final audioDevices = devices.where((d) => d.kind == 'audioinput').toList();
+        
+        onLog('  视频输入设备: ${videoDevices.length} 个');
+        for (final device in videoDevices) {
+          onLog('    ${device.label.isNotEmpty ? device.label : '未知设备'} (${device.deviceId})');
+        }
+        
+        onLog('  音频输入设备: ${audioDevices.length} 个');
+        for (final device in audioDevices) {
+          onLog('    ${device.label.isNotEmpty ? device.label : '未知设备'} (${device.deviceId})');
+        }
+      } catch (e) {
+        onLog('⚠️ 无法枚举设备: $e');
+      }
+      
+    } catch (e) {
+      onLog('❌ 权限检查失败: $e');
+    }
+    
+    onLog('🔐 === 权限检查完成 ===');
+  }
+
+  /// 强制刷新远端流状态
+  void forceRefreshRemoteStream() {
+    onLog('🔄 强制刷新远端流状态...');
+    
+    // 检查当前连接状态
+    if (_pc == null) {
+      onLog('❌ PeerConnection未初始化');
       return;
     }
-
-    final videoTrack = _localStream!.getVideoTracks().first;
-    final audioTrack = _localStream!.getAudioTracks().first;
-
-    onLog('🔄 检查视频状态...');
-    onLog('视频轨道状态: ${videoTrack.enabled}');
-    onLog('音频轨道状态: ${audioTrack.enabled}');
-
-    if (videoTrack.enabled) {
-      onLog('✅ 视频已启用');
+    
+    onLog('🔗 当前连接状态:');
+    onLog('  ICE连接: $_iceConnectionState');
+    onLog('  对等连接: $_connectionState');
+    onLog('  信令状态: $_signalingState');
+    
+    // 如果连接已建立，尝试重新触发onTrack
+    if (_iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
+        _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+      onLog('✅ 连接已建立，检查是否有远端流...');
+      
+      // 这里可以添加逻辑来检查是否有远端流
+      // 由于onTrack是异步触发的，我们只能记录当前状态
+      onLog('💡 建议：检查日志中的onTrack事件信息');
     } else {
-      onLog('❌ 视频已禁用');
+      onLog('⚠️ 连接未完全建立，当前状态: $_iceConnectionState');
     }
-    if (audioTrack.enabled) {
-      onLog('✅ 音频已启用');
+  }
+
+  /// 检查视频状态
+  void checkVideoStatus() {
+    onLog('🔍 === 视频状态全面检查 ===');
+    
+    // 检查本地流
+    if (_localStream == null) {
+      onLog('❌ 本地视频流未初始化');
     } else {
-      onLog('❌ 音频已禁用');
+      final videoTracks = _localStream!.getVideoTracks();
+      final audioTracks = _localStream!.getAudioTracks();
+      onLog('📹 本地流: ${videoTracks.length} 个视频轨道, ${audioTracks.length} 个音频轨道');
+
+      for (int i = 0; i < videoTracks.length; i++) {
+        final track = videoTracks[i];
+        onLog('  本地视频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+      }
+
+      for (int i = 0; i < audioTracks.length; i++) {
+        final track = audioTracks[i];
+        onLog('  本地音频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
+      }
     }
+
+    // 检查PeerConnection状态
+    if (_pc == null) {
+      onLog('❌ PeerConnection未初始化');
+    } else {
+      onLog('🔗 PeerConnection状态: $_connectionState');
+      onLog('🔗 ICE连接状态: $_iceConnectionState');
+      onLog('🔗 信令状态: $_signalingState');
+      onLog('🔗 ICE收集完成: $_iceGatheringComplete');
+      onLog('🔗 ICE候选者数量: ${_localCandidates.length}');
+    }
+
+    // 检查远端流（通过回调获取）
+    onLog('🔍 请检查日志中的onTrack事件信息');
+    onLog('🔍 === 检查完成 ===');
   }
 
   /// 清理资源
