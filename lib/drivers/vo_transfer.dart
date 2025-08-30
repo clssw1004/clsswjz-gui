@@ -1,4 +1,3 @@
-import 'package:clsswjz_gui/manager/l10n_manager.dart';
 
 import '../database/database.dart';
 import '../enums/business_type.dart';

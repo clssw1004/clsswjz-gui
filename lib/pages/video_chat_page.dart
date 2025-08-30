@@ -1,10 +1,13 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import '../utils/http_client.dart';
-import '../models/api_response.dart';
+import '../services/webrtc_service.dart';
+import '../widgets/webrtc/turn_server_config_dialog.dart';
+import '../widgets/webrtc/video_renderer_widget.dart';
+import '../widgets/webrtc/pair_code_operations.dart';
+import '../widgets/webrtc/log_panel.dart';
+import '../widgets/webrtc/media_controls.dart';
 
 /// 简易 WebRTC 视频聊天页面（演示用）
 /// 说明：
@@ -21,43 +24,41 @@ class VideoChatPage extends StatefulWidget {
 class _VideoChatPageState extends State<VideoChatPage> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-
-  RTCPeerConnection? _pc;
-  MediaStream? _localStream;
   final TextEditingController _sdpController = TextEditingController();
 
-  // TURN 输入
+  // TURN 配置
   final TextEditingController _turnIpCtl = TextEditingController(text: "139.224.41.190");
   final TextEditingController _turnPortCtl = TextEditingController(text: "3478");
-  final TextEditingController _turnUserCtl = TextEditingController(text: "clssw");
-  final TextEditingController _turnPassCtl = TextEditingController(text: "123456");
+  final TextEditingController _turnUserCtl = TextEditingController(text: "webrtc");
+  final TextEditingController _turnPassCtl = TextEditingController(text: "Cuiwei@123.com");
   final TextEditingController _turnRealmCtl = TextEditingController(text: "clssw");
 
-  // 聚合 ICE，便于生成配对代码
-  final List<RTCIceCandidate> _localCandidates = [];
+  // WebRTC连接管理器
+  late WebRTCService _connectionManager;
+  
+  // 状态变量
   bool _iceGatheringComplete = false;
+  RTCIceConnectionState _iceConnectionState = RTCIceConnectionState.RTCIceConnectionStateNew;
+  bool _isConnecting = false;
+  bool _micOn = true;
+  bool _camOn = true;
 
-  // 简易日志
+  // 日志
   final List<String> _logs = <String>[];
   void _log(String message) {
     final ts = DateTime.now().toIso8601String().substring(11, 19);
     final line = '[$ts] $message';
-    // 控制日志长度
     if (_logs.length > 200) _logs.removeAt(0);
     _logs.add(line);
-    // 控制台输出
     debugPrint(line);
     if (mounted) setState(() {});
   }
-
-  bool _micOn = true;
-  bool _camOn = true;
 
   @override
   void initState() {
     super.initState();
     _initRenderers();
-    _createPeer();
+    _initConnectionManager();
   }
 
   Future<void> _initRenderers() async {
@@ -65,401 +66,182 @@ class _VideoChatPageState extends State<VideoChatPage> {
     await _remoteRenderer.initialize();
   }
 
-  Map<String, dynamic> _buildRtcConfig() {
-    final List<Map<String, dynamic>> iceServers = [];
-    final ip = _turnIpCtl.text.trim();
-    final port = _turnPortCtl.text.trim();
-    final user = _turnUserCtl.text.trim();
-    final pass = _turnPassCtl.text.trim();
-    final realm = _turnRealmCtl.text.trim();
-    
-    if (ip.isNotEmpty && port.isNotEmpty) {
-      final url = 'turn:$ip:$port';
-      _log('Adding TURN server: $url');
-      
-      if (user.isNotEmpty && pass.isNotEmpty) {
-        // 标准用户名认证
-        iceServers.add({
-          'urls': url, 
-          'username': user, 
-          'credential': pass,
-          'realm': realm.isNotEmpty ? realm : null,
+  void _initConnectionManager() {
+    _connectionManager = WebRTCService(
+      onLog: _log,
+      onIceConnectionStateChanged: (state) {
+        setState(() {
+          _iceConnectionState = state;
+          _isConnecting = state == RTCIceConnectionState.RTCIceConnectionStateChecking;
         });
-        _log('TURN with auth: username=$user, realm=$realm, credential=${pass.substring(0, 1)}***');
-      } else {
-        iceServers.add({'urls': url});
-        _log('TURN without auth (anonymous)');
-      }
-    } else {
-      // 如果没有配置 TURN，添加默认 STUN 作为后备
-      iceServers.add({'urls': 'stun:stun.l.google.com:19302'});
-      _log('No TURN configured, using fallback STUN');
-    }
-    
-    final config = {
-      'sdpSemantics': 'unified-plan',
-      'iceServers': iceServers,
-    };
-    
-    _log('RTC config: ${jsonEncode(config)}');
-    return config;
-  }
+      },
+      onConnectionStateChanged: (state) {
+        // 可以添加连接状态处理
+      },
+      onSignalingStateChanged: (state) {
+        // 可以添加信令状态处理
+      },
+      onRemoteStreamReceived: (stream) {
+        _remoteRenderer.srcObject = stream;
+        setState(() {});
+      },
+      onIceGatheringStateChanged: (complete) {
+        setState(() {
+          _iceGatheringComplete = complete;
+        });
+      },
+    );
 
-  Future<void> _recreatePeerWithConfig() async {
-    _log('Applying TURN and recreating peer...');
-    await _disposePeer();
-    await _createPeer();
+    _createPeer();
   }
 
   Future<void> _createPeer() async {
-    final Map<String, dynamic> config = _buildRtcConfig();
-    final Map<String, dynamic> constraints = {
-      'mandatory': {},
-      'optional': [
-        {'DtlsSrtpKeyAgreement': true},
-      ],
-    };
-
-    _log('Creating RTCPeerConnection...');
-    _pc = await createPeerConnection(config, constraints);
-
-    _pc?.onIceCandidate = (RTCIceCandidate candidate) async {
-      _localCandidates.add(candidate);
-      final frag = (candidate.candidate ?? '').split(' ').take(4).join(' ');
-      _log('ICE candidate gathered: ${frag.isEmpty ? 'empty' : frag}');
-    };
-    _pc?.onIceGatheringState = (RTCIceGatheringState state) {
-      _iceGatheringComplete = state == RTCIceGatheringState.RTCIceGatheringStateComplete;
-      _log('ICE gathering state: $state');
-      if (_iceGatheringComplete) _log('ICE gathering completed. Total: ${_localCandidates.length}');
+    await _connectionManager.createPeer(
+      turnIp: _turnIpCtl.text,
+      turnPort: _turnPortCtl.text,
+      turnUser: _turnUserCtl.text,
+      turnPass: _turnPassCtl.text,
+      turnRealm: _turnRealmCtl.text,
+    );
+    
+    // 设置本地视频流
+    if (_connectionManager.localStream != null) {
+      _localRenderer.srcObject = _connectionManager.localStream;
       setState(() {});
-    };
-    _pc?.onIceConnectionState = (RTCIceConnectionState state) {
-      _log('ICE connection state: $state');
-    };
-    _pc?.onConnectionState = (RTCPeerConnectionState state) {
-      _log('Peer connection state: $state');
-    };
-    _pc?.onSignalingState = (RTCSignalingState state) {
-      _log('Signaling state: $state');
-    };
-
-    _pc?.onTrack = (RTCTrackEvent event) {
-      if (event.streams.isNotEmpty) {
-        _remoteRenderer.srcObject = event.streams.first;
-        _log('Remote track added: kind=${event.track.kind}, stream=${event.streams.first.id}');
-        setState(() {});
-      }
-    };
-
-    await _openCameraAndMic();
+    }
   }
 
-  Future<void> _openCameraAndMic() async {
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': {
-        'facingMode': 'user',
-        'width': {'ideal': 1280},
-        'height': {'ideal': 720},
-        'frameRate': {'ideal': 30},
-      },
-    };
-    final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    _localStream = stream;
-
-    _localRenderer.srcObject = _localStream;
-
-    // Unified-Plan: 使用 addTransceiver 保持更好兼容性
-    final videoTrack = _localStream!.getVideoTracks().first;
-    final audioTrack = _localStream!.getAudioTracks().first;
-    await _pc?.addTransceiver(track: videoTrack, kind: RTCRtpMediaType.RTCRtpMediaTypeVideo);
-    await _pc?.addTransceiver(track: audioTrack, kind: RTCRtpMediaType.RTCRtpMediaTypeAudio);
-    _log('Local media started: video+audio');
-  }
-
-  // 生成6位超短配对码
-  String _generateShortCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-    return String.fromCharCodes(
-      Iterable.generate(6, (_) => chars.codeUnitAt(random.nextInt(chars.length)))
+  // 显示TURN服务器配置对话框
+  void _showTurnServerConfig() {
+    showDialog(
+      context: context,
+      builder: (context) => TurnServerConfigDialog(
+        initialIp: _turnIpCtl.text,
+        initialPort: _turnPortCtl.text,
+        initialUser: _turnUserCtl.text,
+        initialPass: _turnPassCtl.text,
+        initialRealm: _turnRealmCtl.text,
+        onApply: (ip, port, user, pass, realm) {
+          setState(() {
+            _turnIpCtl.text = ip;
+            _turnPortCtl.text = port;
+            _turnUserCtl.text = user;
+            _turnPassCtl.text = pass;
+            _turnRealmCtl.text = realm;
+          });
+          _log('✅ TURN服务器配置已更新');
+          _log('🔄 正在应用新配置...');
+          _recreatePeerWithConfig();
+        },
+      ),
     );
   }
 
-  // 存储配对数据到服务器
-  Future<String?> _storePairData(Map<String, dynamic> data) async {
-    try {
-      final shortCode = _generateShortCode();
-      final response = await HttpClient.instance.post(
-        path: '/api/sync/tmp/set',
-        data: {
-          'key': shortCode,
-          'value': jsonEncode(data),
-        },
-      );
-      
-      if (response.ok) {
-        _log('Stored pair data with code: $shortCode');
-        return shortCode;
-      } else {
-        _log('Failed to store pair data: ${response.message}');
-        return null;
-      }
-    } catch (e) {
-      _log('Store pair data error: $e');
-      return null;
-    }
+  Future<void> _recreatePeerWithConfig() async {
+    await _connectionManager.dispose();
+    await _createPeer();
   }
 
-  // 从服务器获取配对数据
-  Future<Map<String, dynamic>?> _fetchPairData(String shortCode) async {
-    try {
-      final response = await HttpClient.instance.post(
-        path: '/api/sync/tmp/get',
-        data: {'key': shortCode},
-      );
-      
-      if (response.ok && response.data != null) {
-        final value = response.data['data'] as String?;
-        if (value != null) {
-          final data = jsonDecode(value) as Map<String, dynamic>;
-          _log('Fetched pair data for code: $shortCode');
-          return data;
-        }
-      }
-      _log('Failed to fetch pair data: ${response.message}');
-      return null;
-    } catch (e) {
-      _log('Fetch pair data error: $e');
-      return null;
-    }
+  // 重连功能
+  Future<void> _reconnect() async {
+    _log('🔄 Attempting to reconnect...');
+    await _recreatePeerWithConfig();
+    _log('✅ Reconnection completed');
   }
 
-  // 生成本地"配对代码"：生成6位短码并存储到服务器
-  Future<void> _generatePairCode() async {
-    if (_pc == null) return;
-    final desc = await _pc!.getLocalDescription();
-    if (desc == null) return;
-    
-    final payload = {
-      'sdp': desc.sdp,
-      'type': desc.type,
-      'candidates': _localCandidates.map((c) => {
-        'candidate': c.candidate,
-        'sdpMid': c.sdpMid,
-        'sdpMLineIndex': c.sdpMLineIndex,
-      }).toList(),
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-    };
-    
-    final shortCode = await _storePairData(payload);
+  // 发起连接
+  Future<void> _createOffer() async {
+    final shortCode = await _connectionManager.createOffer();
     if (shortCode != null) {
       _sdpController.text = shortCode;
       await Clipboard.setData(ClipboardData(text: shortCode));
-      _log('Generated short pair code: $shortCode (${_localCandidates.length} candidates)');
       setState(() {});
-    } else {
-      _log('Failed to generate pair code');
     }
   }
 
-  // 粘贴对端"配对代码"：从服务器获取数据并设置
-  Future<void> _consumePairCodeAndReplyIfNeeded({required bool reply}) async {
-    if (_pc == null) return;
-    
+  // 加入连接
+  Future<void> _join() async {
     final shortCode = _sdpController.text.trim();
-    if (shortCode.length != 6) {
-      _log('Invalid short code length: ${shortCode.length}');
-      return;
-    }
-    
-    final data = await _fetchPairData(shortCode);
-    if (data == null) {
-      _log('Failed to fetch data for code: $shortCode');
-      return;
-    }
-    
-    try {
-      final sdp = RTCSessionDescription(data['sdp'] as String, data['type'] as String);
-      await _pc!.setRemoteDescription(sdp);
-      _log('Set remote description: type=${sdp.type}, sdpLen=${(sdp.sdp ?? '').length}');
-      
-      final List<dynamic> cands = (data['candidates'] as List<dynamic>? ?? <dynamic>[]);
-      for (final c in cands) {
-        await _pc!.addCandidate(RTCIceCandidate(
-          (c as Map<String, dynamic>)['candidate'] as String?,
-          c['sdpMid'] as String?,
-          c['sdpMLineIndex'] as int?,
-        ));
-      }
-      _log('Added remote candidates: count=${cands.length}');
-      
-      if (reply && sdp.type == 'offer') {
-        // 只有在收到 offer 时才创建 answer
-        final answer = await _pc!.createAnswer({'offerToReceiveAudio': 1, 'offerToReceiveVideo': 1});
-        await _pc!.setLocalDescription(answer);
-        _log('Created local answer. Gathering ICE...');
-        await Future.delayed(const Duration(seconds: 1));
-        await _generatePairCode(); // 生成本端的回复代码
-      } else if (reply) {
-        _log('Received ${sdp.type}, no need to create answer');
-      }
-    } catch (e) {
-      _log('Consume code failed: $e');
+    if (shortCode.isNotEmpty) {
+      await _connectionManager.consumePairCodeAndReply(shortCode, reply: true);
     }
   }
 
-  // 仅设置远端描述（用于发起方完成连接）
+  // 仅设置远端
   Future<void> _setRemoteOnly() async {
-    if (_pc == null) return;
-    
     final shortCode = _sdpController.text.trim();
-    if (shortCode.length != 6) {
-      _log('Invalid short code length: ${shortCode.length}');
-      return;
-    }
-    
-    final data = await _fetchPairData(shortCode);
-    if (data == null) {
-      _log('Failed to fetch data for code: $shortCode');
-      return;
-    }
-    
-    try {
-      final sdp = RTCSessionDescription(data['sdp'] as String, data['type'] as String);
-      await _pc!.setRemoteDescription(sdp);
-      _log('Set remote description: type=${sdp.type}, sdpLen=${(sdp.sdp ?? '').length}');
-      
-      final List<dynamic> cands = (data['candidates'] as List<dynamic>? ?? <dynamic>[]);
-      for (final c in cands) {
-        await _pc!.addCandidate(RTCIceCandidate(
-          (c as Map<String, dynamic>)['candidate'] as String?,
-          c['sdpMid'] as String?,
-          c['sdpMLineIndex'] as int?,
-        ));
-      }
-      _log('Added remote candidates: count=${cands.length}');
-    } catch (e) {
-      _log('Set remote only failed: $e');
+    if (shortCode.isNotEmpty) {
+      await _connectionManager.setRemoteOnly(shortCode);
     }
   }
 
-  Future<void> _createOffer() async {
-    if (_pc == null) return;
-    _localCandidates.clear();
-    _iceGatheringComplete = false;
-    _log('Creating offer...');
-    final offer = await _pc!.createOffer({'offerToReceiveAudio': 1, 'offerToReceiveVideo': 1});
-    await _pc!.setLocalDescription(offer);
-    _log('Local offer set. Gathering ICE...');
-    // 简单等待一小段时间聚合部分 ICE
-    await Future.delayed(const Duration(seconds: 1));
-    await _generatePairCode();
-  }
-
-
-  Future<void> _toggleMic() async {
-    _micOn = !_micOn;
-    for (final t in _localStream?.getAudioTracks() ?? []) {
-      t.enabled = _micOn;
-    }
-    _log('Mic ${_micOn ? 'enabled' : 'disabled'}');
-    setState(() {});
-  }
-
-  Future<void> _toggleCam() async {
-    _camOn = !_camOn;
-    for (final t in _localStream?.getVideoTracks() ?? []) {
-      t.enabled = _camOn;
-    }
-    _log('Cam ${_camOn ? 'enabled' : 'disabled'}');
-    setState(() {});
-  }
-
-  Future<void> _disposePeer() async {
-    _localCandidates.clear();
-    _iceGatheringComplete = false;
-    _log('Disposing peer...');
-    await _pc?.close();
-    _pc = null;
-  }
-
-  // 测试 TURN 服务器连接
+  // 测试TURN服务器
   Future<void> _testTurnServer() async {
-    final ip = _turnIpCtl.text.trim();
-    final port = _turnPortCtl.text.trim();
-    final user = _turnUserCtl.text.trim();
-    final pass = _turnPassCtl.text.trim();
-    final realm = _turnRealmCtl.text.trim();
-    
-    if (ip.isEmpty || port.isEmpty) {
-      _log('TURN IP or Port is empty');
-      return;
+    await _connectionManager.testTurnServer(
+      ip: _turnIpCtl.text,
+      port: _turnPortCtl.text,
+      user: _turnUserCtl.text,
+      pass: _turnPassCtl.text,
+      realm: _turnRealmCtl.text,
+    );
+  }
+
+  // 检查视频状态
+  void _checkVideoStatus() {
+    _connectionManager.checkVideoStatus();
+  }
+
+  // 切换麦克风
+  void _toggleMic() {
+    _micOn = !_micOn;
+    _connectionManager.toggleMic(_micOn);
+    setState(() {});
+  }
+
+  // 切换摄像头
+  void _toggleCam() {
+    _camOn = !_camOn;
+    _connectionManager.toggleCam(_camOn);
+    setState(() {});
+  }
+
+  // 获取连接状态颜色
+  Color _getConnectionStatusColor() {
+    switch (_iceConnectionState) {
+      case RTCIceConnectionState.RTCIceConnectionStateConnected:
+      case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+        return Colors.green;
+      case RTCIceConnectionState.RTCIceConnectionStateChecking:
+        return Colors.orange;
+      case RTCIceConnectionState.RTCIceConnectionStateFailed:
+      case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
-    
-    _log('Testing TURN server: $ip:$port');
-    _log('Username: ${user.isEmpty ? "empty" : user}');
-    _log('Password: ${pass.isEmpty ? "empty" : pass}');
-    _log('Realm: ${realm.isEmpty ? "empty" : realm}');
-    
-    // 创建临时 PeerConnection 来测试 TURN
-    try {
-      final testConfig = {
-        'sdpSemantics': 'unified-plan',
-        'iceServers': [
-          // 只测试 TURN，不使用 STUN
-          if (user.isNotEmpty && pass.isNotEmpty) {
-            'urls': 'turn:$ip:$port',
-            'username': user,
-            'credential': pass,
-            'realm': realm.isNotEmpty ? realm : null,
-          } else {
-            'urls': 'turn:$ip:$port'
-          },
-        ],
-      };
-      
-      _log('Test config: ${jsonEncode(testConfig)}');
-      
-      final testPc = await createPeerConnection(testConfig, {});
-      
-      testPc.onIceCandidate = (candidate) {
-        final candidateStr = candidate.candidate ?? '';
-        if (candidateStr.contains('typ relay')) {
-          _log('✅ TURN test SUCCESS: relay candidate received');
-        } else if (candidateStr.contains('typ srflx')) {
-          _log('ℹ️ STUN working: srflx candidate received');
-        } else if (candidateStr.contains('typ host')) {
-          _log('ℹ️ Local candidate: host candidate received');
-        }
-      };
-      
-      testPc.onIceGatheringState = (state) {
-        _log('TURN test ICE gathering state: $state');
-      };
-      
-      testPc.onIceConnectionState = (state) {
-        _log('TURN test ICE connection state: $state');
-      };
-      
-      // 创建 dummy offer 来触发 ICE gathering
-      final offer = await testPc.createOffer({});
-      await testPc.setLocalDescription(offer);
-      
-      // 等待一段时间收集 ICE candidates
-      await Future.delayed(const Duration(seconds: 3));
-      
-      await testPc.close();
-      _log('TURN test completed');
-      
-    } catch (e) {
-      _log('❌ TURN test FAILED: $e');
+  }
+
+  // 获取连接状态文本
+  String _getConnectionStatusText() {
+    switch (_iceConnectionState) {
+      case RTCIceConnectionState.RTCIceConnectionStateConnected:
+        return '已连接';
+      case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+        return '连接完成';
+      case RTCIceConnectionState.RTCIceConnectionStateChecking:
+        return '连接中';
+      case RTCIceConnectionState.RTCIceConnectionStateFailed:
+        return '连接失败';
+      case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+        return '已断开';
+      default:
+        return '未连接';
     }
   }
 
   @override
   void dispose() {
+    _connectionManager.dispose();
     _sdpController.dispose();
     _turnIpCtl.dispose();
     _turnPortCtl.dispose();
@@ -468,8 +250,6 @@ class _VideoChatPageState extends State<VideoChatPage> {
     _turnRealmCtl.dispose();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
-    _localStream?.getTracks().forEach((t) => t.stop());
-    _pc?.close();
     super.dispose();
   }
 
@@ -481,191 +261,78 @@ class _VideoChatPageState extends State<VideoChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Video Chat (WebRTC)'),
+        actions: [
+          // 连接状态指示器
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getConnectionStatusColor(),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              _getConnectionStatusText(),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // TURN服务器配置图标
+          IconButton(
+            onPressed: _showTurnServerConfig,
+            icon: const Icon(Icons.settings),
+            tooltip: 'TURN服务器配置',
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // TURN 配置
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _turnIpCtl,
-                    decoration: const InputDecoration(labelText: 'TURN IP'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _turnPortCtl,
-                    decoration: const InputDecoration(labelText: 'Port'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _turnUserCtl,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _turnPassCtl,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _turnRealmCtl,
-                    decoration: const InputDecoration(labelText: 'Realm'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: _recreatePeerWithConfig,
-                  child: const Text('Apply TURN'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: _testTurnServer,
-                  child: const Text('Test TURN'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+            // 视频显示区域
             Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colorScheme.outlineVariant.withAlpha(80)),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: RTCVideoView(_localRenderer, mirror: true),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colorScheme.outlineVariant.withAlpha(80)),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: RTCVideoView(_remoteRenderer),
-                    ),
-                  ),
-                ],
+              child: VideoDisplayArea(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                backgroundColor: colorScheme.surfaceContainerHighest,
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _sdpController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: '输入6位配对码（自动复制到剪贴板）。粘贴对方的配对码到这里。',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      filled: true,
-                      fillColor: colorScheme.surfaceContainerHighest.withAlpha(24),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  children: [
-                    // 简化流程：一键发起/加入
-                    FilledButton.tonal(
-                      onPressed: _createOffer,
-                      child: const Text('发起（生成6位码）'),
-                    ),
-                    const SizedBox(height: 8),
-                    FilledButton.tonal(
-                      onPressed: () => _consumePairCodeAndReplyIfNeeded(reply: true),
-                      child: const Text('加入（粘贴6位码）'),
-                    ),
-                    const SizedBox(height: 8),
-                    FilledButton.tonal(
-                      onPressed: _setRemoteOnly,
-                      child: const Text('仅设置远端'),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _iceGatheringComplete ? 'ICE 已收集完成' : '收集中 ICE…',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ],
+            
+            // 配对码操作区域
+            PairCodeOperations(
+              sdpController: _sdpController,
+              iceGatheringComplete: _iceGatheringComplete,
+              isConnecting: _isConnecting,
+              showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
+                                  _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
+              onCreateOffer: _createOffer,
+              onJoin: _join,
+              onSetRemoteOnly: _setRemoteOnly,
+              onTestTurn: _testTurnServer,
+              onCheckVideoStatus: _checkVideoStatus,
+              onReconnect: _reconnect,
             ),
             const SizedBox(height: 12),
-            // 简易日志面板
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outlineVariant.withAlpha(80)),
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text('日志', style: theme.textTheme.titleSmall),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          _logs.clear();
-                          if (mounted) setState(() {});
-                        },
-                        child: const Text('清空'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _logs.length,
-                      itemBuilder: (_, i) => Text(
-                        _logs[i],
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            
+            // 日志面板
+            LogPanel(
+              logs: _logs,
+              onClear: () {
+                _logs.clear();
+                setState(() {});
+              },
+              title: '连接日志',
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FilledButton.tonalIcon(
-                  onPressed: _toggleMic,
-                  icon: Icon(_micOn ? Icons.mic : Icons.mic_off),
-                  label: Text(_micOn ? 'Mic On' : 'Mic Off'),
-                ),
-                const SizedBox(width: 12),
-                FilledButton.tonalIcon(
-                  onPressed: _toggleCam,
-                  icon: Icon(_camOn ? Icons.videocam : Icons.videocam_off),
-                  label: Text(_camOn ? 'Cam On' : 'Cam Off'),
-                ),
-              ],
+            
+            // 媒体控制
+            MediaControls(
+              micOn: _micOn,
+              camOn: _camOn,
+              onToggleMic: _toggleMic,
+              onToggleCam: _toggleCam,
             ),
           ],
         ),
