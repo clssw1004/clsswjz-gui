@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5-beta.1] - 2025-09-02
+
+### New Features
+- Add webRTC video chat
+
 ## [1.0.4-alpha.2] - 2025-08-27
 
 ### Bug Fixes
