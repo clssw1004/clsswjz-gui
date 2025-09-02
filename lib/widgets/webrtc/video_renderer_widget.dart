@@ -26,9 +26,9 @@ class VideoRendererWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor ?? colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: showBorder 
-          ? Border.all(color: colorScheme.outlineVariant.withAlpha(80))
+          ? Border.all(color: colorScheme.outlineVariant, width: 1.5)
           : null,
       ),
       clipBehavior: Clip.antiAlias,
@@ -41,19 +41,20 @@ class VideoRendererWidget extends StatelessWidget {
           ),
           // 标签
           Positioned(
-            top: 8,
-            left: 8,
+            top: 12,
+            left: 12,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.black54,
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.primary, width: 1),
               ),
               child: Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -72,11 +73,12 @@ class VideoRendererWidget extends StatelessWidget {
                         size: 48,
                         color: colorScheme.onSurfaceVariant,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
                         isLocal ? '本地摄像头' : '等待远端视频',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

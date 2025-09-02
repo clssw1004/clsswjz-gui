@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
+import '../../models/dto/webrtc_config_dto.dart';
+import '../common/common_text_form_field.dart';
 
 /// TURN服务器配置对话框组件
 class TurnServerConfigDialog extends StatefulWidget {
-  final String initialIp;
-  final String initialPort;
-  final String initialUser;
-  final String initialPass;
-  final String initialRealm;
-  final Function(String ip, String port, String user, String pass, String realm) onApply;
+  final WebRTCConfigDTO initialConfig;
+  final Function(WebRTCConfigDTO config) onApply;
 
   const TurnServerConfigDialog({
     super.key,
-    required this.initialIp,
-    required this.initialPort,
-    required this.initialUser,
-    required this.initialPass,
-    required this.initialRealm,
+    required this.initialConfig,
     required this.onApply,
   });
 
@@ -33,11 +30,11 @@ class _TurnServerConfigDialogState extends State<TurnServerConfigDialog> {
   @override
   void initState() {
     super.initState();
-    _ipController = TextEditingController(text: widget.initialIp);
-    _portController = TextEditingController(text: widget.initialPort);
-    _userController = TextEditingController(text: widget.initialUser);
-    _passController = TextEditingController(text: widget.initialPass);
-    _realmController = TextEditingController(text: widget.initialRealm);
+    _ipController = TextEditingController(text: widget.initialConfig.turnIp);
+    _portController = TextEditingController(text: widget.initialConfig.turnPort);
+    _userController = TextEditingController(text: widget.initialConfig.turnUser);
+    _passController = TextEditingController(text: widget.initialConfig.turnPass);
+    _realmController = TextEditingController(text: widget.initialConfig.turnRealm);
   }
 
   @override
@@ -50,7 +47,7 @@ class _TurnServerConfigDialogState extends State<TurnServerConfigDialog> {
     super.dispose();
   }
 
-  void _applyConfig() {
+  void _applyConfig() async {
     final ip = _ipController.text.trim();
     final port = _portController.text.trim();
     final user = _userController.text.trim();
@@ -59,12 +56,23 @@ class _TurnServerConfigDialogState extends State<TurnServerConfigDialog> {
 
     if (ip.isEmpty || port.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('TURN IP和端口不能为空')),
+        SnackBar(content: Text(L10nManager.l10n.required)),
       );
       return;
     }
 
-    widget.onApply(ip, port, user, pass, realm);
+    final config = WebRTCConfigDTO(
+      turnIp: ip,
+      turnPort: port,
+      turnUser: user,
+      turnPass: pass,
+      turnRealm: realm,
+    );
+    
+    // 保存配置到AppConfigManager
+    await AppConfigManager.instance.setWebRTCConfig(config);
+    
+    widget.onApply(config);
     Navigator.of(context).pop();
   }
 
@@ -72,174 +80,165 @@ class _TurnServerConfigDialogState extends State<TurnServerConfigDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Dialog(
-      child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 360, maxWidth: 720),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.settings,
-                  color: colorScheme.primary,
-                  size: 28,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.settings,
+                      color: colorScheme.primary,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.serverConfig,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(height: 24),
+                // 服务器地址配置
                 Text(
-                  'TURN 服务器配置',
-                  style: theme.textTheme.headlineSmall?.copyWith(
+                  l10n.serverAddress,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                  tooltip: '关闭',
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            
-            // 服务器地址配置
-            Text(
-              '服务器地址',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: TextField(
-                    controller: _ipController,
-                    decoration: const InputDecoration(
-                      labelText: 'TURN IP 地址',
-                      hintText: '例如: 139.224.41.190',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.computer),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 1,
-                  child: TextField(
-                    controller: _portController,
-                    decoration: const InputDecoration(
-                      labelText: '端口',
-                      hintText: '3478',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.router),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            
-            // 认证配置
-            Text(
-              '认证信息',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _userController,
-                    decoration: const InputDecoration(
-                      labelText: '用户名',
-                      hintText: '例如: clssw',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _passController,
-                    decoration: const InputDecoration(
-                      labelText: '密码',
-                      hintText: '例如: 123456',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock),
-                    ),
-                    obscureText: true,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _realmController,
-                    decoration: const InputDecoration(
-                      labelText: 'Realm',
-                      hintText: '例如: clssw',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.domain),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            
-            // 说明文本
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colorScheme.outlineVariant),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'TURN服务器用于在NAT环境下建立P2P连接。配置正确的服务器信息可以提高连接成功率。',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                const SizedBox(height: 8),
+                // IP地址和端口输入框放在一行
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: CommonTextFormField(
+                        controller: _ipController,
+                        labelText: l10n.serverAddress,
+                        style: theme.textTheme.bodyLarge,
+                        maxLines: 1,
+                        minLines: 1,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            // 操作按钮
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 1,
+                      child: CommonTextFormField(
+                        controller: _portController,
+                        labelText: 'Port',
+                        hintText: '3478',
+                        keyboardType: TextInputType.number,
+                        required: true,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style: theme.textTheme.bodyLarge,
+                        maxLines: 1,
+                        minLines: 1,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                FilledButton(
-                  onPressed: _applyConfig,
-                  child: const Text('应用配置'),
+                const SizedBox(height: 16),
+                // 认证配置
+                Text(
+                  l10n.username, // section header fallback
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Realm输入框放在用户名上面
+                CommonTextFormField(
+                  controller: _realmController,
+                  labelText: 'Realm',
+                  style: theme.textTheme.bodyLarge,
+                  maxLines: 1,
+                  minLines: 1,
+                ),
+                const SizedBox(height: 8),
+                // 用户名输入框
+                CommonTextFormField(
+                  controller: _userController,
+                  labelText: l10n.username,
+                  style: theme.textTheme.bodyLarge,
+                  maxLines: 1,
+                  minLines: 1,
+                ),
+                const SizedBox(height: 8),
+                // 密码输入框
+                CommonTextFormField(
+                  controller: _passController,
+                  labelText: l10n.password,
+                  obscureText: true,
+                  style: theme.textTheme.bodyLarge,
+                  maxLines: 1,
+                  minLines: 1,
+                ),
+                const SizedBox(height: 16),
+                // 说明文本
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: colorScheme.outlineVariant),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'TURN server helps establish P2P connections behind NAT for better connectivity.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // 操作按钮
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(l10n.cancel),
+                    ),
+                    const SizedBox(width: 16),
+                    FilledButton(
+                      onPressed: _applyConfig,
+                      child: Text(l10n.confirm),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

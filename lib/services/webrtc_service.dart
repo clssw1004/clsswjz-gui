@@ -8,6 +8,7 @@ import '../utils/http_client.dart';
 class WebRTCService {
   RTCPeerConnection? _pc;
   MediaStream? _localStream;
+  MediaStream? _remoteStream;
   final List<RTCIceCandidate> _localCandidates = [];
   bool _iceGatheringComplete = false;
   
@@ -69,76 +70,65 @@ class WebRTCService {
   void _setupEventHandlers() {
     _pc?.onIceCandidate = (RTCIceCandidate candidate) async {
       _localCandidates.add(candidate);
-      final frag = (candidate.candidate ?? '').split(' ').take(4).join(' ');
-      onLog('ICE candidate gathered: ${frag.isEmpty ? 'empty' : frag}');
     };
     
     _pc?.onIceGatheringState = (RTCIceGatheringState state) {
       _iceGatheringComplete = state == RTCIceGatheringState.RTCIceGatheringStateComplete;
-      onLog('ICE gathering state: $state');
-      if (_iceGatheringComplete) {
-        onLog('ICE gathering completed. Total: ${_localCandidates.length}');
-      }
       onIceGatheringStateChanged(_iceGatheringComplete);
     };
     
     _pc?.onIceConnectionState = (RTCIceConnectionState state) {
       _iceConnectionState = state;
-      onLog('ICE connection state: $state');
       onIceConnectionStateChanged(state);
     };
     
     _pc?.onConnectionState = (RTCPeerConnectionState state) {
       _connectionState = state;
-      onLog('Peer connection state: $state');
       onConnectionStateChanged(state);
     };
     
     _pc?.onSignalingState = (RTCSignalingState state) {
       _signalingState = state;
-      onLog('Signaling state: $state');
       onSignalingStateChanged(state);
     };
 
     _pc?.onTrack = (RTCTrackEvent event) {
       onLog('🎯 onTrack事件触发: kind=${event.track.kind}, id=${event.track.id}');
-      onLog('🎯 远端轨道数量: ${event.streams.length}');
-      
-      if (event.streams.isNotEmpty) {
-        final stream = event.streams.first;
-        onLog('🎯 远端流ID: ${stream.id}');
-        onLog('🎯 远端流轨道数量: ${stream.getTracks().length}');
-        
-        // 检查视频轨道状态
-        final videoTracks = stream.getVideoTracks();
-        final audioTracks = stream.getAudioTracks();
-        
-        onLog('🎯 远端视频轨道: ${videoTracks.length} 个');
-        onLog('🎯 远端音频轨道: ${audioTracks.length} 个');
-        
-        for (int i = 0; i < videoTracks.length; i++) {
-          final track = videoTracks[i];
-          onLog('🎯 远端视频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
-          
-          // 确保视频轨道启用
-          if (!track.enabled) {
-            onLog('⚠️ 远端视频轨道被禁用，尝试启用...');
-            track.enabled = true;
-          }
-        }
-        
-        for (int i = 0; i < audioTracks.length; i++) {
-          final track = audioTracks[i];
-          onLog('🎯 远端音频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
-        }
-        
-        onLog('✅ 远端流准备就绪，通知UI层');
-        onLog('💡 重要：确保UI层正确设置 remoteRenderer.srcObject = stream');
-        onRemoteStreamReceived(stream);
-      } else {
-        onLog('⚠️ onTrack事件触发但流为空');
-        onLog('💡 这可能是正常的，某些情况下轨道可能没有关联的流');
+      onLog('🎯 远端流数量: ${event.streams.length}');
+
+      // If we don't have a stream yet, try to get it from the event.
+      if (_remoteStream == null && event.streams.isNotEmpty) {
+        _remoteStream = event.streams[0];
       }
+
+      // If we have a stream, add the track if it's not already there.
+      if (_remoteStream != null) {
+        final existingTrackIds = _remoteStream!.getTracks().map((t) => t.id).toSet();
+        if (!existingTrackIds.contains(event.track.id)) {
+          _remoteStream!.addTrack(event.track);
+        }
+      }
+      // If we still don't have a stream, we can't do anything.
+      else {
+        return;
+      }
+
+      // By now, _remoteStream should be non-null.
+      final stream = _remoteStream!;
+      
+      // 检查视频轨道状态
+      final videoTracks = stream.getVideoTracks();
+      
+      for (int i = 0; i < videoTracks.length; i++) {
+        final track = videoTracks[i];
+        
+        // 确保视频轨道启用
+        if (!track.enabled) {
+          track.enabled = true;
+        }
+      }
+      
+      onRemoteStreamReceived(stream);
     };
   }
 
@@ -148,7 +138,6 @@ class WebRTCService {
     
     if (ip.isNotEmpty && port.isNotEmpty) {
       final url = 'turn:$ip:$port';
-      onLog('Adding TURN server: $url');
       
       if (user.isNotEmpty && pass.isNotEmpty) {
         iceServers.add({
@@ -157,14 +146,11 @@ class WebRTCService {
           'credential': pass,
           'realm': realm.isNotEmpty ? realm : null,
         });
-        onLog('TURN with auth: username=$user, realm=$realm, credential=${pass.substring(0, 1)}***');
       } else {
         iceServers.add({'urls': url});
-        onLog('TURN without auth (anonymous)');
       }
     } else {
       iceServers.add({'urls': 'stun:stun.l.google.com:19302'});
-      onLog('No TURN configured, using fallback STUN');
     }
     
     final config = {
@@ -175,15 +161,12 @@ class WebRTCService {
       'rtcpMuxPolicy': 'require',
     };
     
-    onLog('RTC config: ${jsonEncode(config)}');
     return config;
   }
 
   /// 打开摄像头和麦克风
   Future<void> _openCameraAndMic() async {
     try {
-      onLog('🎥 正在获取摄像头和麦克风权限...');
-      
       final mediaConstraints = {
         'audio': true,
         'video': {
@@ -615,7 +598,7 @@ class WebRTCService {
 
   /// 检查媒体设备权限
   Future<void> checkMediaPermissions() async {
-    onLog('🔐 === 媒体设备权限检查 ===');
+    onLog('🔐 开始检查媒体设备权限...');
     
     try {
       // 检查摄像头权限
@@ -686,7 +669,7 @@ class WebRTCService {
       onLog('❌ 权限检查失败: $e');
     }
     
-    onLog('🔐 === 权限检查完成 ===');
+    onLog('✅ 权限检查完成');
   }
 
   /// 强制刷新远端流状态
@@ -760,10 +743,40 @@ class WebRTCService {
   Future<void> dispose() async {
     _localCandidates.clear();
     _iceGatheringComplete = false;
-    onLog('Disposing peer...');
-    await _pc?.close();
-    _pc = null;
-    _localStream?.getTracks().forEach((t) => t.stop());
-    _localStream = null;
+    onLog('正在释放WebRTC资源...');
+    
+    // 关闭并清理本地媒体流
+    if (_localStream != null) {
+      onLog('停止本地媒体流轨道...');
+      _localStream!.getTracks().forEach((track) {
+        track.stop();
+        onLog('已停止轨道: ${track.id}');
+      });
+      await _localStream!.dispose();
+      _localStream = null;
+      onLog('本地媒体流已释放');
+    }
+    
+    // 关闭并清理远程媒体流
+    if (_remoteStream != null) {
+      onLog('释放远程媒体流...');
+      _remoteStream!.getTracks().forEach((track) {
+        track.stop();
+        onLog('已停止远程轨道: ${track.id}');
+      });
+      await _remoteStream!.dispose();
+      _remoteStream = null;
+      onLog('远程媒体流已释放');
+    }
+    
+    // 关闭对等连接
+    if (_pc != null) {
+      onLog('关闭对等连接...');
+      await _pc!.close();
+      _pc = null;
+      onLog('对等连接已关闭');
+    }
+    
+    onLog('所有WebRTC资源已释放');
   }
 }

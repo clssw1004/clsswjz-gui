@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import '../manager/app_config_manager.dart';
+import '../manager/l10n_manager.dart';
+import '../models/dto/webrtc_config_dto.dart';
 import '../services/webrtc_service.dart';
 import '../widgets/webrtc/turn_server_config_dialog.dart';
 import '../widgets/webrtc/video_renderer_widget.dart';
 import '../widgets/webrtc/pair_code_operations.dart';
-import '../widgets/webrtc/log_panel.dart';
 import '../widgets/webrtc/media_controls.dart';
 
 /// 简易 WebRTC 视频聊天页面（演示用）
@@ -26,12 +28,8 @@ class _VideoChatPageState extends State<VideoChatPage> {
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   final TextEditingController _sdpController = TextEditingController();
 
-  // TURN 配置
-  final TextEditingController _turnIpCtl = TextEditingController(text: "139.224.41.190");
-  final TextEditingController _turnPortCtl = TextEditingController(text: "3478");
-  final TextEditingController _turnUserCtl = TextEditingController(text: "webrtc");
-  final TextEditingController _turnPassCtl = TextEditingController(text: "Cuiwei@123.com");
-  final TextEditingController _turnRealmCtl = TextEditingController(text: "clssw");
+  // WebRTC配置
+  late WebRTCConfigDTO _webrtcConfig;
 
   // WebRTC连接管理器
   late WebRTCService _connectionManager;
@@ -42,21 +40,23 @@ class _VideoChatPageState extends State<VideoChatPage> {
   bool _isConnecting = false;
   bool _micOn = true;
   bool _camOn = true;
+  bool _showLocalVideo = true;
+  bool _showRemoteVideo = true;
+  bool _isInitiator = false; // 是否为发起方
+  bool _isJoiner = false; // 是否为加入方
+  bool _isVideoControlExpanded = true; // 视频控制面板是否展开
+  bool _isConnectionOperationsExpanded = true; // 连接操作面板是否展开
 
-  // 日志
-  final List<String> _logs = <String>[];
+  // 简化的日志方法，仅用于关键信息
   void _log(String message) {
-    final ts = DateTime.now().toIso8601String().substring(11, 19);
-    final line = '[$ts] $message';
-    if (_logs.length > 200) _logs.removeAt(0);
-    _logs.add(line);
-    debugPrint(line);
-    if (mounted) setState(() {});
+    debugPrint(message);
   }
 
   @override
   void initState() {
     super.initState();
+    // 从AppConfigManager获取WebRTC配置
+    _webrtcConfig = AppConfigManager.instance.webrtcConfig;
     _initRenderers();
     _initConnectionManager();
   }
@@ -73,6 +73,14 @@ class _VideoChatPageState extends State<VideoChatPage> {
         setState(() {
           _iceConnectionState = state;
           _isConnecting = state == RTCIceConnectionState.RTCIceConnectionStateChecking;
+          
+          // 当连接断开时，重置发起方/加入方状态
+          if (state == RTCIceConnectionState.RTCIceConnectionStateFailed ||
+              state == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+              state == RTCIceConnectionState.RTCIceConnectionStateNew) {
+            _isInitiator = false;
+            _isJoiner = false;
+          }
         });
       },
       onConnectionStateChanged: (state) {
@@ -97,11 +105,11 @@ class _VideoChatPageState extends State<VideoChatPage> {
 
   Future<void> _createPeer() async {
     await _connectionManager.createPeer(
-      turnIp: _turnIpCtl.text,
-      turnPort: _turnPortCtl.text,
-      turnUser: _turnUserCtl.text,
-      turnPass: _turnPassCtl.text,
-      turnRealm: _turnRealmCtl.text,
+      turnIp: _webrtcConfig.turnIp,
+      turnPort: _webrtcConfig.turnPort,
+      turnUser: _webrtcConfig.turnUser,
+      turnPass: _webrtcConfig.turnPass,
+      turnRealm: _webrtcConfig.turnRealm,
     );
     
     // 设置本地视频流
@@ -116,18 +124,10 @@ class _VideoChatPageState extends State<VideoChatPage> {
     showDialog(
       context: context,
       builder: (context) => TurnServerConfigDialog(
-        initialIp: _turnIpCtl.text,
-        initialPort: _turnPortCtl.text,
-        initialUser: _turnUserCtl.text,
-        initialPass: _turnPassCtl.text,
-        initialRealm: _turnRealmCtl.text,
-        onApply: (ip, port, user, pass, realm) {
+        initialConfig: _webrtcConfig,
+        onApply: (config) {
           setState(() {
-            _turnIpCtl.text = ip;
-            _turnPortCtl.text = port;
-            _turnUserCtl.text = user;
-            _turnPassCtl.text = pass;
-            _turnRealmCtl.text = realm;
+            _webrtcConfig = config;
           });
           _log('✅ TURN服务器配置已更新');
           _log('🔄 正在应用新配置...');
@@ -155,7 +155,10 @@ class _VideoChatPageState extends State<VideoChatPage> {
     if (shortCode != null) {
       _sdpController.text = shortCode;
       await Clipboard.setData(ClipboardData(text: shortCode));
-      setState(() {});
+      setState(() {
+        _isInitiator = true;
+        _isJoiner = false;
+      });
     }
   }
 
@@ -164,6 +167,10 @@ class _VideoChatPageState extends State<VideoChatPage> {
     final shortCode = _sdpController.text.trim();
     if (shortCode.isNotEmpty) {
       await _connectionManager.consumePairCodeAndReply(shortCode, reply: true);
+      setState(() {
+        _isJoiner = true;
+        _isInitiator = false;
+      });
     }
   }
 
@@ -172,85 +179,22 @@ class _VideoChatPageState extends State<VideoChatPage> {
     final shortCode = _sdpController.text.trim();
     if (shortCode.isNotEmpty) {
       await _connectionManager.setRemoteOnly(shortCode);
+      setState(() {
+        _isJoiner = false;
+        _isInitiator = false;
+      });
     }
   }
 
-  // 测试TURN服务器
-  Future<void> _testTurnServer() async {
-    await _connectionManager.testTurnServer(
-      ip: _turnIpCtl.text,
-      port: _turnPortCtl.text,
-      user: _turnUserCtl.text,
-      pass: _turnPassCtl.text,
-      realm: _turnRealmCtl.text,
-    );
+  // 清除配对码和状态
+  void _clearPairingCode() {
+    setState(() {
+      _sdpController.clear();
+      _isInitiator = false;
+      _isJoiner = false;
+    });
   }
 
-  // 检查视频状态
-  void _checkVideoStatus() {
-    _connectionManager.checkVideoStatus();
-    _checkRemoteVideoStatus();
-  }
-
-  // 强制刷新远端流
-  void _forceRefreshRemoteStream() {
-    _log('🔄 强制刷新远端流...');
-    _connectionManager.forceRefreshRemoteStream();
-    _checkRemoteVideoStatus();
-  }
-
-  // 检查权限
-  void _checkPermissions() {
-    _log('🔐 开始检查媒体设备权限...');
-    _connectionManager.checkMediaPermissions();
-  }
-
-  // 检查远端视频状态
-  void _checkRemoteVideoStatus() {
-    _log('🔍 === 远端视频状态检查 ===');
-    
-    if (_remoteRenderer.srcObject == null) {
-      _log('❌ 远端渲染器没有视频流');
-      _log('💡 可能的原因：');
-      _log('   1. onTrack事件未触发');
-      _log('   2. 远端流未正确设置');
-      _log('   3. SDP协商问题');
-      return;
-    }
-    
-    final remoteStream = _remoteRenderer.srcObject;
-    if (remoteStream != null) {
-      final videoTracks = remoteStream.getVideoTracks();
-      final audioTracks = remoteStream.getAudioTracks();
-      
-      _log('📹 远端流信息:');
-      _log('  流ID: ${remoteStream.id}');
-      _log('  视频轨道: ${videoTracks.length} 个');
-      _log('  音频轨道: ${audioTracks.length} 个');
-      
-      for (int i = 0; i < videoTracks.length; i++) {
-        final track = videoTracks[i];
-        _log('  视频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
-        
-        if (!track.enabled) {
-          _log('⚠️ 远端视频轨道被禁用，尝试启用...');
-          track.enabled = true;
-          setState(() {}); // 刷新UI
-        }
-      }
-      
-      for (int i = 0; i < audioTracks.length; i++) {
-        final track = audioTracks[i];
-        _log('  音频轨道 $i: enabled=${track.enabled}, muted=${track.muted}, id=${track.id}');
-      }
-      
-      _log('✅ 远端流状态检查完成');
-    } else {
-      _log('❌ 远端流为空');
-    }
-    
-    _log('🔍 === 检查完成 ===');
-  }
 
   // 切换麦克风
   void _toggleMic() {
@@ -300,15 +244,39 @@ class _VideoChatPageState extends State<VideoChatPage> {
     }
   }
 
+  // 获取连接状态图标
+  IconData _getConnectionStatusIcon() {
+    switch (_iceConnectionState) {
+      case RTCIceConnectionState.RTCIceConnectionStateConnected:
+      case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+        return Icons.check_circle;
+      case RTCIceConnectionState.RTCIceConnectionStateChecking:
+        return Icons.hourglass_empty;
+      case RTCIceConnectionState.RTCIceConnectionStateFailed:
+      case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+        return Icons.cancel;
+      default:
+        return Icons.signal_wifi_off;
+    }
+  }
+
   @override
   void dispose() {
-    _connectionManager.dispose();
+    // 确保在页面关闭前断开WebRTC连接
+    _log('🔄 正在关闭WebRTC连接...');
+    // 先停止本地媒体流
+    if (_connectionManager.localStream != null) {
+      for (final track in _connectionManager.localStream!.getTracks()) {
+        track.stop();
+      }
+    }
+    // 异步释放资源，但不等待完成
+    _connectionManager.dispose().then((_) {
+      _log('✅ WebRTC连接已关闭');
+    });
+    
+    // 释放其他资源
     _sdpController.dispose();
-    _turnIpCtl.dispose();
-    _turnPortCtl.dispose();
-    _turnUserCtl.dispose();
-    _turnPassCtl.dispose();
-    _turnRealmCtl.dispose();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -318,31 +286,49 @@ class _VideoChatPageState extends State<VideoChatPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Video Chat (WebRTC)'),
+        backgroundColor: colorScheme.surfaceContainerHighest,
+        elevation: 0,
         actions: [
           // 连接状态指示器
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: _getConnectionStatusColor(),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white24, width: 1),
             ),
-            child: Text(
-              _getConnectionStatusText(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _getConnectionStatusIcon(),
+                  size: 16,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _getConnectionStatusText(),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          // TURN服务器配置图标
+          const SizedBox(width: 12),
+          // TURN服务器配置图标 - 使用主题色图标，无边框
           IconButton(
             onPressed: _showTurnServerConfig,
-            icon: const Icon(Icons.settings),
+            icon: Icon(
+              Icons.settings,
+              color: colorScheme.primary,
+            ),
             tooltip: 'TURN服务器配置',
           ),
         ],
@@ -351,51 +337,280 @@ class _VideoChatPageState extends State<VideoChatPage> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // 视频显示区域
+            // 视频显示区域 - 占据主要空间
             Expanded(
-              child: VideoDisplayArea(
-                localRenderer: _localRenderer,
-                remoteRenderer: _remoteRenderer,
-                backgroundColor: colorScheme.surfaceContainerHighest,
+              flex: 4, // 进一步增加视频区域的比例
+              child: Row(
+                children: [
+                  if (_showLocalVideo)
+                    Expanded(
+                      child: VideoRendererWidget(
+                        renderer: _localRenderer,
+                        label: '本地',
+                        isLocal: true,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                      ),
+                    ),
+                  if (_showLocalVideo && _showRemoteVideo) const SizedBox(width: 12),
+                  if (_showRemoteVideo)
+                    Expanded(
+                      child: VideoRendererWidget(
+                        renderer: _remoteRenderer,
+                        label: '远端',
+                        isLocal: false,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                      ),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             
-            // 配对码操作区域
-            PairCodeOperations(
-              sdpController: _sdpController,
-              iceGatheringComplete: _iceGatheringComplete,
-              isConnecting: _isConnecting,
-              showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
-                                  _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
-              onCreateOffer: _createOffer,
-              onJoin: _join,
-              onSetRemoteOnly: _setRemoteOnly,
-              onTestTurn: _testTurnServer,
-              onCheckVideoStatus: _checkVideoStatus,
-              onForceRefreshRemote: _forceRefreshRemoteStream,
-              onCheckPermissions: _checkPermissions,
-              onReconnect: _reconnect,
+            // 配对码操作区域 - 可折叠
+            Card(
+              elevation: 0,
+              color: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: colorScheme.outlineVariant),
+              ),
+              child: Column(
+                children: [
+                  // 可点击的标题栏
+                  InkWell(
+                    onTap: () => setState(() => _isConnectionOperationsExpanded = !_isConnectionOperationsExpanded),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.link,
+                            color: colorScheme.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '连接操作',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            _isConnectionOperationsExpanded ? Icons.expand_less : Icons.expand_more,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 可折叠的内容
+                  if (_isConnectionOperationsExpanded)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: PairCodeOperations(
+                        sdpController: _sdpController,
+                        iceGatheringComplete: _iceGatheringComplete,
+                        isConnecting: _isConnecting,
+                        showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
+                                            _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
+                        isInitiator: _isInitiator,
+                        isJoiner: _isJoiner,
+                        hasConnection: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
+                                     _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted,
+                        onCreateOffer: _createOffer,
+                        onJoin: _join,
+                        onSetRemoteOnly: _setRemoteOnly,
+                        onReconnect: _reconnect,
+                        onClearCode: _clearPairingCode,
+                      ),
+                    ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
             
-            // 日志面板
-            LogPanel(
-              logs: _logs,
-              onClear: () {
-                _logs.clear();
-                setState(() {});
-              },
-              title: '连接日志',
-            ),
-            const SizedBox(height: 12),
+            // 生成的配对码展示（可点击复制）
+            if (_sdpController.text.isNotEmpty)
+              Card(
+                elevation: 0,
+                color: colorScheme.surfaceContainerHighest,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: colorScheme.outlineVariant),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () async {
+                    await Clipboard.setData(ClipboardData(text: _sdpController.text));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.linkCopied)),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.qr_code_2,
+                          color: colorScheme.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '配对码',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _sdpController.text,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'monospace',
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: _sdpController.text));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.linkCopied)),
+                            );
+                          },
+                          icon: const Icon(Icons.copy_all),
+                          tooltip: l10n.copyLink,
+                          style: IconButton.styleFrom(
+                            backgroundColor: colorScheme.primaryContainer,
+                            foregroundColor: colorScheme.onPrimaryContainer,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
             
-            // 媒体控制
-            MediaControls(
-              micOn: _micOn,
-              camOn: _camOn,
-              onToggleMic: _toggleMic,
-              onToggleCam: _toggleCam,
+            // 合并的控制面板 - 可折叠
+            Card(
+              elevation: 0,
+              color: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: colorScheme.outlineVariant),
+              ),
+              child: Column(
+                children: [
+                  // 可点击的标题栏
+                  InkWell(
+                    onTap: () => setState(() => _isVideoControlExpanded = !_isVideoControlExpanded),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.control_camera,
+                            color: colorScheme.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '视频控制',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            _isVideoControlExpanded ? Icons.expand_less : Icons.expand_more,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 可折叠的内容
+                  if (_isVideoControlExpanded)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // 麦克风控制
+                          Column(
+                            children: [
+                              IconButton.filled(
+                                onPressed: _toggleMic,
+                                icon: Icon(_micOn ? Icons.mic : Icons.mic_off),
+                                tooltip: _micOn ? '关闭麦克风' : '开启麦克风',
+                              ),
+                              const SizedBox(height: 4),
+                              Text('麦克风', style: theme.textTheme.bodySmall),
+                            ],
+                          ),
+                          
+                          // 摄像头控制
+                          Column(
+                            children: [
+                              IconButton.filled(
+                                onPressed: _toggleCam,
+                                icon: Icon(_camOn ? Icons.videocam : Icons.videocam_off),
+                                tooltip: _camOn ? '关闭摄像头' : '开启摄像头',
+                              ),
+                              const SizedBox(height: 4),
+                              Text('摄像头', style: theme.textTheme.bodySmall),
+                            ],
+                          ),
+                          
+                          // 本地视频显示控制
+                          Column(
+                            children: [
+                              IconButton.filled(
+                                onPressed: () => setState(() => _showLocalVideo = !_showLocalVideo),
+                                icon: Icon(_showLocalVideo ? Icons.visibility : Icons.visibility_off),
+                                tooltip: _showLocalVideo ? '隐藏本地视频' : '显示本地视频',
+                              ),
+                              const SizedBox(height: 4),
+                              Text('本地视频', style: theme.textTheme.bodySmall),
+                            ],
+                          ),
+                          
+                          // 远端视频显示控制
+                          Column(
+                            children: [
+                              IconButton.filled(
+                                onPressed: () => setState(() => _showRemoteVideo = !_showRemoteVideo),
+                                icon: Icon(_showRemoteVideo ? Icons.visibility : Icons.visibility_off),
+                                tooltip: _showRemoteVideo ? '隐藏远端视频' : '显示远端视频',
+                              ),
+                              const SizedBox(height: 4),
+                              Text('远端视频', style: theme.textTheme.bodySmall),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
