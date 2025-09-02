@@ -264,48 +264,6 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
     );
   }
 
-  /// 构建来源图标
-  Widget _buildSourceIcon(String businessCode) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    IconData iconData;
-    Color iconColor;
-
-    switch (businessCode) {
-      case 'item':
-        iconData = Icons.receipt;
-        iconColor = Colors.blue;
-        break;
-      case 'note':
-        iconData = Icons.note;
-        iconColor = Colors.green;
-        break;
-      default:
-        iconData = Icons.attachment;
-        iconColor = colorScheme.onSurfaceVariant;
-    }
-
-    return Icon(
-      iconData,
-      size: 16,
-      color: iconColor,
-    );
-  }
-
-  /// 获取来源文本
-  String _getSourceText(String businessCode) {
-    final l10n = L10nManager.l10n;
-    switch (businessCode) {
-      case 'item':
-        return l10n.accountItem;
-      case 'note':
-        return l10n.note;
-      default:
-        return l10n.attachment;
-    }
-  }
-
   /// 构建加载更多指示器
   Widget _buildLoadMoreIndicator() {
     if (!_hasMore) return const SizedBox.shrink();
