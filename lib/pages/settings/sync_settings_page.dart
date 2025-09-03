@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../manager/app_config_manager.dart';
@@ -19,6 +18,7 @@ class SyncSettingsPage extends StatefulWidget {
 }
 
 class _SyncSettingsPageState extends State<SyncSettingsPage> {
+
   final _formKey = GlobalKey<FormState>();
   late String _serverUrl;
 
@@ -33,6 +33,17 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
   void initState() {
     super.initState();
     _serverUrl = AppConfigManager.instance.serverUrl;
+    setState(() {
+      
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 当页面返回时刷新服务器URL和凭证信息
+    _serverUrl = AppConfigManager.instance.serverUrl;
+    setState(() {});
   }
 
   void _showEditServerUrlDialog() {

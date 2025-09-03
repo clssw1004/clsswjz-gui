@@ -282,7 +282,7 @@ class AppConfigManager {
   }
 
   Future<void> setDatabaseName({String? url, required String userId}) async {
-    final databaseName = DigestUtil.toMd5("${url ?? ''}${userId}");
+    final databaseName = DigestUtil.toMd5("${url ?? ''}$userId");
     _databaseName = databaseName;
     await CacheManager.instance.setString(_databaseNameKey, databaseName);
   }

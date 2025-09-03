@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6] - Unreleased
+
+### Feature Enhancements
+- Enhanced daily statistics bar chart interaction
+  - Added full date information display when clicking on chart columns
+  - Improved tooltip formatting with formatted amounts and income/expense type labels
+- Implemented credential refresh option in sync settings for token renewal without data loss
+
 ## [1.0.5-beta.1] - 2025-09-02
 
 ### New Features

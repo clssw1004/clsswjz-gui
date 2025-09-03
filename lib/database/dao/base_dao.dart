@@ -98,6 +98,7 @@ abstract class DateBaseBookDao<T extends DateBaseAccountBookTable, D>
     return query.get();
   }
 
+  @override
   List<OrderClauseGenerator<T>> defaultOrderBy() {
     return [
       (t) => OrderingTerm.desc(t.lastAccountItemAt),

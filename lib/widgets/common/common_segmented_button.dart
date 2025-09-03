@@ -22,17 +22,17 @@ class CommonSegmentedButton<T> extends StatelessWidget {
       selected: selected,
       onSelectionChanged: onSelectionChanged,
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
+        backgroundColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
               return colorScheme.primaryContainer;
             }
             return colorScheme.surface;
           },
         ),
-        foregroundColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
+        foregroundColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
               return colorScheme.onPrimaryContainer;
             }
             return colorScheme.onSurface;

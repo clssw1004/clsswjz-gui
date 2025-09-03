@@ -15,6 +15,7 @@ import '../../theme/theme_spacing.dart';
 import '../../widgets/common/restart_widget.dart';
 import '../../widgets/setting/server_url_field.dart';
 import '../../widgets/common/common_dialog.dart';
+import '../../widgets/common/progress_indicator_bar.dart';
 
 class ResetAuthPage extends StatefulWidget {
   final String serverUrl;
@@ -38,6 +39,9 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   void initState() {
     super.initState();
     _serverController.text = widget.serverUrl;
+    // 从配置中获取并设置用户名和密码
+    _usernameController.text = ''; // 用户名通常需要用户重新输入
+    _passwordController.text = ''; // 密码通常需要用户重新输入
   }
 
   @override
@@ -170,9 +174,39 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
         );
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
         await syncProvider.syncData();
+        await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
           RestartWidget.restartApp(context);
+        }
+      } else {
+        ToastUtil.showError(L10nManager.l10n.loginFailed);
+      }
+    } finally {}
+  }
+
+  Future<void> _handleRefreshCredentials() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final serverUrl = _serverController.text.trim();
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    // 先保存服务器URL配置
+    try {
+      final deviceInfo = await DeviceUtil.getDeviceInfo(context);
+      final authService = AuthService(serverUrl);
+      final result = await authService.loginOrRegister(
+          SelfHostFormType.login,
+          SelfHostFormData(
+              serverUrl: serverUrl, username: username, password: password),
+          deviceInfo);
+      if (result.ok && result.data != null) {
+        await AppConfigManager.instance.setServerUrl(serverUrl);
+        await AppConfigManager.instance
+            .setAccessToken(result.data!.accessToken);
+        if (mounted) {
+          Navigator.of(context).pop();
         }
       } else {
         ToastUtil.showError(L10nManager.l10n.loginFailed);
@@ -228,19 +262,42 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
                 },
               ),
               SizedBox(height: spacing.formGroupSpacing),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: syncProvider.syncing ? null : _showConfirmDialog,
-                  child: syncProvider.syncing
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
-                ),
+              if (syncProvider.syncing)
+                if (syncProvider.syncing)
+                  ProgressIndicatorBar(
+                    value: syncProvider.progress,
+                    label: syncProvider.currentStep ?? L10nManager.l10n.syncing,
+                    height: 24,
+                  ),
+              SizedBox(height: spacing.formGroupSpacing),
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonal(
+                      onPressed: syncProvider.syncing
+                          ? null
+                          : _handleRefreshCredentials,
+                      child: Text('刷新凭证'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed:
+                          syncProvider.syncing ? null : _showConfirmDialog,
+                      child: syncProvider.syncing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(
+                              "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

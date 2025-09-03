@@ -26,7 +26,7 @@ class UserConfigManager {
     setCurrentUser(user!);
   }
 
-  static setCurrentUser(UserVO user) {
+  static void setCurrentUser(UserVO user) {
     _currentUser = user;
     CacheManager.instance.setString(_currentUserIdKey, user.id);
   }

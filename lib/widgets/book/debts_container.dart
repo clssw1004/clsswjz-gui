@@ -257,7 +257,7 @@ class _DebtItem extends StatelessWidget {
                         borderRadius: BorderRadius.circular(2),
                         child: LinearProgressIndicator(
                           value: debt.remainAmount / debt.totalAmount,
-                          backgroundColor: colorScheme.surfaceVariant,
+                          backgroundColor: colorScheme.surfaceContainerHighest,
                           color: amountColor.withAlpha(150),
                           minHeight: 4,
                         ),

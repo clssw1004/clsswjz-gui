@@ -60,7 +60,7 @@ class NoteFormProvider extends ChangeNotifier {
   String _groupCode = '';
 
   /// 当前分组ID
-  String get groupCode => _groupCode ?? '';
+  String get groupCode => _groupCode ;
 
   NoteFormProvider(BookMetaVO bookMeta, UserNoteVO? note)
       : _bookMeta = bookMeta,

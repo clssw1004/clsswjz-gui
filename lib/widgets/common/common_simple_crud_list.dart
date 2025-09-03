@@ -145,7 +145,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
             if (widget.config.showType && widget.config.typeOptions != null) ...[
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedType,
+                initialValue: selectedType,
                 items: widget.config.typeOptions!.map((type) {
                   return DropdownMenuItem(
                     value: type,
@@ -301,7 +301,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    Widget _buildEmpty() {
+    Widget buildEmpty() {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +320,7 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
       );
     }
 
-    Widget _buildError() {
+    Widget buildError() {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -342,9 +342,9 @@ class CommonSimpleCrudListState<T> extends State<CommonSimpleCrudList<T>> {
     final list = _loading
         ? const Center(child: CircularProgressIndicator())
         : _error != null
-            ? _buildError()
+            ? buildError()
             : _items?.isEmpty == true
-                ? _buildEmpty()
+                ? buildEmpty()
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                     itemCount: _items?.length ?? 0,

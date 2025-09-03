@@ -198,6 +198,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
       final day = dateParts.length >= 3 ? dateParts[2] : stat.date;
       return DailyChartData(
         date: day,
+        fullDate: stat.date,
         income: stat.income,
         expense: stat.expense.abs(), // 支出取绝对值用于显示
       );
@@ -250,13 +251,40 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
       ),
       tooltipBehavior: TooltipBehavior(
         enable: true,
-        format: 'point.x: point.y',
+        builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+          final chartData = data as DailyChartData;
+          final amount = point.y;
+          final amountText = NumberFormat.decimalPattern().format(amount);
+          final typeText = _showIncome ? L10nManager.l10n.income : L10nManager.l10n.expense;
+          
+          return Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: colorScheme.outline.withAlpha(100),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(30),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              '${chartData.fullDate.substring(5)}\n$typeText: $amountText',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          );
+        },
         color: colorScheme.surface,
-        textStyle: TextStyle(
-          color: colorScheme.onSurface,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
         borderColor: colorScheme.outline.withAlpha(100),
         borderWidth: 1,
         elevation: 8,
@@ -276,7 +304,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
             yValueMapper: (DailyChartData data, _) => data.income,
             name: '收入',
             color: ColorUtil.INCOME.withAlpha(220),
-            width: 0.6, // 单列显示时可以稍微宽一些
+            width: _calculateColumnWidth(), // 动态计算柱子宽度，避免月初天数少时柱子过粗
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(3),
               topRight: Radius.circular(3),
@@ -304,7 +332,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
             yValueMapper: (DailyChartData data, _) => data.expense,
             name: '支出',
             color: ColorUtil.EXPENSE.withAlpha(220),
-            width: 0.6, // 单列显示时可以稍微宽一些
+            width: _calculateColumnWidth(), // 动态计算柱子宽度，避免月初天数少时柱子过粗
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(3),
               topRight: Radius.circular(3),
@@ -375,6 +403,28 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
     }
   }
 
+  /// 计算柱子宽度，根据数据点数量动态调整，避免月初天数少时柱子过粗
+  double _calculateColumnWidth() {
+    if (widget.dailyStats.isEmpty) {
+      return 0.6; // 空数据时返回默认值
+    }
+
+    final int dataCount = widget.dailyStats.length;
+    
+    // 根据数据点数量动态计算宽度
+    if (dataCount <= 7) {
+      // 月初天数少时，使用较小宽度避免柱子过粗
+      return 0.3;
+    } else if (dataCount <= 15) {
+      return 0.4;
+    } else if (dataCount <= 31) {
+      return 0.5;
+    } else {
+      // 数据点很多时，使用最小宽度
+      return 0.3;
+    }
+  }
+
   /// 计算Y轴范围
   YAxisRange _calculateYAxisRange() {
     if (widget.dailyStats.isEmpty) {
@@ -399,10 +449,6 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
     if (minAmount < 0) {
       minAmount = 0;
     }
-
-    // 记录原始值用于调试
-    final originalMin = minAmount;
-    final originalMax = maxAmount;
 
     // 如果最大值和最小值差异很大，调整最小值以保持小数值可见
     if (maxAmount > 0 && minAmount > 0) {
@@ -459,11 +505,13 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
 class DailyChartData {
   DailyChartData({
     required this.date,
+    required this.fullDate,
     required this.income,
     required this.expense,
   });
 
   final String date;
+  final String fullDate;
   final double income;
   final double expense;
 }
