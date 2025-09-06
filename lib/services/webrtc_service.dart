@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import '../utils/http_client.dart';
+import 'server_cache_service.dart';
 
 /// WebRTC连接管理器
 class WebRTCService {
@@ -237,70 +237,42 @@ class WebRTCService {
     }
   }
 
-  /// 创建Offer
-  Future<String?> createOffer() async {
+  /// 创建房间（真正简化版 - 等待Answer）
+  Future<String?> createRoom() async {
     if (_pc == null) return null;
     
-    onLog('🔄 Creating offer...');
+    onLog('🔄 创建房间...');
     _localCandidates.clear();
     _iceGatheringComplete = false;
     
     try {
-      // 检查当前PeerConnection的轨道状态
-      try {
-        final transceivers = await _pc?.getTransceivers();
-        onLog('📊 Offer创建前轨道状态: ${transceivers?.length ?? 0} 个轨道');
-        
-        if (transceivers != null) {
-          for (int i = 0; i < transceivers.length; i++) {
-            final transceiver = transceivers[i];
-            final track = transceiver.receiver.track;
-            onLog('  轨道 $i: kind=${track?.kind}, enabled=${track?.enabled}, mid=${transceiver.mid}');
-          }
-        }
-      } catch (e) {
-        onLog('⚠️ 无法获取轨道状态: $e');
-      }
-      
       final offer = await _pc!.createOffer({
         'offerToReceiveAudio': 1, 
         'offerToReceiveVideo': 1
       });
       
-      // 检查SDP内容，确保包含视频轨道
-      final sdp = offer.sdp ?? '';
-      onLog('📋 SDP Offer内容检查:');
-      onLog('  SDP长度: ${sdp.length} 字符');
-      
-      if (sdp.contains('m=video')) {
-        onLog('✅ SDP包含视频轨道 (m=video)');
-      } else {
-        onLog('❌ SDP缺少视频轨道！');
-        onLog('💡 可能原因：视频轨道未正确添加到PeerConnection');
-      }
-      
-      if (sdp.contains('m=audio')) {
-        onLog('✅ SDP包含音频轨道 (m=audio)');
-      } else {
-        onLog('❌ SDP缺少音频轨道！');
-      }
-      
-      // 统计SDP中的轨道数量
-      final videoLines = sdp.split('\n').where((line) => line.startsWith('m=video')).length;
-      final audioLines = sdp.split('\n').where((line) => line.startsWith('m=audio')).length;
-      onLog('  SDP中视频轨道数量: $videoLines');
-      onLog('  SDP中音频轨道数量: $audioLines');
-      
       await _pc!.setLocalDescription(offer);
-      onLog('✅ Local offer set. Starting ICE gathering...');
+      onLog('✅ 本地Offer已设置，开始ICE收集...');
       
       // 等待ICE收集完成
       await _waitForIceGathering();
-      return await _generatePairCode();
+      final roomCode = await _generateRoomCode();
+      
+      if (roomCode != null) {
+        // 开始轮询等待Answer
+        _startWaitingForAnswer(roomCode);
+      }
+      
+      return roomCode;
     } catch (e) {
-      onLog('❌ Failed to create offer: $e');
+      onLog('❌ 创建房间失败: $e');
       return null;
     }
+  }
+
+  /// 创建Offer（保留原方法以兼容）
+  Future<String?> createOffer() async {
+    return await createRoom();
   }
 
   /// 等待ICE收集完成
@@ -324,13 +296,22 @@ class WebRTCService {
     }
   }
 
-  /// 生成配对码
-  Future<String?> _generatePairCode() async {
+  /// 生成房间码字符串
+  String _generateRoomCodeString() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    return String.fromCharCodes(
+      Iterable.generate(6, (_) => chars.codeUnitAt(random.nextInt(chars.length)))
+    );
+  }
+
+  /// 生成房间码（简化版）
+  Future<String?> _generateRoomCode() async {
     if (_pc == null) return null;
     
     final desc = await _pc!.getLocalDescription();
     if (desc == null) {
-      onLog('❌ Failed to get local description');
+      onLog('❌ 无法获取本地描述');
       return null;
     }
     
@@ -345,70 +326,59 @@ class WebRTCService {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     };
     
-    final shortCode = await _storePairData(payload);
-    if (shortCode != null) {
-      onLog('✅ Generated short pair code: $shortCode (${_localCandidates.length} candidates)');
+    final roomCode = await _storeRoomData(payload);
+    if (roomCode != null) {
+      onLog('✅ 房间创建成功: $roomCode (${_localCandidates.length} 个候选者)');
     } else {
-      onLog('❌ Failed to generate pair code');
+      onLog('❌ 房间创建失败');
     }
-    return shortCode;
+    return roomCode;
   }
 
-  /// 存储配对数据
-  Future<String?> _storePairData(Map<String, dynamic> data) async {
+
+  /// 存储房间数据（简化版）
+  Future<String?> _storeRoomData(Map<String, dynamic> data) async {
     try {
-      final shortCode = _generateShortCode();
-      final response = await HttpClient.instance.post(
-        path: '/api/sync/tmp/set',
-        data: {
-          'key': shortCode,
-          'value': jsonEncode(data),
-        },
-      );
+      final roomCode = _generateRoomCodeString();
+      final success = await ServerCacheService().setData(roomCode, data);
       
-      if (response.ok) {
-        onLog('Stored pair data with code: $shortCode');
-        return shortCode;
+      if (success) {
+        onLog('房间数据已存储: $roomCode');
+        return roomCode;
       } else {
-        onLog('Failed to store pair data: ${response.message}');
+        onLog('房间数据存储失败');
         return null;
       }
     } catch (e) {
-      onLog('Store pair data error: $e');
+      onLog('房间数据存储错误: $e');
       return null;
     }
   }
 
-  /// 生成短码
-  String _generateShortCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-    return String.fromCharCodes(
-      Iterable.generate(6, (_) => chars.codeUnitAt(random.nextInt(chars.length)))
-    );
-  }
 
-  /// 消费配对码并回复
-  Future<bool> consumePairCodeAndReply(String shortCode, {required bool reply}) async {
+
+  /// 加入房间（真正简化版 - 单向连接）
+  Future<bool> joinRoom(String roomCode) async {
     if (_pc == null) return false;
     
-    if (shortCode.length != 6) {
-      onLog('❌ Invalid short code length: ${shortCode.length}');
+    if (roomCode.length != 6) {
+      onLog('❌ 房间码长度无效: ${roomCode.length}');
       return false;
     }
     
-    onLog('🔄 Processing pair code: $shortCode...');
-    final data = await _fetchPairData(shortCode);
+    onLog('🔄 正在加入房间: $roomCode...');
+    final data = await ServerCacheService().getData(roomCode);
     if (data == null) {
-      onLog('❌ Failed to fetch data for code: $shortCode');
+      onLog('❌ 无法获取房间数据: $roomCode');
       return false;
     }
     
     try {
       final sdp = RTCSessionDescription(data['sdp'] as String, data['type'] as String);
       await _pc!.setRemoteDescription(sdp);
-      onLog('✅ Set remote description: type=${sdp.type}, sdpLen=${(sdp.sdp ?? '').length}');
+      onLog('✅ 远端描述已设置: type=${sdp.type}');
       
+      // 添加ICE候选者
       final List<dynamic> cands = (data['candidates'] as List<dynamic>? ?? <dynamic>[]);
       for (final c in cands) {
         try {
@@ -418,31 +388,38 @@ class WebRTCService {
             c['sdpMLineIndex'] as int?,
           ));
         } catch (e) {
-          onLog('⚠️ Failed to add candidate: $e');
+          onLog('⚠️ 添加候选者失败: $e');
         }
       }
-      onLog('✅ Added remote candidates: count=${cands.length}');
+      onLog('✅ 已添加远端候选者: ${cands.length} 个');
       
-      if (reply && sdp.type == 'offer') {
-        onLog('🔄 Creating answer for offer...');
+      // 如果是offer，自动创建answer并存储回房间
+      if (sdp.type == 'offer') {
+        onLog('🔄 正在创建Answer...');
         final answer = await _pc!.createAnswer({
           'offerToReceiveAudio': 1, 
           'offerToReceiveVideo': 1
         });
         await _pc!.setLocalDescription(answer);
-        onLog('✅ Local answer set. Waiting for ICE gathering...');
+        onLog('✅ 本地Answer已设置，等待ICE收集...');
         
         await _waitForIceGathering();
-        await _generatePairCode();
-      } else if (reply) {
-        onLog('ℹ️ Received ${sdp.type}, no need to create answer');
+        
+        // 将Answer存储回同一个房间，供发起方获取
+        await _storeAnswerToRoom(roomCode, answer);
+        onLog('✅ Answer已存储到房间: $roomCode');
       }
       return true;
     } catch (e) {
-      onLog('❌ Consume code failed: $e');
+      onLog('❌ 加入房间失败: $e');
       onLog('💡 建议：检查网络连接或重新尝试');
       return false;
     }
+  }
+
+  /// 消费配对码并回复（保留原方法以兼容）
+  Future<bool> consumePairCodeAndReply(String shortCode, {required bool reply}) async {
+    return await joinRoom(shortCode);
   }
 
   /// 仅设置远端描述
@@ -455,7 +432,7 @@ class WebRTCService {
     }
     
     onLog('🔄 Setting remote description only...');
-    final data = await _fetchPairData(shortCode);
+    final data = await _fetchRoomData(shortCode);
     if (data == null) {
       onLog('❌ Failed to fetch data for code: $shortCode');
       return false;
@@ -487,29 +464,102 @@ class WebRTCService {
     }
   }
 
-  /// 获取配对数据
-  Future<Map<String, dynamic>?> _fetchPairData(String shortCode) async {
-    try {
-      final response = await HttpClient.instance.post(
-        path: '/api/sync/tmp/get',
-        data: {'key': shortCode},
-      );
+  /// 开始等待Answer
+  void _startWaitingForAnswer(String roomCode) {
+    onLog('🔄 开始等待Answer，房间码: $roomCode');
+    _pollForAnswer(roomCode);
+  }
+
+  /// 轮询等待Answer
+  Future<void> _pollForAnswer(String roomCode) async {
+    int attempts = 0;
+    const maxAttempts = 60; // 最多等待60秒
+    
+    while (attempts < maxAttempts) {
+      await Future.delayed(const Duration(seconds: 1));
+      attempts++;
       
-      if (response.ok && response.data != null) {
-        final value = response.data['data'] as String?;
-        if (value != null) {
-          final data = jsonDecode(value) as Map<String, dynamic>;
-          onLog('Fetched pair data for code: $shortCode');
-          return data;
+      try {
+        final answerData = await ServerCacheService().getData('${roomCode}_answer');
+        if (answerData != null) {
+          onLog('✅ 收到Answer，正在建立连接...');
+            
+            // 设置Answer
+            final answer = RTCSessionDescription(answerData['sdp'] as String, answerData['type'] as String);
+            await _pc!.setRemoteDescription(answer);
+            
+            // 添加Answer的ICE候选者
+            final List<dynamic> cands = (answerData['candidates'] as List<dynamic>? ?? <dynamic>[]);
+            for (final c in cands) {
+              try {
+                await _pc!.addCandidate(RTCIceCandidate(
+                  (c as Map<String, dynamic>)['candidate'] as String?,
+                  c['sdpMid'] as String?,
+                  c['sdpMLineIndex'] as int?,
+                ));
+              } catch (e) {
+                onLog('⚠️ 添加Answer候选者失败: $e');
+              }
+            }
+            
+            onLog('✅ Answer设置完成，连接建立中...');
+            return;
+          }
+        
+        if (attempts % 10 == 0) {
+          onLog('⏳ 等待Answer中... (${attempts}s)');
         }
+      } catch (e) {
+        onLog('⚠️ 轮询Answer时出错: $e');
       }
-      onLog('Failed to fetch pair data: ${response.message}');
-      return null;
+    }
+    
+    onLog('❌ 等待Answer超时');
+  }
+
+  /// 存储Answer到房间
+  Future<void> _storeAnswerToRoom(String roomCode, RTCSessionDescription answer) async {
+    try {
+      final answerData = {
+        'sdp': answer.sdp,
+        'type': answer.type,
+        'candidates': _localCandidates.map((c) => {
+          'candidate': c.candidate,
+          'sdpMid': c.sdpMid,
+          'sdpMLineIndex': c.sdpMLineIndex,
+        }).toList(),
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+      
+      final success = await ServerCacheService().setData('${roomCode}_answer', answerData);
+      
+      if (success) {
+        onLog('Answer已存储到房间: ${roomCode}_answer');
+      } else {
+        onLog('Answer存储失败');
+      }
     } catch (e) {
-      onLog('Fetch pair data error: $e');
+      onLog('Answer存储错误: $e');
+    }
+  }
+
+  /// 获取房间数据（简化版）
+  Future<Map<String, dynamic>?> _fetchRoomData(String roomCode) async {
+    try {
+      final data = await ServerCacheService().getData(roomCode);
+      if (data != null) {
+        onLog('已获取房间数据: $roomCode');
+        return data;
+      } else {
+        onLog('获取房间数据失败');
+        return null;
+      }
+    } catch (e) {
+      onLog('获取房间数据错误: $e');
       return null;
     }
   }
+
 
   /// 测试TURN服务器
   Future<void> testTurnServer({
