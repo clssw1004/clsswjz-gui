@@ -9,7 +9,7 @@ import '../services/webrtc_service.dart';
 import '../widgets/webrtc/turn_server_config_dialog.dart';
 import '../widgets/webrtc/video_renderer_widget.dart';
 import '../widgets/webrtc/pair_code_operations.dart';
-import '../widgets/webrtc/media_controls.dart';
+import '../widgets/webrtc/simple_room_operations.dart';
 
 /// 简易 WebRTC 视频聊天页面（演示用）
 /// 说明：
@@ -27,6 +27,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   final TextEditingController _sdpController = TextEditingController();
+  final TextEditingController _roomCodeController = TextEditingController();
 
   // WebRTC配置
   late WebRTCConfigDTO _webrtcConfig;
@@ -46,6 +47,8 @@ class _VideoChatPageState extends State<VideoChatPage> {
   bool _isJoiner = false; // 是否为加入方
   bool _isVideoControlExpanded = true; // 视频控制面板是否展开
   bool _isConnectionOperationsExpanded = true; // 连接操作面板是否展开
+  bool _useSimpleMode = true; // 是否使用简化模式
+  bool _isWaitingForAnswer = false; // 是否在等待Answer
 
   // 简化的日志方法，仅用于关键信息
   void _log(String message) {
@@ -149,29 +152,41 @@ class _VideoChatPageState extends State<VideoChatPage> {
     _log('✅ Reconnection completed');
   }
 
-  // 发起连接
-  Future<void> _createOffer() async {
-    final shortCode = await _connectionManager.createOffer();
-    if (shortCode != null) {
-      _sdpController.text = shortCode;
-      await Clipboard.setData(ClipboardData(text: shortCode));
+  // 创建房间（简化版）
+  Future<void> _createRoom() async {
+    final roomCode = await _connectionManager.createRoom();
+    if (roomCode != null) {
+      _roomCodeController.text = roomCode;
+      await Clipboard.setData(ClipboardData(text: roomCode));
       setState(() {
         _isInitiator = true;
         _isJoiner = false;
+        _isWaitingForAnswer = true;
       });
     }
   }
 
-  // 加入连接
-  Future<void> _join() async {
-    final shortCode = _sdpController.text.trim();
-    if (shortCode.isNotEmpty) {
-      await _connectionManager.consumePairCodeAndReply(shortCode, reply: true);
+  // 发起连接（保留原方法以兼容）
+  Future<void> _createOffer() async {
+    return await _createRoom();
+  }
+
+  // 加入房间（简化版）
+  Future<void> _joinRoom() async {
+    final roomCode = _roomCodeController.text.trim();
+    if (roomCode.isNotEmpty) {
+      await _connectionManager.joinRoom(roomCode);
       setState(() {
         _isJoiner = true;
         _isInitiator = false;
+        _isWaitingForAnswer = false;
       });
     }
+  }
+
+  // 加入连接（保留原方法以兼容）
+  Future<void> _join() async {
+    return await _joinRoom();
   }
 
   // 仅设置远端
@@ -186,13 +201,19 @@ class _VideoChatPageState extends State<VideoChatPage> {
     }
   }
 
-  // 清除配对码和状态
-  void _clearPairingCode() {
+  // 清除房间码和状态
+  void _clearRoomCode() {
     setState(() {
+      _roomCodeController.clear();
       _sdpController.clear();
       _isInitiator = false;
       _isJoiner = false;
     });
+  }
+
+  // 清除配对码和状态（保留原方法以兼容）
+  void _clearPairingCode() {
+    _clearRoomCode();
   }
 
 
@@ -277,6 +298,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
     
     // 释放其他资源
     _sdpController.dispose();
+    _roomCodeController.dispose();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -294,6 +316,16 @@ class _VideoChatPageState extends State<VideoChatPage> {
         backgroundColor: colorScheme.surfaceContainerHighest,
         elevation: 0,
         actions: [
+          // 模式切换按钮
+          IconButton(
+            onPressed: () => setState(() => _useSimpleMode = !_useSimpleMode),
+            icon: Icon(
+              _useSimpleMode ? Icons.tune : Icons.smart_toy,
+              color: colorScheme.primary,
+            ),
+            tooltip: _useSimpleMode ? '切换到高级模式' : '切换到简化模式',
+          ),
+          const SizedBox(width: 8),
           // 连接状态指示器
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -366,7 +398,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
             ),
             const SizedBox(height: 16),
             
-            // 配对码操作区域 - 可折叠
+            // 连接操作区域 - 可折叠
             Card(
               elevation: 0,
               color: colorScheme.surfaceContainerHighest,
@@ -388,13 +420,13 @@ class _VideoChatPageState extends State<VideoChatPage> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.link,
+                            _useSimpleMode ? Icons.meeting_room : Icons.link,
                             color: colorScheme.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '连接操作',
+                            _useSimpleMode ? '房间操作' : '连接操作',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -413,29 +445,43 @@ class _VideoChatPageState extends State<VideoChatPage> {
                   if (_isConnectionOperationsExpanded)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: PairCodeOperations(
-                        sdpController: _sdpController,
-                        iceGatheringComplete: _iceGatheringComplete,
-                        isConnecting: _isConnecting,
-                        showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
-                                            _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
-                        isInitiator: _isInitiator,
-                        isJoiner: _isJoiner,
-                        hasConnection: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
-                                     _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted,
-                        onCreateOffer: _createOffer,
-                        onJoin: _join,
-                        onSetRemoteOnly: _setRemoteOnly,
-                        onReconnect: _reconnect,
-                        onClearCode: _clearPairingCode,
-                      ),
+                      child: _useSimpleMode 
+                        ? SimpleRoomOperations(
+                            roomCodeController: _roomCodeController,
+                            isConnecting: _isConnecting || _isWaitingForAnswer,
+                            showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
+                                                _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
+                            hasConnection: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
+                                         _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted,
+                            onCreateRoom: _createRoom,
+                            onJoinRoom: _joinRoom,
+                            onReconnect: _reconnect,
+                            onClearCode: _clearRoomCode,
+                            isWaitingForAnswer: _isWaitingForAnswer,
+                          )
+                        : PairCodeOperations(
+                            sdpController: _sdpController,
+                            iceGatheringComplete: _iceGatheringComplete,
+                            isConnecting: _isConnecting,
+                            showReconnectButton: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed ||
+                                                _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected,
+                            isInitiator: _isInitiator,
+                            isJoiner: _isJoiner,
+                            hasConnection: _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
+                                         _iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted,
+                            onCreateOffer: _createOffer,
+                            onJoin: _join,
+                            onSetRemoteOnly: _setRemoteOnly,
+                            onReconnect: _reconnect,
+                            onClearCode: _clearPairingCode,
+                          ),
                     ),
                 ],
               ),
             ),
             
-            // 生成的配对码展示（可点击复制）
-            if (_sdpController.text.isNotEmpty)
+            // 生成的房间码展示（可点击复制）
+            if ((_useSimpleMode ? _roomCodeController.text : _sdpController.text).isNotEmpty)
               Card(
                 elevation: 0,
                 color: colorScheme.surfaceContainerHighest,
@@ -446,7 +492,8 @@ class _VideoChatPageState extends State<VideoChatPage> {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
                   onTap: () async {
-                    await Clipboard.setData(ClipboardData(text: _sdpController.text));
+                    final code = _useSimpleMode ? _roomCodeController.text : _sdpController.text;
+                    await Clipboard.setData(ClipboardData(text: code));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(l10n.linkCopied)),
                     );
@@ -456,7 +503,7 @@ class _VideoChatPageState extends State<VideoChatPage> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.qr_code_2,
+                          _useSimpleMode ? Icons.meeting_room : Icons.qr_code_2,
                           color: colorScheme.primary,
                           size: 24,
                         ),
@@ -466,14 +513,14 @@ class _VideoChatPageState extends State<VideoChatPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '配对码',
+                                _useSimpleMode ? '房间码' : '配对码',
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                _sdpController.text,
+                                _useSimpleMode ? _roomCodeController.text : _sdpController.text,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'monospace',
@@ -486,7 +533,8 @@ class _VideoChatPageState extends State<VideoChatPage> {
                         const SizedBox(width: 8),
                         IconButton(
                           onPressed: () async {
-                            await Clipboard.setData(ClipboardData(text: _sdpController.text));
+                            final code = _useSimpleMode ? _roomCodeController.text : _sdpController.text;
+                            await Clipboard.setData(ClipboardData(text: code));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(l10n.linkCopied)),
                             );
