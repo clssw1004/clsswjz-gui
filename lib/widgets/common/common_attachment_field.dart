@@ -6,7 +6,6 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
 import '../../utils/file_util.dart';
-import '../../utils/toast_util.dart';
 import 'common_dialog.dart';
 import 'common_image_preview.dart';
 

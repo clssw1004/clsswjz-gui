@@ -196,7 +196,7 @@ class ItemTileTimeline extends StatelessWidget {
               const SizedBox(width: 140),
             
             // 时间点
-            Container(
+            SizedBox(
               width: 40,
               child: Stack(
                 children: [

@@ -157,8 +157,8 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
     }
 
     return ThemeSpacing(
-      formItemSpacing: lerpDouble(formItemSpacing, other.formItemSpacing, t)!,
-      formGroupSpacing: lerpDouble(formGroupSpacing, other.formGroupSpacing, t)!,
+      formItemSpacing: lerpDouble(formItemSpacing, other.formItemSpacing, t),
+      formGroupSpacing: lerpDouble(formGroupSpacing, other.formGroupSpacing, t),
       formPadding: EdgeInsets.lerp(formPadding, other.formPadding, t)!,
       formItemPadding: EdgeInsets.lerp(formItemPadding, other.formItemPadding, t)!,
       formGroupPadding: EdgeInsets.lerp(formGroupPadding, other.formGroupPadding, t)!,
@@ -166,7 +166,7 @@ class ThemeSpacing extends ThemeExtension<ThemeSpacing> {
       listPadding: EdgeInsets.lerp(listPadding, other.listPadding, t)!,
       listItemMargin: EdgeInsets.lerp(listItemMargin, other.listItemMargin, t)!,
       listItemPadding: EdgeInsets.lerp(listItemPadding, other.listItemPadding, t)!,
-      listItemSpacing: lerpDouble(listItemSpacing, other.listItemSpacing, t)!,
+      listItemSpacing: lerpDouble(listItemSpacing, other.listItemSpacing, t),
       loadMorePadding: EdgeInsets.lerp(loadMorePadding, other.loadMorePadding, t)!,
       bottomSheetPadding: EdgeInsets.lerp(bottomSheetPadding, other.bottomSheetPadding, t)!,
       pagePadding: EdgeInsets.lerp(pagePadding, other.pagePadding, t)!,

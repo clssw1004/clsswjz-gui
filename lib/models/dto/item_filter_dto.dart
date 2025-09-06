@@ -85,7 +85,7 @@ class ItemFilterDTO {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       source: source ?? this.source,
-      sourceIds: sourceIds ?? this.sourceIds,
+      sourceIds: sourceIds ?? sourceIds,
       keyword: keyword ?? this.keyword,
     );
   }

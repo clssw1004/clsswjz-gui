@@ -58,7 +58,6 @@ class UserProvider extends ChangeNotifier {
       _error = '获取用户信息失败：$e';
     } finally {
       _loading = false;
-      notifyListeners();
     }
   }
 

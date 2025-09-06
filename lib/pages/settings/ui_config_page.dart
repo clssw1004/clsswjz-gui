@@ -100,7 +100,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                           });
                           _updateUiConfig();
                         },
-                        activeColor: colorScheme.primary,
+                        activeThumbColor: colorScheme.primary,
                       ),
                     ],
                   ),
@@ -139,7 +139,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                           });
                           _updateUiConfig();
                         },
-                        activeColor: colorScheme.primary,
+                        activeThumbColor: colorScheme.primary,
                       ),
                     ],
                   ),
@@ -177,7 +177,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                           });
                           _updateUiConfig();
                         },
-                        activeColor: colorScheme.primary,
+                        activeThumbColor: colorScheme.primary,
                       ),
                     ],
                   ),

@@ -78,7 +78,6 @@ class ThemeProvider extends ChangeNotifier {
       scaffoldBackgroundColor: Colors.white,
       canvasColor: Colors.white,
       cardColor: Colors.white,
-      dialogBackgroundColor: Colors.white,
       textTheme: _getTextTheme(Brightness.light),
       cardTheme: _getCardTheme(),
       inputDecorationTheme: _getInputDecorationTheme(),
@@ -109,7 +108,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       extensions: [
         ThemeSpacing.fromScreenSize(context),
-      ],
+      ], dialogTheme: DialogThemeData(backgroundColor: Colors.white),
     );
   }
 
