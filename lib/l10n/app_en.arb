@@ -855,5 +855,213 @@
     "showDailyCalendarDescription": "Display daily income and expense calendar in the accounting page",
     "@showDailyCalendarDescription": {
         "description": "Description for show daily statistics calendar toggle"
+    },
+    "videoChat": "Video Chat",
+    "@videoChat": {
+        "description": "Video chat page title"
+    },
+    "roomOperations": "Room Operations",
+    "@roomOperations": {
+        "description": "Room operations section title"
+    },
+    "connectionOperations": "Connection Operations",
+    "@connectionOperations": {
+        "description": "Connection operations section title"
+    },
+    "videoControl": "Video Control",
+    "@videoControl": {
+        "description": "Video control section title"
+    },
+    "roomCode": "Room Code",
+    "@roomCode": {
+        "description": "Room code label"
+    },
+    "pairCode": "Pair Code",
+    "@pairCode": {
+        "description": "Pair code label"
+    },
+    "enterRoomCode": "Enter 6-digit room code",
+    "@enterRoomCode": {
+        "description": "Room code input hint"
+    },
+    "enterPairCode": "Enter or paste 6-digit pair code",
+    "@enterPairCode": {
+        "description": "Pair code input hint"
+    },
+    "createRoom": "Create Room",
+    "@createRoom": {
+        "description": "Create room button text"
+    },
+    "joinRoom": "Join Room",
+    "@joinRoom": {
+        "description": "Join room button text"
+    },
+    "waitingForJoin": "Waiting for join...",
+    "@waitingForJoin": {
+        "description": "Waiting for others to join status text"
+    },
+    "creating": "Creating...",
+    "@creating": {
+        "description": "Creating status text"
+    },
+    "connecting": "Connecting...",
+    "@connecting": {
+        "description": "Connecting status text"
+    },
+    "connected": "Connected",
+    "@connected": {
+        "description": "Connected status text"
+    },
+    "notConnected": "Not Connected",
+    "@notConnected": {
+        "description": "Not connected status text"
+    },
+    "waitingForAnswer": "Waiting for others to join...",
+    "@waitingForAnswer": {
+        "description": "Waiting for answer status text"
+    },
+    "createConnection": "Create Connection",
+    "@createConnection": {
+        "description": "Create connection button text"
+    },
+    "joinConnection": "Join Connection",
+    "@joinConnection": {
+        "description": "Join connection button text"
+    },
+    "setRemoteOnly": "Set Remote Only",
+    "@setRemoteOnly": {
+        "description": "Set remote only button text"
+    },
+    "reconnect": "Reconnect",
+    "@reconnect": {
+        "description": "Reconnect button text"
+    },
+    "clearRoomCode": "Clear Room Code",
+    "@clearRoomCode": {
+        "description": "Clear room code button tooltip"
+    },
+    "clearPairCode": "Clear Pair Code",
+    "@clearPairCode": {
+        "description": "Clear pair code button tooltip"
+    },
+    "localVideo": "Local Video",
+    "@localVideo": {
+        "description": "Local video label"
+    },
+    "remoteVideo": "Remote Video",
+    "@remoteVideo": {
+        "description": "Remote video label"
+    },
+    "microphone": "Microphone",
+    "@microphone": {
+        "description": "Microphone label"
+    },
+    "camera": "Camera",
+    "@camera": {
+        "description": "Camera label"
+    },
+    "microphoneOn": "Microphone On",
+    "@microphoneOn": {
+        "description": "Microphone on status"
+    },
+    "microphoneOff": "Microphone Off",
+    "@microphoneOff": {
+        "description": "Microphone off status"
+    },
+    "cameraOn": "Camera On",
+    "@cameraOn": {
+        "description": "Camera on status"
+    },
+    "cameraOff": "Camera Off",
+    "@cameraOff": {
+        "description": "Camera off status"
+    },
+    "showLocalVideo": "Show Local Video",
+    "@showLocalVideo": {
+        "description": "Show local video button tooltip"
+    },
+    "hideLocalVideo": "Hide Local Video",
+    "@hideLocalVideo": {
+        "description": "Hide local video button tooltip"
+    },
+    "showRemoteVideo": "Show Remote Video",
+    "@showRemoteVideo": {
+        "description": "Show remote video button tooltip"
+    },
+    "hideRemoteVideo": "Hide Remote Video",
+    "@hideRemoteVideo": {
+        "description": "Hide remote video button tooltip"
+    },
+    "turnOnMicrophone": "Turn On Microphone",
+    "@turnOnMicrophone": {
+        "description": "Turn on microphone button tooltip"
+    },
+    "turnOffMicrophone": "Turn Off Microphone",
+    "@turnOffMicrophone": {
+        "description": "Turn off microphone button tooltip"
+    },
+    "turnOnCamera": "Turn On Camera",
+    "@turnOnCamera": {
+        "description": "Turn on camera button tooltip"
+    },
+    "turnOffCamera": "Turn Off Camera",
+    "@turnOffCamera": {
+        "description": "Turn off camera button tooltip"
+    },
+    "localCamera": "Local Camera",
+    "@localCamera": {
+        "description": "Local camera label"
+    },
+    "waitingForRemoteVideo": "Waiting for Remote Video",
+    "@waitingForRemoteVideo": {
+        "description": "Waiting for remote video status text"
+    },
+    "iceGatheringComplete": "ICE Gathering Complete",
+    "@iceGatheringComplete": {
+        "description": "ICE gathering complete status"
+    },
+    "iceGathering": "ICE Gathering...",
+    "@iceGathering": {
+        "description": "ICE gathering status"
+    },
+    "switchToAdvancedMode": "Switch to Advanced Mode",
+    "@switchToAdvancedMode": {
+        "description": "Switch to advanced mode button tooltip"
+    },
+    "switchToSimpleMode": "Switch to Simple Mode",
+    "@switchToSimpleMode": {
+        "description": "Switch to simple mode button tooltip"
+    },
+    "turnServerConfig": "TURN Server Configuration",
+    "@turnServerConfig": {
+        "description": "TURN server configuration button tooltip"
+    },
+    "authenticationConfig": "Authentication Configuration",
+    "@authenticationConfig": {
+        "description": "Authentication configuration section title"
+    },
+    "realm": "Realm",
+    "@realm": {
+        "description": "Realm input field label"
+    },
+    "port": "Port",
+    "@port": {
+        "description": "Port input field label"
+    },
+    "turnServerDescription": "TURN server helps establish P2P connections behind NAT for better connectivity.",
+    "@turnServerDescription": {
+        "description": "TURN server description text"
+    },
+    "noLogs": "No logs",
+    "@noLogs": {
+        "description": "No logs prompt text"
+    },
+    "logs": "Logs",
+    "@logs": {
+        "description": "Log panel title"
+    },
+    "clearLogs": "Clear",
+    "@clearLogs": {
+        "description": "Clear logs button text"
     }
 }

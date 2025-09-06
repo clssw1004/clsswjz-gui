@@ -3,6 +3,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 import '../../../models/vo/statistic_vo.dart';
 import '../../../manager/l10n_manager.dart';
+import '../../../manager/app_config_manager.dart';
 import '../../common/common_card_container.dart';
 import '../../../utils/color_util.dart';
 
@@ -21,8 +22,17 @@ class DailyStatisticCalendar extends StatefulWidget {
 }
 
 class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
-  bool _showIncome = true;
-  bool _showExpense = true;
+  late bool _showIncome;
+  late bool _showExpense;
+
+  @override
+  void initState() {
+    super.initState();
+    // 从配置中读取初始状态
+    final uiConfig = AppConfigManager.instance.uiConfig;
+    _showIncome = uiConfig.calendarShowIncome;
+    _showExpense = uiConfig.calendarShowExpense;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,10 +119,14 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
               children: [
                 // 支出按钮（多选）
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       _showExpense = !_showExpense;
                     });
+                    // 保存配置到本地
+                    await AppConfigManager.instance.updateCalendarDisplayConfig(
+                      showExpense: _showExpense,
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -140,10 +154,14 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                 const SizedBox(width: 12),
                 // 收入按钮（多选）
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       _showIncome = !_showIncome;
                     });
+                    // 保存配置到本地
+                    await AppConfigManager.instance.updateCalendarDisplayConfig(
+                      showIncome: _showIncome,
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

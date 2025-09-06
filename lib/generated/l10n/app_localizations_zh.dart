@@ -955,6 +955,163 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get showDailyCalendarDescription => '在记账页中显示每日收支日历';
+
+  @override
+  String get videoChat => '视频聊天';
+
+  @override
+  String get roomOperations => '房间操作';
+
+  @override
+  String get connectionOperations => '连接操作';
+
+  @override
+  String get videoControl => '视频控制';
+
+  @override
+  String get roomCode => '房间码';
+
+  @override
+  String get pairCode => '配对码';
+
+  @override
+  String get enterRoomCode => '输入6位房间码';
+
+  @override
+  String get enterPairCode => '输入或粘贴6位配对码';
+
+  @override
+  String get createRoom => '创建房间';
+
+  @override
+  String get joinRoom => '加入房间';
+
+  @override
+  String get waitingForJoin => '等待加入...';
+
+  @override
+  String get creating => '创建中...';
+
+  @override
+  String get connecting => '连接中...';
+
+  @override
+  String get connected => '已连接';
+
+  @override
+  String get notConnected => '未连接';
+
+  @override
+  String get waitingForAnswer => '等待对方加入...';
+
+  @override
+  String get createConnection => '发起连接';
+
+  @override
+  String get joinConnection => '加入连接';
+
+  @override
+  String get setRemoteOnly => '仅设置远端';
+
+  @override
+  String get reconnect => '重连';
+
+  @override
+  String get clearRoomCode => '清除房间码';
+
+  @override
+  String get clearPairCode => '清除配对码';
+
+  @override
+  String get localVideo => '本地视频';
+
+  @override
+  String get remoteVideo => '远端视频';
+
+  @override
+  String get microphone => '麦克风';
+
+  @override
+  String get camera => '摄像头';
+
+  @override
+  String get microphoneOn => '麦克风开启';
+
+  @override
+  String get microphoneOff => '麦克风关闭';
+
+  @override
+  String get cameraOn => '摄像头开启';
+
+  @override
+  String get cameraOff => '摄像头关闭';
+
+  @override
+  String get showLocalVideo => '显示本地视频';
+
+  @override
+  String get hideLocalVideo => '隐藏本地视频';
+
+  @override
+  String get showRemoteVideo => '显示远端视频';
+
+  @override
+  String get hideRemoteVideo => '隐藏远端视频';
+
+  @override
+  String get turnOnMicrophone => '开启麦克风';
+
+  @override
+  String get turnOffMicrophone => '关闭麦克风';
+
+  @override
+  String get turnOnCamera => '开启摄像头';
+
+  @override
+  String get turnOffCamera => '关闭摄像头';
+
+  @override
+  String get localCamera => '本地摄像头';
+
+  @override
+  String get waitingForRemoteVideo => '等待远端视频';
+
+  @override
+  String get iceGatheringComplete => 'ICE 已收集完成';
+
+  @override
+  String get iceGathering => 'ICE 收集中...';
+
+  @override
+  String get switchToAdvancedMode => '切换到高级模式';
+
+  @override
+  String get switchToSimpleMode => '切换到简化模式';
+
+  @override
+  String get turnServerConfig => 'TURN服务器配置';
+
+  @override
+  String get authenticationConfig => '认证配置';
+
+  @override
+  String get realm => 'Realm';
+
+  @override
+  String get port => 'Port';
+
+  @override
+  String get turnServerDescription =>
+      'TURN server helps establish P2P connections behind NAT for better connectivity.';
+
+  @override
+  String get noLogs => '暂无日志';
+
+  @override
+  String get logs => '日志';
+
+  @override
+  String get clearLogs => '清空';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1859,4 +2016,161 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get showDailyCalendarDescription => '在記賬頁中顯示每日收支日曆';
+
+  @override
+  String get videoChat => '視訊聊天';
+
+  @override
+  String get roomOperations => '房間操作';
+
+  @override
+  String get connectionOperations => '連接操作';
+
+  @override
+  String get videoControl => '視訊控制';
+
+  @override
+  String get roomCode => '房間碼';
+
+  @override
+  String get pairCode => '配對碼';
+
+  @override
+  String get enterRoomCode => '輸入6位房間碼';
+
+  @override
+  String get enterPairCode => '輸入或貼上6位配對碼';
+
+  @override
+  String get createRoom => '建立房間';
+
+  @override
+  String get joinRoom => '加入房間';
+
+  @override
+  String get waitingForJoin => '等待加入...';
+
+  @override
+  String get creating => '建立中...';
+
+  @override
+  String get connecting => '連接中...';
+
+  @override
+  String get connected => '已連接';
+
+  @override
+  String get notConnected => '未連接';
+
+  @override
+  String get waitingForAnswer => '等待他人加入...';
+
+  @override
+  String get createConnection => '發起連接';
+
+  @override
+  String get joinConnection => '加入連接';
+
+  @override
+  String get setRemoteOnly => '僅設定遠端';
+
+  @override
+  String get reconnect => '重連';
+
+  @override
+  String get clearRoomCode => '清除房間碼';
+
+  @override
+  String get clearPairCode => '清除配對碼';
+
+  @override
+  String get localVideo => '本地視訊';
+
+  @override
+  String get remoteVideo => '遠端視訊';
+
+  @override
+  String get microphone => '麥克風';
+
+  @override
+  String get camera => '攝影機';
+
+  @override
+  String get microphoneOn => '麥克風開啟';
+
+  @override
+  String get microphoneOff => '麥克風關閉';
+
+  @override
+  String get cameraOn => '攝影機開啟';
+
+  @override
+  String get cameraOff => '攝影機關閉';
+
+  @override
+  String get showLocalVideo => '顯示本地視訊';
+
+  @override
+  String get hideLocalVideo => '隱藏本地視訊';
+
+  @override
+  String get showRemoteVideo => '顯示遠端視訊';
+
+  @override
+  String get hideRemoteVideo => '隱藏遠端視訊';
+
+  @override
+  String get turnOnMicrophone => '開啟麥克風';
+
+  @override
+  String get turnOffMicrophone => '關閉麥克風';
+
+  @override
+  String get turnOnCamera => '開啟攝影機';
+
+  @override
+  String get turnOffCamera => '關閉攝影機';
+
+  @override
+  String get localCamera => '本地攝影機';
+
+  @override
+  String get waitingForRemoteVideo => '等待遠端視訊';
+
+  @override
+  String get iceGatheringComplete => 'ICE 已收集完成';
+
+  @override
+  String get iceGathering => 'ICE 收集中...';
+
+  @override
+  String get switchToAdvancedMode => '切換到進階模式';
+
+  @override
+  String get switchToSimpleMode => '切換到簡化模式';
+
+  @override
+  String get turnServerConfig => 'TURN伺服器設定';
+
+  @override
+  String get authenticationConfig => '認證設定';
+
+  @override
+  String get realm => 'Realm';
+
+  @override
+  String get port => 'Port';
+
+  @override
+  String get turnServerDescription =>
+      'TURN server helps establish P2P connections behind NAT for better connectivity.';
+
+  @override
+  String get noLogs => '暫無日誌';
+
+  @override
+  String get logs => '日誌';
+
+  @override
+  String get clearLogs => '清空';
 }

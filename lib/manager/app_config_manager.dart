@@ -312,6 +312,22 @@ class AppConfigManager {
     await CacheManager.instance
         .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));
   }
+
+  /// 更新日历显示配置
+  Future<void> updateCalendarDisplayConfig({
+    bool? showIncome,
+    bool? showExpense,
+  }) async {
+    _uiConfig = UiConfigDTO(
+      itemTabShowDebt: _uiConfig.itemTabShowDebt,
+      itemTabShowDailyBar: _uiConfig.itemTabShowDailyBar,
+      itemTabShowDailyCalendar: _uiConfig.itemTabShowDailyCalendar,
+      calendarShowIncome: showIncome ?? _uiConfig.calendarShowIncome,
+      calendarShowExpense: showExpense ?? _uiConfig.calendarShowExpense,
+    );
+    await CacheManager.instance
+        .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));
+  }
   
   /// 设置WebRTC配置
   Future<void> setWebRTCConfig(WebRTCConfigDTO config) async {

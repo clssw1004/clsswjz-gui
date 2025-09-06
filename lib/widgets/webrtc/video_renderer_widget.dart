@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import '../../manager/l10n_manager.dart';
 
 /// 视频渲染器组件
 class VideoRendererWidget extends StatelessWidget {
@@ -22,13 +23,17 @@ class VideoRendererWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor ?? colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: showBorder 
-          ? Border.all(color: colorScheme.outlineVariant, width: 1.5)
+          ? Border.all(
+              color: colorScheme.outline.withOpacity(0.2), 
+              width: 1,
+            )
           : null,
       ),
       clipBehavior: Clip.antiAlias,
@@ -41,21 +46,38 @@ class VideoRendererWidget extends StatelessWidget {
           ),
           // 标签
           Positioned(
-            top: 12,
-            left: 12,
+            top: 16,
+            left: 16,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colorScheme.primary, width: 1),
-              ),
-              child: Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w600,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.primary.withOpacity(0.3), 
+                  width: 1,
                 ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -68,14 +90,25 @@ class VideoRendererWidget extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        isLocal ? Icons.videocam_off : Icons.videocam,
-                        size: 48,
-                        color: colorScheme.onSurfaceVariant,
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.outline.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          isLocal ? Icons.videocam_off : Icons.videocam,
+                          size: 32,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        isLocal ? '本地摄像头' : '等待远端视频',
+                      const SizedBox(height: 16),
+                Text(
+                  isLocal ? l10n.localCamera : l10n.waitingForRemoteVideo,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,

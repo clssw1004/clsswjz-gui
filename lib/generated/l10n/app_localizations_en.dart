@@ -960,4 +960,161 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get showDailyCalendarDescription =>
       'Display daily income and expense calendar in the accounting page';
+
+  @override
+  String get videoChat => 'Video Chat';
+
+  @override
+  String get roomOperations => 'Room Operations';
+
+  @override
+  String get connectionOperations => 'Connection Operations';
+
+  @override
+  String get videoControl => 'Video Control';
+
+  @override
+  String get roomCode => 'Room Code';
+
+  @override
+  String get pairCode => 'Pair Code';
+
+  @override
+  String get enterRoomCode => 'Enter 6-digit room code';
+
+  @override
+  String get enterPairCode => 'Enter or paste 6-digit pair code';
+
+  @override
+  String get createRoom => 'Create Room';
+
+  @override
+  String get joinRoom => 'Join Room';
+
+  @override
+  String get waitingForJoin => 'Waiting for join...';
+
+  @override
+  String get creating => 'Creating...';
+
+  @override
+  String get connecting => 'Connecting...';
+
+  @override
+  String get connected => 'Connected';
+
+  @override
+  String get notConnected => 'Not Connected';
+
+  @override
+  String get waitingForAnswer => 'Waiting for others to join...';
+
+  @override
+  String get createConnection => 'Create Connection';
+
+  @override
+  String get joinConnection => 'Join Connection';
+
+  @override
+  String get setRemoteOnly => 'Set Remote Only';
+
+  @override
+  String get reconnect => 'Reconnect';
+
+  @override
+  String get clearRoomCode => 'Clear Room Code';
+
+  @override
+  String get clearPairCode => 'Clear Pair Code';
+
+  @override
+  String get localVideo => 'Local Video';
+
+  @override
+  String get remoteVideo => 'Remote Video';
+
+  @override
+  String get microphone => 'Microphone';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get microphoneOn => 'Microphone On';
+
+  @override
+  String get microphoneOff => 'Microphone Off';
+
+  @override
+  String get cameraOn => 'Camera On';
+
+  @override
+  String get cameraOff => 'Camera Off';
+
+  @override
+  String get showLocalVideo => 'Show Local Video';
+
+  @override
+  String get hideLocalVideo => 'Hide Local Video';
+
+  @override
+  String get showRemoteVideo => 'Show Remote Video';
+
+  @override
+  String get hideRemoteVideo => 'Hide Remote Video';
+
+  @override
+  String get turnOnMicrophone => 'Turn On Microphone';
+
+  @override
+  String get turnOffMicrophone => 'Turn Off Microphone';
+
+  @override
+  String get turnOnCamera => 'Turn On Camera';
+
+  @override
+  String get turnOffCamera => 'Turn Off Camera';
+
+  @override
+  String get localCamera => 'Local Camera';
+
+  @override
+  String get waitingForRemoteVideo => 'Waiting for Remote Video';
+
+  @override
+  String get iceGatheringComplete => 'ICE Gathering Complete';
+
+  @override
+  String get iceGathering => 'ICE Gathering...';
+
+  @override
+  String get switchToAdvancedMode => 'Switch to Advanced Mode';
+
+  @override
+  String get switchToSimpleMode => 'Switch to Simple Mode';
+
+  @override
+  String get turnServerConfig => 'TURN Server Configuration';
+
+  @override
+  String get authenticationConfig => 'Authentication Configuration';
+
+  @override
+  String get realm => 'Realm';
+
+  @override
+  String get port => 'Port';
+
+  @override
+  String get turnServerDescription =>
+      'TURN server helps establish P2P connections behind NAT for better connectivity.';
+
+  @override
+  String get noLogs => 'No logs';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get clearLogs => 'Clear';
 }

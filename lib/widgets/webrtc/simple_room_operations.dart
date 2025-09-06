@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../common/common_text_form_field.dart';
+import '../../manager/l10n_manager.dart';
 
 /// 简化的房间操作组件
 class SimpleRoomOperations extends StatefulWidget {
@@ -44,6 +45,7 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,8 +56,8 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
             Expanded(
               child: CommonTextFormField(
                 controller: widget.roomCodeController,
-                labelText: '房间码',
-                hintText: '输入6位房间码',
+                labelText: l10n.roomCode,
+                hintText: l10n.enterRoomCode,
                 maxLines: 1,
                 maxLength: 6,
                 textInputAction: TextInputAction.done,
@@ -65,22 +67,25 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton(
+            const SizedBox(width: 12),
+            IconButton.filled(
               onPressed: widget.roomCodeController.text.isNotEmpty ? () {
                 widget.roomCodeController.clear();
                 widget.onClearCode?.call();
               } : null,
               icon: const Icon(Icons.clear),
-              tooltip: '清除房间码',
+              tooltip: l10n.clearRoomCode,
               style: IconButton.styleFrom(
                 backgroundColor: colorScheme.surfaceContainerHighest,
                 foregroundColor: colorScheme.onSurfaceVariant,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         
         // 操作按钮区域
         Row(
@@ -90,99 +95,116 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
               child: FilledButton.icon(
                 onPressed: _canCreateRoom() ? widget.onCreateRoom : null,
                 icon: Icon(_getCreateRoomIcon()),
-                label: Text(_getCreateRoomText()),
+                label: Text(_getCreateRoomText(l10n)),
                 style: FilledButton.styleFrom(
                   backgroundColor: colorScheme.primary,
                   foregroundColor: colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             
             // 加入房间按钮
             Expanded(
               child: FilledButton.icon(
                 onPressed: _canJoinRoom() ? widget.onJoinRoom : null,
                 icon: Icon(_getJoinRoomIcon()),
-                label: Text(_getJoinRoomText()),
+                label: Text(_getJoinRoomText(l10n)),
                 style: FilledButton.styleFrom(
                   backgroundColor: colorScheme.secondaryContainer,
                   foregroundColor: colorScheme.onSecondaryContainer,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
             
             // 重连按钮（仅在需要时显示）
             if (widget.showReconnectButton && widget.onReconnect != null) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               SizedBox(
                 width: 120,
                 child: FilledButton.icon(
                   onPressed: widget.onReconnect,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('重连'),
+                  label: Text(l10n.reconnect),
                   style: FilledButton.styleFrom(
                     backgroundColor: colorScheme.tertiaryContainer,
                     foregroundColor: colorScheme.onTertiaryContainer,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         
         // 连接状态指示器
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: widget.hasConnection 
               ? colorScheme.primaryContainer 
               : widget.isWaitingForAnswer
                 ? colorScheme.tertiaryContainer
                 : colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: widget.hasConnection 
                 ? colorScheme.primary 
                 : widget.isWaitingForAnswer
                   ? colorScheme.tertiary
-                  : colorScheme.outlineVariant,
+                  : colorScheme.outline.withOpacity(0.2),
+              width: 1,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                widget.hasConnection 
-                  ? Icons.check_circle 
-                  : widget.isWaitingForAnswer
-                    ? Icons.schedule
-                    : Icons.signal_wifi_off,
-                size: 16,
-                color: widget.hasConnection 
-                  ? colorScheme.primary 
-                  : widget.isWaitingForAnswer
-                    ? colorScheme.tertiary
-                    : colorScheme.onSurfaceVariant,
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: widget.hasConnection 
+                    ? colorScheme.primary 
+                    : widget.isWaitingForAnswer
+                      ? colorScheme.tertiary
+                      : colorScheme.onSurfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  widget.hasConnection 
+                    ? Icons.check_circle 
+                    : widget.isWaitingForAnswer
+                      ? Icons.schedule
+                      : Icons.signal_wifi_off,
+                  size: 16,
+                  color: Colors.white,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
                 widget.hasConnection 
-                  ? '已连接' 
+                  ? l10n.connected 
                   : widget.isWaitingForAnswer
-                    ? '等待对方加入...'
-                    : '未连接',
-                style: theme.textTheme.bodySmall?.copyWith(
+                    ? l10n.waitingForAnswer
+                    : l10n.notConnected,
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: widget.hasConnection 
                     ? colorScheme.onPrimaryContainer 
                     : widget.isWaitingForAnswer
                       ? colorScheme.onTertiaryContainer
                       : colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -215,11 +237,11 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
   }
 
   // 获取创建房间按钮文本
-  String _getCreateRoomText() {
-    if (widget.isWaitingForAnswer) return '等待加入...';
-    if (widget.isConnecting) return '创建中...';
-    if (widget.hasConnection) return '已连接';
-    return '创建房间';
+  String _getCreateRoomText(dynamic l10n) {
+    if (widget.isWaitingForAnswer) return l10n.waitingForJoin;
+    if (widget.isConnecting) return l10n.creating;
+    if (widget.hasConnection) return l10n.connected;
+    return l10n.createRoom;
   }
 
   // 获取加入房间按钮图标
@@ -230,9 +252,9 @@ class _SimpleRoomOperationsState extends State<SimpleRoomOperations> {
   }
 
   // 获取加入房间按钮文本
-  String _getJoinRoomText() {
-    if (widget.isConnecting) return '连接中...';
-    if (widget.hasConnection) return '已连接';
-    return '加入房间';
+  String _getJoinRoomText(dynamic l10n) {
+    if (widget.isConnecting) return l10n.connecting;
+    if (widget.hasConnection) return l10n.connected;
+    return l10n.joinRoom;
   }
 }

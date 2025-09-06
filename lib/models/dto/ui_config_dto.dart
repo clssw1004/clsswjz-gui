@@ -5,17 +5,23 @@ class UiConfigDTO {
     this.itemTabShowDebt = true,
     this.itemTabShowDailyBar = true,
     this.itemTabShowDailyCalendar = true,
+    this.calendarShowIncome = true,
+    this.calendarShowExpense = true,
   });
 
   final bool itemTabShowDebt;
   final bool itemTabShowDailyBar;
   final bool itemTabShowDailyCalendar;
+  final bool calendarShowIncome;
+  final bool calendarShowExpense;
 
   static UiConfigDTO _fromJson(Map<String, dynamic> json) {
     return UiConfigDTO(
       itemTabShowDebt: json['itemTabShowDebt'] ?? true,
       itemTabShowDailyBar: json['itemTabShowDailyBar'] ?? true,
       itemTabShowDailyCalendar: json['itemTabShowDailyCalendar'] ?? true,
+      calendarShowIncome: json['calendarShowIncome'] ?? true,
+      calendarShowExpense: json['calendarShowExpense'] ?? true,
     );
   }
 
@@ -28,6 +34,8 @@ class UiConfigDTO {
       'itemTabShowDebt': uiConfig.itemTabShowDebt,
       'itemTabShowDailyBar': uiConfig.itemTabShowDailyBar,
       'itemTabShowDailyCalendar': uiConfig.itemTabShowDailyCalendar,
+      'calendarShowIncome': uiConfig.calendarShowIncome,
+      'calendarShowExpense': uiConfig.calendarShowExpense,
     };
   }
 

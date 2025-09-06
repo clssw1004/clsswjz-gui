@@ -863,5 +863,213 @@
     "showDailyCalendarDescription": "在记账页中显示每日收支日历",
     "@showDailyCalendarDescription": {
         "description": "显示每日统计日历开关的描述"
+    },
+    "videoChat": "视频聊天",
+    "@videoChat": {
+        "description": "视频聊天页面标题"
+    },
+    "roomOperations": "房间操作",
+    "@roomOperations": {
+        "description": "房间操作区域标题"
+    },
+    "connectionOperations": "连接操作",
+    "@connectionOperations": {
+        "description": "连接操作区域标题"
+    },
+    "videoControl": "视频控制",
+    "@videoControl": {
+        "description": "视频控制区域标题"
+    },
+    "roomCode": "房间码",
+    "@roomCode": {
+        "description": "房间码标签"
+    },
+    "pairCode": "配对码",
+    "@pairCode": {
+        "description": "配对码标签"
+    },
+    "enterRoomCode": "输入6位房间码",
+    "@enterRoomCode": {
+        "description": "房间码输入提示"
+    },
+    "enterPairCode": "输入或粘贴6位配对码",
+    "@enterPairCode": {
+        "description": "配对码输入提示"
+    },
+    "createRoom": "创建房间",
+    "@createRoom": {
+        "description": "创建房间按钮文本"
+    },
+    "joinRoom": "加入房间",
+    "@joinRoom": {
+        "description": "加入房间按钮文本"
+    },
+    "waitingForJoin": "等待加入...",
+    "@waitingForJoin": {
+        "description": "等待对方加入的状态文本"
+    },
+    "creating": "创建中...",
+    "@creating": {
+        "description": "正在创建的状态文本"
+    },
+    "connecting": "连接中...",
+    "@connecting": {
+        "description": "正在连接的状态文本"
+    },
+    "connected": "已连接",
+    "@connected": {
+        "description": "已连接状态文本"
+    },
+    "notConnected": "未连接",
+    "@notConnected": {
+        "description": "未连接状态文本"
+    },
+    "waitingForAnswer": "等待对方加入...",
+    "@waitingForAnswer": {
+        "description": "等待Answer的状态文本"
+    },
+    "createConnection": "发起连接",
+    "@createConnection": {
+        "description": "发起连接按钮文本"
+    },
+    "joinConnection": "加入连接",
+    "@joinConnection": {
+        "description": "加入连接按钮文本"
+    },
+    "setRemoteOnly": "仅设置远端",
+    "@setRemoteOnly": {
+        "description": "仅设置远端按钮文本"
+    },
+    "reconnect": "重连",
+    "@reconnect": {
+        "description": "重连按钮文本"
+    },
+    "clearRoomCode": "清除房间码",
+    "@clearRoomCode": {
+        "description": "清除房间码按钮提示"
+    },
+    "clearPairCode": "清除配对码",
+    "@clearPairCode": {
+        "description": "清除配对码按钮提示"
+    },
+    "localVideo": "本地视频",
+    "@localVideo": {
+        "description": "本地视频标签"
+    },
+    "remoteVideo": "远端视频",
+    "@remoteVideo": {
+        "description": "远端视频标签"
+    },
+    "microphone": "麦克风",
+    "@microphone": {
+        "description": "麦克风标签"
+    },
+    "camera": "摄像头",
+    "@camera": {
+        "description": "摄像头标签"
+    },
+    "microphoneOn": "麦克风开启",
+    "@microphoneOn": {
+        "description": "麦克风开启状态"
+    },
+    "microphoneOff": "麦克风关闭",
+    "@microphoneOff": {
+        "description": "麦克风关闭状态"
+    },
+    "cameraOn": "摄像头开启",
+    "@cameraOn": {
+        "description": "摄像头开启状态"
+    },
+    "cameraOff": "摄像头关闭",
+    "@cameraOff": {
+        "description": "摄像头关闭状态"
+    },
+    "showLocalVideo": "显示本地视频",
+    "@showLocalVideo": {
+        "description": "显示本地视频按钮提示"
+    },
+    "hideLocalVideo": "隐藏本地视频",
+    "@hideLocalVideo": {
+        "description": "隐藏本地视频按钮提示"
+    },
+    "showRemoteVideo": "显示远端视频",
+    "@showRemoteVideo": {
+        "description": "显示远端视频按钮提示"
+    },
+    "hideRemoteVideo": "隐藏远端视频",
+    "@hideRemoteVideo": {
+        "description": "隐藏远端视频按钮提示"
+    },
+    "turnOnMicrophone": "开启麦克风",
+    "@turnOnMicrophone": {
+        "description": "开启麦克风按钮提示"
+    },
+    "turnOffMicrophone": "关闭麦克风",
+    "@turnOffMicrophone": {
+        "description": "关闭麦克风按钮提示"
+    },
+    "turnOnCamera": "开启摄像头",
+    "@turnOnCamera": {
+        "description": "开启摄像头按钮提示"
+    },
+    "turnOffCamera": "关闭摄像头",
+    "@turnOffCamera": {
+        "description": "关闭摄像头按钮提示"
+    },
+    "localCamera": "本地摄像头",
+    "@localCamera": {
+        "description": "本地摄像头标签"
+    },
+    "waitingForRemoteVideo": "等待远端视频",
+    "@waitingForRemoteVideo": {
+        "description": "等待远端视频状态文本"
+    },
+    "iceGatheringComplete": "ICE 已收集完成",
+    "@iceGatheringComplete": {
+        "description": "ICE收集完成状态"
+    },
+    "iceGathering": "ICE 收集中...",
+    "@iceGathering": {
+        "description": "ICE收集中状态"
+    },
+    "switchToAdvancedMode": "切换到高级模式",
+    "@switchToAdvancedMode": {
+        "description": "切换到高级模式按钮提示"
+    },
+    "switchToSimpleMode": "切换到简化模式",
+    "@switchToSimpleMode": {
+        "description": "切换到简化模式按钮提示"
+    },
+    "turnServerConfig": "TURN服务器配置",
+    "@turnServerConfig": {
+        "description": "TURN服务器配置按钮提示"
+    },
+    "authenticationConfig": "认证配置",
+    "@authenticationConfig": {
+        "description": "认证配置区域标题"
+    },
+    "realm": "Realm",
+    "@realm": {
+        "description": "Realm输入框标签"
+    },
+    "port": "Port",
+    "@port": {
+        "description": "端口输入框标签"
+    },
+    "turnServerDescription": "TURN server helps establish P2P connections behind NAT for better connectivity.",
+    "@turnServerDescription": {
+        "description": "TURN服务器说明文本"
+    },
+    "noLogs": "暂无日志",
+    "@noLogs": {
+        "description": "无日志时的提示文本"
+    },
+    "logs": "日志",
+    "@logs": {
+        "description": "日志面板标题"
+    },
+    "clearLogs": "清空",
+    "@clearLogs": {
+        "description": "清空日志按钮文本"
     }
 }

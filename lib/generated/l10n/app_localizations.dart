@@ -1880,6 +1880,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Display daily income and expense calendar in the accounting page'**
   String get showDailyCalendarDescription;
+
+  /// Video chat page title
+  ///
+  /// In en, this message translates to:
+  /// **'Video Chat'**
+  String get videoChat;
+
+  /// Room operations section title
+  ///
+  /// In en, this message translates to:
+  /// **'Room Operations'**
+  String get roomOperations;
+
+  /// Connection operations section title
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Operations'**
+  String get connectionOperations;
+
+  /// Video control section title
+  ///
+  /// In en, this message translates to:
+  /// **'Video Control'**
+  String get videoControl;
+
+  /// Room code label
+  ///
+  /// In en, this message translates to:
+  /// **'Room Code'**
+  String get roomCode;
+
+  /// Pair code label
+  ///
+  /// In en, this message translates to:
+  /// **'Pair Code'**
+  String get pairCode;
+
+  /// Room code input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-digit room code'**
+  String get enterRoomCode;
+
+  /// Pair code input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter or paste 6-digit pair code'**
+  String get enterPairCode;
+
+  /// Create room button text
+  ///
+  /// In en, this message translates to:
+  /// **'Create Room'**
+  String get createRoom;
+
+  /// Join room button text
+  ///
+  /// In en, this message translates to:
+  /// **'Join Room'**
+  String get joinRoom;
+
+  /// Waiting for others to join status text
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for join...'**
+  String get waitingForJoin;
+
+  /// Creating status text
+  ///
+  /// In en, this message translates to:
+  /// **'Creating...'**
+  String get creating;
+
+  /// Connecting status text
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get connecting;
+
+  /// Connected status text
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
+
+  /// Not connected status text
+  ///
+  /// In en, this message translates to:
+  /// **'Not Connected'**
+  String get notConnected;
+
+  /// Waiting for answer status text
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for others to join...'**
+  String get waitingForAnswer;
+
+  /// Create connection button text
+  ///
+  /// In en, this message translates to:
+  /// **'Create Connection'**
+  String get createConnection;
+
+  /// Join connection button text
+  ///
+  /// In en, this message translates to:
+  /// **'Join Connection'**
+  String get joinConnection;
+
+  /// Set remote only button text
+  ///
+  /// In en, this message translates to:
+  /// **'Set Remote Only'**
+  String get setRemoteOnly;
+
+  /// Reconnect button text
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect'**
+  String get reconnect;
+
+  /// Clear room code button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Room Code'**
+  String get clearRoomCode;
+
+  /// Clear pair code button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Pair Code'**
+  String get clearPairCode;
+
+  /// Local video label
+  ///
+  /// In en, this message translates to:
+  /// **'Local Video'**
+  String get localVideo;
+
+  /// Remote video label
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Video'**
+  String get remoteVideo;
+
+  /// Microphone label
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone'**
+  String get microphone;
+
+  /// Camera label
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// Microphone on status
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone On'**
+  String get microphoneOn;
+
+  /// Microphone off status
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone Off'**
+  String get microphoneOff;
+
+  /// Camera on status
+  ///
+  /// In en, this message translates to:
+  /// **'Camera On'**
+  String get cameraOn;
+
+  /// Camera off status
+  ///
+  /// In en, this message translates to:
+  /// **'Camera Off'**
+  String get cameraOff;
+
+  /// Show local video button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Show Local Video'**
+  String get showLocalVideo;
+
+  /// Hide local video button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Local Video'**
+  String get hideLocalVideo;
+
+  /// Show remote video button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Show Remote Video'**
+  String get showRemoteVideo;
+
+  /// Hide remote video button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Remote Video'**
+  String get hideRemoteVideo;
+
+  /// Turn on microphone button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Turn On Microphone'**
+  String get turnOnMicrophone;
+
+  /// Turn off microphone button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off Microphone'**
+  String get turnOffMicrophone;
+
+  /// Turn on camera button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Turn On Camera'**
+  String get turnOnCamera;
+
+  /// Turn off camera button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off Camera'**
+  String get turnOffCamera;
+
+  /// Local camera label
+  ///
+  /// In en, this message translates to:
+  /// **'Local Camera'**
+  String get localCamera;
+
+  /// Waiting for remote video status text
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Remote Video'**
+  String get waitingForRemoteVideo;
+
+  /// ICE gathering complete status
+  ///
+  /// In en, this message translates to:
+  /// **'ICE Gathering Complete'**
+  String get iceGatheringComplete;
+
+  /// ICE gathering status
+  ///
+  /// In en, this message translates to:
+  /// **'ICE Gathering...'**
+  String get iceGathering;
+
+  /// Switch to advanced mode button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Advanced Mode'**
+  String get switchToAdvancedMode;
+
+  /// Switch to simple mode button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Simple Mode'**
+  String get switchToSimpleMode;
+
+  /// TURN server configuration button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'TURN Server Configuration'**
+  String get turnServerConfig;
+
+  /// Authentication configuration section title
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication Configuration'**
+  String get authenticationConfig;
+
+  /// Realm input field label
+  ///
+  /// In en, this message translates to:
+  /// **'Realm'**
+  String get realm;
+
+  /// Port input field label
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get port;
+
+  /// TURN server description text
+  ///
+  /// In en, this message translates to:
+  /// **'TURN server helps establish P2P connections behind NAT for better connectivity.'**
+  String get turnServerDescription;
+
+  /// No logs prompt text
+  ///
+  /// In en, this message translates to:
+  /// **'No logs'**
+  String get noLogs;
+
+  /// Log panel title
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get logs;
+
+  /// Clear logs button text
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearLogs;
 }
 
 class _AppLocalizationsDelegate

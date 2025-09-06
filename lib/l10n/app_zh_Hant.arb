@@ -749,5 +749,213 @@
     "showDailyCalendarDescription": "在記賬頁中顯示每日收支日曆",
     "@showDailyCalendarDescription": {
         "description": "顯示每日統計日曆開關的描述"
+    },
+    "videoChat": "視訊聊天",
+    "@videoChat": {
+        "description": "視訊聊天頁面標題"
+    },
+    "roomOperations": "房間操作",
+    "@roomOperations": {
+        "description": "房間操作區域標題"
+    },
+    "connectionOperations": "連接操作",
+    "@connectionOperations": {
+        "description": "連接操作區域標題"
+    },
+    "videoControl": "視訊控制",
+    "@videoControl": {
+        "description": "視訊控制區域標題"
+    },
+    "roomCode": "房間碼",
+    "@roomCode": {
+        "description": "房間碼標籤"
+    },
+    "pairCode": "配對碼",
+    "@pairCode": {
+        "description": "配對碼標籤"
+    },
+    "enterRoomCode": "輸入6位房間碼",
+    "@enterRoomCode": {
+        "description": "房間碼輸入提示"
+    },
+    "enterPairCode": "輸入或貼上6位配對碼",
+    "@enterPairCode": {
+        "description": "配對碼輸入提示"
+    },
+    "createRoom": "建立房間",
+    "@createRoom": {
+        "description": "建立房間按鈕文字"
+    },
+    "joinRoom": "加入房間",
+    "@joinRoom": {
+        "description": "加入房間按鈕文字"
+    },
+    "waitingForJoin": "等待加入...",
+    "@waitingForJoin": {
+        "description": "等待他人加入的狀態文字"
+    },
+    "creating": "建立中...",
+    "@creating": {
+        "description": "正在建立的狀態文字"
+    },
+    "connecting": "連接中...",
+    "@connecting": {
+        "description": "正在連接的狀態文字"
+    },
+    "connected": "已連接",
+    "@connected": {
+        "description": "已連接狀態文字"
+    },
+    "notConnected": "未連接",
+    "@notConnected": {
+        "description": "未連接狀態文字"
+    },
+    "waitingForAnswer": "等待他人加入...",
+    "@waitingForAnswer": {
+        "description": "等待Answer的狀態文字"
+    },
+    "createConnection": "發起連接",
+    "@createConnection": {
+        "description": "發起連接按鈕文字"
+    },
+    "joinConnection": "加入連接",
+    "@joinConnection": {
+        "description": "加入連接按鈕文字"
+    },
+    "setRemoteOnly": "僅設定遠端",
+    "@setRemoteOnly": {
+        "description": "僅設定遠端按鈕文字"
+    },
+    "reconnect": "重連",
+    "@reconnect": {
+        "description": "重連按鈕文字"
+    },
+    "clearRoomCode": "清除房間碼",
+    "@clearRoomCode": {
+        "description": "清除房間碼按鈕提示"
+    },
+    "clearPairCode": "清除配對碼",
+    "@clearPairCode": {
+        "description": "清除配對碼按鈕提示"
+    },
+    "localVideo": "本地視訊",
+    "@localVideo": {
+        "description": "本地視訊標籤"
+    },
+    "remoteVideo": "遠端視訊",
+    "@remoteVideo": {
+        "description": "遠端視訊標籤"
+    },
+    "microphone": "麥克風",
+    "@microphone": {
+        "description": "麥克風標籤"
+    },
+    "camera": "攝影機",
+    "@camera": {
+        "description": "攝影機標籤"
+    },
+    "microphoneOn": "麥克風開啟",
+    "@microphoneOn": {
+        "description": "麥克風開啟狀態"
+    },
+    "microphoneOff": "麥克風關閉",
+    "@microphoneOff": {
+        "description": "麥克風關閉狀態"
+    },
+    "cameraOn": "攝影機開啟",
+    "@cameraOn": {
+        "description": "攝影機開啟狀態"
+    },
+    "cameraOff": "攝影機關閉",
+    "@cameraOff": {
+        "description": "攝影機關閉狀態"
+    },
+    "showLocalVideo": "顯示本地視訊",
+    "@showLocalVideo": {
+        "description": "顯示本地視訊按鈕提示"
+    },
+    "hideLocalVideo": "隱藏本地視訊",
+    "@hideLocalVideo": {
+        "description": "隱藏本地視訊按鈕提示"
+    },
+    "showRemoteVideo": "顯示遠端視訊",
+    "@showRemoteVideo": {
+        "description": "顯示遠端視訊按鈕提示"
+    },
+    "hideRemoteVideo": "隱藏遠端視訊",
+    "@hideRemoteVideo": {
+        "description": "隱藏遠端視訊按鈕提示"
+    },
+    "turnOnMicrophone": "開啟麥克風",
+    "@turnOnMicrophone": {
+        "description": "開啟麥克風按鈕提示"
+    },
+    "turnOffMicrophone": "關閉麥克風",
+    "@turnOffMicrophone": {
+        "description": "關閉麥克風按鈕提示"
+    },
+    "turnOnCamera": "開啟攝影機",
+    "@turnOnCamera": {
+        "description": "開啟攝影機按鈕提示"
+    },
+    "turnOffCamera": "關閉攝影機",
+    "@turnOffCamera": {
+        "description": "關閉攝影機按鈕提示"
+    },
+    "localCamera": "本地攝影機",
+    "@localCamera": {
+        "description": "本地攝影機標籤"
+    },
+    "waitingForRemoteVideo": "等待遠端視訊",
+    "@waitingForRemoteVideo": {
+        "description": "等待遠端視訊狀態文字"
+    },
+    "iceGatheringComplete": "ICE 已收集完成",
+    "@iceGatheringComplete": {
+        "description": "ICE收集完成狀態"
+    },
+    "iceGathering": "ICE 收集中...",
+    "@iceGathering": {
+        "description": "ICE收集中狀態"
+    },
+    "switchToAdvancedMode": "切換到進階模式",
+    "@switchToAdvancedMode": {
+        "description": "切換到進階模式按鈕提示"
+    },
+    "switchToSimpleMode": "切換到簡化模式",
+    "@switchToSimpleMode": {
+        "description": "切換到簡化模式按鈕提示"
+    },
+    "turnServerConfig": "TURN伺服器設定",
+    "@turnServerConfig": {
+        "description": "TURN伺服器設定按鈕提示"
+    },
+    "authenticationConfig": "認證設定",
+    "@authenticationConfig": {
+        "description": "認證設定區域標題"
+    },
+    "realm": "Realm",
+    "@realm": {
+        "description": "Realm輸入欄位標籤"
+    },
+    "port": "Port",
+    "@port": {
+        "description": "埠號輸入欄位標籤"
+    },
+    "turnServerDescription": "TURN server helps establish P2P connections behind NAT for better connectivity.",
+    "@turnServerDescription": {
+        "description": "TURN伺服器說明文字"
+    },
+    "noLogs": "暫無日誌",
+    "@noLogs": {
+        "description": "無日誌時的提示文字"
+    },
+    "logs": "日誌",
+    "@logs": {
+        "description": "日誌面板標題"
+    },
+    "clearLogs": "清空",
+    "@clearLogs": {
+        "description": "清空日誌按鈕文字"
     }
 }
