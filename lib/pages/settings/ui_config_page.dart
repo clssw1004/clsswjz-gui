@@ -16,6 +16,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showDebt;
   late bool _showDailyStats;
   late bool _showDailyCalendar;
+  late bool _showUserMonthly;
 
   @override
   void initState() {
@@ -23,6 +24,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
     _showDebt = AppConfigManager.instance.uiConfig.itemTabShowDebt;
     _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyBar;
     _showDailyCalendar = AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
+    _showUserMonthly = AppConfigManager.instance.uiConfig.itemTabShowUserMonthly;
   }
 
   @override
@@ -182,6 +184,44 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 按用户当月统计展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '按用户当月统计',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '显示当月各用户的收入/支出柱状图',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showUserMonthly,
+                        onChanged: (value) {
+                          setState(() {
+                            _showUserMonthly = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -197,6 +237,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
       itemTabShowDebt: _showDebt,
       itemTabShowDailyBar: _showDailyStats,
       itemTabShowDailyCalendar: _showDailyCalendar,
+      itemTabShowUserMonthly: _showUserMonthly,
     );
     await AppConfigManager.instance.setUiConfig(newConfig);
   }

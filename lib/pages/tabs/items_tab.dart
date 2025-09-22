@@ -11,10 +11,11 @@ import '../../utils/navigation_util.dart';
 import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/book/items_container.dart';
-import '../../widgets/book/debts_container.dart';
-import '../../widgets/statistics/daily/daily_statistic_bar.dart';
-import '../../widgets/statistics/daily/daily_statistic_calendar.dart';
+import '../../widgets/item_widgets/items_container.dart';
+import '../../widgets/item_widgets/debts_container.dart';
+import '../../widgets/item_widgets/daily_statistic_bar.dart';
+import '../../widgets/item_widgets/daily_statistic_calendar.dart';
+  import '../../widgets/item_widgets/user_monthly_statistic_chart.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -75,6 +76,10 @@ class _ItemsTabState extends State<ItemsTab>
                     .loadBookStatisticInfo(book.id);
                 // 加载每日统计数据
                 context.read<StatisticsProvider>().loadDailyStatistics(book.id);
+                  // 加载按用户当月统计（受配置控制）
+                  if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
+                    context.read<StatisticsProvider>().loadUserMonthlyStatistics(book.id);
+                  }
               },
             );
           },
@@ -91,21 +96,27 @@ class _ItemsTabState extends State<ItemsTab>
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                 children: [
                   // 账本统计卡片
-                  BookStatisticCard(
-                    statisticInfo: statisticsProvider.currentMonthStatistic,
-                    showBalance: false,
-                    title: L10nManager.l10n.currentMonth,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    child: BookStatisticCard(
+                      statisticInfo: statisticsProvider.currentMonthStatistic,
+                      showBalance: false,
+                      title: L10nManager.l10n.currentMonth,
+                    ),
                   ),
 
                   // 最近账目
-                  ItemsContainer(
-                    accountBook: bookMeta,
-                    lastDate: itemListProvider.lastDay,
-                    items: itemListProvider.lastDayItems,
-                    loading: itemListProvider.loading,
-                    onItemTap: (item) {
-                      NavigationUtil.toItemEdit(context, item);
-                    },
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    child: ItemsContainer(
+                      accountBook: bookMeta,
+                      lastDate: itemListProvider.lastDay,
+                      items: itemListProvider.lastDayItems,
+                      loading: itemListProvider.loading,
+                      onItemTap: (item) {
+                        NavigationUtil.toItemEdit(context, item);
+                      },
+                    ),
                   ),
 
                   // 每日统计卡片（柱状图） - 根据配置决定是否显示
@@ -125,6 +136,16 @@ class _ItemsTabState extends State<ItemsTab>
                       child: DailyStatisticCalendar(
                         dailyStats: statisticsProvider.dailyStatistics ?? [],
                         loading: statisticsProvider.loadingDailyStatistics,
+                      ),
+                    ),
+
+                  // 按用户当月统计（双Y轴柱状图） - 根据配置决定是否显示
+                  if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: UserMonthlyStatisticChart(
+                        data: statisticsProvider.userMonthlyStatistics ?? [],
+                        loading: statisticsProvider.loadingUserMonthly,
                       ),
                     ),
 

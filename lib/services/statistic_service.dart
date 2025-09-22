@@ -397,4 +397,109 @@ class StatisticService {
 
     return OperateResult.success(dailyStats);
   }
+
+  /// 获取当月按用户分组的记账笔数、收入、支出
+  Future<OperateResult<List<UserMonthlyStatisticVO>>> getCurrentMonthUserStatistic(
+      String accountBookId) async {
+    final db = DatabaseManager.db;
+
+    // 当月起止
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+    final monthStart = DateFormat('yyyy-MM-dd HH:mm:ss').format(firstDayOfMonth);
+    final monthEnd = DateFormat('yyyy-MM-dd HH:mm:ss').format(lastDayOfMonth);
+
+    // 以 createdBy 作为用户ID分组统计收入
+    final incomeQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.income.code) &
+          db.accountItemTable.accountDate.isBetweenValues(monthStart, monthEnd))
+      ..addColumns([
+        db.accountItemTable.createdBy,
+        db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
+      ])
+      ..groupBy([db.accountItemTable.createdBy]);
+
+    final expenseQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.expense.code) &
+          db.accountItemTable.accountDate.isBetweenValues(monthStart, monthEnd))
+      ..addColumns([
+        db.accountItemTable.createdBy,
+        db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
+      ])
+      ..groupBy([db.accountItemTable.createdBy]);
+
+    final incomeRows = await incomeQuery.get();
+    final expenseRows = await expenseQuery.get();
+
+    // 合并收入/支出
+    final Map<String, UserMonthlyStatisticVO> map = {};
+
+    for (final row in incomeRows) {
+      final userId = row.read(db.accountItemTable.createdBy) ?? '';
+      final income = row.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final count = row.read(db.accountItemTable.id.count()) ?? 0;
+      map[userId] = UserMonthlyStatisticVO(
+        userId: userId,
+        userName: userId,
+        income: income,
+        expense: 0,
+        count: count,
+      );
+    }
+
+    for (final row in expenseRows) {
+      final userId = row.read(db.accountItemTable.createdBy) ?? '';
+      final expense = row.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final count = row.read(db.accountItemTable.id.count()) ?? 0;
+      final prev = map[userId];
+      if (prev == null) {
+        map[userId] = UserMonthlyStatisticVO(
+          userId: userId,
+          userName: userId,
+          income: 0,
+          expense: expense,
+          count: count,
+        );
+      } else {
+        map[userId] = UserMonthlyStatisticVO(
+          userId: prev.userId,
+          userName: prev.userName,
+          income: prev.income,
+          expense: expense,
+          count: prev.count + count,
+        );
+      }
+    }
+
+    // 映射用户名
+    if (map.isNotEmpty) {
+      final ids = map.keys.where((e) => e.isNotEmpty).toList();
+      if (ids.isNotEmpty) {
+        final users = await (db.select(db.userTable)
+              ..where((t) => t.id.isIn(ids)))
+            .get();
+        final id2name = {
+          for (var u in users)
+            u.id: (u.nickname.isNotEmpty ? u.nickname : u.username)
+        };
+        map.updateAll((key, value) => UserMonthlyStatisticVO(
+              userId: value.userId,
+              userName: id2name[key] ?? value.userName,
+              income: value.income,
+              expense: value.expense,
+              count: value.count,
+            ));
+      }
+    }
+
+    final list = map.values.toList()
+      ..sort((a, b) => (b.income + b.expense.abs()).compareTo(a.income + a.expense.abs()));
+
+    return OperateResult.success(list);
+  }
 }

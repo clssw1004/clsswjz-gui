@@ -42,15 +42,20 @@ class UserProvider extends ChangeNotifier {
   /// 获取用户信息
   Future<void> refreshUserInfo() async {
     try {
-      final result = await DriverFactory.driver.getUserInfo(AppConfigManager.instance.userId);
+      final result = await DriverFactory.driver
+          .getUserInfo(AppConfigManager.instance.userId);
 
       if (result.ok && result.data != null) {
         _user = result.data;
         // 获取用户统计信息
-        final statisticResult = await ServiceManager.statisticService.getUserStatisticInfo(AppConfigManager.instance.userId);
-        if (statisticResult.ok) {
-          _statistic = statisticResult.data;
-        }
+        ServiceManager.statisticService
+            .getUserStatisticInfo(AppConfigManager.instance.userId)
+            .then((statisticResult) {
+          if (statisticResult.ok) {
+            _statistic = statisticResult.data;
+            notifyListeners();
+          }
+        });
       } else {
         _error = result.message;
       }
@@ -58,6 +63,7 @@ class UserProvider extends ChangeNotifier {
       _error = '获取用户信息失败：$e';
     } finally {
       _loading = false;
+      notifyListeners();
     }
   }
 
