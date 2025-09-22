@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../utils/color_util.dart';
 import '../../manager/l10n_manager.dart';
-import '../../widgets/common/common_card_container.dart';
+import '../common/common_card_container.dart';
 import '../../routes/app_routes.dart';
 import '../../models/vo/user_book_vo.dart';
 

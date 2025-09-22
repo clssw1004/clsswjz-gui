@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2025-09-22
+
+### New Features
+- Add user monthly statistics chart
+
+
 ## [1.0.6] - 2025-09-06
 
 ### Feature Enhancements

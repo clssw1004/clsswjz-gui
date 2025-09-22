@@ -50,6 +50,12 @@ class StatisticsProvider extends ChangeNotifier {
   bool _loadingDailyStatistics = false;
   bool get loadingDailyStatistics => _loadingDailyStatistics;
 
+  /// 当月按用户统计
+  List<UserMonthlyStatisticVO>? _userMonthlyStatistics;
+  List<UserMonthlyStatisticVO>? get userMonthlyStatistics => _userMonthlyStatistics;
+  bool _loadingUserMonthly = false;
+  bool get loadingUserMonthly => _loadingUserMonthly;
+
   /// 当前选中的统计类型（day, month, all）
   String _selectedStatisticType = 'all'; // 默认显示全部时间
   String get selectedStatisticType => _selectedStatisticType;
@@ -68,12 +74,14 @@ class StatisticsProvider extends ChangeNotifier {
       loadBookStatisticInfo(event.book.id, start: _currentStart, end: _currentEnd);
       loadStatistics(event.book.id, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.book.id);
+      loadUserMonthlyStatistics(event.book.id);
     });
 
     _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
       loadStatistics(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadBookStatisticInfo(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.item.accountBookId);
+      loadUserMonthlyStatistics(event.item.accountBookId);
     });
   }
 
@@ -199,6 +207,26 @@ class StatisticsProvider extends ChangeNotifier {
       _dailyStatistics = [];
     } finally {
       _loadingDailyStatistics = false;
+      notifyListeners();
+    }
+  }
+
+  /// 加载当月按用户统计
+  Future<void> loadUserMonthlyStatistics(String? bookId) async {
+    if (bookId == null) return;
+    _loadingUserMonthly = true;
+    notifyListeners();
+    try {
+      final result = await _statisticService.getCurrentMonthUserStatistic(bookId);
+      if (result.ok && result.data != null) {
+        _userMonthlyStatistics = result.data;
+      } else {
+        _userMonthlyStatistics = [];
+      }
+    } catch (e) {
+      _userMonthlyStatistics = [];
+    } finally {
+      _loadingUserMonthly = false;
       notifyListeners();
     }
   }

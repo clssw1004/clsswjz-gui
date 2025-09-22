@@ -7,6 +7,7 @@ class UiConfigDTO {
     this.itemTabShowDailyCalendar = true,
     this.calendarShowIncome = true,
     this.calendarShowExpense = true,
+    this.itemTabShowUserMonthly = true,
   });
 
   final bool itemTabShowDebt;
@@ -14,6 +15,8 @@ class UiConfigDTO {
   final bool itemTabShowDailyCalendar;
   final bool calendarShowIncome;
   final bool calendarShowExpense;
+  /// 是否在账目页显示按用户当月统计图
+  final bool itemTabShowUserMonthly;
 
   static UiConfigDTO _fromJson(Map<String, dynamic> json) {
     return UiConfigDTO(
@@ -22,6 +25,7 @@ class UiConfigDTO {
       itemTabShowDailyCalendar: json['itemTabShowDailyCalendar'] ?? true,
       calendarShowIncome: json['calendarShowIncome'] ?? true,
       calendarShowExpense: json['calendarShowExpense'] ?? true,
+      itemTabShowUserMonthly: json['itemTabShowUserMonthly'] ?? true,
     );
   }
 
@@ -36,6 +40,7 @@ class UiConfigDTO {
       'itemTabShowDailyCalendar': uiConfig.itemTabShowDailyCalendar,
       'calendarShowIncome': uiConfig.calendarShowIncome,
       'calendarShowExpense': uiConfig.calendarShowExpense,
+      'itemTabShowUserMonthly': uiConfig.itemTabShowUserMonthly,
     };
   }
 

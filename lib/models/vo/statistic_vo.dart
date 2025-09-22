@@ -95,3 +95,25 @@ class DailyStatisticVO {
     this.balance = 0,
   });
 }
+
+/// 当月按用户统计信息
+class UserMonthlyStatisticVO {
+  /// 用户ID
+  final String userId;
+  /// 用户名（或昵称）
+  final String userName;
+  /// 收入
+  final double income;
+  /// 支出
+  final double expense;
+  /// 笔数
+  final int count;
+
+  const UserMonthlyStatisticVO({
+    required this.userId,
+    required this.userName,
+    this.income = 0,
+    this.expense = 0,
+    this.count = 0,
+  });
+}

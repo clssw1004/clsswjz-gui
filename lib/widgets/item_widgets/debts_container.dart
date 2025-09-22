@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
-import '../../widgets/common/common_card_container.dart';
+import '../common/common_card_container.dart';
 import '../../routes/app_routes.dart';
 import '../../enums/debt_type.dart';
 import '../../utils/color_util.dart';
@@ -38,7 +38,6 @@ class DebtsContainer extends StatelessWidget {
     }
 
     return CommonCardContainer(
-      margin: const EdgeInsets.all(8),
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
