@@ -7,7 +7,6 @@ import '../../widgets/setting/user_info_card.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
-import '../video_chat_page.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
@@ -253,23 +252,6 @@ class _MineTabView extends StatelessWidget {
                                   L10nManager.l10n.attachment,
                                   () => Navigator.pushNamed(
                                       context, AppRoutes.attachments),
-                                  colorScheme: colorScheme,
-                                  theme: theme.textTheme,
-                                  isAccountBookFeature: false,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: _buildCompactFeatureItem(
-                                  context,
-                                  Icons.videocam_outlined,
-                                  '视频聊天',
-                                  () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const VideoChatPage(),
-                                    ),
-                                  ),
                                   colorScheme: colorScheme,
                                   theme: theme.textTheme,
                                   isAccountBookFeature: false,
