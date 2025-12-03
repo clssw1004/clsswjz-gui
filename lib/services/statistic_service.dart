@@ -69,7 +69,9 @@ class StatisticService {
 
   /// 获取最近一天的统计数据
   Future<OperateResult<BookStatisticVO>> getLastDayStatistic(
-      String accountBookId, {DateTime? start, DateTime? end}) async {
+      String accountBookId,
+      {DateTime? start,
+      DateTime? end}) async {
     final db = DatabaseManager.db;
 
     // (refund subquery inlined where needed)
@@ -99,12 +101,15 @@ class StatisticService {
     // 查询最近一天的收入
     final incomeQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-            db.accountItemTable.type.equals(AccountItemType.income.code) &
-          db.accountItemTable.accountDate
-              .isBetweenValues(
-              start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : lastDayStart,
-              end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : lastDayEnd,
-              ))
+          db.accountItemTable.type.equals(AccountItemType.income.code) &
+          db.accountItemTable.accountDate.isBetweenValues(
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : lastDayStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : lastDayEnd,
+          ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
     final incomeResult = await incomeQuery.getSingle();
@@ -114,13 +119,19 @@ class StatisticService {
     final refundQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
           db.accountItemTable.source.equals(BusinessType.item.code) &
-            db.accountItemTable.sourceId.isInQuery(db.selectOnly(db.accountItemTable)
-              ..addColumns([db.accountItemTable.id])
-              ..where(db.accountItemTable.accountBookId.equals(accountBookId))
-              ..where(db.accountItemTable.type.equals(AccountItemType.expense.code))) &
+          db.accountItemTable.sourceId.isInQuery(
+              db.selectOnly(db.accountItemTable)
+                ..addColumns([db.accountItemTable.id])
+                ..where(db.accountItemTable.accountBookId.equals(accountBookId))
+                ..where(db.accountItemTable.type
+                    .equals(AccountItemType.expense.code))) &
           db.accountItemTable.accountDate.isBetweenValues(
-            start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : lastDayStart,
-            end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : lastDayEnd,
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : lastDayStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : lastDayEnd,
           ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
@@ -131,18 +142,21 @@ class StatisticService {
     final expenseQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
           db.accountItemTable.type.equals(AccountItemType.expense.code) &
-          db.accountItemTable.accountDate
-              .isBetweenValues(
-                start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : lastDayStart,
-                end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : lastDayEnd,
-              ))
+          db.accountItemTable.accountDate.isBetweenValues(
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : lastDayStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : lastDayEnd,
+          ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
     final expenseResult = await expenseQuery.getSingle();
     final expense = expenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
     // 计算结余：收入 - 支出 + 退款
-    final balance = income - expense + refund;
+    final balance = income + expense + refund;
 
     return OperateResult.success(BookStatisticVO(
       income: income,
@@ -154,7 +168,9 @@ class StatisticService {
 
   /// 获取本月（从1号开始）的统计数据
   Future<OperateResult<BookStatisticVO>> getCurrentMonthStatistic(
-      String accountBookId, {DateTime? start, DateTime? end}) async {
+      String accountBookId,
+      {DateTime? start,
+      DateTime? end}) async {
     final db = DatabaseManager.db;
     // 子查询：判定 sourceId 是否指向本账本中类型为支出的原始账目（用于识别退款）
     final refundSubQuery = db.selectOnly(db.accountItemTable)
@@ -176,8 +192,12 @@ class StatisticService {
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
           db.accountItemTable.type.equals(AccountItemType.income.code) &
           db.accountItemTable.accountDate.isBetweenValues(
-            start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : monthStart,
-            end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : monthEnd,
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : monthStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : monthEnd,
           ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
@@ -190,8 +210,12 @@ class StatisticService {
           db.accountItemTable.source.equals(BusinessType.item.code) &
           db.accountItemTable.sourceId.isInQuery(refundSubQuery) &
           db.accountItemTable.accountDate.isBetweenValues(
-            start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : monthStart,
-            end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : monthEnd,
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : monthStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : monthEnd,
           ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
@@ -203,8 +227,12 @@ class StatisticService {
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
           db.accountItemTable.type.equals(AccountItemType.expense.code) &
           db.accountItemTable.accountDate.isBetweenValues(
-            start != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start) : monthStart,
-            end != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end) : monthEnd,
+            start != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+                : monthStart,
+            end != null
+                ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+                : monthEnd,
           ))
       ..addColumns([db.accountItemTable.amount.sum()]);
 
@@ -212,11 +240,11 @@ class StatisticService {
     final expense = expenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
     // 计算结余：收入 - 支出 + 退款
-    final balance = income - expense + refund;
+    final balance = income + expense + refund;
 
     return OperateResult.success(BookStatisticVO(
       income: income,
-      expense: expense+ refund,
+      expense: expense + refund,
       balance: balance - refund,
       date: DateFormat('yyyy-MM').format(now),
     ));
@@ -224,7 +252,9 @@ class StatisticService {
 
   /// 获取所有时间的统计数据
   Future<OperateResult<BookStatisticVO>> getAllTimeStatistic(
-      String accountBookId, {DateTime? start, DateTime? end}) async {
+      String accountBookId,
+      {DateTime? start,
+      DateTime? end}) async {
     final db = DatabaseManager.db;
     final refundSubQuery = db.selectOnly(db.accountItemTable)
       ..addColumns([db.accountItemTable.id])
@@ -277,8 +307,8 @@ class StatisticService {
     final expenseResult = await expenseQuery.getSingle();
     final expense = expenseResult.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
-    // 计算结余：收入 - 支出 + 退款
-    final balance = income - expense + refund;
+    // 计算结余：收入 + 支出 + 退款
+    final balance = income + expense + refund;
 
     return OperateResult.success(BookStatisticVO(
       income: income,
@@ -289,7 +319,8 @@ class StatisticService {
 
   /// 按照分类查询统计收入、支出各分类的金额和
   Future<OperateResult<List<CategoryStatisticGroupVO>>>
-      statisticGroupByCategory(String accountBookId, {DateTime? start, DateTime? end}) async {
+      statisticGroupByCategory(String accountBookId,
+          {DateTime? start, DateTime? end}) async {
     final db = DatabaseManager.db;
     final refundSubQuery = db.selectOnly(db.accountItemTable)
       ..addColumns([db.accountItemTable.id])
@@ -415,14 +446,15 @@ class StatisticService {
     // 查询当月有收支记录的日期
     final dateQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-          db.accountItemTable.accountDate.isBetweenValues('$monthStart 00:00:00', '$monthEnd 23:59:59'))
+          db.accountItemTable.accountDate
+              .isBetweenValues('$monthStart 00:00:00', '$monthEnd 23:59:59'))
       ..addColumns([db.accountItemTable.accountDate])
       ..groupBy([db.accountItemTable.accountDate]);
 
     final dateResults = await dateQuery.get();
     final List<String> datesWithData = dateResults
-        .map((row) => DateFormat('yyyy-MM-dd').format(
-            DateTime.parse(row.read(db.accountItemTable.accountDate)!)))
+        .map((row) => DateFormat('yyyy-MM-dd')
+            .format(DateTime.parse(row.read(db.accountItemTable.accountDate)!)))
         .toSet()
         .toList()
       ..sort(); // 按日期排序
@@ -442,7 +474,8 @@ class StatisticService {
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final incomeResult = await incomeQuery.getSingleOrNull();
-      final income = incomeResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final income =
+          incomeResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
       // 查询当天的支出
       final expenseQuery = db.selectOnly(db.accountItemTable)
@@ -452,7 +485,8 @@ class StatisticService {
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final expenseResult = await expenseQuery.getSingleOrNull();
-      final expense = expenseResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final expense =
+          expenseResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
       // 本日退款
       final refundQuery = db.selectOnly(db.accountItemTable)
@@ -463,10 +497,11 @@ class StatisticService {
         ..addColumns([db.accountItemTable.amount.sum()]);
 
       final refundResult = await refundQuery.getSingleOrNull();
-      final refund = refundResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final refund =
+          refundResult?.read(db.accountItemTable.amount.sum()) ?? 0.0;
 
       // 计算结余：收入 - 支出 + 退款
-      final balance = income - expense + refund;
+      final balance = income + expense + refund;
 
       dailyStats.add(DailyStatisticVO(
         date: dateStr,
@@ -480,15 +515,16 @@ class StatisticService {
   }
 
   /// 获取当月按用户分组的记账笔数、收入、支出
-  Future<OperateResult<List<UserMonthlyStatisticVO>>> getCurrentMonthUserStatistic(
-      String accountBookId) async {
+  Future<OperateResult<List<UserMonthlyStatisticVO>>>
+      getCurrentMonthUserStatistic(String accountBookId) async {
     final db = DatabaseManager.db;
 
     // 当月起止
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final lastDayOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-    final monthStart = DateFormat('yyyy-MM-dd HH:mm:ss').format(firstDayOfMonth);
+    final monthStart =
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(firstDayOfMonth);
     final monthEnd = DateFormat('yyyy-MM-dd HH:mm:ss').format(lastDayOfMonth);
 
     // 以 createdBy 作为用户ID分组统计收入
@@ -561,9 +597,8 @@ class StatisticService {
     if (map.isNotEmpty) {
       final ids = map.keys.where((e) => e.isNotEmpty).toList();
       if (ids.isNotEmpty) {
-        final users = await (db.select(db.userTable)
-              ..where((t) => t.id.isIn(ids)))
-            .get();
+        final users =
+            await (db.select(db.userTable)..where((t) => t.id.isIn(ids))).get();
         final id2name = {
           for (var u in users)
             u.id: (u.nickname.isNotEmpty ? u.nickname : u.username)
@@ -579,7 +614,8 @@ class StatisticService {
     }
 
     final list = map.values.toList()
-      ..sort((a, b) => (b.income + b.expense.abs()).compareTo(a.income + a.expense.abs()));
+      ..sort((a, b) =>
+          (b.income + b.expense.abs()).compareTo(a.income + a.expense.abs()));
 
     return OperateResult.success(list);
   }
