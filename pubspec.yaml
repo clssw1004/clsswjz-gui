@@ -1,8 +1,7 @@
 name: clsswjz_gui
 description: "GUI for clsswjz-server"
 publish_to: "none"
-version: 1.0.7-beta.1
-
+version: 1.0.8
 environment:
   sdk: ^3.5.4
 
@@ -11,11 +10,11 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  sqlite3_flutter_libs: ^0.5.0
+  sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.0.0
   path: ^1.8.0
-  drift: ^2.22.1
-  drift_flutter: ^0.2.3
+  drift: ^2.32.0
+  drift_flutter: ^0.3.0
   nanoid: ^1.0.0
   uuid: ^4.5.1
   http: ^1.2.2
@@ -35,8 +34,8 @@ dependencies:
   csv: ^6.0.0
   flutter_slidable: ^4.0.0
   cupertino_icons: ^1.0.2
-  syncfusion_flutter_charts: ^30.2.7
-  syncfusion_flutter_calendar: ^30.2.7
+  syncfusion_flutter_charts: ^33.1.44
+  syncfusion_flutter_calendar: ^33.1.44
   package_info_plus: ^8.3.0
   open_filex: ^4.7.0
   flutter_quill_extensions: ^11.0.0

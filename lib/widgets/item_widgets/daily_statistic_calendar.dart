@@ -78,10 +78,12 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
       for (final s in widget.dailyStats) DateTime.parse(s.date): s,
     };
 
-    final DateTime firstDay =
+    final DateTime earliest =
         dateToStat.keys.reduce((a, b) => a.isBefore(b) ? a : b);
-    final DateTime lastDay =
+    final DateTime latest =
         dateToStat.keys.reduce((a, b) => a.isAfter(b) ? a : b);
+    final DateTime firstDay = DateTime(earliest.year, earliest.month, 1);
+    final DateTime lastDay = DateTime(latest.year, latest.month + 1, 0);
     final DateTime now = DateTime.now();
     final DateTime focusedDay = now.isAfter(lastDay) ? lastDay : now;
     final int currentMonth = focusedDay.month;
@@ -129,10 +131,12 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: _showExpense
-                          ? theme.colorScheme.surfaceContainerHighest.withAlpha(40)
+                          ? theme.colorScheme.surfaceContainerHighest
+                              .withAlpha(40)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -145,8 +149,11 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     child: Text(
                       L10nManager.l10n.expense,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: _showExpense ? ColorUtil.EXPENSE : theme.colorScheme.onSurfaceVariant,
-                        fontWeight: _showExpense ? FontWeight.w600 : FontWeight.normal,
+                        color: _showExpense
+                            ? ColorUtil.EXPENSE
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight:
+                            _showExpense ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -164,10 +171,12 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: _showIncome
-                          ? theme.colorScheme.surfaceContainerHighest.withAlpha(40)
+                          ? theme.colorScheme.surfaceContainerHighest
+                              .withAlpha(40)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -180,8 +189,11 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     child: Text(
                       L10nManager.l10n.income,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: _showIncome ? ColorUtil.INCOME : theme.colorScheme.onSurfaceVariant,
-                        fontWeight: _showIncome ? FontWeight.w600 : FontWeight.normal,
+                        color: _showIncome
+                            ? ColorUtil.INCOME
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight:
+                            _showIncome ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -220,7 +232,8 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     const TextStyle(fontSize: 11),
               ),
               monthCellBuilder: (context, details) {
-                final DateTime day = DateTime(details.date.year, details.date.month, details.date.day);
+                final DateTime day = DateTime(
+                    details.date.year, details.date.month, details.date.day);
                 if (day.month != currentMonth || day.year != currentYear) {
                   return const SizedBox.shrink();
                 }
