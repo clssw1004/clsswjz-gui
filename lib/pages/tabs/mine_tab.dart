@@ -257,6 +257,19 @@ class _MineTabView extends StatelessWidget {
                                   isAccountBookFeature: false,
                                 ),
                               ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.card_giftcard,
+                                  '礼物卡',
+                                  () => Navigator.pushNamed(
+                                      context, AppRoutes.giftCardList),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
                             ],
                           ),
                         ],

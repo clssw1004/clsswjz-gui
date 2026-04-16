@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:io';
+
+import 'package:drift/drift.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 
 import '../../constants/constant.dart';
@@ -10,6 +12,7 @@ import '../../enums/business_type.dart';
 import '../../enums/debt_clear_state.dart';
 import '../../enums/debt_type.dart';
 import '../../enums/fund_type.dart';
+import '../../enums/gift_card_status.dart';
 import '../../enums/note_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../manager/app_config_manager.dart';
@@ -18,6 +21,7 @@ import '../../manager/service_manager.dart';
 import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/attachment_show_vo.dart';
+import '../../models/vo/gift_card_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -28,6 +32,7 @@ import '../../models/common.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_vo.dart';
 import '../../utils/collection_util.dart';
+import '../../utils/date_util.dart';
 import '../../utils/digest_util.dart';
 import '../data_driver.dart';
 import '../../constants/account_book_icons.dart';
@@ -39,6 +44,7 @@ import 'log/builder/book_debt.build.dart';
 import 'log/builder/book_note.build.dart';
 import 'log/builder/builder.dart';
 import 'log/builder/fund.builder.dart';
+import 'log/builder/gift_card.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
@@ -770,5 +776,258 @@ class LogDataDriver implements BookDataDriver {
         .listByBook(userId, limit: limit, offset: offset, filter: filter);
     return OperateResult.success(
         await VOTransfer.transferAttachments(attachments));
+  }
+
+  // ============ 礼物卡相关 ============
+
+  @override
+  Future<OperateResult<String>> createGiftCard(
+    String userId, {
+    required String toUserId,
+    String? description,
+    int? expiredTime,
+  }) async {
+    try {
+      // 获取当前用户信息作为赠送人
+      final fromUser = await DaoManager.userDao.findById(userId);
+      if (fromUser == null) {
+        return OperateResult.failWithMessage(message: '用户不存在');
+      }
+
+      // 获取接收人信息
+      final toUser = await DaoManager.userDao.findById(toUserId);
+      if (toUser == null) {
+        return OperateResult.failWithMessage(message: '接收人不存在');
+      }
+
+      final logBuilder = GiftCardCULog.create(
+        who: userId,
+        fromUserId: userId,
+        toUserId: toUserId,
+        description: description,
+        expiredTime: expiredTime,
+      );
+      final id = await logBuilder.execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '创建礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteGiftCard(String userId, String giftCardId) async {
+    try {
+      final logBuilder = GiftCardCULog.delete(
+        who: userId,
+        id: giftCardId,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '删除礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateGiftCard(
+    String userId,
+    String giftCardId, {
+    String? toUserId,
+    String? description,
+    int? expiredTime,
+    String? status,
+  }) async {
+    try {
+      final logBuilder = GiftCardCULog.update(
+        who: userId,
+        id: giftCardId,
+        toUserId: toUserId,
+        description: description,
+        expiredTime: expiredTime,
+        status: status,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '更新礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> sendGiftCard(String userId, String giftCardId) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final logBuilder = GiftCardCULog.update(
+        who: userId,
+        id: giftCardId,
+        status: GiftCardStatus.sent.code,
+      );
+      await logBuilder.execute();
+      // 更新送出时间
+      await DaoManager.giftCardDao.update(
+        giftCardId,
+        GiftCardTableCompanion(sentTime: Value(now)),
+      );
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '送出礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> receiveGiftCard(String userId, String giftCardId) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final logBuilder = GiftCardCULog.update(
+        who: userId,
+        id: giftCardId,
+        status: GiftCardStatus.received.code,
+      );
+      await logBuilder.execute();
+      // 更新接收时间
+      await DaoManager.giftCardDao.update(
+        giftCardId,
+        GiftCardTableCompanion(receivedTime: Value(now)),
+      );
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '接收礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> extendGiftCard(String userId, String giftCardId, int expiredTime) async {
+    try {
+      final logBuilder = GiftCardCULog.update(
+        who: userId,
+        id: giftCardId,
+        expiredTime: expiredTime,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '延期礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> voidGiftCard(String userId, String giftCardId) async {
+    try {
+      final logBuilder = GiftCardCULog.update(
+        who: userId,
+        id: giftCardId,
+        status: GiftCardStatus.voided.code,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '作废礼物卡失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<GiftCardVO>>> listGiftCards(String userId, {GiftCardQueryType type = GiftCardQueryType.all}) async {
+    try {
+      // 检查并更新过期状态
+      await _checkAndUpdateExpiredStatus();
+
+      // 查询数据
+      List<GiftCard> giftCards;
+      switch (type) {
+        case GiftCardQueryType.received:
+          giftCards = await DaoManager.giftCardDao.findReceived(userId);
+          break;
+        case GiftCardQueryType.sent:
+          giftCards = await DaoManager.giftCardDao.findSent(userId);
+          break;
+        case GiftCardQueryType.all:
+          giftCards = await DaoManager.giftCardDao.findAll();
+          break;
+      }
+
+      if (giftCards.isEmpty) {
+        return OperateResult.success([]);
+      }
+
+      // 收集所有用户ID用于翻译昵称
+      final userIds = <String>{};
+      for (final card in giftCards) {
+        userIds.add(card.fromUserId);
+        userIds.add(card.toUserId);
+      }
+
+      // 批量查询用户信息
+      final users = await DaoManager.userDao.findByIds(userIds.toList());
+      final userMap = {for (final u in users) u.id: u.nickname ?? u.username ?? '未知用户'};
+
+      // 翻译昵称
+      final vos = giftCards.map((card) {
+        return GiftCardVO.withNicknames(
+          id: card.id,
+          fromUserId: card.fromUserId,
+          fromUserNickname: userMap[card.fromUserId] ?? '未知用户',
+          toUserId: card.toUserId,
+          toUserNickname: userMap[card.toUserId] ?? '未知用户',
+          description: card.description,
+          expiredTime: card.expiredTime,
+          sentTime: card.sentTime,
+          receivedTime: card.receivedTime,
+          status: GiftCardStatus.fromCode(card.status),
+          createdAt: card.createdAt,
+          updatedAt: card.updatedAt,
+          createdBy: card.createdBy,
+          updatedBy: card.updatedBy,
+        );
+      }).toList();
+
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '获取礼物卡列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<GiftCardVO>> getGiftCard(String userId, String giftCardId) async {
+    try {
+      final card = await DaoManager.giftCardDao.findById(giftCardId);
+      if (card == null) {
+        return OperateResult.failWithMessage(message: '礼物卡不存在');
+      }
+
+      // 翻译用户昵称
+      final fromUser = await DaoManager.userDao.findById(card.fromUserId);
+      final toUser = await DaoManager.userDao.findById(card.toUserId);
+
+      final vo = GiftCardVO.withNicknames(
+        id: card.id,
+        fromUserId: card.fromUserId,
+        fromUserNickname: fromUser?.nickname ?? fromUser?.username ?? '未知用户',
+        toUserId: card.toUserId,
+        toUserNickname: toUser?.nickname ?? toUser?.username ?? '未知用户',
+        description: card.description,
+        expiredTime: card.expiredTime,
+        sentTime: card.sentTime,
+        receivedTime: card.receivedTime,
+        status: GiftCardStatus.fromCode(card.status),
+        createdAt: card.createdAt,
+        updatedAt: card.updatedAt,
+        createdBy: card.createdBy,
+        updatedBy: card.updatedBy,
+      );
+
+      return OperateResult.success(vo);
+    } catch (e) {
+      return OperateResult.failWithMessage(message: '获取礼物卡详情失败：$e', exception: e as Exception);
+    }
+  }
+
+  /// 检查并更新过期状态
+  Future<void> _checkAndUpdateExpiredStatus() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final expiredCards = await DaoManager.giftCardDao.findExpired(now);
+
+    for (final card in expiredCards) {
+      await DaoManager.giftCardDao.updateStatus(card.id, GiftCardStatus.expired.code);
+    }
   }
 }

@@ -17,6 +17,7 @@ import 'book_note.build.dart';
 import 'book_shop.builder.dart';
 import 'book_symbol.builder.dart';
 import 'fund.builder.dart';
+import 'gift_card.builder.dart';
 import 'user.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";

@@ -21,6 +21,10 @@ import '../models/vo/attachment_vo.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../models/vo/user_note_vo.dart';
+import '../models/vo/gift_card_vo.dart';
+
+/// 礼物卡查询类型
+enum GiftCardQueryType { received, sent, all }
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -280,4 +284,46 @@ abstract class BookDataDriver {
       {int limit = 200,
       int offset = 0,
       AttachmentFilterDTO? filter});
+
+  // ============ 礼物卡相关 ============
+
+  /// 创建礼物卡
+  Future<OperateResult<String>> createGiftCard(
+    String userId, {
+    required String toUserId,
+    String? description,
+    int? expiredTime,
+  });
+
+  /// 删除礼物卡
+  Future<OperateResult<void>> deleteGiftCard(String userId, String giftCardId);
+
+  /// 更新礼物卡
+  Future<OperateResult<void>> updateGiftCard(
+    String userId,
+    String giftCardId, {
+    String? toUserId,
+    String? description,
+    int? expiredTime,
+    String? status,
+  });
+
+  /// 送出礼物卡
+  Future<OperateResult<void>> sendGiftCard(String userId, String giftCardId);
+
+  /// 接收礼物卡
+  Future<OperateResult<void>> receiveGiftCard(String userId, String giftCardId);
+
+  /// 延期礼物卡
+  Future<OperateResult<void>> extendGiftCard(String userId, String giftCardId, int expiredTime);
+
+  /// 作废礼物卡
+  Future<OperateResult<void>> voidGiftCard(String userId, String giftCardId);
+
+  /// 获取礼物卡列表
+  /// [type] 查询类型：received(我收到的), sent(我送出的), all(全部)
+  Future<OperateResult<List<GiftCardVO>>> listGiftCards(String userId, {GiftCardQueryType type = GiftCardQueryType.all});
+
+  /// 获取单个礼物卡详情
+  Future<OperateResult<GiftCardVO>> getGiftCard(String userId, String giftCardId);
 }

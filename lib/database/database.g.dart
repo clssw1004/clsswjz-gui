@@ -7103,6 +7103,627 @@ class AccountDebtTableCompanion extends UpdateCompanion<AccountDebt> {
   }
 }
 
+class $GiftCardTableTable extends GiftCardTable
+    with TableInfo<$GiftCardTableTable, GiftCard> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GiftCardTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fromUserIdMeta =
+      const VerificationMeta('fromUserId');
+  @override
+  late final GeneratedColumn<String> fromUserId = GeneratedColumn<String>(
+      'from_user_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 64),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _toUserIdMeta =
+      const VerificationMeta('toUserId');
+  @override
+  late final GeneratedColumn<String> toUserId = GeneratedColumn<String>(
+      'to_user_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 64),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'gift_description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _expiredTimeMeta =
+      const VerificationMeta('expiredTime');
+  @override
+  late final GeneratedColumn<int> expiredTime = GeneratedColumn<int>(
+      'expired_time', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _sentTimeMeta =
+      const VerificationMeta('sentTime');
+  @override
+  late final GeneratedColumn<int> sentTime = GeneratedColumn<int>(
+      'sent_time', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _receivedTimeMeta =
+      const VerificationMeta('receivedTime');
+  @override
+  late final GeneratedColumn<int> receivedTime = GeneratedColumn<int>(
+      'received_time', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('draft'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        fromUserId,
+        toUserId,
+        description,
+        expiredTime,
+        sentTime,
+        receivedTime,
+        status
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gift_card_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<GiftCard> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('from_user_id')) {
+      context.handle(
+          _fromUserIdMeta,
+          fromUserId.isAcceptableOrUnknown(
+              data['from_user_id']!, _fromUserIdMeta));
+    } else if (isInserting) {
+      context.missing(_fromUserIdMeta);
+    }
+    if (data.containsKey('to_user_id')) {
+      context.handle(_toUserIdMeta,
+          toUserId.isAcceptableOrUnknown(data['to_user_id']!, _toUserIdMeta));
+    } else if (isInserting) {
+      context.missing(_toUserIdMeta);
+    }
+    if (data.containsKey('gift_description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['gift_description']!, _descriptionMeta));
+    }
+    if (data.containsKey('expired_time')) {
+      context.handle(
+          _expiredTimeMeta,
+          expiredTime.isAcceptableOrUnknown(
+              data['expired_time']!, _expiredTimeMeta));
+    }
+    if (data.containsKey('sent_time')) {
+      context.handle(_sentTimeMeta,
+          sentTime.isAcceptableOrUnknown(data['sent_time']!, _sentTimeMeta));
+    }
+    if (data.containsKey('received_time')) {
+      context.handle(
+          _receivedTimeMeta,
+          receivedTime.isAcceptableOrUnknown(
+              data['received_time']!, _receivedTimeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GiftCard map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GiftCard(
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      fromUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}from_user_id'])!,
+      toUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}to_user_id'])!,
+      description: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}gift_description']),
+      expiredTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}expired_time'])!,
+      sentTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sent_time'])!,
+      receivedTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}received_time'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+    );
+  }
+
+  @override
+  $GiftCardTableTable createAlias(String alias) {
+    return $GiftCardTableTable(attachedDatabase, alias);
+  }
+}
+
+class GiftCard extends DataClass implements Insertable<GiftCard> {
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 赠送人用户ID
+  final String fromUserId;
+
+  /// 接收人用户ID
+  final String toUserId;
+
+  /// 礼品描述
+  final String? description;
+
+  /// 过期时间 (毫秒时间戳，0表示永久有效)
+  final int expiredTime;
+
+  /// 送出时间 (毫秒时间戳)
+  final int sentTime;
+
+  /// 接收时间 (毫秒时间戳)
+  final int receivedTime;
+
+  /// 状态: draft(草稿), sent(已送出), received(已接收), used(已使用), expired(已过期), voided(已作废)
+  final String status;
+  const GiftCard(
+      {required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.fromUserId,
+      required this.toUserId,
+      this.description,
+      required this.expiredTime,
+      required this.sentTime,
+      required this.receivedTime,
+      required this.status});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['from_user_id'] = Variable<String>(fromUserId);
+    map['to_user_id'] = Variable<String>(toUserId);
+    if (!nullToAbsent || description != null) {
+      map['gift_description'] = Variable<String>(description);
+    }
+    map['expired_time'] = Variable<int>(expiredTime);
+    map['sent_time'] = Variable<int>(sentTime);
+    map['received_time'] = Variable<int>(receivedTime);
+    map['status'] = Variable<String>(status);
+    return map;
+  }
+
+  GiftCardTableCompanion toCompanion(bool nullToAbsent) {
+    return GiftCardTableCompanion(
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      fromUserId: Value(fromUserId),
+      toUserId: Value(toUserId),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      expiredTime: Value(expiredTime),
+      sentTime: Value(sentTime),
+      receivedTime: Value(receivedTime),
+      status: Value(status),
+    );
+  }
+
+  factory GiftCard.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GiftCard(
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      fromUserId: serializer.fromJson<String>(json['fromUserId']),
+      toUserId: serializer.fromJson<String>(json['toUserId']),
+      description: serializer.fromJson<String?>(json['description']),
+      expiredTime: serializer.fromJson<int>(json['expiredTime']),
+      sentTime: serializer.fromJson<int>(json['sentTime']),
+      receivedTime: serializer.fromJson<int>(json['receivedTime']),
+      status: serializer.fromJson<String>(json['status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'fromUserId': serializer.toJson<String>(fromUserId),
+      'toUserId': serializer.toJson<String>(toUserId),
+      'description': serializer.toJson<String?>(description),
+      'expiredTime': serializer.toJson<int>(expiredTime),
+      'sentTime': serializer.toJson<int>(sentTime),
+      'receivedTime': serializer.toJson<int>(receivedTime),
+      'status': serializer.toJson<String>(status),
+    };
+  }
+
+  GiftCard copyWith(
+          {String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? fromUserId,
+          String? toUserId,
+          Value<String?> description = const Value.absent(),
+          int? expiredTime,
+          int? sentTime,
+          int? receivedTime,
+          String? status}) =>
+      GiftCard(
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        fromUserId: fromUserId ?? this.fromUserId,
+        toUserId: toUserId ?? this.toUserId,
+        description: description.present ? description.value : this.description,
+        expiredTime: expiredTime ?? this.expiredTime,
+        sentTime: sentTime ?? this.sentTime,
+        receivedTime: receivedTime ?? this.receivedTime,
+        status: status ?? this.status,
+      );
+  GiftCard copyWithCompanion(GiftCardTableCompanion data) {
+    return GiftCard(
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      fromUserId:
+          data.fromUserId.present ? data.fromUserId.value : this.fromUserId,
+      toUserId: data.toUserId.present ? data.toUserId.value : this.toUserId,
+      description:
+          data.description.present ? data.description.value : this.description,
+      expiredTime:
+          data.expiredTime.present ? data.expiredTime.value : this.expiredTime,
+      sentTime: data.sentTime.present ? data.sentTime.value : this.sentTime,
+      receivedTime: data.receivedTime.present
+          ? data.receivedTime.value
+          : this.receivedTime,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GiftCard(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('fromUserId: $fromUserId, ')
+          ..write('toUserId: $toUserId, ')
+          ..write('description: $description, ')
+          ..write('expiredTime: $expiredTime, ')
+          ..write('sentTime: $sentTime, ')
+          ..write('receivedTime: $receivedTime, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      fromUserId,
+      toUserId,
+      description,
+      expiredTime,
+      sentTime,
+      receivedTime,
+      status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GiftCard &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.fromUserId == this.fromUserId &&
+          other.toUserId == this.toUserId &&
+          other.description == this.description &&
+          other.expiredTime == this.expiredTime &&
+          other.sentTime == this.sentTime &&
+          other.receivedTime == this.receivedTime &&
+          other.status == this.status);
+}
+
+class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> fromUserId;
+  final Value<String> toUserId;
+  final Value<String?> description;
+  final Value<int> expiredTime;
+  final Value<int> sentTime;
+  final Value<int> receivedTime;
+  final Value<String> status;
+  final Value<int> rowid;
+  const GiftCardTableCompanion({
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.fromUserId = const Value.absent(),
+    this.toUserId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.expiredTime = const Value.absent(),
+    this.sentTime = const Value.absent(),
+    this.receivedTime = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GiftCardTableCompanion.insert({
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String fromUserId,
+    required String toUserId,
+    this.description = const Value.absent(),
+    this.expiredTime = const Value.absent(),
+    this.sentTime = const Value.absent(),
+    this.receivedTime = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        fromUserId = Value(fromUserId),
+        toUserId = Value(toUserId);
+  static Insertable<GiftCard> custom({
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? fromUserId,
+    Expression<String>? toUserId,
+    Expression<String>? description,
+    Expression<int>? expiredTime,
+    Expression<int>? sentTime,
+    Expression<int>? receivedTime,
+    Expression<String>? status,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (fromUserId != null) 'from_user_id': fromUserId,
+      if (toUserId != null) 'to_user_id': toUserId,
+      if (description != null) 'gift_description': description,
+      if (expiredTime != null) 'expired_time': expiredTime,
+      if (sentTime != null) 'sent_time': sentTime,
+      if (receivedTime != null) 'received_time': receivedTime,
+      if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GiftCardTableCompanion copyWith(
+      {Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? fromUserId,
+      Value<String>? toUserId,
+      Value<String?>? description,
+      Value<int>? expiredTime,
+      Value<int>? sentTime,
+      Value<int>? receivedTime,
+      Value<String>? status,
+      Value<int>? rowid}) {
+    return GiftCardTableCompanion(
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      fromUserId: fromUserId ?? this.fromUserId,
+      toUserId: toUserId ?? this.toUserId,
+      description: description ?? this.description,
+      expiredTime: expiredTime ?? this.expiredTime,
+      sentTime: sentTime ?? this.sentTime,
+      receivedTime: receivedTime ?? this.receivedTime,
+      status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fromUserId.present) {
+      map['from_user_id'] = Variable<String>(fromUserId.value);
+    }
+    if (toUserId.present) {
+      map['to_user_id'] = Variable<String>(toUserId.value);
+    }
+    if (description.present) {
+      map['gift_description'] = Variable<String>(description.value);
+    }
+    if (expiredTime.present) {
+      map['expired_time'] = Variable<int>(expiredTime.value);
+    }
+    if (sentTime.present) {
+      map['sent_time'] = Variable<int>(sentTime.value);
+    }
+    if (receivedTime.present) {
+      map['received_time'] = Variable<int>(receivedTime.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GiftCardTableCompanion(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('fromUserId: $fromUserId, ')
+          ..write('toUserId: $toUserId, ')
+          ..write('description: $description, ')
+          ..write('expiredTime: $expiredTime, ')
+          ..write('sentTime: $sentTime, ')
+          ..write('receivedTime: $receivedTime, ')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7128,6 +7749,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $AccountNoteTableTable(this);
   late final $AccountDebtTableTable accountDebtTable =
       $AccountDebtTableTable(this);
+  late final $GiftCardTableTable giftCardTable = $GiftCardTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7144,7 +7766,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         logSyncTable,
         attachmentTable,
         accountNoteTable,
-        accountDebtTable
+        accountDebtTable,
+        giftCardTable
       ];
 }
 
@@ -10444,6 +11067,279 @@ typedef $$AccountDebtTableTableProcessedTableManager = ProcessedTableManager<
     ),
     AccountDebt,
     PrefetchHooks Function()>;
+typedef $$GiftCardTableTableCreateCompanionBuilder = GiftCardTableCompanion
+    Function({
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String fromUserId,
+  required String toUserId,
+  Value<String?> description,
+  Value<int> expiredTime,
+  Value<int> sentTime,
+  Value<int> receivedTime,
+  Value<String> status,
+  Value<int> rowid,
+});
+typedef $$GiftCardTableTableUpdateCompanionBuilder = GiftCardTableCompanion
+    Function({
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> fromUserId,
+  Value<String> toUserId,
+  Value<String?> description,
+  Value<int> expiredTime,
+  Value<int> sentTime,
+  Value<int> receivedTime,
+  Value<String> status,
+  Value<int> rowid,
+});
+
+class $$GiftCardTableTableFilterComposer
+    extends Composer<_$AppDatabase, $GiftCardTableTable> {
+  $$GiftCardTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fromUserId => $composableBuilder(
+      column: $table.fromUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get toUserId => $composableBuilder(
+      column: $table.toUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get expiredTime => $composableBuilder(
+      column: $table.expiredTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sentTime => $composableBuilder(
+      column: $table.sentTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get receivedTime => $composableBuilder(
+      column: $table.receivedTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+}
+
+class $$GiftCardTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $GiftCardTableTable> {
+  $$GiftCardTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fromUserId => $composableBuilder(
+      column: $table.fromUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get toUserId => $composableBuilder(
+      column: $table.toUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get expiredTime => $composableBuilder(
+      column: $table.expiredTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sentTime => $composableBuilder(
+      column: $table.sentTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get receivedTime => $composableBuilder(
+      column: $table.receivedTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+}
+
+class $$GiftCardTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GiftCardTableTable> {
+  $$GiftCardTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fromUserId => $composableBuilder(
+      column: $table.fromUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get toUserId =>
+      $composableBuilder(column: $table.toUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get expiredTime => $composableBuilder(
+      column: $table.expiredTime, builder: (column) => column);
+
+  GeneratedColumn<int> get sentTime =>
+      $composableBuilder(column: $table.sentTime, builder: (column) => column);
+
+  GeneratedColumn<int> get receivedTime => $composableBuilder(
+      column: $table.receivedTime, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+}
+
+class $$GiftCardTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $GiftCardTableTable,
+    GiftCard,
+    $$GiftCardTableTableFilterComposer,
+    $$GiftCardTableTableOrderingComposer,
+    $$GiftCardTableTableAnnotationComposer,
+    $$GiftCardTableTableCreateCompanionBuilder,
+    $$GiftCardTableTableUpdateCompanionBuilder,
+    (GiftCard, BaseReferences<_$AppDatabase, $GiftCardTableTable, GiftCard>),
+    GiftCard,
+    PrefetchHooks Function()> {
+  $$GiftCardTableTableTableManager(_$AppDatabase db, $GiftCardTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GiftCardTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GiftCardTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GiftCardTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> fromUserId = const Value.absent(),
+            Value<String> toUserId = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> expiredTime = const Value.absent(),
+            Value<int> sentTime = const Value.absent(),
+            Value<int> receivedTime = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GiftCardTableCompanion(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            fromUserId: fromUserId,
+            toUserId: toUserId,
+            description: description,
+            expiredTime: expiredTime,
+            sentTime: sentTime,
+            receivedTime: receivedTime,
+            status: status,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String fromUserId,
+            required String toUserId,
+            Value<String?> description = const Value.absent(),
+            Value<int> expiredTime = const Value.absent(),
+            Value<int> sentTime = const Value.absent(),
+            Value<int> receivedTime = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GiftCardTableCompanion.insert(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            fromUserId: fromUserId,
+            toUserId: toUserId,
+            description: description,
+            expiredTime: expiredTime,
+            sentTime: sentTime,
+            receivedTime: receivedTime,
+            status: status,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$GiftCardTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $GiftCardTableTable,
+    GiftCard,
+    $$GiftCardTableTableFilterComposer,
+    $$GiftCardTableTableOrderingComposer,
+    $$GiftCardTableTableAnnotationComposer,
+    $$GiftCardTableTableCreateCompanionBuilder,
+    $$GiftCardTableTableUpdateCompanionBuilder,
+    (GiftCard, BaseReferences<_$AppDatabase, $GiftCardTableTable, GiftCard>),
+    GiftCard,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10473,4 +11369,6 @@ class $AppDatabaseManager {
       $$AccountNoteTableTableTableManager(_db, _db.accountNoteTable);
   $$AccountDebtTableTableTableManager get accountDebtTable =>
       $$AccountDebtTableTableTableManager(_db, _db.accountDebtTable);
+  $$GiftCardTableTableTableManager get giftCardTable =>
+      $$GiftCardTableTableTableManager(_db, _db.giftCardTable);
 }
