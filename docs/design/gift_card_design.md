@@ -36,6 +36,8 @@
 
 ### 3.1 数据库表设计
 
+> **注意**：昵称字段不在数据库表中存储，查询时通过关联用户表翻译。
+
 ```dart
 class GiftCardTable extends BaseBusinessTable {
   // 礼物卡ID (继承自 BaseBusinessTable，已有 id, createdAt, updatedAt, createdBy, updatedBy)
@@ -43,14 +45,8 @@ class GiftCardTable extends BaseBusinessTable {
   // 赠送人用户ID
   TextColumn get fromUserId => text().named('from_user_id').withLength(min: 1, max: 64)();
 
-  // 赠送人昵称（用于显示）
-  TextColumn get fromUserNickname => text().named('from_user_nickname').withLength(min: 1, max: 100)();
-
   // 接收人用户ID
   TextColumn get toUserId => text().named('to_user_id').withLength(min: 1, max: 64)();
-
-  // 接收人昵称（用于显示）
-  TextColumn get toUserNickname => text().named('to_user_nickname').withLength(min: 1, max: 100)();
 
   // 礼品描述
   TextColumn get description => text().named('gift_description').nullable()();
@@ -79,14 +75,14 @@ class GiftCardTable extends BaseBusinessTable {
 | created_by | TEXT | 是 | 创建人ID |
 | updated_by | TEXT | 是 | 更新人ID |
 | from_user_id | TEXT | 是 | 赠送人用户ID |
-| from_user_nickname | TEXT | 是 | 赠送人昵称 |
 | to_user_id | TEXT | 是 | 接收人用户ID |
-| to_user_nickname | TEXT | 是 | 接收人昵称 |
 | gift_description | TEXT | 否 | 礼品描述 |
 | expired_time | INTEGER | 是 | 过期时间 (毫秒时间戳，0表示永久有效) |
 | sent_time | INTEGER | 是 | 送出时间 (毫秒时间戳) |
 | received_time | INTEGER | 是 | 接收时间 (毫秒时间戳) |
 | status | TEXT | 是 | 状态 (默认 draft) |
+
+> **昵称翻译**：GiftCardVO 中的 fromUserNickname 和 toUserNickname 字段是在查询时通过关联用户表翻译的，不存储在数据库中。
 
 ### 3.2 枚举类型
 
@@ -154,12 +150,15 @@ class GiftCardVO {
 | 数据库 | `lib/database/dao/gift_card_dao.dart` | DAO层 |
 | 数据库 | `lib/database/database.dart` | 添加 GiftCardTable 到 Drift 数据库 |
 | 枚举 | `lib/enums/gift_card_status.dart` | 状态枚举 |
+| 枚举 | `lib/enums/gift_card.dart` | 查询类型枚举 (GiftCardQueryType) |
 | 枚举 | `lib/enums/business_type.dart` | 添加 giftCard 业务类型 |
 | 模型 | `lib/models/vo/gift_card_vo.dart` | 值对象 |
 | 驱动接口 | `lib/drivers/data_driver.dart` | 定义礼物卡相关接口 |
 | 驱动实现 | `lib/drivers/special/log.data_driver.dart` | 实现礼物卡相关方法 |
 | 日志构建器 | `lib/drivers/special/log/builder/gift_card.builder.dart` | 日志驱动构建器 |
 | 状态 | `lib/providers/gift_card_provider.dart` | 状态管理 |
+| 事件 | `lib/events/special/event_book.dart` | 添加 GiftCardChangedEvent |
+| 同步 | `lib/providers/sync_provider.dart` | 订阅礼物卡变更事件 |
 | 状态注册 | `lib/manager/provider_manager.dart` | 注册 GiftCardProvider |
 | DAO注册 | `lib/manager/dao_manager.dart` | 注册 GiftCardDao |
 | 页面 | `lib/pages/gift_card/gift_card_list_page.dart` | 礼物卡列表页 |
@@ -309,6 +308,8 @@ class GiftCardVO {
 
 ### 5.1 DataDriver 接口定义
 
+> **遵循原则**：只定义基础 CRUD 方法，业务操作通过 updateGiftCard 原子方式实现。
+
 ```dart
 // lib/drivers/data_driver.dart
 
@@ -323,34 +324,35 @@ Future<OperateResult<String>> createGiftCard(
 /// 删除礼物卡（仅草稿状态）
 Future<OperateResult<void>> deleteGiftCard(String userId, String giftCardId);
 
-/// 更新礼物卡
+/// 更新礼物卡（原子方式，支持所有可更新字段）
 Future<OperateResult<void>> updateGiftCard(
   String userId,
   String giftCardId, {
   String? toUserId,
   String? description,
   int? expiredTime,
+  int? sentTime,
+  int? receivedTime,
   String? status,
 });
 
-/// 送出礼物卡
-Future<OperateResult<void>> sendGiftCard(String userId, String giftCardId);
+/// 获取礼物卡列表
+/// [type] 查询类型：received(我收到的), sent(我送出的), all(全部)
+Future<OperateResult<List<GiftCardVO>>> listGiftCards(
+  String userId, {
+  GiftCardQueryType type = GiftCardQueryType.all,
+});
 
-/// 接收礼物卡
-Future<OperateResult<void>> receiveGiftCard(String userId, String giftCardId);
-
-/// 延期礼物卡
-Future<OperateResult<void>> extendGiftCard(String userId, String giftCardId, int expiredTime);
-
-/// 作废礼物卡
-Future<OperateResult<void>> voidGiftCard(String userId, String giftCardId);
-
-/// 获取我收到的礼物卡列表
-Future<OperateResult<List<GiftCardVO>>> listReceivedGiftCards(String userId);
-
-/// 获取我送出的礼物卡列表
-Future<OperateResult<List<GiftCardVO>>> listSentGiftCards(String userId);
+/// 获取礼物卡详情
+Future<OperateResult<GiftCardVO>> getGiftCard(String userId, String giftCardId);
 ```
+
+> **业务操作调用方式**（不在接口中定义，通过 updateGiftCard 实现）：
+> - 送出：`.updateGiftCard(status: 'sent', sentTime: now)`
+> - 接收：`.updateGiftCard(status: 'received', receivedTime: now)`
+> - 延期：`.updateGiftCard(expiredTime: newTime)`
+> - 作废：`.updateGiftCard(status: 'voided')`
+> - 标记已使用：`.updateGiftCard(status: 'used')`
 
 ### 5.2 接收人获取逻辑
 
@@ -453,7 +455,169 @@ Database层 (GiftCardTable)
    +---------------(过期)---------------> [已过期]
 ```
 
-## 七、验证测试点
+## 七、技术实现规范
+
+### 7.1 DataDriver 接口设计原则
+
+参考项目中其他模块的实现，DataDriver 中只定义基础的 CRUD 方法，不定义过多的业务专用方法。具体规范如下：
+
+**应定义的接口：**
+- `createGiftCard` - 创建礼物卡
+- `deleteGiftCard` - 删除礼物卡
+- `updateGiftCard` - 更新礼物卡（原子方式，支持所有可更新字段）
+- `listGiftCards` - 获取礼物卡列表（支持类型过滤）
+- `getGiftCard` - 获取单个礼物卡详情
+
+**不应定义的接口（应通过 updateGiftCard 实现）：**
+- ~~`sendGiftCard`~~ - 使用 `updateGiftCard(status: GiftCardStatus.sent.code, sentTime: now)`
+- ~~`receiveGiftCard`~~ - 使用 `updateGiftCard(status: GiftCardStatus.received.code, receivedTime: now)`
+- ~~`extendGiftCard`~~ - 使用 `updateGiftCard(expiredTime: newTime)`
+- ~~`voidGiftCard`~~ - 使用 `updateGiftCard(status: GiftCardStatus.voided.code)`
+- ~~`markAsUsed`~~ - 使用 `updateGiftCard(status: GiftCardStatus.used.code)`
+
+**updateGiftCard 接口设计：**
+```dart
+Future<OperateResult<void>> updateGiftCard(
+  String userId,
+  String giftCardId, {
+  String? toUserId,
+  String? description,
+  int? expiredTime,
+  int? sentTime,
+  int? receivedTime,
+  String? status,
+});
+```
+
+### 7.2 操作权限规范
+
+为保证业务逻辑清晰，操作权限遵循以下规则：
+
+| 操作 | 权限要求 | 说明 |
+|------|----------|------|
+| 创建 | 当前用户 | 赠送人默认为当前登录用户 |
+| 编辑 | 赠送人 + 草稿状态 | 仅草稿状态可编辑 |
+| 送出 | 赠送人 + 草稿状态 | 赠送人操作 |
+| 接收 | 接收人 + 已送出状态 | 接收人操作 |
+| 标记已使用 | 赠送人 + 已接收状态 | 由赠送人确认已使用 |
+| 延期 | 赠送人 + 已送出/已接收状态 | 仅赠送人可延期 |
+| 作废 | 赠送人 + 非已使用/非已作废状态 | 仅赠送人可作废 |
+| 删除 | 赠送人 + 草稿状态 | 仅草稿状态可删除 |
+
+### 7.3 数据同步机制
+
+礼物卡操作后需要同步到云端，采用事件驱动模式：
+
+**事件定义（lib/events/special/event_book.dart）：**
+```dart
+class GiftCardChangedEvent {
+  final GiftCardVO giftCard;
+  final OperateType operateType;
+  const GiftCardChangedEvent(this.operateType, this.giftCard);
+}
+```
+
+**Provider 中触发同步（lib/providers/gift_card_provider.dart）：**
+```dart
+// 操作成功后触发同步事件
+EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+```
+
+**SyncProvider 订阅事件（lib/providers/sync_provider.dart）：**
+```dart
+void _subscribeToEvents() {
+  _subscriptions.addAll([
+    // ... 其他事件
+    EventBus.instance.on<GiftCardChangedEvent>(_handleGiftCardChanged),
+  ]);
+}
+
+void _handleGiftCardChanged(GiftCardChangedEvent event) {
+  // 礼物卡任何操作都需要同步
+  syncData();
+}
+```
+
+### 7.4 页面导航与状态保持
+
+**列表页返回时保持之前的 Tab：**
+
+1. GiftCardListPage 支持接收初始 tab 索引参数：
+```dart
+class GiftCardListPage extends StatefulWidget {
+  final int? initialTabIndex;
+  const GiftCardListPage({super.key, this.initialTabIndex});
+}
+```
+
+2. 路由配置支持传递 tab 参数：
+```dart
+giftCardList: (context) {
+  final args = ModalRoute.of(context)?.settings.arguments;
+  final tabIndex = args is int ? args : 0;
+  return GiftCardListPage(initialTabIndex: tabIndex);
+},
+```
+
+3. 详情页操作后返回对应 tab：
+```dart
+// 接收操作后返回"我收到的"tab (索引0)
+Navigator.pop(context, 0);
+// 送出/标记已使用/作废后返回"我送出的"tab (索引1)
+Navigator.pop(context, 1);
+```
+
+4. 列表页处理返回结果：
+```dart
+void _navigateToDetail(BuildContext context, GiftCardVO card) async {
+  final result = await Navigator.pushNamed(
+    context,
+    AppRoutes.giftCardDetail,
+    arguments: card,
+  );
+  if (result is int && mounted) {
+    _tabController.animateTo(result);
+  }
+}
+```
+
+### 7.5 按钮样式规范
+
+参考项目中其他模块（如 item_add_page.dart）的按钮样式：
+
+**主要操作按钮（FilledButton）：**
+- 高度：48
+- 内边距：horizontal 32, vertical 16
+- 用于：送出、接收、标记为已使用等主要操作
+
+**次要操作按钮（OutlinedButton）：**
+- 高度：44
+- 内边距：horizontal 24, vertical 12
+- 布局：使用 Wrap 替代 Row + Expanded，支持自适应换行
+- 间距：spacing 12, runSpacing 12
+- 用于：编辑、延期、作废等次要操作
+
+### 7.6 编辑页面下拉选项处理
+
+编辑礼物卡时，接收人可能是账本成员之外的用户，需要确保下拉选项中包含当前接收人：
+
+```dart
+void _ensureRecipientInOptions() {
+  if (_toUserId != null && _toUserNickname != null) {
+    final exists = _recipientOptions.any((o) => o.userId == _toUserId);
+    if (!exists) {
+      _recipientOptions.add(RecipientOption(
+        userId: _toUserId!,
+        nickname: _toUserNickname!,
+      ));
+    }
+  }
+}
+```
+
+在 initState 中调用，确保编辑时不会因为接收人不在下拉列表中而报错。
+
+## 八、验证测试点
 
 1. **创建功能**：选择接收人，设置描述和过期时间，成功创建礼物卡
 2. **列表显示**：验证Tab切换正常显示"我收到的"和"我送出的"

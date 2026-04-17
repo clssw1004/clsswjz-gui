@@ -271,6 +271,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.attachmentDao.delete(businessId!);
       case BusinessType.note:
         return DaoManager.noteDao.delete(businessId!);
+      case BusinessType.giftCard:
+        return DaoManager.giftCardDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
