@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:clsswjz_gui/enums/gift_card.dart';
 import 'package:clsswjz_gui/models/dto/attachment_filter_dto.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 
@@ -23,8 +24,7 @@ import '../models/vo/user_vo.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/vo/gift_card_vo.dart';
 
-/// 礼物卡查询类型
-enum GiftCardQueryType { received, sent, all }
+
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -305,20 +305,10 @@ abstract class BookDataDriver {
     String? toUserId,
     String? description,
     int? expiredTime,
+    int? sentTime,
+    int? receivedTime,
     String? status,
   });
-
-  /// 送出礼物卡
-  Future<OperateResult<void>> sendGiftCard(String userId, String giftCardId);
-
-  /// 接收礼物卡
-  Future<OperateResult<void>> receiveGiftCard(String userId, String giftCardId);
-
-  /// 延期礼物卡
-  Future<OperateResult<void>> extendGiftCard(String userId, String giftCardId, int expiredTime);
-
-  /// 作废礼物卡
-  Future<OperateResult<void>> voidGiftCard(String userId, String giftCardId);
 
   /// 获取礼物卡列表
   /// [type] 查询类型：received(我收到的), sent(我送出的), all(全部)

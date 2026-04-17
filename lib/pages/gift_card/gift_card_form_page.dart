@@ -60,6 +60,21 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
       if (widget.giftCard!.expiredTime > 0) {
         _expiredTime = DateTime.fromMillisecondsSinceEpoch(widget.giftCard!.expiredTime);
       }
+      // 确保当前接收人在下拉选项中（可能不在账本成员中）
+      _ensureRecipientInOptions();
+    }
+  }
+
+  /// 确保接收人在下拉选项中
+  void _ensureRecipientInOptions() {
+    if (_toUserId != null && _toUserNickname != null) {
+      final exists = _recipientOptions.any((o) => o.userId == _toUserId);
+      if (!exists) {
+        _recipientOptions.add(RecipientOption(
+          userId: _toUserId!,
+          nickname: _toUserNickname!,
+        ));
+      }
     }
   }
 
@@ -87,7 +102,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
         setState(() {
           _recipientOptions = recipients
               .map((r) => RecipientOption(
-                    userId: r.userId,
+                    userId: r.id,
                     nickname: r.nickname,
                   ))
               .toList();
@@ -625,10 +640,10 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
       if (result.ok && result.data != null && mounted) {
         final data = result.data!;
         setState(() {
-          _toUserId = data.userId;
+          _toUserId = data.id;
           _toUserNickname = data.nickname;
           _selectedRecipient = RecipientOption(
-            userId: data.userId,
+            userId: data.id,
             nickname: data.nickname,
             isFromInviteCode: true,
           );

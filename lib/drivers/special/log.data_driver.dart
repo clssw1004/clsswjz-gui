@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:clsswjz_gui/enums/gift_card.dart';
 import 'package:drift/drift.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 
@@ -835,6 +836,8 @@ class LogDataDriver implements BookDataDriver {
     String? toUserId,
     String? description,
     int? expiredTime,
+    int? sentTime,
+    int? receivedTime,
     String? status,
   }) async {
     try {
@@ -844,84 +847,14 @@ class LogDataDriver implements BookDataDriver {
         toUserId: toUserId,
         description: description,
         expiredTime: expiredTime,
+        sentTime: sentTime,
+        receivedTime: receivedTime,
         status: status,
       );
       await logBuilder.execute();
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(message: '更新礼物卡失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<void>> sendGiftCard(String userId, String giftCardId) async {
-    try {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final logBuilder = GiftCardCULog.update(
-        who: userId,
-        id: giftCardId,
-        status: GiftCardStatus.sent.code,
-      );
-      await logBuilder.execute();
-      // 更新送出时间
-      await DaoManager.giftCardDao.update(
-        giftCardId,
-        GiftCardTableCompanion(sentTime: Value(now)),
-      );
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '送出礼物卡失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<void>> receiveGiftCard(String userId, String giftCardId) async {
-    try {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final logBuilder = GiftCardCULog.update(
-        who: userId,
-        id: giftCardId,
-        status: GiftCardStatus.received.code,
-      );
-      await logBuilder.execute();
-      // 更新接收时间
-      await DaoManager.giftCardDao.update(
-        giftCardId,
-        GiftCardTableCompanion(receivedTime: Value(now)),
-      );
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '接收礼物卡失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<void>> extendGiftCard(String userId, String giftCardId, int expiredTime) async {
-    try {
-      final logBuilder = GiftCardCULog.update(
-        who: userId,
-        id: giftCardId,
-        expiredTime: expiredTime,
-      );
-      await logBuilder.execute();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '延期礼物卡失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<void>> voidGiftCard(String userId, String giftCardId) async {
-    try {
-      final logBuilder = GiftCardCULog.update(
-        who: userId,
-        id: giftCardId,
-        status: GiftCardStatus.voided.code,
-      );
-      await logBuilder.execute();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '作废礼物卡失败：$e', exception: e as Exception);
     }
   }
 
@@ -1027,7 +960,11 @@ class LogDataDriver implements BookDataDriver {
     final expiredCards = await DaoManager.giftCardDao.findExpired(now);
 
     for (final card in expiredCards) {
-      await DaoManager.giftCardDao.updateStatus(card.id, GiftCardStatus.expired.code);
+      await GiftCardCULog.update(
+        who: card.createdBy,
+        id: card.id,
+        status: GiftCardStatus.expired.code,
+      ).execute();
     }
   }
 }

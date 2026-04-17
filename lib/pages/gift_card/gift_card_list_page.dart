@@ -9,7 +9,9 @@ import '../../widgets/common/common_app_bar.dart';
 
 /// 礼物卡列表页面
 class GiftCardListPage extends StatefulWidget {
-  const GiftCardListPage({super.key});
+  final int? initialTabIndex;
+
+  const GiftCardListPage({super.key, this.initialTabIndex});
 
   @override
   State<GiftCardListPage> createState() => _GiftCardListPageState();
@@ -21,7 +23,11 @@ class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex ?? 0,
+    );
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         context.read<GiftCardProvider>().setSelectedTabIndex(_tabController.index);
@@ -145,8 +151,15 @@ class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerPr
     Navigator.pushNamed(context, AppRoutes.giftCardForm, arguments: card);
   }
 
-  void _navigateToDetail(BuildContext context, GiftCardVO card) {
-    Navigator.pushNamed(context, AppRoutes.giftCardDetail, arguments: card);
+  void _navigateToDetail(BuildContext context, GiftCardVO card) async {
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.giftCardDetail,
+      arguments: card,
+    );
+    if (result is int && mounted) {
+      _tabController.animateTo(result);
+    }
   }
 
   void _deleteCard(BuildContext context, GiftCardVO card) async {

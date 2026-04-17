@@ -245,7 +245,11 @@ class AppRoutes {
       );
     },
     attachments: (context) => const AttachmentListPage(),
-    giftCardList: (context) => const GiftCardListPage(),
+    giftCardList: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final tabIndex = args is int ? args : 0;
+      return GiftCardListPage(initialTabIndex: tabIndex);
+    },
     giftCardForm: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO?;
       return GiftCardFormPage(giftCard: args);

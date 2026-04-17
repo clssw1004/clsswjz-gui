@@ -1,12 +1,14 @@
+import 'package:clsswjz_gui/database/database.dart';
 import 'package:clsswjz_gui/drivers/driver_factory.dart';
-import 'package:drift/drift.dart';
+import 'package:clsswjz_gui/enums/gift_card.dart';
+import 'package:clsswjz_gui/enums/operate_type.dart';
+import 'package:clsswjz_gui/events/event_bus.dart';
+import 'package:clsswjz_gui/events/special/event_book.dart';
+import 'package:clsswjz_gui/manager/dao_manager.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import '../database/database.dart';
-import '../database/tables/gift_card_table.dart';
-import '../drivers/data_driver.dart';
 import '../enums/gift_card_status.dart';
 import '../manager/app_config_manager.dart';
-import '../manager/dao_manager.dart';
 import '../models/common.dart';
 import '../models/vo/gift_card_vo.dart';
 
@@ -93,11 +95,6 @@ class GiftCardProvider extends ChangeNotifier {
     int? expiredTime,
   }) async {
     final userId = AppConfigManager.instance.userId;
-    final toUser = await DaoManager.userDao.findById(toUserId);
-
-    if (toUser == null) {
-      return OperateResult.failWithMessage(message: '接收人不存在');
-    }
 
     // 处理过期时间：如果选择了日期，设置为当天23:59:59
     int? finalExpiredTime;
@@ -113,23 +110,21 @@ class GiftCardProvider extends ChangeNotifier {
       ).millisecondsSinceEpoch;
     }
 
-    final companion = GiftCardTable.toCreateCompanion(
+    final result = await DriverFactory.driver.createGiftCard(
       userId,
-      fromUserId: userId,
       toUserId: toUserId,
       description: description,
       expiredTime: finalExpiredTime,
     );
-
-    try {
-      // 从companion中获取预生成的ID
-      final id = companion.id.value;
-      await DaoManager.giftCardDao.insert(companion);
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(id);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '创建失败: $e');
+      // 触发同步
+      final card = getGiftCardById(result.data!);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.create, card));
+      }
     }
+    return result;
   }
 
   /// 更新礼物卡（草稿状态可修改）
@@ -140,16 +135,6 @@ class GiftCardProvider extends ChangeNotifier {
     int? expiredTime,
   }) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
-
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    // 只有草稿状态可以修改内容
-    if (card.status != GiftCardStatus.draft.code) {
-      return OperateResult.failWithMessage(message: '当前状态不可修改');
-    }
 
     // 处理过期时间
     int? finalExpiredTime;
@@ -165,105 +150,72 @@ class GiftCardProvider extends ChangeNotifier {
       ).millisecondsSinceEpoch;
     }
 
-    final companion = GiftCardTable.toUpdateCompanion(
+    final result = await DriverFactory.driver.updateGiftCard(
       userId,
+      id,
       toUserId: toUserId,
       description: description,
       expiredTime: finalExpiredTime,
     );
-
-    try {
-      await DaoManager.giftCardDao.update(id, companion);
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '更新失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
   /// 送出礼物卡
   Future<OperateResult<void>> sendGiftCard(String id) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
-
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    if (card.status != GiftCardStatus.draft.code) {
-      return OperateResult.failWithMessage(message: '只能送出草稿状态的礼物卡');
-    }
-
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    try {
-      await DaoManager.giftCardDao.update(
-        id,
-        GiftCardTableCompanion(
-          status: Value(GiftCardStatus.sent.code),
-          sentTime: Value(now),
-          updatedBy: Value(userId),
-          updatedAt: Value(now),
-        ),
-      );
+    final result = await DriverFactory.driver.updateGiftCard(
+      userId,
+      id,
+      status: GiftCardStatus.sent.code,
+      expiredTime: 0, // 清除过期时间，使用永久有效
+      sentTime: now,
+    );
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '操作失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
   /// 接收礼物卡（需要当前用户是接收人）
   Future<OperateResult<void>> receiveGiftCard(String id) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
-
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    // 检查当前用户是否是接收人
-    if (card.toUserId != userId) {
-      return OperateResult.failWithMessage(message: '只有接收人才能接收礼物卡');
-    }
-
-    if (card.status != GiftCardStatus.sent.code) {
-      return OperateResult.failWithMessage(message: '只能接收已送出的礼物卡');
-    }
-
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    try {
-      await DaoManager.giftCardDao.update(
-        id,
-        GiftCardTableCompanion(
-          status: Value(GiftCardStatus.received.code),
-          receivedTime: Value(now),
-          updatedBy: Value(userId),
-          updatedAt: Value(now),
-        ),
-      );
+    final result = await DriverFactory.driver.updateGiftCard(
+      userId,
+      id,
+      status: GiftCardStatus.received.code,
+      receivedTime: now,
+    );
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '操作失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
   /// 延期礼物卡
   Future<OperateResult<void>> extendGiftCard(String id, int expiredTime) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
-
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    // 已使用和已作废的不能延期
-    if (card.status == GiftCardStatus.used.code ||
-        card.status == GiftCardStatus.voided.code) {
-      return OperateResult.failWithMessage(message: '当前状态不可延期');
-    }
 
     // 处理过期时间：设置为当天23:59:59
     final expiredDate = DateTime.fromMillisecondsSinceEpoch(expiredTime);
@@ -276,130 +228,84 @@ class GiftCardProvider extends ChangeNotifier {
       59,
     ).millisecondsSinceEpoch;
 
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    try {
-      await DaoManager.giftCardDao.update(
-        id,
-        GiftCardTableCompanion(
-          expiredTime: Value(finalExpiredTime),
-          updatedBy: Value(userId),
-          updatedAt: Value(now),
-        ),
-      );
+    final result = await DriverFactory.driver.updateGiftCard(
+      userId,
+      id,
+      expiredTime: finalExpiredTime,
+    );
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '操作失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
-  /// 标记为已使用（需要当前用户是接收人）
+  /// 标记为已使用（需要当前用户是赠送人）
   Future<OperateResult<void>> markAsUsed(String id) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
 
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    // 检查当前用户是否是接收人
-    if (card.toUserId != userId) {
-      return OperateResult.failWithMessage(message: '只有接收人才能标记礼物卡');
-    }
-
-    if (card.status != GiftCardStatus.received.code) {
-      return OperateResult.failWithMessage(message: '只能标记已接收的礼物卡为已使用');
-    }
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    try {
-      await DaoManager.giftCardDao.update(
-        id,
-        GiftCardTableCompanion(
-          status: Value(GiftCardStatus.used.code),
-          updatedBy: Value(userId),
-          updatedAt: Value(now),
-        ),
-      );
+    final result = await DriverFactory.driver.updateGiftCard(
+      userId,
+      id,
+      status: GiftCardStatus.used.code,
+    );
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '操作失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
-  /// 作废礼物卡（需要当前用户是赠送人或接收人）
+  /// 作废礼物卡（需要当前用户是赠送人）
   Future<OperateResult<void>> voidGiftCard(String id) async {
     final userId = AppConfigManager.instance.userId;
-    final card = await DaoManager.giftCardDao.findById(id);
 
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    // 检查当前用户是否是赠送人或接收人
-    if (card.fromUserId != userId && card.toUserId != userId) {
-      return OperateResult.failWithMessage(message: '只有赠送人或接收人才能作废礼物卡');
-    }
-
-    // 已使用和已作废的不能再次作废
-    if (card.status == GiftCardStatus.used.code ||
-        card.status == GiftCardStatus.voided.code) {
-      return OperateResult.failWithMessage(message: '当前状态不可作废');
-    }
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    try {
-      await DaoManager.giftCardDao.update(
-        id,
-        GiftCardTableCompanion(
-          status: Value(GiftCardStatus.voided.code),
-          updatedBy: Value(userId),
-          updatedAt: Value(now),
-        ),
-      );
+    final result = await DriverFactory.driver.updateGiftCard(
+      userId,
+      id,
+      status: GiftCardStatus.voided.code,
+    );
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '操作失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.update, card));
+      }
     }
+    return result;
   }
 
   /// 删除礼物卡（只能删除草稿状态的）
   Future<OperateResult<void>> deleteGiftCard(String id) async {
-    final card = await DaoManager.giftCardDao.findById(id);
+    final userId = AppConfigManager.instance.userId;
 
-    if (card == null) {
-      return OperateResult.failWithMessage(message: '礼物卡不存在');
-    }
-
-    if (card.status != GiftCardStatus.draft.code) {
-      return OperateResult.failWithMessage(message: '只能删除草稿状态的礼物卡');
-    }
-
-    try {
-      await DaoManager.giftCardDao.delete(id);
+    final result = await DriverFactory.driver.deleteGiftCard(userId, id);
+    if (result.ok) {
       await loadGiftCards();
-      return OperateResult.success(null);
-    } catch (e) {
-      return OperateResult.failWithMessage(message: '删除失败: $e');
+      // 触发同步
+      final card = getGiftCardById(id);
+      if (card != null) {
+        EventBus.instance.emit(GiftCardChangedEvent(OperateType.delete, card));
+      }
     }
+    return result;
   }
 
   /// 根据邀请码查找用户
-  Future<OperateResult<({String userId, String nickname})>> findUserByInviteCode(String inviteCode) async {
+  Future<OperateResult<User>> findUserByInviteCode(String inviteCode) async {
     try {
       final user = await DaoManager.userDao.findByInviteCode(inviteCode);
-      if (user == null) {
-        return OperateResult.failWithMessage(message: '邀请码无效');
-      }
-      return OperateResult.success((
-        userId: user.id,
-        nickname: user.nickname ?? user.username ?? '未知用户',
-      ));
+      
+      return OperateResult.success(user);
     } catch (e) {
       return OperateResult.failWithMessage(message: '查找失败: $e');
     }
@@ -419,16 +325,9 @@ class GiftCardProvider extends ChangeNotifier {
   }
 
   /// 获取当前用户可选择的接收人列表（从账本关联成员中获取，去重、去掉自己）
-  Future<List<({String userId, String nickname})>> getSelectableRecipients() async {
-    final userId = AppConfigManager.instance.userId;
-    final users = await DaoManager.userDao.findSelectableRecipients(userId);
-
-    return users
-        .map((u) => (
-              userId: u.id,
-              nickname: u.nickname ?? u.username ?? '未知用户',
-            ))
-        .toList();
+  Future<List<User>> getSelectableRecipients() async {
+    
+    return DaoManager.userDao.findSelectableRecipients(AppConfigManager.instance.userId);
   }
 
   /// 获取礼物卡详情

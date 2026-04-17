@@ -100,6 +100,8 @@ class GiftCardCULog extends LogBuilder<GiftCardTableCompanion, String> {
     String? toUserId,
     String? description,
     int? expiredTime,
+    int? sentTime,
+    int? receivedTime,
     String? status,
   }) {
     return GiftCardCULog()
@@ -112,6 +114,8 @@ class GiftCardCULog extends LogBuilder<GiftCardTableCompanion, String> {
           toUserId: toUserId,
           description: description,
           expiredTime: expiredTime,
+          sentTime: sentTime,
+          receivedTime: receivedTime,
           status: status,
         )) as GiftCardCULog;
   }

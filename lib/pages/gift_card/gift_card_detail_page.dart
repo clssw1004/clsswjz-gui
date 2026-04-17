@@ -36,15 +36,16 @@ class GiftCardDetailPage extends StatelessWidget {
     final canSend = card.status == GiftCardStatus.draft && isSender;
     // 判断是否可接收（已送出状态且当前用户是接收人）
     final canReceive = card.status == GiftCardStatus.sent && isReceiver;
-    // 判断是否可标记已使用（已接收状态且当前用户是接收人）
-    final canMarkUsed = card.status == GiftCardStatus.received && isReceiver;
-    // 判断是否可作废（非已使用、非已作废且是赠送人或接收人）
+    // 判断是否可标记已使用（已接收状态且当前用户是赠送人）
+    final canMarkUsed = card.status == GiftCardStatus.received && isSender;
+    // 判断是否可作废（非已使用、非已作废且是赠送人）
     final canVoid = card.status != GiftCardStatus.used &&
         card.status != GiftCardStatus.voided &&
-        (isSender || isReceiver);
-    // 判断是否可延期（已送出或已接收状态且是赠送人或接收人）
-    final canExtend = (card.status == GiftCardStatus.sent || card.status == GiftCardStatus.received) &&
-        (isSender || isReceiver);
+        isSender;
+    // 判断是否可延期（已送出或已接收状态且是赠送人）
+    final canExtend = (card.status == GiftCardStatus.sent ||
+            card.status == GiftCardStatus.received) &&
+        isSender;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -147,7 +148,9 @@ class GiftCardDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                isSender ? '送给 ${card.toWho}' : '来自 ${card.fromWho}',
+                                isSender
+                                    ? '送给 ${card.toWho}'
+                                    : '来自 ${card.fromWho}',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: Colors.white.withAlpha(204),
                                 ),
@@ -168,20 +171,26 @@ class GiftCardDetailPage extends StatelessWidget {
                           _buildTimeRow(
                             icon: Icons.send,
                             label: '送出时间',
-                            time: dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.sentTime)),
+                            time: dateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    card.sentTime)),
                             theme: theme,
                           ),
                         if (card.receivedTime > 0)
                           _buildTimeRow(
                             icon: Icons.check_circle_outline,
                             label: '接收时间',
-                            time: dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.receivedTime)),
+                            time: dateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    card.receivedTime)),
                             theme: theme,
                           ),
                         _buildTimeRow(
                           icon: Icons.create,
                           label: '创建时间',
-                          time: dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.createdAt)),
+                          time: dateFormat.format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  card.createdAt)),
                           theme: theme,
                         ),
                       ],
@@ -199,6 +208,8 @@ class GiftCardDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const SizedBox(height: 16),
+
                   // 主要操作按钮
                   if (canSend)
                     Padding(
@@ -209,6 +220,7 @@ class GiftCardDetailPage extends StatelessWidget {
                         label: const Text('送出礼物卡'),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),
                       ),
                     ),
@@ -222,6 +234,7 @@ class GiftCardDetailPage extends StatelessWidget {
                         label: const Text('接收礼物卡'),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),
                       ),
                     ),
@@ -235,46 +248,47 @@ class GiftCardDetailPage extends StatelessWidget {
                         label: const Text('标记为已使用'),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),
                       ),
                     ),
 
+                  const SizedBox(height: 12),
+
                   // 次要操作按钮
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
                     children: [
                       if (canEdit)
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _navigateToEdit(context, card),
-                            icon: const Icon(Icons.edit),
-                            label: const Text('编辑'),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(44),
-                            ),
+                        OutlinedButton.icon(
+                          onPressed: () => _navigateToEdit(context, card),
+                          icon: const Icon(Icons.edit),
+                          label: const Text('编辑'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
                         ),
-                      if (canEdit) const SizedBox(width: 12),
                       if (canExtend)
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _extendGiftCard(context, card),
-                            icon: const Icon(Icons.access_time),
-                            label: const Text('延期'),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(44),
-                            ),
+                        OutlinedButton.icon(
+                          onPressed: () => _extendGiftCard(context, card),
+                          icon: const Icon(Icons.access_time),
+                          label: const Text('延期'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
                         ),
                       if (canVoid)
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _voidGiftCard(context, card),
-                            icon: const Icon(Icons.cancel_outlined),
-                            label: const Text('作废'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: colorScheme.error,
-                              minimumSize: const Size.fromHeight(44),
-                            ),
+                        OutlinedButton.icon(
+                          onPressed: () => _voidGiftCard(context, card),
+                          icon: const Icon(Icons.cancel_outlined),
+                          label: const Text('作废'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: colorScheme.error,
+                            minimumSize: const Size.fromHeight(44),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
                         ),
                     ],
@@ -368,6 +382,9 @@ class GiftCardDetailPage extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       await context.read<GiftCardProvider>().sendGiftCard(card.id);
+      if (context.mounted) {
+        Navigator.pop(context, 1); // 返回"我送出的"tab
+      }
     }
   }
 
@@ -392,6 +409,9 @@ class GiftCardDetailPage extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       await context.read<GiftCardProvider>().receiveGiftCard(card.id);
+      if (context.mounted) {
+        Navigator.pop(context, 0); // 返回"我收到的"tab
+      }
     }
   }
 
@@ -416,6 +436,9 @@ class GiftCardDetailPage extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       await context.read<GiftCardProvider>().markAsUsed(card.id);
+      if (context.mounted) {
+        Navigator.pop(context, 1); // 返回"我送出的"tab
+      }
     }
   }
 
@@ -439,7 +462,9 @@ class GiftCardDetailPage extends StatelessWidget {
         59,
       ).millisecondsSinceEpoch;
 
-      await context.read<GiftCardProvider>().extendGiftCard(card.id, expiredTime);
+      await context
+          .read<GiftCardProvider>()
+          .extendGiftCard(card.id, expiredTime);
     }
   }
 
@@ -467,6 +492,9 @@ class GiftCardDetailPage extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       await context.read<GiftCardProvider>().voidGiftCard(card.id);
+      if (context.mounted) {
+        Navigator.pop(context, 1); // 返回"我送出的"tab
+      }
     }
   }
 }

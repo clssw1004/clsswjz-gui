@@ -20,6 +20,7 @@ class SyncProvider extends ChangeNotifier {
       EventBus.instance.on<ItemChangedEvent>(_handleItemChanged),
       EventBus.instance.on<NoteChangedEvent>(_handleNoteChanged),
       EventBus.instance.on<DebtChangedEvent>(_handleDebtChanged),
+      EventBus.instance.on<GiftCardChangedEvent>(_handleGiftCardChanged),
     ]);
   }
 
@@ -39,6 +40,11 @@ class SyncProvider extends ChangeNotifier {
     if (event.operateType == OperateType.create) {
       syncData();
     }
+  }
+
+  void _handleGiftCardChanged(GiftCardChangedEvent event) {
+    // 礼物卡任何操作都需要同步
+    syncData();
   }
 
   @override

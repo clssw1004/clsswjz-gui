@@ -203,6 +203,8 @@ abstract class LogBuilder<T, RunResult> {
         return NoteCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.debt:
         return DebtCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.giftCard:
+        return GiftCardCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
