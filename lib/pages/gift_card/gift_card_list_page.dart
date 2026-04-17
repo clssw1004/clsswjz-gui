@@ -17,7 +17,8 @@ class GiftCardListPage extends StatefulWidget {
   State<GiftCardListPage> createState() => _GiftCardListPageState();
 }
 
-class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerProviderStateMixin {
+class _GiftCardListPageState extends State<GiftCardListPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -30,7 +31,9 @@ class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerPr
     );
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        context.read<GiftCardProvider>().setSelectedTabIndex(_tabController.index);
+        context
+            .read<GiftCardProvider>()
+            .setSelectedTabIndex(_tabController.index);
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,8 +49,7 @@ class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    Theme.of(context);
     final provider = context.watch<GiftCardProvider>();
 
     return Scaffold(
@@ -140,7 +142,9 @@ class _GiftCardListPageState extends State<GiftCardListPage> with SingleTickerPr
             card: card,
             isReceived: isReceived,
             onTap: () => _navigateToDetail(context, card),
-            onDelete: isReceived ? null : () => _deleteCard(context, card),
+            onDelete: !isReceived && (card.status == GiftCardStatus.draft || card.status == GiftCardStatus.voided)
+                ? () => _deleteCard(context, card)
+                : null,
           );
         },
       ),
@@ -208,9 +212,16 @@ class _GiftCardWidget extends StatelessWidget {
     final effectiveStatus = card.effectiveStatus;
     final dateFormat = DateFormat('yyyy-MM-dd');
 
+    // 状态显示文本（接收方将"已送出"视为"待接收"）
+    final statusDisplayText = isReceived && card.status == GiftCardStatus.sent
+        ? '待接收'
+        : effectiveStatus.text;
+
     return Dismissible(
       key: Key(card.id),
-      direction: onDelete != null ? DismissDirection.endToStart : DismissDirection.none,
+      direction: onDelete != null
+          ? DismissDirection.endToStart
+          : DismissDirection.none,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -273,7 +284,7 @@ class _GiftCardWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        effectiveStatus.text,
+                        statusDisplayText,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,

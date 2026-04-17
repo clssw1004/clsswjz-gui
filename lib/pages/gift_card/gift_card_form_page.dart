@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../providers/gift_card_provider.dart';
+import '../../widgets/common/common_select_form_field.dart';
 
 /// 接收人选项
 class RecipientOption {
@@ -85,7 +85,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     final user = await DaoManager.userDao.findById(AppConfigManager.instance.userId);
     if (mounted && user != null) {
       setState(() {
-        _currentUserName = user.nickname ?? user.username ?? '未知用户';
+        _currentUserName = user.nickname.isNotEmpty ? user.nickname : user.username;
       });
     }
   }
@@ -295,9 +295,6 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
 
   /// 构建接收人选择器
   Widget _buildRecipientSelector() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -392,66 +389,47 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     );
   }
 
-  /// 构建下拉选择器
+  /// 构建下拉选择器（使用通用选择组件）
   Widget _buildDropdownSelector() {
-    final colorScheme = Theme.of(context).colorScheme;
+    if (_loadingRecipients) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outline),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _toUserId,
-          hint: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('选择接收人'),
-          ),
-          isExpanded: true,
-          borderRadius: BorderRadius.circular(12),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          items: [
-            if (_loadingRecipients)
-              const DropdownMenuItem(
-                value: null,
-                child: Text('加载中...'),
-              )
-            else if (_recipientOptions.isEmpty)
-              const DropdownMenuItem(
-                value: null,
-                child: Text('暂无可选成员，请使用邀请码搜索'),
-              )
-            else
-              ..._recipientOptions.map((option) => DropdownMenuItem(
-                    value: option.userId,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.person_outline, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(option.nickname)),
-                      ],
-                    ),
-                  )),
-          ],
-          onChanged: isEditable
-              ? (value) {
-                  if (value != null) {
-                    final option = _recipientOptions.firstWhere((o) => o.userId == value);
-                    setState(() {
-                      _toUserId = value;
-                      _toUserNickname = option.nickname;
-                      _selectedRecipient = RecipientOption(
-                        userId: option.userId,
-                        nickname: option.nickname,
-                      );
-                    });
-                    _formKey.currentState?.validate();
-                  }
-                }
-              : null,
-        ),
-      ),
+    return CommonSelectFormField<RecipientOption>(
+      items: _recipientOptions,
+      value: _toUserId,
+      displayMode: DisplayMode.iconText,
+      displayField: (item) => item.nickname,
+      keyField: (item) => item.userId,
+      icon: Icons.person_outline,
+      label: '接收人',
+      allowCreate: false,
+      onChanged: (value) {
+        final option = value as RecipientOption?;
+        if (option != null) {
+          setState(() {
+            _toUserId = option.userId;
+            _toUserNickname = option.nickname;
+            _selectedRecipient = option;
+          });
+        } else {
+          setState(() {
+            _toUserId = null;
+            _toUserNickname = null;
+            _selectedRecipient = null;
+          });
+        }
+        _formKey.currentState?.validate();
+      },
+      validator: (value) {
+        if (value == null) {
+          return '请选择接收人';
+        }
+        return null;
+      },
     );
   }
 

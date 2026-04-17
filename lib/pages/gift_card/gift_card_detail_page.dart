@@ -17,7 +17,6 @@ class GiftCardDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
     final provider = context.watch<GiftCardProvider>();
     final currentUserId = AppConfigManager.instance.userId;
@@ -29,6 +28,11 @@ class GiftCardDetailPage extends StatelessWidget {
     // 判断当前用户角色
     final isSender = card.fromUserId == currentUserId;
     final isReceiver = card.toUserId == currentUserId;
+
+    // 状态显示文本（接收方将"已送出"视为"待接收"）
+    final statusDisplayText = isReceiver && card.status == GiftCardStatus.sent
+        ? '待接收'
+        : effectiveStatus.text;
 
     // 判断是否可编辑（草稿状态且是赠送人）
     final canEdit = card.status == GiftCardStatus.draft && isSender;
@@ -42,10 +46,11 @@ class GiftCardDetailPage extends StatelessWidget {
     final canVoid = card.status != GiftCardStatus.used &&
         card.status != GiftCardStatus.voided &&
         isSender;
-    // 判断是否可延期（已送出或已接收状态且是赠送人）
+    // 判断是否可延期（已送出或已接收状态、是赠送人、且不是永久有效）
     final canExtend = (card.status == GiftCardStatus.sent ||
             card.status == GiftCardStatus.received) &&
-        isSender;
+        isSender &&
+        card.expiredTime > 0;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -92,7 +97,7 @@ class GiftCardDetailPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            effectiveStatus.text,
+                            statusDisplayText,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -208,87 +213,69 @@ class GiftCardDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
 
-                  // 主要操作按钮
+                  // 主要操作按钮 - 渐变胶囊按钮
                   if (canSend)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: FilledButton.icon(
-                        onPressed: () => _sendGiftCard(context, card),
-                        icon: const Icon(Icons.send),
-                        label: const Text('送出礼物卡'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        ),
+                    _ActionButton(
+                      onPressed: () => _sendGiftCard(context, card),
+                      icon: Icons.card_giftcard,
+                      label: '送出礼物卡',
+                      gradient: LinearGradient(
+                        colors: [Colors.purple.shade400, Colors.purple.shade700],
                       ),
                     ),
 
                   if (canReceive)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: FilledButton.icon(
-                        onPressed: () => _receiveGiftCard(context, card),
-                        icon: const Icon(Icons.check_circle_outline),
-                        label: const Text('接收礼物卡'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        ),
+                    _ActionButton(
+                      onPressed: () => _receiveGiftCard(context, card),
+                      icon: Icons.celebration,
+                      label: '接收礼物卡',
+                      gradient: LinearGradient(
+                        colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
                       ),
                     ),
 
                   if (canMarkUsed)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: FilledButton.icon(
-                        onPressed: () => _markAsUsed(context, card),
-                        icon: const Icon(Icons.check_circle),
-                        label: const Text('标记为已使用'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        ),
+                    _ActionButton(
+                      onPressed: () => _markAsUsed(context, card),
+                      icon: Icons.check_circle,
+                      label: '标记为已使用',
+                      gradient: LinearGradient(
+                        colors: [Colors.green.shade400, Colors.green.shade700],
                       ),
                     ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
 
-                  // 次要操作按钮
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
+                  // 次要操作按钮 - 柔和圆角按钮
+                  Row(
                     children: [
                       if (canEdit)
-                        OutlinedButton.icon(
-                          onPressed: () => _navigateToEdit(context, card),
-                          icon: const Icon(Icons.edit),
-                          label: const Text('编辑'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(44),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        Expanded(
+                          child: _SecondaryButton(
+                            onPressed: () => _navigateToEdit(context, card),
+                            icon: Icons.edit_outlined,
+                            label: '编辑',
                           ),
                         ),
+                      if (canEdit && canExtend) const SizedBox(width: 12),
                       if (canExtend)
-                        OutlinedButton.icon(
-                          onPressed: () => _extendGiftCard(context, card),
-                          icon: const Icon(Icons.access_time),
-                          label: const Text('延期'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(44),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        Expanded(
+                          child: _SecondaryButton(
+                            onPressed: () => _extendGiftCard(context, card),
+                            icon: Icons.schedule,
+                            label: '延期',
                           ),
                         ),
+                      if ((canEdit || canExtend) && canVoid) const SizedBox(width: 12),
                       if (canVoid)
-                        OutlinedButton.icon(
-                          onPressed: () => _voidGiftCard(context, card),
-                          icon: const Icon(Icons.cancel_outlined),
-                          label: const Text('作废'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: colorScheme.error,
-                            minimumSize: const Size.fromHeight(44),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        Expanded(
+                          child: _SecondaryButton(
+                            onPressed: () => _voidGiftCard(context, card),
+                            icon: Icons.disabled_by_default,
+                            label: '作废',
+                            isDanger: true,
                           ),
                         ),
                     ],
@@ -496,5 +483,122 @@ class GiftCardDetailPage extends StatelessWidget {
         Navigator.pop(context, 1); // 返回"我送出的"tab
       }
     }
+  }
+}
+
+/// 主要操作按钮 - 渐变胶囊样式
+class _ActionButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+  final String label;
+  final LinearGradient gradient;
+
+  const _ActionButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    required this.gradient,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(28),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: gradient.colors.first.withAlpha(102),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: 24),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 次要操作按钮 - 柔和圆角样式
+class _SecondaryButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+  final String label;
+  final bool isDanger;
+
+  const _SecondaryButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    this.isDanger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bgColor = isDanger
+        ? colorScheme.errorContainer.withAlpha(128)
+        : colorScheme.surfaceContainerHighest.withAlpha(179);
+    final fgColor = isDanger
+        ? colorScheme.error
+        : colorScheme.onSurface;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+            border: isDanger
+                ? Border.all(color: colorScheme.error.withAlpha(77), width: 1)
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: fgColor, size: 20),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: fgColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -19,10 +19,10 @@ class GiftCardDao extends BaseDao<GiftCardTable, GiftCard> {
     return (db.select(table)..orderBy([(t) => OrderingTerm.asc(t.expiredTime)])).get();
   }
 
-  /// 查询我收到的礼物卡（接收人是我）
+  /// 查询我收到的礼物卡（接收人是我，排除草稿态）
   Future<List<GiftCard>> findReceived(String userId) {
     return (db.select(table)
-          ..where((t) => t.toUserId.equals(userId))
+          ..where((t) => t.toUserId.equals(userId) & t.status.isNotIn(['draft']))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
         .get();
   }

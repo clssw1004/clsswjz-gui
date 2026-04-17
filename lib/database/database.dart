@@ -36,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,16 +52,6 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             // 版本2到版本3的迁移：添加 gift_card_table
             await m.createAll();
-          }
-          if (from < 4) {
-            // 版本3到版本4的迁移：重建 gift_card_table（移除amount，添加sentTime和receivedTime）
-            await m.deleteTable('gift_card_table');
-            await m.createTable(giftCardTable);
-          }
-          if (from < 5) {
-            // 版本4到版本5的迁移：移除昵称字段，改为查询时翻译
-            await m.deleteTable('gift_card_table');
-            await m.createTable(giftCardTable);
           }
         },
       );

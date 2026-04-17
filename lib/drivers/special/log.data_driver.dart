@@ -2,7 +2,6 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:clsswjz_gui/enums/gift_card.dart';
-import 'package:drift/drift.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 
 import '../../constants/constant.dart';
@@ -33,7 +32,6 @@ import '../../models/common.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_vo.dart';
 import '../../utils/collection_util.dart';
-import '../../utils/date_util.dart';
 import '../../utils/digest_util.dart';
 import '../data_driver.dart';
 import '../../constants/account_book_icons.dart';
@@ -811,12 +809,14 @@ class LogDataDriver implements BookDataDriver {
       final id = await logBuilder.execute();
       return OperateResult.success(id);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '创建礼物卡失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '创建礼物卡失败：$e', exception: e as Exception);
     }
   }
 
   @override
-  Future<OperateResult<void>> deleteGiftCard(String userId, String giftCardId) async {
+  Future<OperateResult<void>> deleteGiftCard(
+      String userId, String giftCardId) async {
     try {
       final logBuilder = GiftCardCULog.delete(
         who: userId,
@@ -825,7 +825,8 @@ class LogDataDriver implements BookDataDriver {
       await logBuilder.execute();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '删除礼物卡失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '删除礼物卡失败：$e', exception: e as Exception);
     }
   }
 
@@ -854,12 +855,14 @@ class LogDataDriver implements BookDataDriver {
       await logBuilder.execute();
       return OperateResult.success(null);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '更新礼物卡失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '更新礼物卡失败：$e', exception: e as Exception);
     }
   }
 
   @override
-  Future<OperateResult<List<GiftCardVO>>> listGiftCards(String userId, {GiftCardQueryType type = GiftCardQueryType.all}) async {
+  Future<OperateResult<List<GiftCardVO>>> listGiftCards(String userId,
+      {GiftCardQueryType type = GiftCardQueryType.all}) async {
     try {
       // 检查并更新过期状态
       await _checkAndUpdateExpiredStatus();
@@ -891,7 +894,7 @@ class LogDataDriver implements BookDataDriver {
 
       // 批量查询用户信息
       final users = await DaoManager.userDao.findByIds(userIds.toList());
-      final userMap = {for (final u in users) u.id: u.nickname ?? u.username ?? '未知用户'};
+      final userMap = {for (final u in users) u.id: u.nickname};
 
       // 翻译昵称
       final vos = giftCards.map((card) {
@@ -915,12 +918,14 @@ class LogDataDriver implements BookDataDriver {
 
       return OperateResult.success(vos);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '获取礼物卡列表失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取礼物卡列表失败：$e', exception: e as Exception);
     }
   }
 
   @override
-  Future<OperateResult<GiftCardVO>> getGiftCard(String userId, String giftCardId) async {
+  Future<OperateResult<GiftCardVO>> getGiftCard(
+      String userId, String giftCardId) async {
     try {
       final card = await DaoManager.giftCardDao.findById(giftCardId);
       if (card == null) {
@@ -950,7 +955,8 @@ class LogDataDriver implements BookDataDriver {
 
       return OperateResult.success(vo);
     } catch (e) {
-      return OperateResult.failWithMessage(message: '获取礼物卡详情失败：$e', exception: e as Exception);
+      return OperateResult.failWithMessage(
+          message: '获取礼物卡详情失败：$e', exception: e as Exception);
     }
   }
 
