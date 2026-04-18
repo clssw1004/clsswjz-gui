@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.9] - 2026-04-18
+
+### New Features
+- Gift Card module
+  - Gift card list page with "Received" and "Sent" tabs
+  - Gift card detail page with status display and action buttons (Send/Receive/Mark as Used/Void/Extend)
+  - Gift card form page for creating and editing
+  - Support for selecting recipients from book members or by invite code
+  - Expiration time support with permanent validity option
+  - Gift card status workflow: draft → sent → received → used/expired/voided
+  - Icon selection for gift cards with CommonIconPicker component
+  - Internationalization support (English, Simplified Chinese, Traditional Chinese)
+
+
 ## [1.0.7] - 2025-09-22
 
 ### New Features
