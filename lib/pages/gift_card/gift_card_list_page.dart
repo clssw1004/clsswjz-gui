@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../enums/gift_card_status.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../providers/gift_card_provider.dart';
 import '../../routes/app_routes.dart';
@@ -54,12 +55,12 @@ class _GiftCardListPageState extends State<GiftCardListPage>
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text('礼物卡'),
+        title: Text(L10nManager.l10n.giftCard),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: '我收到的'),
-            Tab(text: '我送出的'),
+          tabs: [
+            Tab(text: L10nManager.l10n.receivedGiftCards),
+            Tab(text: L10nManager.l10n.sentGiftCards),
           ],
         ),
       ),
@@ -85,7 +86,7 @@ class _GiftCardListPageState extends State<GiftCardListPage>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToForm(context),
         icon: const Icon(Icons.add),
-        label: const Text('创建礼物卡'),
+        label: Text(L10nManager.l10n.createGiftCard),
       ),
     );
   }
@@ -115,7 +116,7 @@ class _GiftCardListPageState extends State<GiftCardListPage>
             ),
             const SizedBox(height: 16),
             Text(
-              isReceived ? '暂无收到的礼物卡' : '暂无送出的礼物卡',
+              L10nManager.l10n.noGiftCards,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.outline,
               ),
@@ -124,7 +125,7 @@ class _GiftCardListPageState extends State<GiftCardListPage>
             if (!isReceived)
               TextButton(
                 onPressed: () => _navigateToForm(context),
-                child: const Text('点击创建'),
+                child: Text(L10nManager.l10n.clickToCreate),
               ),
           ],
         ),
@@ -170,16 +171,16 @@ class _GiftCardListPageState extends State<GiftCardListPage>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: const Text('确定要删除这个礼物卡吗？'),
+        title: Text(L10nManager.l10n.confirmDelete),
+        content: Text(L10nManager.l10n.confirmDelete),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(L10nManager.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除'),
+            child: Text(L10nManager.l10n.delete('')),
           ),
         ],
       ),
@@ -214,7 +215,7 @@ class _GiftCardWidget extends StatelessWidget {
 
     // 状态显示文本（接收方将"已送出"视为"待接收"）
     final statusDisplayText = isReceived && card.status == GiftCardStatus.sent
-        ? '待接收'
+        ? L10nManager.l10n.pendingReceive
         : effectiveStatus.text;
 
     return Dismissible(
@@ -294,8 +295,8 @@ class _GiftCardWidget extends StatelessWidget {
                     // 有效期
                     Text(
                       card.isPermanent
-                          ? '永久有效'
-                          : '有效期至 ${dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.expiredTime))}',
+                          ? L10nManager.l10n.permanent
+                          : L10nManager.l10n.expiresAt(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.expiredTime))),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withAlpha(178),
                       ),
@@ -329,7 +330,7 @@ class _GiftCardWidget extends StatelessWidget {
                           Text(
                             card.description?.isNotEmpty == true
                                 ? card.description!
-                                : '礼物卡',
+                                : L10nManager.l10n.giftCard,
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -340,8 +341,8 @@ class _GiftCardWidget extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             isReceived
-                                ? '来自 ${card.fromWho}'
-                                : '送给 ${card.toWho}',
+                                ? L10nManager.l10n.from(card.fromWho)
+                                : L10nManager.l10n.to(card.toWho),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: Colors.white.withAlpha(178),
                             ),
@@ -359,7 +360,7 @@ class _GiftCardWidget extends StatelessWidget {
                     // 送出时间
                     if (card.sentTime > 0)
                       Text(
-                        '送出于 ${dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.sentTime))}',
+                        L10nManager.l10n.sentAt(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.sentTime))),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.white.withAlpha(128),
                           fontSize: 11,
@@ -367,7 +368,7 @@ class _GiftCardWidget extends StatelessWidget {
                       )
                     else
                       Text(
-                        '尚未送出',
+                        L10nManager.l10n.notYetSent,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.white.withAlpha(128),
                           fontSize: 11,
@@ -376,7 +377,7 @@ class _GiftCardWidget extends StatelessWidget {
                     // 接收时间
                     if (card.receivedTime > 0)
                       Text(
-                        '接收于 ${dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.receivedTime))}',
+                        L10nManager.l10n.receivedAt(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(card.receivedTime))),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.white.withAlpha(128),
                           fontSize: 11,

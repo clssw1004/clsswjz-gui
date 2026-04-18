@@ -1117,4 +1117,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearLogs => 'Clear';
+
+  @override
+  String get giftCard => 'Gift Card';
+
+  @override
+  String get createGiftCard => 'Create Gift Card';
+
+  @override
+  String get editGiftCard => 'Edit Gift Card';
+
+  @override
+  String get giftDescription => 'Gift Description';
+
+  @override
+  String get giftDescriptionHint =>
+      'Enter gift description, e.g., iPhone 15, cash red envelope, birthday cake';
+
+  @override
+  String get sender => 'Sender';
+
+  @override
+  String get recipient => 'Recipient';
+
+  @override
+  String get selectRecipient => 'Select Recipient';
+
+  @override
+  String get selectFromMembers => 'Select from Members';
+
+  @override
+  String get searchByInviteCode => 'Search by Invite Code';
+
+  @override
+  String get expiredTime => 'Expired Time';
+
+  @override
+  String get permanent => 'Permanent';
+
+  @override
+  String get invalidInviteCode => 'Invalid invite code';
+
+  @override
+  String get cannotSendToSelf => 'Cannot send gift card to yourself';
+
+  @override
+  String get receivedGiftCards => 'Received';
+
+  @override
+  String get sentGiftCards => 'Sent';
+
+  @override
+  String get noGiftCards => 'No gift cards yet';
+
+  @override
+  String get sendGiftCard => 'Send';
+
+  @override
+  String get receiveGiftCard => 'Receive';
+
+  @override
+  String get markAsUsed => 'Mark as Used';
+
+  @override
+  String get voidGiftCard => 'Void';
+
+  @override
+  String get extendGiftCard => 'Extend';
+
+  @override
+  String get deleteGiftCard => 'Delete';
+
+  @override
+  String get giftCardDetail => 'Gift Card Detail';
+
+  @override
+  String get operationFailed => 'Operation failed';
+
+  @override
+  String get clickToCreate => 'Click to create';
+
+  @override
+  String get pendingReceive => 'Pending Receive';
+
+  @override
+  String get notYetSent => 'Not yet sent';
+
+  @override
+  String from(Object name) {
+    return 'From $name';
+  }
+
+  @override
+  String to(Object name) {
+    return 'To $name';
+  }
+
+  @override
+  String sentAt(Object time) {
+    return 'Sent at $time';
+  }
+
+  @override
+  String receivedAt(Object time) {
+    return 'Received at $time';
+  }
+
+  @override
+  String expiresAt(Object time) {
+    return 'Expires at $time';
+  }
+
+  @override
+  String get sendGiftCardAction => 'Send Gift Card';
+
+  @override
+  String get receiveGiftCardAction => 'Receive Gift Card';
+
+  @override
+  String get extend => 'Extend';
+
+  @override
+  String get sentTime => 'Sent Time';
+
+  @override
+  String get receivedTime => 'Received Time';
+
+  @override
+  String get createdAt => 'Created At';
+
+  @override
+  String get confirmSend => 'Confirm Send';
+
+  @override
+  String get confirmSendContent =>
+      'Are you sure you want to send this gift card?';
+
+  @override
+  String get confirmReceive => 'Confirm Receive';
+
+  @override
+  String get confirmReceiveContent =>
+      'Are you sure you want to receive this gift card?';
+
+  @override
+  String get confirmAction => 'Confirm Action';
+
+  @override
+  String get confirmMarkUsedContent =>
+      'Are you sure you want to mark this gift card as used?';
+
+  @override
+  String get confirmVoid => 'Confirm Void';
+
+  @override
+  String get confirmVoidContent =>
+      'Are you sure you want to void this gift card? This action cannot be undone.';
+
+  @override
+  String get status => 'Status';
 }

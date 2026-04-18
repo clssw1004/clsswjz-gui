@@ -1063,5 +1063,209 @@
     "clearLogs": "Clear",
     "@clearLogs": {
         "description": "Clear logs button text"
+    },
+    "giftCard": "Gift Card",
+    "@giftCard": {
+        "description": "Gift card module name"
+    },
+    "createGiftCard": "Create Gift Card",
+    "@createGiftCard": {
+        "description": "Create gift card page title"
+    },
+    "editGiftCard": "Edit Gift Card",
+    "@editGiftCard": {
+        "description": "Edit gift card page title"
+    },
+    "giftDescription": "Gift Description",
+    "@giftDescription": {
+        "description": "Gift card description label"
+    },
+    "giftDescriptionHint": "Enter gift description, e.g., iPhone 15, cash red envelope, birthday cake",
+    "@giftDescriptionHint": {
+        "description": "Gift card description hint"
+    },
+    "sender": "Sender",
+    "@sender": {
+        "description": "Gift card sender label"
+    },
+    "recipient": "Recipient",
+    "@recipient": {
+        "description": "Gift card recipient label"
+    },
+    "selectRecipient": "Select Recipient",
+    "@selectRecipient": {
+        "description": "Select recipient hint"
+    },
+    "selectFromMembers": "Select from Members",
+    "@selectFromMembers": {
+        "description": "Select from book members option"
+    },
+    "searchByInviteCode": "Search by Invite Code",
+    "@searchByInviteCode": {
+        "description": "Search by invite code option"
+    },
+    "expiredTime": "Expired Time",
+    "@expiredTime": {
+        "description": "Expired time label"
+    },
+    "permanent": "Permanent",
+    "@permanent": {
+        "description": "Permanent valid option"
+    },
+    "invalidInviteCode": "Invalid invite code",
+    "@invalidInviteCode": {
+        "description": "Invalid invite code error"
+    },
+    "cannotSendToSelf": "Cannot send gift card to yourself",
+    "@cannotSendToSelf": {
+        "description": "Cannot send to self error"
+    },
+    "receivedGiftCards": "Received",
+    "@receivedGiftCards": {
+        "description": "Received gift cards tab"
+    },
+    "sentGiftCards": "Sent",
+    "@sentGiftCards": {
+        "description": "Sent gift cards tab"
+    },
+    "noGiftCards": "No gift cards yet",
+    "@noGiftCards": {
+        "description": "No gift cards placeholder"
+    },
+    "sendGiftCard": "Send",
+    "@sendGiftCard": {
+        "description": "Send gift card button"
+    },
+    "receiveGiftCard": "Receive",
+    "@receiveGiftCard": {
+        "description": "Receive gift card button"
+    },
+    "markAsUsed": "Mark as Used",
+    "@markAsUsed": {
+        "description": "Mark as used button"
+    },
+    "voidGiftCard": "Void",
+    "@voidGiftCard": {
+        "description": "Void gift card button"
+    },
+    "extendGiftCard": "Extend",
+    "@extendGiftCard": {
+        "description": "Extend gift card button"
+    },
+    "deleteGiftCard": "Delete",
+    "@deleteGiftCard": {
+        "description": "Delete gift card button"
+    },
+    "giftCardDetail": "Gift Card Detail",
+    "@giftCardDetail": {
+        "description": "Gift card detail page title"
+    },
+    "selectIcon": "Select Icon",
+    "@selectIcon": {
+        "description": "Select icon dialog title"
+    },
+    "operationFailed": "Operation failed",
+    "@operationFailed": {
+        "description": "Generic operation failed message"
+    },
+    "clickToCreate": "Click to create",
+    "@clickToCreate": {
+        "description": "Click to create prompt"
+    },
+    "pendingReceive": "Pending Receive",
+    "@pendingReceive": {
+        "description": "Pending receive status"
+    },
+    "notYetSent": "Not yet sent",
+    "@notYetSent": {
+        "description": "Not yet sent status"
+    },
+    "from": "From {name}",
+    "@from": {
+        "description": "From label with name"
+    },
+    "to": "To {name}",
+    "@to": {
+        "description": "To label with name"
+    },
+    "sentAt": "Sent at {time}",
+    "@sentAt": {
+        "description": "Sent at time"
+    },
+    "receivedAt": "Received at {time}",
+    "@receivedAt": {
+        "description": "Received at time"
+    },
+    "expiresAt": "Expires at {time}",
+    "@expiresAt": {
+        "description": "Expires at time"
+    },
+    "sendGiftCardAction": "Send Gift Card",
+    "@sendGiftCardAction": {
+        "description": "Send gift card action button"
+    },
+    "receiveGiftCardAction": "Receive Gift Card",
+    "@receiveGiftCardAction": {
+        "description": "Receive gift card action button"
+    },
+    "edit": "Edit",
+    "@edit": {
+        "description": "Edit action"
+    },
+    "extend": "Extend",
+    "@extend": {
+        "description": "Extend action"
+    },
+    "sentTime": "Sent Time",
+    "@sentTime": {
+        "description": "Sent time label"
+    },
+    "receivedTime": "Received Time",
+    "@receivedTime": {
+        "description": "Received time label"
+    },
+    "createdAt": "Created At",
+    "@createdAt": {
+        "description": "Created at label"
+    },
+    "confirmSend": "Confirm Send",
+    "@confirmSend": {
+        "description": "Confirm send dialog title"
+    },
+    "confirmSendContent": "Are you sure you want to send this gift card?",
+    "@confirmSendContent": {
+        "description": "Confirm send dialog content"
+    },
+    "confirmReceive": "Confirm Receive",
+    "@confirmReceive": {
+        "description": "Confirm receive dialog title"
+    },
+    "confirmReceiveContent": "Are you sure you want to receive this gift card?",
+    "@confirmReceiveContent": {
+        "description": "Confirm receive dialog content"
+    },
+    "confirmAction": "Confirm Action",
+    "@confirmAction": {
+        "description": "Confirm action dialog title"
+    },
+    "confirmMarkUsedContent": "Are you sure you want to mark this gift card as used?",
+    "@confirmMarkUsedContent": {
+        "description": "Confirm mark as used dialog content"
+    },
+    "confirmVoid": "Confirm Void",
+    "@confirmVoid": {
+        "description": "Confirm void dialog title"
+    },
+    "confirmVoidContent": "Are you sure you want to void this gift card? This action cannot be undone.",
+    "@confirmVoidContent": {
+        "description": "Confirm void dialog content"
+    },
+    "confirm": "Confirm",
+    "@confirm": {
+        "description": "Confirm button text"
+    },
+    "status": "Status",
+    "@status": {
+        "description": "Status label"
     }
 }

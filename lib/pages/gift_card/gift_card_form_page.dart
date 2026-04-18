@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../constants/gift_card_icons.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../providers/gift_card_provider.dart';
 import '../../widgets/common/common_icon_picker.dart';
@@ -137,7 +138,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isCreateMode ? '创建礼物卡' : '编辑礼物卡'),
+        title: Text(isCreateMode ? L10nManager.l10n.createGiftCard : L10nManager.l10n.editGiftCard),
         actions: [
           TextButton(
             onPressed: _saving || !isEditable ? null : _save,
@@ -147,7 +148,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('保存'),
+                : Text(L10nManager.l10n.save),
           ),
         ],
       ),
@@ -159,14 +160,14 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             // 赠送人（只读，显示当前用户名称）
             _buildInfoRow(
               icon: Icons.person_outline,
-              label: '赠送人',
+              label: L10nManager.l10n.sender,
               value: _currentUserName,
             ),
             const SizedBox(height: 20),
 
             // 接收人选择
             Text(
-              '接收人 *',
+              L10nManager.l10n.recipient,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
@@ -175,7 +176,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             if (!isEditable)
               _buildInfoRow(
                 icon: Icons.person,
-                label: '接收人',
+                label: L10nManager.l10n.recipient,
                 value: _toUserNickname ?? '',
               )
             else
@@ -185,8 +186,8 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             // 礼品描述（必填）
             CommonTextFormField(
               initialValue: _descriptionController.text,
-              labelText: '礼物描述',
-              hintText: '请输入礼物描述，如：iPhone 15、现金红包、生日蛋糕等',
+              labelText: L10nManager.l10n.giftDescription,
+              hintText: L10nManager.l10n.giftDescriptionHint,
               required: true,
               prefixIcon: isEditable
                   ? InkWell(
@@ -219,7 +220,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             // 过期时间
             if (isEditable) ...[
               Text(
-                '过期时间',
+                L10nManager.l10n.expiredTime,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -229,10 +230,10 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             ] else ...[
               _buildInfoRow(
                 icon: Icons.calendar_today,
-                label: '过期时间',
+                label: L10nManager.l10n.expiredTime,
                 value: _expiredTime != null
                     ? DateFormat('yyyy-MM-dd 23:59:59').format(_expiredTime!)
-                    : '永久有效',
+                    : L10nManager.l10n.permanent,
               ),
             ],
 
@@ -249,14 +250,14 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '状态：${widget.giftCard!.status.text}',
+                      '${L10nManager.l10n.status}: ${widget.giftCard!.status.text}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '创建时间：${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(widget.giftCard!.createdAt))}',
+                      '${L10nManager.l10n.createdAt}: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(widget.giftCard!.createdAt))}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -328,7 +329,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
           children: [
             Expanded(
               child: _buildToggleButton(
-                label: '从账本成员中选择',
+                label: L10nManager.l10n.selectFromMembers,
                 icon: Icons.people_outline,
                 isSelected: !_useInviteCode,
                 onTap: _loadingRecipients
@@ -343,7 +344,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
             const SizedBox(width: 8),
             Expanded(
               child: _buildToggleButton(
-                label: '通过邀请码搜索',
+                label: L10nManager.l10n.searchByInviteCode,
                 icon: Icons.qr_code,
                 isSelected: _useInviteCode,
                 onTap: () {
@@ -430,7 +431,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
       displayField: (item) => item.nickname,
       keyField: (item) => item.userId,
       icon: Icons.person_outline,
-      label: '接收人',
+      label: L10nManager.l10n.recipient,
       allowCreate: false,
       onChanged: (value) {
         final option = value as RecipientOption?;
@@ -451,7 +452,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
       },
       validator: (value) {
         if (value == null) {
-          return '请选择接收人';
+          return L10nManager.l10n.selectRecipient;
         }
         return null;
       },
@@ -469,7 +470,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
         TextFormField(
           controller: _inviteCodeController,
           decoration: InputDecoration(
-            hintText: '请输入邀请码',
+            hintText: L10nManager.l10n.inviteCode,
             prefixIcon: const Icon(Icons.qr_code),
             suffixIcon: _searching
                 ? const Padding(
@@ -513,7 +514,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '接收人：${_selectedRecipient!.nickname}',
+                    '${L10nManager.l10n.recipient}: ${_selectedRecipient!.nickname}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onPrimaryContainer,
                     ),
@@ -540,7 +541,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
           children: [
             Expanded(
               child: Text(
-                '永久有效',
+                L10nManager.l10n.permanent,
                 style: theme.textTheme.bodyMedium,
               ),
             ),
@@ -641,7 +642,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     final inviteCode = _inviteCodeController.text.trim();
     if (inviteCode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入邀请码')),
+        SnackBar(content: Text(L10nManager.l10n.inviteCode)),
       );
       return;
     }
@@ -666,7 +667,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
         _formKey.currentState?.validate();
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.message ?? '邀请码无效')),
+          SnackBar(content: Text(result.message ?? L10nManager.l10n.invalidInviteCode)),
         );
         setState(() {
           _toUserId = null;
@@ -690,7 +691,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     // 验证接收人
     if (_toUserId == null || _toUserNickname == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请选择接收人')),
+        SnackBar(content: Text(L10nManager.l10n.selectRecipient)),
       );
       return;
     }
@@ -698,7 +699,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     // 验证不能赠送给自己
     if (_toUserId == AppConfigManager.instance.userId) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('不能将礼物卡赠送给自己')),
+        SnackBar(content: Text(L10nManager.l10n.cannotSendToSelf)),
       );
       return;
     }
@@ -721,7 +722,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
           Navigator.pop(context, true);
         } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.message ?? '操作失败')),
+            SnackBar(content: Text(result.message ?? L10nManager.l10n.operationFailed)),
           );
         }
       } else {
@@ -738,7 +739,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
           Navigator.pop(context, true);
         } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.message ?? '操作失败')),
+            SnackBar(content: Text(result.message ?? L10nManager.l10n.operationFailed)),
           );
         }
       }

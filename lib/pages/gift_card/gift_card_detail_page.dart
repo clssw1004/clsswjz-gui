@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../enums/gift_card_status.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../providers/gift_card_provider.dart';
 import '../../routes/app_routes.dart';
@@ -31,7 +32,7 @@ class GiftCardDetailPage extends StatelessWidget {
 
     // 状态显示文本（接收方将"已送出"视为"待接收"）
     final statusDisplayText = isReceiver && card.status == GiftCardStatus.sent
-        ? '待接收'
+        ? L10nManager.l10n.pendingReceive
         : effectiveStatus.text;
 
     // 判断是否可编辑（草稿状态且是赠送人）
@@ -54,7 +55,7 @@ class GiftCardDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text('礼物卡详情'),
+        title: Text(L10nManager.l10n.giftCardDetail),
         showBackButton: true,
       ),
       body: CustomScrollView(
@@ -107,8 +108,8 @@ class GiftCardDetailPage extends StatelessWidget {
                         // 有效期
                         Text(
                           card.isPermanent
-                              ? '永久有效'
-                              : '有效期至 ${DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(card.expiredTime))}',
+                              ? L10nManager.l10n.permanent
+                              : L10nManager.l10n.expiresAt(DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(card.expiredTime))),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.white.withAlpha(178),
                           ),
@@ -143,7 +144,7 @@ class GiftCardDetailPage extends StatelessWidget {
                               Text(
                                 card.description?.isNotEmpty == true
                                     ? card.description!
-                                    : '礼物卡',
+                                    : L10nManager.l10n.giftCard,
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -154,8 +155,8 @@ class GiftCardDetailPage extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 isSender
-                                    ? '送给 ${card.toWho}'
-                                    : '来自 ${card.fromWho}',
+                                    ? L10nManager.l10n.to(card.toWho)
+                                    : L10nManager.l10n.from(card.fromWho),
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: Colors.white.withAlpha(204),
                                 ),
@@ -175,7 +176,7 @@ class GiftCardDetailPage extends StatelessWidget {
                         if (card.sentTime > 0)
                           _buildTimeRow(
                             icon: Icons.send,
-                            label: '送出时间',
+                            label: L10nManager.l10n.sentTime,
                             time: dateFormat.format(
                                 DateTime.fromMillisecondsSinceEpoch(
                                     card.sentTime)),
@@ -184,7 +185,7 @@ class GiftCardDetailPage extends StatelessWidget {
                         if (card.receivedTime > 0)
                           _buildTimeRow(
                             icon: Icons.check_circle_outline,
-                            label: '接收时间',
+                            label: L10nManager.l10n.receivedTime,
                             time: dateFormat.format(
                                 DateTime.fromMillisecondsSinceEpoch(
                                     card.receivedTime)),
@@ -192,7 +193,7 @@ class GiftCardDetailPage extends StatelessWidget {
                           ),
                         _buildTimeRow(
                           icon: Icons.create,
-                          label: '创建时间',
+                          label: L10nManager.l10n.createdAt,
                           time: dateFormat.format(
                               DateTime.fromMillisecondsSinceEpoch(
                                   card.createdAt)),
@@ -220,7 +221,7 @@ class GiftCardDetailPage extends StatelessWidget {
                     _ActionButton(
                       onPressed: () => _sendGiftCard(context, card),
                       icon: Icons.card_giftcard,
-                      label: '送出礼物卡',
+                      label: L10nManager.l10n.sendGiftCardAction,
                       gradient: LinearGradient(
                         colors: [Colors.purple.shade400, Colors.purple.shade700],
                       ),
@@ -230,7 +231,7 @@ class GiftCardDetailPage extends StatelessWidget {
                     _ActionButton(
                       onPressed: () => _receiveGiftCard(context, card),
                       icon: Icons.celebration,
-                      label: '接收礼物卡',
+                      label: L10nManager.l10n.receiveGiftCardAction,
                       gradient: LinearGradient(
                         colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
                       ),
@@ -240,7 +241,7 @@ class GiftCardDetailPage extends StatelessWidget {
                     _ActionButton(
                       onPressed: () => _markAsUsed(context, card),
                       icon: Icons.check_circle,
-                      label: '标记为已使用',
+                      label: L10nManager.l10n.markAsUsed,
                       gradient: LinearGradient(
                         colors: [Colors.green.shade400, Colors.green.shade700],
                       ),
@@ -256,7 +257,7 @@ class GiftCardDetailPage extends StatelessWidget {
                           child: _SecondaryButton(
                             onPressed: () => _navigateToEdit(context, card),
                             icon: Icons.edit_outlined,
-                            label: '编辑',
+                            label: L10nManager.l10n.edit,
                           ),
                         ),
                       if (canEdit && canExtend) const SizedBox(width: 12),
@@ -265,7 +266,7 @@ class GiftCardDetailPage extends StatelessWidget {
                           child: _SecondaryButton(
                             onPressed: () => _extendGiftCard(context, card),
                             icon: Icons.schedule,
-                            label: '延期',
+                            label: L10nManager.l10n.extend,
                           ),
                         ),
                       if ((canEdit || canExtend) && canVoid) const SizedBox(width: 12),
@@ -274,7 +275,7 @@ class GiftCardDetailPage extends StatelessWidget {
                           child: _SecondaryButton(
                             onPressed: () => _voidGiftCard(context, card),
                             icon: Icons.disabled_by_default,
-                            label: '作废',
+                            label: L10nManager.l10n.voidGiftCard,
                             isDanger: true,
                           ),
                         ),
@@ -352,16 +353,16 @@ class GiftCardDetailPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认送出'),
-        content: const Text('确定要送出这个礼物卡吗？'),
+        title: Text(L10nManager.l10n.confirmSend),
+        content: Text(L10nManager.l10n.confirmSendContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(L10nManager.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认'),
+            child: Text(L10nManager.l10n.confirm),
           ),
         ],
       ),
@@ -379,16 +380,16 @@ class GiftCardDetailPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认接收'),
-        content: const Text('确定要接收这个礼物卡吗？'),
+        title: Text(L10nManager.l10n.confirmReceive),
+        content: Text(L10nManager.l10n.confirmReceiveContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(L10nManager.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认'),
+            child: Text(L10nManager.l10n.confirm),
           ),
         ],
       ),
@@ -406,16 +407,16 @@ class GiftCardDetailPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认操作'),
-        content: const Text('确定要将此礼物卡标记为已使用吗？'),
+        title: Text(L10nManager.l10n.confirmAction),
+        content: Text(L10nManager.l10n.confirmMarkUsedContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(L10nManager.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认'),
+            child: Text(L10nManager.l10n.confirm),
           ),
         ],
       ),
@@ -459,19 +460,19 @@ class GiftCardDetailPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认作废'),
-        content: const Text('确定要作废这个礼物卡吗？作废后不可恢复。'),
+        title: Text(L10nManager.l10n.confirmVoid),
+        content: Text(L10nManager.l10n.confirmVoidContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(L10nManager.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('确认作废'),
+            child: Text(L10nManager.l10n.confirmVoid),
           ),
         ],
       ),
