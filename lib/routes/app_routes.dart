@@ -37,6 +37,10 @@ import '../pages/book/debt_list_page.dart';
 import '../pages/book/debt_edit_page.dart';
 import '../pages/book/debt_payment_page.dart';
 import '../pages/attachment/attachment_list_page.dart';
+import '../pages/gift_card/gift_card_list_page.dart';
+import '../pages/gift_card/gift_card_form_page.dart';
+import '../pages/gift_card/gift_card_detail_page.dart';
+import '../models/vo/gift_card_vo.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -114,6 +118,15 @@ class AppRoutes {
   static const String attachments = '/attachments';
 
   static const String todoAdd = '/todo/add';
+
+  /// 礼物卡列表页面
+  static const String giftCardList = '/gift_card/list';
+
+  /// 礼物卡表单页面
+  static const String giftCardForm = '/gift_card/form';
+
+  /// 礼物卡详情页面
+  static const String giftCardDetail = '/gift_card/detail';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -232,5 +245,18 @@ class AppRoutes {
       );
     },
     attachments: (context) => const AttachmentListPage(),
+    giftCardList: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final tabIndex = args is int ? args : 0;
+      return GiftCardListPage(initialTabIndex: tabIndex);
+    },
+    giftCardForm: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO?;
+      return GiftCardFormPage(giftCard: args);
+    },
+    giftCardDetail: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO;
+      return GiftCardDetailPage(giftCard: args);
+    },
   };
 }

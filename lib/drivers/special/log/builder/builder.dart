@@ -17,6 +17,7 @@ import 'book_note.build.dart';
 import 'book_shop.builder.dart';
 import 'book_symbol.builder.dart';
 import 'fund.builder.dart';
+import 'gift_card.builder.dart';
 import 'user.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
@@ -202,6 +203,8 @@ abstract class LogBuilder<T, RunResult> {
         return NoteCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.debt:
         return DebtCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.giftCard:
+        return GiftCardCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
@@ -268,6 +271,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.attachmentDao.delete(businessId!);
       case BusinessType.note:
         return DaoManager.noteDao.delete(businessId!);
+      case BusinessType.giftCard:
+        return DaoManager.giftCardDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }

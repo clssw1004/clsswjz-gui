@@ -40,7 +40,10 @@ enum BusinessType {
   attachment('attachment'),
 
   /// 债务
-  debt('debt');
+  debt('debt'),
+
+  /// 礼物卡
+  giftCard('giftCard');
 
   final String code;
   const BusinessType(this.code);

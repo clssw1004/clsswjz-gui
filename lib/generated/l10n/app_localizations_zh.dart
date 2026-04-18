@@ -732,7 +732,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancel => '取消';
 
   @override
-  String get confirm => '确定';
+  String get confirm => '确认';
 
   @override
   String get confirmDelete => '确认删除';
@@ -1112,6 +1112,160 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get clearLogs => '清空';
+
+  @override
+  String get giftCard => '礼物卡';
+
+  @override
+  String get createGiftCard => '创建礼物卡';
+
+  @override
+  String get editGiftCard => '编辑礼物卡';
+
+  @override
+  String get giftDescription => '礼物描述';
+
+  @override
+  String get giftDescriptionHint => '请输入礼物描述，如：iPhone 15、现金红包、生日蛋糕等';
+
+  @override
+  String get sender => '赠送人';
+
+  @override
+  String get recipient => '接收人';
+
+  @override
+  String get selectRecipient => '请选择接收人';
+
+  @override
+  String get selectFromMembers => '从账本成员中选择';
+
+  @override
+  String get searchByInviteCode => '通过邀请码搜索';
+
+  @override
+  String get expiredTime => '过期时间';
+
+  @override
+  String get permanent => '永久有效';
+
+  @override
+  String get invalidInviteCode => '邀请码无效';
+
+  @override
+  String get cannotSendToSelf => '不能将礼物卡赠送给自己';
+
+  @override
+  String get receivedGiftCards => '我收到的';
+
+  @override
+  String get sentGiftCards => '我送出的';
+
+  @override
+  String get noGiftCards => '暂无礼物卡';
+
+  @override
+  String get sendGiftCard => '送出';
+
+  @override
+  String get receiveGiftCard => '接收';
+
+  @override
+  String get markAsUsed => '标记已使用';
+
+  @override
+  String get voidGiftCard => '作废';
+
+  @override
+  String get extendGiftCard => '延期';
+
+  @override
+  String get deleteGiftCard => '删除';
+
+  @override
+  String get giftCardDetail => '礼物卡详情';
+
+  @override
+  String get operationFailed => '操作失败';
+
+  @override
+  String get clickToCreate => '点击创建';
+
+  @override
+  String get pendingReceive => '待接收';
+
+  @override
+  String get notYetSent => '尚未送出';
+
+  @override
+  String from(Object name) {
+    return '来自 $name';
+  }
+
+  @override
+  String to(Object name) {
+    return '送给 $name';
+  }
+
+  @override
+  String sentAt(Object time) {
+    return '送出于 $time';
+  }
+
+  @override
+  String receivedAt(Object time) {
+    return '接收于 $time';
+  }
+
+  @override
+  String expiresAt(Object time) {
+    return '有效期至 $time';
+  }
+
+  @override
+  String get sendGiftCardAction => '送出礼物卡';
+
+  @override
+  String get receiveGiftCardAction => '接收礼物卡';
+
+  @override
+  String get extend => '延期';
+
+  @override
+  String get sentTime => '送出时间';
+
+  @override
+  String get receivedTime => '接收时间';
+
+  @override
+  String get createdAt => '创建时间';
+
+  @override
+  String get confirmSend => '确认送出';
+
+  @override
+  String get confirmSendContent => '确定要送出这个礼物卡吗？';
+
+  @override
+  String get confirmReceive => '确认接收';
+
+  @override
+  String get confirmReceiveContent => '确定要接收这个礼物卡吗？';
+
+  @override
+  String get confirmAction => '确认操作';
+
+  @override
+  String get confirmMarkUsedContent => '确定要将此礼物卡标记为已使用吗？';
+
+  @override
+  String get confirmVoid => '确认作废';
+
+  @override
+  String get confirmVoidContent => '确定要作废这个礼物卡吗？作废后不可恢复。';
+
+  @override
+  String get status => '状态';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1842,7 +1996,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get cancel => '取消';
 
   @override
-  String get confirm => '確定';
+  String get confirm => '確認';
 
   @override
   String get confirmDelete => '確認刪除';
@@ -2173,4 +2327,158 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get clearLogs => '清空';
+
+  @override
+  String get giftCard => '禮物卡';
+
+  @override
+  String get createGiftCard => '創建禮物卡';
+
+  @override
+  String get editGiftCard => '編輯禮物卡';
+
+  @override
+  String get giftDescription => '禮物描述';
+
+  @override
+  String get giftDescriptionHint => '請輸入禮物描述，如：iPhone 15、現金紅包、生日蛋糕等';
+
+  @override
+  String get sender => '贈送人';
+
+  @override
+  String get recipient => '接收人';
+
+  @override
+  String get selectRecipient => '請選擇接收人';
+
+  @override
+  String get selectFromMembers => '從賬本成員中選擇';
+
+  @override
+  String get searchByInviteCode => '通過邀請碼搜索';
+
+  @override
+  String get expiredTime => '過期時間';
+
+  @override
+  String get permanent => '永久有效';
+
+  @override
+  String get invalidInviteCode => '邀請碼無效';
+
+  @override
+  String get cannotSendToSelf => '不能將禮物卡贈送給自己';
+
+  @override
+  String get receivedGiftCards => '我收到的';
+
+  @override
+  String get sentGiftCards => '我送出的';
+
+  @override
+  String get noGiftCards => '暫無禮物卡';
+
+  @override
+  String get sendGiftCard => '送出';
+
+  @override
+  String get receiveGiftCard => '接收';
+
+  @override
+  String get markAsUsed => '標記已使用';
+
+  @override
+  String get voidGiftCard => '作廢';
+
+  @override
+  String get extendGiftCard => '延期';
+
+  @override
+  String get deleteGiftCard => '刪除';
+
+  @override
+  String get giftCardDetail => '禮物卡詳情';
+
+  @override
+  String get operationFailed => '操作失敗';
+
+  @override
+  String get clickToCreate => '點擊創建';
+
+  @override
+  String get pendingReceive => '待接收';
+
+  @override
+  String get notYetSent => '尚未送出';
+
+  @override
+  String from(Object name) {
+    return '來自 $name';
+  }
+
+  @override
+  String to(Object name) {
+    return '送給 $name';
+  }
+
+  @override
+  String sentAt(Object time) {
+    return '送出於 $time';
+  }
+
+  @override
+  String receivedAt(Object time) {
+    return '接收於 $time';
+  }
+
+  @override
+  String expiresAt(Object time) {
+    return '有效期至 $time';
+  }
+
+  @override
+  String get sendGiftCardAction => '送出禮物卡';
+
+  @override
+  String get receiveGiftCardAction => '接收禮物卡';
+
+  @override
+  String get extend => '延期';
+
+  @override
+  String get sentTime => '送出時間';
+
+  @override
+  String get receivedTime => '接收時間';
+
+  @override
+  String get createdAt => '創建時間';
+
+  @override
+  String get confirmSend => '確認送出';
+
+  @override
+  String get confirmSendContent => '確定要送出這個禮物卡嗎？';
+
+  @override
+  String get confirmReceive => '確認接收';
+
+  @override
+  String get confirmReceiveContent => '確定要接收這個禮物卡嗎？';
+
+  @override
+  String get confirmAction => '確認操作';
+
+  @override
+  String get confirmMarkUsedContent => '確定要將此禮物卡標記為已使用嗎？';
+
+  @override
+  String get confirmVoid => '確認作廢';
+
+  @override
+  String get confirmVoidContent => '確定要作廢這個禮物卡嗎？作廢後不可恢復。';
+
+  @override
+  String get status => '狀態';
 }

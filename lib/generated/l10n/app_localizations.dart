@@ -1419,7 +1419,7 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get create;
 
-  /// No description provided for @edit.
+  /// Edit action
   ///
   /// In en, this message translates to:
   /// **'Edit'**
@@ -1437,7 +1437,7 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
-  /// No description provided for @confirm.
+  /// Confirm button text
   ///
   /// In en, this message translates to:
   /// **'Confirm'**
@@ -2192,6 +2192,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear'**
   String get clearLogs;
+
+  /// Gift card module name
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Card'**
+  String get giftCard;
+
+  /// Create gift card page title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Gift Card'**
+  String get createGiftCard;
+
+  /// Edit gift card page title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Gift Card'**
+  String get editGiftCard;
+
+  /// Gift card description label
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Description'**
+  String get giftDescription;
+
+  /// Gift card description hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter gift description, e.g., iPhone 15, cash red envelope, birthday cake'**
+  String get giftDescriptionHint;
+
+  /// Gift card sender label
+  ///
+  /// In en, this message translates to:
+  /// **'Sender'**
+  String get sender;
+
+  /// Gift card recipient label
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get recipient;
+
+  /// Select recipient hint
+  ///
+  /// In en, this message translates to:
+  /// **'Select Recipient'**
+  String get selectRecipient;
+
+  /// Select from book members option
+  ///
+  /// In en, this message translates to:
+  /// **'Select from Members'**
+  String get selectFromMembers;
+
+  /// Search by invite code option
+  ///
+  /// In en, this message translates to:
+  /// **'Search by Invite Code'**
+  String get searchByInviteCode;
+
+  /// Expired time label
+  ///
+  /// In en, this message translates to:
+  /// **'Expired Time'**
+  String get expiredTime;
+
+  /// Permanent valid option
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent'**
+  String get permanent;
+
+  /// Invalid invite code error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid invite code'**
+  String get invalidInviteCode;
+
+  /// Cannot send to self error
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot send gift card to yourself'**
+  String get cannotSendToSelf;
+
+  /// Received gift cards tab
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get receivedGiftCards;
+
+  /// Sent gift cards tab
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sentGiftCards;
+
+  /// No gift cards placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'No gift cards yet'**
+  String get noGiftCards;
+
+  /// Send gift card button
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get sendGiftCard;
+
+  /// Receive gift card button
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get receiveGiftCard;
+
+  /// Mark as used button
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Used'**
+  String get markAsUsed;
+
+  /// Void gift card button
+  ///
+  /// In en, this message translates to:
+  /// **'Void'**
+  String get voidGiftCard;
+
+  /// Extend gift card button
+  ///
+  /// In en, this message translates to:
+  /// **'Extend'**
+  String get extendGiftCard;
+
+  /// Delete gift card button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteGiftCard;
+
+  /// Gift card detail page title
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Card Detail'**
+  String get giftCardDetail;
+
+  /// Generic operation failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Operation failed'**
+  String get operationFailed;
+
+  /// Click to create prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Click to create'**
+  String get clickToCreate;
+
+  /// Pending receive status
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Receive'**
+  String get pendingReceive;
+
+  /// Not yet sent status
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet sent'**
+  String get notYetSent;
+
+  /// From label with name
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String from(Object name);
+
+  /// To label with name
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String to(Object name);
+
+  /// Sent at time
+  ///
+  /// In en, this message translates to:
+  /// **'Sent at {time}'**
+  String sentAt(Object time);
+
+  /// Received at time
+  ///
+  /// In en, this message translates to:
+  /// **'Received at {time}'**
+  String receivedAt(Object time);
+
+  /// Expires at time
+  ///
+  /// In en, this message translates to:
+  /// **'Expires at {time}'**
+  String expiresAt(Object time);
+
+  /// Send gift card action button
+  ///
+  /// In en, this message translates to:
+  /// **'Send Gift Card'**
+  String get sendGiftCardAction;
+
+  /// Receive gift card action button
+  ///
+  /// In en, this message translates to:
+  /// **'Receive Gift Card'**
+  String get receiveGiftCardAction;
+
+  /// Extend action
+  ///
+  /// In en, this message translates to:
+  /// **'Extend'**
+  String get extend;
+
+  /// Sent time label
+  ///
+  /// In en, this message translates to:
+  /// **'Sent Time'**
+  String get sentTime;
+
+  /// Received time label
+  ///
+  /// In en, this message translates to:
+  /// **'Received Time'**
+  String get receivedTime;
+
+  /// Created at label
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get createdAt;
+
+  /// Confirm send dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Send'**
+  String get confirmSend;
+
+  /// Confirm send dialog content
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to send this gift card?'**
+  String get confirmSendContent;
+
+  /// Confirm receive dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Receive'**
+  String get confirmReceive;
+
+  /// Confirm receive dialog content
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to receive this gift card?'**
+  String get confirmReceiveContent;
+
+  /// Confirm action dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Action'**
+  String get confirmAction;
+
+  /// Confirm mark as used dialog content
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to mark this gift card as used?'**
+  String get confirmMarkUsedContent;
+
+  /// Confirm void dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Void'**
+  String get confirmVoid;
+
+  /// Confirm void dialog content
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to void this gift card? This action cannot be undone.'**
+  String get confirmVoidContent;
+
+  /// Status label
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
 }
 
 class _AppLocalizationsDelegate

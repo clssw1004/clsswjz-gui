@@ -11,6 +11,7 @@ import 'tables/log_sync_table.dart';
 import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/account_debt_table.dart';
+import 'tables/gift_card_table.dart';
 
 part 'database.g.dart';
 
@@ -28,13 +29,14 @@ part 'database.g.dart';
     AttachmentTable,
     AccountNoteTable,
     AccountDebtTable,
+    GiftCardTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -46,6 +48,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) {
             // 版本1到版本2的迁移：为 account_note_table 添加 groupCode 字段
             await m.addColumn(accountNoteTable, accountNoteTable.groupCode);
+          }
+          if (from < 3) {
+            // 版本2到版本3的迁移：添加 gift_card_table
+            await m.createAll();
           }
         },
       );

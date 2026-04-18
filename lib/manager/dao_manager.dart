@@ -10,6 +10,7 @@ import '../database/dao/symbol_dao.dart';
 import '../database/dao/rel_book_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/dao/debt_dao.dart';
+import '../database/dao/gift_card_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
@@ -25,6 +26,7 @@ class DaoManager {
   static late AttachmentDao attachmentDao;
   static late NoteDao noteDao;
   static late DebtDao debtDao;
+  static late GiftCardDao giftCardDao;
 
   static void refreshDaos() {
     bookDao = BookDao(DatabaseManager.db);
@@ -39,5 +41,6 @@ class DaoManager {
     attachmentDao = AttachmentDao(DatabaseManager.db);
     noteDao = NoteDao(DatabaseManager.db);
     debtDao = DebtDao(DatabaseManager.db);
+    giftCardDao = GiftCardDao(DatabaseManager.db);
   }
 }

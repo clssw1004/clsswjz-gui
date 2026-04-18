@@ -1071,5 +1071,209 @@
     "clearLogs": "清空",
     "@clearLogs": {
         "description": "清空日志按钮文本"
+    },
+    "giftCard": "礼物卡",
+    "@giftCard": {
+        "description": "礼物卡模块名称"
+    },
+    "createGiftCard": "创建礼物卡",
+    "@createGiftCard": {
+        "description": "创建礼物卡页面标题"
+    },
+    "editGiftCard": "编辑礼物卡",
+    "@editGiftCard": {
+        "description": "编辑礼物卡页面标题"
+    },
+    "giftDescription": "礼物描述",
+    "@giftDescription": {
+        "description": "礼物描述标签"
+    },
+    "giftDescriptionHint": "请输入礼物描述，如：iPhone 15、现金红包、生日蛋糕等",
+    "@giftDescriptionHint": {
+        "description": "礼物描述提示"
+    },
+    "sender": "赠送人",
+    "@sender": {
+        "description": "赠送人标签"
+    },
+    "recipient": "接收人",
+    "@recipient": {
+        "description": "接收人标签"
+    },
+    "selectRecipient": "请选择接收人",
+    "@selectRecipient": {
+        "description": "选择接收人提示"
+    },
+    "selectFromMembers": "从账本成员中选择",
+    "@selectFromMembers": {
+        "description": "从账本成员中选择选项"
+    },
+    "searchByInviteCode": "通过邀请码搜索",
+    "@searchByInviteCode": {
+        "description": "通过邀请码搜索选项"
+    },
+    "expiredTime": "过期时间",
+    "@expiredTime": {
+        "description": "过期时间标签"
+    },
+    "permanent": "永久有效",
+    "@permanent": {
+        "description": "永久有效选项"
+    },
+    "invalidInviteCode": "邀请码无效",
+    "@invalidInviteCode": {
+        "description": "邀请码无效错误"
+    },
+    "cannotSendToSelf": "不能将礼物卡赠送给自己",
+    "@cannotSendToSelf": {
+        "description": "不能赠送给自己错误"
+    },
+    "receivedGiftCards": "我收到的",
+    "@receivedGiftCards": {
+        "description": "我收到的礼物卡标签"
+    },
+    "sentGiftCards": "我送出的",
+    "@sentGiftCards": {
+        "description": "我送出的礼物卡标签"
+    },
+    "noGiftCards": "暂无礼物卡",
+    "@noGiftCards": {
+        "description": "暂无礼物卡占位符"
+    },
+    "sendGiftCard": "送出",
+    "@sendGiftCard": {
+        "description": "送出礼物卡按钮"
+    },
+    "receiveGiftCard": "接收",
+    "@receiveGiftCard": {
+        "description": "接收礼物卡按钮"
+    },
+    "markAsUsed": "标记已使用",
+    "@markAsUsed": {
+        "description": "标记已使用按钮"
+    },
+    "voidGiftCard": "作废",
+    "@voidGiftCard": {
+        "description": "作废礼物卡按钮"
+    },
+    "extendGiftCard": "延期",
+    "@extendGiftCard": {
+        "description": "延期礼物卡按钮"
+    },
+    "deleteGiftCard": "删除",
+    "@deleteGiftCard": {
+        "description": "删除礼物卡按钮"
+    },
+    "giftCardDetail": "礼物卡详情",
+    "@giftCardDetail": {
+        "description": "礼物卡详情页面标题"
+    },
+    "selectIcon": "选择图标",
+    "@selectIcon": {
+        "description": "选择图标对话框标题"
+    },
+    "operationFailed": "操作失败",
+    "@operationFailed": {
+        "description": "通用操作失败消息"
+    },
+    "clickToCreate": "点击创建",
+    "@clickToCreate": {
+        "description": "点击创建提示"
+    },
+    "pendingReceive": "待接收",
+    "@pendingReceive": {
+        "description": "待接收状态"
+    },
+    "notYetSent": "尚未送出",
+    "@notYetSent": {
+        "description": "尚未送出状态"
+    },
+    "from": "来自 {name}",
+    "@from": {
+        "description": "来自标签带名称"
+    },
+    "to": "送给 {name}",
+    "@to": {
+        "description": "送给标签带名称"
+    },
+    "sentAt": "送出于 {time}",
+    "@sentAt": {
+        "description": "送出时间"
+    },
+    "receivedAt": "接收于 {time}",
+    "@receivedAt": {
+        "description": "接收时间"
+    },
+    "expiresAt": "有效期至 {time}",
+    "@expiresAt": {
+        "description": "过期时间"
+    },
+    "sendGiftCardAction": "送出礼物卡",
+    "@sendGiftCardAction": {
+        "description": "送出礼物卡操作按钮"
+    },
+    "receiveGiftCardAction": "接收礼物卡",
+    "@receiveGiftCardAction": {
+        "description": "接收礼物卡操作按钮"
+    },
+    "edit": "编辑",
+    "@edit": {
+        "description": "编辑操作"
+    },
+    "extend": "延期",
+    "@extend": {
+        "description": "延期操作"
+    },
+    "sentTime": "送出时间",
+    "@sentTime": {
+        "description": "送出时间标签"
+    },
+    "receivedTime": "接收时间",
+    "@receivedTime": {
+        "description": "接收时间标签"
+    },
+    "createdAt": "创建时间",
+    "@createdAt": {
+        "description": "创建时间标签"
+    },
+    "confirmSend": "确认送出",
+    "@confirmSend": {
+        "description": "确认送出对话框标题"
+    },
+    "confirmSendContent": "确定要送出这个礼物卡吗？",
+    "@confirmSendContent": {
+        "description": "确认送出对话框内容"
+    },
+    "confirmReceive": "确认接收",
+    "@confirmReceive": {
+        "description": "确认接收对话框标题"
+    },
+    "confirmReceiveContent": "确定要接收这个礼物卡吗？",
+    "@confirmReceiveContent": {
+        "description": "确认接收对话框内容"
+    },
+    "confirmAction": "确认操作",
+    "@confirmAction": {
+        "description": "确认操作对话框标题"
+    },
+    "confirmMarkUsedContent": "确定要将此礼物卡标记为已使用吗？",
+    "@confirmMarkUsedContent": {
+        "description": "确认标记已使用对话框内容"
+    },
+    "confirmVoid": "确认作废",
+    "@confirmVoid": {
+        "description": "确认作废对话框标题"
+    },
+    "confirmVoidContent": "确定要作废这个礼物卡吗？作废后不可恢复。",
+    "@confirmVoidContent": {
+        "description": "确认作废对话框内容"
+    },
+    "confirm": "确认",
+    "@confirm": {
+        "description": "确认按钮文本"
+    },
+    "status": "状态",
+    "@status": {
+        "description": "状态标签"
     }
 }

@@ -957,5 +957,209 @@
     "clearLogs": "清空",
     "@clearLogs": {
         "description": "清空日誌按鈕文字"
+    },
+    "giftCard": "禮物卡",
+    "@giftCard": {
+        "description": "禮物卡模組名稱"
+    },
+    "createGiftCard": "創建禮物卡",
+    "@createGiftCard": {
+        "description": "創建禮物卡頁面標題"
+    },
+    "editGiftCard": "編輯禮物卡",
+    "@editGiftCard": {
+        "description": "編輯禮物卡頁面標題"
+    },
+    "giftDescription": "禮物描述",
+    "@giftDescription": {
+        "description": "禮物描述標籤"
+    },
+    "giftDescriptionHint": "請輸入禮物描述，如：iPhone 15、現金紅包、生日蛋糕等",
+    "@giftDescriptionHint": {
+        "description": "禮物描述提示"
+    },
+    "sender": "贈送人",
+    "@sender": {
+        "description": "贈送人標籤"
+    },
+    "recipient": "接收人",
+    "@recipient": {
+        "description": "接收人標籤"
+    },
+    "selectRecipient": "請選擇接收人",
+    "@selectRecipient": {
+        "description": "選擇接收人提示"
+    },
+    "selectFromMembers": "從賬本成員中選擇",
+    "@selectFromMembers": {
+        "description": "從賬本成員中選擇選項"
+    },
+    "searchByInviteCode": "通過邀請碼搜索",
+    "@searchByInviteCode": {
+        "description": "通過邀請碼搜索選項"
+    },
+    "expiredTime": "過期時間",
+    "@expiredTime": {
+        "description": "過期時間標籤"
+    },
+    "permanent": "永久有效",
+    "@permanent": {
+        "description": "永久有效選項"
+    },
+    "invalidInviteCode": "邀請碼無效",
+    "@invalidInviteCode": {
+        "description": "邀請碼無效錯誤"
+    },
+    "cannotSendToSelf": "不能將禮物卡贈送給自己",
+    "@cannotSendToSelf": {
+        "description": "不能贈送給自己錯誤"
+    },
+    "receivedGiftCards": "我收到的",
+    "@receivedGiftCards": {
+        "description": "我收到的禮物卡標籤"
+    },
+    "sentGiftCards": "我送出的",
+    "@sentGiftCards": {
+        "description": "我送出的禮物卡標籤"
+    },
+    "noGiftCards": "暫無禮物卡",
+    "@noGiftCards": {
+        "description": "暫無禮物卡佔位符"
+    },
+    "sendGiftCard": "送出",
+    "@sendGiftCard": {
+        "description": "送出禮物卡按鈕"
+    },
+    "receiveGiftCard": "接收",
+    "@receiveGiftCard": {
+        "description": "接收禮物卡按鈕"
+    },
+    "markAsUsed": "標記已使用",
+    "@markAsUsed": {
+        "description": "標記已使用按鈕"
+    },
+    "voidGiftCard": "作廢",
+    "@voidGiftCard": {
+        "description": "作廢禮物卡按鈕"
+    },
+    "extendGiftCard": "延期",
+    "@extendGiftCard": {
+        "description": "延期禮物卡按鈕"
+    },
+    "deleteGiftCard": "刪除",
+    "@deleteGiftCard": {
+        "description": "刪除禮物卡按鈕"
+    },
+    "giftCardDetail": "禮物卡詳情",
+    "@giftCardDetail": {
+        "description": "禮物卡詳情頁面標題"
+    },
+    "selectIcon": "選擇圖標",
+    "@selectIcon": {
+        "description": "選擇圖標對話框標題"
+    },
+    "operationFailed": "操作失敗",
+    "@operationFailed": {
+        "description": "通用操作失敗訊息"
+    },
+    "clickToCreate": "點擊創建",
+    "@clickToCreate": {
+        "description": "點擊創建提示"
+    },
+    "pendingReceive": "待接收",
+    "@pendingReceive": {
+        "description": "待接收狀態"
+    },
+    "notYetSent": "尚未送出",
+    "@notYetSent": {
+        "description": "尚未送出狀態"
+    },
+    "from": "來自 {name}",
+    "@from": {
+        "description": "來自標籤帶名稱"
+    },
+    "to": "送給 {name}",
+    "@to": {
+        "description": "送給標籤帶名稱"
+    },
+    "sentAt": "送出於 {time}",
+    "@sentAt": {
+        "description": "送出時間"
+    },
+    "receivedAt": "接收於 {time}",
+    "@receivedAt": {
+        "description": "接收時間"
+    },
+    "expiresAt": "有效期至 {time}",
+    "@expiresAt": {
+        "description": "過期時間"
+    },
+    "sendGiftCardAction": "送出禮物卡",
+    "@sendGiftCardAction": {
+        "description": "送出禮物卡操作按鈕"
+    },
+    "receiveGiftCardAction": "接收禮物卡",
+    "@receiveGiftCardAction": {
+        "description": "接收禮物卡操作按鈕"
+    },
+    "edit": "編輯",
+    "@edit": {
+        "description": "編輯操作"
+    },
+    "extend": "延期",
+    "@extend": {
+        "description": "延期操作"
+    },
+    "sentTime": "送出時間",
+    "@sentTime": {
+        "description": "送出時間標籤"
+    },
+    "receivedTime": "接收時間",
+    "@receivedTime": {
+        "description": "接收時間標籤"
+    },
+    "createdAt": "創建時間",
+    "@createdAt": {
+        "description": "創建時間標籤"
+    },
+    "confirmSend": "確認送出",
+    "@confirmSend": {
+        "description": "確認送出對話框標題"
+    },
+    "confirmSendContent": "確定要送出這個禮物卡嗎？",
+    "@confirmSendContent": {
+        "description": "確認送出對話框內容"
+    },
+    "confirmReceive": "確認接收",
+    "@confirmReceive": {
+        "description": "確認接收對話框標題"
+    },
+    "confirmReceiveContent": "確定要接收這個禮物卡嗎？",
+    "@confirmReceiveContent": {
+        "description": "確認接收對話框內容"
+    },
+    "confirmAction": "確認操作",
+    "@confirmAction": {
+        "description": "確認操作對話框標題"
+    },
+    "confirmMarkUsedContent": "確定要將此禮物卡標記為已使用嗎？",
+    "@confirmMarkUsedContent": {
+        "description": "確認標記已使用對話框內容"
+    },
+    "confirmVoid": "確認作廢",
+    "@confirmVoid": {
+        "description": "確認作廢對話框標題"
+    },
+    "confirmVoidContent": "確定要作廢這個禮物卡嗎？作廢後不可恢復。",
+    "@confirmVoidContent": {
+        "description": "確認作廢對話框內容"
+    },
+    "confirm": "確認",
+    "@confirm": {
+        "description": "確認按鈕文字"
+    },
+    "status": "狀態",
+    "@status": {
+        "description": "狀態標籤"
     }
 }
