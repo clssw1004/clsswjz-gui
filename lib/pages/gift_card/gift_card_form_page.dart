@@ -185,7 +185,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
 
             // 礼品描述（必填）
             CommonTextFormField(
-              initialValue: _descriptionController.text,
+              controller: _descriptionController,
               labelText: L10nManager.l10n.giftDescription,
               hintText: L10nManager.l10n.giftDescriptionHint,
               required: true,
