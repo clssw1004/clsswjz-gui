@@ -7160,7 +7160,12 @@ class $GiftCardTableTable extends GiftCardTable
       const VerificationMeta('description');
   @override
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'gift_description', aliasedName, true,
+      'gift_description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _expiredTimeMeta =
       const VerificationMeta('expiredTime');
@@ -7203,6 +7208,7 @@ class $GiftCardTableTable extends GiftCardTable
         fromUserId,
         toUserId,
         description,
+        icon,
         expiredTime,
         sentTime,
         receivedTime,
@@ -7266,6 +7272,12 @@ class $GiftCardTableTable extends GiftCardTable
           _descriptionMeta,
           description.isAcceptableOrUnknown(
               data['gift_description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     }
     if (data.containsKey('expired_time')) {
       context.handle(
@@ -7311,7 +7323,9 @@ class $GiftCardTableTable extends GiftCardTable
       toUserId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}to_user_id'])!,
       description: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}gift_description']),
+          DriftSqlType.string, data['${effectivePrefix}gift_description'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon']),
       expiredTime: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}expired_time'])!,
       sentTime: attachedDatabase.typeMapping
@@ -7342,8 +7356,11 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
   /// 接收人用户ID
   final String toUserId;
 
-  /// 礼品描述
-  final String? description;
+  /// 礼品描述（必填）
+  final String description;
+
+  /// 图标（IconData的codePoint值字符串）
+  final String? icon;
 
   /// 过期时间 (毫秒时间戳，0表示永久有效)
   final int expiredTime;
@@ -7364,7 +7381,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       required this.id,
       required this.fromUserId,
       required this.toUserId,
-      this.description,
+      required this.description,
+      this.icon,
       required this.expiredTime,
       required this.sentTime,
       required this.receivedTime,
@@ -7379,8 +7397,9 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
     map['id'] = Variable<String>(id);
     map['from_user_id'] = Variable<String>(fromUserId);
     map['to_user_id'] = Variable<String>(toUserId);
-    if (!nullToAbsent || description != null) {
-      map['gift_description'] = Variable<String>(description);
+    map['gift_description'] = Variable<String>(description);
+    if (!nullToAbsent || icon != null) {
+      map['icon'] = Variable<String>(icon);
     }
     map['expired_time'] = Variable<int>(expiredTime);
     map['sent_time'] = Variable<int>(sentTime);
@@ -7398,9 +7417,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       id: Value(id),
       fromUserId: Value(fromUserId),
       toUserId: Value(toUserId),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
+      description: Value(description),
+      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
       expiredTime: Value(expiredTime),
       sentTime: Value(sentTime),
       receivedTime: Value(receivedTime),
@@ -7419,7 +7437,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       id: serializer.fromJson<String>(json['id']),
       fromUserId: serializer.fromJson<String>(json['fromUserId']),
       toUserId: serializer.fromJson<String>(json['toUserId']),
-      description: serializer.fromJson<String?>(json['description']),
+      description: serializer.fromJson<String>(json['description']),
+      icon: serializer.fromJson<String?>(json['icon']),
       expiredTime: serializer.fromJson<int>(json['expiredTime']),
       sentTime: serializer.fromJson<int>(json['sentTime']),
       receivedTime: serializer.fromJson<int>(json['receivedTime']),
@@ -7437,7 +7456,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       'id': serializer.toJson<String>(id),
       'fromUserId': serializer.toJson<String>(fromUserId),
       'toUserId': serializer.toJson<String>(toUserId),
-      'description': serializer.toJson<String?>(description),
+      'description': serializer.toJson<String>(description),
+      'icon': serializer.toJson<String?>(icon),
       'expiredTime': serializer.toJson<int>(expiredTime),
       'sentTime': serializer.toJson<int>(sentTime),
       'receivedTime': serializer.toJson<int>(receivedTime),
@@ -7453,7 +7473,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           String? id,
           String? fromUserId,
           String? toUserId,
-          Value<String?> description = const Value.absent(),
+          String? description,
+          Value<String?> icon = const Value.absent(),
           int? expiredTime,
           int? sentTime,
           int? receivedTime,
@@ -7466,7 +7487,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
         id: id ?? this.id,
         fromUserId: fromUserId ?? this.fromUserId,
         toUserId: toUserId ?? this.toUserId,
-        description: description.present ? description.value : this.description,
+        description: description ?? this.description,
+        icon: icon.present ? icon.value : this.icon,
         expiredTime: expiredTime ?? this.expiredTime,
         sentTime: sentTime ?? this.sentTime,
         receivedTime: receivedTime ?? this.receivedTime,
@@ -7484,6 +7506,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       toUserId: data.toUserId.present ? data.toUserId.value : this.toUserId,
       description:
           data.description.present ? data.description.value : this.description,
+      icon: data.icon.present ? data.icon.value : this.icon,
       expiredTime:
           data.expiredTime.present ? data.expiredTime.value : this.expiredTime,
       sentTime: data.sentTime.present ? data.sentTime.value : this.sentTime,
@@ -7505,6 +7528,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           ..write('fromUserId: $fromUserId, ')
           ..write('toUserId: $toUserId, ')
           ..write('description: $description, ')
+          ..write('icon: $icon, ')
           ..write('expiredTime: $expiredTime, ')
           ..write('sentTime: $sentTime, ')
           ..write('receivedTime: $receivedTime, ')
@@ -7523,6 +7547,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       fromUserId,
       toUserId,
       description,
+      icon,
       expiredTime,
       sentTime,
       receivedTime,
@@ -7539,6 +7564,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           other.fromUserId == this.fromUserId &&
           other.toUserId == this.toUserId &&
           other.description == this.description &&
+          other.icon == this.icon &&
           other.expiredTime == this.expiredTime &&
           other.sentTime == this.sentTime &&
           other.receivedTime == this.receivedTime &&
@@ -7553,7 +7579,8 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
   final Value<String> id;
   final Value<String> fromUserId;
   final Value<String> toUserId;
-  final Value<String?> description;
+  final Value<String> description;
+  final Value<String?> icon;
   final Value<int> expiredTime;
   final Value<int> sentTime;
   final Value<int> receivedTime;
@@ -7568,6 +7595,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     this.fromUserId = const Value.absent(),
     this.toUserId = const Value.absent(),
     this.description = const Value.absent(),
+    this.icon = const Value.absent(),
     this.expiredTime = const Value.absent(),
     this.sentTime = const Value.absent(),
     this.receivedTime = const Value.absent(),
@@ -7582,7 +7610,8 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     required String id,
     required String fromUserId,
     required String toUserId,
-    this.description = const Value.absent(),
+    required String description,
+    this.icon = const Value.absent(),
     this.expiredTime = const Value.absent(),
     this.sentTime = const Value.absent(),
     this.receivedTime = const Value.absent(),
@@ -7594,7 +7623,8 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
         updatedAt = Value(updatedAt),
         id = Value(id),
         fromUserId = Value(fromUserId),
-        toUserId = Value(toUserId);
+        toUserId = Value(toUserId),
+        description = Value(description);
   static Insertable<GiftCard> custom({
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -7604,6 +7634,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     Expression<String>? fromUserId,
     Expression<String>? toUserId,
     Expression<String>? description,
+    Expression<String>? icon,
     Expression<int>? expiredTime,
     Expression<int>? sentTime,
     Expression<int>? receivedTime,
@@ -7619,6 +7650,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       if (fromUserId != null) 'from_user_id': fromUserId,
       if (toUserId != null) 'to_user_id': toUserId,
       if (description != null) 'gift_description': description,
+      if (icon != null) 'icon': icon,
       if (expiredTime != null) 'expired_time': expiredTime,
       if (sentTime != null) 'sent_time': sentTime,
       if (receivedTime != null) 'received_time': receivedTime,
@@ -7635,7 +7667,8 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       Value<String>? id,
       Value<String>? fromUserId,
       Value<String>? toUserId,
-      Value<String?>? description,
+      Value<String>? description,
+      Value<String?>? icon,
       Value<int>? expiredTime,
       Value<int>? sentTime,
       Value<int>? receivedTime,
@@ -7650,6 +7683,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       fromUserId: fromUserId ?? this.fromUserId,
       toUserId: toUserId ?? this.toUserId,
       description: description ?? this.description,
+      icon: icon ?? this.icon,
       expiredTime: expiredTime ?? this.expiredTime,
       sentTime: sentTime ?? this.sentTime,
       receivedTime: receivedTime ?? this.receivedTime,
@@ -7685,6 +7719,9 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     if (description.present) {
       map['gift_description'] = Variable<String>(description.value);
     }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
     if (expiredTime.present) {
       map['expired_time'] = Variable<int>(expiredTime.value);
     }
@@ -7714,6 +7751,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
           ..write('fromUserId: $fromUserId, ')
           ..write('toUserId: $toUserId, ')
           ..write('description: $description, ')
+          ..write('icon: $icon, ')
           ..write('expiredTime: $expiredTime, ')
           ..write('sentTime: $sentTime, ')
           ..write('receivedTime: $receivedTime, ')
@@ -11076,7 +11114,8 @@ typedef $$GiftCardTableTableCreateCompanionBuilder = GiftCardTableCompanion
   required String id,
   required String fromUserId,
   required String toUserId,
-  Value<String?> description,
+  required String description,
+  Value<String?> icon,
   Value<int> expiredTime,
   Value<int> sentTime,
   Value<int> receivedTime,
@@ -11092,7 +11131,8 @@ typedef $$GiftCardTableTableUpdateCompanionBuilder = GiftCardTableCompanion
   Value<String> id,
   Value<String> fromUserId,
   Value<String> toUserId,
-  Value<String?> description,
+  Value<String> description,
+  Value<String?> icon,
   Value<int> expiredTime,
   Value<int> sentTime,
   Value<int> receivedTime,
@@ -11132,6 +11172,9 @@ class $$GiftCardTableTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => ColumnFilters(column));
@@ -11178,6 +11221,9 @@ class $$GiftCardTableTableOrderingComposer
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => ColumnOrderings(column));
@@ -11226,6 +11272,9 @@ class $$GiftCardTableTableAnnotationComposer
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
 
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
+
   GeneratedColumn<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => column);
 
@@ -11269,7 +11318,8 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> fromUserId = const Value.absent(),
             Value<String> toUserId = const Value.absent(),
-            Value<String?> description = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
             Value<int> expiredTime = const Value.absent(),
             Value<int> sentTime = const Value.absent(),
             Value<int> receivedTime = const Value.absent(),
@@ -11285,6 +11335,7 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             fromUserId: fromUserId,
             toUserId: toUserId,
             description: description,
+            icon: icon,
             expiredTime: expiredTime,
             sentTime: sentTime,
             receivedTime: receivedTime,
@@ -11299,7 +11350,8 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             required String id,
             required String fromUserId,
             required String toUserId,
-            Value<String?> description = const Value.absent(),
+            required String description,
+            Value<String?> icon = const Value.absent(),
             Value<int> expiredTime = const Value.absent(),
             Value<int> sentTime = const Value.absent(),
             Value<int> receivedTime = const Value.absent(),
@@ -11315,6 +11367,7 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             fromUserId: fromUserId,
             toUserId: toUserId,
             description: description,
+            icon: icon,
             expiredTime: expiredTime,
             sentTime: sentTime,
             receivedTime: receivedTime,

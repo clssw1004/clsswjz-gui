@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../constants/gift_card_icons.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../providers/gift_card_provider.dart';
+import '../../widgets/common/common_icon_picker.dart';
 import '../../widgets/common/common_select_form_field.dart';
+import '../../widgets/common/common_text_form_field.dart';
 
 /// 接收人选项
 class RecipientOption {
@@ -35,6 +38,9 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
   final _descriptionController = TextEditingController();
   final _inviteCodeController = TextEditingController();
 
+  /// 图标
+  String? _icon;
+
   DateTime? _expiredTime;
   bool _saving = false;
   bool _searching = false;
@@ -43,6 +49,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
   String? _toUserNickname;
   List<RecipientOption> _recipientOptions = [];
   RecipientOption? _selectedRecipient;
+
 
   bool get isCreateMode => widget.giftCard == null;
   bool get isEditable => isCreateMode || widget.giftCard!.status.code == 'draft';
@@ -175,18 +182,36 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
               _buildRecipientSelector(),
             const SizedBox(height: 20),
 
-            // 礼品描述
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: '礼物描述',
-                hintText: '请输入礼物描述（可选）',
-                prefixIcon: Icon(Icons.description_outlined),
-                alignLabelWithHint: true,
-              ),
+            // 礼品描述（必填）
+            CommonTextFormField(
+              initialValue: _descriptionController.text,
+              labelText: '礼物描述',
+              hintText: '请输入礼物描述，如：iPhone 15、现金红包、生日蛋糕等',
+              required: true,
+              prefixIcon: isEditable
+                  ? InkWell(
+                      onTap: _selectIcon,
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: Icon(
+                          _icon != null
+                              ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons')
+                              : Icons.card_giftcard,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    )
+                  : Icon(
+                      _icon != null
+                          ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons')
+                          : Icons.card_giftcard,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               maxLines: 3,
               maxLength: 500,
-              textInputAction: TextInputAction.done,
+              onChanged: (value) => _descriptionController.text = value,
               enabled: isEditable,
             ),
             const SizedBox(height: 20),
@@ -599,6 +624,18 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
     }
   }
 
+  /// 选择图标
+  Future<void> _selectIcon() async {
+    await CommonIconPicker.show(
+      context: context,
+      icons: giftCardIcons,
+      selectedIconCode: _icon,
+      onIconSelected: (iconCode) {
+        setState(() => _icon = iconCode);
+      },
+    );
+  }
+
   /// 根据邀请码查找用户
   Future<void> _searchUserByInviteCode() async {
     final inviteCode = _inviteCodeController.text.trim();
@@ -645,6 +682,11 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
   }
 
   Future<void> _save() async {
+    // 验证表单
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     // 验证接收人
     if (_toUserId == null || _toUserNickname == null) {
       ScaffoldMessenger.of(context).showSnackBar(

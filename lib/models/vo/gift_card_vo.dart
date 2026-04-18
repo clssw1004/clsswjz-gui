@@ -170,7 +170,7 @@ class GiftCardVO {
       id: id,
       fromUserId: fromUserId,
       toUserId: toUserId,
-      description: description,
+      description: description ?? '',
       expiredTime: expiredTime,
       sentTime: sentTime,
       receivedTime: receivedTime,
