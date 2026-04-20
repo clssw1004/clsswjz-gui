@@ -181,7 +181,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
               labelText: widget.required ? '${widget.labelText} *' : widget.labelText,
               hintText: widget.hintText ?? (widget.required ? null : L10nManager.l10n.optional),
               hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.4),
               ),
               prefixIcon: _buildIcon(widget.prefixIcon),
               suffixIcon: _buildIcon(widget.suffixIcon),
@@ -198,7 +198,7 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
               ),
               disabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
-                  color: theme.colorScheme.outline.withOpacity(0.5),
+                  color: theme.colorScheme.outline.withValues(alpha:0.5),
                 ),
               ),
             ),

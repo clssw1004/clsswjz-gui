@@ -5,7 +5,6 @@ import 'package:clsswjz_gui/enums/operate_type.dart';
 import 'package:clsswjz_gui/events/event_bus.dart';
 import 'package:clsswjz_gui/events/special/event_book.dart';
 import 'package:clsswjz_gui/manager/dao_manager.dart';
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import '../enums/gift_card_status.dart';
 import '../manager/app_config_manager.dart';

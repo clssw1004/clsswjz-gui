@@ -135,7 +135,7 @@ class _ImportPageState extends State<ImportPage> {
                                       style: theme.textTheme.titleMedium?.copyWith(
                                         color: _selectedFile != null
                                             ? theme.colorScheme.onSurface
-                                            : theme.colorScheme.onSurface.withOpacity(0.7),
+                                            : theme.colorScheme.onSurface.withValues(alpha:0.7),
                                       ),
                                     ),
                                     if (_selectedSource != null) ...[

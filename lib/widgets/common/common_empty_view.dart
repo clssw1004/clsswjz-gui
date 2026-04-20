@@ -29,7 +29,7 @@ class CommonEmptyView extends StatelessWidget {
           Icon(
             icon,
             size: 64,
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha:0.5),
           ),
           const SizedBox(height: 16),
           Text(

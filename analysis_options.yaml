@@ -1,5 +1,10 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    experimental_member_use: ignore  # 忽略实验性 API 警告
+    override_on_non_overriding_member: ignore  # 忽略生成代码的覆盖问题
+
 linter:
   rules:
     lines_longer_than_80_chars: false # 设置行长度检查

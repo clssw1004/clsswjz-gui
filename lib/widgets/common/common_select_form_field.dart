@@ -326,7 +326,7 @@ class _CommonSelectFormFieldWidgetState<T> extends State<_CommonSelectFormFieldW
           ),
           disabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: theme.colorScheme.outline.withOpacity(0.5),
+              color: theme.colorScheme.outline.withValues(alpha:0.5),
             ),
           ),
         ),
