@@ -17,6 +17,9 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showDailyStats;
   late bool _showDailyCalendar;
   late bool _showUserMonthly;
+  late bool _showProjectMonthly;
+  late String _statisticsSelectedRange;
+  DateTimeRange? _customRange;
 
   @override
   void initState() {
@@ -25,6 +28,16 @@ class _UiConfigPageState extends State<UiConfigPage> {
     _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyBar;
     _showDailyCalendar = AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
     _showUserMonthly = AppConfigManager.instance.uiConfig.itemTabShowUserMonthly;
+    _showProjectMonthly = AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly;
+    _statisticsSelectedRange = AppConfigManager.instance.uiConfig.statisticsSelectedRange;
+    final customStart = AppConfigManager.instance.uiConfig.statisticsCustomRangeStart;
+    final customEnd = AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd;
+    if (customStart != null && customEnd != null) {
+      _customRange = DateTimeRange(
+        start: DateTime.fromMillisecondsSinceEpoch(customStart),
+        end: DateTime.fromMillisecondsSinceEpoch(customEnd),
+      );
+    }
   }
 
   @override
@@ -222,6 +235,142 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 按项目当月统计展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '按项目当月统计',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '显示当月各项目的收入/支出柱状图',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showProjectMonthly,
+                        onChanged: (value) {
+                          setState(() {
+                            _showProjectMonthly = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+
+            // 统计页设置
+            CommonCardContainer(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 标题
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.bar_chart_outlined,
+                        size: 20,
+                        color: colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        L10nManager.l10n.tabStatistics,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 默认时间范围选择
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '默认时间范围',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '统计页面默认显示的时间范围',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DropdownButton<String>(
+                            value: _statisticsSelectedRange,
+                            underline: const SizedBox(),
+                            items: const [
+                              DropdownMenuItem(value: 'month', child: Text('本月')),
+                              DropdownMenuItem(value: 'year', child: Text('本年')),
+                              DropdownMenuItem(value: 'week', child: Text('本周')),
+                              DropdownMenuItem(value: 'all', child: Text('全部')),
+                              DropdownMenuItem(value: 'custom', child: Text('自定义')),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                if (value == 'custom') {
+                                  _showCustomDateRangePicker();
+                                } else {
+                                  setState(() {
+                                    _statisticsSelectedRange = value;
+                                  });
+                                  _updateUiConfig();
+                                }
+                              }
+                            },
+                          ),
+                          if (_statisticsSelectedRange == 'custom' && _customRange != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: Text(
+                                _getCustomRangeText(),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -238,7 +387,41 @@ class _UiConfigPageState extends State<UiConfigPage> {
       itemTabShowDailyBar: _showDailyStats,
       itemTabShowDailyCalendar: _showDailyCalendar,
       itemTabShowUserMonthly: _showUserMonthly,
+      itemTabShowProjectMonthly: _showProjectMonthly,
+      statisticsSelectedRange: _statisticsSelectedRange,
+      statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
+      statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
     );
     await AppConfigManager.instance.setUiConfig(newConfig);
+  }
+
+  /// 显示自定义日期范围选择器
+  Future<void> _showCustomDateRangePicker() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: now,
+      initialDateRange: _customRange,
+    );
+    if (picked != null) {
+      setState(() {
+        _customRange = picked;
+        _statisticsSelectedRange = 'custom';
+      });
+      _updateUiConfig();
+    }
+  }
+
+  /// 获取自定义日期范围的显示文本
+  String _getCustomRangeText() {
+    if (_customRange == null) {
+      return '自定义';
+    }
+    final start = _customRange!.start;
+    final end = _customRange!.end;
+    final startStr = '${start.year}/${start.month}/${start.day}';
+    final endStr = '${end.year}/${end.month}/${end.day}';
+    return '$startStr - $endStr';
   }
 }

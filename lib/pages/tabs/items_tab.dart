@@ -76,10 +76,10 @@ class _ItemsTabState extends State<ItemsTab>
                     .loadBookStatisticInfo(book.id);
                 // 加载每日统计数据
                 context.read<StatisticsProvider>().loadDailyStatistics(book.id);
-                  // 加载按用户当月统计（受配置控制）
-                  if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
-                    context.read<StatisticsProvider>().loadUserMonthlyStatistics(book.id);
-                  }
+                // 加载按用户当月统计（受配置控制）
+                if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
+                  context.read<StatisticsProvider>().loadUserMonthlyStatistics(book.id);
+                }
               },
             );
           },

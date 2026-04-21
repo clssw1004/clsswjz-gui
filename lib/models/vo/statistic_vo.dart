@@ -117,3 +117,25 @@ class UserMonthlyStatisticVO {
     this.count = 0,
   });
 }
+
+/// 当月按项目统计信息
+class ProjectMonthlyStatisticVO {
+  /// 项目ID
+  final String projectId;
+  /// 项目名称
+  final String projectName;
+  /// 收入
+  final double income;
+  /// 支出
+  final double expense;
+  /// 笔数
+  final int count;
+
+  const ProjectMonthlyStatisticVO({
+    required this.projectId,
+    required this.projectName,
+    this.income = 0,
+    this.expense = 0,
+    this.count = 0,
+  });
+}

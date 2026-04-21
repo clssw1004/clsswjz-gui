@@ -324,6 +324,11 @@ class AppConfigManager {
       itemTabShowDailyCalendar: _uiConfig.itemTabShowDailyCalendar,
       calendarShowIncome: showIncome ?? _uiConfig.calendarShowIncome,
       calendarShowExpense: showExpense ?? _uiConfig.calendarShowExpense,
+      itemTabShowUserMonthly: _uiConfig.itemTabShowUserMonthly,
+      itemTabShowProjectMonthly: _uiConfig.itemTabShowProjectMonthly,
+      statisticsSelectedRange: _uiConfig.statisticsSelectedRange,
+      statisticsCustomRangeStart: _uiConfig.statisticsCustomRangeStart,
+      statisticsCustomRangeEnd: _uiConfig.statisticsCustomRangeEnd,
     );
     await CacheManager.instance
         .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));

@@ -56,6 +56,12 @@ class StatisticsProvider extends ChangeNotifier {
   bool _loadingUserMonthly = false;
   bool get loadingUserMonthly => _loadingUserMonthly;
 
+  /// 当月按项目统计
+  List<ProjectMonthlyStatisticVO>? _projectMonthlyStatistics;
+  List<ProjectMonthlyStatisticVO>? get projectMonthlyStatistics => _projectMonthlyStatistics;
+  bool _loadingProjectMonthly = false;
+  bool get loadingProjectMonthly => _loadingProjectMonthly;
+
   /// 当前选中的统计类型（day, month, all）
   String _selectedStatisticType = 'all'; // 默认显示全部时间
   String get selectedStatisticType => _selectedStatisticType;
@@ -75,6 +81,7 @@ class StatisticsProvider extends ChangeNotifier {
       loadStatistics(event.book.id, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.book.id);
       loadUserMonthlyStatistics(event.book.id);
+      loadProjectMonthlyStatistics(event.book.id, start: _currentStart, end: _currentEnd);
     });
 
     _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
@@ -82,6 +89,7 @@ class StatisticsProvider extends ChangeNotifier {
       loadBookStatisticInfo(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.item.accountBookId);
       loadUserMonthlyStatistics(event.item.accountBookId);
+      loadProjectMonthlyStatistics(event.item.accountBookId, start: _currentStart, end: _currentEnd);
     });
   }
 
@@ -227,6 +235,26 @@ class StatisticsProvider extends ChangeNotifier {
       _userMonthlyStatistics = [];
     } finally {
       _loadingUserMonthly = false;
+      notifyListeners();
+    }
+  }
+
+  /// 加载按项目统计
+  Future<void> loadProjectMonthlyStatistics(String? bookId, {DateTime? start, DateTime? end}) async {
+    if (bookId == null) return;
+    _loadingProjectMonthly = true;
+    notifyListeners();
+    try {
+      final result = await _statisticService.getCurrentMonthProjectStatistic(bookId, start: start, end: end);
+      if (result.ok && result.data != null) {
+        _projectMonthlyStatistics = result.data;
+      } else {
+        _projectMonthlyStatistics = [];
+      }
+    } catch (e) {
+      _projectMonthlyStatistics = [];
+    } finally {
+      _loadingProjectMonthly = false;
       notifyListeners();
     }
   }

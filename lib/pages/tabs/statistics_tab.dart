@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/dto/ui_config_dto.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/statistics_provider.dart';
 import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
+import '../../widgets/item_widgets/project_monthly_statistic_chart.dart';
 import '../../widgets/statistics/category_tab_selector.dart';
 import '../../widgets/statistics/category_statistic_card.dart';
 import '../../widgets/statistics/time_range_selector.dart';
@@ -21,12 +24,21 @@ class StatisticsTab extends StatefulWidget {
 }
 
 class _StatisticsTabState extends State<StatisticsTab> {
-  String _selectedRange = 'month';
+  late String _selectedRange;
   DateTimeRange? _customRange;
 
   @override
   void initState() {
     super.initState();
+    _selectedRange = AppConfigManager.instance.uiConfig.statisticsSelectedRange;
+    final customStart = AppConfigManager.instance.uiConfig.statisticsCustomRangeStart;
+    final customEnd = AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd;
+    if (customStart != null && customEnd != null) {
+      _customRange = DateTimeRange(
+        start: DateTime.fromMillisecondsSinceEpoch(customStart),
+        end: DateTime.fromMillisecondsSinceEpoch(customEnd),
+      );
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reloadStatistics(context);
     });
@@ -91,23 +103,19 @@ class _StatisticsTabState extends State<StatisticsTab> {
       case 'year':
         start = DateTime(now.year, 1, 1);
         end = DateTime(now.year, 12, 31, 23, 59, 59);
-        break;
       case 'month':
         start = DateTime(now.year, now.month, 1);
         end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-        break;
       case 'week':
         final weekday = now.weekday;
         start = now.subtract(Duration(days: weekday - 1));
         end = start
             .add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
-        break;
       case 'custom':
         if (_customRange != null) {
           start = _customRange!.start;
           end = _customRange!.end;
         }
-        break;
       case 'all':
       default:
         start = null;
@@ -115,6 +123,30 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     statisticsProvider.loadStatistics(bookId, start: start, end: end);
     statisticsProvider.loadBookStatisticInfo(bookId, start: start, end: end);
+    statisticsProvider.loadProjectMonthlyStatistics(bookId, start: start, end: end);
+    _saveSelectedRange();
+  }
+
+  /// 保存选择的时间范围
+  Future<void> _saveSelectedRange() async {
+    final config = AppConfigManager.instance.uiConfig;
+    final newConfig = _createNewConfig(config);
+    await AppConfigManager.instance.setUiConfig(newConfig);
+  }
+
+  /// 创建新的配置对象
+  UiConfigDTO _createNewConfig(UiConfigDTO config) {
+    return UiConfigDTO(
+      itemTabShowDebt: config.itemTabShowDebt,
+      itemTabShowDailyBar: config.itemTabShowDailyBar,
+      itemTabShowDailyCalendar: config.itemTabShowDailyCalendar,
+      calendarShowIncome: config.calendarShowIncome,
+      calendarShowExpense: config.calendarShowExpense,
+      itemTabShowUserMonthly: config.itemTabShowUserMonthly,
+      statisticsSelectedRange: _selectedRange,
+      statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
+      statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
+    );
   }
 
   /// 构建内容区域
@@ -153,6 +185,16 @@ class _StatisticsTabState extends State<StatisticsTab> {
               ? L10nManager.l10n.currentMonth
               : L10nManager.l10n.total,
         ),
+
+        // 按项目统计卡片 - 根据配置决定是否显示
+        if (AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: ProjectMonthlyStatisticChart(
+              data: statisticsProvider.projectMonthlyStatistics ?? [],
+              loading: statisticsProvider.loadingProjectMonthly,
+            ),
+          ),
 
         // 分类统计卡片（可切换图表/列表）
         const CategoryTabSelector(),
