@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.10] - 2026-04-22
+
+### New Features
+- Statistics page: added project statistics list with tap-to-navigate
+- Settings: added display toggles for statistics charts (book, project, category)
+
+### Bug Fixes
+- Fixed project selection not taking effect
+- Decoupled accounting page monthly stats from statistics page
+
+
 ## [1.0.9] - 2026-04-18
 
 ### New Features

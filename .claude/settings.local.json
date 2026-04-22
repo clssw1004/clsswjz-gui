@@ -10,7 +10,9 @@
       "Bash(ls /Users/cuiwei/wspec/clsswjz-gui/lib/models/dto/*.dart)",
       "Bash(xargs -I{} basename {})",
       "mcp__ide__getDiagnostics",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
