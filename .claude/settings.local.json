@@ -6,7 +6,10 @@
       "Bash(dart run:*)",
       "Bash(dart analyze:*)",
       "Bash(git checkout:*)",
-      "Bash(flutter gen-l10n:*)"
+      "Bash(flutter gen-l10n:*)",
+      "Bash(ls /Users/cuiwei/wspec/clsswjz-gui/lib/models/dto/*.dart)",
+      "Bash(xargs -I{} basename {})",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

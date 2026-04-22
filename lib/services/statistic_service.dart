@@ -619,4 +619,114 @@ class StatisticService {
 
     return OperateResult.success(list);
   }
+
+  /// 获取当月按项目分组的记账笔数、收入、支出
+  Future<OperateResult<List<ProjectMonthlyStatisticVO>>>
+      getCurrentMonthProjectStatistic(String accountBookId,
+          {DateTime? start, DateTime? end}) async {
+    final db = DatabaseManager.db;
+
+    // 时间范围
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+    final monthStart = start ?? firstDayOfMonth;
+    final monthEnd = end ?? lastDayOfMonth;
+    final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(monthStart);
+    final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(monthEnd);
+
+    // 查询收入（排除退款）
+    final incomeQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.income.code) &
+          db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
+      ..addColumns([
+        db.accountItemTable.projectCode,
+        db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
+      ])
+      ..groupBy([db.accountItemTable.projectCode]);
+
+    // 查询支出
+    final expenseQuery = db.selectOnly(db.accountItemTable)
+      ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
+          db.accountItemTable.type.equals(AccountItemType.expense.code) &
+          db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
+      ..addColumns([
+        db.accountItemTable.projectCode,
+        db.accountItemTable.amount.sum(),
+        db.accountItemTable.id.count(),
+      ])
+      ..groupBy([db.accountItemTable.projectCode]);
+
+    final incomeRows = await incomeQuery.get();
+    final expenseRows = await expenseQuery.get();
+
+    // 合并收入/支出
+    final Map<String, ProjectMonthlyStatisticVO> map = {};
+
+    for (final row in incomeRows) {
+      final projectCode = row.read(db.accountItemTable.projectCode) ?? '';
+      if (projectCode.isEmpty) continue;
+      final income = row.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final count = row.read(db.accountItemTable.id.count()) ?? 0;
+      map[projectCode] = ProjectMonthlyStatisticVO(
+        projectId: projectCode,
+        projectName: projectCode,
+        income: income,
+        expense: 0,
+        count: count,
+      );
+    }
+
+    for (final row in expenseRows) {
+      final projectCode = row.read(db.accountItemTable.projectCode) ?? '';
+      if (projectCode.isEmpty) continue;
+      final expense = row.read(db.accountItemTable.amount.sum()) ?? 0.0;
+      final count = row.read(db.accountItemTable.id.count()) ?? 0;
+      final prev = map[projectCode];
+      if (prev == null) {
+        map[projectCode] = ProjectMonthlyStatisticVO(
+          projectId: projectCode,
+          projectName: projectCode,
+          income: 0,
+          expense: expense,
+          count: count,
+        );
+      } else {
+        map[projectCode] = ProjectMonthlyStatisticVO(
+          projectId: prev.projectId,
+          projectName: prev.projectName,
+          income: prev.income,
+          expense: expense,
+          count: prev.count + count,
+        );
+      }
+    }
+
+    // 映射项目名称（projectCode 关联的是 AccountSymbol 表）
+    if (map.isNotEmpty) {
+      final codes = map.keys.where((e) => e.isNotEmpty).toList();
+      if (codes.isNotEmpty) {
+        final symbols = await (db.select(db.accountSymbolTable)
+              ..where((t) => t.code.isIn(codes)))
+            .get();
+        final code2name = {for (var s in symbols) s.code: s.name};
+        map.updateAll((key, value) => ProjectMonthlyStatisticVO(
+              projectId: value.projectId,
+              projectName: code2name[key] ?? value.projectName,
+              income: value.income,
+              expense: value.expense,
+              count: value.count,
+            ));
+      }
+    }
+
+    final list = map.values.toList()
+      ..sort((a, b) =>
+          (b.income + b.expense.abs()).compareTo(a.income + a.expense.abs()));
+
+    return OperateResult.success(list);
+  }
 }

@@ -15,7 +15,7 @@ import '../../widgets/item_widgets/items_container.dart';
 import '../../widgets/item_widgets/debts_container.dart';
 import '../../widgets/item_widgets/daily_statistic_bar.dart';
 import '../../widgets/item_widgets/daily_statistic_calendar.dart';
-  import '../../widgets/item_widgets/user_monthly_statistic_chart.dart';
+import '../../widgets/item_widgets/user_monthly_statistic_chart.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -53,6 +53,14 @@ class _ItemsTabState extends State<ItemsTab>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final itemProvider = context.read<ItemListProvider>();
       itemProvider.loadItems();
+      // 加载本月统计数据（固定使用本月范围，不受统计页面影响）
+      final bookId = context.read<BooksProvider>().selectedBook?.id;
+      if (bookId != null) {
+        final now = DateTime.now();
+        final monthStart = DateTime(now.year, now.month, 1);
+        final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+        context.read<StatisticsProvider>().loadBookStatisticInfo(bookId, start: monthStart, end: monthEnd);
+      }
     });
   }
 
@@ -70,16 +78,19 @@ class _ItemsTabState extends State<ItemsTab>
               selectedBook: provider.selectedBook,
               onSelected: (book) {
                 provider.setSelectedBook(book);
-                // 切换账本时重新加载统计数据
+                // 切换账本时重新加载统计数据（固定使用本月范围，不受统计页面影响）
+                final now = DateTime.now();
+                final monthStart = DateTime(now.year, now.month, 1);
+                final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
                 context
                     .read<StatisticsProvider>()
-                    .loadBookStatisticInfo(book.id);
+                    .loadBookStatisticInfo(book.id, start: monthStart, end: monthEnd);
                 // 加载每日统计数据
                 context.read<StatisticsProvider>().loadDailyStatistics(book.id);
-                  // 加载按用户当月统计（受配置控制）
-                  if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
-                    context.read<StatisticsProvider>().loadUserMonthlyStatistics(book.id);
-                  }
+                // 加载按用户当月统计（受配置控制）
+                if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
+                  context.read<StatisticsProvider>().loadUserMonthlyStatistics(book.id);
+                }
               },
             );
           },
@@ -148,6 +159,7 @@ class _ItemsTabState extends State<ItemsTab>
                         loading: statisticsProvider.loadingUserMonthly,
                       ),
                     ),
+
 
                   // 债务信息 - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDebt)
