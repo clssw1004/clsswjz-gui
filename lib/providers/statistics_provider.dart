@@ -181,6 +181,8 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// 加载所有时间范围的账本统计信息
+  /// [start]/[end] 参数只影响本月统计（currentMonthStatistic）
+  /// 全部时间和最后一天统计不受参数影响，始终查询全部数据和当天数据
   Future<void> loadBookStatisticInfo(String? bookId, {DateTime? start, DateTime? end}) async {
     if (bookId == null) return;
 
@@ -189,13 +191,15 @@ class StatisticsProvider extends ChangeNotifier {
 
     try {
       // 并行加载所有统计数据
+      // getAllTimeStatistic 和 getLastDayStatistic 不受 start/end 影响，始终查询全部/当天数据
+      // 只有 getCurrentMonthStatistic 使用传入的时间范围
       final results = await Future.wait([
         _loadStatisticData(
-            bookId, 'all', (id) => _statisticService.getAllTimeStatistic(id, start: start, end: end)),
+            bookId, 'all', (id) => _statisticService.getAllTimeStatistic(id)),
         _loadStatisticData(
             bookId, 'month', (id) => _statisticService.getCurrentMonthStatistic(id, start: start, end: end)),
         _loadStatisticData(
-            bookId, 'day', (id) => _statisticService.getLastDayStatistic(id, start: start, end: end)),
+            bookId, 'day', (id) => _statisticService.getLastDayStatistic(id)),
       ]);
 
       // 直接赋值结果
