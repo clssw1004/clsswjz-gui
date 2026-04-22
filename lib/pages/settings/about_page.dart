@@ -26,7 +26,7 @@ class AboutPage extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: colorScheme.outlineVariant.withOpacity(0.2),
+                  color: colorScheme.outlineVariant.withValues(alpha:0.2),
                 ),
               ),
             ),
@@ -41,7 +41,7 @@ class AboutPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.shadow.withOpacity(0.08),
+                        color: colorScheme.shadow.withValues(alpha:0.08),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                         spreadRadius: 4,
@@ -79,7 +79,7 @@ class AboutPage extends StatelessWidget {
                         color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: colorScheme.outlineVariant.withOpacity(0.2),
+                          color: colorScheme.outlineVariant.withValues(alpha:0.2),
                         ),
                       ),
                       child: Text(
@@ -198,7 +198,7 @@ class AboutPage extends StatelessWidget {
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: colorScheme.primary.withOpacity(0.2),
+                        color: colorScheme.primary.withValues(alpha:0.2),
                       ),
                     ),
                     child: Icon(
@@ -240,7 +240,7 @@ class AboutPage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: colorScheme.outlineVariant.withOpacity(0.2),
+          color: colorScheme.outlineVariant.withValues(alpha:0.2),
         ),
       ),
       child: InkWell(
@@ -257,7 +257,7 @@ class AboutPage extends StatelessWidget {
                   color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: colorScheme.primary.withOpacity(0.2),
+                    color: colorScheme.primary.withValues(alpha:0.2),
                   ),
                 ),
                 child: Icon(

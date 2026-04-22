@@ -99,7 +99,7 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
           ),
           hintText: widget.hintText,
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+            color: colorScheme.onSurfaceVariant.withValues(alpha:0.7),
             height: 1.0,
           ),
           border: InputBorder.none,

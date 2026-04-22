@@ -23,7 +23,7 @@ class SharedBadge extends StatelessWidget {
         vertical: 2,
       ),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.8),
+        color: colorScheme.primaryContainer.withValues(alpha:0.8),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(

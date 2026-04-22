@@ -52,7 +52,7 @@ class ItemTileTimeline extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: colorScheme.secondaryContainer.withOpacity(0.5),
+          color: colorScheme.secondaryContainer.withValues(alpha:0.5),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
@@ -93,7 +93,7 @@ class ItemTileTimeline extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withOpacity(0.5),
+                        color: colorScheme.primaryContainer.withValues(alpha:0.5),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -128,7 +128,7 @@ class ItemTileTimeline extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withOpacity(0.5),
+                        color: colorScheme.primaryContainer.withValues(alpha:0.5),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

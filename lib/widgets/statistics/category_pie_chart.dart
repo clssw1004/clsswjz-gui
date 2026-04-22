@@ -131,7 +131,7 @@ class CategoryPieChart extends StatelessWidget {
               letterSpacing: 0.5,
               shadows: [
                 Shadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha:0.3),
                   offset: const Offset(0, 1),
                   blurRadius: 2,
                 ),

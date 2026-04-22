@@ -9,7 +9,8 @@
       "Bash(flutter gen-l10n:*)",
       "Bash(ls /Users/cuiwei/wspec/clsswjz-gui/lib/models/dto/*.dart)",
       "Bash(xargs -I{} basename {})",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "WebSearch"
     ]
   }
 }

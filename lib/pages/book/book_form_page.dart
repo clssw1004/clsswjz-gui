@@ -780,7 +780,7 @@ class _MemberItem extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: value
-                    ? colorScheme.primary.withOpacity(0.2)
+                    ? colorScheme.primary.withValues(alpha:0.2)
                     : colorScheme.surfaceContainerHigh,
                 shape: BoxShape.circle,
               ),

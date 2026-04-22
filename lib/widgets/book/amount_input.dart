@@ -73,7 +73,7 @@ class _AmountInputState extends State<AmountInput> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: colorScheme.outlineVariant.withOpacity(0.2),
+                  color: colorScheme.outlineVariant.withValues(alpha:0.2),
                 ),
               ),
             ),

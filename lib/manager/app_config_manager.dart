@@ -127,7 +127,7 @@ class AppConfigManager {
 
     // 初始化主题色
     _themeColor = Color(
-        CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.value);
+        CacheManager.instance.getInt(_themeColorKey) ?? Colors.blue.toARGB32());
 
     // 初始化主题模式
     final themeModeString = CacheManager.instance.getString(_themeModeKey);
@@ -210,7 +210,7 @@ class AppConfigManager {
   /// 设置主题色
   Future<void> setThemeColor(Color color) async {
     _themeColor = color;
-    await CacheManager.instance.setInt(_themeColorKey, color.value);
+    await CacheManager.instance.setInt(_themeColorKey, color.toARGB32());
   }
 
   /// 设置主题模式

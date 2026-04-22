@@ -164,7 +164,7 @@ class _DebtTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: amountColor.withOpacity(0.1),
+                  color: amountColor.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(

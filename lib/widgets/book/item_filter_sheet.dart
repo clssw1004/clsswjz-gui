@@ -243,7 +243,7 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha:0.5)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -288,11 +288,11 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha:0.5)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha:0.5)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
@@ -336,11 +336,11 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha:0.5)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
-                      borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+                      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha:0.5)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
@@ -372,7 +372,7 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha:0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -451,7 +451,7 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha:0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
