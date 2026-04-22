@@ -143,9 +143,14 @@ class _StatisticsTabState extends State<StatisticsTab> {
       calendarShowIncome: config.calendarShowIncome,
       calendarShowExpense: config.calendarShowExpense,
       itemTabShowUserMonthly: config.itemTabShowUserMonthly,
+      itemTabShowProjectMonthly: config.itemTabShowProjectMonthly,
+      statisticsShowBookStatistic: config.statisticsShowBookStatistic,
+      statisticsShowProjectStatistic: config.statisticsShowProjectStatistic,
+      statisticsShowCategoryStatistic: config.statisticsShowCategoryStatistic,
       statisticsSelectedRange: _selectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
+      statisticsSelectedProjects: config.statisticsSelectedProjects,
     );
   }
 
@@ -170,36 +175,42 @@ class _StatisticsTabState extends State<StatisticsTab> {
 
   /// 构建统计视图
   Widget _buildStatisticsView(BuildContext context) {
+    final booksProvider = Provider.of<BooksProvider>(context, listen: false);
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
+    final config = AppConfigManager.instance.uiConfig;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // 账本统计卡片
-        BookStatisticCard(
-          statisticInfo: _selectedRange == 'month'
-              ? statisticsProvider.currentMonthStatistic
-              : statisticsProvider.allTimeStatistic,
-          margin: const EdgeInsets.only(bottom: 16),
-          title: _selectedRange == 'month'
-              ? L10nManager.l10n.currentMonth
-              : L10nManager.l10n.total,
-        ),
+        // 账本统计卡片 - 根据配置决定是否显示
+        if (config.statisticsShowBookStatistic)
+          BookStatisticCard(
+            statisticInfo: _selectedRange == 'month'
+                ? statisticsProvider.currentMonthStatistic
+                : statisticsProvider.allTimeStatistic,
+            margin: const EdgeInsets.only(bottom: 16),
+            title: _selectedRange == 'month'
+                ? L10nManager.l10n.currentMonth
+                : L10nManager.l10n.total,
+          ),
 
         // 按项目统计卡片 - 根据配置决定是否显示
-        if (AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly)
+        if (config.statisticsShowProjectStatistic)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: ProjectMonthlyStatisticChart(
-              data: statisticsProvider.projectMonthlyStatistics ?? [],
+              data: statisticsProvider.filteredProjectStatistics,
               loading: statisticsProvider.loadingProjectMonthly,
+              accountBook: booksProvider.selectedBook,
             ),
           ),
 
-        // 分类统计卡片（可切换图表/列表）
-        const CategoryTabSelector(),
-        const SizedBox(height: 16),
-        const CategoryStatisticCard(),
+        // 分类统计卡片 - 根据配置决定是否显示
+        if (config.statisticsShowCategoryStatistic) ...[
+          const CategoryTabSelector(),
+          const SizedBox(height: 16),
+          const CategoryStatisticCard(),
+        ],
       ],
     );
   }

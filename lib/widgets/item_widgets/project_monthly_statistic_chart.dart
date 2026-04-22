@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import '../../models/vo/statistic_vo.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../models/vo/statistic_vo.dart';
+import '../../models/vo/user_book_vo.dart';
+import '../../routes/app_routes.dart';
 import '../common/common_card_container.dart';
-import '../../utils/color_util.dart';
 
-/// 当月按项目统计（双Y轴柱状图）：笔数（左轴）、金额（右轴）
+/// 当月按项目统计（列表形式）
 class ProjectMonthlyStatisticChart extends StatelessWidget {
   final List<ProjectMonthlyStatisticVO> data;
   final bool loading;
+  final UserBookVO? accountBook;
+
+  /// 项目颜色列表
+  static const List<Color> projectColors = [
+    Color(0xFF43A047), // 绿色
+    Color(0xFFE53935), // 红色
+    Color(0xFF1E88E5), // 蓝色
+    Color(0xFFFF9800), // 橙色
+    Color(0xFF8E24AA), // 紫色
+    Color(0xFF00ACC1), // 青色
+    Color(0xFFFFB300), // 琥珀色
+    Color(0xFF5E35B1), // 深紫色
+    Color(0xFF00897B), // 蓝绿色
+    Color(0xFFD81B60), // 粉红色
+  ];
 
   const ProjectMonthlyStatisticChart({
     super.key,
     required this.data,
     this.loading = false,
+    this.accountBook,
   });
 
   @override
@@ -23,7 +40,7 @@ class ProjectMonthlyStatisticChart extends StatelessWidget {
 
     if (loading) {
       return const SizedBox(
-        height: 280,
+        height: 200,
         child: Center(child: CircularProgressIndicator()),
       );
     }
@@ -31,20 +48,20 @@ class ProjectMonthlyStatisticChart extends StatelessWidget {
     if (data.isEmpty) {
       return CommonCardContainer(
         child: SizedBox(
-          height: 220,
+          height: 120,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.stacked_bar_chart_outlined,
-                  size: 48,
+                  size: 32,
                   color: colorScheme.onSurfaceVariant.withAlpha(100),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
                   L10nManager.l10n.noData,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -56,23 +73,24 @@ class ProjectMonthlyStatisticChart extends StatelessWidget {
     }
 
     return CommonCardContainer(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 标题
           Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+            padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
               children: [
                 Icon(
                   Icons.folder_outlined,
                   color: colorScheme.primary,
-                  size: 20,
+                  size: 18,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   '按项目统计',
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
                   ),
@@ -81,161 +99,88 @@ class ProjectMonthlyStatisticChart extends StatelessWidget {
             ),
           ),
 
-          // 图表
-          SizedBox(
-            height: 260,
-            child: SfCartesianChart(
-              margin: const EdgeInsets.fromLTRB(8, 8, 8, 12),
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                labelStyle: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontSize: 11,
-                ),
-                axisLine: AxisLine(color: colorScheme.outline.withAlpha(50), width: 1),
-              ),
-              // 主Y轴放左侧，隐藏文字（不占横向空间），保留网格线
-              primaryYAxis: NumericAxis(
-                isVisible: true,
-                opposedPosition: false,
-                // 展示数值与网格，样式与每日统计一致
-                labelStyle: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontSize: 10,
-                ),
-                majorGridLines: MajorGridLines(
-                  color: colorScheme.outline.withAlpha(20),
-                  width: 0.5,
-                  dashArray: const [3, 3],
-                ),
-                axisLine: AxisLine(color: colorScheme.outline.withAlpha(50), width: 1),
-                majorTickLines: const MajorTickLines(size: 0),
-                minorTickLines: const MinorTickLines(size: 0),
-              ),
-              axes: <ChartAxis>[
-                // 关闭右侧轴
-                NumericAxis(name: 'amountAxis', opposedPosition: true, isVisible: false),
-              ],
-              legend: const Legend(isVisible: false),
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                builder: (dynamic d, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
-                  final row = d as ChartProjectRow;
-                  return Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.outline.withAlpha(80), width: 1),
-                    ),
-                    child: DefaultTextStyle(
-                      style: theme.textTheme.bodySmall!.copyWith(color: colorScheme.onSurface),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(row.project, style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 6),
-                          Text('${L10nManager.l10n.accountItem}: ${row.count}'),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.INCOME, shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              RichText(
-                                text: TextSpan(
-                                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
-                                  children: [
-                                    TextSpan(text: '${L10nManager.l10n.income}: '),
-                                    TextSpan(text: row.income.toStringAsFixed(0), style: TextStyle(color: ColorUtil.INCOME, fontWeight: FontWeight.w600)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.EXPENSE, shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              RichText(
-                                text: TextSpan(
-                                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
-                                  children: [
-                                    TextSpan(text: '${L10nManager.l10n.expense}: '),
-                                    TextSpan(text: row.expense.toStringAsFixed(0), style: TextStyle(color: ColorUtil.EXPENSE, fontWeight: FontWeight.w600)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-              plotAreaBorderWidth: 0,
-              series: <CartesianSeries<dynamic, dynamic>>[
-                // 收入
-                ColumnSeries<ChartProjectRow, String>(
-                  name: L10nManager.l10n.income,
-                  dataSource: data
-                      .map((e) => ChartProjectRow(project: e.projectName, count: e.count, income: e.income, expense: e.expense.abs()))
-                      .toList(),
-                  xValueMapper: (r, _) => r.project,
-                  yValueMapper: (r, _) => r.income,
-                  color: ColorUtil.INCOME,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  width: 0.4,
-                  spacing: 0.2,
-                  dataLabelSettings: const DataLabelSettings(isVisible: false),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      ColorUtil.INCOME.withAlpha(180),
-                      ColorUtil.INCOME.withAlpha(220),
-                    ],
-                  ),
-                ),
-                // 支出
-                ColumnSeries<ChartProjectRow, String>(
-                  name: L10nManager.l10n.expense,
-                  dataSource: data
-                      .map((e) => ChartProjectRow(project: e.projectName, count: e.count, income: e.income, expense: e.expense.abs()))
-                      .toList(),
-                  xValueMapper: (r, _) => r.project,
-                  yValueMapper: (r, _) => r.expense,
-                  color: ColorUtil.EXPENSE,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  width: 0.4,
-                  spacing: 0.2,
-                  dataLabelSettings: const DataLabelSettings(isVisible: false),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      ColorUtil.EXPENSE.withAlpha(180),
-                      ColorUtil.EXPENSE.withAlpha(220),
-                    ],
-                  ),
-                ),
-              ],
+          // 列表
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: data.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: colorScheme.outline.withAlpha(30),
             ),
+            itemBuilder: (context, index) {
+              final item = data[index];
+              final color = projectColors[index % projectColors.length];
+              final total = item.income + item.expense.abs();
+
+              return InkWell(
+                onTap: () {
+                  // 使用传入的账本跳转
+                  final book = accountBook;
+                  if (book != null) {
+                    final filter = ItemFilterDTO(projectCodes: [item.projectId]);
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.items,
+                      arguments: [book, filter, item.projectName],
+                    );
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      // 颜色指示条
+                      Container(
+                        width: 4,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 项目名称
+                      Expanded(
+                        child: Text(
+                          item.projectName,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // 笔数
+                      Text(
+                        '${item.count}笔',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 金额
+                      Text(
+                        total.toStringAsFixed(0),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.chevron_right,
+                        size: 18,
+                        color: colorScheme.onSurfaceVariant.withAlpha(100),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
-}
-
-class ChartProjectRow {
-  final String project;
-  final int count;
-  final double income;
-  final double expense;
-  ChartProjectRow({required this.project, required this.count, required this.income, required this.expense});
 }

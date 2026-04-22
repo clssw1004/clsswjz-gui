@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../manager/app_config_manager.dart';
-import '../../manager/l10n_manager.dart';
-import '../../models/dto/ui_config_dto.dart';
-import '../../widgets/common/common_card_container.dart';
+import 'package:clsswjz_gui/database/database.dart';
+import 'package:clsswjz_gui/drivers/driver_factory.dart';
+import 'package:clsswjz_gui/enums/symbol_type.dart';
+import 'package:clsswjz_gui/manager/app_config_manager.dart';
+import 'package:clsswjz_gui/manager/l10n_manager.dart';
+import 'package:clsswjz_gui/models/dto/ui_config_dto.dart';
+import 'package:clsswjz_gui/widgets/common/common_card_container.dart';
 
 /// UI布局配置页面
 class UiConfigPage extends StatefulWidget {
@@ -18,25 +21,75 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showDailyCalendar;
   late bool _showUserMonthly;
   late bool _showProjectMonthly;
+  late bool _showStatisticsBookStatistic;
+  late bool _showStatisticsProjectStatistic;
+  late bool _showStatisticsCategoryStatistic;
   late String _statisticsSelectedRange;
   DateTimeRange? _customRange;
+  List<String> _selectedProjects = [];
+  List<AccountSymbol> _availableProjects = [];
+  bool _loadingProjects = true;
 
   @override
   void initState() {
     super.initState();
     _showDebt = AppConfigManager.instance.uiConfig.itemTabShowDebt;
     _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyBar;
-    _showDailyCalendar = AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
-    _showUserMonthly = AppConfigManager.instance.uiConfig.itemTabShowUserMonthly;
-    _showProjectMonthly = AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly;
-    _statisticsSelectedRange = AppConfigManager.instance.uiConfig.statisticsSelectedRange;
-    final customStart = AppConfigManager.instance.uiConfig.statisticsCustomRangeStart;
-    final customEnd = AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd;
+    _showDailyCalendar =
+        AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
+    _showUserMonthly =
+        AppConfigManager.instance.uiConfig.itemTabShowUserMonthly;
+    _showProjectMonthly =
+        AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly;
+    _showStatisticsBookStatistic =
+        AppConfigManager.instance.uiConfig.statisticsShowBookStatistic;
+    _showStatisticsProjectStatistic =
+        AppConfigManager.instance.uiConfig.statisticsShowProjectStatistic;
+    _showStatisticsCategoryStatistic =
+        AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic;
+    _statisticsSelectedRange =
+        AppConfigManager.instance.uiConfig.statisticsSelectedRange;
+    _selectedProjects =
+        List.from(AppConfigManager.instance.uiConfig.statisticsSelectedProjects);
+    final customStart =
+        AppConfigManager.instance.uiConfig.statisticsCustomRangeStart;
+    final customEnd =
+        AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd;
     if (customStart != null && customEnd != null) {
       _customRange = DateTimeRange(
         start: DateTime.fromMillisecondsSinceEpoch(customStart),
         end: DateTime.fromMillisecondsSinceEpoch(customEnd),
       );
+    }
+    _loadProjects();
+  }
+
+  /// 加载项目列表
+  Future<void> _loadProjects() async {
+    final userId = AppConfigManager.instance.userId;
+    final bookId = AppConfigManager.instance.defaultBookId;
+    if (bookId == null) {
+      setState(() => _loadingProjects = false);
+      return;
+    }
+    try {
+      final result = await DriverFactory.driver.listSymbolsByBook(
+        userId,
+        bookId,
+        symbolType: SymbolType.project,
+      );
+      if (mounted) {
+        setState(() {
+          _availableProjects = result.data ?? [];
+          _loadingProjects = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadingProjects = false;
+        });
+      }
     }
   }
 
@@ -119,7 +172,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
                   // 每日收支统计展示开关
                   Row(
@@ -336,11 +389,15 @@ class _UiConfigPageState extends State<UiConfigPage> {
                             value: _statisticsSelectedRange,
                             underline: const SizedBox(),
                             items: const [
-                              DropdownMenuItem(value: 'month', child: Text('本月')),
-                              DropdownMenuItem(value: 'year', child: Text('本年')),
-                              DropdownMenuItem(value: 'week', child: Text('本周')),
+                              DropdownMenuItem(
+                                  value: 'month', child: Text('本月')),
+                              DropdownMenuItem(
+                                  value: 'year', child: Text('本年')),
+                              DropdownMenuItem(
+                                  value: 'week', child: Text('本周')),
                               DropdownMenuItem(value: 'all', child: Text('全部')),
-                              DropdownMenuItem(value: 'custom', child: Text('自定义')),
+                              DropdownMenuItem(
+                                  value: 'custom', child: Text('自定义')),
                             ],
                             onChanged: (value) {
                               if (value != null) {
@@ -355,7 +412,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
                               }
                             },
                           ),
-                          if (_statisticsSelectedRange == 'custom' && _customRange != null)
+                          if (_statisticsSelectedRange == 'custom' &&
+                              _customRange != null)
                             Padding(
                               padding: const EdgeInsets.only(right: 12),
                               child: Text(
@@ -371,6 +429,156 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 账本统计卡片展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '账本统计卡片',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '显示收入/支出/余额概览',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showStatisticsBookStatistic,
+                        onChanged: (value) {
+                          setState(() {
+                            _showStatisticsBookStatistic = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 按项目统计展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '按项目统计',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '显示各项目的收支统计',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showStatisticsProjectStatistic,
+                        onChanged: (value) {
+                          setState(() {
+                            _showStatisticsProjectStatistic = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 分类统计展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '分类统计',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '显示分类收支统计',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showStatisticsCategoryStatistic,
+                        onChanged: (value) {
+                          setState(() {
+                            _showStatisticsCategoryStatistic = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 项目选择
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '按项目统计展示',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '选择要展示的项目，不选则展示全部',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: _loadingProjects ? null : _showProjectSelector,
+                        child: Text(
+                          _selectedProjects.isEmpty
+                              ? '全部项目'
+                              : '已选${_selectedProjects.length}个',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -378,6 +586,26 @@ class _UiConfigPageState extends State<UiConfigPage> {
         ),
       ),
     );
+  }
+
+  /// 显示项目选择器
+  Future<void> _showProjectSelector() async {
+    if (_availableProjects.isEmpty) return;
+
+    final result = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => _ProjectSelectDialog(
+        projects: _availableProjects,
+        selectedCodes: _selectedProjects,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedProjects = result;
+      });
+      _updateUiConfig();
+    }
   }
 
   /// 更新UI配置
@@ -388,9 +616,13 @@ class _UiConfigPageState extends State<UiConfigPage> {
       itemTabShowDailyCalendar: _showDailyCalendar,
       itemTabShowUserMonthly: _showUserMonthly,
       itemTabShowProjectMonthly: _showProjectMonthly,
+      statisticsShowBookStatistic: _showStatisticsBookStatistic,
+      statisticsShowProjectStatistic: _showStatisticsProjectStatistic,
+      statisticsShowCategoryStatistic: _showStatisticsCategoryStatistic,
       statisticsSelectedRange: _statisticsSelectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
+      statisticsSelectedProjects: _selectedProjects,
     );
     await AppConfigManager.instance.setUiConfig(newConfig);
   }
@@ -423,5 +655,102 @@ class _UiConfigPageState extends State<UiConfigPage> {
     final startStr = '${start.year}/${start.month}/${start.day}';
     final endStr = '${end.year}/${end.month}/${end.day}';
     return '$startStr - $endStr';
+  }
+}
+
+/// 项目选择对话框
+class _ProjectSelectDialog extends StatefulWidget {
+  final List<AccountSymbol> projects;
+  final List<String> selectedCodes;
+
+  const _ProjectSelectDialog({
+    required this.projects,
+    required this.selectedCodes,
+  });
+
+  @override
+  State<_ProjectSelectDialog> createState() => _ProjectSelectDialogState();
+}
+
+class _ProjectSelectDialogState extends State<_ProjectSelectDialog> {
+  late List<String> _selectedCodes;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCodes = List.from(widget.selectedCodes);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('选择项目'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 全选/清空按钮
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedCodes = widget.projects.map((p) => p.code).toList();
+                    });
+                  },
+                  child: const Text('全选'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedCodes = [];
+                    });
+                  },
+                  child: const Text('清空'),
+                ),
+              ],
+            ),
+            const Divider(),
+            // 项目列表
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.projects.length,
+                itemBuilder: (context, index) {
+                  final project = widget.projects[index];
+                  final isSelected = _selectedCodes.contains(project.code);
+                  return CheckboxListTile(
+                    title: Text(project.name),
+                    value: isSelected,
+                    onChanged: (value) {
+                      setState(() {
+                        if (value == true) {
+                          _selectedCodes.add(project.code);
+                        } else {
+                          _selectedCodes.remove(project.code);
+                        }
+                      });
+                    },
+                    dense: true,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(L10nManager.l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_selectedCodes),
+          child: Text(L10nManager.l10n.confirm),
+        ),
+      ],
+    );
   }
 }

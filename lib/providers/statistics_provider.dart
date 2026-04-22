@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../manager/app_config_manager.dart';
 import '../enums/account_type.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_book.dart';
@@ -56,9 +57,20 @@ class StatisticsProvider extends ChangeNotifier {
   bool _loadingUserMonthly = false;
   bool get loadingUserMonthly => _loadingUserMonthly;
 
-  /// 当月按项目统计
+  /// 当月按项目统计（全部数据）
   List<ProjectMonthlyStatisticVO>? _projectMonthlyStatistics;
   List<ProjectMonthlyStatisticVO>? get projectMonthlyStatistics => _projectMonthlyStatistics;
+
+  /// 获取过滤后的项目统计数据（根据配置中选中的项目）
+  List<ProjectMonthlyStatisticVO> get filteredProjectStatistics {
+    final allProjects = _projectMonthlyStatistics ?? [];
+    final selectedProjects = AppConfigManager.instance.uiConfig.statisticsSelectedProjects;
+    if (selectedProjects.isEmpty) {
+      return allProjects;
+    }
+    return allProjects.where((p) => selectedProjects.contains(p.projectId)).toList();
+  }
+
   bool _loadingProjectMonthly = false;
   bool get loadingProjectMonthly => _loadingProjectMonthly;
 
