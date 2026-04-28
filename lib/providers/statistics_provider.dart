@@ -35,9 +35,15 @@ class StatisticsProvider extends ChangeNotifier {
   BookStatisticVO? _allTimeStatistic;
   BookStatisticVO? get allTimeStatistic => _allTimeStatistic;
 
-  /// 账本统计信息 - 本月
+  /// 账本统计信息 - 本月（统计页面使用）
   BookStatisticVO? _currentMonthStatistic;
   BookStatisticVO? get currentMonthStatistic => _currentMonthStatistic;
+
+  /// 账本统计信息 - 本月（账目页独立使用，与统计页面解耦）
+  BookStatisticVO? _itemTabMonthStatistic;
+  BookStatisticVO? get itemTabMonthStatistic => _itemTabMonthStatistic;
+  bool _loadingItemTabStatistic = false;
+  bool get loadingItemTabStatistic => _loadingItemTabStatistic;
 
   /// 账本统计信息 - 最近一天
   BookStatisticVO? _lastDayStatistic;
@@ -90,6 +96,7 @@ class StatisticsProvider extends ChangeNotifier {
 
     _bookChangedSubscription = EventBus.instance.on<BookChangedEvent>((event) {
       loadBookStatisticInfo(event.book.id, start: _currentStart, end: _currentEnd);
+      loadItemTabStatistics(event.book.id);
       loadStatistics(event.book.id, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.book.id);
       loadUserMonthlyStatistics(event.book.id);
@@ -97,6 +104,7 @@ class StatisticsProvider extends ChangeNotifier {
     });
 
     _itemChangedSubscription = EventBus.instance.on<ItemChangedEvent>((event) {
+      loadItemTabStatistics(event.item.accountBookId);
       loadStatistics(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadBookStatisticInfo(event.item.accountBookId, start: _currentStart, end: _currentEnd);
       loadDailyStatistics(event.item.accountBookId);
@@ -180,6 +188,34 @@ class StatisticsProvider extends ChangeNotifier {
     }
   }
 
+  /// 加载账目页本月统计数据（独立于统计页面，固定查询当月1日到月末）
+  Future<void> loadItemTabStatistics(String? bookId) async {
+    if (bookId == null) return;
+
+    _loadingItemTabStatistic = true;
+    notifyListeners();
+
+    try {
+      // 固定查询当月数据
+      final now = DateTime.now();
+      final monthStart = DateTime(now.year, now.month, 1);
+      final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+      final result = await _statisticService.getCurrentMonthStatistic(bookId, start: monthStart, end: monthEnd);
+      if (result.ok && result.data != null) {
+        _itemTabMonthStatistic = result.data;
+      } else {
+        _itemTabMonthStatistic = _createDefaultStatistic('month');
+      }
+    } catch (e) {
+      debugPrint('加载账目页本月统计失败: $e');
+      _itemTabMonthStatistic = _createDefaultStatistic('month');
+    } finally {
+      _loadingItemTabStatistic = false;
+      notifyListeners();
+    }
+  }
+
   /// 加载所有时间范围的账本统计信息
   /// [start]/[end] 参数只影响本月统计（currentMonthStatistic）
   /// 全部时间和最后一天统计不受参数影响，始终查询全部数据和当天数据
@@ -191,11 +227,12 @@ class StatisticsProvider extends ChangeNotifier {
 
     try {
       // 并行加载所有统计数据
-      // getAllTimeStatistic 和 getLastDayStatistic 不受 start/end 影响，始终查询全部/当天数据
-      // 只有 getCurrentMonthStatistic 使用传入的时间范围
+      // getAllTimeStatistic 使用传入的时间范围（支持 week/month/year/custom）
+      // getCurrentMonthStatistic 使用传入的时间范围
+      // getLastDayStatistic 不受 start/end 影响，始终查询当天数据
       final results = await Future.wait([
         _loadStatisticData(
-            bookId, 'all', (id) => _statisticService.getAllTimeStatistic(id)),
+            bookId, 'all', (id) => _statisticService.getAllTimeStatistic(id, start: start, end: end)),
         _loadStatisticData(
             bookId, 'month', (id) => _statisticService.getCurrentMonthStatistic(id, start: start, end: end)),
         _loadStatisticData(
