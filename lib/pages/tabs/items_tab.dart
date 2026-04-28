@@ -56,10 +56,7 @@ class _ItemsTabState extends State<ItemsTab>
       // 加载本月统计数据（固定使用本月范围，不受统计页面影响）
       final bookId = context.read<BooksProvider>().selectedBook?.id;
       if (bookId != null) {
-        final now = DateTime.now();
-        final monthStart = DateTime(now.year, now.month, 1);
-        final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-        context.read<StatisticsProvider>().loadBookStatisticInfo(bookId, start: monthStart, end: monthEnd);
+        context.read<StatisticsProvider>().loadItemTabStatistics(bookId);
       }
     });
   }
@@ -79,12 +76,9 @@ class _ItemsTabState extends State<ItemsTab>
               onSelected: (book) {
                 provider.setSelectedBook(book);
                 // 切换账本时重新加载统计数据（固定使用本月范围，不受统计页面影响）
-                final now = DateTime.now();
-                final monthStart = DateTime(now.year, now.month, 1);
-                final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
                 context
                     .read<StatisticsProvider>()
-                    .loadBookStatisticInfo(book.id, start: monthStart, end: monthEnd);
+                    .loadItemTabStatistics(book.id);
                 // 加载每日统计数据
                 context.read<StatisticsProvider>().loadDailyStatistics(book.id);
                 // 加载按用户当月统计（受配置控制）
@@ -110,7 +104,7 @@ class _ItemsTabState extends State<ItemsTab>
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                     child: BookStatisticCard(
-                      statisticInfo: statisticsProvider.currentMonthStatistic,
+                      statisticInfo: statisticsProvider.itemTabMonthStatistic,
                       showBalance: false,
                       title: L10nManager.l10n.currentMonth,
                     ),

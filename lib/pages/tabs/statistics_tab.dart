@@ -108,9 +108,10 @@ class _StatisticsTabState extends State<StatisticsTab> {
         end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
       case 'week':
         final weekday = now.weekday;
-        start = now.subtract(Duration(days: weekday - 1));
-        end = start
-            .add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+        // 获取本周一（00:00:00）
+        final today = DateTime(now.year, now.month, now.day);
+        start = today.subtract(Duration(days: weekday - 1));
+        end = start.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
       case 'custom':
         if (_customRange != null) {
           start = _customRange!.start;
