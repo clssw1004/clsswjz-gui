@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/activity_provider.dart';
 import '../../models/common.dart';
+import '../common/common_select_form_field.dart';
+import '../common/common_text_form_field.dart';
 
 class ActivityAddSheet extends StatefulWidget {
   const ActivityAddSheet({super.key});
@@ -13,21 +15,23 @@ class ActivityAddSheet extends StatefulWidget {
 
 class _ActivityAddSheetState extends State<ActivityAddSheet> {
   late DateTime _selectedDate;
-  final TextEditingController _nameController = TextEditingController();
+  String? _selectedActivityName;
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
+    _dateController.text = _formattedDate;
     context.read<ActivityProvider>().loadActivityNames();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
     _locationController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
@@ -42,13 +46,16 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
       lastDate: DateTime(2030),
     );
     if (picked != null) {
-      setState(() => _selectedDate = picked);
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = _formattedDate;
+      });
     }
   }
 
   Future<void> _save() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+    final name = _selectedActivityName;
+    if (name == null || name.isEmpty) return;
 
     setState(() => _saving = true);
     try {
@@ -93,7 +100,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
               width: 32,
               height: 4,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                color: theme.colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -103,78 +110,57 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
           const SizedBox(height: 20),
 
           // 日期
-          Text('日期', style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          InkWell(
+          CommonTextFormField(
+            readOnly: true,
+            controller: _dateController,
+            prefixIcon: Icons.calendar_today_outlined,
+            labelText: '日期',
             onTap: _pickDate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              decoration: BoxDecoration(
-                border: Border.all(color: theme.colorScheme.outline),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Text(_formattedDate),
-                  const Spacer(),
-                  Icon(Icons.calendar_today, size: 18),
-                ],
-              ),
-            ),
           ),
           const SizedBox(height: 16),
 
-          // 活动名称 + 自动补全
-          Text('${l10n.activityName} *', style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          Autocomplete<String>(
-            optionsBuilder: (textEditingValue) {
-              if (textEditingValue.text.isEmpty) return [];
-              return provider.activityNames.where((name) =>
-                  name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
-            },
-            fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
-              _nameController.text = controller.text;
-              controller.addListener(() {
-                _nameController.text = controller.text;
-              });
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                decoration: InputDecoration(
-                  hintText: l10n.activityNameHint,
-                  border: const OutlineInputBorder(),
-                ),
-              );
+          // 活动名称（与记账页商户选择交互一致）
+          CommonSelectFormField<String>(
+            items: provider.activityNames,
+            value: _selectedActivityName,
+            displayMode: DisplayMode.iconText,
+            displayField: (name) => name,
+            keyField: (name) => name,
+            icon: Icons.playlist_add_check_outlined,
+            label: l10n.activityName,
+            required: true,
+            onCreateItem: (value) async => value,
+            onChanged: (value) {
+              setState(() => _selectedActivityName = value as String?);
             },
           ),
           const SizedBox(height: 16),
 
           // 地点
-          Text('${l10n.activityLocation} (${l10n.optional})', style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          TextField(
+          CommonTextFormField(
             controller: _locationController,
-            decoration: InputDecoration(
-              hintText: l10n.activityLocationHint,
-              border: const OutlineInputBorder(),
-            ),
+            labelText: l10n.activityLocation,
+            hintText: l10n.activityLocationHint,
           ),
           const SizedBox(height: 24),
 
           // 保存按钮
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      width: 20, height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.activityRecord),
+          FilledButton(
+            onPressed: _saving ? null : _save,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 52),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(28)),
+              ),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
             ),
+            child: _saving
+                ? const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.activityRecord),
           ),
         ],
       ),
