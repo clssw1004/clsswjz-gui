@@ -1161,5 +1161,57 @@
     "status": "狀態",
     "@status": {
         "description": "狀態標籤"
+    },
+    "tabActivity": "活動",
+    "@tabActivity": {
+        "description": "活動Tab標籤"
+    },
+    "activityRecord": "記錄活動",
+    "@activityRecord": {
+        "description": "記錄活動按鈕文本"
+    },
+    "activityName": "活動名稱",
+    "@activityName": {
+        "description": "活動名稱標籤"
+    },
+    "activityNameHint": "輸入活動名稱",
+    "@activityNameHint": {
+        "description": "活動名稱輸入提示"
+    },
+    "activityLocation": "地點",
+    "@activityLocation": {
+        "description": "地點標籤"
+    },
+    "activityLocationHint": "輸入地點",
+    "@activityLocationHint": {
+        "description": "地點輸入提示"
+    },
+    "activityMonthlyStats": "本月活動統計",
+    "@activityMonthlyStats": {
+        "description": "月度活動統計標題"
+    },
+    "activityNoRecordsForDay": "該日暫無活動記錄",
+    "@activityNoRecordsForDay": {
+        "description": "某天沒有活動記錄時的提示"
+    },
+    "activityTimes": "{count}次",
+    "@activityTimes": {
+        "description": "活動次數顯示文本",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "activityItems": "{count}項",
+    "@activityItems": {
+        "description": "活動項目數量顯示文本",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
     }
 }

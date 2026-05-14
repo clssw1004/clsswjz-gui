@@ -1275,5 +1275,57 @@
     "status": "状态",
     "@status": {
         "description": "状态标签"
+    },
+    "tabActivity": "活动",
+    "@tabActivity": {
+        "description": "活动Tab标签"
+    },
+    "activityRecord": "记录活动",
+    "@activityRecord": {
+        "description": "记录活动按钮文本"
+    },
+    "activityName": "活动名称",
+    "@activityName": {
+        "description": "活动名称标签"
+    },
+    "activityNameHint": "输入活动名称",
+    "@activityNameHint": {
+        "description": "活动名称输入提示"
+    },
+    "activityLocation": "地点",
+    "@activityLocation": {
+        "description": "地点标签"
+    },
+    "activityLocationHint": "输入地点",
+    "@activityLocationHint": {
+        "description": "地点输入提示"
+    },
+    "activityMonthlyStats": "本月活动统计",
+    "@activityMonthlyStats": {
+        "description": "月度活动统计标题"
+    },
+    "activityNoRecordsForDay": "该日暂无活动记录",
+    "@activityNoRecordsForDay": {
+        "description": "某天没有活动记录时的提示"
+    },
+    "activityTimes": "{count}次",
+    "@activityTimes": {
+        "description": "活动次数显示文本",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "activityItems": "{count}项",
+    "@activityItems": {
+        "description": "活动项目数量显示文本",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
     }
 }

@@ -159,7 +159,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
           controller: _tabController,
           tabs: [
             Tab(text: l10n.tabNotes),
-            const Tab(text: '活动'),
+            Tab(text: l10n.tabActivity),
           ],
         ),
       ),

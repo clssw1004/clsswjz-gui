@@ -1266,6 +1266,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get status => '状态';
+
+  @override
+  String get tabActivity => '活动';
+
+  @override
+  String get activityRecord => '记录活动';
+
+  @override
+  String get activityName => '活动名称';
+
+  @override
+  String get activityNameHint => '输入活动名称';
+
+  @override
+  String get activityLocation => '地点';
+
+  @override
+  String get activityLocationHint => '输入地点';
+
+  @override
+  String get activityMonthlyStats => '本月活动统计';
+
+  @override
+  String get activityNoRecordsForDay => '该日暂无活动记录';
+
+  @override
+  String activityTimes(int count) {
+    return '$count次';
+  }
+
+  @override
+  String activityItems(int count) {
+    return '$count项';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2481,4 +2515,38 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get status => '狀態';
+
+  @override
+  String get tabActivity => '活動';
+
+  @override
+  String get activityRecord => '記錄活動';
+
+  @override
+  String get activityName => '活動名稱';
+
+  @override
+  String get activityNameHint => '輸入活動名稱';
+
+  @override
+  String get activityLocation => '地點';
+
+  @override
+  String get activityLocationHint => '輸入地點';
+
+  @override
+  String get activityMonthlyStats => '本月活動統計';
+
+  @override
+  String get activityNoRecordsForDay => '該日暫無活動記錄';
+
+  @override
+  String activityTimes(int count) {
+    return '$count次';
+  }
+
+  @override
+  String activityItems(int count) {
+    return '$count項';
+  }
 }

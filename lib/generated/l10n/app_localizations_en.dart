@@ -1276,4 +1276,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get status => 'Status';
+
+  @override
+  String get tabActivity => 'Activity';
+
+  @override
+  String get activityRecord => 'Record Activity';
+
+  @override
+  String get activityName => 'Activity Name';
+
+  @override
+  String get activityNameHint => 'Enter activity name';
+
+  @override
+  String get activityLocation => 'Location';
+
+  @override
+  String get activityLocationHint => 'Enter location';
+
+  @override
+  String get activityMonthlyStats => 'Monthly Activity Stats';
+
+  @override
+  String get activityNoRecordsForDay => 'No activities for this day';
+
+  @override
+  String activityTimes(int count) {
+    return '$count times';
+  }
+
+  @override
+  String activityItems(int count) {
+    return '$count items';
+  }
 }

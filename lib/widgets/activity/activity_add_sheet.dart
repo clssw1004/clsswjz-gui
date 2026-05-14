@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/activity_provider.dart';
 import '../../models/common.dart';
 
@@ -62,7 +63,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
         Navigator.pop(context, true);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.message ?? '保存失败')),
+          SnackBar(content: Text(result.message ?? L10nManager.l10n.operationFailed)),
         );
       }
     } finally {
@@ -72,6 +73,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10nManager.l10n;
     final theme = Theme.of(context);
     final provider = context.watch<ActivityProvider>();
 
@@ -97,7 +99,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('记录活动', style: theme.textTheme.titleMedium),
+          Text(l10n.activityRecord, style: theme.textTheme.titleMedium),
           const SizedBox(height: 20),
 
           // 日期
@@ -123,7 +125,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
           const SizedBox(height: 16),
 
           // 活动名称 + 自动补全
-          Text('活动名称 *', style: theme.textTheme.bodyMedium),
+          Text('${l10n.activityName} *', style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Autocomplete<String>(
             optionsBuilder: (textEditingValue) {
@@ -132,7 +134,6 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
                   name.toLowerCase().contains(textEditingValue.text.toLowerCase()));
             },
             fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
-              // 同步外部 controller 和 Autocomplete 的 controller
               _nameController.text = controller.text;
               controller.addListener(() {
                 _nameController.text = controller.text;
@@ -140,9 +141,9 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
               return TextField(
                 controller: controller,
                 focusNode: focusNode,
-                decoration: const InputDecoration(
-                  hintText: '输入活动名称',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: l10n.activityNameHint,
+                  border: const OutlineInputBorder(),
                 ),
               );
             },
@@ -150,13 +151,13 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
           const SizedBox(height: 16),
 
           // 地点
-          Text('地点 (可选)', style: theme.textTheme.bodyMedium),
+          Text('${l10n.activityLocation} (${l10n.optional})', style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           TextField(
             controller: _locationController,
-            decoration: const InputDecoration(
-              hintText: '输入地点',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.activityLocationHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 24),
@@ -172,7 +173,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
                       width: 20, height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('记录活动'),
+                  : Text(l10n.activityRecord),
             ),
           ),
         ],

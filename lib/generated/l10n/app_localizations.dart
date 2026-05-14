@@ -2480,6 +2480,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Status'**
   String get status;
+
+  /// Activity tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get tabActivity;
+
+  /// Record activity button text
+  ///
+  /// In en, this message translates to:
+  /// **'Record Activity'**
+  String get activityRecord;
+
+  /// Activity name label
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Name'**
+  String get activityName;
+
+  /// Activity name input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter activity name'**
+  String get activityNameHint;
+
+  /// Location label
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get activityLocation;
+
+  /// Location input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter location'**
+  String get activityLocationHint;
+
+  /// Monthly activity statistics title
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Activity Stats'**
+  String get activityMonthlyStats;
+
+  /// No activities for a day
+  ///
+  /// In en, this message translates to:
+  /// **'No activities for this day'**
+  String get activityNoRecordsForDay;
+
+  /// Activity count display text
+  ///
+  /// In en, this message translates to:
+  /// **'{count} times'**
+  String activityTimes(int count);
+
+  /// Activity items count display text
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String activityItems(int count);
 }
 
 class _AppLocalizationsDelegate

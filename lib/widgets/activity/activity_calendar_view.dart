@@ -6,6 +6,7 @@ import '../../drivers/driver_factory.dart';
 import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/activity_record_vo.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 
@@ -102,6 +103,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10nManager.l10n;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -319,7 +321,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
                           size: 18, color: colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
-                        '本月活动统计',
+                        l10n.activityMonthlyStats,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -359,7 +361,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${stat.count} 次',
+                            l10n.activityTimes(stat.count),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: colorScheme.onSecondaryContainer,
                             ),
@@ -403,7 +405,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
 
     String title;
     if (isToday) {
-      title = '今天';
+      title = L10nManager.l10n.currentDay;
     } else {
       title = dateFormat.format(_selectedDate);
     }
@@ -421,7 +423,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
               ),
               const SizedBox(height: 12),
               Text(
-                '该日暂无活动记录',
+                L10nManager.l10n.activityNoRecordsForDay,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: colorScheme.outline.withAlpha(128),
                 ),
@@ -468,7 +470,7 @@ class ActivityCalendarViewState extends State<ActivityCalendarView> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${records.length} 项',
+                  L10nManager.l10n.activityItems(records.length),
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
