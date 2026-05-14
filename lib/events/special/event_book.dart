@@ -2,6 +2,7 @@ import '../../database/database.dart';
 import '../../enums/operate_type.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/gift_card_vo.dart';
+import '../../models/vo/activity_record_vo.dart';
 
 /// 账本切换事件
 class BookChangedEvent {
@@ -33,4 +34,11 @@ class GiftCardChangedEvent {
   final GiftCardVO giftCard;
   final OperateType operateType;
   const GiftCardChangedEvent(this.operateType, this.giftCard);
+}
+
+/// 活动记录变动事件
+class ActivityChangedEvent {
+  final ActivityRecordVO record;
+  final OperateType operateType;
+  const ActivityChangedEvent(this.operateType, this.record);
 }

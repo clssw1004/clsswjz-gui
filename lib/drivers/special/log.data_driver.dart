@@ -22,6 +22,8 @@ import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/attachment_show_vo.dart';
 import '../../models/vo/gift_card_vo.dart';
+import '../../models/vo/activity_record_vo.dart';
+import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -44,6 +46,7 @@ import 'log/builder/book_note.build.dart';
 import 'log/builder/builder.dart';
 import 'log/builder/fund.builder.dart';
 import 'log/builder/gift_card.builder.dart';
+import 'log/builder/activity_record.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
@@ -971,6 +974,105 @@ class LogDataDriver implements BookDataDriver {
         id: card.id,
         status: GiftCardStatus.expired.code,
       ).execute();
+    }
+  }
+
+  // ============ 活动记录相关 ============
+
+  @override
+  Future<OperateResult<String>> createActivityRecord(
+    String userId,
+    String bookId, {
+    required String activityName,
+    required String recordDate,
+    String? location,
+  }) async {
+    try {
+      final logBuilder = ActivityRecordCULog.create(
+        who: userId,
+        bookId: bookId,
+        activityName: activityName,
+        recordDate: recordDate,
+        location: location,
+      );
+      final id = await logBuilder.execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '创建活动记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteActivityRecord(
+      String userId, String bookId, String recordId) async {
+    try {
+      await ActivityRecordCULog.delete(
+        who: userId,
+        bookId: bookId,
+        id: recordId,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除活动记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ActivityRecordVO>>> listActivityRecordsByBook(
+    String userId, String bookId, {
+    int limit = 200,
+    int offset = 0,
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      List<ActivityRecord> records;
+      if (startDate != null && endDate != null) {
+        records = await DaoManager.activityRecordDao
+            .listByDateRange(bookId, startDate, endDate, limit: limit, offset: offset);
+      } else {
+        records = await DaoManager.activityRecordDao
+            .listByBook(bookId, limit: limit, offset: offset);
+      }
+      final vos = records.map((e) => ActivityRecordVO.fromActivityRecord(e)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动记录列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<String>>> listDistinctActivityNames(
+      String userId, String bookId) async {
+    try {
+      final names = await DaoManager.activityRecordDao.listDistinctActivityNames(bookId);
+      return OperateResult.success(names);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动名称列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ActivityStatisticVO>>> getActivityStatistics(
+    String userId, String bookId, {
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final results = await DaoManager.activityRecordDao
+          .countByDateRange(bookId, startDate, endDate);
+      final vos = results.map((r) => ActivityStatisticVO(
+        activityName: r.activityName,
+        count: r.count,
+      )).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动统计失败：$e', exception: e as Exception);
     }
   }
 }
