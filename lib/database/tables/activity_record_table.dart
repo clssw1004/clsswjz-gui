@@ -26,7 +26,9 @@ class ActivityRecordTable extends BaseAccountBookTable {
     required String activityName,
     required String recordDate,
     String? location,
+    int? createdAt,
   }) {
+    final now = createdAt ?? DateUtil.now();
     return ActivityRecordTableCompanion(
       id: Value(IdUtil.genId()),
       accountBookId: Value(accountBookId),
@@ -34,9 +36,9 @@ class ActivityRecordTable extends BaseAccountBookTable {
       recordDate: Value(recordDate),
       location: Value.absentIfNull(location),
       createdBy: Value(who),
-      createdAt: Value(DateUtil.now()),
+      createdAt: Value(now),
       updatedBy: Value(who),
-      updatedAt: Value(DateUtil.now()),
+      updatedAt: Value(now),
     );
   }
 

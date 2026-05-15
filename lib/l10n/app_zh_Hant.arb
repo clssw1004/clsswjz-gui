@@ -1186,7 +1186,7 @@
     "@activityLocationHint": {
         "description": "地點輸入提示"
     },
-    "activityMonthlyStats": "本月活動統計",
+    "activityMonthlyStats": "本月統計",
     "@activityMonthlyStats": {
         "description": "月度活動統計標題"
     },

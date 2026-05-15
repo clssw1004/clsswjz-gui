@@ -42,7 +42,9 @@ class TimeRangeSelector extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        child: Row(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
           children: [
             Icon(Icons.calendar_month_outlined, color: colorScheme.primary),
             const SizedBox(width: 8),
@@ -104,6 +106,7 @@ class TimeRangeSelector extends StatelessWidget {
               ),
           ],
         ),
+      ),
       ),
     );
   }

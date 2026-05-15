@@ -24,6 +24,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showStatisticsBookStatistic;
   late bool _showStatisticsProjectStatistic;
   late bool _showStatisticsCategoryStatistic;
+  late bool _showStatisticsActivityStatistic;
   late String _statisticsSelectedRange;
   DateTimeRange? _customRange;
   List<String> _selectedProjects = [];
@@ -47,6 +48,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
         AppConfigManager.instance.uiConfig.statisticsShowProjectStatistic;
     _showStatisticsCategoryStatistic =
         AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic;
+    _showStatisticsActivityStatistic =
+        AppConfigManager.instance.uiConfig.statisticsShowActivityStatistic;
     _statisticsSelectedRange =
         AppConfigManager.instance.uiConfig.statisticsSelectedRange;
     _selectedProjects =
@@ -543,6 +546,44 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 活动统计展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '活动统计',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '按活动名称统计次数',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _showStatisticsActivityStatistic,
+                        onChanged: (value) {
+                          setState(() {
+                            _showStatisticsActivityStatistic = value;
+                          });
+                          _updateUiConfig();
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   // 项目选择
                   Row(
                     children: [
@@ -619,6 +660,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
       statisticsShowBookStatistic: _showStatisticsBookStatistic,
       statisticsShowProjectStatistic: _showStatisticsProjectStatistic,
       statisticsShowCategoryStatistic: _showStatisticsCategoryStatistic,
+      statisticsShowActivityStatistic: _showStatisticsActivityStatistic,
       statisticsSelectedRange: _statisticsSelectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,

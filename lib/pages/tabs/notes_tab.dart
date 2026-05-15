@@ -11,7 +11,7 @@ import '../../widgets/book/note_group_filter.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../widgets/common/common_search_field.dart';
-import '../../widgets/activity/activity_calendar_view.dart';
+import '../../widgets/activity/activity_list_view.dart';
 
 class NotesTab extends StatefulWidget {
   final ValueChanged<bool>? onActivityTabChanged;
@@ -79,6 +79,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
       builder: (context, noteListProvider, syncProvider, child) {
         return Column(
           children: [
+            const SizedBox(height: 8),
             if (booksProvider.selectedBook != null)
               NoteGroupFilter(
                 bookId: booksProvider.selectedBook!.id,
@@ -167,7 +168,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
         controller: _tabController,
         children: [
           _buildNotesView(booksProvider),
-          const ActivityCalendarView(),
+          const ActivityListView(),
         ],
       ),
     );

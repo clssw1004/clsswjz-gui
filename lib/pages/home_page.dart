@@ -5,7 +5,7 @@ import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../utils/navigation_util.dart';
-import '../widgets/activity/activity_add_sheet.dart';
+import 'activity/activity_add_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -155,11 +155,10 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  void _showAddActivitySheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const ActivityAddSheet(),
+  Future<void> _showAddActivitySheet(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ActivityAddPage()),
     );
   }
 

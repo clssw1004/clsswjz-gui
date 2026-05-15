@@ -177,6 +177,7 @@ class ActivityProvider extends ChangeNotifier {
     required String activityName,
     required String recordDate,
     String? location,
+    int? createdAt,
   }) async {
     if (_currentBookId == null) {
       return OperateResult.failWithMessage(message: '请先选择账本');
@@ -187,6 +188,7 @@ class ActivityProvider extends ChangeNotifier {
       activityName: activityName,
       recordDate: recordDate,
       location: location,
+      createdAt: createdAt,
     );
     if (result.ok) {
       await loadRecords();

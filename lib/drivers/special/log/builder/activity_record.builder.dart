@@ -56,6 +56,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
     required String activityName,
     required String recordDate,
     String? location,
+    int? createdAt,
   }) {
     return ActivityRecordCULog()
         .who(who)
@@ -67,6 +68,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           activityName: activityName,
           recordDate: recordDate,
           location: location,
+          createdAt: createdAt,
         )) as ActivityRecordCULog;
   }
 

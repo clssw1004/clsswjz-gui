@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/ui_config_dto.dart';
+import '../../models/vo/activity_statistic_vo.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/statistics_provider.dart';
+import '../../widgets/activity/activity_statistic_card.dart';
 import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
@@ -26,6 +29,8 @@ class StatisticsTab extends StatefulWidget {
 class _StatisticsTabState extends State<StatisticsTab> {
   late String _selectedRange;
   DateTimeRange? _customRange;
+  List<ActivityStatisticVO> _activityStats = [];
+  bool _activityStatsLoading = false;
 
   @override
   void initState() {
@@ -125,7 +130,32 @@ class _StatisticsTabState extends State<StatisticsTab> {
     statisticsProvider.loadStatistics(bookId, start: start, end: end);
     statisticsProvider.loadBookStatisticInfo(bookId, start: start, end: end);
     statisticsProvider.loadProjectMonthlyStatistics(bookId, start: start, end: end);
+    _loadActivityStatistics(bookId, start, end);
     _saveSelectedRange();
+  }
+
+  /// 加载活动统计数据
+  Future<void> _loadActivityStatistics(String bookId, DateTime? start, DateTime? end) async {
+    if (start == null || end == null) return;
+    setState(() => _activityStatsLoading = true);
+    try {
+      final startStr = '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+      final endStr = '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}';
+      final result = await DriverFactory.driver.getActivityStatistics(
+        AppConfigManager.instance.userId,
+        bookId,
+        startDate: startStr,
+        endDate: endStr,
+      );
+      if (mounted) {
+        setState(() {
+          _activityStats = result.data ?? [];
+          _activityStatsLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _activityStatsLoading = false);
+    }
   }
 
   /// 保存选择的时间范围
@@ -148,6 +178,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
       statisticsShowBookStatistic: config.statisticsShowBookStatistic,
       statisticsShowProjectStatistic: config.statisticsShowProjectStatistic,
       statisticsShowCategoryStatistic: config.statisticsShowCategoryStatistic,
+      statisticsShowActivityStatistic: config.statisticsShowActivityStatistic,
       statisticsSelectedRange: _selectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
@@ -212,6 +243,13 @@ class _StatisticsTabState extends State<StatisticsTab> {
           const SizedBox(height: 16),
           const CategoryStatisticCard(),
         ],
+
+        // 活动统计卡片 - 根据配置决定是否显示
+        if (config.statisticsShowActivityStatistic)
+          ActivityStatisticCard(
+            data: _activityStats,
+            loading: _activityStatsLoading,
+          ),
       ],
     );
   }

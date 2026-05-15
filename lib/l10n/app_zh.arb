@@ -1300,7 +1300,7 @@
     "@activityLocationHint": {
         "description": "地点输入提示"
     },
-    "activityMonthlyStats": "本月活动统计",
+    "activityMonthlyStats": "本月统计",
     "@activityMonthlyStats": {
         "description": "月度活动统计标题"
     },

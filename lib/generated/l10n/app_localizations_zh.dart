@@ -1286,7 +1286,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityLocationHint => '输入地点';
 
   @override
-  String get activityMonthlyStats => '本月活动统计';
+  String get activityMonthlyStats => '本月统计';
 
   @override
   String get activityNoRecordsForDay => '该日暂无活动记录';
@@ -2535,7 +2535,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get activityLocationHint => '輸入地點';
 
   @override
-  String get activityMonthlyStats => '本月活動統計';
+  String get activityMonthlyStats => '本月統計';
 
   @override
   String get activityNoRecordsForDay => '該日暫無活動記錄';

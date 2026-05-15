@@ -1296,7 +1296,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityLocationHint => 'Enter location';
 
   @override
-  String get activityMonthlyStats => 'Monthly Activity Stats';
+  String get activityMonthlyStats => 'Monthly Stats';
 
   @override
   String get activityNoRecordsForDay => 'No activities for this day';

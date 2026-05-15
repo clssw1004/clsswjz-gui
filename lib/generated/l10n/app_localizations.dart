@@ -2520,7 +2520,7 @@ abstract class AppLocalizations {
   /// Monthly activity statistics title
   ///
   /// In en, this message translates to:
-  /// **'Monthly Activity Stats'**
+  /// **'Monthly Stats'**
   String get activityMonthlyStats;
 
   /// No activities for a day

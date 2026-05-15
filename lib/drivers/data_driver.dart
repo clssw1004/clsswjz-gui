@@ -326,6 +326,7 @@ abstract class BookDataDriver {
     required String activityName,
     required String recordDate,
     String? location,
+    int? createdAt,
   });
 
   /// 删除活动记录
