@@ -5,6 +5,7 @@ import 'tabs/notes_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../utils/navigation_util.dart';
+import 'activity/activity_add_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,20 +18,28 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   bool _isMenuOpen = false;
+
+  /// NotesTab 内部是否处于活动模式（true=活动，false=笔记）
+  bool _isNotesActivityTab = false;
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
   final double cenerIconSize = 50.0;
 
-  final List<Widget> _pages = [
-    const ItemsTab(),
-    const NotesTab(),
-    const StatisticsTab(),
-    const MineTab(),
-  ];
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _pages = [
+      const ItemsTab(),
+      NotesTab(
+        onActivityTabChanged: (isActivity) {
+          if (mounted) setState(() => _isNotesActivityTab = isActivity);
+        },
+      ),
+      const StatisticsTab(),
+      const MineTab(),
+    ];
     _controller = AnimationController(
       duration: const Duration(milliseconds: 250),
       vsync: this,
@@ -134,11 +143,30 @@ class _HomePageState extends State<HomePage>
         await NavigationUtil.toItemAdd(context);
         break;
       case 1: // 记事tab
-        await NavigationUtil.toNoteAdd(context);
+        if (_isNotesActivityTab) {
+          _showAddActivitySheet(context);
+        } else {
+          await NavigationUtil.toNoteAdd(context);
+        }
         break;
       default: // 其他tab
         _toggleMenu();
         break;
+    }
+  }
+
+  Future<void> _showAddActivitySheet(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ActivityAddPage()),
+    );
+  }
+
+  void _handleLongPress() {
+    if (_currentIndex == 1 && _isNotesActivityTab) {
+      _showAddActivitySheet(context);
+    } else {
+      _toggleMenu();
     }
   }
 
@@ -220,7 +248,7 @@ class _HomePageState extends State<HomePage>
           ),
           NavigationDestination(
             icon: GestureDetector(
-              onLongPress: _toggleMenu,
+              onLongPress: _handleLongPress,
               onTap: () => _handleAddButtonTap(context),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),

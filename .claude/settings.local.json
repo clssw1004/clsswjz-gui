@@ -12,7 +12,24 @@
       "mcp__ide__getDiagnostics",
       "WebSearch",
       "Bash(git add:*)",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:brainstorming:*)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:writing-plans:*)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Skill(superpowers:subagent-driven-development:*)",
+      "Read(//opt/homebrew/Caskroom/**)",
+      "Read(//usr/local/Caskroom/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//opt/homebrew/**)",
+      "Read(//usr/local/**)",
+      "Read(//Users/cuiwei/**)",
+      "Bash(/Users/cuiwei/common/flutter/bin/flutter --version)",
+      "Bash(/Users/cuiwei/common/flutter/bin/flutter pub *)",
+      "Bash(/Users/cuiwei/common/flutter/bin/flutter analyze *)",
+      "Bash(which flutter *)",
+      "Read(//Users/cuiwi/fvm/**)"
     ]
   }
 }

@@ -12,6 +12,7 @@ class UiConfigDTO {
     this.statisticsShowBookStatistic = true,
     this.statisticsShowProjectStatistic = true,
     this.statisticsShowCategoryStatistic = true,
+    this.statisticsShowActivityStatistic = true,
     this.statisticsSelectedRange = 'month',
     this.statisticsCustomRangeStart,
     this.statisticsCustomRangeEnd,
@@ -39,6 +40,9 @@ class UiConfigDTO {
   /// 是否在统计页显示分类统计图
   final bool statisticsShowCategoryStatistic;
 
+  /// 是否在统计页显示活动统计
+  final bool statisticsShowActivityStatistic;
+
   /// 统计页面选择展示的项目列表（项目code）
   final List<String> statisticsSelectedProjects;
 
@@ -63,6 +67,7 @@ class UiConfigDTO {
       statisticsShowBookStatistic: json['statisticsShowBookStatistic'] ?? true,
       statisticsShowProjectStatistic: json['statisticsShowProjectStatistic'] ?? true,
       statisticsShowCategoryStatistic: json['statisticsShowCategoryStatistic'] ?? true,
+      statisticsShowActivityStatistic: json['statisticsShowActivityStatistic'] ?? true,
       statisticsSelectedRange: json['statisticsSelectedRange'] ?? 'month',
       statisticsCustomRangeStart: json['statisticsCustomRangeStart'],
       statisticsCustomRangeEnd: json['statisticsCustomRangeEnd'],
@@ -89,6 +94,7 @@ class UiConfigDTO {
       'statisticsShowBookStatistic': uiConfig.statisticsShowBookStatistic,
       'statisticsShowProjectStatistic': uiConfig.statisticsShowProjectStatistic,
       'statisticsShowCategoryStatistic': uiConfig.statisticsShowCategoryStatistic,
+      'statisticsShowActivityStatistic': uiConfig.statisticsShowActivityStatistic,
       'statisticsSelectedRange': uiConfig.statisticsSelectedRange,
       'statisticsCustomRangeStart': uiConfig.statisticsCustomRangeStart,
       'statisticsCustomRangeEnd': uiConfig.statisticsCustomRangeEnd,

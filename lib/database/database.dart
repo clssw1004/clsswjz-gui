@@ -12,6 +12,7 @@ import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/account_debt_table.dart';
 import 'tables/gift_card_table.dart';
+import 'tables/activity_record_table.dart';
 
 part 'database.g.dart';
 
@@ -30,13 +31,14 @@ part 'database.g.dart';
     AccountNoteTable,
     AccountDebtTable,
     GiftCardTable,
+    ActivityRecordTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,6 +54,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             // 版本2到版本3的迁移：添加 gift_card_table
             await m.createAll();
+          }
+          if (from < 4) {
+            // 版本3到版本4的迁移：添加 activity_record_table
+            await m.create(activityRecordTable);
           }
         },
       );

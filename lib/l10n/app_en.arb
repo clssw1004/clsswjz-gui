@@ -1267,5 +1267,57 @@
     "status": "Status",
     "@status": {
         "description": "Status label"
+    },
+    "tabActivity": "Activity",
+    "@tabActivity": {
+        "description": "Activity tab label"
+    },
+    "activityRecord": "Record Activity",
+    "@activityRecord": {
+        "description": "Record activity button text"
+    },
+    "activityName": "Activity Name",
+    "@activityName": {
+        "description": "Activity name label"
+    },
+    "activityNameHint": "Enter activity name",
+    "@activityNameHint": {
+        "description": "Activity name input hint"
+    },
+    "activityLocation": "Location",
+    "@activityLocation": {
+        "description": "Location label"
+    },
+    "activityLocationHint": "Enter location",
+    "@activityLocationHint": {
+        "description": "Location input hint"
+    },
+    "activityMonthlyStats": "Monthly Stats",
+    "@activityMonthlyStats": {
+        "description": "Monthly activity statistics title"
+    },
+    "activityNoRecordsForDay": "No activities for this day",
+    "@activityNoRecordsForDay": {
+        "description": "No activities for a day"
+    },
+    "activityTimes": "{count} times",
+    "@activityTimes": {
+        "description": "Activity count display text",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "activityItems": "{count} items",
+    "@activityItems": {
+        "description": "Activity items count display text",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
     }
 }

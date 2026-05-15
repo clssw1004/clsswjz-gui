@@ -7160,12 +7160,7 @@ class $GiftCardTableTable extends GiftCardTable
       const VerificationMeta('description');
   @override
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'gift_description', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
-  @override
-  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
-      'icon', aliasedName, true,
+      'gift_description', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _expiredTimeMeta =
       const VerificationMeta('expiredTime');
@@ -7208,7 +7203,6 @@ class $GiftCardTableTable extends GiftCardTable
         fromUserId,
         toUserId,
         description,
-        icon,
         expiredTime,
         sentTime,
         receivedTime,
@@ -7272,12 +7266,6 @@ class $GiftCardTableTable extends GiftCardTable
           _descriptionMeta,
           description.isAcceptableOrUnknown(
               data['gift_description']!, _descriptionMeta));
-    } else if (isInserting) {
-      context.missing(_descriptionMeta);
-    }
-    if (data.containsKey('icon')) {
-      context.handle(
-          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     }
     if (data.containsKey('expired_time')) {
       context.handle(
@@ -7323,9 +7311,7 @@ class $GiftCardTableTable extends GiftCardTable
       toUserId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}to_user_id'])!,
       description: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}gift_description'])!,
-      icon: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}icon']),
+          DriftSqlType.string, data['${effectivePrefix}gift_description']),
       expiredTime: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}expired_time'])!,
       sentTime: attachedDatabase.typeMapping
@@ -7356,11 +7342,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
   /// 接收人用户ID
   final String toUserId;
 
-  /// 礼品描述（必填）
-  final String description;
-
-  /// 图标（IconData的codePoint值字符串）
-  final String? icon;
+  /// 礼品描述
+  final String? description;
 
   /// 过期时间 (毫秒时间戳，0表示永久有效)
   final int expiredTime;
@@ -7381,8 +7364,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       required this.id,
       required this.fromUserId,
       required this.toUserId,
-      required this.description,
-      this.icon,
+      this.description,
       required this.expiredTime,
       required this.sentTime,
       required this.receivedTime,
@@ -7397,9 +7379,8 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
     map['id'] = Variable<String>(id);
     map['from_user_id'] = Variable<String>(fromUserId);
     map['to_user_id'] = Variable<String>(toUserId);
-    map['gift_description'] = Variable<String>(description);
-    if (!nullToAbsent || icon != null) {
-      map['icon'] = Variable<String>(icon);
+    if (!nullToAbsent || description != null) {
+      map['gift_description'] = Variable<String>(description);
     }
     map['expired_time'] = Variable<int>(expiredTime);
     map['sent_time'] = Variable<int>(sentTime);
@@ -7417,8 +7398,9 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       id: Value(id),
       fromUserId: Value(fromUserId),
       toUserId: Value(toUserId),
-      description: Value(description),
-      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
       expiredTime: Value(expiredTime),
       sentTime: Value(sentTime),
       receivedTime: Value(receivedTime),
@@ -7437,8 +7419,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       id: serializer.fromJson<String>(json['id']),
       fromUserId: serializer.fromJson<String>(json['fromUserId']),
       toUserId: serializer.fromJson<String>(json['toUserId']),
-      description: serializer.fromJson<String>(json['description']),
-      icon: serializer.fromJson<String?>(json['icon']),
+      description: serializer.fromJson<String?>(json['description']),
       expiredTime: serializer.fromJson<int>(json['expiredTime']),
       sentTime: serializer.fromJson<int>(json['sentTime']),
       receivedTime: serializer.fromJson<int>(json['receivedTime']),
@@ -7456,8 +7437,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       'id': serializer.toJson<String>(id),
       'fromUserId': serializer.toJson<String>(fromUserId),
       'toUserId': serializer.toJson<String>(toUserId),
-      'description': serializer.toJson<String>(description),
-      'icon': serializer.toJson<String?>(icon),
+      'description': serializer.toJson<String?>(description),
       'expiredTime': serializer.toJson<int>(expiredTime),
       'sentTime': serializer.toJson<int>(sentTime),
       'receivedTime': serializer.toJson<int>(receivedTime),
@@ -7473,8 +7453,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           String? id,
           String? fromUserId,
           String? toUserId,
-          String? description,
-          Value<String?> icon = const Value.absent(),
+          Value<String?> description = const Value.absent(),
           int? expiredTime,
           int? sentTime,
           int? receivedTime,
@@ -7487,8 +7466,7 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
         id: id ?? this.id,
         fromUserId: fromUserId ?? this.fromUserId,
         toUserId: toUserId ?? this.toUserId,
-        description: description ?? this.description,
-        icon: icon.present ? icon.value : this.icon,
+        description: description.present ? description.value : this.description,
         expiredTime: expiredTime ?? this.expiredTime,
         sentTime: sentTime ?? this.sentTime,
         receivedTime: receivedTime ?? this.receivedTime,
@@ -7506,7 +7484,6 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       toUserId: data.toUserId.present ? data.toUserId.value : this.toUserId,
       description:
           data.description.present ? data.description.value : this.description,
-      icon: data.icon.present ? data.icon.value : this.icon,
       expiredTime:
           data.expiredTime.present ? data.expiredTime.value : this.expiredTime,
       sentTime: data.sentTime.present ? data.sentTime.value : this.sentTime,
@@ -7528,7 +7505,6 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           ..write('fromUserId: $fromUserId, ')
           ..write('toUserId: $toUserId, ')
           ..write('description: $description, ')
-          ..write('icon: $icon, ')
           ..write('expiredTime: $expiredTime, ')
           ..write('sentTime: $sentTime, ')
           ..write('receivedTime: $receivedTime, ')
@@ -7547,7 +7523,6 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
       fromUserId,
       toUserId,
       description,
-      icon,
       expiredTime,
       sentTime,
       receivedTime,
@@ -7564,7 +7539,6 @@ class GiftCard extends DataClass implements Insertable<GiftCard> {
           other.fromUserId == this.fromUserId &&
           other.toUserId == this.toUserId &&
           other.description == this.description &&
-          other.icon == this.icon &&
           other.expiredTime == this.expiredTime &&
           other.sentTime == this.sentTime &&
           other.receivedTime == this.receivedTime &&
@@ -7579,8 +7553,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
   final Value<String> id;
   final Value<String> fromUserId;
   final Value<String> toUserId;
-  final Value<String> description;
-  final Value<String?> icon;
+  final Value<String?> description;
   final Value<int> expiredTime;
   final Value<int> sentTime;
   final Value<int> receivedTime;
@@ -7595,7 +7568,6 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     this.fromUserId = const Value.absent(),
     this.toUserId = const Value.absent(),
     this.description = const Value.absent(),
-    this.icon = const Value.absent(),
     this.expiredTime = const Value.absent(),
     this.sentTime = const Value.absent(),
     this.receivedTime = const Value.absent(),
@@ -7610,8 +7582,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     required String id,
     required String fromUserId,
     required String toUserId,
-    required String description,
-    this.icon = const Value.absent(),
+    this.description = const Value.absent(),
     this.expiredTime = const Value.absent(),
     this.sentTime = const Value.absent(),
     this.receivedTime = const Value.absent(),
@@ -7623,8 +7594,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
         updatedAt = Value(updatedAt),
         id = Value(id),
         fromUserId = Value(fromUserId),
-        toUserId = Value(toUserId),
-        description = Value(description);
+        toUserId = Value(toUserId);
   static Insertable<GiftCard> custom({
     Expression<String>? createdBy,
     Expression<String>? updatedBy,
@@ -7634,7 +7604,6 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     Expression<String>? fromUserId,
     Expression<String>? toUserId,
     Expression<String>? description,
-    Expression<String>? icon,
     Expression<int>? expiredTime,
     Expression<int>? sentTime,
     Expression<int>? receivedTime,
@@ -7650,7 +7619,6 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       if (fromUserId != null) 'from_user_id': fromUserId,
       if (toUserId != null) 'to_user_id': toUserId,
       if (description != null) 'gift_description': description,
-      if (icon != null) 'icon': icon,
       if (expiredTime != null) 'expired_time': expiredTime,
       if (sentTime != null) 'sent_time': sentTime,
       if (receivedTime != null) 'received_time': receivedTime,
@@ -7667,8 +7635,7 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       Value<String>? id,
       Value<String>? fromUserId,
       Value<String>? toUserId,
-      Value<String>? description,
-      Value<String?>? icon,
+      Value<String?>? description,
       Value<int>? expiredTime,
       Value<int>? sentTime,
       Value<int>? receivedTime,
@@ -7683,7 +7650,6 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
       fromUserId: fromUserId ?? this.fromUserId,
       toUserId: toUserId ?? this.toUserId,
       description: description ?? this.description,
-      icon: icon ?? this.icon,
       expiredTime: expiredTime ?? this.expiredTime,
       sentTime: sentTime ?? this.sentTime,
       receivedTime: receivedTime ?? this.receivedTime,
@@ -7719,9 +7685,6 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
     if (description.present) {
       map['gift_description'] = Variable<String>(description.value);
     }
-    if (icon.present) {
-      map['icon'] = Variable<String>(icon.value);
-    }
     if (expiredTime.present) {
       map['expired_time'] = Variable<int>(expiredTime.value);
     }
@@ -7751,11 +7714,495 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
           ..write('fromUserId: $fromUserId, ')
           ..write('toUserId: $toUserId, ')
           ..write('description: $description, ')
-          ..write('icon: $icon, ')
           ..write('expiredTime: $expiredTime, ')
           ..write('sentTime: $sentTime, ')
           ..write('receivedTime: $receivedTime, ')
           ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ActivityRecordTableTable extends ActivityRecordTable
+    with TableInfo<$ActivityRecordTableTable, ActivityRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ActivityRecordTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountBookIdMeta =
+      const VerificationMeta('accountBookId');
+  @override
+  late final GeneratedColumn<String> accountBookId = GeneratedColumn<String>(
+      'account_book_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _activityNameMeta =
+      const VerificationMeta('activityName');
+  @override
+  late final GeneratedColumn<String> activityName = GeneratedColumn<String>(
+      'activity_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recordDateMeta =
+      const VerificationMeta('recordDate');
+  @override
+  late final GeneratedColumn<String> recordDate = GeneratedColumn<String>(
+      'record_date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountBookId,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        activityName,
+        location,
+        recordDate
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'activity_record_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ActivityRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_book_id')) {
+      context.handle(
+          _accountBookIdMeta,
+          accountBookId.isAcceptableOrUnknown(
+              data['account_book_id']!, _accountBookIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountBookIdMeta);
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('activity_name')) {
+      context.handle(
+          _activityNameMeta,
+          activityName.isAcceptableOrUnknown(
+              data['activity_name']!, _activityNameMeta));
+    } else if (isInserting) {
+      context.missing(_activityNameMeta);
+    }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
+    if (data.containsKey('record_date')) {
+      context.handle(
+          _recordDateMeta,
+          recordDate.isAcceptableOrUnknown(
+              data['record_date']!, _recordDateMeta));
+    } else if (isInserting) {
+      context.missing(_recordDateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ActivityRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ActivityRecord(
+      accountBookId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      activityName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activity_name'])!,
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      recordDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}record_date'])!,
+    );
+  }
+
+  @override
+  $ActivityRecordTableTable createAlias(String alias) {
+    return $ActivityRecordTableTable(attachedDatabase, alias);
+  }
+}
+
+class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
+  final String accountBookId;
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 活动名称 (如：跑步、看书)
+  final String activityName;
+
+  /// 地点 (可选)
+  final String? location;
+
+  /// 活动日期 (yyyy-MM-dd)
+  final String recordDate;
+  const ActivityRecord(
+      {required this.accountBookId,
+      required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.activityName,
+      this.location,
+      required this.recordDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_book_id'] = Variable<String>(accountBookId);
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['activity_name'] = Variable<String>(activityName);
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    map['record_date'] = Variable<String>(recordDate);
+    return map;
+  }
+
+  ActivityRecordTableCompanion toCompanion(bool nullToAbsent) {
+    return ActivityRecordTableCompanion(
+      accountBookId: Value(accountBookId),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      activityName: Value(activityName),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      recordDate: Value(recordDate),
+    );
+  }
+
+  factory ActivityRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ActivityRecord(
+      accountBookId: serializer.fromJson<String>(json['accountBookId']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      activityName: serializer.fromJson<String>(json['activityName']),
+      location: serializer.fromJson<String?>(json['location']),
+      recordDate: serializer.fromJson<String>(json['recordDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountBookId': serializer.toJson<String>(accountBookId),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'activityName': serializer.toJson<String>(activityName),
+      'location': serializer.toJson<String?>(location),
+      'recordDate': serializer.toJson<String>(recordDate),
+    };
+  }
+
+  ActivityRecord copyWith(
+          {String? accountBookId,
+          String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? activityName,
+          Value<String?> location = const Value.absent(),
+          String? recordDate}) =>
+      ActivityRecord(
+        accountBookId: accountBookId ?? this.accountBookId,
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        activityName: activityName ?? this.activityName,
+        location: location.present ? location.value : this.location,
+        recordDate: recordDate ?? this.recordDate,
+      );
+  ActivityRecord copyWithCompanion(ActivityRecordTableCompanion data) {
+    return ActivityRecord(
+      accountBookId: data.accountBookId.present
+          ? data.accountBookId.value
+          : this.accountBookId,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      activityName: data.activityName.present
+          ? data.activityName.value
+          : this.activityName,
+      location: data.location.present ? data.location.value : this.location,
+      recordDate:
+          data.recordDate.present ? data.recordDate.value : this.recordDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityRecord(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('activityName: $activityName, ')
+          ..write('location: $location, ')
+          ..write('recordDate: $recordDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
+      createdAt, updatedAt, id, activityName, location, recordDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ActivityRecord &&
+          other.accountBookId == this.accountBookId &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.activityName == this.activityName &&
+          other.location == this.location &&
+          other.recordDate == this.recordDate);
+}
+
+class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
+  final Value<String> accountBookId;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> activityName;
+  final Value<String?> location;
+  final Value<String> recordDate;
+  final Value<int> rowid;
+  const ActivityRecordTableCompanion({
+    this.accountBookId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.activityName = const Value.absent(),
+    this.location = const Value.absent(),
+    this.recordDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ActivityRecordTableCompanion.insert({
+    required String accountBookId,
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String activityName,
+    this.location = const Value.absent(),
+    required String recordDate,
+    this.rowid = const Value.absent(),
+  })  : accountBookId = Value(accountBookId),
+        createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        activityName = Value(activityName),
+        recordDate = Value(recordDate);
+  static Insertable<ActivityRecord> custom({
+    Expression<String>? accountBookId,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? activityName,
+    Expression<String>? location,
+    Expression<String>? recordDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountBookId != null) 'account_book_id': accountBookId,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (activityName != null) 'activity_name': activityName,
+      if (location != null) 'location': location,
+      if (recordDate != null) 'record_date': recordDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ActivityRecordTableCompanion copyWith(
+      {Value<String>? accountBookId,
+      Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? activityName,
+      Value<String?>? location,
+      Value<String>? recordDate,
+      Value<int>? rowid}) {
+    return ActivityRecordTableCompanion(
+      accountBookId: accountBookId ?? this.accountBookId,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      activityName: activityName ?? this.activityName,
+      location: location ?? this.location,
+      recordDate: recordDate ?? this.recordDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountBookId.present) {
+      map['account_book_id'] = Variable<String>(accountBookId.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (activityName.present) {
+      map['activity_name'] = Variable<String>(activityName.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (recordDate.present) {
+      map['record_date'] = Variable<String>(recordDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityRecordTableCompanion(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('activityName: $activityName, ')
+          ..write('location: $location, ')
+          ..write('recordDate: $recordDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7788,6 +8235,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AccountDebtTableTable accountDebtTable =
       $AccountDebtTableTable(this);
   late final $GiftCardTableTable giftCardTable = $GiftCardTableTable(this);
+  late final $ActivityRecordTableTable activityRecordTable =
+      $ActivityRecordTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7805,7 +8254,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         attachmentTable,
         accountNoteTable,
         accountDebtTable,
-        giftCardTable
+        giftCardTable,
+        activityRecordTable
       ];
 }
 
@@ -11114,8 +11564,7 @@ typedef $$GiftCardTableTableCreateCompanionBuilder = GiftCardTableCompanion
   required String id,
   required String fromUserId,
   required String toUserId,
-  required String description,
-  Value<String?> icon,
+  Value<String?> description,
   Value<int> expiredTime,
   Value<int> sentTime,
   Value<int> receivedTime,
@@ -11131,8 +11580,7 @@ typedef $$GiftCardTableTableUpdateCompanionBuilder = GiftCardTableCompanion
   Value<String> id,
   Value<String> fromUserId,
   Value<String> toUserId,
-  Value<String> description,
-  Value<String?> icon,
+  Value<String?> description,
   Value<int> expiredTime,
   Value<int> sentTime,
   Value<int> receivedTime,
@@ -11172,9 +11620,6 @@ class $$GiftCardTableTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get icon => $composableBuilder(
-      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => ColumnFilters(column));
@@ -11221,9 +11666,6 @@ class $$GiftCardTableTableOrderingComposer
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get icon => $composableBuilder(
-      column: $table.icon, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => ColumnOrderings(column));
@@ -11272,9 +11714,6 @@ class $$GiftCardTableTableAnnotationComposer
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
 
-  GeneratedColumn<String> get icon =>
-      $composableBuilder(column: $table.icon, builder: (column) => column);
-
   GeneratedColumn<int> get expiredTime => $composableBuilder(
       column: $table.expiredTime, builder: (column) => column);
 
@@ -11318,8 +11757,7 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> fromUserId = const Value.absent(),
             Value<String> toUserId = const Value.absent(),
-            Value<String> description = const Value.absent(),
-            Value<String?> icon = const Value.absent(),
+            Value<String?> description = const Value.absent(),
             Value<int> expiredTime = const Value.absent(),
             Value<int> sentTime = const Value.absent(),
             Value<int> receivedTime = const Value.absent(),
@@ -11335,7 +11773,6 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             fromUserId: fromUserId,
             toUserId: toUserId,
             description: description,
-            icon: icon,
             expiredTime: expiredTime,
             sentTime: sentTime,
             receivedTime: receivedTime,
@@ -11350,8 +11787,7 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             required String id,
             required String fromUserId,
             required String toUserId,
-            required String description,
-            Value<String?> icon = const Value.absent(),
+            Value<String?> description = const Value.absent(),
             Value<int> expiredTime = const Value.absent(),
             Value<int> sentTime = const Value.absent(),
             Value<int> receivedTime = const Value.absent(),
@@ -11367,7 +11803,6 @@ class $$GiftCardTableTableTableManager extends RootTableManager<
             fromUserId: fromUserId,
             toUserId: toUserId,
             description: description,
-            icon: icon,
             expiredTime: expiredTime,
             sentTime: sentTime,
             receivedTime: receivedTime,
@@ -11392,6 +11827,244 @@ typedef $$GiftCardTableTableProcessedTableManager = ProcessedTableManager<
     $$GiftCardTableTableUpdateCompanionBuilder,
     (GiftCard, BaseReferences<_$AppDatabase, $GiftCardTableTable, GiftCard>),
     GiftCard,
+    PrefetchHooks Function()>;
+typedef $$ActivityRecordTableTableCreateCompanionBuilder
+    = ActivityRecordTableCompanion Function({
+  required String accountBookId,
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String activityName,
+  Value<String?> location,
+  required String recordDate,
+  Value<int> rowid,
+});
+typedef $$ActivityRecordTableTableUpdateCompanionBuilder
+    = ActivityRecordTableCompanion Function({
+  Value<String> accountBookId,
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> activityName,
+  Value<String?> location,
+  Value<String> recordDate,
+  Value<int> rowid,
+});
+
+class $$ActivityRecordTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ActivityRecordTableTable> {
+  $$ActivityRecordTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activityName => $composableBuilder(
+      column: $table.activityName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => ColumnFilters(column));
+}
+
+class $$ActivityRecordTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ActivityRecordTableTable> {
+  $$ActivityRecordTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get activityName => $composableBuilder(
+      column: $table.activityName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ActivityRecordTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ActivityRecordTableTable> {
+  $$ActivityRecordTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get activityName => $composableBuilder(
+      column: $table.activityName, builder: (column) => column);
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => column);
+}
+
+class $$ActivityRecordTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ActivityRecordTableTable,
+    ActivityRecord,
+    $$ActivityRecordTableTableFilterComposer,
+    $$ActivityRecordTableTableOrderingComposer,
+    $$ActivityRecordTableTableAnnotationComposer,
+    $$ActivityRecordTableTableCreateCompanionBuilder,
+    $$ActivityRecordTableTableUpdateCompanionBuilder,
+    (
+      ActivityRecord,
+      BaseReferences<_$AppDatabase, $ActivityRecordTableTable, ActivityRecord>
+    ),
+    ActivityRecord,
+    PrefetchHooks Function()> {
+  $$ActivityRecordTableTableTableManager(
+      _$AppDatabase db, $ActivityRecordTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ActivityRecordTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActivityRecordTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActivityRecordTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountBookId = const Value.absent(),
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> activityName = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String> recordDate = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ActivityRecordTableCompanion(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            activityName: activityName,
+            location: location,
+            recordDate: recordDate,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountBookId,
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String activityName,
+            Value<String?> location = const Value.absent(),
+            required String recordDate,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ActivityRecordTableCompanion.insert(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            activityName: activityName,
+            location: location,
+            recordDate: recordDate,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ActivityRecordTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ActivityRecordTableTable,
+    ActivityRecord,
+    $$ActivityRecordTableTableFilterComposer,
+    $$ActivityRecordTableTableOrderingComposer,
+    $$ActivityRecordTableTableAnnotationComposer,
+    $$ActivityRecordTableTableCreateCompanionBuilder,
+    $$ActivityRecordTableTableUpdateCompanionBuilder,
+    (
+      ActivityRecord,
+      BaseReferences<_$AppDatabase, $ActivityRecordTableTable, ActivityRecord>
+    ),
+    ActivityRecord,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
@@ -11424,4 +12097,6 @@ class $AppDatabaseManager {
       $$AccountDebtTableTableTableManager(_db, _db.accountDebtTable);
   $$GiftCardTableTableTableManager get giftCardTable =>
       $$GiftCardTableTableTableManager(_db, _db.giftCardTable);
+  $$ActivityRecordTableTableTableManager get activityRecordTable =>
+      $$ActivityRecordTableTableTableManager(_db, _db.activityRecordTable);
 }

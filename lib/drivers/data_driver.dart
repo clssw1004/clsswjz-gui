@@ -23,8 +23,8 @@ import '../models/vo/user_fund_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/vo/gift_card_vo.dart';
-
-
+import '../models/vo/activity_record_vo.dart';
+import '../models/vo/activity_statistic_vo.dart';
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -316,4 +316,40 @@ abstract class BookDataDriver {
 
   /// 获取单个礼物卡详情
   Future<OperateResult<GiftCardVO>> getGiftCard(String userId, String giftCardId);
+
+  // ============ 活动记录相关 ============
+
+  /// 创建活动记录
+  Future<OperateResult<String>> createActivityRecord(
+    String userId,
+    String bookId, {
+    required String activityName,
+    required String recordDate,
+    String? location,
+    int? createdAt,
+  });
+
+  /// 删除活动记录
+  Future<OperateResult<void>> deleteActivityRecord(
+    String userId, String bookId, String recordId);
+
+  /// 获取活动记录列表（按日期范围筛选）
+  Future<OperateResult<List<ActivityRecordVO>>> listActivityRecordsByBook(
+    String userId, String bookId, {
+    int limit = 200,
+    int offset = 0,
+    String? startDate,
+    String? endDate,
+  });
+
+  /// 获取去重的活动名称列表（用于自动补全）
+  Future<OperateResult<List<String>>> listDistinctActivityNames(
+    String userId, String bookId);
+
+  /// 获取活动统计（按活动名聚合）
+  Future<OperateResult<List<ActivityStatisticVO>>> getActivityStatistics(
+    String userId, String bookId, {
+    required String startDate,
+    required String endDate,
+  });
 }
