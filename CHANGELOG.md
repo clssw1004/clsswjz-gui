@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.12] - 2026-05-15
+
+### New Features
+- New activity record module: record daily activities with name, location, and time
+- Notes tab integrates notes & activity records, switched via TabBar
+- Activity statistics moved to Statistics tab, linked with time range selector
+- Added activity statistics toggle in UI Layout Settings
+- Activity records support log-driven sync
+- Internationalization (EN/ZH/Hant)
+
 ## [1.0.11-alpha.1] - 2026-04-28
 
 ### Bug Fixes
