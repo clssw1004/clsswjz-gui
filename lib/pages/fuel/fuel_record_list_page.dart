@@ -8,6 +8,7 @@ import '../../models/vo/vehicle_vo.dart';
 import '../../providers/fuel_record_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
+import 'fuel_record_detail_page.dart';
 import 'fuel_record_form_page.dart';
 import 'fuel_statistics_page.dart';
 import 'vehicle_form_page.dart';
@@ -39,6 +40,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
     super.initState();
     _recordProvider = FuelRecordProvider();
     _vehicleProvider = VehicleProvider();
+    _recordProvider.addListener(_onStateChanged);
     _vehicleProvider.addListener(_onStateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _vehicleProvider.loadItems();
@@ -77,6 +79,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
 
   @override
   void dispose() {
+    _recordProvider.removeListener(_onStateChanged);
     _recordProvider.dispose();
     _vehicleProvider.removeListener(_onStateChanged);
     _vehicleProvider.dispose();
@@ -359,11 +362,11 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
         child: Column(
           children: [
             Row(children: [
-              Expanded(child: _statItem(label: '总费用', value: '${stats.totalAmount.toStringAsFixed(0)}元', icon: Icons.payments, iconColor: colorScheme.tertiary, theme: theme, colorScheme: colorScheme)),
+              Expanded(child: _statItem(label: '总费用', value: '${stats.totalAmount.toStringAsFixed(2)}元', icon: Icons.payments, iconColor: colorScheme.tertiary, theme: theme, colorScheme: colorScheme)),
               _statDivider(colorScheme),
               Expanded(child: _statItem(label: '总里程', value: stats.totalMileage > 0 ? '${stats.totalMileage} km' : '--', icon: Icons.speed, iconColor: colorScheme.secondary, theme: theme, colorScheme: colorScheme)),
               _statDivider(colorScheme),
-              Expanded(child: _statItem(label: '总油量', value: '${stats.totalVolume.toStringAsFixed(1)}L', icon: Icons.local_gas_station, iconColor: colorScheme.primary, theme: theme, colorScheme: colorScheme)),
+              Expanded(child: _statItem(label: '总油量', value: '${stats.totalVolume.toStringAsFixed(2)}L', icon: Icons.local_gas_station, iconColor: colorScheme.primary, theme: theme, colorScheme: colorScheme)),
             ]),
             const SizedBox(height: 10),
             Row(children: [
@@ -516,7 +519,10 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
       ),
-      child: Padding(
+      child: InkWell(
+        onTap: () => _navigateToRecordDetail(context, record),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,7 +576,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _innerBlockValue(
-                        record.totalAmount.toStringAsFixed(0),
+                        record.totalAmount.toStringAsFixed(2),
                         '元',
                         theme,
                         colorScheme.tertiary,
@@ -584,7 +590,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
                       ),
                       _innerBlockDivider(colorScheme),
                       _innerBlockValue(
-                        record.volume.toStringAsFixed(1),
+                        record.volume.toStringAsFixed(2),
                         'L',
                         theme,
                         colorScheme.primary,
@@ -633,6 +639,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -785,6 +792,16 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
       ),
     );
     if (result == true && mounted) _recordProvider.loadItems(_vehicleId!);
+  }
+
+  void _navigateToRecordDetail(BuildContext context, FuelRecordVO record) {
+    if (_vehicleId == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FuelRecordDetailPage(recordId: record.id),
+      ),
+    );
   }
 
   void _navigateToStatistics(BuildContext context) {

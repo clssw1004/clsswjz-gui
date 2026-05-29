@@ -36,62 +36,31 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
   int _refuelTime = DateTime.now().millisecondsSinceEpoch;
   bool _saving = false;
 
-  /// 防止自动计算时的递归更新
-  bool _isUpdating = false;
-
-
   bool get isCreateMode => widget.recordId == null;
 
   @override
   void initState() {
     super.initState();
-    _setupAutoCalculate();
-
     if (!isCreateMode) {
       _loadRecord();
     }
   }
 
-  void _setupAutoCalculate() {
-    _volumeController.addListener(_onFieldChanged);
-    _unitPriceController.addListener(_onFieldChanged);
-    _totalAmountController.addListener(_onFieldChanged);
-  }
+  /// 失去焦点时自动计算：填二算一
+  void _recalculate() {
+    final volume = double.tryParse(_volumeController.text);
+    final unitPrice = double.tryParse(_unitPriceController.text);
+    final totalAmount = double.tryParse(_totalAmountController.text);
 
-  void _onFieldChanged() {
-    if (_isUpdating) return;
-
-    _isUpdating = true;
-
-    final volumeText = _volumeController.text;
-    final unitPriceText = _unitPriceController.text;
-    final totalAmountText = _totalAmountController.text;
-
-    final volume = double.tryParse(volumeText);
-    final unitPrice = double.tryParse(unitPriceText);
-    final totalAmount = double.tryParse(totalAmountText);
-
-    // Count how many fields have values
-    int filledCount = 0;
-    if (volume != null) filledCount++;
-    if (unitPrice != null) filledCount++;
-    if (totalAmount != null) filledCount++;
-
-    if (filledCount >= 2) {
-      // Check which two fields are set and calculate the third
-      if (volume != null && unitPrice != null && totalAmount == null) {
-        // volume + unitPrice -> totalAmount
-        _totalAmountController.text = (volume * unitPrice).toStringAsFixed(2);
-      } else if (volume != null && totalAmount != null && unitPrice == null) {
-        // volume + totalAmount -> unitPrice
-        _unitPriceController.text = (totalAmount / volume).toStringAsFixed(2);
-      } else if (unitPrice != null && totalAmount != null && volume == null) {
-        // unitPrice + totalAmount -> volume
+    if (volume != null && unitPrice != null && totalAmount == null) {
+      _totalAmountController.text = (volume * unitPrice).toStringAsFixed(2);
+    } else if (volume != null && totalAmount != null && unitPrice == null) {
+      _unitPriceController.text = (totalAmount / volume).toStringAsFixed(2);
+    } else if (unitPrice != null && totalAmount != null && volume == null) {
+      if (unitPrice > 0) {
         _volumeController.text = (totalAmount / unitPrice).toStringAsFixed(2);
       }
     }
-
-    _isUpdating = false;
   }
 
   @override
@@ -206,36 +175,51 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
             ),
             const SizedBox(height: 16),
 
-            // 加油量
-            CommonTextFormField(
-              controller: _volumeController,
-              labelText: '加油量（升）',
-              hintText: '请输入加油量',
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              prefixIcon: Icons.local_gas_station,
+            // 总价
+            Focus(
+              onFocusChange: (focused) {
+                if (!focused) _recalculate();
+              },
+              child: CommonTextFormField(
+                controller: _totalAmountController,
+                labelText: '总价（元）',
+                hintText: '请输入总价',
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                prefixIcon: Icons.payments,
+              ),
             ),
             const SizedBox(height: 16),
 
             // 单价
-            CommonTextFormField(
-              controller: _unitPriceController,
-              labelText: '单价（元/升）',
-              hintText: '请输入单价',
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              prefixIcon: Icons.monetization_on,
+            Focus(
+              onFocusChange: (focused) {
+                if (!focused) _recalculate();
+              },
+              child: CommonTextFormField(
+                controller: _unitPriceController,
+                labelText: '单价（元/升）',
+                hintText: '请输入单价',
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                prefixIcon: Icons.monetization_on,
+              ),
             ),
             const SizedBox(height: 16),
 
-            // 总价
-            CommonTextFormField(
-              controller: _totalAmountController,
-              labelText: '总价（元）',
-              hintText: '请输入总价',
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              prefixIcon: Icons.payments,
+            // 加油量
+            Focus(
+              onFocusChange: (focused) {
+                if (!focused) _recalculate();
+              },
+              child: CommonTextFormField(
+                controller: _volumeController,
+                labelText: '加油量（升）',
+                hintText: '请输入加油量',
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                prefixIcon: Icons.local_gas_station,
+              ),
             ),
             const SizedBox(height: 16),
 
