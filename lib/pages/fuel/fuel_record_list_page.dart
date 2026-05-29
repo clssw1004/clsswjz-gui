@@ -12,12 +12,12 @@ import 'fuel_statistics_page.dart';
 /// 加油记录列表页面
 class FuelRecordListPage extends StatefulWidget {
   final String vehicleId;
-  final String? plateNumber;
+  final String plateNumber;
 
   const FuelRecordListPage({
     super.key,
     required this.vehicleId,
-    this.plateNumber,
+    required this.plateNumber,
   });
 
   @override
@@ -50,7 +50,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
         builder: (context, provider, _) {
           return Scaffold(
             appBar: CommonAppBar(
-              title: Text(widget.plateNumber ?? '加油记录'),
+              title: Text(widget.plateNumber),
               showBackButton: true,
               actions: [
                 IconButton(

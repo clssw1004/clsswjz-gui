@@ -41,7 +41,7 @@ import '../pages/gift_card/gift_card_list_page.dart';
 import '../pages/gift_card/gift_card_form_page.dart';
 import '../pages/gift_card/gift_card_detail_page.dart';
 import '../models/vo/gift_card_vo.dart';
-import '../pages/fuel/vehicle_list_page.dart';
+import '../pages/fuel/vehicle_list_page.dart' show FuelHubPage;
 import '../pages/fuel/vehicle_form_page.dart';
 import '../pages/fuel/fuel_record_list_page.dart';
 import '../pages/fuel/fuel_record_form_page.dart';
@@ -282,7 +282,7 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO;
       return GiftCardDetailPage(giftCard: args);
     },
-    fuelVehicles: (context) => const VehicleListPage(),
+    fuelVehicles: (context) => const FuelHubPage(),
     fuelVehicleForm: (context) {
       final args = ModalRoute.of(context)?.settings.arguments as String?;
       return VehicleFormPage(vehicleId: args);
@@ -291,7 +291,7 @@ class AppRoutes {
       final args = ModalRoute.of(context)!.settings.arguments as Map;
       return FuelRecordListPage(
         vehicleId: args['vehicleId'],
-        plateNumber: args['plateNumber'],
+        plateNumber: args['plateNumber'] ?? '',
       );
     },
     fuelRecordForm: (context) {
