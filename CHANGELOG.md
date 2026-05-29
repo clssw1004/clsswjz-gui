@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.13] - 2026-05-30
+
+### New Features
+- New fuel record module — manage vehicles (add/edit/delete) and track refuel records
+- Refuel form with mileage, volume, unit price, total amount (auto-calculate any two), fuel grade, full tank/fuel light flags, station, and remarks
+- Timeline-style list with dual-layer cards for key data, with edit and delete support
+- Fuel consumption statistics page showing average consumption, total cost, total mileage
+- Vehicle selection persisted to local config, auto-restored on next visit
+- Fuel record detail supports one-tap bookkeeping entry
+
 ## [1.0.12] - 2026-05-15
 
 ### New Features
