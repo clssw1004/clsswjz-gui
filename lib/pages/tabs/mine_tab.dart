@@ -272,6 +272,28 @@ class _MineTabView extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.local_gas_station,
+                                  '油耗记录',
+                                  () => Navigator.pushNamed(
+                                      context, AppRoutes.fuelVehicles),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                              const Expanded(child: SizedBox.shrink()),
+                              const SizedBox(width: 8),
+                              const Expanded(child: SizedBox.shrink()),
+                              const SizedBox(width: 8),
+                              const Expanded(child: SizedBox.shrink()),
+                            ],
+                          ),
                         ],
                       ),
                     ),

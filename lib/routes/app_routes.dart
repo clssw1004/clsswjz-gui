@@ -41,6 +41,12 @@ import '../pages/gift_card/gift_card_list_page.dart';
 import '../pages/gift_card/gift_card_form_page.dart';
 import '../pages/gift_card/gift_card_detail_page.dart';
 import '../models/vo/gift_card_vo.dart';
+import '../pages/fuel/vehicle_list_page.dart';
+import '../pages/fuel/vehicle_form_page.dart';
+import '../pages/fuel/fuel_record_list_page.dart';
+import '../pages/fuel/fuel_record_form_page.dart';
+import '../pages/fuel/fuel_record_detail_page.dart';
+import '../pages/fuel/fuel_statistics_page.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -127,6 +133,24 @@ class AppRoutes {
 
   /// 礼物卡详情页面
   static const String giftCardDetail = '/gift_card/detail';
+
+  /// 车辆列表页面
+  static const String fuelVehicles = '/fuel/vehicles';
+
+  /// 车辆表单页面
+  static const String fuelVehicleForm = '/fuel/vehicle/form';
+
+  /// 加油记录列表页面
+  static const String fuelRecords = '/fuel/records';
+
+  /// 加油记录表单页面
+  static const String fuelRecordForm = '/fuel/record/form';
+
+  /// 加油记录详情页面
+  static const String fuelRecordDetail = '/fuel/record/detail';
+
+  /// 油耗统计页面
+  static const String fuelStatistics = '/fuel/statistics';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -257,6 +281,36 @@ class AppRoutes {
     giftCardDetail: (context) {
       final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO;
       return GiftCardDetailPage(giftCard: args);
+    },
+    fuelVehicles: (context) => const VehicleListPage(),
+    fuelVehicleForm: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments as String?;
+      return VehicleFormPage(vehicleId: args);
+    },
+    fuelRecords: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      return FuelRecordListPage(
+        vehicleId: args['vehicleId'],
+        plateNumber: args['plateNumber'],
+      );
+    },
+    fuelRecordForm: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      return FuelRecordFormPage(
+        vehicleId: args['vehicleId'],
+        recordId: args['recordId'],
+      );
+    },
+    fuelRecordDetail: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as String;
+      return FuelRecordDetailPage(recordId: args);
+    },
+    fuelStatistics: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      return FuelStatisticsPage(
+        vehicleId: args['vehicleId'],
+        plateNumber: args['plateNumber'],
+      );
     },
   };
 }
