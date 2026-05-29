@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:clsswjz_gui/enums/gift_card.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
@@ -24,6 +25,10 @@ import '../../models/vo/attachment_show_vo.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../models/vo/activity_record_vo.dart';
 import '../../models/vo/activity_statistic_vo.dart';
+import '../../models/vo/vehicle_vo.dart';
+import '../../models/vo/fuel_record_vo.dart';
+import '../../models/vo/fuel_statistics_vo.dart';
+import '../../models/dto/fuel_record_filter_dto.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -47,6 +52,8 @@ import 'log/builder/builder.dart';
 import 'log/builder/fund.builder.dart';
 import 'log/builder/gift_card.builder.dart';
 import 'log/builder/activity_record.builder.dart';
+import 'log/builder/vehicle.builder.dart';
+import 'log/builder/fuel_record.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
@@ -1075,6 +1082,357 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取活动统计失败：$e', exception: e as Exception);
+    }
+  }
+
+  // ============ 油耗记录相关 ============
+
+  @override
+  Future<OperateResult<String>> createVehicle(
+    String userId, {
+    required String plateNumber,
+    required String brand,
+    required String model,
+    String? remark,
+    String? defaultFuelGrade,
+  }) async {
+    try {
+      final logBuilder = VehicleCULog.create(
+        who: userId,
+        plateNumber: plateNumber,
+        brand: brand,
+        model: model,
+        remark: remark,
+        defaultFuelGrade: defaultFuelGrade,
+      );
+      final id = await logBuilder.execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '创建车辆失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteVehicle(
+      String userId, String vehicleId) async {
+    try {
+      final logBuilder = VehicleCULog.delete(
+        who: userId,
+        id: vehicleId,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除车辆失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateVehicle(
+    String userId,
+    String vehicleId, {
+    String? plateNumber,
+    String? brand,
+    String? model,
+    String? remark,
+    String? defaultFuelGrade,
+    bool? isActive,
+    int? sortOrder,
+  }) async {
+    try {
+      final logBuilder = VehicleCULog.update(
+        who: userId,
+        id: vehicleId,
+        plateNumber: plateNumber,
+        brand: brand,
+        model: model,
+        remark: remark,
+        defaultFuelGrade: defaultFuelGrade,
+        isActive: isActive != null ? (isActive ? 1 : 0) : null,
+        sortOrder: sortOrder,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新车辆失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<VehicleVO>>> listVehicles(String userId) async {
+    try {
+      final vehicles = await DaoManager.vehicleDao.findByUserId(userId);
+      final vos = vehicles.map((v) => VehicleVO.fromVehicle(v)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取车辆列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<String>> createFuelRecord(
+    String userId, {
+    required String vehicleId,
+    required int mileage,
+    required String energyType,
+    required String fuelGrade,
+    required double volume,
+    required double unitPrice,
+    required double totalAmount,
+    bool isFullTank = false,
+    int? isFuelLightOn,
+    String? station,
+    String? remark,
+    int? refuelTime,
+  }) async {
+    try {
+      final logBuilder = FuelRecordCULog.create(
+        who: userId,
+        vehicleId: vehicleId,
+        mileage: mileage,
+        energyType: energyType,
+        fuelGrade: fuelGrade,
+        volume: volume,
+        unitPrice: unitPrice,
+        totalAmount: totalAmount,
+        isFullTank: isFullTank,
+        isFuelLightOn: isFuelLightOn,
+        station: station,
+        remark: remark,
+        refuelTime: refuelTime,
+      );
+      final id = await logBuilder.execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '创建加油记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteFuelRecord(
+      String userId, String recordId) async {
+    try {
+      final logBuilder = FuelRecordCULog.delete(
+        who: userId,
+        id: recordId,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除加油记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateFuelRecord(
+    String userId,
+    String recordId, {
+    int? mileage,
+    String? energyType,
+    String? fuelGrade,
+    double? volume,
+    double? unitPrice,
+    double? totalAmount,
+    bool? isFullTank,
+    int? isFuelLightOn,
+    String? station,
+    String? remark,
+    int? refuelTime,
+    String? linkedBookId,
+    String? linkedItemId,
+  }) async {
+    try {
+      final logBuilder = FuelRecordCULog.update(
+        who: userId,
+        id: recordId,
+        mileage: mileage,
+        energyType: energyType,
+        fuelGrade: fuelGrade,
+        volume: volume,
+        unitPrice: unitPrice,
+        totalAmount: totalAmount,
+        isFullTank: isFullTank,
+        isFuelLightOn: isFuelLightOn,
+        station: station,
+        remark: remark,
+        refuelTime: refuelTime,
+        linkedBookId: linkedBookId,
+        linkedItemId: linkedItemId,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新加油记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<FuelRecordVO>>> listFuelRecords(
+    String userId,
+    String vehicleId, {
+    int limit = 20,
+    int offset = 0,
+    FuelRecordFilterDTO? filter,
+  }) async {
+    try {
+      List<FuelRecord> records;
+      if (filter != null) {
+        // Query all and apply in-memory filtering
+        records = await DaoManager.fuelRecordDao.findByVehicleId(vehicleId);
+        if (filter.startDate != null) {
+          final start =
+              DateTime.parse(filter.startDate!).millisecondsSinceEpoch;
+          records = records.where((r) => r.refuelTime >= start).toList();
+        }
+        if (filter.endDate != null) {
+          final end = DateTime.parse(filter.endDate!).millisecondsSinceEpoch;
+          records = records.where((r) => r.refuelTime <= end).toList();
+        }
+        // Apply limit/offset after filtering
+        records = records.skip(offset).take(limit).toList();
+      } else {
+        records = await DaoManager.fuelRecordDao
+            .findByVehicleId(vehicleId, limit: limit, offset: offset);
+      }
+
+      // Convert to VO with consumption data
+      final vos = <FuelRecordVO>[];
+      for (final record in records) {
+        FuelRecordVO vo = FuelRecordVO.fromFuelRecord(record);
+        if (record.isFullTank == 1) {
+          final lastFullTank = await DaoManager.fuelRecordDao
+              .findLastFullTank(vehicleId, record.mileage);
+          if (lastFullTank != null) {
+            vo = vo.copyWith(
+              lastFullTankMileage: lastFullTank.mileage,
+              lastFullTankVolume: lastFullTank.volume,
+            );
+          }
+        }
+        vos.add(vo);
+      }
+
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取加油记录列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<FuelRecordVO>> getFuelRecord(
+      String userId, String recordId) async {
+    try {
+      final record = await DaoManager.fuelRecordDao.findById(recordId);
+      if (record == null) {
+        return OperateResult.failWithMessage(message: '加油记录不存在');
+      }
+
+      FuelRecordVO vo = FuelRecordVO.fromFuelRecord(record);
+      if (record.isFullTank == 1) {
+        final lastFullTank = await DaoManager.fuelRecordDao
+            .findLastFullTank(record.vehicleId, record.mileage);
+        if (lastFullTank != null) {
+          vo = vo.copyWith(
+            lastFullTankMileage: lastFullTank.mileage,
+            lastFullTankVolume: lastFullTank.volume,
+          );
+        }
+      }
+
+      return OperateResult.success(vo);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取加油记录详情失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<FuelStatisticsVO>> getFuelStatistics(
+      String userId, String vehicleId) async {
+    try {
+      final records =
+          await DaoManager.fuelRecordDao.findByVehicleId(vehicleId);
+
+      if (records.isEmpty) {
+        return OperateResult.success(FuelStatisticsVO(
+          totalVolume: 0,
+          totalAmount: 0,
+          totalRecords: 0,
+        ));
+      }
+
+      double totalVolume = 0;
+      double totalAmount = 0;
+      int totalRecords = records.length;
+
+      final sortedRecords = List<FuelRecord>.from(records)
+        ..sort((a, b) => a.refuelTime.compareTo(b.refuelTime));
+
+      for (final r in sortedRecords) {
+        totalVolume += r.volume;
+        totalAmount += r.totalAmount;
+      }
+
+      // Calculate average fuel consumption from consecutive full tank pairs
+      double? averageFuelConsumption;
+      final List<double> segmentConsumptions = [];
+      int? lastFullTankIndex;
+
+      for (int i = 0; i < sortedRecords.length; i++) {
+        if (sortedRecords[i].isFullTank == 1) {
+          if (lastFullTankIndex != null) {
+            final prevRecord = sortedRecords[lastFullTankIndex];
+            final currRecord = sortedRecords[i];
+            final distance =
+                (currRecord.mileage - prevRecord.mileage).toDouble();
+            if (distance > 0) {
+              // Volume at current fill is the fuel consumed since last full tank
+              segmentConsumptions.add(currRecord.volume / distance * 100);
+            }
+          }
+          lastFullTankIndex = i;
+        }
+      }
+
+      if (segmentConsumptions.isNotEmpty) {
+        averageFuelConsumption = segmentConsumptions
+                .reduce((a, b) => a + b) /
+            segmentConsumptions.length;
+      }
+
+      // Calculate average cost per km
+      double? averageCostPerKm;
+      if (sortedRecords.length >= 2) {
+        int maxMileage = sortedRecords[0].mileage;
+        int minMileage = sortedRecords[0].mileage;
+        for (final r in sortedRecords) {
+          maxMileage = max(maxMileage, r.mileage);
+          minMileage = min(minMileage, r.mileage);
+        }
+        final totalKm = (maxMileage - minMileage).toDouble();
+        if (totalKm > 0) {
+          averageCostPerKm = totalAmount / totalKm;
+        }
+      }
+
+      return OperateResult.success(FuelStatisticsVO(
+        totalVolume: totalVolume,
+        totalAmount: totalAmount,
+        totalRecords: totalRecords,
+        averageFuelConsumption: averageFuelConsumption,
+        averageCostPerKm: averageCostPerKm,
+      ));
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取油耗统计失败：$e', exception: e as Exception);
     }
   }
 }

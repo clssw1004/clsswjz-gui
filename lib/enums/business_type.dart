@@ -46,7 +46,13 @@ enum BusinessType {
   giftCard('giftCard'),
 
   /// 活动
-  activity('activity');
+  activity('activity'),
+
+  /// 车辆
+  vehicle('vehicle'),
+
+  /// 加油记录
+  fuelRecord('fuelRecord');
 
   final String code;
   const BusinessType(this.code);

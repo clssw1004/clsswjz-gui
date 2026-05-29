@@ -7,6 +7,7 @@ import '../../widgets/setting/user_info_card.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
+import '../fuel/fuel_record_list_page.dart';
 
 class MineTab extends StatelessWidget {
   const MineTab({super.key});
@@ -270,6 +271,32 @@ class _MineTabView extends StatelessWidget {
                                   isAccountBookFeature: false,
                                 ),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildCompactFeatureItem(
+                                  context,
+                                  Icons.local_gas_station,
+                                  '油耗记录',
+                                  () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (ctx) =>
+                                              const FuelRecordListPage()),
+                                    ),
+                                  colorScheme: colorScheme,
+                                  theme: theme.textTheme,
+                                  isAccountBookFeature: false,
+                                ),
+                              ),
+                              const Expanded(child: SizedBox.shrink()),
+                              const SizedBox(width: 8),
+                              const Expanded(child: SizedBox.shrink()),
+                              const SizedBox(width: 8),
+                              const Expanded(child: SizedBox.shrink()),
                             ],
                           ),
                         ],

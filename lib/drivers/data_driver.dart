@@ -25,6 +25,10 @@ import '../models/vo/user_note_vo.dart';
 import '../models/vo/gift_card_vo.dart';
 import '../models/vo/activity_record_vo.dart';
 import '../models/vo/activity_statistic_vo.dart';
+import '../models/vo/vehicle_vo.dart';
+import '../models/vo/fuel_record_vo.dart';
+import '../models/vo/fuel_statistics_vo.dart';
+import '../models/dto/fuel_record_filter_dto.dart';
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -352,4 +356,89 @@ abstract class BookDataDriver {
     required String startDate,
     required String endDate,
   });
+
+  // ============ 油耗记录相关 ============
+
+  /// 创建车辆
+  Future<OperateResult<String>> createVehicle(
+    String userId, {
+    required String plateNumber,
+    required String brand,
+    required String model,
+    String? remark,
+    String? defaultFuelGrade,
+  });
+
+  /// 删除车辆
+  Future<OperateResult<void>> deleteVehicle(String userId, String vehicleId);
+
+  /// 更新车辆
+  Future<OperateResult<void>> updateVehicle(
+    String userId,
+    String vehicleId, {
+    String? plateNumber,
+    String? brand,
+    String? model,
+    String? remark,
+    String? defaultFuelGrade,
+    bool? isActive,
+    int? sortOrder,
+  });
+
+  /// 获取车辆列表
+  Future<OperateResult<List<VehicleVO>>> listVehicles(String userId);
+
+  /// 创建加油记录
+  Future<OperateResult<String>> createFuelRecord(
+    String userId, {
+    required String vehicleId,
+    required int mileage,
+    required String energyType,
+    required String fuelGrade,
+    required double volume,
+    required double unitPrice,
+    required double totalAmount,
+    bool isFullTank = false,
+    int? isFuelLightOn,
+    String? station,
+    String? remark,
+    int? refuelTime,
+  });
+
+  /// 删除加油记录
+  Future<OperateResult<void>> deleteFuelRecord(String userId, String recordId);
+
+  /// 更新加油记录
+  Future<OperateResult<void>> updateFuelRecord(
+    String userId,
+    String recordId, {
+    int? mileage,
+    String? energyType,
+    String? fuelGrade,
+    double? volume,
+    double? unitPrice,
+    double? totalAmount,
+    bool? isFullTank,
+    int? isFuelLightOn,
+    String? station,
+    String? remark,
+    int? refuelTime,
+    String? linkedBookId,
+    String? linkedItemId,
+  });
+
+  /// 获取车辆加油记录列表
+  Future<OperateResult<List<FuelRecordVO>>> listFuelRecords(
+    String userId,
+    String vehicleId, {
+    int limit = 20,
+    int offset = 0,
+    FuelRecordFilterDTO? filter,
+  });
+
+  /// 获取加油记录详情
+  Future<OperateResult<FuelRecordVO>> getFuelRecord(String userId, String recordId);
+
+  /// 获取车辆油耗统计
+  Future<OperateResult<FuelStatisticsVO>> getFuelStatistics(String userId, String vehicleId);
 }

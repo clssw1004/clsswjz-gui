@@ -34,6 +34,8 @@ class AppConfigManager {
   static const String _itemFilterKey = 'item_filter';
   static const String _uiConfigKey = 'ui_config';
   static const String _webrtcConfigKey = 'webrtc_config';
+  static const String _selectedVehicleIdKey = 'selected_vehicle_id';
+  static const String _selectedVehiclePlateKey = 'selected_vehicle_plate';
 
   static bool _isInit = false;
 
@@ -105,6 +107,14 @@ class AppConfigManager {
   
   late WebRTCConfigDTO _webrtcConfig;
   WebRTCConfigDTO get webrtcConfig => _webrtcConfig;
+
+  /// 上次选中车辆ID
+  String? _selectedVehicleId;
+  String? get selectedVehicleId => _selectedVehicleId;
+
+  /// 上次选中车辆车牌
+  String? _selectedVehiclePlate;
+  String? get selectedVehiclePlate => _selectedVehiclePlate;
 
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
@@ -186,6 +196,10 @@ class AppConfigManager {
     _webrtcConfig = webrtcConfigString != null
         ? WebRTCConfigDTO.fromJsonString(webrtcConfigString)
         : WebRTCConfigDTO();
+
+    // 初始化上次选中的车辆
+    _selectedVehicleId = CacheManager.instance.getString(_selectedVehicleIdKey);
+    _selectedVehiclePlate = CacheManager.instance.getString(_selectedVehiclePlateKey);
   }
 
   /// 初始化
@@ -334,6 +348,14 @@ class AppConfigManager {
         .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));
   }
   
+  /// 设置上次选中的车辆
+  Future<void> setSelectedVehicle(String vehicleId, String plateNumber) async {
+    _selectedVehicleId = vehicleId;
+    _selectedVehiclePlate = plateNumber;
+    await CacheManager.instance.setString(_selectedVehicleIdKey, vehicleId);
+    await CacheManager.instance.setString(_selectedVehiclePlateKey, plateNumber);
+  }
+
   /// 设置WebRTC配置
   Future<void> setWebRTCConfig(WebRTCConfigDTO config) async {
     _webrtcConfig = config;

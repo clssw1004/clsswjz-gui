@@ -8209,6 +8209,1485 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
   }
 }
 
+class $VehicleTableTable extends VehicleTable
+    with TableInfo<$VehicleTableTable, Vehicle> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VehicleTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _plateNumberMeta =
+      const VerificationMeta('plateNumber');
+  @override
+  late final GeneratedColumn<String> plateNumber = GeneratedColumn<String>(
+      'plate_number', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _brandMeta = const VerificationMeta('brand');
+  @override
+  late final GeneratedColumn<String> brand = GeneratedColumn<String>(
+      'brand', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+      'model', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _remarkMeta = const VerificationMeta('remark');
+  @override
+  late final GeneratedColumn<String> remark = GeneratedColumn<String>(
+      'remark', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _defaultFuelGradeMeta =
+      const VerificationMeta('defaultFuelGrade');
+  @override
+  late final GeneratedColumn<String> defaultFuelGrade = GeneratedColumn<String>(
+      'default_fuel_grade', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('92'));
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<int> isActive = GeneratedColumn<int>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        plateNumber,
+        brand,
+        model,
+        remark,
+        defaultFuelGrade,
+        isActive,
+        sortOrder
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vehicle_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<Vehicle> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('plate_number')) {
+      context.handle(
+          _plateNumberMeta,
+          plateNumber.isAcceptableOrUnknown(
+              data['plate_number']!, _plateNumberMeta));
+    } else if (isInserting) {
+      context.missing(_plateNumberMeta);
+    }
+    if (data.containsKey('brand')) {
+      context.handle(
+          _brandMeta, brand.isAcceptableOrUnknown(data['brand']!, _brandMeta));
+    } else if (isInserting) {
+      context.missing(_brandMeta);
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+          _modelMeta, model.isAcceptableOrUnknown(data['model']!, _modelMeta));
+    } else if (isInserting) {
+      context.missing(_modelMeta);
+    }
+    if (data.containsKey('remark')) {
+      context.handle(_remarkMeta,
+          remark.isAcceptableOrUnknown(data['remark']!, _remarkMeta));
+    }
+    if (data.containsKey('default_fuel_grade')) {
+      context.handle(
+          _defaultFuelGradeMeta,
+          defaultFuelGrade.isAcceptableOrUnknown(
+              data['default_fuel_grade']!, _defaultFuelGradeMeta));
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Vehicle map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Vehicle(
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      plateNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plate_number'])!,
+      brand: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}brand'])!,
+      model: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}model'])!,
+      remark: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remark']),
+      defaultFuelGrade: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}default_fuel_grade'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_active'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $VehicleTableTable createAlias(String alias) {
+    return $VehicleTableTable(attachedDatabase, alias);
+  }
+}
+
+class Vehicle extends DataClass implements Insertable<Vehicle> {
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 车牌号
+  final String plateNumber;
+
+  /// 品牌
+  final String brand;
+
+  /// 型号
+  final String model;
+
+  /// 备注
+  final String? remark;
+
+  /// 默认油号
+  final String defaultFuelGrade;
+
+  /// 是否启用 (1:启用, 0:停用)
+  final int isActive;
+
+  /// 排序号
+  final int sortOrder;
+  const Vehicle(
+      {required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.plateNumber,
+      required this.brand,
+      required this.model,
+      this.remark,
+      required this.defaultFuelGrade,
+      required this.isActive,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['plate_number'] = Variable<String>(plateNumber);
+    map['brand'] = Variable<String>(brand);
+    map['model'] = Variable<String>(model);
+    if (!nullToAbsent || remark != null) {
+      map['remark'] = Variable<String>(remark);
+    }
+    map['default_fuel_grade'] = Variable<String>(defaultFuelGrade);
+    map['is_active'] = Variable<int>(isActive);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  VehicleTableCompanion toCompanion(bool nullToAbsent) {
+    return VehicleTableCompanion(
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      plateNumber: Value(plateNumber),
+      brand: Value(brand),
+      model: Value(model),
+      remark:
+          remark == null && nullToAbsent ? const Value.absent() : Value(remark),
+      defaultFuelGrade: Value(defaultFuelGrade),
+      isActive: Value(isActive),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory Vehicle.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Vehicle(
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      plateNumber: serializer.fromJson<String>(json['plateNumber']),
+      brand: serializer.fromJson<String>(json['brand']),
+      model: serializer.fromJson<String>(json['model']),
+      remark: serializer.fromJson<String?>(json['remark']),
+      defaultFuelGrade: serializer.fromJson<String>(json['defaultFuelGrade']),
+      isActive: serializer.fromJson<int>(json['isActive']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'plateNumber': serializer.toJson<String>(plateNumber),
+      'brand': serializer.toJson<String>(brand),
+      'model': serializer.toJson<String>(model),
+      'remark': serializer.toJson<String?>(remark),
+      'defaultFuelGrade': serializer.toJson<String>(defaultFuelGrade),
+      'isActive': serializer.toJson<int>(isActive),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  Vehicle copyWith(
+          {String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? plateNumber,
+          String? brand,
+          String? model,
+          Value<String?> remark = const Value.absent(),
+          String? defaultFuelGrade,
+          int? isActive,
+          int? sortOrder}) =>
+      Vehicle(
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        plateNumber: plateNumber ?? this.plateNumber,
+        brand: brand ?? this.brand,
+        model: model ?? this.model,
+        remark: remark.present ? remark.value : this.remark,
+        defaultFuelGrade: defaultFuelGrade ?? this.defaultFuelGrade,
+        isActive: isActive ?? this.isActive,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  Vehicle copyWithCompanion(VehicleTableCompanion data) {
+    return Vehicle(
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      plateNumber:
+          data.plateNumber.present ? data.plateNumber.value : this.plateNumber,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      model: data.model.present ? data.model.value : this.model,
+      remark: data.remark.present ? data.remark.value : this.remark,
+      defaultFuelGrade: data.defaultFuelGrade.present
+          ? data.defaultFuelGrade.value
+          : this.defaultFuelGrade,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Vehicle(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('plateNumber: $plateNumber, ')
+          ..write('brand: $brand, ')
+          ..write('model: $model, ')
+          ..write('remark: $remark, ')
+          ..write('defaultFuelGrade: $defaultFuelGrade, ')
+          ..write('isActive: $isActive, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      plateNumber,
+      brand,
+      model,
+      remark,
+      defaultFuelGrade,
+      isActive,
+      sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Vehicle &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.plateNumber == this.plateNumber &&
+          other.brand == this.brand &&
+          other.model == this.model &&
+          other.remark == this.remark &&
+          other.defaultFuelGrade == this.defaultFuelGrade &&
+          other.isActive == this.isActive &&
+          other.sortOrder == this.sortOrder);
+}
+
+class VehicleTableCompanion extends UpdateCompanion<Vehicle> {
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> plateNumber;
+  final Value<String> brand;
+  final Value<String> model;
+  final Value<String?> remark;
+  final Value<String> defaultFuelGrade;
+  final Value<int> isActive;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const VehicleTableCompanion({
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.plateNumber = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.model = const Value.absent(),
+    this.remark = const Value.absent(),
+    this.defaultFuelGrade = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VehicleTableCompanion.insert({
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String plateNumber,
+    required String brand,
+    required String model,
+    this.remark = const Value.absent(),
+    this.defaultFuelGrade = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        plateNumber = Value(plateNumber),
+        brand = Value(brand),
+        model = Value(model);
+  static Insertable<Vehicle> custom({
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? plateNumber,
+    Expression<String>? brand,
+    Expression<String>? model,
+    Expression<String>? remark,
+    Expression<String>? defaultFuelGrade,
+    Expression<int>? isActive,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (plateNumber != null) 'plate_number': plateNumber,
+      if (brand != null) 'brand': brand,
+      if (model != null) 'model': model,
+      if (remark != null) 'remark': remark,
+      if (defaultFuelGrade != null) 'default_fuel_grade': defaultFuelGrade,
+      if (isActive != null) 'is_active': isActive,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VehicleTableCompanion copyWith(
+      {Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? plateNumber,
+      Value<String>? brand,
+      Value<String>? model,
+      Value<String?>? remark,
+      Value<String>? defaultFuelGrade,
+      Value<int>? isActive,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return VehicleTableCompanion(
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      plateNumber: plateNumber ?? this.plateNumber,
+      brand: brand ?? this.brand,
+      model: model ?? this.model,
+      remark: remark ?? this.remark,
+      defaultFuelGrade: defaultFuelGrade ?? this.defaultFuelGrade,
+      isActive: isActive ?? this.isActive,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (plateNumber.present) {
+      map['plate_number'] = Variable<String>(plateNumber.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (remark.present) {
+      map['remark'] = Variable<String>(remark.value);
+    }
+    if (defaultFuelGrade.present) {
+      map['default_fuel_grade'] = Variable<String>(defaultFuelGrade.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<int>(isActive.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VehicleTableCompanion(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('plateNumber: $plateNumber, ')
+          ..write('brand: $brand, ')
+          ..write('model: $model, ')
+          ..write('remark: $remark, ')
+          ..write('defaultFuelGrade: $defaultFuelGrade, ')
+          ..write('isActive: $isActive, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FuelRecordTableTable extends FuelRecordTable
+    with TableInfo<$FuelRecordTableTable, FuelRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FuelRecordTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _vehicleIdMeta =
+      const VerificationMeta('vehicleId');
+  @override
+  late final GeneratedColumn<String> vehicleId = GeneratedColumn<String>(
+      'vehicle_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _mileageMeta =
+      const VerificationMeta('mileage');
+  @override
+  late final GeneratedColumn<int> mileage = GeneratedColumn<int>(
+      'mileage', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _energyTypeMeta =
+      const VerificationMeta('energyType');
+  @override
+  late final GeneratedColumn<String> energyType = GeneratedColumn<String>(
+      'energy_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('gasoline'));
+  static const VerificationMeta _fuelGradeMeta =
+      const VerificationMeta('fuelGrade');
+  @override
+  late final GeneratedColumn<String> fuelGrade = GeneratedColumn<String>(
+      'fuel_grade', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('92'));
+  static const VerificationMeta _volumeMeta = const VerificationMeta('volume');
+  @override
+  late final GeneratedColumn<double> volume = GeneratedColumn<double>(
+      'volume', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _unitPriceMeta =
+      const VerificationMeta('unitPrice');
+  @override
+  late final GeneratedColumn<double> unitPrice = GeneratedColumn<double>(
+      'unit_price', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _totalAmountMeta =
+      const VerificationMeta('totalAmount');
+  @override
+  late final GeneratedColumn<double> totalAmount = GeneratedColumn<double>(
+      'total_amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _isFullTankMeta =
+      const VerificationMeta('isFullTank');
+  @override
+  late final GeneratedColumn<int> isFullTank = GeneratedColumn<int>(
+      'is_full_tank', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _stationMeta =
+      const VerificationMeta('station');
+  @override
+  late final GeneratedColumn<String> station = GeneratedColumn<String>(
+      'station', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _remarkMeta = const VerificationMeta('remark');
+  @override
+  late final GeneratedColumn<String> remark = GeneratedColumn<String>(
+      'remark', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _refuelTimeMeta =
+      const VerificationMeta('refuelTime');
+  @override
+  late final GeneratedColumn<int> refuelTime = GeneratedColumn<int>(
+      'refuel_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _linkedBookIdMeta =
+      const VerificationMeta('linkedBookId');
+  @override
+  late final GeneratedColumn<String> linkedBookId = GeneratedColumn<String>(
+      'linked_book_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _linkedItemIdMeta =
+      const VerificationMeta('linkedItemId');
+  @override
+  late final GeneratedColumn<String> linkedItemId = GeneratedColumn<String>(
+      'linked_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        vehicleId,
+        mileage,
+        energyType,
+        fuelGrade,
+        volume,
+        unitPrice,
+        totalAmount,
+        isFullTank,
+        station,
+        remark,
+        refuelTime,
+        linkedBookId,
+        linkedItemId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fuel_record_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<FuelRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('vehicle_id')) {
+      context.handle(_vehicleIdMeta,
+          vehicleId.isAcceptableOrUnknown(data['vehicle_id']!, _vehicleIdMeta));
+    } else if (isInserting) {
+      context.missing(_vehicleIdMeta);
+    }
+    if (data.containsKey('mileage')) {
+      context.handle(_mileageMeta,
+          mileage.isAcceptableOrUnknown(data['mileage']!, _mileageMeta));
+    } else if (isInserting) {
+      context.missing(_mileageMeta);
+    }
+    if (data.containsKey('energy_type')) {
+      context.handle(
+          _energyTypeMeta,
+          energyType.isAcceptableOrUnknown(
+              data['energy_type']!, _energyTypeMeta));
+    }
+    if (data.containsKey('fuel_grade')) {
+      context.handle(_fuelGradeMeta,
+          fuelGrade.isAcceptableOrUnknown(data['fuel_grade']!, _fuelGradeMeta));
+    }
+    if (data.containsKey('volume')) {
+      context.handle(_volumeMeta,
+          volume.isAcceptableOrUnknown(data['volume']!, _volumeMeta));
+    } else if (isInserting) {
+      context.missing(_volumeMeta);
+    }
+    if (data.containsKey('unit_price')) {
+      context.handle(_unitPriceMeta,
+          unitPrice.isAcceptableOrUnknown(data['unit_price']!, _unitPriceMeta));
+    } else if (isInserting) {
+      context.missing(_unitPriceMeta);
+    }
+    if (data.containsKey('total_amount')) {
+      context.handle(
+          _totalAmountMeta,
+          totalAmount.isAcceptableOrUnknown(
+              data['total_amount']!, _totalAmountMeta));
+    } else if (isInserting) {
+      context.missing(_totalAmountMeta);
+    }
+    if (data.containsKey('is_full_tank')) {
+      context.handle(
+          _isFullTankMeta,
+          isFullTank.isAcceptableOrUnknown(
+              data['is_full_tank']!, _isFullTankMeta));
+    }
+    if (data.containsKey('station')) {
+      context.handle(_stationMeta,
+          station.isAcceptableOrUnknown(data['station']!, _stationMeta));
+    }
+    if (data.containsKey('remark')) {
+      context.handle(_remarkMeta,
+          remark.isAcceptableOrUnknown(data['remark']!, _remarkMeta));
+    }
+    if (data.containsKey('refuel_time')) {
+      context.handle(
+          _refuelTimeMeta,
+          refuelTime.isAcceptableOrUnknown(
+              data['refuel_time']!, _refuelTimeMeta));
+    } else if (isInserting) {
+      context.missing(_refuelTimeMeta);
+    }
+    if (data.containsKey('linked_book_id')) {
+      context.handle(
+          _linkedBookIdMeta,
+          linkedBookId.isAcceptableOrUnknown(
+              data['linked_book_id']!, _linkedBookIdMeta));
+    }
+    if (data.containsKey('linked_item_id')) {
+      context.handle(
+          _linkedItemIdMeta,
+          linkedItemId.isAcceptableOrUnknown(
+              data['linked_item_id']!, _linkedItemIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FuelRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FuelRecord(
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      vehicleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}vehicle_id'])!,
+      mileage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}mileage'])!,
+      energyType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}energy_type'])!,
+      fuelGrade: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fuel_grade'])!,
+      volume: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}volume'])!,
+      unitPrice: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}unit_price'])!,
+      totalAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
+      isFullTank: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_full_tank'])!,
+      station: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}station']),
+      remark: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remark']),
+      refuelTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}refuel_time'])!,
+      linkedBookId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}linked_book_id']),
+      linkedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}linked_item_id']),
+    );
+  }
+
+  @override
+  $FuelRecordTableTable createAlias(String alias) {
+    return $FuelRecordTableTable(attachedDatabase, alias);
+  }
+}
+
+class FuelRecord extends DataClass implements Insertable<FuelRecord> {
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 车辆ID
+  final String vehicleId;
+
+  /// 里程数
+  final int mileage;
+
+  /// 能源类型 (gasoline: 汽油, diesel: 柴油)
+  final String energyType;
+
+  /// 油号
+  final String fuelGrade;
+
+  /// 加油量 (升)
+  final double volume;
+
+  /// 单价 (元/升)
+  final double unitPrice;
+
+  /// 总金额 (元)
+  final double totalAmount;
+
+  /// 是否加满 (1:加满, 0:未加满)
+  final int isFullTank;
+
+  /// 加油站
+  final String? station;
+
+  /// 备注
+  final String? remark;
+
+  /// 加油时间 (毫秒时间戳)
+  final int refuelTime;
+
+  /// 关联账本ID
+  final String? linkedBookId;
+
+  /// 关联账目ID
+  final String? linkedItemId;
+  const FuelRecord(
+      {required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.vehicleId,
+      required this.mileage,
+      required this.energyType,
+      required this.fuelGrade,
+      required this.volume,
+      required this.unitPrice,
+      required this.totalAmount,
+      required this.isFullTank,
+      this.station,
+      this.remark,
+      required this.refuelTime,
+      this.linkedBookId,
+      this.linkedItemId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['vehicle_id'] = Variable<String>(vehicleId);
+    map['mileage'] = Variable<int>(mileage);
+    map['energy_type'] = Variable<String>(energyType);
+    map['fuel_grade'] = Variable<String>(fuelGrade);
+    map['volume'] = Variable<double>(volume);
+    map['unit_price'] = Variable<double>(unitPrice);
+    map['total_amount'] = Variable<double>(totalAmount);
+    map['is_full_tank'] = Variable<int>(isFullTank);
+    if (!nullToAbsent || station != null) {
+      map['station'] = Variable<String>(station);
+    }
+    if (!nullToAbsent || remark != null) {
+      map['remark'] = Variable<String>(remark);
+    }
+    map['refuel_time'] = Variable<int>(refuelTime);
+    if (!nullToAbsent || linkedBookId != null) {
+      map['linked_book_id'] = Variable<String>(linkedBookId);
+    }
+    if (!nullToAbsent || linkedItemId != null) {
+      map['linked_item_id'] = Variable<String>(linkedItemId);
+    }
+    return map;
+  }
+
+  FuelRecordTableCompanion toCompanion(bool nullToAbsent) {
+    return FuelRecordTableCompanion(
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      vehicleId: Value(vehicleId),
+      mileage: Value(mileage),
+      energyType: Value(energyType),
+      fuelGrade: Value(fuelGrade),
+      volume: Value(volume),
+      unitPrice: Value(unitPrice),
+      totalAmount: Value(totalAmount),
+      isFullTank: Value(isFullTank),
+      station: station == null && nullToAbsent
+          ? const Value.absent()
+          : Value(station),
+      remark:
+          remark == null && nullToAbsent ? const Value.absent() : Value(remark),
+      refuelTime: Value(refuelTime),
+      linkedBookId: linkedBookId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkedBookId),
+      linkedItemId: linkedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkedItemId),
+    );
+  }
+
+  factory FuelRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FuelRecord(
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      vehicleId: serializer.fromJson<String>(json['vehicleId']),
+      mileage: serializer.fromJson<int>(json['mileage']),
+      energyType: serializer.fromJson<String>(json['energyType']),
+      fuelGrade: serializer.fromJson<String>(json['fuelGrade']),
+      volume: serializer.fromJson<double>(json['volume']),
+      unitPrice: serializer.fromJson<double>(json['unitPrice']),
+      totalAmount: serializer.fromJson<double>(json['totalAmount']),
+      isFullTank: serializer.fromJson<int>(json['isFullTank']),
+      station: serializer.fromJson<String?>(json['station']),
+      remark: serializer.fromJson<String?>(json['remark']),
+      refuelTime: serializer.fromJson<int>(json['refuelTime']),
+      linkedBookId: serializer.fromJson<String?>(json['linkedBookId']),
+      linkedItemId: serializer.fromJson<String?>(json['linkedItemId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'vehicleId': serializer.toJson<String>(vehicleId),
+      'mileage': serializer.toJson<int>(mileage),
+      'energyType': serializer.toJson<String>(energyType),
+      'fuelGrade': serializer.toJson<String>(fuelGrade),
+      'volume': serializer.toJson<double>(volume),
+      'unitPrice': serializer.toJson<double>(unitPrice),
+      'totalAmount': serializer.toJson<double>(totalAmount),
+      'isFullTank': serializer.toJson<int>(isFullTank),
+      'station': serializer.toJson<String?>(station),
+      'remark': serializer.toJson<String?>(remark),
+      'refuelTime': serializer.toJson<int>(refuelTime),
+      'linkedBookId': serializer.toJson<String?>(linkedBookId),
+      'linkedItemId': serializer.toJson<String?>(linkedItemId),
+    };
+  }
+
+  FuelRecord copyWith(
+          {String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? vehicleId,
+          int? mileage,
+          String? energyType,
+          String? fuelGrade,
+          double? volume,
+          double? unitPrice,
+          double? totalAmount,
+          int? isFullTank,
+          Value<String?> station = const Value.absent(),
+          Value<String?> remark = const Value.absent(),
+          int? refuelTime,
+          Value<String?> linkedBookId = const Value.absent(),
+          Value<String?> linkedItemId = const Value.absent()}) =>
+      FuelRecord(
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        vehicleId: vehicleId ?? this.vehicleId,
+        mileage: mileage ?? this.mileage,
+        energyType: energyType ?? this.energyType,
+        fuelGrade: fuelGrade ?? this.fuelGrade,
+        volume: volume ?? this.volume,
+        unitPrice: unitPrice ?? this.unitPrice,
+        totalAmount: totalAmount ?? this.totalAmount,
+        isFullTank: isFullTank ?? this.isFullTank,
+        station: station.present ? station.value : this.station,
+        remark: remark.present ? remark.value : this.remark,
+        refuelTime: refuelTime ?? this.refuelTime,
+        linkedBookId:
+            linkedBookId.present ? linkedBookId.value : this.linkedBookId,
+        linkedItemId:
+            linkedItemId.present ? linkedItemId.value : this.linkedItemId,
+      );
+  FuelRecord copyWithCompanion(FuelRecordTableCompanion data) {
+    return FuelRecord(
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
+      mileage: data.mileage.present ? data.mileage.value : this.mileage,
+      energyType:
+          data.energyType.present ? data.energyType.value : this.energyType,
+      fuelGrade: data.fuelGrade.present ? data.fuelGrade.value : this.fuelGrade,
+      volume: data.volume.present ? data.volume.value : this.volume,
+      unitPrice: data.unitPrice.present ? data.unitPrice.value : this.unitPrice,
+      totalAmount:
+          data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
+      isFullTank:
+          data.isFullTank.present ? data.isFullTank.value : this.isFullTank,
+      station: data.station.present ? data.station.value : this.station,
+      remark: data.remark.present ? data.remark.value : this.remark,
+      refuelTime:
+          data.refuelTime.present ? data.refuelTime.value : this.refuelTime,
+      linkedBookId: data.linkedBookId.present
+          ? data.linkedBookId.value
+          : this.linkedBookId,
+      linkedItemId: data.linkedItemId.present
+          ? data.linkedItemId.value
+          : this.linkedItemId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FuelRecord(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('mileage: $mileage, ')
+          ..write('energyType: $energyType, ')
+          ..write('fuelGrade: $fuelGrade, ')
+          ..write('volume: $volume, ')
+          ..write('unitPrice: $unitPrice, ')
+          ..write('totalAmount: $totalAmount, ')
+          ..write('isFullTank: $isFullTank, ')
+          ..write('station: $station, ')
+          ..write('remark: $remark, ')
+          ..write('refuelTime: $refuelTime, ')
+          ..write('linkedBookId: $linkedBookId, ')
+          ..write('linkedItemId: $linkedItemId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      vehicleId,
+      mileage,
+      energyType,
+      fuelGrade,
+      volume,
+      unitPrice,
+      totalAmount,
+      isFullTank,
+      station,
+      remark,
+      refuelTime,
+      linkedBookId,
+      linkedItemId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FuelRecord &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.vehicleId == this.vehicleId &&
+          other.mileage == this.mileage &&
+          other.energyType == this.energyType &&
+          other.fuelGrade == this.fuelGrade &&
+          other.volume == this.volume &&
+          other.unitPrice == this.unitPrice &&
+          other.totalAmount == this.totalAmount &&
+          other.isFullTank == this.isFullTank &&
+          other.station == this.station &&
+          other.remark == this.remark &&
+          other.refuelTime == this.refuelTime &&
+          other.linkedBookId == this.linkedBookId &&
+          other.linkedItemId == this.linkedItemId);
+}
+
+class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> vehicleId;
+  final Value<int> mileage;
+  final Value<String> energyType;
+  final Value<String> fuelGrade;
+  final Value<double> volume;
+  final Value<double> unitPrice;
+  final Value<double> totalAmount;
+  final Value<int> isFullTank;
+  final Value<String?> station;
+  final Value<String?> remark;
+  final Value<int> refuelTime;
+  final Value<String?> linkedBookId;
+  final Value<String?> linkedItemId;
+  final Value<int> rowid;
+  const FuelRecordTableCompanion({
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    this.mileage = const Value.absent(),
+    this.energyType = const Value.absent(),
+    this.fuelGrade = const Value.absent(),
+    this.volume = const Value.absent(),
+    this.unitPrice = const Value.absent(),
+    this.totalAmount = const Value.absent(),
+    this.isFullTank = const Value.absent(),
+    this.station = const Value.absent(),
+    this.remark = const Value.absent(),
+    this.refuelTime = const Value.absent(),
+    this.linkedBookId = const Value.absent(),
+    this.linkedItemId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FuelRecordTableCompanion.insert({
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String vehicleId,
+    required int mileage,
+    this.energyType = const Value.absent(),
+    this.fuelGrade = const Value.absent(),
+    required double volume,
+    required double unitPrice,
+    required double totalAmount,
+    this.isFullTank = const Value.absent(),
+    this.station = const Value.absent(),
+    this.remark = const Value.absent(),
+    required int refuelTime,
+    this.linkedBookId = const Value.absent(),
+    this.linkedItemId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        vehicleId = Value(vehicleId),
+        mileage = Value(mileage),
+        volume = Value(volume),
+        unitPrice = Value(unitPrice),
+        totalAmount = Value(totalAmount),
+        refuelTime = Value(refuelTime);
+  static Insertable<FuelRecord> custom({
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? vehicleId,
+    Expression<int>? mileage,
+    Expression<String>? energyType,
+    Expression<String>? fuelGrade,
+    Expression<double>? volume,
+    Expression<double>? unitPrice,
+    Expression<double>? totalAmount,
+    Expression<int>? isFullTank,
+    Expression<String>? station,
+    Expression<String>? remark,
+    Expression<int>? refuelTime,
+    Expression<String>? linkedBookId,
+    Expression<String>? linkedItemId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (mileage != null) 'mileage': mileage,
+      if (energyType != null) 'energy_type': energyType,
+      if (fuelGrade != null) 'fuel_grade': fuelGrade,
+      if (volume != null) 'volume': volume,
+      if (unitPrice != null) 'unit_price': unitPrice,
+      if (totalAmount != null) 'total_amount': totalAmount,
+      if (isFullTank != null) 'is_full_tank': isFullTank,
+      if (station != null) 'station': station,
+      if (remark != null) 'remark': remark,
+      if (refuelTime != null) 'refuel_time': refuelTime,
+      if (linkedBookId != null) 'linked_book_id': linkedBookId,
+      if (linkedItemId != null) 'linked_item_id': linkedItemId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FuelRecordTableCompanion copyWith(
+      {Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? vehicleId,
+      Value<int>? mileage,
+      Value<String>? energyType,
+      Value<String>? fuelGrade,
+      Value<double>? volume,
+      Value<double>? unitPrice,
+      Value<double>? totalAmount,
+      Value<int>? isFullTank,
+      Value<String?>? station,
+      Value<String?>? remark,
+      Value<int>? refuelTime,
+      Value<String?>? linkedBookId,
+      Value<String?>? linkedItemId,
+      Value<int>? rowid}) {
+    return FuelRecordTableCompanion(
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      vehicleId: vehicleId ?? this.vehicleId,
+      mileage: mileage ?? this.mileage,
+      energyType: energyType ?? this.energyType,
+      fuelGrade: fuelGrade ?? this.fuelGrade,
+      volume: volume ?? this.volume,
+      unitPrice: unitPrice ?? this.unitPrice,
+      totalAmount: totalAmount ?? this.totalAmount,
+      isFullTank: isFullTank ?? this.isFullTank,
+      station: station ?? this.station,
+      remark: remark ?? this.remark,
+      refuelTime: refuelTime ?? this.refuelTime,
+      linkedBookId: linkedBookId ?? this.linkedBookId,
+      linkedItemId: linkedItemId ?? this.linkedItemId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (vehicleId.present) {
+      map['vehicle_id'] = Variable<String>(vehicleId.value);
+    }
+    if (mileage.present) {
+      map['mileage'] = Variable<int>(mileage.value);
+    }
+    if (energyType.present) {
+      map['energy_type'] = Variable<String>(energyType.value);
+    }
+    if (fuelGrade.present) {
+      map['fuel_grade'] = Variable<String>(fuelGrade.value);
+    }
+    if (volume.present) {
+      map['volume'] = Variable<double>(volume.value);
+    }
+    if (unitPrice.present) {
+      map['unit_price'] = Variable<double>(unitPrice.value);
+    }
+    if (totalAmount.present) {
+      map['total_amount'] = Variable<double>(totalAmount.value);
+    }
+    if (isFullTank.present) {
+      map['is_full_tank'] = Variable<int>(isFullTank.value);
+    }
+    if (station.present) {
+      map['station'] = Variable<String>(station.value);
+    }
+    if (remark.present) {
+      map['remark'] = Variable<String>(remark.value);
+    }
+    if (refuelTime.present) {
+      map['refuel_time'] = Variable<int>(refuelTime.value);
+    }
+    if (linkedBookId.present) {
+      map['linked_book_id'] = Variable<String>(linkedBookId.value);
+    }
+    if (linkedItemId.present) {
+      map['linked_item_id'] = Variable<String>(linkedItemId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FuelRecordTableCompanion(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('mileage: $mileage, ')
+          ..write('energyType: $energyType, ')
+          ..write('fuelGrade: $fuelGrade, ')
+          ..write('volume: $volume, ')
+          ..write('unitPrice: $unitPrice, ')
+          ..write('totalAmount: $totalAmount, ')
+          ..write('isFullTank: $isFullTank, ')
+          ..write('station: $station, ')
+          ..write('remark: $remark, ')
+          ..write('refuelTime: $refuelTime, ')
+          ..write('linkedBookId: $linkedBookId, ')
+          ..write('linkedItemId: $linkedItemId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8237,6 +9716,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GiftCardTableTable giftCardTable = $GiftCardTableTable(this);
   late final $ActivityRecordTableTable activityRecordTable =
       $ActivityRecordTableTable(this);
+  late final $VehicleTableTable vehicleTable = $VehicleTableTable(this);
+  late final $FuelRecordTableTable fuelRecordTable =
+      $FuelRecordTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8255,7 +9737,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         accountNoteTable,
         accountDebtTable,
         giftCardTable,
-        activityRecordTable
+        activityRecordTable,
+        vehicleTable,
+        fuelRecordTable
       ];
 }
 
@@ -12066,6 +13550,651 @@ typedef $$ActivityRecordTableTableProcessedTableManager = ProcessedTableManager<
     ),
     ActivityRecord,
     PrefetchHooks Function()>;
+typedef $$VehicleTableTableCreateCompanionBuilder = VehicleTableCompanion
+    Function({
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String plateNumber,
+  required String brand,
+  required String model,
+  Value<String?> remark,
+  Value<String> defaultFuelGrade,
+  Value<int> isActive,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$VehicleTableTableUpdateCompanionBuilder = VehicleTableCompanion
+    Function({
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> plateNumber,
+  Value<String> brand,
+  Value<String> model,
+  Value<String?> remark,
+  Value<String> defaultFuelGrade,
+  Value<int> isActive,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$VehicleTableTableFilterComposer
+    extends Composer<_$AppDatabase, $VehicleTableTable> {
+  $$VehicleTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get plateNumber => $composableBuilder(
+      column: $table.plateNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get brand => $composableBuilder(
+      column: $table.brand, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get model => $composableBuilder(
+      column: $table.model, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get defaultFuelGrade => $composableBuilder(
+      column: $table.defaultFuelGrade,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$VehicleTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $VehicleTableTable> {
+  $$VehicleTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get plateNumber => $composableBuilder(
+      column: $table.plateNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get brand => $composableBuilder(
+      column: $table.brand, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get model => $composableBuilder(
+      column: $table.model, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get defaultFuelGrade => $composableBuilder(
+      column: $table.defaultFuelGrade,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$VehicleTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VehicleTableTable> {
+  $$VehicleTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get plateNumber => $composableBuilder(
+      column: $table.plateNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get brand =>
+      $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<String> get model =>
+      $composableBuilder(column: $table.model, builder: (column) => column);
+
+  GeneratedColumn<String> get remark =>
+      $composableBuilder(column: $table.remark, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultFuelGrade => $composableBuilder(
+      column: $table.defaultFuelGrade, builder: (column) => column);
+
+  GeneratedColumn<int> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$VehicleTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $VehicleTableTable,
+    Vehicle,
+    $$VehicleTableTableFilterComposer,
+    $$VehicleTableTableOrderingComposer,
+    $$VehicleTableTableAnnotationComposer,
+    $$VehicleTableTableCreateCompanionBuilder,
+    $$VehicleTableTableUpdateCompanionBuilder,
+    (Vehicle, BaseReferences<_$AppDatabase, $VehicleTableTable, Vehicle>),
+    Vehicle,
+    PrefetchHooks Function()> {
+  $$VehicleTableTableTableManager(_$AppDatabase db, $VehicleTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VehicleTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VehicleTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VehicleTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> plateNumber = const Value.absent(),
+            Value<String> brand = const Value.absent(),
+            Value<String> model = const Value.absent(),
+            Value<String?> remark = const Value.absent(),
+            Value<String> defaultFuelGrade = const Value.absent(),
+            Value<int> isActive = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VehicleTableCompanion(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            plateNumber: plateNumber,
+            brand: brand,
+            model: model,
+            remark: remark,
+            defaultFuelGrade: defaultFuelGrade,
+            isActive: isActive,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String plateNumber,
+            required String brand,
+            required String model,
+            Value<String?> remark = const Value.absent(),
+            Value<String> defaultFuelGrade = const Value.absent(),
+            Value<int> isActive = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VehicleTableCompanion.insert(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            plateNumber: plateNumber,
+            brand: brand,
+            model: model,
+            remark: remark,
+            defaultFuelGrade: defaultFuelGrade,
+            isActive: isActive,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$VehicleTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $VehicleTableTable,
+    Vehicle,
+    $$VehicleTableTableFilterComposer,
+    $$VehicleTableTableOrderingComposer,
+    $$VehicleTableTableAnnotationComposer,
+    $$VehicleTableTableCreateCompanionBuilder,
+    $$VehicleTableTableUpdateCompanionBuilder,
+    (Vehicle, BaseReferences<_$AppDatabase, $VehicleTableTable, Vehicle>),
+    Vehicle,
+    PrefetchHooks Function()>;
+typedef $$FuelRecordTableTableCreateCompanionBuilder = FuelRecordTableCompanion
+    Function({
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String vehicleId,
+  required int mileage,
+  Value<String> energyType,
+  Value<String> fuelGrade,
+  required double volume,
+  required double unitPrice,
+  required double totalAmount,
+  Value<int> isFullTank,
+  Value<String?> station,
+  Value<String?> remark,
+  required int refuelTime,
+  Value<String?> linkedBookId,
+  Value<String?> linkedItemId,
+  Value<int> rowid,
+});
+typedef $$FuelRecordTableTableUpdateCompanionBuilder = FuelRecordTableCompanion
+    Function({
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> vehicleId,
+  Value<int> mileage,
+  Value<String> energyType,
+  Value<String> fuelGrade,
+  Value<double> volume,
+  Value<double> unitPrice,
+  Value<double> totalAmount,
+  Value<int> isFullTank,
+  Value<String?> station,
+  Value<String?> remark,
+  Value<int> refuelTime,
+  Value<String?> linkedBookId,
+  Value<String?> linkedItemId,
+  Value<int> rowid,
+});
+
+class $$FuelRecordTableTableFilterComposer
+    extends Composer<_$AppDatabase, $FuelRecordTableTable> {
+  $$FuelRecordTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get vehicleId => $composableBuilder(
+      column: $table.vehicleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mileage => $composableBuilder(
+      column: $table.mileage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get energyType => $composableBuilder(
+      column: $table.energyType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fuelGrade => $composableBuilder(
+      column: $table.fuelGrade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get volume => $composableBuilder(
+      column: $table.volume, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get unitPrice => $composableBuilder(
+      column: $table.unitPrice, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get totalAmount => $composableBuilder(
+      column: $table.totalAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isFullTank => $composableBuilder(
+      column: $table.isFullTank, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get station => $composableBuilder(
+      column: $table.station, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get refuelTime => $composableBuilder(
+      column: $table.refuelTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get linkedBookId => $composableBuilder(
+      column: $table.linkedBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get linkedItemId => $composableBuilder(
+      column: $table.linkedItemId, builder: (column) => ColumnFilters(column));
+}
+
+class $$FuelRecordTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $FuelRecordTableTable> {
+  $$FuelRecordTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get vehicleId => $composableBuilder(
+      column: $table.vehicleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mileage => $composableBuilder(
+      column: $table.mileage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get energyType => $composableBuilder(
+      column: $table.energyType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fuelGrade => $composableBuilder(
+      column: $table.fuelGrade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get volume => $composableBuilder(
+      column: $table.volume, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get unitPrice => $composableBuilder(
+      column: $table.unitPrice, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get totalAmount => $composableBuilder(
+      column: $table.totalAmount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isFullTank => $composableBuilder(
+      column: $table.isFullTank, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get station => $composableBuilder(
+      column: $table.station, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get refuelTime => $composableBuilder(
+      column: $table.refuelTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get linkedBookId => $composableBuilder(
+      column: $table.linkedBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get linkedItemId => $composableBuilder(
+      column: $table.linkedItemId,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$FuelRecordTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FuelRecordTableTable> {
+  $$FuelRecordTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get vehicleId =>
+      $composableBuilder(column: $table.vehicleId, builder: (column) => column);
+
+  GeneratedColumn<int> get mileage =>
+      $composableBuilder(column: $table.mileage, builder: (column) => column);
+
+  GeneratedColumn<String> get energyType => $composableBuilder(
+      column: $table.energyType, builder: (column) => column);
+
+  GeneratedColumn<String> get fuelGrade =>
+      $composableBuilder(column: $table.fuelGrade, builder: (column) => column);
+
+  GeneratedColumn<double> get volume =>
+      $composableBuilder(column: $table.volume, builder: (column) => column);
+
+  GeneratedColumn<double> get unitPrice =>
+      $composableBuilder(column: $table.unitPrice, builder: (column) => column);
+
+  GeneratedColumn<double> get totalAmount => $composableBuilder(
+      column: $table.totalAmount, builder: (column) => column);
+
+  GeneratedColumn<int> get isFullTank => $composableBuilder(
+      column: $table.isFullTank, builder: (column) => column);
+
+  GeneratedColumn<String> get station =>
+      $composableBuilder(column: $table.station, builder: (column) => column);
+
+  GeneratedColumn<String> get remark =>
+      $composableBuilder(column: $table.remark, builder: (column) => column);
+
+  GeneratedColumn<int> get refuelTime => $composableBuilder(
+      column: $table.refuelTime, builder: (column) => column);
+
+  GeneratedColumn<String> get linkedBookId => $composableBuilder(
+      column: $table.linkedBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get linkedItemId => $composableBuilder(
+      column: $table.linkedItemId, builder: (column) => column);
+}
+
+class $$FuelRecordTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $FuelRecordTableTable,
+    FuelRecord,
+    $$FuelRecordTableTableFilterComposer,
+    $$FuelRecordTableTableOrderingComposer,
+    $$FuelRecordTableTableAnnotationComposer,
+    $$FuelRecordTableTableCreateCompanionBuilder,
+    $$FuelRecordTableTableUpdateCompanionBuilder,
+    (
+      FuelRecord,
+      BaseReferences<_$AppDatabase, $FuelRecordTableTable, FuelRecord>
+    ),
+    FuelRecord,
+    PrefetchHooks Function()> {
+  $$FuelRecordTableTableTableManager(
+      _$AppDatabase db, $FuelRecordTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FuelRecordTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FuelRecordTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FuelRecordTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> vehicleId = const Value.absent(),
+            Value<int> mileage = const Value.absent(),
+            Value<String> energyType = const Value.absent(),
+            Value<String> fuelGrade = const Value.absent(),
+            Value<double> volume = const Value.absent(),
+            Value<double> unitPrice = const Value.absent(),
+            Value<double> totalAmount = const Value.absent(),
+            Value<int> isFullTank = const Value.absent(),
+            Value<String?> station = const Value.absent(),
+            Value<String?> remark = const Value.absent(),
+            Value<int> refuelTime = const Value.absent(),
+            Value<String?> linkedBookId = const Value.absent(),
+            Value<String?> linkedItemId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FuelRecordTableCompanion(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            vehicleId: vehicleId,
+            mileage: mileage,
+            energyType: energyType,
+            fuelGrade: fuelGrade,
+            volume: volume,
+            unitPrice: unitPrice,
+            totalAmount: totalAmount,
+            isFullTank: isFullTank,
+            station: station,
+            remark: remark,
+            refuelTime: refuelTime,
+            linkedBookId: linkedBookId,
+            linkedItemId: linkedItemId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String vehicleId,
+            required int mileage,
+            Value<String> energyType = const Value.absent(),
+            Value<String> fuelGrade = const Value.absent(),
+            required double volume,
+            required double unitPrice,
+            required double totalAmount,
+            Value<int> isFullTank = const Value.absent(),
+            Value<String?> station = const Value.absent(),
+            Value<String?> remark = const Value.absent(),
+            required int refuelTime,
+            Value<String?> linkedBookId = const Value.absent(),
+            Value<String?> linkedItemId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FuelRecordTableCompanion.insert(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            vehicleId: vehicleId,
+            mileage: mileage,
+            energyType: energyType,
+            fuelGrade: fuelGrade,
+            volume: volume,
+            unitPrice: unitPrice,
+            totalAmount: totalAmount,
+            isFullTank: isFullTank,
+            station: station,
+            remark: remark,
+            refuelTime: refuelTime,
+            linkedBookId: linkedBookId,
+            linkedItemId: linkedItemId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$FuelRecordTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $FuelRecordTableTable,
+    FuelRecord,
+    $$FuelRecordTableTableFilterComposer,
+    $$FuelRecordTableTableOrderingComposer,
+    $$FuelRecordTableTableAnnotationComposer,
+    $$FuelRecordTableTableCreateCompanionBuilder,
+    $$FuelRecordTableTableUpdateCompanionBuilder,
+    (
+      FuelRecord,
+      BaseReferences<_$AppDatabase, $FuelRecordTableTable, FuelRecord>
+    ),
+    FuelRecord,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12099,4 +14228,8 @@ class $AppDatabaseManager {
       $$GiftCardTableTableTableManager(_db, _db.giftCardTable);
   $$ActivityRecordTableTableTableManager get activityRecordTable =>
       $$ActivityRecordTableTableTableManager(_db, _db.activityRecordTable);
+  $$VehicleTableTableTableManager get vehicleTable =>
+      $$VehicleTableTableTableManager(_db, _db.vehicleTable);
+  $$FuelRecordTableTableTableManager get fuelRecordTable =>
+      $$FuelRecordTableTableTableManager(_db, _db.fuelRecordTable);
 }
