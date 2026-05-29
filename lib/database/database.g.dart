@@ -8904,6 +8904,14 @@ class $FuelRecordTableTable extends FuelRecordTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _isFuelLightOnMeta =
+      const VerificationMeta('isFuelLightOn');
+  @override
+  late final GeneratedColumn<int> isFuelLightOn = GeneratedColumn<int>(
+      'is_fuel_light_on', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _stationMeta =
       const VerificationMeta('station');
   @override
@@ -8948,6 +8956,7 @@ class $FuelRecordTableTable extends FuelRecordTable
         unitPrice,
         totalAmount,
         isFullTank,
+        isFuelLightOn,
         station,
         remark,
         refuelTime,
@@ -9041,6 +9050,12 @@ class $FuelRecordTableTable extends FuelRecordTable
           isFullTank.isAcceptableOrUnknown(
               data['is_full_tank']!, _isFullTankMeta));
     }
+    if (data.containsKey('is_fuel_light_on')) {
+      context.handle(
+          _isFuelLightOnMeta,
+          isFuelLightOn.isAcceptableOrUnknown(
+              data['is_fuel_light_on']!, _isFuelLightOnMeta));
+    }
     if (data.containsKey('station')) {
       context.handle(_stationMeta,
           station.isAcceptableOrUnknown(data['station']!, _stationMeta));
@@ -9104,6 +9119,8 @@ class $FuelRecordTableTable extends FuelRecordTable
           .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
       isFullTank: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}is_full_tank'])!,
+      isFuelLightOn: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_fuel_light_on'])!,
       station: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}station']),
       remark: attachedDatabase.typeMapping
@@ -9151,8 +9168,11 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
   /// 总金额 (元)
   final double totalAmount;
 
-  /// 是否加满 (1:加满, 0:未加满)
+  /// 是否跳枪 (1:跳枪, 0:未跳枪)
   final int isFullTank;
+
+  /// 油灯是否亮起 (1:亮起, 0:未亮)
+  final int isFuelLightOn;
 
   /// 加油站
   final String? station;
@@ -9182,6 +9202,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
       required this.unitPrice,
       required this.totalAmount,
       required this.isFullTank,
+      required this.isFuelLightOn,
       this.station,
       this.remark,
       required this.refuelTime,
@@ -9203,6 +9224,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
     map['unit_price'] = Variable<double>(unitPrice);
     map['total_amount'] = Variable<double>(totalAmount);
     map['is_full_tank'] = Variable<int>(isFullTank);
+    map['is_fuel_light_on'] = Variable<int>(isFuelLightOn);
     if (!nullToAbsent || station != null) {
       map['station'] = Variable<String>(station);
     }
@@ -9234,6 +9256,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
       unitPrice: Value(unitPrice),
       totalAmount: Value(totalAmount),
       isFullTank: Value(isFullTank),
+      isFuelLightOn: Value(isFuelLightOn),
       station: station == null && nullToAbsent
           ? const Value.absent()
           : Value(station),
@@ -9266,6 +9289,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
       unitPrice: serializer.fromJson<double>(json['unitPrice']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
       isFullTank: serializer.fromJson<int>(json['isFullTank']),
+      isFuelLightOn: serializer.fromJson<int>(json['isFuelLightOn']),
       station: serializer.fromJson<String?>(json['station']),
       remark: serializer.fromJson<String?>(json['remark']),
       refuelTime: serializer.fromJson<int>(json['refuelTime']),
@@ -9290,6 +9314,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
       'unitPrice': serializer.toJson<double>(unitPrice),
       'totalAmount': serializer.toJson<double>(totalAmount),
       'isFullTank': serializer.toJson<int>(isFullTank),
+      'isFuelLightOn': serializer.toJson<int>(isFuelLightOn),
       'station': serializer.toJson<String?>(station),
       'remark': serializer.toJson<String?>(remark),
       'refuelTime': serializer.toJson<int>(refuelTime),
@@ -9312,6 +9337,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
           double? unitPrice,
           double? totalAmount,
           int? isFullTank,
+          int? isFuelLightOn,
           Value<String?> station = const Value.absent(),
           Value<String?> remark = const Value.absent(),
           int? refuelTime,
@@ -9331,6 +9357,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
         unitPrice: unitPrice ?? this.unitPrice,
         totalAmount: totalAmount ?? this.totalAmount,
         isFullTank: isFullTank ?? this.isFullTank,
+        isFuelLightOn: isFuelLightOn ?? this.isFuelLightOn,
         station: station.present ? station.value : this.station,
         remark: remark.present ? remark.value : this.remark,
         refuelTime: refuelTime ?? this.refuelTime,
@@ -9357,6 +9384,9 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
           data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
       isFullTank:
           data.isFullTank.present ? data.isFullTank.value : this.isFullTank,
+      isFuelLightOn: data.isFuelLightOn.present
+          ? data.isFuelLightOn.value
+          : this.isFuelLightOn,
       station: data.station.present ? data.station.value : this.station,
       remark: data.remark.present ? data.remark.value : this.remark,
       refuelTime:
@@ -9386,6 +9416,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
           ..write('unitPrice: $unitPrice, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('isFullTank: $isFullTank, ')
+          ..write('isFuelLightOn: $isFuelLightOn, ')
           ..write('station: $station, ')
           ..write('remark: $remark, ')
           ..write('refuelTime: $refuelTime, ')
@@ -9410,6 +9441,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
       unitPrice,
       totalAmount,
       isFullTank,
+      isFuelLightOn,
       station,
       remark,
       refuelTime,
@@ -9432,6 +9464,7 @@ class FuelRecord extends DataClass implements Insertable<FuelRecord> {
           other.unitPrice == this.unitPrice &&
           other.totalAmount == this.totalAmount &&
           other.isFullTank == this.isFullTank &&
+          other.isFuelLightOn == this.isFuelLightOn &&
           other.station == this.station &&
           other.remark == this.remark &&
           other.refuelTime == this.refuelTime &&
@@ -9453,6 +9486,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
   final Value<double> unitPrice;
   final Value<double> totalAmount;
   final Value<int> isFullTank;
+  final Value<int> isFuelLightOn;
   final Value<String?> station;
   final Value<String?> remark;
   final Value<int> refuelTime;
@@ -9473,6 +9507,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
     this.unitPrice = const Value.absent(),
     this.totalAmount = const Value.absent(),
     this.isFullTank = const Value.absent(),
+    this.isFuelLightOn = const Value.absent(),
     this.station = const Value.absent(),
     this.remark = const Value.absent(),
     this.refuelTime = const Value.absent(),
@@ -9494,6 +9529,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
     required double unitPrice,
     required double totalAmount,
     this.isFullTank = const Value.absent(),
+    this.isFuelLightOn = const Value.absent(),
     this.station = const Value.absent(),
     this.remark = const Value.absent(),
     required int refuelTime,
@@ -9525,6 +9561,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
     Expression<double>? unitPrice,
     Expression<double>? totalAmount,
     Expression<int>? isFullTank,
+    Expression<int>? isFuelLightOn,
     Expression<String>? station,
     Expression<String>? remark,
     Expression<int>? refuelTime,
@@ -9546,6 +9583,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
       if (unitPrice != null) 'unit_price': unitPrice,
       if (totalAmount != null) 'total_amount': totalAmount,
       if (isFullTank != null) 'is_full_tank': isFullTank,
+      if (isFuelLightOn != null) 'is_fuel_light_on': isFuelLightOn,
       if (station != null) 'station': station,
       if (remark != null) 'remark': remark,
       if (refuelTime != null) 'refuel_time': refuelTime,
@@ -9569,6 +9607,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
       Value<double>? unitPrice,
       Value<double>? totalAmount,
       Value<int>? isFullTank,
+      Value<int>? isFuelLightOn,
       Value<String?>? station,
       Value<String?>? remark,
       Value<int>? refuelTime,
@@ -9589,6 +9628,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
       unitPrice: unitPrice ?? this.unitPrice,
       totalAmount: totalAmount ?? this.totalAmount,
       isFullTank: isFullTank ?? this.isFullTank,
+      isFuelLightOn: isFuelLightOn ?? this.isFuelLightOn,
       station: station ?? this.station,
       remark: remark ?? this.remark,
       refuelTime: refuelTime ?? this.refuelTime,
@@ -9640,6 +9680,9 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
     if (isFullTank.present) {
       map['is_full_tank'] = Variable<int>(isFullTank.value);
     }
+    if (isFuelLightOn.present) {
+      map['is_fuel_light_on'] = Variable<int>(isFuelLightOn.value);
+    }
     if (station.present) {
       map['station'] = Variable<String>(station.value);
     }
@@ -9677,6 +9720,7 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
           ..write('unitPrice: $unitPrice, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('isFullTank: $isFullTank, ')
+          ..write('isFuelLightOn: $isFuelLightOn, ')
           ..write('station: $station, ')
           ..write('remark: $remark, ')
           ..write('refuelTime: $refuelTime, ')
@@ -13839,6 +13883,7 @@ typedef $$FuelRecordTableTableCreateCompanionBuilder = FuelRecordTableCompanion
   required double unitPrice,
   required double totalAmount,
   Value<int> isFullTank,
+  Value<int> isFuelLightOn,
   Value<String?> station,
   Value<String?> remark,
   required int refuelTime,
@@ -13861,6 +13906,7 @@ typedef $$FuelRecordTableTableUpdateCompanionBuilder = FuelRecordTableCompanion
   Value<double> unitPrice,
   Value<double> totalAmount,
   Value<int> isFullTank,
+  Value<int> isFuelLightOn,
   Value<String?> station,
   Value<String?> remark,
   Value<int> refuelTime,
@@ -13916,6 +13962,9 @@ class $$FuelRecordTableTableFilterComposer
 
   ColumnFilters<int> get isFullTank => $composableBuilder(
       column: $table.isFullTank, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isFuelLightOn => $composableBuilder(
+      column: $table.isFuelLightOn, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get station => $composableBuilder(
       column: $table.station, builder: (column) => ColumnFilters(column));
@@ -13980,6 +14029,10 @@ class $$FuelRecordTableTableOrderingComposer
 
   ColumnOrderings<int> get isFullTank => $composableBuilder(
       column: $table.isFullTank, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isFuelLightOn => $composableBuilder(
+      column: $table.isFuelLightOn,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get station => $composableBuilder(
       column: $table.station, builder: (column) => ColumnOrderings(column));
@@ -14047,6 +14100,9 @@ class $$FuelRecordTableTableAnnotationComposer
   GeneratedColumn<int> get isFullTank => $composableBuilder(
       column: $table.isFullTank, builder: (column) => column);
 
+  GeneratedColumn<int> get isFuelLightOn => $composableBuilder(
+      column: $table.isFuelLightOn, builder: (column) => column);
+
   GeneratedColumn<String> get station =>
       $composableBuilder(column: $table.station, builder: (column) => column);
 
@@ -14103,6 +14159,7 @@ class $$FuelRecordTableTableTableManager extends RootTableManager<
             Value<double> unitPrice = const Value.absent(),
             Value<double> totalAmount = const Value.absent(),
             Value<int> isFullTank = const Value.absent(),
+            Value<int> isFuelLightOn = const Value.absent(),
             Value<String?> station = const Value.absent(),
             Value<String?> remark = const Value.absent(),
             Value<int> refuelTime = const Value.absent(),
@@ -14124,6 +14181,7 @@ class $$FuelRecordTableTableTableManager extends RootTableManager<
             unitPrice: unitPrice,
             totalAmount: totalAmount,
             isFullTank: isFullTank,
+            isFuelLightOn: isFuelLightOn,
             station: station,
             remark: remark,
             refuelTime: refuelTime,
@@ -14145,6 +14203,7 @@ class $$FuelRecordTableTableTableManager extends RootTableManager<
             required double unitPrice,
             required double totalAmount,
             Value<int> isFullTank = const Value.absent(),
+            Value<int> isFuelLightOn = const Value.absent(),
             Value<String?> station = const Value.absent(),
             Value<String?> remark = const Value.absent(),
             required int refuelTime,
@@ -14166,6 +14225,7 @@ class $$FuelRecordTableTableTableManager extends RootTableManager<
             unitPrice: unitPrice,
             totalAmount: totalAmount,
             isFullTank: isFullTank,
+            isFuelLightOn: isFuelLightOn,
             station: station,
             remark: remark,
             refuelTime: refuelTime,
