@@ -15,18 +15,27 @@ class VehicleListPage extends StatefulWidget {
 }
 
 class _VehicleListPageState extends State<VehicleListPage> {
+  late final VehicleProvider _provider;
+
   @override
   void initState() {
     super.initState();
+    _provider = VehicleProvider();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VehicleProvider>().loadItems();
+      _provider.loadItems();
     });
   }
 
   @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<VehicleProvider>(
-      create: (_) => VehicleProvider(),
+    return ChangeNotifierProvider<VehicleProvider>.value(
+      value: _provider,
       child: Consumer<VehicleProvider>(
         builder: (context, provider, _) {
           return Scaffold(
@@ -136,7 +145,6 @@ class _VehicleListPageState extends State<VehicleListPage> {
   }
 
   void _navigateToAddVehicle(BuildContext context) async {
-    final provider = this.context.read<VehicleProvider>();
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -144,7 +152,7 @@ class _VehicleListPageState extends State<VehicleListPage> {
       ),
     );
     if (result == true && mounted) {
-      provider.loadItems();
+      _provider.loadItems();
     }
   }
 

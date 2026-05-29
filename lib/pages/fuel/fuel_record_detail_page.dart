@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../models/vo/fuel_record_vo.dart';
 import '../../models/vo/vehicle_vo.dart';
-import '../../providers/fuel_record_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 
 /// 加油记录详情页面
@@ -41,10 +39,14 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
     });
 
     try {
-      final provider = context.read<FuelRecordProvider>();
-      final record = await provider.getFuelRecord(widget.recordId);
+      final userId = AppConfigManager.instance.userId;
+      final result = await DriverFactory.driver.getFuelRecord(
+        userId,
+        widget.recordId,
+      );
 
-      if (record != null) {
+      if (result.ok && result.data != null) {
+        final record = result.data!;
         // Load vehicle info
         final vehicles = await DriverFactory.driver.listVehicles(
           AppConfigManager.instance.userId,

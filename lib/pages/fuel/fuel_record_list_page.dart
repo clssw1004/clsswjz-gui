@@ -25,18 +25,27 @@ class FuelRecordListPage extends StatefulWidget {
 }
 
 class _FuelRecordListPageState extends State<FuelRecordListPage> {
+  late final FuelRecordProvider _provider;
+
   @override
   void initState() {
     super.initState();
+    _provider = FuelRecordProvider();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FuelRecordProvider>().loadItems(widget.vehicleId);
+      _provider.loadItems(widget.vehicleId);
     });
   }
 
   @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<FuelRecordProvider>(
-      create: (_) => FuelRecordProvider(),
+    return ChangeNotifierProvider<FuelRecordProvider>.value(
+      value: _provider,
       child: Consumer<FuelRecordProvider>(
         builder: (context, provider, _) {
           return Scaffold(
@@ -219,18 +228,14 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
   }
 
   void _navigateToAddRecord(BuildContext context) async {
-    final provider = this.context.read<FuelRecordProvider>();
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (ctx) => ChangeNotifierProvider<FuelRecordProvider>(
-          create: (_) => FuelRecordProvider(),
-          child: FuelRecordFormPage(vehicleId: widget.vehicleId),
-        ),
+        builder: (ctx) => FuelRecordFormPage(vehicleId: widget.vehicleId),
       ),
     );
     if (result == true && mounted) {
-      provider.loadItems(widget.vehicleId);
+      _provider.loadItems(widget.vehicleId);
     }
   }
 
@@ -238,10 +243,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider<FuelRecordProvider>(
-          create: (_) => FuelRecordProvider(),
-          child: FuelRecordDetailPage(recordId: record.id),
-        ),
+        builder: (context) => FuelRecordDetailPage(recordId: record.id),
       ),
     );
   }
