@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import '../../providers/fuel_record_provider.dart';
+import '../../drivers/driver_factory.dart';
+import '../../manager/app_config_manager.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 
@@ -105,9 +105,12 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
   }
 
   void _loadRecord() async {
-    final provider = context.read<FuelRecordProvider>();
-    final record = await provider.getFuelRecord(widget.recordId!);
-    if (record != null && mounted) {
+    final result = await DriverFactory.driver.getFuelRecord(
+      AppConfigManager.instance.userId,
+      widget.recordId!,
+    );
+    if (result.ok && result.data != null && mounted) {
+      final record = result.data!;
       _mileageController.text = record.mileage.toString();
       _volumeController.text = record.volume.toStringAsFixed(2);
       _unitPriceController.text = record.unitPrice.toStringAsFixed(2);
@@ -379,10 +382,11 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
     setState(() => _saving = true);
 
     try {
-      final provider = context.read<FuelRecordProvider>();
+      final userId = AppConfigManager.instance.userId;
 
       if (isCreateMode) {
-        final result = await provider.createFuelRecord(
+        final result = await DriverFactory.driver.createFuelRecord(
+          userId,
           vehicleId: widget.vehicleId,
           mileage: mileage,
           energyType: _fuelGrade == '0' ? 'diesel' : 'gasoline',
@@ -408,7 +412,8 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
           );
         }
       } else {
-        final result = await provider.updateFuelRecord(
+        final result = await DriverFactory.driver.updateFuelRecord(
+          userId,
           widget.recordId!,
           mileage: mileage,
           energyType: _fuelGrade == '0' ? 'diesel' : 'gasoline',

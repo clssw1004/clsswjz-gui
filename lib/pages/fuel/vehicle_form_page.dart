@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/vehicle_provider.dart';
+import '../../drivers/driver_factory.dart';
+import '../../manager/app_config_manager.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 
@@ -35,15 +35,20 @@ class _VehicleFormPageState extends State<VehicleFormPage> {
     }
   }
 
-  void _loadVehicle() {
-    final provider = context.read<VehicleProvider>();
-    final vehicle = provider.items.where((v) => v.id == widget.vehicleId).firstOrNull;
-    if (vehicle != null) {
-      _plateNumberController.text = vehicle.plateNumber;
-      _brandController.text = vehicle.brand;
-      _modelController.text = vehicle.model;
-      _remarkController.text = vehicle.remark ?? '';
-      _defaultFuelGrade = vehicle.defaultFuelGrade;
+  Future<void> _loadVehicle() async {
+    final result = await DriverFactory.driver.listVehicles(
+      AppConfigManager.instance.userId,
+    );
+    if (result.ok && result.data != null && mounted) {
+      final vehicle = result.data!
+          .where((v) => v.id == widget.vehicleId).firstOrNull;
+      if (vehicle != null) {
+        _plateNumberController.text = vehicle.plateNumber;
+        _brandController.text = vehicle.brand;
+        _modelController.text = vehicle.model;
+        _remarkController.text = vehicle.remark ?? '';
+        _defaultFuelGrade = vehicle.defaultFuelGrade;
+      }
     }
   }
 
@@ -155,10 +160,12 @@ class _VehicleFormPageState extends State<VehicleFormPage> {
     setState(() => _saving = true);
 
     try {
-      final provider = context.read<VehicleProvider>();
+      final userId = AppConfigManager.instance.userId;
+      bool ok;
 
       if (isCreateMode) {
-        final result = await provider.createVehicle(
+        final result = await DriverFactory.driver.createVehicle(
+          userId,
           plateNumber: _plateNumberController.text.trim(),
           brand: _brandController.text.trim(),
           model: _modelController.text.trim(),
@@ -167,16 +174,10 @@ class _VehicleFormPageState extends State<VehicleFormPage> {
               : _remarkController.text.trim(),
           defaultFuelGrade: _defaultFuelGrade,
         );
-
-        if (result.ok && mounted) {
-          Navigator.pop(context, true);
-        } else if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.message ?? '保存失败')),
-          );
-        }
+        ok = result.ok;
       } else {
-        final result = await provider.updateVehicle(
+        final result = await DriverFactory.driver.updateVehicle(
+          userId,
           widget.vehicleId!,
           plateNumber: _plateNumberController.text.trim(),
           brand: _brandController.text.trim(),
@@ -186,14 +187,15 @@ class _VehicleFormPageState extends State<VehicleFormPage> {
               : _remarkController.text.trim(),
           defaultFuelGrade: _defaultFuelGrade,
         );
+        ok = result.ok;
+      }
 
-        if (result.ok && mounted) {
-          Navigator.pop(context, true);
-        } else if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.message ?? '保存失败')),
-          );
-        }
+      if (ok && mounted) {
+        Navigator.pop(context, true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('保存失败')),
+        );
       }
     } finally {
       if (mounted) {
