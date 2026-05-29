@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/vo/vehicle_vo.dart';
-import '../../models/vo/fuel_record_vo.dart';
 import '../../providers/vehicle_provider.dart';
-import '../../providers/fuel_record_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
 import 'vehicle_form_page.dart';
 import 'vehicle_management_page.dart';
+import 'fuel_record_list_page.dart';
 import 'fuel_record_form_page.dart';
-import 'fuel_record_detail_page.dart';
 import 'fuel_statistics_page.dart';
 
-/// 油耗中心页面（替代原车辆列表页面）
+/// 油耗中心页面（车辆选择 + 跳转记录列表）
 class FuelHubPage extends StatefulWidget {
   const FuelHubPage({super.key});
 
@@ -22,16 +19,13 @@ class FuelHubPage extends StatefulWidget {
 
 class _FuelHubPageState extends State<FuelHubPage> {
   late final VehicleProvider _vehicleProvider;
-  late final FuelRecordProvider _recordProvider;
   VehicleVO? _selectedVehicle;
 
   @override
   void initState() {
     super.initState();
     _vehicleProvider = VehicleProvider();
-    _recordProvider = FuelRecordProvider();
     _vehicleProvider.addListener(_onStateChanged);
-    _recordProvider.addListener(_onStateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _vehicleProvider.loadItems();
       _selectInitialVehicle();
@@ -41,9 +35,7 @@ class _FuelHubPageState extends State<FuelHubPage> {
   @override
   void dispose() {
     _vehicleProvider.removeListener(_onStateChanged);
-    _recordProvider.removeListener(_onStateChanged);
     _vehicleProvider.dispose();
-    _recordProvider.dispose();
     super.dispose();
   }
 
@@ -56,13 +48,6 @@ class _FuelHubPageState extends State<FuelHubPage> {
       setState(() {
         _selectedVehicle = _vehicleProvider.items.first;
       });
-      _loadRecords();
-    }
-  }
-
-  void _loadRecords() {
-    if (_selectedVehicle != null) {
-      _recordProvider.loadItems(_selectedVehicle!.id);
     }
   }
 
@@ -162,117 +147,87 @@ class _FuelHubPageState extends State<FuelHubPage> {
       );
     }
 
-    final records = _recordProvider;
-
-    if (records.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (records.items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.local_gas_station, size: 64, color: colorScheme.outline),
-            const SizedBox(height: 16),
-            Text(
-              '暂无加油记录',
-              style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.outline),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _navigateToAddRecord,
-              child: const Text('添加加油记录'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => _recordProvider.loadItems(_selectedVehicle!.id),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: records.items.length,
-        itemBuilder: (context, index) => _buildRecordCard(context, records.items[index]),
-      ),
-    );
+    return _buildVehicleOverview(context, _selectedVehicle!);
   }
 
-  Widget _buildRecordCard(BuildContext context, FuelRecordVO record) {
+  Widget _buildVehicleOverview(BuildContext context, VehicleVO vehicle) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
-    final refuelDate = DateTime.fromMillisecondsSinceEpoch(record.refuelTime);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () => _navigateToDetail(record),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    dateFormat.format(refuelDate),
-                    style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // 车辆信息卡片
+        Card(
+          elevation: 0,
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Icon(Icons.directions_car, size: 48, color: colorScheme.secondary),
+                const SizedBox(height: 12),
+                Text(
+                  '${vehicle.brand} ${vehicle.model}',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  if (record.isFullTank == 1)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '加满',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.speed, size: 16, color: colorScheme.outline),
-                  const SizedBox(width: 4),
-                  Text('${record.mileage} km', style: theme.textTheme.bodyMedium),
-                  const SizedBox(width: 16),
-                  Icon(Icons.local_gas_station, size: 16, color: colorScheme.outline),
-                  const SizedBox(width: 4),
-                  Text('${record.fuelGrade}号', style: theme.textTheme.bodyMedium),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(
-                    '${record.volume.toStringAsFixed(2)} L',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.primary,
+                  child: Text(
+                    vehicle.plateNumber,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSecondaryContainer,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '${record.totalAmount.toStringAsFixed(2)} 元',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '默认油品: ${vehicle.defaultFuelGrade}#',
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 24),
+
+        // 操作按钮
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () => _navigateToRecordList(context),
+            icon: const Icon(Icons.list_alt),
+            label: const Text('查看加油记录'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _navigateToAddRecord,
+            icon: const Icon(Icons.add),
+            label: const Text('添加加油记录'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -312,7 +267,6 @@ class _FuelHubPageState extends State<FuelHubPage> {
                       ),
                       onTap: () {
                         setState(() => _selectedVehicle = v);
-                        _loadRecords();
                         Navigator.pop(ctx);
                       },
                       selected: _selectedVehicle?.id == v.id,
@@ -393,28 +347,28 @@ class _FuelHubPageState extends State<FuelHubPage> {
           _selectedVehicle = null;
         });
       }
-      _loadRecords();
     }
+  }
+
+  void _navigateToRecordList(BuildContext context) {
+    if (_selectedVehicle == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FuelRecordListPage(
+          initialVehicleId: _selectedVehicle!.id,
+          initialPlateNumber: _selectedVehicle!.plateNumber,
+        ),
+      ),
+    );
   }
 
   Future<void> _navigateToAddRecord() async {
     if (_selectedVehicle == null) return;
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (ctx) => FuelRecordFormPage(vehicleId: _selectedVehicle!.id),
-      ),
-    );
-    if (result == true && mounted) {
-      _loadRecords();
-    }
-  }
-
-  void _navigateToDetail(FuelRecordVO record) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FuelRecordDetailPage(recordId: record.id),
       ),
     );
   }

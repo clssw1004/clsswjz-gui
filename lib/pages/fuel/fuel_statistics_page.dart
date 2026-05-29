@@ -137,6 +137,12 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
         children: [
           // 统计概览卡片
           Card(
+            elevation: 0,
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -176,14 +182,21 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
 
           // 详细统计卡片
           Card(
+            elevation: 0,
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   _buildStatisticsRow(
-                    icon: Icons.monetization_on,
+                    icon: Icons.money,
                     label: '平均每公里费用',
                     value: stats.averageCostPerKmText,
+                    iconColor: colorScheme.tertiary,
                     colorScheme: colorScheme,
                     theme: theme,
                   ),
@@ -192,6 +205,7 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
                     icon: Icons.local_gas_station,
                     label: '加油次数',
                     value: '${stats.totalRecords} 次',
+                    iconColor: colorScheme.primary,
                     colorScheme: colorScheme,
                     theme: theme,
                   ),
@@ -200,6 +214,7 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
                     icon: Icons.local_gas_station,
                     label: '总加油量',
                     value: '${stats.totalVolume.toStringAsFixed(2)} L',
+                    iconColor: colorScheme.secondary,
                     colorScheme: colorScheme,
                     theme: theme,
                   ),
@@ -208,6 +223,7 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
                     icon: Icons.payments,
                     label: '总费用',
                     value: '${stats.totalAmount.toStringAsFixed(2)} 元',
+                    iconColor: colorScheme.error,
                     colorScheme: colorScheme,
                     theme: theme,
                   ),
@@ -252,6 +268,7 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
     required IconData icon,
     required String label,
     required String value,
+    required Color iconColor,
     required ColorScheme colorScheme,
     required ThemeData theme,
   }) {
@@ -259,7 +276,7 @@ class _FuelStatisticsPageState extends State<FuelStatisticsPage> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: colorScheme.outline),
+          Icon(icon, size: 20, color: iconColor),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

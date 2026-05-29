@@ -42,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +67,10 @@ class AppDatabase extends _$AppDatabase {
             // 版本4到版本5的迁移：添加 vehicle_table 和 fuel_record_table
             await m.create(vehicleTable);
             await m.create(fuelRecordTable);
+          }
+          if (from < 6) {
+            // 版本5到版本6的迁移：添加 is_fuel_light_on 字段
+            await m.addColumn(fuelRecordTable, fuelRecordTable.isFuelLightOn);
           }
         },
       );

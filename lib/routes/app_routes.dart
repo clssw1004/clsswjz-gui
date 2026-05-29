@@ -288,10 +288,10 @@ class AppRoutes {
       return VehicleFormPage(vehicleId: args);
     },
     fuelRecords: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
       return FuelRecordListPage(
-        vehicleId: args['vehicleId'],
-        plateNumber: args['plateNumber'] ?? '',
+        initialVehicleId: args?['vehicleId'] as String?,
+        initialPlateNumber: args?['plateNumber'] as String?,
       );
     },
     fuelRecordForm: (context) {

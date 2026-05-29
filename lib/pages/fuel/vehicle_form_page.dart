@@ -128,10 +128,10 @@ class _VehicleFormPageState extends State<VehicleFormPage> {
                 ),
               ),
               items: const [
-                DropdownMenuItem(value: '92', child: Text('92号汽油')),
-                DropdownMenuItem(value: '95', child: Text('95号汽油')),
-                DropdownMenuItem(value: '98', child: Text('98号汽油')),
-                DropdownMenuItem(value: '0', child: Text('0号柴油')),
+                DropdownMenuItem(value: '92', child: Text('92#')),
+                DropdownMenuItem(value: '95', child: Text('95#')),
+                DropdownMenuItem(value: '98', child: Text('98#')),
+                DropdownMenuItem(value: '0', child: Text('0#柴油')),
               ],
               onChanged: (value) {
                 if (value != null) {

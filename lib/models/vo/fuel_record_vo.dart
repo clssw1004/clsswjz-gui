@@ -26,8 +26,11 @@ class FuelRecordVO {
   /// 总金额 (元)
   final double totalAmount;
 
-  /// 是否加满
+  /// 是否跳枪
   final int isFullTank;
+
+  /// 油灯是否亮起
+  final int isFuelLightOn;
 
   /// 加油站
   final String? station;
@@ -60,6 +63,7 @@ class FuelRecordVO {
     required this.unitPrice,
     required this.totalAmount,
     required this.isFullTank,
+    this.isFuelLightOn = 0,
     this.station,
     this.remark,
     required this.refuelTime,
@@ -95,8 +99,11 @@ class FuelRecordVO {
       linkedBookId != null && linkedBookId!.isNotEmpty &&
       linkedItemId != null && linkedItemId!.isNotEmpty;
 
-  /// 是否加满标签
-  String get isFullTankLabel => isFullTank == 1 ? '加满' : '未加满';
+  /// 是否跳枪标签
+  String get isFullTankLabel => isFullTank == 1 ? '跳枪' : '未跳枪';
+
+  /// 油灯状态标签
+  String get isFuelLightOnLabel => isFuelLightOn == 1 ? '油灯亮起' : '油灯未亮';
 
   /// 油耗文本
   String get fuelConsumptionText {
@@ -124,6 +131,7 @@ class FuelRecordVO {
       unitPrice: record.unitPrice,
       totalAmount: record.totalAmount,
       isFullTank: record.isFullTank,
+      isFuelLightOn: record.isFuelLightOn,
       station: record.station,
       remark: record.remark,
       refuelTime: record.refuelTime,
@@ -136,6 +144,7 @@ class FuelRecordVO {
   FuelRecordVO copyWith({
     int? lastFullTankMileage,
     double? lastFullTankVolume,
+    int? isFuelLightOn,
   }) {
     return FuelRecordVO(
       id: id,
@@ -147,6 +156,7 @@ class FuelRecordVO {
       unitPrice: unitPrice,
       totalAmount: totalAmount,
       isFullTank: isFullTank,
+      isFuelLightOn: isFuelLightOn ?? this.isFuelLightOn,
       station: station,
       remark: remark,
       refuelTime: refuelTime,

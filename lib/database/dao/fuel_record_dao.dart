@@ -27,7 +27,7 @@ class FuelRecordDao extends BaseDao<FuelRecordTable, FuelRecord> {
               t.vehicleId.equals(vehicleId) &
               t.isFullTank.equals(1) &
               t.mileage.isSmallerThanValue(mileage))
-          ..orderBy([(t) => OrderingTerm.desc(t.refuelTime)])
+          ..orderBy([(t) => OrderingTerm.desc(t.mileage)])
           ..limit(1))
         .getSingleOrNull();
   }

@@ -33,9 +33,13 @@ class FuelRecordTable extends BaseBusinessTable {
   /// 总金额 (元)
   RealColumn get totalAmount => real().named('total_amount')();
 
-  /// 是否加满 (1:加满, 0:未加满)
+  /// 是否跳枪 (1:跳枪, 0:未跳枪)
   IntColumn get isFullTank =>
       integer().named('is_full_tank').withDefault(const Constant(0))();
+
+  /// 油灯是否亮起 (1:亮起, 0:未亮)
+  IntColumn get isFuelLightOn =>
+      integer().named('is_fuel_light_on').withDefault(const Constant(0))();
 
   /// 加油站
   TextColumn get station => text().nullable().named('station')();
@@ -63,6 +67,7 @@ class FuelRecordTable extends BaseBusinessTable {
     required double unitPrice,
     required double totalAmount,
     int? isFullTank,
+    int? isFuelLightOn,
     String? station,
     String? remark,
     required int refuelTime,
@@ -79,6 +84,7 @@ class FuelRecordTable extends BaseBusinessTable {
       unitPrice: Value(unitPrice),
       totalAmount: Value(totalAmount),
       isFullTank: Value(isFullTank ?? 0),
+      isFuelLightOn: Value(isFuelLightOn ?? 0),
       station: Value.absentIfNull(station),
       remark: Value.absentIfNull(remark),
       refuelTime: Value(refuelTime),
@@ -102,6 +108,7 @@ class FuelRecordTable extends BaseBusinessTable {
     double? unitPrice,
     double? totalAmount,
     int? isFullTank,
+    int? isFuelLightOn,
     String? station,
     String? remark,
     int? refuelTime,
@@ -119,6 +126,7 @@ class FuelRecordTable extends BaseBusinessTable {
       unitPrice: Value.absentIfNull(unitPrice),
       totalAmount: Value.absentIfNull(totalAmount),
       isFullTank: Value.absentIfNull(isFullTank),
+      isFuelLightOn: Value.absentIfNull(isFuelLightOn),
       station: Value.absentIfNull(station),
       remark: Value.absentIfNull(remark),
       refuelTime: Value.absentIfNull(refuelTime),
@@ -146,6 +154,7 @@ class FuelRecordTable extends BaseBusinessTable {
     MapUtil.setIfPresent(map, 'unitPrice', companion.unitPrice);
     MapUtil.setIfPresent(map, 'totalAmount', companion.totalAmount);
     MapUtil.setIfPresent(map, 'isFullTank', companion.isFullTank);
+    MapUtil.setIfPresent(map, 'isFuelLightOn', companion.isFuelLightOn);
     MapUtil.setIfPresent(map, 'station', companion.station);
     MapUtil.setIfPresent(map, 'remark', companion.remark);
     MapUtil.setIfPresent(map, 'refuelTime', companion.refuelTime);
@@ -170,6 +179,7 @@ class FuelRecordTable extends BaseBusinessTable {
       unitPrice: json['unitPrice'] != null ? Value(json['unitPrice'] as double) : const Value.absent(),
       totalAmount: json['totalAmount'] != null ? Value(json['totalAmount'] as double) : const Value.absent(),
       isFullTank: json['isFullTank'] != null ? Value(json['isFullTank'] as int) : const Value.absent(),
+      isFuelLightOn: json['isFuelLightOn'] != null ? Value(json['isFuelLightOn'] as int) : const Value.absent(),
       station: json['station'] != null ? Value(json['station'] as String) : const Value.absent(),
       remark: json['remark'] != null ? Value(json['remark'] as String) : const Value.absent(),
       refuelTime: json['refuelTime'] != null ? Value(json['refuelTime'] as int) : const Value.absent(),

@@ -32,6 +32,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
 
   String _fuelGrade = '92';
   bool _isFullTank = false;
+  bool _isFuelLightOn = false;
   int _refuelTime = DateTime.now().millisecondsSinceEpoch;
   bool _saving = false;
 
@@ -111,15 +112,18 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
     );
     if (result.ok && result.data != null && mounted) {
       final record = result.data!;
-      _mileageController.text = record.mileage.toString();
-      _volumeController.text = record.volume.toStringAsFixed(2);
-      _unitPriceController.text = record.unitPrice.toStringAsFixed(2);
-      _totalAmountController.text = record.totalAmount.toStringAsFixed(2);
-      _fuelGrade = record.fuelGrade;
-      _isFullTank = record.isFullTank == 1;
-      _stationController.text = record.station ?? '';
-      _remarkController.text = record.remark ?? '';
-      _refuelTime = record.refuelTime;
+      setState(() {
+        _mileageController.text = record.mileage.toString();
+        _volumeController.text = record.volume.toStringAsFixed(2);
+        _unitPriceController.text = record.unitPrice.toStringAsFixed(2);
+        _totalAmountController.text = record.totalAmount.toStringAsFixed(2);
+        _fuelGrade = record.fuelGrade;
+        _isFullTank = record.isFullTank == 1;
+        _isFuelLightOn = record.isFuelLightOn == 1;
+        _stationController.text = record.station ?? '';
+        _remarkController.text = record.remark ?? '';
+        _refuelTime = record.refuelTime;
+      });
     }
   }
 
@@ -152,6 +156,45 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // 加油时间
+            Text(
+              '加油时间',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: _selectDateTime,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: colorScheme.outline),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      dateFormat.format(refuelDate),
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.chevron_right,
+                      color: colorScheme.outline,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // 里程表读数
             CommonTextFormField(
               controller: _mileageController,
@@ -216,10 +259,10 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                 ),
               ),
               items: const [
-                DropdownMenuItem(value: '92', child: Text('92号汽油')),
-                DropdownMenuItem(value: '95', child: Text('95号汽油')),
-                DropdownMenuItem(value: '98', child: Text('98号汽油')),
-                DropdownMenuItem(value: '0', child: Text('0号柴油')),
+                DropdownMenuItem(value: '92', child: Text('92#')),
+                DropdownMenuItem(value: '95', child: Text('95#')),
+                DropdownMenuItem(value: '98', child: Text('98#')),
+                DropdownMenuItem(value: '0', child: Text('0#柴油')),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -231,9 +274,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
             ),
             const SizedBox(height: 16),
 
-            // 是否加满
+            // 是否跳枪
             SwitchListTile(
-              title: const Text('是否加满'),
+              title: const Text('是否跳枪'),
               value: _isFullTank,
               onChanged: (value) {
                 setState(() {
@@ -243,6 +286,22 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
               secondary: Icon(
                 _isFullTank ? Icons.check_circle : Icons.radio_button_unchecked,
                 color: _isFullTank ? colorScheme.primary : colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // 油灯是否亮起
+            SwitchListTile(
+              title: const Text('油灯是否亮起'),
+              value: _isFuelLightOn,
+              onChanged: (value) {
+                setState(() {
+                  _isFuelLightOn = value;
+                });
+              },
+              secondary: Icon(
+                _isFuelLightOn ? Icons.wb_twilight : Icons.lightbulb_outline,
+                color: _isFuelLightOn ? Colors.orange : colorScheme.outline,
               ),
             ),
             const SizedBox(height: 8),
@@ -262,45 +321,6 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
               labelText: '备注',
               hintText: '可选',
               maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-
-            // 加油时间
-            Text(
-              '加油时间',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: _selectDateTime,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: colorScheme.outline),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      dateFormat.format(refuelDate),
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.chevron_right,
-                      color: colorScheme.outline,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -395,6 +415,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
           unitPrice: unitPrice,
           totalAmount: totalAmount,
           isFullTank: _isFullTank,
+          isFuelLightOn: _isFuelLightOn ? 1 : 0,
           station: _stationController.text.trim().isEmpty
               ? null
               : _stationController.text.trim(),
@@ -422,6 +443,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
           unitPrice: unitPrice,
           totalAmount: totalAmount,
           isFullTank: _isFullTank,
+          isFuelLightOn: _isFuelLightOn ? 1 : 0,
           station: _stationController.text.trim().isEmpty
               ? null
               : _stationController.text.trim(),

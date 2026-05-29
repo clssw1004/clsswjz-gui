@@ -200,7 +200,7 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
                 _buildDetailRow(
                   icon: Icons.oil_barrel,
                   label: '油品',
-                  value: '${record.fuelGrade}号${record.fuelGrade == '0' ? '柴油' : '汽油'}',
+                  value: '${record.fuelGrade}#${record.fuelGrade == '0' ? '柴油' : ''}',
                   theme: theme,
                   colorScheme: colorScheme,
                 ),
@@ -209,7 +209,7 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
                   icon: record.isFullTank == 1
                       ? Icons.check_circle
                       : Icons.radio_button_unchecked,
-                  label: '加油状态',
+                  label: '加油方式',
                   value: record.isFullTankLabel,
                   theme: theme,
                   colorScheme: colorScheme,
@@ -217,6 +217,17 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
                       ? colorScheme.primary
                       : null,
                 ),
+                if (record.isFuelLightOn == 1) ...[
+                  const Divider(),
+                  _buildDetailRow(
+                    icon: Icons.wb_twilight,
+                    label: '油灯状态',
+                    value: '油灯亮起',
+                    theme: theme,
+                    colorScheme: colorScheme,
+                    valueColor: Colors.orange,
+                  ),
+                ],
                 if (record.station != null && record.station!.isNotEmpty) ...[
                   const Divider(),
                   _buildDetailRow(
