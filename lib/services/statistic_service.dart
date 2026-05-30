@@ -332,9 +332,9 @@ class StatisticService {
     final incomeQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
           db.accountItemTable.type.equals(AccountItemType.income.code) &
-          (db.accountItemTable.source.equals(BusinessType.item.code) &
-                  db.accountItemTable.sourceId.isInQuery(refundSubQuery))
-              .not() &
+          (db.accountItemTable.source.isNull() |
+                  db.accountItemTable.source.equals(BusinessType.item.code).not() |
+                  db.accountItemTable.sourceId.isNotInQuery(refundSubQuery)) &
           (start != null && end != null
               ? db.accountItemTable.accountDate.isBetweenValues(
                   DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
