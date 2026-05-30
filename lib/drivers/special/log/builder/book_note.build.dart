@@ -91,6 +91,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
       title: data['title'],
       content: data['content'],
       plainContent: data['plainContent'],
+      groupCode: data['groupCode'],
     );
   }
 
