@@ -160,6 +160,9 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
         ],
         bottom: TabBar(
           controller: _tabController,
+          labelColor: Theme.of(context).colorScheme.onSurface,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          indicatorColor: Theme.of(context).colorScheme.primary,
           tabs: [
             Tab(text: l10n.tabNotes),
             Tab(text: l10n.tabActivity),

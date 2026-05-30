@@ -107,6 +107,11 @@ class ThemeProvider extends ChangeNotifier {
         backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
       ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: colorScheme.onSurface,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
+        indicatorColor: colorScheme.primary,
+      ),
       extensions: [
         ThemeSpacing.fromScreenSize(context),
         ThemeRadius(radius: radius),
@@ -155,6 +160,11 @@ class ThemeProvider extends ChangeNotifier {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: colorScheme.onSurface,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
+        indicatorColor: colorScheme.primary,
       ),
       extensions: [
         ThemeSpacing.fromScreenSize(context),
