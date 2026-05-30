@@ -16,6 +16,7 @@ import '../../widgets/item_widgets/debts_container.dart';
 import '../../widgets/item_widgets/daily_statistic_bar.dart';
 import '../../widgets/item_widgets/daily_statistic_calendar.dart';
 import '../../widgets/item_widgets/user_monthly_statistic_chart.dart';
+import '../../theme/theme_spacing.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -95,14 +96,15 @@ class _ItemsTabState extends State<ItemsTab>
         builder: (context, bookProvider, itemListProvider, debtListProvider,
             syncProvider, statisticsProvider, child) {
           final bookMeta = bookProvider.selectedBook;
+          final spacing = Theme.of(context).spacing;
           return Stack(
             children: [
               ListView(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                padding: spacing.contentPadding,
                 children: [
                   // 账本统计卡片
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                     child: BookStatisticCard(
                       statisticInfo: statisticsProvider.itemTabMonthStatistic,
                       showBalance: false,
@@ -112,7 +114,7 @@ class _ItemsTabState extends State<ItemsTab>
 
                   // 最近账目
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                     child: ItemsContainer(
                       accountBook: bookMeta,
                       lastDate: itemListProvider.lastDay,
@@ -127,7 +129,7 @@ class _ItemsTabState extends State<ItemsTab>
                   // 每日统计卡片（柱状图） - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDailyBar)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                       child: DailyStatisticBar(
                         dailyStats: statisticsProvider.dailyStatistics ?? [],
                         loading: statisticsProvider.loadingDailyStatistics,
@@ -137,7 +139,7 @@ class _ItemsTabState extends State<ItemsTab>
                   // 每日统计（日历） - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                       child: DailyStatisticCalendar(
                         dailyStats: statisticsProvider.dailyStatistics ?? [],
                         loading: statisticsProvider.loadingDailyStatistics,
@@ -147,7 +149,7 @@ class _ItemsTabState extends State<ItemsTab>
                   // 按用户当月统计（双Y轴柱状图） - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                       child: UserMonthlyStatisticChart(
                         data: statisticsProvider.userMonthlyStatistics ?? [],
                         loading: statisticsProvider.loadingUserMonthly,
@@ -158,7 +160,7 @@ class _ItemsTabState extends State<ItemsTab>
                   // 债务信息 - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDebt)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                       child: DebtsContainer(
                         debts: debtListProvider.debts.take(3).toList(),
                         bookMeta: bookProvider.selectedBook,

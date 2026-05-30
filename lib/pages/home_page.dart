@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage>
   bool _isNotesActivityTab = false;
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
-  final double cenerIconSize = 50.0;
+  final double centerIconSize = 50.0;
 
   late final List<Widget> _pages;
 
@@ -92,8 +92,8 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Card(
                       elevation: 2,
-                      color: Colors.white,
-                      surfaceTintColor: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
+                      surfaceTintColor: Theme.of(context).colorScheme.surface,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
@@ -108,8 +108,8 @@ class _HomePageState extends State<HomePage>
                     ),
                     const SizedBox(width: 8),
                     SizedBox(
-                      width: cenerIconSize,
-                      height: cenerIconSize,
+                      width: centerIconSize,
+                      height: centerIconSize,
                       child: FloatingActionButton(
                         heroTag: 'home_page_fab_$label',
                         elevation: 2,
@@ -182,14 +182,14 @@ class _HomePageState extends State<HomePage>
               child: GestureDetector(
                 onTap: _toggleMenu,
                 child: Container(
-                  color: Colors.black12,
+                  color: theme.colorScheme.scrim.withAlpha(31),
                 ),
               ),
             ),
           // 展开的按钮
           ...[
             _buildExpandingActionButton(
-              padding: 25 + cenerIconSize * 2,
+              padding: 25 + centerIconSize * 2,
               icon: Icons.note_alt,
               label: L10nManager.l10n.addNew(L10nManager.l10n.note),
               backgroundColor: theme.colorScheme.secondary,
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage>
               onPressed: () => NavigationUtil.toNoteAdd(context),
             ),
             _buildExpandingActionButton(
-              padding: 20 + cenerIconSize,
+              padding: 20 + centerIconSize,
               icon: Icons.money,
               label: L10nManager.l10n.addNew(L10nManager.l10n.debt),
               backgroundColor: theme.colorScheme.tertiary,
@@ -253,8 +253,8 @@ class _HomePageState extends State<HomePage>
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(top: 2),
-                width: cenerIconSize,
-                height: cenerIconSize,
+                width: centerIconSize,
+                height: centerIconSize,
                 decoration: BoxDecoration(
                   color: _isMenuOpen
                       ? theme.colorScheme.primary

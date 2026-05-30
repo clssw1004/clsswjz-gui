@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../manager/app_config_manager.dart';
 import '../theme/theme_spacing.dart';
+import '../theme/theme_radius.dart';
 
 /// 主题管理器
 class ThemeProvider extends ChangeNotifier {
@@ -108,18 +109,25 @@ class ThemeProvider extends ChangeNotifier {
       ),
       extensions: [
         ThemeSpacing.fromScreenSize(context),
-      ], dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+        ThemeRadius(radius: radius),
+      ],
+      dialogTheme: DialogThemeData(backgroundColor: Colors.white),
     );
   }
 
   /// 获取暗色主题
   ThemeData getDarkTheme(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: themeColor,
+      brightness: Brightness.dark,
+    );
+
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: themeColor,
-        brightness: Brightness.dark,
-      ),
+      colorScheme: colorScheme,
       useMaterial3: useMaterial3,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
+      cardColor: colorScheme.surface,
       textTheme: _getTextTheme(Brightness.dark),
       cardTheme: _getCardTheme(),
       inputDecorationTheme: _getInputDecorationTheme(),
@@ -127,9 +135,32 @@ class ThemeProvider extends ChangeNotifier {
       elevatedButtonTheme: _getElevatedButtonTheme(Brightness.dark),
       outlinedButtonTheme: _getOutlinedButtonTheme(Brightness.dark),
       textButtonTheme: _getTextButtonTheme(Brightness.dark),
+      popupMenuTheme: PopupMenuThemeData(
+        color: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colorScheme.primaryContainer,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.inverseSurface,
+        contentTextStyle: TextStyle(color: colorScheme.onInverseSurface),
+      ),
       extensions: [
         ThemeSpacing.fromScreenSize(context),
+        ThemeRadius(radius: radius),
       ],
+      dialogTheme: DialogThemeData(backgroundColor: colorScheme.surface),
     );
   }
 

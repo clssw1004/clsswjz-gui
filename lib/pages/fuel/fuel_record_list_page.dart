@@ -8,6 +8,7 @@ import '../../models/vo/vehicle_vo.dart';
 import '../../providers/fuel_record_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../widgets/common/common_app_bar.dart';
+import '../../theme/theme_spacing.dart';
 import 'fuel_record_detail_page.dart';
 import 'fuel_record_form_page.dart';
 import 'fuel_statistics_page.dart';
@@ -201,14 +202,15 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
 
     final items = _recordProvider.items;
     final stats = _computeStats(items);
+    final spacing = Theme.of(context).spacing;
 
     return RefreshIndicator(
       onRefresh: () => _recordProvider.loadItems(_vehicleId!),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
+        padding: spacing.contentPadding,
         children: [
           _buildStatsCard(context, stats, theme, colorScheme),
-          const SizedBox(height: 24),
+          SizedBox(height: spacing.formGroupSpacing),
           ...items.asMap().entries.map((entry) {
             final i = entry.key;
             final tripKm = i == items.length - 1
@@ -358,7 +360,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
         side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: Theme.of(context).spacing.formItemPadding,
         child: Column(
           children: [
             Row(children: [

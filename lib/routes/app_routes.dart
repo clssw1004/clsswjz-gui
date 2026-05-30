@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart' show UserBookVO;
@@ -152,165 +151,202 @@ class AppRoutes {
   /// 油耗统计页面
   static const String fuelStatistics = '/fuel/statistics';
 
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    return MaterialPageRoute(
-      builder: (context) => AppConfigManager.isAppInit()
-          ? const HomePage()
-          : const ServerConfigPage(),
+  /// 统一页面过渡动画构建
+  static Route<dynamic> _buildPageRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.15, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          )),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 250),
     );
   }
 
-  /// 路由表
-  static Map<String, WidgetBuilder> routes = {
-    home: (context) => const HomePage(),
-    userInfo: (context) => const UserInfoPage(),
-    themeSettings: (context) => const ThemeSettingsPage(),
-    languageSettings: (context) => const LanguageSettingsPage(),
-    databaseViewer: (context) => DriftDbViewer(DatabaseManager.db),
-    uiLayoutSettings: (context) => const UiConfigPage(),
-    accountBooks: (context) => const BookListPage(),
-    bookForm: (context) => const BookFormPage(),
-    itemAdd: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    // 根据路由名称查找页面
+    final page = _resolvePage(settings);
+    if (page != null) {
+      return _buildPageRoute(page);
+    }
+    return null;
+  }
 
-      final accountBook = args[0] as BookMetaVO;
-      return ItemAddPage(bookMeta: accountBook);
-    },
-    itemEdit: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as BookMetaVO;
-      final item = args[1] as UserItemVO;
-      return ItemEditPage(bookMeta: accountBook, item: item);
-    },
-    itemRefund: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as BookMetaVO;
-      final item = args[1] as UserItemVO;
-      return RefundFormPage(bookMeta: accountBook, originalItem: item);
-    },
-    itemsList: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return ItemListPage(accountBook: args);
-    },
-    items: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final bookMeta = args[0] as BookMetaVO;
-      final filter = args.length > 1 ? args[1] as ItemFilterDTO? : null;
-      final title = args.length > 2 ? args[2] as String? : null;
-      return ItemsPage(bookMeta: bookMeta, initialFilter: filter, title: title);
-    },
-    serverConfig: (context) => const ServerConfigPage(),
-    merchants: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return MerchantsPage(accountBook: args);
-    },
-    tags: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return TagsPage(accountBook: args);
-    },
-    projects: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return ProjectsPage(accountBook: args);
-    },
-    categories: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return AccountCategoriesPage(accountBook: args);
-    },
-    funds: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return FundListPage(accountBook: args);
-    },
-    about: (context) => const AboutPage(),
-    syncSettings: (context) => const SyncSettingsPage(),
-    import: (context) => const ImportPage(),
-    resetAuth: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as String;
-      return ResetAuthPage(serverUrl: args);
-    },
-    noteAdd: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as UserBookVO;
-      return NoteFormPage(book: accountBook);
-    },
-    noteEdit: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final note = args[0] as UserNoteVO;
-      final accountBook = args[1] as UserBookVO;
-      return NoteFormPage(note: note, book: accountBook);
-    },
-    debtAdd: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as BookMetaVO;
-      final debtor = args.length > 1 ? args[1] as String? : null;
-      return DebtAddPage(book: accountBook, debtor: debtor);
-    },
-    debtList: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as BookMetaVO;
-      return DebtListPage(bookMeta: args);
-    },
-    debtEdit: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final accountBook = args[0] as BookMetaVO;
-      final debt = args[1] as UserDebtVO;
-      return DebtEditPage(book: accountBook, debt: debt);
-    },
-    debtPayment: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-      final title = args[0] as String;
-      final accountBook = args[1] as BookMetaVO;
-      final debt = args[2] as UserDebtVO;
-      final categoryCode = args[3] as String;
+  /// 根据路由设置解析页面
+  static Widget? _resolvePage(RouteSettings settings) {
+    final args = settings.arguments;
+    switch (settings.name) {
+      case home:
+        return const HomePage();
+      case serverConfig:
+        return const ServerConfigPage();
+      case userInfo:
+        return const UserInfoPage();
+      case themeSettings:
+        return const ThemeSettingsPage();
+      case languageSettings:
+        return const LanguageSettingsPage();
+      case databaseViewer:
+        return DriftDbViewer(DatabaseManager.db);
+      case uiLayoutSettings:
+        return const UiConfigPage();
+      case accountBooks:
+        return const BookListPage();
+      case bookForm:
+        return const BookFormPage();
+      case itemAdd: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as BookMetaVO;
+        return ItemAddPage(bookMeta: accountBook);
+      }
+      case itemEdit: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as BookMetaVO;
+        final item = list[1] as UserItemVO;
+        return ItemEditPage(bookMeta: accountBook, item: item);
+      }
+      case itemRefund: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as BookMetaVO;
+        final item = list[1] as UserItemVO;
+        return RefundFormPage(bookMeta: accountBook, originalItem: item);
+      }
+      case itemsList: {
+        final bookMeta = args as BookMetaVO;
+        return ItemListPage(accountBook: bookMeta);
+      }
+      case items: {
+        final list = args as List<dynamic>;
+        final bookMeta = list[0] as BookMetaVO;
+        final filter = list.length > 1 ? list[1] as ItemFilterDTO? : null;
+        final title = list.length > 2 ? list[2] as String? : null;
+        return ItemsPage(bookMeta: bookMeta, initialFilter: filter, title: title);
+      }
+      case merchants: {
+        final bookMeta = args as BookMetaVO;
+        return MerchantsPage(accountBook: bookMeta);
+      }
+      case tags: {
+        final bookMeta = args as BookMetaVO;
+        return TagsPage(accountBook: bookMeta);
+      }
+      case projects: {
+        final bookMeta = args as BookMetaVO;
+        return ProjectsPage(accountBook: bookMeta);
+      }
+      case categories: {
+        final bookMeta = args as BookMetaVO;
+        return AccountCategoriesPage(accountBook: bookMeta);
+      }
+      case funds: {
+        final bookMeta = args as BookMetaVO;
+        return FundListPage(accountBook: bookMeta);
+      }
+      case about:
+        return const AboutPage();
+      case syncSettings:
+        return const SyncSettingsPage();
+      case import:
+        return const ImportPage();
+      case resetAuth: {
+        final serverUrl = args as String;
+        return ResetAuthPage(serverUrl: serverUrl);
+      }
+      case noteAdd: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as UserBookVO;
+        return NoteFormPage(book: accountBook);
+      }
+      case noteEdit: {
+        final list = args as List<dynamic>;
+        final note = list[0] as UserNoteVO;
+        final accountBook = list[1] as UserBookVO;
+        return NoteFormPage(note: note, book: accountBook);
+      }
+      case debtAdd: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as BookMetaVO;
+        final debtor = list.length > 1 ? list[1] as String? : null;
+        return DebtAddPage(book: accountBook, debtor: debtor);
+      }
+      case debtList: {
+        final bookMeta = args as BookMetaVO;
+        return DebtListPage(bookMeta: bookMeta);
+      }
+      case debtEdit: {
+        final list = args as List<dynamic>;
+        final accountBook = list[0] as BookMetaVO;
+        final debt = list[1] as UserDebtVO;
+        return DebtEditPage(book: accountBook, debt: debt);
+      }
+      case debtPayment: {
+        final list = args as List<dynamic>;
+        final title = list[0] as String;
+        final accountBook = list[1] as BookMetaVO;
+        final debt = list[2] as UserDebtVO;
+        final categoryCode = list[3] as String;
+        return DebtPaymentPage(
+          title: title, book: accountBook, debt: debt, categoryCode: categoryCode,
+        );
+      }
+      case attachments:
+        return const AttachmentListPage();
+      case giftCardList: {
+        final tabIndex = args is int ? args : 0;
+        return GiftCardListPage(initialTabIndex: tabIndex);
+      }
+      case giftCardForm: {
+        final giftCard = args as GiftCardVO?;
+        return GiftCardFormPage(giftCard: giftCard);
+      }
+      case giftCardDetail: {
+        final giftCard = args as GiftCardVO;
+        return GiftCardDetailPage(giftCard: giftCard);
+      }
+      case fuelVehicles:
+        return const FuelHubPage();
+      case fuelVehicleForm: {
+        final vehicleId = args as String?;
+        return VehicleFormPage(vehicleId: vehicleId);
+      }
+      case fuelRecords: {
+        final map = args as Map?;
+        return FuelRecordListPage(
+          initialVehicleId: map?['vehicleId'] as String?,
+          initialPlateNumber: map?['plateNumber'] as String?,
+        );
+      }
+      case fuelRecordForm: {
+        final map = args as Map;
+        return FuelRecordFormPage(
+          vehicleId: map['vehicleId'],
+          recordId: map['recordId'],
+        );
+      }
+      case fuelRecordDetail: {
+        final recordId = args as String;
+        return FuelRecordDetailPage(recordId: recordId);
+      }
+      case fuelStatistics: {
+        final map = args as Map;
+        return FuelStatisticsPage(
+          vehicleId: map['vehicleId'],
+          plateNumber: map['plateNumber'],
+        );
+      }
+      default:
+        return null;
+    }
+  }
 
-      return DebtPaymentPage(
-        title: title,
-        book: accountBook,
-        debt: debt,
-        categoryCode: categoryCode,
-      );
-    },
-    attachments: (context) => const AttachmentListPage(),
-    giftCardList: (context) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      final tabIndex = args is int ? args : 0;
-      return GiftCardListPage(initialTabIndex: tabIndex);
-    },
-    giftCardForm: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO?;
-      return GiftCardFormPage(giftCard: args);
-    },
-    giftCardDetail: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as GiftCardVO;
-      return GiftCardDetailPage(giftCard: args);
-    },
-    fuelVehicles: (context) => const FuelHubPage(),
-    fuelVehicleForm: (context) {
-      final args = ModalRoute.of(context)?.settings.arguments as String?;
-      return VehicleFormPage(vehicleId: args);
-    },
-    fuelRecords: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map?;
-      return FuelRecordListPage(
-        initialVehicleId: args?['vehicleId'] as String?,
-        initialPlateNumber: args?['plateNumber'] as String?,
-      );
-    },
-    fuelRecordForm: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map;
-      return FuelRecordFormPage(
-        vehicleId: args['vehicleId'],
-        recordId: args['recordId'],
-      );
-    },
-    fuelRecordDetail: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as String;
-      return FuelRecordDetailPage(recordId: args);
-    },
-    fuelStatistics: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map;
-      return FuelStatisticsPage(
-        vehicleId: args['vehicleId'],
-        plateNumber: args['plateNumber'],
-      );
-    },
-  };
+  /// 路由表（兼容 MaterialApp.routes 参数，现在由 _resolvePage 统一处理）
+  static Map<String, WidgetBuilder> routes = {};
 }
