@@ -8,6 +8,7 @@ import '../../models/dto/ui_config_dto.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/statistics_provider.dart';
+import '../../theme/theme_spacing.dart';
 import '../../widgets/activity/activity_statistic_card.dart';
 import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -66,11 +67,13 @@ class _StatisticsTabState extends State<StatisticsTab> {
             return CommonEmptyView(message: l10n.noData);
           }
 
+          final spacing = Theme.of(context).spacing;
+
           // 构建主界面布局（时间范围选择器始终显示）
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: spacing.formPadding.copyWith(bottom: 0),
                 child: TimeRangeSelector(
                   selectedRange: _selectedRange,
                   customRange: _customRange,
@@ -83,7 +86,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
                   },
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: spacing.formItemSpacing),
               Expanded(
                 child: _buildContentArea(context, statisticsProvider),
               ),
@@ -210,9 +213,10 @@ class _StatisticsTabState extends State<StatisticsTab> {
     final booksProvider = Provider.of<BooksProvider>(context, listen: false);
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
     final config = AppConfigManager.instance.uiConfig;
+    final spacing = Theme.of(context).spacing;
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: spacing.contentPadding,
       children: [
         // 账本统计卡片 - 根据配置决定是否显示
         if (config.statisticsShowBookStatistic)
@@ -220,7 +224,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
             statisticInfo: _selectedRange == 'month'
                 ? statisticsProvider.currentMonthStatistic
                 : statisticsProvider.allTimeStatistic,
-            margin: const EdgeInsets.only(bottom: 16),
+            margin: EdgeInsets.only(bottom: spacing.formGroupSpacing),
             title: _selectedRange == 'month'
                 ? L10nManager.l10n.currentMonth
                 : L10nManager.l10n.total,
@@ -229,7 +233,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
         // 按项目统计卡片 - 根据配置决定是否显示
         if (config.statisticsShowProjectStatistic)
           Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.only(bottom: spacing.formGroupSpacing),
             child: ProjectMonthlyStatisticChart(
               data: statisticsProvider.filteredProjectStatistics,
               loading: statisticsProvider.loadingProjectMonthly,
@@ -240,7 +244,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
         // 分类统计卡片 - 根据配置决定是否显示
         if (config.statisticsShowCategoryStatistic) ...[
           const CategoryTabSelector(),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.formGroupSpacing),
           const CategoryStatisticCard(),
         ],
 

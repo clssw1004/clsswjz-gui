@@ -14,6 +14,7 @@ import '../../models/vo/user_note_vo.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 import '../../widgets/common/common_attachment_field.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/attachment.util.dart';
 import '../../utils/file_util.dart';
@@ -117,6 +118,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
     final mediaQuery = MediaQuery.of(context);
     final bottomPadding = mediaQuery.padding.bottom;
     final provider = context.watch<NoteFormProvider>();
@@ -202,7 +204,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                   child: QuillEditor.basic(
                                     controller: _quillController,
                                     config: QuillEditorConfig(
-                                      padding: const EdgeInsets.all(16),
+                                      padding: spacing.formPadding,
                                       autoFocus: false,
                                       embedBuilders: kIsWeb
                                           ? FlutterQuillEmbeds
@@ -231,9 +233,8 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                 ),
                                 // 分组选择和附件上传
                                 Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                margin: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
+                                  padding: spacing.formItemPadding,
                                   decoration: BoxDecoration(
                                     color: colorScheme.surfaceContainerLow,
                                     borderRadius: BorderRadius.circular(6),
@@ -359,10 +360,10 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                   ),
                                 ),
                                 Container(
-                                  margin: const EdgeInsets.only(top: 4),
+                                  margin: EdgeInsets.only(top: spacing.listItemSpacing / 2),
                                   padding: EdgeInsets.only(
                                     bottom: bottomPadding,
-                                    top: 4,
+                                    top: spacing.listItemSpacing / 2,
                                   ),
                                   decoration: BoxDecoration(
                                     color: colorScheme.surface,
@@ -381,7 +382,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                     children: [
                                       // 展开按钮
                                       Container(
-                                        margin: const EdgeInsets.symmetric(vertical: 2),
+                                        margin: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 4),
                                         child: Material(
                                           color: Colors.transparent,
                                           child: InkWell(
@@ -393,8 +394,8 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                               });
                                             },
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8, vertical: 4),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: spacing.listItemSpacing, vertical: spacing.listItemSpacing / 2),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,

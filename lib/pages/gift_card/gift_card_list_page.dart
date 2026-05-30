@@ -50,7 +50,7 @@ class _GiftCardListPageState extends State<GiftCardListPage>
 
   @override
   Widget build(BuildContext context) {
-    Theme.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final provider = context.watch<GiftCardProvider>();
 
     return Scaffold(
@@ -58,6 +58,9 @@ class _GiftCardListPageState extends State<GiftCardListPage>
         title: Text(L10nManager.l10n.giftCard),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: colorScheme.onSurface,
+          unselectedLabelColor: colorScheme.onSurfaceVariant,
+          indicatorColor: colorScheme.primary,
           tabs: [
             Tab(text: L10nManager.l10n.receivedGiftCards),
             Tab(text: L10nManager.l10n.sentGiftCards),
