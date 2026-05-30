@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/statistics_provider.dart';
+import '../common/common_card_container.dart';
 import 'category_list.dart';
 
-/// 分类统计卡片：可切换扇形图/分类列表
+/// 分类统计卡片
 class CategoryStatisticCard extends StatefulWidget {
   const CategoryStatisticCard({super.key});
 
@@ -14,21 +15,19 @@ class CategoryStatisticCard extends StatefulWidget {
 }
 
 class _CategoryStatisticCardState extends State<CategoryStatisticCard> {
-  bool showChart = false;
+  bool showChart = true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = L10nManager.l10n;
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
-    final hasData = statisticsProvider.selectedGroup != null && statisticsProvider.selectedGroup!.categoryGroupList.isNotEmpty;
+    final hasData = statisticsProvider.selectedGroup != null &&
+        statisticsProvider.selectedGroup!.categoryGroupList.isNotEmpty;
 
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return CommonCardContainer(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -39,43 +38,72 @@ class _CategoryStatisticCardState extends State<CategoryStatisticCard> {
               children: [
                 Text(
                   l10n.categoryDistribution,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-                ToggleButtons(
-                  isSelected: [showChart, !showChart],
-                  borderRadius: BorderRadius.circular(8),
-                  selectedColor: theme.colorScheme.onPrimary,
-                  fillColor: theme.colorScheme.primary,
-                  color: theme.colorScheme.primary,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                  onPressed: (index) {
-                    setState(() {
-                      showChart = index == 0;
-                    });
-                  },
-                  children: [
-                    Tooltip(
-                      message: l10n.categoryDistribution,
-                      child: const Icon(Icons.pie_chart_outline),
-                    ),
-                    Tooltip(
-                      message: l10n.category,
-                      child: const Icon(Icons.list_alt_outlined),
-                    ),
-                  ],
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildViewToggle(
+                        icon: Icons.pie_chart_rounded,
+                        isSelected: showChart,
+                        onTap: () => setState(() => showChart = true),
+                      ),
+                      const SizedBox(width: 2),
+                      _buildViewToggle(
+                        icon: Icons.list_alt_rounded,
+                        isSelected: !showChart,
+                        onTap: () => setState(() => showChart = false),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
               child: hasData
                   ? (showChart
-                      ? const CategoryPieChart()
+                      ? const CategoryPieChart(key: ValueKey('chart'))
                       : const CategoryList(key: ValueKey('list')))
                   : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Center(child: Text(l10n.noData, style: theme.textTheme.bodyMedium)),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.pie_chart_outline,
+                              size: 40,
+                              color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.noData,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
             ),
           ],
@@ -83,4 +111,32 @@ class _CategoryStatisticCardState extends State<CategoryStatisticCard> {
       ),
     );
   }
-} 
+
+  Widget _buildViewToggle({
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: isSelected
+              ? theme.colorScheme.onPrimary
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
