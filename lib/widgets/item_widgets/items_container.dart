@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../utils/color_util.dart';
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_spacing.dart';
 import '../common/common_card_container.dart';
+import '../common/common_loading_view.dart';
 import '../../routes/app_routes.dart';
 import '../../models/vo/user_book_vo.dart';
 
@@ -21,7 +23,10 @@ class ItemsContainer extends StatelessWidget {
     this.loading = false,
     this.accountBook,
     this.lastDate,
+    this.margin,
   });
+
+  final EdgeInsetsGeometry? margin;
 
   /// 计算支出和收入总额
   (double expense, double income) _calculateTotals() {
@@ -41,6 +46,7 @@ class ItemsContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
     final secondColor = colorScheme.onSurfaceVariant.withAlpha(180);
 
     // 计算总额
@@ -55,7 +61,7 @@ class ItemsContainer extends StatelessWidget {
     }
 
     return CommonCardContainer(
-      margin: const EdgeInsets.all(8),
+      margin: margin ?? spacing.listItemMargin,
       padding: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -64,7 +70,12 @@ class ItemsContainer extends StatelessWidget {
           InkWell(
             onTap: accountBook == null ? null : navigateToItemsList,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              padding: EdgeInsets.fromLTRB(
+                spacing.contentPadding.left,
+                spacing.formItemSpacing / 2,
+                spacing.listItemSpacing,
+                spacing.formItemSpacing / 2,
+              ),
               child: Row(
                 children: [
                   // 标题
@@ -172,11 +183,11 @@ class ItemsContainer extends StatelessWidget {
           if (loading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 32),
-              child: Center(child: CircularProgressIndicator()),
+              child: CommonLoadingView(),
             )
           else if (items.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
+              padding: EdgeInsets.symmetric(vertical: spacing.formGroupSpacing),
               child: Center(
                 child: Text(
                   L10nManager.l10n.noData,
@@ -190,158 +201,159 @@ class ItemsContainer extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
               itemCount: items.length,
               separatorBuilder: (context, index) => Divider(
                 height: 1,
-                indent: 16,
-                endIndent: 16,
+                indent: spacing.contentPadding.left,
+                endIndent: spacing.contentPadding.left,
                 color: colorScheme.outlineVariant.withAlpha(40),
               ),
               itemBuilder: (context, index) {
                 final item = items[index];
+                final amountColor = ColorUtil.getAmountColor(item.type);
+
                 return InkWell(
                   onTap: () => onItemTap?.call(item),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.contentPadding.left,
+                      vertical: spacing.formItemSpacing / 2,
                     ),
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 第一行：分类名称和金额
-                        Row(
-                          children: [
-                            Container(
-                              width: 3,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                color: ColorUtil.getAmountColor(item.type),
-                                borderRadius: BorderRadius.circular(1.5),
-                              ),
+                        // 左侧渐变装饰条
+                        Container(
+                          width: 4,
+                          height: 46,
+                          margin: const EdgeInsets.only(top: 2),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                amountColor,
+                                amountColor.withValues(alpha: 0.2),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // 主内容区
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 第一行：分类名称 + 标签 + 金额
+                              Row(
                                 children: [
-                                  // 分类名称和账户
-                                  Row(
-                                    children: [
-                                      Text(
-                                        item.categoryName ?? '',
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            item.categoryName ?? '',
+                                            style: theme.textTheme.titleSmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: colorScheme.onSurface,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                      ),
-                                      if (item.tagName?.isNotEmpty == true) ...[
-                                        const SizedBox(width: 8),
-                                        Transform.translate(
-                                          offset: const Offset(0, -1),
-                                          child: Container(
+                                        if (item.tagName?.isNotEmpty == true) ...[
+                                          const SizedBox(width: 8),
+                                          Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 4,
-                                              vertical: 0,
+                                              horizontal: 6,
+                                              vertical: 2,
                                             ),
                                             decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: colorScheme.primary
-                                                    .withAlpha(128),
-                                                width: 1,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(3),
+                                              color: colorScheme.primary.withValues(alpha: 0.12),
+                                              borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
                                               item.tagName!,
-                                              style: theme.textTheme.labelSmall
-                                                  ?.copyWith(
+                                              style: theme.textTheme.labelSmall?.copyWith(
                                                 color: colorScheme.primary,
                                                 fontSize: 11,
+                                                fontWeight: FontWeight.w600,
                                                 height: 1.2,
                                               ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                  // 占位空间
-                                  const Spacer(),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    item.amount.toStringAsFixed(2),
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: amountColor,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              item.amount.toString(),
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: ColorUtil.getAmountColor(item.type),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        // 第二行：时间、商户、备注
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(width: 11),
-                            // 时间
-                            Text(
-                              item.accountTimeOnly.toString(),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: secondColor,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // 商户和备注
-                            Expanded(
-                              child: Row(
+                              const SizedBox(height: 8),
+                              // 第二行：时间、商户、备注
+                              Row(
                                 children: [
-                                  if (item.shopName?.isNotEmpty == true) ...[
-                                    Text(
-                                      item.shopName!,
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: secondColor,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                  Icon(Icons.schedule_outlined, size: 13, color: secondColor),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    item.accountTimeOnly.toString(),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: secondColor,
+                                      fontSize: 12,
                                     ),
-                                    if (item.description?.isNotEmpty ==
-                                        true) ...[
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '·',
-                                        style:
-                                            theme.textTheme.bodySmall?.copyWith(
-                                          color: secondColor,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                    ],
-                                  ],
-                                  if (item.description?.isNotEmpty == true)
-                                    Expanded(
+                                  ),
+                                  if (item.shopName?.isNotEmpty == true) ...[
+                                    const SizedBox(width: 10),
+                                    Icon(Icons.store_outlined, size: 13, color: secondColor),
+                                    const SizedBox(width: 4),
+                                    Flexible(
                                       child: Text(
-                                        item.description!,
-                                        style:
-                                            theme.textTheme.bodySmall?.copyWith(
+                                        item.shopName!,
+                                        style: theme.textTheme.bodySmall?.copyWith(
                                           color: secondColor,
+                                          fontSize: 12,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                  ],
+                                  if (item.description?.isNotEmpty == true) ...[
+                                    if (item.shopName?.isNotEmpty == true) ...[
+                                      const SizedBox(width: 6),
+                                      Text('·', style: TextStyle(color: secondColor, fontSize: 12)),
+                                      const SizedBox(width: 6),
+                                    ] else ...[
+                                      const SizedBox(width: 10),
+                                    ],
+                                    Icon(Icons.notes_rounded, size: 13, color: secondColor),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        item.description!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: secondColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

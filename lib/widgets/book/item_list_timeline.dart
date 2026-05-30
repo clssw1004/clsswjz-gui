@@ -5,7 +5,6 @@ import '../../models/vo/user_book_vo.dart';
 import '../../providers/item_list_provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
-import '../../theme/theme_radius.dart';
 import 'item_tile_timeline.dart';
 
 /// 时间线账目列表
@@ -144,7 +143,6 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     if (_loading && (_items == null || _items!.isEmpty)) {
       return _buildLoadingState();
@@ -156,79 +154,47 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
 
     final itemsWithHeaders = _getItemsWithDateHeaders();
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            colorScheme.surface,
-            colorScheme.surfaceContainerHighest.withAlpha(32),
-            colorScheme.surface,
-          ],
-        ),
+    return ListView.builder(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
       ),
-      child: Stack(
-        children: [
-          // 时间线背景
-          Positioned.fill(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 40,
-                  alignment: Alignment.center,
-                  child: _buildTimeline(theme),
-                ),
-              ],
+      padding: EdgeInsets.zero,
+      itemCount: itemsWithHeaders.length + (_hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == itemsWithHeaders.length) {
+          return _loading ? _buildLoadMoreIndicator(theme) : const SizedBox.shrink();
+        }
+
+        final item = itemsWithHeaders[index];
+
+        if (item is String) {
+          return _buildDateHeader(item, theme);
+        }
+
+        if (item is UserItemVO) {
+          final isFirst = index == 0 || itemsWithHeaders[index - 1] is String;
+          return InkWell(
+            onTap: widget.onItemTap == null
+                ? null
+                : () => widget.onItemTap!(item),
+            child: ItemTileTimeline(
+              item: item,
+              currencySymbol: widget.accountBook.currencySymbol.symbol,
+              index: index,
+              isFirst: isFirst,
             ),
-          ),
-          // 列表内容
-          ListView.builder(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            padding: EdgeInsets.symmetric(
-              vertical: theme.spacing.listItemSpacing,
-            ),
-            itemCount: itemsWithHeaders.length + (_hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == itemsWithHeaders.length) {
-                return _loading ? _buildLoadMoreIndicator(theme) : const SizedBox.shrink();
-              }
+          );
+        }
 
-              final item = itemsWithHeaders[index];
-
-              if (item is String) {
-                return _buildDateHeader(item, theme);
-              }
-
-              if (item is UserItemVO) {
-                return InkWell(
-                  onTap: widget.onItemTap == null
-                      ? null
-                      : () => widget.onItemTap!(item),
-                  child: ItemTileTimeline(
-                    item: item,
-                    currencySymbol: widget.accountBook.currencySymbol.symbol,
-                    index: index,
-                  ),
-                );
-              }
-
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
+        return const SizedBox.shrink();
+      },
     );
   }
 
   /// 构建日期头部
   Widget _buildDateHeader(String date, ThemeData theme) {
     final colorScheme = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
 
     return Container(
       width: double.infinity,
@@ -259,7 +225,7 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
             ),
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withAlpha(26),
-              borderRadius: BorderRadius.circular(radius * 2.5),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: colorScheme.primary.withAlpha(51),
                 width: 1,
@@ -301,63 +267,6 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
           ),
         ],
       ),
-    );
-  }
-
-  /// 构建时间线
-  Widget _buildTimeline(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    
-    return Stack(
-      children: [
-        Container(
-          width: 2,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                colorScheme.primary.withAlpha(26),
-                colorScheme.primary.withAlpha(77),
-                colorScheme.primary.withAlpha(26),
-              ],
-            ),
-          ),
-        ),
-        // 添加动画效果的小球
-        SizedBox(
-          width: 2,
-          height: double.infinity,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Flow(
-                delegate: _TimelineFlowDelegate(
-                  scrollController: _scrollController,
-                  maxHeight: constraints.maxHeight,
-                ),
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.primary.withAlpha(77),
-                          blurRadius: 4,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 
@@ -437,40 +346,4 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
     );
   }
 }
-
-/// 时间线动画委托
-class _TimelineFlowDelegate extends FlowDelegate {
-  final ScrollController scrollController;
-  final double maxHeight;
-
-  _TimelineFlowDelegate({
-    required this.scrollController,
-    required this.maxHeight,
-  }) : super(repaint: scrollController);
-
-  @override
-  void paintChildren(FlowPaintingContext context) {
-    final scrollFraction = scrollController.hasClients
-        ? (scrollController.offset / (maxHeight * 2)).clamp(0.0, 1.0)
-        : 0.0;
-    
-    final child = context.getChildSize(0);
-    if (child == null) return;
-
-    final yOffset = maxHeight * scrollFraction;
-    context.paintChild(
-      0,
-      transform: Matrix4.translationValues(
-        -child.width / 2,
-        yOffset - child.height / 2,
-        0,
-      ),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_TimelineFlowDelegate oldDelegate) {
-    return scrollController != oldDelegate.scrollController ||
-        maxHeight != oldDelegate.maxHeight;
-  }
-} 
+ 

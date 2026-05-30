@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 import '../../models/vo/statistic_vo.dart';
 import '../../manager/l10n_manager.dart';
 import '../../manager/app_config_manager.dart';
+import '../../theme/theme_spacing.dart';
 import '../common/common_card_container.dart';
+import '../common/common_loading_view.dart';
 import '../../utils/color_util.dart';
 
 class DailyStatisticCalendar extends StatefulWidget {
@@ -38,17 +40,18 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     if (widget.loading) {
       return const SizedBox(
         height: 280,
-        child: Center(child: CircularProgressIndicator()),
+        child: CommonLoadingView(),
       );
     }
 
     if (widget.dailyStats.isEmpty) {
       return CommonCardContainer(
-        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+        padding: EdgeInsets.fromLTRB(0, spacing.formItemSpacing / 2, 0, spacing.formItemSpacing / 2),
         child: SizedBox(
           height: 410,
           child: Center(
@@ -94,7 +97,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
             child: Row(
               children: [
                 Icon(
@@ -131,8 +134,10 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     );
                   },
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.listItemSpacing,
+                      vertical: spacing.listItemSpacing / 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _showExpense
                           ? theme.colorScheme.surfaceContainerHighest
@@ -158,7 +163,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: spacing.listItemSpacing),
                 // 收入按钮（多选）
                 GestureDetector(
                   onTap: () async {
@@ -171,8 +176,10 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                     );
                   },
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.listItemSpacing,
+                      vertical: spacing.listItemSpacing / 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _showIncome
                           ? theme.colorScheme.surfaceContainerHighest

@@ -255,80 +255,63 @@ class _ItemListAdvanceState extends State<ItemListAdvance> {
 
   /// 构建日期分隔标题
   Widget _buildDateHeader(DailyStatistics stats, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: spacing.listItemSpacing),
+    return Padding(
       padding: EdgeInsets.fromLTRB(
-        spacing.listItemPadding.left,
+        spacing.contentPadding.left,
+        spacing.listItemSpacing * 2,
+        spacing.contentPadding.left,
         spacing.listItemSpacing,
-        spacing.listItemPadding.right,
-        spacing.listItemSpacing,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withAlpha(255),
-        border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outlineVariant.withAlpha(32),
-            width: 1,
-          ),
-          bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant,
-            width: 0.5,
-          ),
-        ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                stats.date,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              SizedBox(height: spacing.listItemSpacing / 2),
-              Container(
-                width: 32,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withAlpha(128),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ],
+          Icon(Icons.calendar_today_outlined, size: 14, color: colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            stats.date,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
           ),
           const Spacer(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (stats.income > 0)
-                Text(
-                  '+${stats.income.toStringAsFixed(2)}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.INCOME,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.5,
-                  ),
+          if (stats.income > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: ColorUtil.INCOME.withAlpha(15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '+${stats.income.toStringAsFixed(2)}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: ColorUtil.INCOME,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
                 ),
-              if (stats.expense < 0) ...[
-                SizedBox(width: spacing.listItemSpacing),
-                Text(
-                  stats.expense.toStringAsFixed(2),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.EXPENSE,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.5,
-                  ),
+              ),
+            ),
+          if (stats.expense < 0) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: ColorUtil.EXPENSE.withAlpha(15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                stats.expense.toStringAsFixed(2),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: ColorUtil.EXPENSE,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
                 ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ],
       ),
     );

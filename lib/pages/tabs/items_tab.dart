@@ -109,6 +109,7 @@ class _ItemsTabState extends State<ItemsTab>
                       statisticInfo: statisticsProvider.itemTabMonthStatistic,
                       showBalance: false,
                       title: L10nManager.l10n.currentMonth,
+                      margin: EdgeInsets.zero,
                     ),
                   ),
 
@@ -123,6 +124,7 @@ class _ItemsTabState extends State<ItemsTab>
                       onItemTap: (item) {
                         NavigationUtil.toItemEdit(context, item);
                       },
+                      margin: EdgeInsets.zero,
                     ),
                   ),
 

@@ -3,30 +3,19 @@ import '../../models/vo/user_item_vo.dart';
 import '../../utils/color_util.dart';
 import '../../enums/account_type.dart';
 
-/// 简略版账目列表项
+/// 时间线账目卡片
 class ItemTileTimeline extends StatelessWidget {
-  /// 账目数据
   final UserItemVO item;
-
-  /// 货币符号
   final String currencySymbol;
-
-  /// 在列表中的索引
   final int index;
-
-  /// 是否显示日期分割线
-  final bool showDateHeader;
-
-  /// 日期
-  final String? date;
+  final bool isFirst;
 
   const ItemTileTimeline({
     super.key,
     required this.item,
     required this.currencySymbol,
     required this.index,
-    this.showDateHeader = false,
-    this.date,
+    this.isFirst = false,
   });
 
   @override
@@ -34,196 +23,200 @@ class ItemTileTimeline extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // 解析时间
     final time = DateTime.parse(item.accountDate);
     final timeString = '${time.hour.toString().padLeft(2, '0')}:'
         '${time.minute.toString().padLeft(2, '0')}';
-
-    // 获取金额颜色
     final amountColor = ColorUtil.getAmountColor(item.type);
-    
-    // 判断是否为支出
-    final isExpense = AccountItemType.fromCode(item.type) == AccountItemType.expense;
+    final isExpense =
+        AccountItemType.fromCode(item.type) == AccountItemType.expense;
 
-    // 构建标签
-    Widget buildTag() {
-      if (item.tagName == null) return const SizedBox.shrink();
-
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: colorScheme.secondaryContainer.withValues(alpha:0.5),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          item.tagName!,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: colorScheme.onSecondaryContainer,
-            fontSize: 10,
-          ),
-        ),
-      );
-    }
-
-    // 构建账目内容
-    Widget buildItemContent({required bool isLeft}) {
-      return Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: isLeft ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            // 时间
-            Text(
-              timeString,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.outline,
-                fontSize: 10,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            // 分类名称和项目名称
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!isLeft) ...[
-                  if (item.projectName != null) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha:0.5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        item.projectName!,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                  ],
-                  Text(
-                    item.categoryName ?? '',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ] else ...[
-                  Text(
-                    item.categoryName ?? '',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (item.projectName != null) ...[
-                    const SizedBox(width: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha:0.5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        item.projectName!,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ],
-            ),
-            const SizedBox(height: 2),
-            // 金额
-            Text(
-              '${isExpense ? '' : '+'}${item.amount.toStringAsFixed(2)}',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: amountColor,
-                fontWeight: FontWeight.w500,
-                letterSpacing: -0.5,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-            if (item.description?.isNotEmpty == true || item.tagName != null) ...[
-              const SizedBox(height: 4),
-              // 标签和备注
-              DefaultTextStyle(
-                style: theme.textTheme.bodySmall!.copyWith(
-                  color: colorScheme.outline,
-                  height: 1.2,
-                ),
-                child: Column(
-                  crossAxisAlignment: isLeft ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    if (item.tagName != null)
-                      buildTag(),
-                    if (item.description?.isNotEmpty == true)
-                      Text(
-                        item.description!,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return Padding(
+      padding: const EdgeInsets.only(left: 20),
       child: IntrinsicHeight(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 左侧内容（支出）
-            if (isExpense)
-              buildItemContent(isLeft: true)
-            else
-              const SizedBox(width: 140),
-            
-            // 时间点
+            // 左侧时间线列
             SizedBox(
-              width: 40,
-              child: Stack(
+              width: 28,
+              child: Column(
                 children: [
-                  // 时间点
-                  Center(
-                    child: Container(
-                      width: 8,
+                  // 上方连接线（非本组首项时显示）
+                  if (!isFirst)
+                    Container(
+                      width: 2,
                       height: 8,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withAlpha(32),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colorScheme.primary.withAlpha(128),
-                          width: 1,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                    )
+                  else
+                    const SizedBox(height: 4),
+                  // 时间线圆点
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: amountColor.withValues(alpha: 0.7),
+                        width: 2.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: amountColor.withValues(alpha: 0.6),
+                          shape: BoxShape.circle,
                         ),
                       ),
+                    ),
+                  ),
+                  // 下方连接线（延续至下一个圆点）
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.25),
                     ),
                   ),
                 ],
               ),
             ),
-            
-            // 右侧内容（非支出）
-            if (!isExpense)
-              buildItemContent(isLeft: false)
-            else
-              const SizedBox(width: 140),
+            const SizedBox(width: 14),
+            // 右侧内容卡片
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.15),
+                    width: 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 头部：时间 + 金额
+                      Row(
+                        children: [
+                          Icon(Icons.schedule_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Text(
+                            timeString,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${isExpense ? '' : '+'}${item.amount.toStringAsFixed(2)}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: amountColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // 分类 + 标签 + 项目
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            item.categoryName ?? '',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                              fontSize: 15,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (item.tagName != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                item.tagName!,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          if (item.projectName != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.folder_outlined, size: 10, color: colorScheme.onSecondaryContainer),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    item.projectName!,
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: colorScheme.onSecondaryContainer,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      // 备注
+                      if (item.description?.isNotEmpty == true) ...[
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Divider(height: 1),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.notes_rounded, size: 13, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  item.description!,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                    height: 1.4,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

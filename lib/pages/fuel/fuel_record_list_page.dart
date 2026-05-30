@@ -35,6 +35,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
   late final VehicleProvider _vehicleProvider;
   String? _vehicleId;
   String? _plateNumber;
+  String _brandModel = '';
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
     setState(() {
       _vehicleId = vehicle.id;
       _plateNumber = vehicle.plateNumber;
+      _brandModel = '${vehicle.brand} ${vehicle.model}';
     });
     _recordProvider.loadItems(vehicle.id);
     AppConfigManager.instance.setSelectedVehicle(vehicle.id, vehicle.plateNumber);
@@ -103,7 +105,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
               Icon(Icons.local_gas_station, size: 18, color: colorScheme.onSurface),
               const SizedBox(width: 6),
               Text(
-                _plateNumber ?? '选择车辆',
+                _brandModel.isNotEmpty ? _brandModel : '选择车辆',
                 style: theme.textTheme.titleMedium,
               ),
               Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),

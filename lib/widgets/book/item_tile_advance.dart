@@ -116,224 +116,190 @@ class ItemTileAdvance extends StatelessWidget {
         ),
         child: Padding(
           padding: spacing.listItemPadding,
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 顶部信息栏
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 分类名称、描述和账户商户信息
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              // 左侧渐变装饰条
+              Container(
+                width: 4,
+                height: 72,
+                margin: const EdgeInsets.only(top: 4),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      amountColor,
+                      amountColor.withValues(alpha: 0.2),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // 主内容区
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 顶部：分类名称 + 标签 + 金额
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // 分类名称和标签
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (item.categoryName != null)
-                              Expanded(
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Flexible(
                                 child: Text(
-                                  item.categoryName!,
-                                  style: theme.textTheme.titleMedium?.copyWith(
+                                  item.categoryName ?? '',
+                                  style: theme.textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.2,
-                                    height: 1.2,
+                                    color: colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            if (item.tagName != null) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: colorScheme.tertiaryContainer,
-                                    width: 1,
+                              if (item.tagName != null) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.primary.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(4),
                                   ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  item.tagName!,
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: colorScheme.tertiary,
-                                    fontSize: 10,
-                                    height: 1.1,
+                                  child: Text(
+                                    item.tagName!,
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: colorScheme.primary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                        // 描述
-                        if (item.description != null && item.description!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              item.description!,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                height: 1.2,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${item.amount > 0 ? "+" : ""}${item.amount.toStringAsFixed(2)}',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: amountColor,
+                            fontSize: 16,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
-                        // 账户和商户信息
-                        if (item.fundName != null || item.shopName != null) ...[
-                          const SizedBox(height: 6),
-                          DefaultTextStyle(
-                            style: theme.textTheme.bodySmall!.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              height: 1.2,
-                            ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (item.fundName != null) ...[
-                                    Icon(
-                                      Icons.account_balance_wallet_outlined,
-                                      size: 14,
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      item.fundName!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                  if (item.fundName != null && item.shopName != null) ...[
-                                    const SizedBox(width: 12),
-                                    Container(
-                                      width: 3,
-                                      height: 3,
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.onSurfaceVariant.withAlpha(128),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                  ],
-                                  if (item.shopName != null) ...[
-                                    Icon(
-                                      Icons.store_outlined,
-                                      size: 14,
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      item.shopName!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  // 金额
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: amountColor.withAlpha(20),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${item.amount > 0 ? "+" : ""}${item.amount.toStringAsFixed(2)}',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: amountColor,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.5,
-                        height: 1.2,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // 底部信息栏
-              if (item.projectName != null || item.createdByName != null || timeString.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    // 项目
-                    if (item.projectName != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.folder_outlined,
-                              size: 14,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              item.projectName!,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: colorScheme.onSecondaryContainer,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const Spacer(),
-                    // 创建者和时间
-                    if (item.createdByName != null || timeString.isNotEmpty)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (item.createdByName != null && AppConfigManager.instance.userId != item.createdBy) ...[
-                            Icon(
-                              Icons.person_outline,
-                              size: 14,
-                              color: colorScheme.outline,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              item.createdByName!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.outline,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                          ],
-                          Icon(
-                            Icons.schedule,
-                            size: 14,
-                            color: colorScheme.outline,
+                    // 描述
+                    if (item.description != null && item.description!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          item.description!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.3,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    // 底部信息行：时间 + 账户 + 商户 + 创建者
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.schedule_outlined, size: 13, color: colorScheme.outline),
                           const SizedBox(width: 4),
                           Text(
                             timeString,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.outline,
+                              fontSize: 12,
                               fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
+                          if (item.fundName != null) ...[
+                            const SizedBox(width: 12),
+                            Icon(Icons.account_balance_wallet_outlined, size: 13, color: colorScheme.outline),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                item.fundName!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.outline,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                          if (item.shopName != null) ...[
+                            const SizedBox(width: 12),
+                            Icon(Icons.store_outlined, size: 13, color: colorScheme.outline),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                item.shopName!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.outline,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                          if (item.createdByName != null && AppConfigManager.instance.userId != item.createdBy) ...[
+                            const SizedBox(width: 12),
+                            Icon(Icons.person_outline, size: 13, color: colorScheme.outline),
+                            const SizedBox(width: 4),
+                            Text(
+                              item.createdByName!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.outline,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ],
+                      ),
+                    ),
+                    // 项目标签
+                    if (item.projectName != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryContainer.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.folder_outlined, size: 12, color: colorScheme.onSecondaryContainer),
+                              const SizedBox(width: 4),
+                              Text(
+                                item.projectName!,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onSecondaryContainer,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                   ],
                 ),
-              ],
+              ),
             ],
           ),
         ),
