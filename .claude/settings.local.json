@@ -29,7 +29,10 @@
       "Bash(/Users/cuiwei/common/flutter/bin/flutter pub *)",
       "Bash(/Users/cuiwei/common/flutter/bin/flutter analyze *)",
       "Bash(which flutter *)",
-      "Read(//Users/cuiwi/fvm/**)"
+      "Read(//Users/cuiwi/fvm/**)",
+      "Bash(grep -v \"^$\")",
+      "Bash(git commit *)",
+      "Bash(git branch *)"
     ]
   }
 }
