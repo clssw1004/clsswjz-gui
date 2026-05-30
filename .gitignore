@@ -155,3 +155,6 @@ app.*.symbols
 # Android
 **/android/app/.cxx/**/configure_fingerprint.bin
 untranslated_messages.txt
+
+# Worktrees
+.worktrees/
