@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-05-31
+
+### UI Enhancements
+- Major UI upgrade — Material 3 theme system, spacing tokens, page transitions, component extraction
+- Redesigned mine tab page layout with modern card-based design
+- Redesigned item add/edit forms with section-based layout (amount, category, account & tags, notes)
+- Redesigned calendar mode with compact inline income/expense chips and stylized date badges
+- Redesigned item list, timeline, advance tiles and containers with cleaner visuals
+- Redesigned notes tab with pill-chip group filter and bottom sheet for many tags
+- Redesigned category statistics components with Material 3 color palette and card wrapper
+- Redesigned category tab selector with pill-style segmented control
+- Redesigned daily statistic bar and calendar widgets
+- Applied consistent card containers across statistics widgets
+- Fixed invisible tab text in light/dark themes
+- Fixed gift card list page tab text color in light theme
+- Replaced hardcoded EdgeInsets with theme.spacing across all remaining pages
+
+### Bug Fixes
+- Fixed income type not included in category statistics query (SQL three-valued logic)
+- Fixed large number truncation in book statistic card with FittedBox auto-scaling
+- Fixed fromUpdateLog missing fields for note groupCode, debt dates, fund lastAccountItemAt
+- Fixed fuel record issues — list refresh, decimal places, focus-based auto-calc, card tap navigation
+- Added SyncCompletedEvent listener to reload note groups after sync
+
+### Other
+- Enable Claude HUD plugin support
+
 ## [1.0.13] - 2026-05-30
 
 ### New Features
