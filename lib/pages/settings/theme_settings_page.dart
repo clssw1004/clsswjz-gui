@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/theme_provider.dart';
+import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
@@ -15,6 +16,7 @@ class ThemeSettingsPage extends StatelessWidget {
       ),
       body: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
+          final spacing = Theme.of(context).spacing;
           return ListView(
             children: [
               // 主题预览卡片
@@ -128,7 +130,7 @@ class ThemeSettingsPage extends StatelessWidget {
 
               // 主题颜色选择
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: spacing.formPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -162,11 +164,12 @@ class ThemeSettingsPage extends StatelessWidget {
   }
 
   Widget _buildPreviewCard(BuildContext context, ThemeProvider themeProvider) {
+    final spacing = Theme.of(context).spacing;
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: spacing.formPadding,
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: spacing.formPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

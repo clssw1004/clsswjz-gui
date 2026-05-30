@@ -8,6 +8,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/book/item_list_advance.dart';
 import '../../widgets/book/item_list_timeline.dart';
@@ -215,6 +216,7 @@ class _ItemListPageState extends State<ItemListPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -223,7 +225,7 @@ class _ItemListPageState extends State<ItemListPage> {
         actions: [
           // 搜索框
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: spacing.formItemSpacing),
             child: CommonSearchField(
               width: size.width * 0.35,
               controller: _searchController,

@@ -52,21 +52,22 @@ class _DebtListPageState extends State<DebtListPage> {
       ),
       body: Consumer2<DebtListProvider, SyncProvider>(
         builder: (context, debtListProvider, syncProvider, child) {
+          final spacing = Theme.of(context).spacing;
           return Stack(
             children: [
               CustomRefreshIndicator(
                 onRefresh: _handleRefresh,
                 builder: (context, child, controller) => child,
                 child: ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
                   itemCount: debtListProvider.debts.length + 1,
                   itemBuilder: (context, index) {
                     if (index == debtListProvider.debts.length) {
                       if (debtListProvider.loadingMore) {
-                        return const Center(
+                        return Center(
                           child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: CircularProgressIndicator(),
+                            padding: spacing.formPadding,
+                            child: const CircularProgressIndicator(),
                           ),
                         );
                       }
@@ -162,7 +163,7 @@ class _DebtTile extends StatelessWidget {
             children: [
               // 借入/借出标识
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: spacing.listItemSpacing, vertical: spacing.listItemSpacing / 2),
                 decoration: BoxDecoration(
                   color: amountColor.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(4),
@@ -233,8 +234,7 @@ class _DebtTile extends StatelessWidget {
               Hero(
                 tag: 'debt_amount_${debt.id}',
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: spacing.formItemPadding,
                   decoration: BoxDecoration(
                     color: amountColor.withAlpha(25),
                     borderRadius: BorderRadius.circular(8),

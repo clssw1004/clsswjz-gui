@@ -5,6 +5,7 @@ import 'package:clsswjz_gui/enums/symbol_type.dart';
 import 'package:clsswjz_gui/manager/app_config_manager.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'package:clsswjz_gui/models/dto/ui_config_dto.dart';
+import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/widgets/common/common_card_container.dart';
 
 /// UI布局配置页面
@@ -100,6 +101,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Scaffold(
       appBar: AppBar(
@@ -108,14 +110,14 @@ class _UiConfigPageState extends State<UiConfigPage> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: spacing.formPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 记账页设置
             CommonCardContainer(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(bottom: 16),
+              padding: spacing.listItemPadding,
+              margin: EdgeInsets.only(bottom: spacing.formGroupSpacing),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -335,8 +337,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
 
             // 统计页设置
             CommonCardContainer(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(bottom: 16),
+              padding: spacing.listItemPadding,
+              margin: EdgeInsets.only(bottom: spacing.formGroupSpacing),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -418,7 +420,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                           if (_statisticsSelectedRange == 'custom' &&
                               _customRange != null)
                             Padding(
-                              padding: const EdgeInsets.only(right: 12),
+                              padding: EdgeInsets.only(right: spacing.formItemSpacing - spacing.listItemSpacing / 2),
                               child: Text(
                                 _getCustomRangeText(),
                                 style: theme.textTheme.bodySmall?.copyWith(

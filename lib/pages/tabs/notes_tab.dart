@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
+import '../../theme/theme_spacing.dart';
 import '../../providers/note_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
@@ -137,6 +138,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
     final booksProvider = Provider.of<BooksProvider>(context);
     final l10n = L10nManager.l10n;
     final size = MediaQuery.of(context).size;
+    final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -146,7 +148,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
         actions: [
           if (_tabController.index == 0)
             Padding(
-              padding: const EdgeInsets.only(right: 16),
+              padding: EdgeInsets.only(right: spacing.formItemSpacing),
               child: CommonSearchField(
                 width: size.width * 0.35,
                 controller: _searchController,

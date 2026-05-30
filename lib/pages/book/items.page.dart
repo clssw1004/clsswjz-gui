@@ -6,6 +6,7 @@ import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../providers/items_provider.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/book/items_list_view.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -103,6 +104,7 @@ class _ItemsPageState extends State<ItemsPage> {
       builder: (context, _) {
         final screenWidth = MediaQuery.of(context).size.width;
         final searchFieldWidth = (screenWidth * 0.28) > 240 ? 240.0 : (screenWidth * 0.28);
+        final spacing = Theme.of(context).spacing;
         return Scaffold(
           appBar: CommonAppBar(
             title: Text(
@@ -114,7 +116,7 @@ class _ItemsPageState extends State<ItemsPage> {
             actions: [
               if (screenWidth >= 420)
                 Padding(
-                  padding: const EdgeInsets.only(right: 16),
+                  padding: EdgeInsets.only(right: spacing.formItemSpacing),
                   child: CommonSearchField(
                     width: searchFieldWidth,
                     controller: _searchController,

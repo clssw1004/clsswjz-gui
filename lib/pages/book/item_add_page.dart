@@ -525,7 +525,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           // 保存按钮
           SizedBox(height: spacing.formGroupSpacing),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: spacing.formItemSpacing),
             child: FilledButton.icon(
               onPressed: provider.saving
                   ? null
@@ -556,7 +556,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    EdgeInsets.symmetric(horizontal: spacing.formItemSpacing * 2, vertical: spacing.formItemSpacing),
               ),
             ),
           ),

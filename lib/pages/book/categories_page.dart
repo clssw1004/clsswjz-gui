@@ -8,6 +8,7 @@ import '../../models/vo/user_book_vo.dart';
 import '../../widgets/common/common_simple_crud_list.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../routes/app_routes.dart';
+import '../../theme/theme_spacing.dart';
 
 class AccountCategoriesPage extends StatefulWidget {
   const AccountCategoriesPage({super.key, required this.accountBook});
@@ -24,6 +25,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
   @override
   Widget build(BuildContext context) {
     final userId = AppConfigManager.instance.userId;
+    final spacing = Theme.of(context).spacing;
 
     return CommonSimpleCrudList<AccountCategory>(
       key: _listKey,
@@ -65,7 +67,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
         filterWidget: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: EdgeInsets.fromLTRB(spacing.formItemSpacing, 0, spacing.formItemSpacing, spacing.listItemSpacing),
             child: SegmentedButton<String>(
               segments: [
                 ButtonSegment<String>(

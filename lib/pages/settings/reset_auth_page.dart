@@ -7,11 +7,11 @@ import '../../manager/l10n_manager.dart';
 import '../../models/self_host_form_data.dart';
 import '../../providers/sync_provider.dart';
 import '../../services/auth_service.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/device.util.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
-import '../../theme/theme_spacing.dart';
 import '../../widgets/common/restart_widget.dart';
 import '../../widgets/setting/server_url_field.dart';
 import '../../widgets/common/common_dialog.dart';
@@ -55,6 +55,7 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   Future<void> _showConfirmDialog() async {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     int countdown = 5;
     bool canConfirm = false;
@@ -83,8 +84,7 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: spacing.formItemPadding,
                 decoration: BoxDecoration(
                   color: colorScheme.errorContainer,
                   borderRadius: BorderRadius.circular(8),
@@ -224,7 +224,7 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
         title: Text(L10nManager.l10n.serverConfig),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: spacing.formPadding,
         child: Form(
           key: _formKey,
           child: Column(

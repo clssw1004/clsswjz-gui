@@ -297,15 +297,15 @@ class _RefundFormPageState extends State<RefundFormPage> {
                 // 保存按钮
                 SizedBox(height: spacing.formGroupSpacing),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: spacing.formItemSpacing),
                   child: FilledButton.icon(
                     onPressed: _saveRefund,
                     icon: const Icon(Icons.save_outlined),
                     label: Text(L10nManager.l10n.save),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: spacing.formItemSpacing * 2, vertical: spacing.formItemSpacing),
                     ),
                   ),
                 ),

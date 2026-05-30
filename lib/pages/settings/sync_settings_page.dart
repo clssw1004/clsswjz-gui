@@ -100,7 +100,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          padding: spacing.formPadding,
           children: [
             ListTile(
               leading: const Icon(Icons.computer),

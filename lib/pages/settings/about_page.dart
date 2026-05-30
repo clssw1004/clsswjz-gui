@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +14,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -22,7 +24,7 @@ class AboutPage extends StatelessWidget {
         children: [
           // 应用图标和名称区域
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 48),
+            padding: EdgeInsets.symmetric(vertical: spacing.formGroupSpacing * 2),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
@@ -74,7 +76,7 @@ class AboutPage extends StatelessWidget {
                         : '${L10nManager.l10n.version}: ...';
                     
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: spacing.formItemPadding,
                       decoration: BoxDecoration(
                         color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
@@ -96,7 +98,7 @@ class AboutPage extends StatelessWidget {
           ),
           // 开源地址
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(spacing.formGroupSpacing),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -131,7 +133,7 @@ class AboutPage extends StatelessWidget {
           const Divider(height: 1),
           // 功能介绍
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(spacing.formGroupSpacing),
             child: _buildSection(
               context,
               title: L10nManager.l10n.features,
@@ -149,7 +151,7 @@ class AboutPage extends StatelessWidget {
           const Divider(height: 1),
           // 技术栈
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(spacing.formGroupSpacing),
             child: _buildSection(
               context,
               title: L10nManager.l10n.technology,
@@ -175,6 +177,7 @@ class AboutPage extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +191,7 @@ class AboutPage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         ...content.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing + spacing.listItemSpacing / 2),
               child: Row(
                 children: [
                   Container(
@@ -233,6 +236,7 @@ class AboutPage extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Card(
       elevation: 0,
@@ -247,7 +251,7 @@ class AboutPage extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.formPadding,
           child: Row(
             children: [
               Container(

@@ -5,6 +5,7 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
+import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
@@ -38,6 +39,7 @@ class _BookListPageState extends State<BookListPage> {
       ),
       body: Consumer<BooksProvider>(
         builder: (context, provider, child) {
+          final spacing = Theme.of(context).spacing;
           if (provider.loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -55,7 +57,7 @@ class _BookListPageState extends State<BookListPage> {
             onRefresh: () =>
                 provider.loadBooks(AppConfigManager.instance.userId),
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: spacing.contentPadding,
               itemCount: provider.books.length,
               itemBuilder: (context, index) {
                 final book = provider.books[index];
@@ -66,7 +68,7 @@ class _BookListPageState extends State<BookListPage> {
                       : DismissDirection.none,
                   background: Container(
                     alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 16),
+                    padding: EdgeInsets.only(right: spacing.formItemSpacing),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.error,
                       borderRadius: BorderRadius.circular(16),
@@ -160,6 +162,7 @@ class _AccountBookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     final isShared = book.createdBy != userId;
 
@@ -224,8 +227,7 @@ class _AccountBookCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: spacing.formItemPadding,
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),

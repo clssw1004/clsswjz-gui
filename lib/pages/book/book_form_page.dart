@@ -177,6 +177,7 @@ class _BookFormPageState extends State<BookFormPage> {
   Future<void> _addMember() async {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     BookMemberVO? foundMember;
     bool isSearching = false;
@@ -266,10 +267,7 @@ class _BookFormPageState extends State<BookFormPage> {
                           Navigator.of(context).pop();
                         },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
+                    padding: spacing.formPadding,
                     decoration: BoxDecoration(
                       color: isMemberExists
                           ? colorScheme.surfaceContainerHighest
@@ -346,7 +344,7 @@ class _BookFormPageState extends State<BookFormPage> {
                 )
               else if (hasSearched && !isSearching)
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: spacing.formPadding,
                   decoration: BoxDecoration(
                     color: colorScheme.errorContainer.withAlpha(100),
                     borderRadius: BorderRadius.circular(12),
@@ -543,7 +541,7 @@ class _BookFormPageState extends State<BookFormPage> {
               ),
               if (_members.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: spacing.formItemSpacing),
                   child: Center(
                     child: Text(
                       L10nManager.l10n.noMembers,
@@ -555,7 +553,7 @@ class _BookFormPageState extends State<BookFormPage> {
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing),
                   itemCount: _members.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 8),
@@ -597,13 +595,14 @@ class _MemberItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 用户信息头部
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(spacing.formItemSpacing),
           child: Row(
             children: [
               Container(
@@ -655,7 +654,7 @@ class _MemberItem extends StatelessWidget {
         const Divider(height: 1),
         // 权限设置区域
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(spacing.formItemSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -676,9 +675,9 @@ class _MemberItem extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: spacing.formItemSpacing - spacing.listItemSpacing / 2),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -709,7 +708,7 @@ class _MemberItem extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -755,13 +754,14 @@ class _MemberItem extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     return InkWell(
       onTap: () => onChanged(!value),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 100,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: spacing.listItemSpacing, vertical: spacing.formItemSpacing - spacing.listItemSpacing / 2),
         decoration: BoxDecoration(
           color: value
               ? colorScheme.primaryContainer
