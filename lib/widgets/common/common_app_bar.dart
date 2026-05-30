@@ -98,7 +98,10 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     // 构建右侧按钮
     final List<Widget> finalActions = [
-      ...?actions,
+      ...?actions?.map((action) => IconTheme(
+            data: IconThemeData(color: colorScheme.onSurface),
+            child: action,
+          )),
       if (showThemeSelector)
         Consumer<ThemeProvider>(
           builder: (context, themeProvider, child) {
@@ -181,6 +184,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       backgroundColor: backgroundColor ?? colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
       automaticallyImplyLeading: false,
       leading: leadingWidget,
       title: DefaultTextStyle(

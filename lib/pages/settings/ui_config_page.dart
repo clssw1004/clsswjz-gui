@@ -6,6 +6,7 @@ import 'package:clsswjz_gui/manager/app_config_manager.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'package:clsswjz_gui/models/dto/ui_config_dto.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
+import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/widgets/common/common_card_container.dart';
 
 /// UI布局配置页面
@@ -104,10 +105,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
     final spacing = theme.spacing;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CommonAppBar(
         title: Text(L10nManager.l10n.uiLayoutSettings),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: spacing.formPadding,
