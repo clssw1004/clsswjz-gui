@@ -99,9 +99,10 @@ class ThemeProvider extends ChangeNotifier {
         surfaceTintColor: Colors.white,
         indicatorColor: colorScheme.primaryContainer,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
+        foregroundColor: colorScheme.onSurface,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.inverseSurface,
@@ -156,6 +157,7 @@ class ThemeProvider extends ChangeNotifier {
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        foregroundColor: colorScheme.onSurface,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colorScheme.inverseSurface,

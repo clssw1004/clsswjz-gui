@@ -88,16 +88,16 @@ class BookStatisticCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.account_balance_wallet,
-                size: 16,
+                size: 18,
                 color: primaryColor,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Text(
                 title ?? "",
-                style: theme.textTheme.labelMedium?.copyWith(
+                style: theme.textTheme.labelLarge?.copyWith(
                   color: primaryColor,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.1,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
                 ),
               ),
             ],
@@ -127,6 +127,7 @@ class BookStatisticCard extends StatelessWidget {
                       l10n.expense,
                       info?.expense ?? 0,
                       ColorUtil.EXPENSE,
+                      icon: Icons.arrow_circle_down_outlined,
                     ),
                   ),
                   Container(
@@ -141,6 +142,7 @@ class BookStatisticCard extends StatelessWidget {
                       l10n.income,
                       info?.income ?? 0,
                       ColorUtil.INCOME,
+                      icon: Icons.arrow_circle_up_outlined,
                     ),
                   ),
                   // 根据 showBalance 参数决定是否显示结余部分
@@ -157,6 +159,7 @@ class BookStatisticCard extends StatelessWidget {
                         l10n.balance,
                         info?.balance ?? 0,
                         colorScheme.tertiary,
+                        icon: Icons.horizontal_rule,
                       ),
                     ),
                   ],
@@ -165,7 +168,7 @@ class BookStatisticCard extends StatelessWidget {
 
               // 底部装饰线
               Container(
-                margin: const EdgeInsets.only(top: 16),
+                margin: EdgeInsets.only(top: spacing.formItemSpacing),
                 height: 2,
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -207,43 +210,62 @@ class BookStatisticCard extends StatelessWidget {
     double amount,
     Color color, {
     bool isSmaller = false,
+    IconData? icon,
   }) {
     final theme = Theme.of(context);
+    final spacing = theme.spacing;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // 标签
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: color.withAlpha(15),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: color,
-              fontSize: isSmaller ? 12 : null,
-              fontWeight: FontWeight.w500,
+        // 标签（带图标）
+        Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing.listItemSpacing + 2,
+              vertical: spacing.listItemSpacing / 2,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            decoration: BoxDecoration(
+              color: color.withAlpha(15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 14, color: color),
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: color,
+                    fontSize: isSmaller ? 12 : null,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
 
         const SizedBox(height: 8),
 
-        // 金额
-        Text(
-          _formatAmount(amount),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-            fontSize: isSmaller ? 14 : 16,
+        // 金额 - 自动缩放防止大数字省略号
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            _formatAmount(amount),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: isSmaller ? 14 : 18,
+            ),
+            textAlign: TextAlign.center,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

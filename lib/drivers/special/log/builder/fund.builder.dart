@@ -104,6 +104,7 @@ class FundCULog extends LogBuilder<AccountFundTableCompanion, String> {
           fundRemark: data['fundRemark'],
           fundBalance: data['fundBalance'],
           isDefault: data['isDefault'],
+          lastAccountItemAt: data['lastAccountItemAt'],
         )) as FundCULog;
   }
 

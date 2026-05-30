@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../models/vo/statistic_vo.dart';
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_spacing.dart';
 import '../common/common_card_container.dart';
+import '../common/common_loading_view.dart';
 import '../../utils/color_util.dart';
 
 /// 当月按用户统计（双Y轴柱状图）：笔数（左轴）、金额（右轴）
@@ -20,11 +22,12 @@ class UserMonthlyStatisticChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     if (loading) {
       return const SizedBox(
         height: 280,
-        child: Center(child: CircularProgressIndicator()),
+        child: CommonLoadingView(),
       );
     }
 
@@ -61,7 +64,7 @@ class UserMonthlyStatisticChart extends StatelessWidget {
         children: [
           // 标题
           Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+            padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
             child: Row(
               children: [
                 Icon(

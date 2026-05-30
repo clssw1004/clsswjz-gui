@@ -4,9 +4,12 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../common/common_card_container.dart';
+import '../common/common_loading_view.dart';
 import '../../routes/app_routes.dart';
 import '../../enums/debt_type.dart';
 import '../../utils/color_util.dart';
+import '../../theme/theme_spacing.dart';
+import '../../theme/theme_radius.dart';
 
 class DebtsContainer extends StatelessWidget {
   final BookMetaVO? bookMeta;
@@ -28,6 +31,7 @@ class DebtsContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     // 定义导航到债务列表的函数
     void navigateToDebtList() {
@@ -46,7 +50,9 @@ class DebtsContainer extends StatelessWidget {
           InkWell(
             onTap: bookMeta?.permission.canViewItem == true ? navigateToDebtList : null,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+              padding: EdgeInsets.fromLTRB(
+                spacing.contentPadding.left, 0, spacing.listItemSpacing, 0,
+              ),
               child: Row(
                 children: [
                   Text(
@@ -84,13 +90,13 @@ class DebtsContainer extends StatelessWidget {
           ),
           // 内容区域
           if (loading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
+            Padding(
+              padding: EdgeInsets.all(spacing.formItemSpacing),
+              child: const CommonLoadingView(),
             )
           else if (debts.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(spacing.formItemSpacing),
               child: Center(
                 child: Text(
                   L10nManager.l10n.noData,
@@ -104,12 +110,12 @@ class DebtsContainer extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
               itemCount: debts.length,
               separatorBuilder: (context, index) => Divider(
                 height: 1,
-                indent: 16,
-                endIndent: 16,
+                indent: spacing.contentPadding.left,
+                endIndent: spacing.contentPadding.left,
                 color: colorScheme.outlineVariant.withAlpha(40),
               ),
               itemBuilder: (context, index) {
@@ -139,6 +145,8 @@ class _DebtItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 8;
     final debtType = DebtType.fromCode(debt.debtType);
     final amountColor = ColorUtil.getDebtAmountColor(debtType);
     final isLending = debtType == DebtType.lend;
@@ -152,13 +160,16 @@ class _DebtItem extends StatelessWidget {
         : Icons.arrow_circle_down_outlined;
 
     return Card(
-      elevation: 1,
+      elevation: 0,
       shadowColor: colorScheme.shadow.withAlpha(30),
       surfaceTintColor: colorScheme.surfaceTint,
       color: colorScheme.surface,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: EdgeInsets.symmetric(
+        horizontal: spacing.contentPadding.left / 2,
+        vertical: spacing.listItemSpacing / 4,
+      ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(radius),
         side: BorderSide(
           color: colorScheme.outlineVariant.withAlpha(40),
           width: 0.5,
@@ -166,11 +177,11 @@ class _DebtItem extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(radius),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.contentPadding.left,
+            vertical: spacing.formItemSpacing / 2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +258,10 @@ class _DebtItem extends StatelessWidget {
               
               // 底部：总金额信息 - 右对齐显示（弱化显示）
               Padding(
-                padding: const EdgeInsets.only(top: 8, left: 28),
+                padding: EdgeInsets.only(
+                  top: spacing.listItemSpacing,
+                  left: spacing.contentPadding.left + spacing.listItemSpacing,
+                ),
                 child: Row(
                   children: [
                     // 进度指示

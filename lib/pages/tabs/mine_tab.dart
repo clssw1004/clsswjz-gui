@@ -9,7 +9,6 @@ import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_grid_feature_item.dart';
-import '../../widgets/common/common_setting_tile.dart';
 import '../fuel/fuel_record_list_page.dart';
 
 class MineTab extends StatelessWidget {
@@ -21,6 +20,20 @@ class MineTab extends StatelessWidget {
   }
 }
 
+class _GridFeatureItemData {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isHighlighted;
+
+  const _GridFeatureItemData({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isHighlighted = false,
+  });
+}
+
 class _MineTabView extends StatelessWidget {
   const _MineTabView();
 
@@ -29,218 +42,137 @@ class _MineTabView extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
-    final provider = context.watch<UserProvider>();
+    final userProvider = context.watch<UserProvider>();
     final bookProvider = context.read<BooksProvider>();
     final accountBook = bookProvider.selectedBook;
+
+    final bookFeatureItems = [
+      _GridFeatureItemData(
+        icon: Icons.category_outlined,
+        label: L10nManager.l10n.category,
+        onTap: () => Navigator.pushNamed(
+          context, AppRoutes.categories, arguments: accountBook),
+        isHighlighted: true,
+      ),
+      _GridFeatureItemData(
+        icon: Icons.account_balance_wallet_outlined,
+        label: L10nManager.l10n.account,
+        onTap: () => Navigator.pushNamed(
+          context, AppRoutes.funds, arguments: accountBook),
+        isHighlighted: true,
+      ),
+      _GridFeatureItemData(
+        icon: Icons.store_outlined,
+        label: L10nManager.l10n.merchant,
+        onTap: () => Navigator.pushNamed(
+          context, AppRoutes.merchants, arguments: accountBook),
+        isHighlighted: true,
+      ),
+      _GridFeatureItemData(
+        icon: Icons.local_offer_outlined,
+        label: L10nManager.l10n.tag,
+        onTap: () => Navigator.pushNamed(
+          context, AppRoutes.tags, arguments: accountBook),
+        isHighlighted: true,
+      ),
+      _GridFeatureItemData(
+        icon: Icons.folder_outlined,
+        label: L10nManager.l10n.project,
+        onTap: () => Navigator.pushNamed(
+          context, AppRoutes.projects, arguments: accountBook),
+      ),
+    ];
+
+    final dataToolItems = [
+      _GridFeatureItemData(
+        icon: Icons.book_outlined,
+        label: L10nManager.l10n.accountBook,
+        onTap: () => Navigator.pushNamed(context, AppRoutes.accountBooks),
+      ),
+      _GridFeatureItemData(
+        icon: Icons.attachment,
+        label: L10nManager.l10n.attachment,
+        onTap: () => Navigator.pushNamed(context, AppRoutes.attachments),
+      ),
+      _GridFeatureItemData(
+        icon: Icons.card_giftcard,
+        label: '礼物卡',
+        onTap: () => Navigator.pushNamed(context, AppRoutes.giftCardList),
+      ),
+      _GridFeatureItemData(
+        icon: Icons.local_gas_station,
+        label: '油耗记录',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const FuelRecordListPage()),
+        ),
+      ),
+    ];
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // 用户信息区域
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    colorScheme.primary.withAlpha(26),
-                    colorScheme.surface,
-                  ],
-                ),
-              ),
-              child: SafeArea(
+          _buildProfileSliver(context, userProvider, spacing, colorScheme),
+          _buildSectionSliver(
+            context,
+            spacing: spacing,
+            child: _buildSectionCard(
+              context,
+              child: Padding(
+                padding: spacing.formPadding,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    UserInfoCard(
-                      user: provider.user,
-                      statistic: provider.statistic,
-                      onTap: () => Navigator.pushNamed(context, '/user_info'),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          bottom: spacing.formItemSpacing),
+                      child: _buildSectionHeader(
+                        context,
+                        icon: Icons.book_outlined,
+                        title: accountBook?.name ?? '未选择账本',
+                      ),
                     ),
-                    // 同步功能区域
-                    Container(
-                      margin: spacing.pagePadding.copyWith(
-                        top: spacing.formItemSpacing,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            colorScheme.surfaceContainerHighest.withAlpha(128),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withAlpha(128),
-                          width: 1,
-                        ),
-                      ),
-                      child: _buildSyncSettingItem(context),
+                    _buildFeatureGrid(
+                      items: bookFeatureItems,
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          // 功能按钮区域
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: spacing.pagePadding.copyWith(top: 0),
-              child: Column(
-                children: [
-                  // 当前账本功能区域
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withAlpha(30),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: colorScheme.primary.withAlpha(40),
-                        width: 1,
+          _buildSectionSliver(
+            context,
+            spacing: spacing,
+            child: _buildSectionCard(
+              context,
+              child: Padding(
+                padding: spacing.formPadding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                          bottom: spacing.formItemSpacing),
+                      child: _buildSectionHeader(
+                        context,
+                        icon: Icons.build_outlined,
+                        title: '数据工具',
                       ),
                     ),
-                    child: Padding(
-                      padding: spacing.formPadding,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 标题：当前账本名称
-                          Padding(
-                            padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.book_outlined,
-                                  size: 18,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  accountBook?.name ?? '未选择账本',
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    color: colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // 功能按钮网格
-                          Row(
-                            children: [
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.category_outlined,
-                                label: L10nManager.l10n.category,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.categories, arguments: accountBook),
-                                isHighlighted: true,
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.account_balance_wallet_outlined,
-                                label: L10nManager.l10n.account,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.funds, arguments: accountBook),
-                                isHighlighted: true,
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.store_outlined,
-                                label: L10nManager.l10n.merchant,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.merchants, arguments: accountBook),
-                                isHighlighted: true,
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.local_offer_outlined,
-                                label: L10nManager.l10n.tag,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.tags, arguments: accountBook),
-                                isHighlighted: true,
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.folder_outlined,
-                                label: L10nManager.l10n.project,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.projects, arguments: accountBook),
-                              )),
-                            ],
-                          ),
-                        ],
-                      ),
+                    _buildFeatureGrid(
+                      items: dataToolItems,
                     ),
-                  ),
-                  SizedBox(height: spacing.formGroupSpacing),
-                  // 全局功能区域
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withAlpha(40),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: colorScheme.outlineVariant.withAlpha(40),
-                        width: 1,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: spacing.formPadding,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 功能按钮网格
-                          Row(
-                            children: [
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.book_outlined,
-                                label: L10nManager.l10n.accountBook,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.accountBooks),
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.file_upload_outlined,
-                                label: L10nManager.l10n.import,
-                                onTap: () => Navigator.pushNamed(context, '/import'),
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.attachment,
-                                label: L10nManager.l10n.attachment,
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.attachments),
-                              )),
-                              const SizedBox(width: 8),
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.card_giftcard,
-                                label: '礼物卡',
-                                onTap: () => Navigator.pushNamed(context, AppRoutes.giftCardList),
-                              )),
-                            ],
-                          ),
-                          SizedBox(height: spacing.formItemSpacing),
-                          Row(
-                            children: [
-                              Expanded(child: CommonGridFeatureItem(
-                                icon: Icons.local_gas_station,
-                                label: '油耗记录',
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const FuelRecordListPage())),
-                              )),
-                              const Expanded(child: SizedBox.shrink()),
-                              const SizedBox(width: 8),
-                              const Expanded(child: SizedBox.shrink()),
-                              const SizedBox(width: 8),
-                              const Expanded(child: SizedBox.shrink()),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-          // 系统设置区域
-          SliverToBoxAdapter(
-            child: Container(
-              margin: spacing.pagePadding.copyWith(top: 0),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withAlpha(128),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colorScheme.outlineVariant.withAlpha(128),
-                  width: 1,
-                ),
-              ),
+          _buildSectionSliver(
+            context,
+            spacing: spacing,
+            child: _buildSectionCard(
+              context,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -251,39 +183,46 @@ class _MineTabView extends StatelessWidget {
                       spacing.formPadding.right,
                       spacing.formItemSpacing,
                     ),
-                    child: Text(
-                      L10nManager.l10n.systemSettings,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: _buildSectionHeader(
+                      context,
+                      icon: Icons.settings_outlined,
+                      title: L10nManager.l10n.systemSettings,
                     ),
                   ),
-                  CommonSettingTile(
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.palette_outlined,
                     label: L10nManager.l10n.themeSettings,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.themeSettings),
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.themeSettings),
                   ),
-                  CommonSettingTile(
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.language_outlined,
                     label: L10nManager.l10n.languageSettings,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.languageSettings),
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.languageSettings),
                   ),
-                  CommonSettingTile(
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.dashboard_outlined,
                     label: L10nManager.l10n.uiLayoutSettings,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.uiLayoutSettings),
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.uiLayoutSettings),
                   ),
-                  CommonSettingTile(
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.storage_outlined,
                     label: L10nManager.l10n.database,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.databaseViewer),
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.databaseViewer),
                   ),
-                  CommonSettingTile(
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.info_outline,
                     label: L10nManager.l10n.about,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.about),
-                    isLast: true,
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.about),
                   ),
                 ],
               ),
@@ -294,74 +233,92 @@ class _MineTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildSyncSettingItem(BuildContext context) {
+  Widget _buildProfileSliver(
+    BuildContext context,
+    UserProvider provider,
+    ThemeSpacing spacing,
+    ColorScheme colorScheme,
+  ) {
+    return SliverToBoxAdapter(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colorScheme.primary.withAlpha(26),
+              colorScheme.surface,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              UserInfoCard(
+                user: provider.user,
+                statistic: provider.statistic,
+                onTap: () =>
+                    Navigator.pushNamed(context, '/user_info'),
+              ),
+              _buildCompactSyncRow(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactSyncRow(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
     final syncProvider = context.watch<SyncProvider>();
 
     return Padding(
-      padding: spacing.formItemPadding,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const SizedBox(width: 12),
+              Icon(
+                Icons.cloud_outlined,
+                size: 16,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      syncProvider.lastSyncTime != null
-                          ? L10nManager.l10n.lastSyncTime(
-                              DateUtil.format(syncProvider.lastSyncTime!))
-                          : L10nManager.l10n.notSynced,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onSurface,
-                        fontSize: 14,
-                        height: 1.2,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (syncProvider.currentStep != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          syncProvider.currentStep!,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: syncProvider.syncing
+                      ? Text(
+                          syncProvider.currentStep ?? '同步中...',
+                          style: theme.textTheme.bodySmall,
+                          key: const ValueKey('syncing'),
+                        )
+                      : Text(
+                          syncProvider.lastSyncTime != null
+                              ? L10nManager.l10n.lastSyncTime(
+                                  DateUtil.format(
+                                      syncProvider.lastSyncTime!))
+                              : L10nManager.l10n.notSynced,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
-                            fontSize: 13,
-                            height: 1.1,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          key: const ValueKey('idle'),
                         ),
-                      ),
-                  ],
                 ),
               ),
-              const SizedBox(width: 8),
-              IconButton.filledTonal(
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(
-                  backgroundColor:
-                      colorScheme.surfaceContainerHighest.withAlpha(128),
-                  minimumSize: const Size(36, 36),
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+              const SizedBox(width: 4),
+              _buildMiniButton(
+                context,
                 onPressed: syncProvider.syncing
                     ? null
                     : () async {
                         await syncProvider.syncData();
                       },
-                icon: syncProvider.syncing
+                child: syncProvider.syncing
                     ? SizedBox(
-                        width: 18,
-                        height: 18,
+                        width: 16,
+                        height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: colorScheme.onSurfaceVariant,
@@ -369,47 +326,176 @@ class _MineTabView extends StatelessWidget {
                       )
                     : Icon(
                         Icons.sync,
-                        size: 18,
+                        size: 16,
                         color: colorScheme.onSecondaryContainer,
                       ),
               ),
-              const SizedBox(width: 8),
-              IconButton.filledTonal(
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(
-                  backgroundColor:
-                      colorScheme.surfaceContainerHighest.withAlpha(128),
-                  minimumSize: const Size(36, 36),
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () => Navigator.pushNamed(context, '/sync_settings'),
-                icon: Icon(
+              const SizedBox(width: 4),
+              _buildMiniButton(
+                context,
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/sync_settings'),
+                child: Icon(
                   Icons.settings,
-                  size: 18,
+                  size: 16,
                   color: colorScheme.onSecondaryContainer,
                 ),
               ),
             ],
           ),
-          if (syncProvider.currentStep != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12, left: 52),
+          AnimatedCrossFade(
+            firstChild: Padding(
+              padding: const EdgeInsets.only(top: 8, left: 22),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
                   value: syncProvider.progress,
+                  minHeight: 2,
                   backgroundColor:
-                      colorScheme.surfaceContainerHighest.withAlpha(128),
+                      colorScheme.surfaceContainerHighest,
                   valueColor:
                       AlwaysStoppedAnimation<Color>(colorScheme.primary),
-                  minHeight: 2,
                 ),
               ),
             ),
+            secondChild: const SizedBox.shrink(),
+            crossFadeState: syncProvider.syncing
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            duration: const Duration(milliseconds: 200),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMiniButton(
+    BuildContext context, {
+    required VoidCallback? onPressed,
+    required Widget child,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return IconButton(
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      padding: EdgeInsets.zero,
+      style: IconButton.styleFrom(
+        backgroundColor:
+            colorScheme.surfaceContainerHighest.withAlpha(128),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: onPressed,
+      icon: child,
+    );
+  }
+
+  Widget _buildSectionCard(
+    BuildContext context, {
+    required Widget child,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(80),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withAlpha(60),
+          width: 0.5,
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSectionHeader(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionSliver(
+    BuildContext context, {
+    required ThemeSpacing spacing,
+    required Widget child,
+  }) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: spacing.pagePadding.copyWith(top: 0),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildFeatureGrid({
+    required List<_GridFeatureItemData> items,
+  }) {
+    return Row(
+      children: [
+        for (int i = 0; i < items.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(
+            child: CommonGridFeatureItem(
+              icon: items[i].icon,
+              label: items[i].label,
+              onTap: items[i].onTap,
+              isHighlighted: items[i].isHighlighted,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSettingsTile(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: colorScheme.primary),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: colorScheme.outline,
+            ),
+          ],
+        ),
       ),
     );
   }

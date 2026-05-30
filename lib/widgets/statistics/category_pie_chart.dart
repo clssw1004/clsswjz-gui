@@ -3,20 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../enums/account_type.dart';
-import '../../manager/l10n_manager.dart';
 import '../../models/vo/statistic_vo.dart';
 import '../../providers/statistics_provider.dart';
+import '../../utils/color_util.dart';
 
 /// 分类统计饼图组件
 class CategoryPieChart extends StatelessWidget {
-  const CategoryPieChart({
-    super.key,
-  });
+  const CategoryPieChart({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = L10nManager.l10n;
     final statisticsProvider = Provider.of<StatisticsProvider>(context);
 
     final selectedGroup = statisticsProvider.selectedGroup;
@@ -30,60 +26,95 @@ class CategoryPieChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              statisticsProvider.selectedTab == AccountItemType.income.code
-                  ? l10n.income
-                  : l10n.expense,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${l10n.total}: ${total.toStringAsFixed(2)}',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSecondaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
         AspectRatio(
-          aspectRatio: 1.3,
+          aspectRatio: 1.2,
           child: _buildSfCircularChart(context, sortedItems, total),
         ),
+        const SizedBox(height: 16),
+        // 图例列表
+        ...sortedItems.take(8).map((item) => _buildLegendItem(
+              context,
+              item,
+              total,
+            )),
       ],
     );
   }
 
-  /// 构建 Syncfusion 圆形图表
+  Widget _buildLegendItem(
+    BuildContext context,
+    CategoryStatisticVO item,
+    double total,
+  ) {
+    final theme = Theme.of(context);
+    final percentage = total > 0 ? (item.amount.abs() / total) * 100 : 0.0;
+    final isIncome = context.read<StatisticsProvider>().selectedTab == AccountItemType.income.code;
+    final color = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.6 + (percentage / 100) * 0.4),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              item.categoryName.isEmpty ? '未分类' : item.categoryName,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            item.amount.abs().toStringAsFixed(2),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 44,
+            child: Text(
+              '${percentage.toStringAsFixed(1)}%',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSfCircularChart(
     BuildContext context,
     List<CategoryStatisticVO> items,
     double total,
   ) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final isIncome = context.read<StatisticsProvider>().selectedTab == AccountItemType.income.code;
+    final baseColor = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
 
-    // 获取多彩调色板
-    final colors =
-        _generateColorPalette(count: items.length, isDarkMode: isDarkMode);
+    final colors = _generateColorPalette(
+      count: items.length,
+      baseColor: baseColor,
+    );
 
-    // 准备饼图数据
-    final List<ChartData> chartData = items.asMap().entries.map((entry) {
+    final chartData = items.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
       final percentage = total > 0 ? (item.amount.abs() / total) * 100 : 0.0;
@@ -97,12 +128,10 @@ class CategoryPieChart extends StatelessWidget {
 
     return SfCircularChart(
       margin: EdgeInsets.zero,
-      legend: const Legend(
-        isVisible: false, // 隐藏默认图例
-      ),
+      legend: const Legend(isVisible: false),
       tooltipBehavior: TooltipBehavior(
         enable: true,
-        format: 'point.x: point.y',
+        format: 'point.x',
         color: theme.colorScheme.surface,
         textStyle: TextStyle(
           color: theme.colorScheme.onSurface,
@@ -115,23 +144,22 @@ class CategoryPieChart extends StatelessWidget {
           xValueMapper: (ChartData data, _) => data.x,
           yValueMapper: (ChartData data, _) => data.y,
           pointColorMapper: (ChartData data, _) => data.color,
-          dataLabelMapper: (ChartData data, _) => data.percentage >= 5
-              ? '${data.percentage.toStringAsFixed(1)}%'
-              : '',
+          dataLabelMapper: (ChartData data, _) =>
+              data.percentage >= 5 ? '${data.percentage.toStringAsFixed(1)}%' : '',
           animationDuration: 800,
-          innerRadius: '40%',
+          innerRadius: '55%',
           explode: true,
-          explodeOffset: '2%',
+          explodeOffset: '3%',
           dataLabelSettings: DataLabelSettings(
             isVisible: true,
             labelPosition: ChartDataLabelPosition.inside,
             textStyle: theme.textTheme.labelSmall?.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.5,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
               shadows: [
                 Shadow(
-                  color: Colors.black.withValues(alpha:0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   offset: const Offset(0, 1),
                   blurRadius: 2,
                 ),
@@ -144,60 +172,26 @@ class CategoryPieChart extends StatelessWidget {
     );
   }
 
-  /// 生成多彩调色板
   List<Color> _generateColorPalette({
     required int count,
-    required bool isDarkMode,
+    required Color baseColor,
   }) {
-    // 莫兰迪灰调色系 - 低饱和度配色，高级感强适合商务报告
-    final List<Color> morandiColors = [
-      const Color(0xFF9B8F8A), // 暖灰
-      const Color(0xFFC4B6B2), // 浅陶土
-      const Color(0xFFE3D5CA), // 米驼色
-      const Color(0xFFA5A58D), // 橄榄绿
-      const Color(0xFF6B705C), // 深苔藓
-      const Color(0xFFB5838D), // 灰粉色
-    ];
-
     if (count <= 0) return [];
-    if (count <= morandiColors.length) {
-      // 如果需要的颜色数量不多，直接返回莫兰迪色系的子集
-      return morandiColors.sublist(0, count);
+
+    final HSLColor hsl = HSLColor.fromColor(baseColor);
+    final List<Color> palette = [];
+
+    for (int i = 0; i < count; i++) {
+      final hueShift = ((i * 25 + 10) % 360).toDouble();
+      final lightness = (hsl.lightness + (i % 3 - 1) * 0.08).clamp(0.25, 0.75);
+      final saturation = (hsl.saturation * (0.6 + (i % 3) * 0.2)).clamp(0.3, 0.8);
+
+      palette.add(
+        HSLColor.fromAHSL(1.0, hueShift, saturation, lightness).toColor(),
+      );
     }
 
-    // 如果需要更多颜色，通过调整亮度和色相生成额外的颜色，保持莫兰迪风格
-    final List<Color> extendedColors = [...morandiColors];
-    final int additionalColorsNeeded = count - morandiColors.length;
-
-    // 为每种基础颜色创建变体
-    for (int i = 0; i < additionalColorsNeeded; i++) {
-      final baseColor = morandiColors[i % morandiColors.length];
-      final HSLColor hslColor = HSLColor.fromColor(baseColor);
-
-      // 调整亮度 - 暗色模式下轻微提亮，亮色模式下轻微变暗
-      final double lightnessFactor = isDarkMode ? 0.15 : -0.10;
-      final double newLightness =
-          (hslColor.lightness + lightnessFactor).clamp(0.2, 0.8);
-
-      // 轻微调整色相，但幅度很小以保持莫兰迪调性
-      final double hueShift = (i * 8) % 30; // 最大偏移30度
-      final double newHue = (hslColor.hue + hueShift) % 360;
-
-      // 保持低饱和度，这是莫兰迪色系的关键
-      final double newSaturation =
-          (hslColor.saturation * 0.9).clamp(0.05, 0.35);
-
-      final newColor = HSLColor.fromAHSL(
-        1.0,
-        newHue,
-        newSaturation,
-        newLightness,
-      ).toColor();
-
-      extendedColors.add(newColor);
-    }
-
-    return extendedColors.sublist(0, count);
+    return palette;
   }
 }
 

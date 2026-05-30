@@ -3,7 +3,9 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import '../../models/vo/statistic_vo.dart';
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_spacing.dart';
 import '../common/common_card_container.dart';
+import '../common/common_loading_view.dart';
 import '../../utils/color_util.dart';
 
 /// 每日收支统计卡片（合并了图表功能）
@@ -32,11 +34,12 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
 
     if (widget.loading) {
       return const SizedBox(
         height: 280,
-        child: Center(child: CircularProgressIndicator()),
+        child: CommonLoadingView(),
       );
     }
 
@@ -73,7 +76,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
         children: [
           // 标题
           Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+            padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
             child: Row(
               children: [
                 Icon(
@@ -107,9 +110,9 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.listItemSpacing,
+                      vertical: spacing.listItemSpacing / 2,
                     ),
                     decoration: BoxDecoration(
                       color: !_showIncome
@@ -136,7 +139,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: spacing.listItemSpacing),
                 // 收入按钮
                 GestureDetector(
                   onTap: () {
@@ -145,9 +148,9 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: spacing.listItemSpacing,
+                      vertical: spacing.listItemSpacing / 2,
                     ),
                     decoration: BoxDecoration(
                       color: _showIncome

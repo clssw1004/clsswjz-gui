@@ -7,6 +7,7 @@ import '../../models/vo/user_book_vo.dart';
 import '../../providers/item_list_provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_radius.dart';
+
 import '../../utils/color_util.dart';
 
 /// 日历视图账目列表
@@ -108,7 +109,6 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
         .toList();
     if (items?.isEmpty ?? true) return null;
 
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
     // 计算当天总收支
     double income = 0;
     double expense = 0;
@@ -120,62 +120,49 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
       }
     }
 
+    // 当天项数标记
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 0.5),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0.5),
-          decoration: BoxDecoration(
+        Text(
+          '${items.length}',
+          style: theme.textTheme.labelSmall?.copyWith(
             color: isSelected
-                ? theme.colorScheme.onPrimary.withAlpha(51)
-                : theme.colorScheme.primary.withAlpha(20),
-            borderRadius: BorderRadius.circular(radius / 2),
-          ),
-          child: Text(
-            '${items.length}笔',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: isSelected
-                  ? theme.colorScheme.onPrimary
-                  : theme.colorScheme.primary,
-              fontSize: 8,
-              height: 1.1,
-              fontWeight: FontWeight.w500,
-            ),
+                ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
+                : theme.colorScheme.primary.withValues(alpha: 0.65),
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            height: 1.0,
           ),
         ),
-        if (income > 0 || expense > 0)
-          Container(
-            margin: const EdgeInsets.only(top: 0.5),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (income > 0)
-                  Container(
-                    width: 2,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary.withAlpha(204)
-                          : ColorUtil.INCOME,
-                      shape: BoxShape.circle,
-                    ),
+        if (income > 0 || expense > 0) ...[
+          const SizedBox(height: 1),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (income > 0)
+                Container(
+                  width: 5,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: ColorUtil.INCOME,
+                    shape: BoxShape.circle,
                   ),
-                if (income > 0 && expense > 0) const SizedBox(width: 1),
-                if (expense > 0)
-                  Container(
-                    width: 2,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary.withAlpha(204)
-                          : ColorUtil.EXPENSE,
-                      shape: BoxShape.circle,
-                    ),
+                ),
+              if (income > 0 && expense > 0) const SizedBox(width: 2),
+              if (expense > 0)
+                Container(
+                  width: 5,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: ColorUtil.EXPENSE,
+                    shape: BoxShape.circle,
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
+        ],
       ],
     );
   }
@@ -229,128 +216,97 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
 
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(16),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // 顶部日期摘要条
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 13,
+                      color: theme.colorScheme.primary,
                     ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
+                    const SizedBox(width: 4),
+                    Text(
                       dateFormat.format(key),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${items.length}笔',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 68,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: ColorUtil.INCOME.withAlpha(20),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '收入',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ColorUtil.INCOME,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '+${income.toStringAsFixed(2)}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: ColorUtil.INCOME,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${items.length}笔',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 68,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: ColorUtil.EXPENSE.withAlpha(20),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '支出',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ColorUtil.EXPENSE,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '-${expense.toStringAsFixed(2)}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: ColorUtil.EXPENSE,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
+              const Spacer(),
+              if (income > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: ColorUtil.INCOME.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '+${income.toStringAsFixed(2)}',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: ColorUtil.INCOME,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              if (income > 0 && expense > 0) const SizedBox(width: 6),
+              if (expense > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: ColorUtil.EXPENSE.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '-${expense.toStringAsFixed(2)}',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: ColorUtil.EXPENSE,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -380,47 +336,70 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: color.withAlpha(20),
-                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            color.withValues(alpha: 0.2),
+                            color.withValues(alpha: 0.08),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                       child: Icon(
-                        isIncome ? Icons.add : Icons.remove,
+                        isIncome ? Icons.arrow_upward : Icons.arrow_downward,
                         color: color,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            item.categoryName ?? '',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
                           Row(
                             children: [
+                              Flexible(
+                                child: Text(
+                                  item.categoryName ?? '',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                '${isIncome ? '+' : ''}${item.amount.toStringAsFixed(2)}',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(Icons.schedule_outlined, size: 12, color: theme.colorScheme.onSurfaceVariant.withAlpha(128)),
+                              const SizedBox(width: 4),
                               Text(
                                 item.accountTimeOnly,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant
                                       .withAlpha(128),
-                                  height: 1.2,
+                                  fontSize: 12,
                                 ),
                               ),
                               if (item.description?.isNotEmpty == true) ...[
+                                const SizedBox(width: 8),
                                 Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 6),
                                   width: 3,
                                   height: 3,
                                   decoration: BoxDecoration(
@@ -429,13 +408,14 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     item.description!,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant
                                           .withAlpha(128),
-                                      height: 1.2,
+                                      fontSize: 12,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -445,15 +425,6 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                             ],
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      '${isIncome ? '+' : ''}${item.amount.toStringAsFixed(2)}',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
                       ),
                     ),
                   ],
@@ -557,13 +528,9 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(radius * 2),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withAlpha(20),
-                  blurRadius: 12,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
             ),
             child: Column(
               children: [
@@ -655,25 +622,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                     cellBorderColor: colorScheme.outline.withAlpha(32),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withAlpha(20),
-                  blurRadius: 12,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                // 选中日期账目列表
                 _buildSelectedDayItems(theme),
               ],
             ),

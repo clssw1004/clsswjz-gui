@@ -27,64 +27,71 @@ class UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Material(
-      color: theme.colorScheme.surface,
+      color: Colors.transparent,
       child: InkWell(
-        onTap: onTap ?? () => Navigator.pushNamed(context, AppRoutes.userInfo),
+        onTap:
+            onTap ?? () => Navigator.pushNamed(context, AppRoutes.userInfo),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Row(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+          child: Column(
             children: [
-              UserAvatar(avatar: user?.avatar),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 用户基本信息
-                    Text(
-                      user?.nickname ?? L10nManager.l10n.notLoggedIn,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (user?.email != null) ...[
-                      const SizedBox(height: 4),
-                      // 邮箱
-                      Text(
-                        user!.email!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+              Row(
+                children: [
+                  UserAvatar(avatar: user?.avatar, size: 56),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user?.nickname ?? L10nManager.l10n.notLoggedIn,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ],
-                ),
+                        if (user?.email != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            user!.email!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.outline,
+                  ),
+                ],
               ),
-              // 统计信息
               if (statistic != null) ...[
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 14),
+                Container(
+                  height: 1,
+                  color: colorScheme.outlineVariant.withAlpha(80),
+                ),
+                const SizedBox(height: 12),
+                Row(
                   children: [
-                    _buildStatisticItem(
+                    _buildStatItem(
                       context,
                       icon: Icons.book_outlined,
                       value: statistic!.bookCount,
                       label: L10nManager.l10n.accountBook,
                     ),
-                    const SizedBox(height: 8),
-                    _buildStatisticItem(
+                    _buildStatItem(
                       context,
                       icon: Icons.receipt_outlined,
                       value: statistic!.itemCount,
                       label: L10nManager.l10n.accountItemCount,
                     ),
-                    const SizedBox(height: 8),
-                    _buildStatisticItem(
+                    _buildStatItem(
                       context,
                       icon: Icons.calendar_today_outlined,
                       value: statistic!.dayCount,
@@ -100,41 +107,44 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatisticItem(
+  Widget _buildStatItem(
     BuildContext context, {
     required IconData icon,
     required int value,
     required String label,
   }) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    return SizedBox(
-      width: 100,
+    return Expanded(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          Icon(
+            icon,
+            size: 18,
+            color: colorScheme.primary,
+          ),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 16,
-                color: theme.colorScheme.onSurfaceVariant,
+              Text(
+                value.toString(),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
+                ),
               ),
-              const SizedBox(width: 4),
               Text(
                 label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.2,
                 ),
               ),
             ],
-          ),
-          Text(
-            value.toString(),
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
           ),
         ],
       ),

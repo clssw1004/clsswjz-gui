@@ -7,6 +7,7 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
+import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../enums/import_source.dart';
@@ -34,7 +35,7 @@ class _ImportPageState extends State<ImportPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CommonAppBar(
         title: Text(L10nManager.l10n.importData),
       ),
       body: Stack(

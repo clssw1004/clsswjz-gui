@@ -158,3 +158,4 @@ untranslated_messages.txt
 
 # Worktrees
 .worktrees/
+.claude/worktrees/

@@ -192,7 +192,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
       key: _formKey,
       child: Column(
         children: [
-          // 账目类型选择
+          // === 金额 ===
           SegmentedButton<AccountItemType>(
             segments: [
               ButtonSegment<AccountItemType>(
@@ -215,21 +215,17 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onSelectionChanged: (Set<AccountItemType> selected) async {
               if (selected.isNotEmpty) {
                 final newType = selected.first;
-                // 处理金额正负转换
                 final currentAmount =
                     double.tryParse(_amountController.text) ?? 0;
                 if (currentAmount != 0) {
                   if (currentType == AccountItemType.expense &&
                       newType == AccountItemType.income) {
-                    // 从支出切换到收入，转为正数
                     _amountController.text = currentAmount.abs().toString();
                   } else if (currentType == AccountItemType.income &&
                       newType == AccountItemType.expense) {
-                    // 从收入切换到支出，转为负数
                     _amountController.text = (-currentAmount.abs()).toString();
                   }
                 }
-                // 更新类型和金额
                 await provider.updateTypeAndSave(newType);
                 await provider
                     .updateAmountAndSave(double.parse(_amountController.text));
@@ -265,20 +261,16 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             ),
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 金额输入
           AmountInput(
             controller: _amountController,
             color: ColorUtil.getAmountColor(item.type),
             onChanged: (value) {
-              _debounce(() {
-                provider.updateAmountAndSave(value);
-              });
+              _debounce(() => provider.updateAmountAndSave(value));
             },
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 分类选择
+          // === 分类 ===
           CommonSelectFormField<AccountCategory>(
             items: provider.categories
                 .where((category) => category.categoryType == item.type)
@@ -311,22 +303,19 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onChanged: (value) async {
               final category = value as AccountCategory?;
               if (category != null) {
-                await provider.updateCategoryAndSave(
-                    category.code, category.name);
+                await provider.updateCategoryAndSave(category.code, category.name);
               } else {
                 await provider.updateCategoryAndSave(null, null);
               }
             },
             validator: (value) {
-              if (value == null) {
-                return L10nManager.l10n.required;
-              }
+              if (value == null) return L10nManager.l10n.required;
               return null;
             },
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 账户选择
+          // === 账户与标签 ===
           CommonSelectFormField<UserFundVO>(
             items: provider.funds.cast<UserFundVO>(),
             value: item.fundId,
@@ -346,15 +335,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               }
             },
             validator: (value) {
-              if (value == null) {
-                return L10nManager.l10n.required;
-              }
+              if (value == null) return L10nManager.l10n.required;
               return null;
             },
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 商户选择
           CommonSelectFormField<AccountShop>(
             items: provider.shops.cast<AccountShop>(),
             value: item.shopCode == 'NO_SHOP' ? null : item.shopCode,
@@ -389,8 +374,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 标签和项目选择
           SizedBox(
             width: double.infinity,
             child: Wrap(
@@ -465,14 +448,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     }
                   },
                 ),
-                // 日期选择徽章
                 CommonBadge(
                   icon: Icons.calendar_today_outlined,
                   text: _selectedDate,
                   onTap: _selectDate,
                   borderColor: colorScheme.outline.withAlpha(51),
                 ),
-                // 时间选择徽章
                 CommonBadge(
                   icon: Icons.access_time_outlined,
                   text: _selectedTime,
@@ -482,9 +463,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               ],
             ),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 描述输入
+          // === 备注 ===
           CommonTextFormField(
             initialValue: _descriptionController.text,
             labelText: L10nManager.l10n.description,
@@ -492,16 +473,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 L10nManager.l10n.pleaseInput(L10nManager.l10n.description),
             prefixIcon: const Icon(Icons.description_outlined),
             onChanged: (value) {
-              _debounce(() {
-                provider.updateDescriptionAndSave(value);
-              });
+              _debounce(() => provider.updateDescriptionAndSave(value));
             },
             keyboardType: TextInputType.multiline,
             minLines: 1,
             maxLines: 9,
           ),
-
-          // 附件上传
           SizedBox(height: spacing.formItemSpacing),
           CommonAttachmentField(
             attachments: provider.attachments,
@@ -516,7 +493,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                         userId,
                       ))
                   .toList();
-
               await provider.updateAttachmentsAndSave(
                   [...provider.attachments, ...attachments]);
             },
@@ -528,7 +504,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               );
             },
           ),
-          SizedBox(height: spacing.formItemSpacing),
         ],
       ),
     );

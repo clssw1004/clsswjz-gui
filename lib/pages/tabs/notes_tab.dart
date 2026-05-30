@@ -75,18 +75,44 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
     provider.setGroupCodes(groupCodes);
   }
 
-  Widget _buildNotesView(BooksProvider booksProvider) {
+  Widget _buildNotesView(ThemeData theme, BooksProvider booksProvider) {
+    final spacing = theme.spacing;
+
     return Consumer2<NoteListProvider, SyncProvider>(
       builder: (context, noteListProvider, syncProvider, child) {
         return Column(
           children: [
-            const SizedBox(height: 8),
-            if (booksProvider.selectedBook != null)
-              NoteGroupFilter(
-                bookId: booksProvider.selectedBook!.id,
-                selectedGroupCodes: noteListProvider.groupCodes,
-                onGroupCodesChanged: _handleGroupFilterChanged,
+            // 搜索栏
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                spacing.contentPadding.left,
+                spacing.contentPadding.top,
+                spacing.contentPadding.right,
+                spacing.formItemSpacing,
               ),
+              child: CommonSearchField(
+                width: double.infinity,
+                controller: _searchController,
+                hintText: L10nManager.l10n.search,
+                onSubmitted: (_) => _handleSearch(),
+                onClear: _handleSearch,
+              ),
+            ),
+            // 分组筛选
+            if (booksProvider.selectedBook != null)
+              Padding(
+                padding: EdgeInsets.only(
+                  left: spacing.contentPadding.left,
+                  right: spacing.contentPadding.right,
+                  bottom: spacing.formItemSpacing,
+                ),
+                child: NoteGroupFilter(
+                  bookId: booksProvider.selectedBook!.id,
+                  selectedGroupCodes: noteListProvider.groupCodes,
+                  onGroupCodesChanged: _handleGroupFilterChanged,
+                ),
+              ),
+            // 笔记列表
             Expanded(
               child: Stack(
                 children: [
@@ -135,34 +161,20 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final booksProvider = Provider.of<BooksProvider>(context);
     final l10n = L10nManager.l10n;
-    final size = MediaQuery.of(context).size;
-    final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(l10n.tabNotes),
         showBackButton: false,
         centerTitle: false,
-        actions: [
-          if (_tabController.index == 0)
-            Padding(
-              padding: EdgeInsets.only(right: spacing.formItemSpacing),
-              child: CommonSearchField(
-                width: size.width * 0.35,
-                controller: _searchController,
-                hintText: l10n.search,
-                onSubmitted: (_) => _handleSearch(),
-                onClear: _handleSearch,
-              ),
-            ),
-        ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Theme.of(context).colorScheme.onSurface,
-          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          indicatorColor: Theme.of(context).colorScheme.primary,
+          labelColor: theme.colorScheme.onSurface,
+          unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+          indicatorColor: theme.colorScheme.primary,
           tabs: [
             Tab(text: l10n.tabNotes),
             Tab(text: l10n.tabActivity),
@@ -172,7 +184,7 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildNotesView(booksProvider),
+          _buildNotesView(theme, booksProvider),
           const ActivityListView(),
         ],
       ),

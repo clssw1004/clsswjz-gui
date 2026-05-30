@@ -110,6 +110,11 @@ class DebtCULog extends LogBuilder<AccountDebtTableCompanion, String> {
       amount: data['amount'],
       fundId: data['fundId'],
       debtDate: data['debtDate'],
+      expectedClearDate: data['expectedClearDate'],
+      clearDate: data['clearDate'],
+      clearState: data['clearState'] == null
+          ? null
+          : DebtClearState.fromCode(data['clearState']),
     );
   }
 
