@@ -3,6 +3,8 @@ import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
+import '../common/common_empty_view.dart';
+import '../common/common_loading_view.dart';
 import 'note_tile.dart';
 
 /// 笔记列表
@@ -155,11 +157,9 @@ class _NoteListState extends State<NoteList> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
 
     if (widget.loading && (_notes == null || _notes!.isEmpty)) {
-      return Center(child: Text(L10nManager.l10n.loading));
+      return const CommonLoadingView();
     }
 
     if (_notes == null || _notes!.isEmpty) {
@@ -168,23 +168,11 @@ class _NoteListState extends State<NoteList> {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
           children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.note_outlined,
-                    size: 48,
-                    color: colorScheme.outline,
-                  ),
-                  SizedBox(height: spacing.listItemSpacing * 2),
-                  Text(
-                    '暂无笔记',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.outline,
-                    ),
-                  ),
-                ],
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: CommonEmptyView(
+                message: L10nManager.l10n.noData,
+                icon: Icons.note_outlined,
               ),
             ),
           ],

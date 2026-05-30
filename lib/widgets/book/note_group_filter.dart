@@ -7,6 +7,7 @@ import '../../manager/l10n_manager.dart';
 import '../../drivers/driver_factory.dart';
 import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
+import '../../events/special/event_sync.dart';
 import '../../theme/theme_spacing.dart';
 
 /// 笔记分组筛选组件
@@ -41,6 +42,9 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
   /// 事件订阅
   late final StreamSubscription _noteChangedSubscription;
 
+  /// 同步事件订阅
+  late final StreamSubscription _syncCompletedSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -50,11 +54,18 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     _noteChangedSubscription = EventBus.instance.on<NoteChangedEvent>((event) {
       _loadGroups();
     });
+
+    // 监听同步完成事件，同步后重新加载分组
+    _syncCompletedSubscription =
+        EventBus.instance.on<SyncCompletedEvent>((event) {
+      _loadGroups();
+    });
   }
 
   @override
   void dispose() {
     _noteChangedSubscription.cancel();
+    _syncCompletedSubscription.cancel();
     super.dispose();
   }
 
@@ -107,105 +118,249 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     return widget.selectedGroupCodes!.contains(groupCode);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  /// 打开全部分组选择面板
+  void _showAllGroupsSheet(BuildContext context, ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     final l10n = L10nManager.l10n;
-    final spacing = theme.spacing;
 
-    if (_loading) {
-      return Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: const Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.fromLTRB(
+            theme.spacing.contentPadding.left,
+            20,
+            theme.spacing.contentPadding.right,
+            20,
           ),
-        ),
-      );
-    }
-
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      color: theme.colorScheme.surfaceContainer,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: spacing.contentPadding.copyWith(top: 8, bottom: 8),
-        child: Wrap(
-          spacing: spacing.listItemSpacing,
-          runSpacing: spacing.listItemSpacing,
-          children: [
-            _buildGroupChip(
-              theme: theme,
-              label: '全部',
-              groupCode: 'all',
-              isSelected: _isAllSelected,
-            ),
-            _buildGroupChip(
-              theme: theme,
-              label: l10n.noGroup,
-              groupCode: 'none',
-              isSelected: _isGroupSelected('none'),
-            ),
-            ..._groups.map((group) => _buildGroupChip(
-                  theme: theme,
-                  label: group.name,
-                  groupCode: group.code,
-                  isSelected: _isGroupSelected(group.code),
-                )),
-          ],
-        ),
-      ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '筛选分组',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 10,
+                children: [
+                  _buildSheetChip(
+                    theme: theme,
+                    label: '全部',
+                    groupCode: 'all',
+                    isSelected: _isAllSelected,
+                  ),
+                  _buildSheetChip(
+                    theme: theme,
+                    label: l10n.noGroup,
+                    groupCode: 'none',
+                    isSelected: _isGroupSelected('none'),
+                  ),
+                  ..._groups.map((group) => _buildSheetChip(
+                        theme: theme,
+                        label: group.name,
+                        groupCode: group.code,
+                        isSelected: _isGroupSelected(group.code),
+                      )),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  /// 构建分组按钮
-  Widget _buildGroupChip({
+  /// 构建底部面板中的分组按钮
+  Widget _buildSheetChip({
     required ThemeData theme,
     required String label,
     required String groupCode,
     required bool isSelected,
   }) {
     final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
 
     return FilterChip(
       label: Text(
         label,
-        style: theme.textTheme.bodySmall?.copyWith(
+        style: theme.textTheme.labelLarge?.copyWith(
           color: isSelected
-              ? colorScheme.onPrimaryContainer
-              : colorScheme.onSurface,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ? colorScheme.onPrimary
+              : colorScheme.onSurfaceVariant,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          fontSize: 13,
+          height: 1.2,
         ),
       ),
       selected: isSelected,
       showCheckmark: false,
-      selectedColor: colorScheme.primaryContainer,
-      backgroundColor: colorScheme.surfaceContainerLow,
+      selectedColor: colorScheme.primary,
+      backgroundColor: Colors.transparent,
       side: BorderSide(
         color: isSelected
             ? colorScheme.primary
-            : colorScheme.outline.withAlpha(60),
-        width: isSelected ? 1.5 : 1,
+            : colorScheme.outline.withValues(alpha: 0.25),
+        width: 1,
       ),
-      elevation: isSelected ? 1 : 0,
-      shadowColor:
-          isSelected ? colorScheme.primary.withAlpha(40) : Colors.transparent,
-      visualDensity: VisualDensity.standard,
+      elevation: 0,
+      pressElevation: 0,
+      shadowColor: Colors.transparent,
+      visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppConfigManager.instance.radius),
+        borderRadius: BorderRadius.circular(20),
       ),
-      padding: EdgeInsets.symmetric(
-        horizontal: spacing.listItemSpacing / 2,
-        vertical: spacing.listItemSpacing / 2,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      onSelected: (selected) {
+        Navigator.of(context).pop();
+        _handleGroupSelection(groupCode);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = L10nManager.l10n;
+    final spacing = theme.spacing;
+    final colorScheme = theme.colorScheme;
+
+    if (_loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Center(
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 38,
+      child: Stack(
+        children: [
+          ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.only(
+              left: spacing.contentPadding.left,
+              right: spacing.contentPadding.right + 24,
+            ),
+            children: [
+              _buildChip(
+                theme: theme,
+                label: '全部',
+                groupCode: 'all',
+                isSelected: _isAllSelected,
+              ),
+              const SizedBox(width: 8),
+              _buildChip(
+                theme: theme,
+                label: l10n.noGroup,
+                groupCode: 'none',
+                isSelected: _isGroupSelected('none'),
+              ),
+              for (var i = 0; i < _groups.length; i++) ...[
+                const SizedBox(width: 8),
+                _buildChip(
+                  theme: theme,
+                  label: _groups[i].name,
+                  groupCode: _groups[i].code,
+                  isSelected: _isGroupSelected(_groups[i].code),
+                ),
+              ],
+            ],
+          ),
+          // 右侧渐变 + 展开按钮
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () => _showAllGroupsSheet(context, theme),
+              child: Container(
+                width: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.surface.withValues(alpha: 0.0),
+                      colorScheme.surface,
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  /// 构建行内分组按钮
+  Widget _buildChip({
+    required ThemeData theme,
+    required String label,
+    required String groupCode,
+    required bool isSelected,
+  }) {
+    final colorScheme = theme.colorScheme;
+
+    return FilterChip(
+      label: Text(
+        label,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: isSelected
+              ? colorScheme.onPrimary
+              : colorScheme.onSurfaceVariant,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          fontSize: 13,
+          height: 1.2,
+        ),
+      ),
+      selected: isSelected,
+      showCheckmark: false,
+      selectedColor: colorScheme.primary,
+      backgroundColor: Colors.transparent,
+      side: BorderSide(
+        color: isSelected
+            ? colorScheme.primary
+            : colorScheme.outline.withValues(alpha: 0.25),
+        width: 1,
+      ),
+      elevation: 0,
+      pressElevation: 0,
+      shadowColor: Colors.transparent,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       onSelected: (selected) => _handleGroupSelection(groupCode),
     );
   }
