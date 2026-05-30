@@ -186,7 +186,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
       key: _formKey,
       child: Column(
         children: [
-          // 账目类型选择
+          // === 金额 ===
           SegmentedButton<AccountItemType>(
             segments: [
               ButtonSegment<AccountItemType>(
@@ -209,22 +209,18 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             onSelectionChanged: (Set<AccountItemType> selected) {
               if (selected.isNotEmpty) {
                 final newType = selected.first;
-                // 处理金额正负转换
                 final currentAmount =
                     double.tryParse(_amountController.text) ?? 0;
                 if (currentAmount != 0) {
                   if (currentType == AccountItemType.expense &&
                       newType == AccountItemType.income) {
-                    // 从支出切换到收入，转为正数
                     _amountController.text = currentAmount.abs().toString();
                   } else if (currentType == AccountItemType.income &&
                       newType == AccountItemType.expense) {
-                    // 从收入切换到支出，转为负数
                     _amountController.text = (-currentAmount.abs()).toString();
                   }
                 }
                 provider.updateType(newType);
-                // 更新金额
                 provider.updateAmount(double.parse(_amountController.text));
               }
             },
@@ -258,26 +254,20 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             ),
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 金额输入
           Focus(
             onFocusChange: (hasFocus) {
-              if (!hasFocus) {
-                provider.partUpdate();
-              }
+              if (!hasFocus) provider.partUpdate();
             },
             child: AmountInput(
               controller: _amountController,
               focusNode: _amountFocusNode,
               color: ColorUtil.getAmountColor(item.type),
-              onChanged: (value) {
-                provider.updateAmount(value);
-              },
+              onChanged: (value) => provider.updateAmount(value),
             ),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 分类选择
+          // === 分类 ===
           CommonSelectFormField<AccountCategory>(
             items: provider.categories
                 .where((category) => category.categoryType == item.type)
@@ -316,15 +306,13 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               }
             },
             validator: (value) {
-              if (value == null) {
-                return L10nManager.l10n.required;
-              }
+              if (value == null) return L10nManager.l10n.required;
               return null;
             },
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 账户选择
+          // === 账户与标签 ===
           CommonSelectFormField<UserFundVO>(
             items: provider.funds.cast<UserFundVO>(),
             value: item.fundId,
@@ -344,15 +332,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               }
             },
             validator: (value) {
-              if (value == null) {
-                return L10nManager.l10n.required;
-              }
+              if (value == null) return L10nManager.l10n.required;
               return null;
             },
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 商户选择
           CommonSelectFormField<AccountShop>(
             items: provider.shops.cast<AccountShop>(),
             value: item.shopCode == 'NO_SHOP' ? null : item.shopCode,
@@ -385,8 +369,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
           ),
           SizedBox(height: spacing.formItemSpacing),
-
-          // 标签和项目选择
           SizedBox(
             width: double.infinity,
             child: Wrap(
@@ -460,14 +442,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                     }
                   },
                 ),
-                // 日期选择徽章
                 CommonBadge(
                   icon: Icons.calendar_today_outlined,
                   text: _selectedDate,
                   onTap: _selectDate,
                   borderColor: colorScheme.outline.withAlpha(51),
                 ),
-                // 时间选择徽章
                 CommonBadge(
                   icon: Icons.access_time_outlined,
                   text: _selectedTime,
@@ -477,9 +457,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               ],
             ),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 描述输入
+          // === 备注 ===
           CommonTextFormField(
             initialValue: _descriptionController.text,
             labelText: L10nManager.l10n.description,
@@ -491,8 +471,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             minLines: 1,
             maxLines: 9,
           ),
-
-          // 附件上传
           SizedBox(height: spacing.formItemSpacing),
           CommonAttachmentField(
             attachments: provider.attachments,
@@ -507,13 +485,10 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                         userId,
                       ))
                   .toList();
-
-              // 只更新provider中的附件列表，不保存到数据库
               provider
                   .updateAttachments([...provider.attachments, ...attachments]);
             },
             onDelete: (attachment) async {
-              // 只从provider中移除附件，不从数据库中删除
               provider.updateAttachments(
                 provider.attachments
                     .where((a) => a.id != attachment.id)
