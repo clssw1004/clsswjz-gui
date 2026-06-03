@@ -292,9 +292,10 @@ class _BookFormPageState extends State<BookFormPage> {
       context: context,
       builder: (ctx) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               const SizedBox(height: 8),
               Container(
                 width: 32, height: 4,
@@ -342,7 +343,8 @@ class _BookFormPageState extends State<BookFormPage> {
               const SizedBox(height: 8),
             ],
           ),
-        );
+        ),
+      );
       },
     );
     if (result != null) {
@@ -405,12 +407,13 @@ class _BookFormPageState extends State<BookFormPage> {
                 ),
               ),
               const Spacer(),
-              FilledButton.tonalIcon(
+              TextButton.icon(
                 onPressed: _addMember,
-                icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
+                icon: const Icon(Icons.person_add_outlined, size: 18),
                 label: Text(L10nManager.l10n.inviteCode),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                style: TextButton.styleFrom(
+                  foregroundColor: colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   minimumSize: Size.zero,
                 ),
@@ -418,8 +421,12 @@ class _BookFormPageState extends State<BookFormPage> {
             ],
           ),
         ),
-        CommonCardContainer(
-          padding: EdgeInsets.zero,
+        Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withAlpha(40),
+            borderRadius: BorderRadius.circular(
+                theme.extension<ThemeRadius>()?.radius ?? 12),
+          ),
           child: _members.isEmpty
               ? Padding(
                   padding: const EdgeInsets.all(24),
@@ -445,14 +452,12 @@ class _BookFormPageState extends State<BookFormPage> {
                   controller: _listScrollController,
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   itemCount: _members.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final member = _members[index];
                     return _MemberCard(
                       member: member,
-                      onRemove: () {
-                        setState(() => _members.remove(member));
-                      },
+                      onRemove: () => _confirmRemoveMember(member),
                       onPermissionChanged: (key, value) =>
                           _updateMemberPermission(member, key, value),
                     );
@@ -468,7 +473,7 @@ class _BookFormPageState extends State<BookFormPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-    final inviteController = TextEditingController();
+    inviteCodeController.clear();
     BookMemberVO? foundMember;
     bool isSearching = false;
     bool hasSearched = false;
@@ -489,7 +494,7 @@ class _BookFormPageState extends State<BookFormPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
-                controller: inviteController,
+                controller: inviteCodeController,
                 autofocus: true,
                 style: theme.textTheme.bodyLarge,
                 decoration: InputDecoration(
@@ -506,10 +511,10 @@ class _BookFormPageState extends State<BookFormPage> {
                         )
                       : IconButton(
                           icon: Icon(Icons.search,
-                              color: inviteController.text.isEmpty
+                              color: inviteCodeController.text.isEmpty
                                   ? colorScheme.outline
                                   : colorScheme.primary),
-                          onPressed: inviteController.text.isEmpty
+                          onPressed: inviteCodeController.text.isEmpty
                               ? null
                               : () async {
                                   setDialogState(() {
@@ -520,7 +525,7 @@ class _BookFormPageState extends State<BookFormPage> {
                                     final result = await ServiceManager
                                         .accountBookService
                                         .gernerateDefaultMemberByInviteCode(
-                                            inviteController.text);
+                                            inviteCodeController.text);
                                     setDialogState(() {
                                       foundMember =
                                           result.ok ? result.data : null;
@@ -590,7 +595,6 @@ class _BookFormPageState extends State<BookFormPage> {
         },
       ),
     );
-    inviteController.dispose();
   }
 
   void _scrollToBottom() {
@@ -728,6 +732,16 @@ class _BookFormPageState extends State<BookFormPage> {
     });
   }
 
+  Future<void> _confirmRemoveMember(BookMemberVO member) async {
+    final result = await CommonDialog.showWarning(
+      context: context,
+      message: L10nManager.l10n.deleteConfirmMessage(member.nickname ?? ''),
+    );
+    if (result == true && mounted) {
+      setState(() => _members.remove(member));
+    }
+  }
+
   // ── 保存按钮 ──
 
   Widget _buildSaveButton() {
@@ -811,7 +825,6 @@ class _MemberCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withAlpha(30)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -822,11 +835,11 @@ class _MemberCard extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 18,
+                  radius: 16,
                   backgroundColor: colorScheme.secondaryContainer,
                   child: Text(
                     (member.nickname ?? '?').substring(0, 1).toUpperCase(),
-                    style: theme.textTheme.titleSmall?.copyWith(
+                    style: theme.textTheme.labelLarge?.copyWith(
                       color: colorScheme.onSecondaryContainer,
                       fontWeight: FontWeight.w600,
                     ),
@@ -842,35 +855,24 @@ class _MemberCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: colorScheme.errorContainer.withAlpha(160),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.close_rounded,
-                        color: colorScheme.error, size: 18),
-                  ),
+                  icon: Icon(Icons.delete_outline_rounded,
+                      color: colorScheme.error, size: 18),
                   onPressed: onRemove,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  tooltip: L10nManager.l10n.delete(''),
                 ),
               ],
             ),
           ),
           // 权限区域
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+            padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 1,
-                  color: colorScheme.outline.withAlpha(15),
-                ),
-                const SizedBox(height: 12),
-                _buildPermissionRow(
+                Divider(height: 20, color: colorScheme.outline.withAlpha(15)),
+                _buildCompactPermissionRow(
                   theme: theme,
                   colorScheme: colorScheme,
                   label: L10nManager.l10n.accountBook,
@@ -887,8 +889,8 @@ class _MemberCard extends StatelessWidget {
                     member.permission.canDeleteBook,
                   ],
                 ),
-                const SizedBox(height: 8),
-                _buildPermissionRow(
+                const SizedBox(height: 6),
+                _buildCompactPermissionRow(
                   theme: theme,
                   colorScheme: colorScheme,
                   label: L10nManager.l10n.accountItem,
@@ -913,7 +915,7 @@ class _MemberCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPermissionRow({
+  Widget _buildCompactPermissionRow({
     required ThemeData theme,
     required ColorScheme colorScheme,
     required String label,
@@ -922,46 +924,34 @@ class _MemberCard extends StatelessWidget {
     required List<IconData> icons,
     required List<bool> values,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withAlpha(150),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-                fontSize: 10,
-              ),
+        SizedBox(
+          width: 36,
+          child: Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
             ),
           ),
         ),
-        Row(
-          children: List.generate(keys.length, (i) {
-            final permissionLabel = labels[i].isNotEmpty
-                ? labels[i]
-                : _defaultLabel(keys[i]);
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                    right: i < keys.length - 1 ? 8 : 0),
-                child: _PermissionChip(
-                  icon: icons[i],
-                  label: permissionLabel,
-                  value: values[i],
-                  onChanged: (v) => onPermissionChanged(keys[i], v),
-                ),
-              ),
-            );
-          }),
-        ),
+        const SizedBox(width: 6),
+        ...List.generate(keys.length, (i) {
+          final permissionLabel = labels[i].isNotEmpty
+              ? labels[i]
+              : _defaultLabel(keys[i]);
+          return Padding(
+            padding: EdgeInsets.only(right: 6),
+            child: _CompactPermissionChip(
+              icon: icons[i],
+              label: permissionLabel,
+              value: values[i],
+              onChanged: (v) => onPermissionChanged(keys[i], v),
+            ),
+          );
+        }),
       ],
     );
   }
@@ -979,15 +969,15 @@ class _MemberCard extends StatelessWidget {
   }
 }
 
-// ── 权限开关芯片 ──
+// ── 紧凑权限开关 ──
 
-class _PermissionChip extends StatelessWidget {
+class _CompactPermissionChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const _PermissionChip({
+  const _CompactPermissionChip({
     required this.icon,
     required this.label,
     required this.value,
@@ -1005,33 +995,32 @@ class _PermissionChip extends StatelessWidget {
         onChanged(!value);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: value
               ? colorScheme.primaryContainer
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: value
-                ? colorScheme.primary.withAlpha(150)
-                : colorScheme.outline.withAlpha(35),
+                ? colorScheme.primary.withAlpha(120)
+                : colorScheme.outline.withAlpha(40),
             width: value ? 1.2 : 1,
           ),
         ),
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 20,
+              size: 14,
               color: value
                   ? colorScheme.onPrimaryContainer
                   : colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(width: 4),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
@@ -1039,12 +1028,8 @@ class _PermissionChip extends StatelessWidget {
                     ? colorScheme.onPrimaryContainer
                     : colorScheme.onSurfaceVariant,
                 fontWeight: value ? FontWeight.w600 : null,
-                fontSize: 10,
-                height: 1.2,
+                fontSize: 11,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
