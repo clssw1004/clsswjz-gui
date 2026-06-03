@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../manager/app_config_manager.dart';
 import '../manager/database_manager.dart';
 import '../models/vo/book_meta.dart';
 import '../models/vo/user_book_vo.dart' show UserBookVO;
@@ -7,7 +8,9 @@ import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../pages/book/book_list_page.dart';
 import '../pages/book/item_add_page.dart';
+import '../pages/book/item_add_page_v2.dart';
 import '../pages/book/item_edit_page.dart';
+import '../pages/book/item_edit_page_v2.dart';
 import '../pages/book/book_form_page.dart';
 import '../pages/book/merchants_page.dart';
 import '../pages/book/refund_form_page.dart';
@@ -205,12 +208,18 @@ class AppRoutes {
       case itemAdd: {
         final list = args as List<dynamic>;
         final accountBook = list[0] as BookMetaVO;
+        if (AppConfigManager.instance.uiConfig.useNewItemForm) {
+          return ItemAddPageV2(bookMeta: accountBook);
+        }
         return ItemAddPage(bookMeta: accountBook);
       }
       case itemEdit: {
         final list = args as List<dynamic>;
         final accountBook = list[0] as BookMetaVO;
         final item = list[1] as UserItemVO;
+        if (AppConfigManager.instance.uiConfig.useNewItemForm) {
+          return ItemEditPageV2(bookMeta: accountBook, item: item);
+        }
         return ItemEditPage(bookMeta: accountBook, item: item);
       }
       case itemRefund: {

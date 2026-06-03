@@ -1310,4 +1310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String activityItems(int count) {
     return '$count items';
   }
+
+  @override
+  String get details => 'Details';
 }

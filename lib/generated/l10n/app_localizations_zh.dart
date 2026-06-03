@@ -1300,6 +1300,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String activityItems(int count) {
     return '$count项';
   }
+
+  @override
+  String get details => '详细信息';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2549,4 +2552,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String activityItems(int count) {
     return '$count項';
   }
+
+  @override
+  String get details => '詳細信息';
 }

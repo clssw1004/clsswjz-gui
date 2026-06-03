@@ -362,7 +362,6 @@
     "importData": "導入數據",
     "dataSource": "數據來源",
     "selectFile": "選擇文件",
-    "import": "導入",
     "sync": "同步",
     "syncStarting": "開始同步，上次同步時間：{time}",
     "@syncStarting": {
@@ -548,7 +547,7 @@
     },
     "importComplete": "導入完成",
     "attachments": "附件",
-  "attachment": "附件",
+    "attachment": "附件",
     "noAttachments": "暫無附件",
     "addAttachment": "添加附件",
     "deleteAttachment": "刪除附件",
@@ -556,7 +555,7 @@
     "basicInfo": "基本信息",
     "type": "類型",
     "cancel": "取消",
-    "confirm": "確定",
+    "confirm": "確認",
     "create": "新建",
     "edit": "編輯",
     "confirmDelete": "確認刪除",
@@ -1054,10 +1053,6 @@
     "@giftCardDetail": {
         "description": "禮物卡詳情頁面標題"
     },
-    "selectIcon": "選擇圖標",
-    "@selectIcon": {
-        "description": "選擇圖標對話框標題"
-    },
     "operationFailed": "操作失敗",
     "@operationFailed": {
         "description": "通用操作失敗訊息"
@@ -1102,7 +1097,6 @@
     "@receiveGiftCardAction": {
         "description": "接收禮物卡操作按鈕"
     },
-    "edit": "編輯",
     "@edit": {
         "description": "編輯操作"
     },
@@ -1154,7 +1148,6 @@
     "@confirmVoidContent": {
         "description": "確認作廢對話框內容"
     },
-    "confirm": "確認",
     "@confirm": {
         "description": "確認按鈕文字"
     },
@@ -1213,5 +1206,6 @@
                 "example": "3"
             }
         }
-    }
+    },
+    "details": "詳細信息"
 }

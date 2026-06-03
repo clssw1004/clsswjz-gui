@@ -330,6 +330,60 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 新版账目表单展示开关
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '新版账目表单',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '使用全新设计的账目新增/编辑页面',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: AppConfigManager.instance.uiConfig.useNewItemForm,
+                        onChanged: (value) {
+                          final newConfig = UiConfigDTO(
+                            itemTabShowDebt: AppConfigManager.instance.uiConfig.itemTabShowDebt,
+                            itemTabShowDailyBar: AppConfigManager.instance.uiConfig.itemTabShowDailyBar,
+                            itemTabShowDailyCalendar: AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar,
+                            calendarShowIncome: AppConfigManager.instance.uiConfig.calendarShowIncome,
+                            calendarShowExpense: AppConfigManager.instance.uiConfig.calendarShowExpense,
+                            itemTabShowUserMonthly: AppConfigManager.instance.uiConfig.itemTabShowUserMonthly,
+                            itemTabShowProjectMonthly: AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly,
+                            statisticsShowBookStatistic: AppConfigManager.instance.uiConfig.statisticsShowBookStatistic,
+                            statisticsShowProjectStatistic: AppConfigManager.instance.uiConfig.statisticsShowProjectStatistic,
+                            statisticsShowCategoryStatistic: AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic,
+                            statisticsShowActivityStatistic: AppConfigManager.instance.uiConfig.statisticsShowActivityStatistic,
+                            statisticsSelectedRange: AppConfigManager.instance.uiConfig.statisticsSelectedRange,
+                            statisticsCustomRangeStart: AppConfigManager.instance.uiConfig.statisticsCustomRangeStart,
+                            statisticsCustomRangeEnd: AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd,
+                            statisticsSelectedProjects: AppConfigManager.instance.uiConfig.statisticsSelectedProjects,
+                            useNewItemForm: value,
+                          );
+                          AppConfigManager.instance.setUiConfig(newConfig);
+                          setState(() {});
+                        },
+                        activeThumbColor: colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

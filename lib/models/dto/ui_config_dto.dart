@@ -17,6 +17,7 @@ class UiConfigDTO {
     this.statisticsCustomRangeStart,
     this.statisticsCustomRangeEnd,
     this.statisticsSelectedProjects = const [],
+    this.useNewItemForm = true,
   });
 
   final bool itemTabShowDebt;
@@ -24,6 +25,9 @@ class UiConfigDTO {
   final bool itemTabShowDailyCalendar;
   final bool calendarShowIncome;
   final bool calendarShowExpense;
+
+  /// 是否使用新版账目表单
+  final bool useNewItemForm;
 
   /// 是否在账目页显示按用户当月统计图
   final bool itemTabShowUserMonthly;
@@ -75,6 +79,7 @@ class UiConfigDTO {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      useNewItemForm: json['useNewItemForm'] ?? false,
     );
   }
 
@@ -99,6 +104,7 @@ class UiConfigDTO {
       'statisticsCustomRangeStart': uiConfig.statisticsCustomRangeStart,
       'statisticsCustomRangeEnd': uiConfig.statisticsCustomRangeEnd,
       'statisticsSelectedProjects': uiConfig.statisticsSelectedProjects,
+      'useNewItemForm': uiConfig.useNewItemForm,
     };
   }
 

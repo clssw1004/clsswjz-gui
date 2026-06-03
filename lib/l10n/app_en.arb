@@ -420,7 +420,7 @@
     "noShop": "No Merchant",
     "noGroup": "No Group",
     "attachments": "Attachments",
-  "attachment": "Attachment",
+    "attachment": "Attachment",
     "noAttachments": "No attachments",
     "addAttachment": "Add attachment",
     "deleteAttachment": "Delete attachment",
@@ -459,7 +459,6 @@
     "importData": "Import Data",
     "dataSource": "Data Source",
     "selectFile": "Select File",
-    "import": "Import",
     "sync": "Sync",
     "syncStarting": "Start syncing, last sync time: {time}",
     "@syncStarting": {
@@ -589,15 +588,6 @@
     "attachmentDownloadComplete": "Attachments download complete",
     "serverChangeSyncComplete": "Server changes sync complete",
     "syncComplete": "Sync complete",
-    "syncFailed": "Sync failed: {error}",
-    "@syncFailed": {
-        "placeholders": {
-            "error": {
-                "type": "String",
-                "example": "Network error"
-            }
-        }
-    },
     "checkingServerStatus": "Checking server status",
     "serverConnectionOk": "Server connection OK",
     "serverConnectionTimeout": "Server connection timeout",
@@ -1160,10 +1150,6 @@
     "@giftCardDetail": {
         "description": "Gift card detail page title"
     },
-    "selectIcon": "Select Icon",
-    "@selectIcon": {
-        "description": "Select icon dialog title"
-    },
     "operationFailed": "Operation failed",
     "@operationFailed": {
         "description": "Generic operation failed message"
@@ -1208,7 +1194,6 @@
     "@receiveGiftCardAction": {
         "description": "Receive gift card action button"
     },
-    "edit": "Edit",
     "@edit": {
         "description": "Edit action"
     },
@@ -1260,7 +1245,6 @@
     "@confirmVoidContent": {
         "description": "Confirm void dialog content"
     },
-    "confirm": "Confirm",
     "@confirm": {
         "description": "Confirm button text"
     },
@@ -1319,5 +1303,6 @@
                 "example": "3"
             }
         }
-    }
+    },
+    "details": "Details"
 }

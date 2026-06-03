@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../manager/l10n_manager.dart';
+import '../../theme/theme_radius.dart';
 
 /// 通用文本输入框表单组件
 class CommonTextFormField extends StatefulWidget {
@@ -19,6 +20,9 @@ class CommonTextFormField extends StatefulWidget {
 
   /// 后缀图标
   final dynamic suffixIcon;
+
+  /// 后缀组件（无尺寸约束，适用于多个按钮）
+  final Widget? suffix;
 
   /// 是否禁用
   final bool enabled;
@@ -88,6 +92,7 @@ class CommonTextFormField extends StatefulWidget {
     this.hintText,
     this.prefixIcon,
     this.suffixIcon,
+    this.suffix,
     this.enabled = true,
     this.onChanged,
     this.onPaste,
@@ -165,12 +170,13 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
           }
         },
         child: GestureDetector(
-          onTap: widget.enabled ? null : widget.onTap,
+          onTap: widget.enabled && !widget.readOnly ? null : widget.onTap,
           child: TextFormField(
             key: _formKey,
             focusNode: _focusNode,
             controller: _controller,
             enabled: widget.enabled,
+            readOnly: widget.readOnly,
             maxLines: widget.maxLines,
             minLines: widget.minLines ?? widget.maxLines,
             maxLength: widget.maxLength,
@@ -185,20 +191,38 @@ class _CommonTextFormFieldState extends State<CommonTextFormField> {
               ),
               prefixIcon: _buildIcon(widget.prefixIcon),
               suffixIcon: _buildIcon(widget.suffixIcon),
+              suffix: widget.suffix,
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(30),
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              contentPadding: const EdgeInsets.all(16),
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(color: theme.colorScheme.outline),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  theme.extension<ThemeRadius>()?.radius ?? 12,
+                ),
+                borderSide: BorderSide(color: theme.colorScheme.outline.withAlpha(60)),
               ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: theme.colorScheme.outline),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  theme.extension<ThemeRadius>()?.radius ?? 12,
+                ),
+                borderSide: BorderSide(color: theme.colorScheme.outline.withAlpha(60)),
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: theme.colorScheme.primary),
-              ),
-              disabledBorder: UnderlineInputBorder(
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  theme.extension<ThemeRadius>()?.radius ?? 12,
+                ),
                 borderSide: BorderSide(
-                  color: theme.colorScheme.outline.withValues(alpha:0.5),
+                  color: theme.colorScheme.primary.withAlpha(120),
+                  width: 1.5,
+                ),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  theme.extension<ThemeRadius>()?.radius ?? 12,
+                ),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha:0.3),
                 ),
               ),
             ),
