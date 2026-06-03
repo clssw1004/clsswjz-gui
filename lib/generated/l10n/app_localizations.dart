@@ -2540,6 +2540,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} items'**
   String activityItems(int count);
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
 }
 
 class _AppLocalizationsDelegate

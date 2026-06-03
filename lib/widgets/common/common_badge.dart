@@ -43,47 +43,41 @@ class CommonBadge extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final bgColor = backgroundColor ?? colorScheme.surface;
+    final bgColor = backgroundColor ?? (selected ? colorScheme.secondaryContainer : Colors.transparent);
     final fgColor = textColor ?? (selected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant);
     final border = Border.all(
-      color: borderColor ?? colorScheme.outline.withAlpha(51),
+      color: borderColor ?? colorScheme.outline.withAlpha(30),
       width: 1,
     );
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 6,
-            vertical: 4,
-          ),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(20),
-            border: border,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 14,
-                  color: iconColor ?? fgColor,
-                ),
-                const SizedBox(width: 2),
-              ],
-              Text(
-                text,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: fgColor,
-                ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(999),
+          border: border,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: iconColor ?? fgColor,
               ),
+              const SizedBox(width: 4),
             ],
-          ),
+            Text(
+              text,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: fgColor,
+                fontWeight: selected ? FontWeight.w600 : null,
+              ),
+            ),
+          ],
         ),
       ),
     );

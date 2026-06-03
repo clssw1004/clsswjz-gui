@@ -291,11 +291,9 @@
     "edit": "编辑",
     "type": "类型",
     "cancel": "取消",
-    "confirm": "确定",
+    "confirm": "确认",
     "confirmDelete": "确认删除",
     "deleteConfirmMessage": "确定要删除[{name}]吗？",
-    "retry": "重试",
-    "noData": "暂无数据",
     "tabFunds": "资金账户",
     "balance": "结余",
     "defaultBook": "默认账本",
@@ -417,7 +415,7 @@
     "noShop": "无商户",
     "noGroup": "无分组",
     "attachments": "附件",
-  "attachment": "附件",
+    "attachment": "附件",
     "noAttachments": "暂无附件",
     "addAttachment": "添加附件",
     "deleteAttachment": "删除附件",
@@ -464,7 +462,6 @@
     "importData": "导入数据",
     "dataSource": "数据来源",
     "selectFile": "选择文件",
-    "import": "导入",
     "sync": "同步",
     "syncStarting": "开始同步，上次同步时间：{time}",
     "@syncStarting": {
@@ -594,15 +591,6 @@
     "attachmentDownloadComplete": "附件下载完成",
     "serverChangeSyncComplete": "服务端变更同步完成",
     "syncComplete": "同步完成",
-    "syncFailed": "同步失败：{error}",
-    "@syncFailed": {
-        "placeholders": {
-            "error": {
-                "type": "String",
-                "example": "网络错误"
-            }
-        }
-    },
     "checkingServerStatus": "检查服务器状态",
     "serverConnectionOk": "服务器连接正常",
     "serverConnectionTimeout": "服务器连接超时",
@@ -1168,10 +1156,6 @@
     "@giftCardDetail": {
         "description": "礼物卡详情页面标题"
     },
-    "selectIcon": "选择图标",
-    "@selectIcon": {
-        "description": "选择图标对话框标题"
-    },
     "operationFailed": "操作失败",
     "@operationFailed": {
         "description": "通用操作失败消息"
@@ -1216,7 +1200,6 @@
     "@receiveGiftCardAction": {
         "description": "接收礼物卡操作按钮"
     },
-    "edit": "编辑",
     "@edit": {
         "description": "编辑操作"
     },
@@ -1268,7 +1251,6 @@
     "@confirmVoidContent": {
         "description": "确认作废对话框内容"
     },
-    "confirm": "确认",
     "@confirm": {
         "description": "确认按钮文本"
     },
@@ -1327,5 +1309,6 @@
                 "example": "3"
             }
         }
-    }
+    },
+    "details": "详细信息"
 }

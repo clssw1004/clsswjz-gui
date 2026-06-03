@@ -222,6 +222,8 @@ class _HomePageState extends State<HomePage>
         indicatorColor: theme.colorScheme.secondaryContainer,
         selectedIndex: _currentIndex > 1 ? _currentIndex + 1 : _currentIndex,
         onDestinationSelected: (index) {
+          // 切换 tab 前先收起键盘
+          FocusScope.of(context).unfocus();
           if (index == 2) {
             // 点击中间的新增按钮
             _handleAddButtonTap(context);

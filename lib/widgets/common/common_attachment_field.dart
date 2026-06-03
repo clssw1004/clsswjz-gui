@@ -258,13 +258,12 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surface.withAlpha(60),
+                color: colorScheme.surfaceContainerHighest.withAlpha(50),
                 borderRadius: BorderRadius.circular(
-                  theme.extension<ThemeRadius>()?.radius ?? 8,
+                  theme.extension<ThemeRadius>()?.radius ?? 12,
                 ),
               ),
               child: Row(
