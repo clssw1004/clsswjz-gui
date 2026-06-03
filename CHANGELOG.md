@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-06-03
+
+### UI Enhancements
+- Redesigned book create/edit page with magazine-style card layout, hero icon area, inline currency selector
+- Redesigned book list page with CommonCardContainer cards
+- Redesigned user info page with hero avatar and staggered fade-in animation
+- Redesigned selector list as ModalBottomSheet with colored dot indicators
+- Redesigned member permission area with compact horizontal pill toggles, removed double borders
+- Enhanced CommonBadge pill layout, added suffix and readOnly to CommonTextFormField
+
+### Bug Fixes
+- Fixed keyboard not dismissing when switching tabs
+- Fixed currency bottom sheet overflow on small screens
+- Fixed TextEditingController disposed during dialog dismiss animation (crash)
+- Added confirmation dialog for member removal (i18n support)
+
 ## [1.1.0] - 2026-05-31
 
 ### UI Enhancements
