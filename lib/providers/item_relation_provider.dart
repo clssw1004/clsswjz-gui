@@ -89,7 +89,7 @@ class ItemRelationProvider extends ChangeNotifier {
     return result;
   }
 
-  /// 清除指定账目的缓存
+  /// 清除指定账目的正向缓存（不会清理反向缓存中的脏数据，如需完整清理请用 clearAllCache）
   void clearCacheForItem(String itemId) {
     _relationCache.remove(itemId);
   }
