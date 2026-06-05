@@ -14,6 +14,7 @@ import '../widgets/common/restart_widget.dart';
 import '../providers/debt_list_provider.dart';
 import '../providers/gift_card_provider.dart';
 import '../providers/activity_provider.dart';
+import '../providers/item_relation_provider.dart';
 import 'app_config_manager.dart';
 import 'sync_manager.dart';
 
@@ -56,6 +57,7 @@ class ProviderManager {
           ChangeNotifierProvider(create: (_) => StatisticsProvider()),
           ChangeNotifierProvider(create: (_) => GiftCardProvider()),
           ChangeNotifierProvider(create: (_) => ActivityProvider()),
+          ChangeNotifierProvider(create: (_) => ItemRelationProvider()),
         ],
         child: child,
       ),
