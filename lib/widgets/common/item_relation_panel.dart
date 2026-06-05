@@ -73,13 +73,13 @@ class _ItemRelationPanelState extends State<ItemRelationPanel> {
 
   Future<void> _loadRelations() async {
     final provider = context.read<ItemRelationProvider>();
-    await provider.getRelatedItemIds(
+    final relations = await provider.getSourceRelations(
       widget.relationCode,
       widget.relationId,
     );
     if (mounted) {
       setState(() {
-        _relations = [];
+        _relations = relations;
         _loading = false;
       });
     }
@@ -106,7 +106,7 @@ class _ItemRelationPanelState extends State<ItemRelationPanel> {
         relationId: widget.relationId,
       );
       if (mounted) {
-        setState(() {});
+        _loadRelations();
       }
     }
   }
@@ -120,7 +120,7 @@ class _ItemRelationPanelState extends State<ItemRelationPanel> {
       sourceId: widget.relationId,
     );
     if (mounted) {
-      setState(() {});
+      _loadRelations();
     }
   }
 

@@ -462,6 +462,12 @@ abstract class BookDataDriver {
     required String relationId,
   });
 
+  /// 按关联业务查询关联记录（返回完整的 ItemRelationVO 列表）
+  Future<OperateResult<List<ItemRelationVO>>> getSourceItemRelations(String userId, {
+    required String relationCode,
+    required String relationId,
+  });
+
   /// 按账目ID查询关联记录
   Future<OperateResult<List<ItemRelationVO>>> getItemRelations(String userId, {
     required String itemId,

@@ -48,6 +48,20 @@ class ItemRelationProvider extends ChangeNotifier {
     return [];
   }
 
+  /// 查询某业务记录关联的完整关联记录列表
+  Future<List<ItemRelationVO>> getSourceRelations(
+    String relationCode,
+    String relationId,
+  ) async {
+    final result = await DriverFactory.driver.getSourceItemRelations(
+      AppConfigManager.instance.userId,
+      relationCode: relationCode,
+      relationId: relationId,
+    );
+    if (result.ok) return result.data ?? [];
+    return [];
+  }
+
   /// 创建关联
   Future<OperateResult<void>> createRelation({
     required String itemId,

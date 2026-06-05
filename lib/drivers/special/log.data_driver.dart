@@ -1493,6 +1493,23 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<List<ItemRelationVO>>> getSourceItemRelations(String userId, {
+    required String relationCode,
+    required String relationId,
+  }) async {
+    try {
+      final relations = await DaoManager.itemRelationDao.findByRelation(relationCode, relationId);
+      final vos = relations.map((r) => ItemRelationVO.fromItemRelation(r)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询关联记录失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
   Future<OperateResult<List<ItemRelationVO>>> getItemRelations(String userId, {
     required String itemId,
   }) async {
