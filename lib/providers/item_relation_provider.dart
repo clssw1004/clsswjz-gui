@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../drivers/driver_factory.dart';
-import '../../manager/app_config_manager.dart';
-import '../../models/common.dart';
-import '../../models/vo/item_relation_vo.dart';
+import '../drivers/driver_factory.dart';
+import '../manager/app_config_manager.dart';
+import '../models/common.dart';
+import '../models/vo/item_relation_vo.dart';
 
 class ItemRelationProvider extends ChangeNotifier {
   final Map<String, List<ItemRelationVO>> _relationCache = {};
