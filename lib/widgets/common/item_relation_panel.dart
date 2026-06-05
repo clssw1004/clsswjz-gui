@@ -178,7 +178,10 @@ class _ItemRelationPanelState extends State<ItemRelationPanel> {
                 child: Icon(Icons.delete_outline,
                   color: Theme.of(context).colorScheme.onError),
               ),
-              onDismissed: (_) => _handleDeleteRelation(relation),
+              confirmDismiss: (_) async {
+                await _handleDeleteRelation(relation);
+                return true;
+              },
               child: widget.target.displayBuilder(
                 context,
                 relation,
