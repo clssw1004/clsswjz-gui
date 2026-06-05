@@ -4,26 +4,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import '../../database/database.dart';
 import '../../enums/business_type.dart';
+import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_note_vo.dart';
+import '../../routes/app_routes.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/common/common_text_form_field.dart';
-import '../../widgets/common/common_attachment_field.dart';
+import '../../widgets/common/item_relation_panel.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/attachment.util.dart';
 import '../../utils/file_util.dart';
 import '../../providers/note_form_provider.dart';
 import '../../models/vo/book_meta.dart';
-import '../../database/database.dart';
-import '../../widgets/common/common_select_form_field.dart';
 import '../../drivers/driver_factory.dart';
-import '../../manager/app_config_manager.dart';
 import '../../enums/symbol_type.dart';
 
 class NoteFormPage extends StatelessWidget {
@@ -59,14 +61,15 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   final _formKey = GlobalKey<FormState>();
   final _quillController = QuillController.basic();
   final _titleController = TextEditingController();
-  bool _showFullToolbar = false;
+  final _editorFocusNode = FocusNode();
+  bool _showDetails = false;
 
   @override
   void initState() {
     super.initState();
-    // 延迟一帧后设置字段值，确保provider已初始化
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        _editorFocusNode.unfocus();
         final provider = context.read<NoteFormProvider>();
         _titleController.text = provider.title;
         if (provider.content.isNotEmpty) {
@@ -88,6 +91,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
 
   @override
   void dispose() {
+    _editorFocusNode.dispose();
     _quillController.dispose();
     _titleController.dispose();
     super.dispose();
@@ -114,6 +118,47 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     }
   }
 
+  Future<void> _handleAddAttachment(NoteFormProvider provider) async {
+    final result = await FilePicker.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final files = result.files
+        .where((f) => f.path != null)
+        .map((f) => File(f.path!))
+        .toList();
+    if (files.isEmpty) return;
+
+    final userId = provider.note.updatedBy ?? provider.note.createdBy ?? '';
+    final attachments = files
+        .map((file) => AttachmentUtil.generateVoFromFile(
+              BusinessType.note,
+              provider.note.id,
+              file,
+              userId,
+            ))
+        .toList();
+
+    provider.updateAttachments([...provider.attachments, ...attachments]);
+
+    for (final attachment in attachments) {
+      final fileName = attachment.originName.toLowerCase();
+      if (FileUtil.isImage(fileName)) {
+        final delta = _quillController.document.toDelta();
+        if (delta.isNotEmpty && !delta.last.data.toString().endsWith('\n')) {
+          _quillController.document.insert(delta.length, '\n');
+        }
+        final imageDelta = Delta()
+          ..insert('\n')
+          ..insert({'image': attachment.id}, {'align': 'left'})
+          ..insert('\n');
+        _quillController.document.compose(imageDelta, ChangeSource.local);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -123,10 +168,12 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     final bottomPadding = mediaQuery.padding.bottom;
     final provider = context.watch<NoteFormProvider>();
 
-    // 监听provider的loading状态，当加载完成时设置字段值
-    if (!provider.loading && _titleController.text.isEmpty && provider.title.isNotEmpty) {
+    if (!provider.loading &&
+        _titleController.text.isEmpty &&
+        provider.title.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          _editorFocusNode.unfocus();
           _titleController.text = provider.title;
           if (provider.content.isNotEmpty) {
             try {
@@ -172,333 +219,502 @@ class _NoteFormContentState extends State<_NoteFormContent> {
               key: _formKey,
               child: Column(
                 children: [
+                  // 标题
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      spacing.contentPadding.left,
+                      spacing.contentPadding.top,
+                      spacing.contentPadding.right,
+                      0,
+                    ),
+                    child: TextField(
+                      controller: _titleController,
+                      decoration: null,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                      maxLines: null,
+                      textCapitalization: TextCapitalization.sentences,
+                      onChanged: provider.updateTitle,
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    color: colorScheme.outline.withAlpha(25),
+                    indent: spacing.contentPadding.left,
+                    endIndent: spacing.contentPadding.right,
+                  ),
+                  // 编辑器 + 工具栏
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        border: Border(
-                          top: BorderSide(
-                              color: colorScheme.outline.withAlpha(100)),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: QuillEditor.basic(
+                            controller: _quillController,
+                            focusNode: _editorFocusNode,
+                            config: QuillEditorConfig(
+                              padding: EdgeInsets.only(
+                                left: spacing.contentPadding.left,
+                                right: spacing.contentPadding.right,
+                                top: spacing.formItemSpacing,
+                                bottom: 0,
+                              ),
+                              placeholder: '开始写...',
+                              autoFocus: false,
+                              embedBuilders: kIsWeb
+                                  ? FlutterQuillEmbeds.editorWebBuilders()
+                                  : FlutterQuillEmbeds.editorBuilders(
+                                      imageEmbedConfig:
+                                          QuillEditorImageEmbedConfig(
+                                        imageProviderBuilder:
+                                            (context, imageUrl) {
+                                          final attachment = provider.attachments
+                                              .where((e) => e.id == imageUrl)
+                                              .first;
+                                          return attachment.file != null
+                                              ? FileImage(
+                                                  File(attachment.file?.path ?? ''))
+                                              : null;
+                                        },
+                                      ),
+                                    ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        children: [
-                          // 标题输入框
-                          CommonTextFormField(
-                            controller: _titleController,
-                            hintText: L10nManager.l10n.title,
-                            maxLines: 1,
-                            required: false,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.15,
+                        // 极简工具栏
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: colorScheme.outline.withAlpha(20),
+                                width: 0.5,
+                              ),
                             ),
-                            onChanged: provider.updateTitle,
                           ),
-
-                          // 内容编辑器
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: QuillEditor.basic(
-                                    controller: _quillController,
-                                    config: QuillEditorConfig(
-                                      padding: spacing.formPadding,
-                                      autoFocus: false,
-                                      embedBuilders: kIsWeb
-                                          ? FlutterQuillEmbeds
-                                              .editorWebBuilders()
-                                          : FlutterQuillEmbeds.editorBuilders(
-                                              imageEmbedConfig:
-                                                  QuillEditorImageEmbedConfig(
-                                                imageProviderBuilder:
-                                                    (context, imageUrl) {
-                                                  final attachment = provider
-                                                      .attachments
-                                                      .where((e) =>
-                                                          e.id == imageUrl)
-                                                      .first;
-                                                  return attachment.file != null
-                                                      ? FileImage(File(
-                                                          attachment
-                                                                  .file?.path ??
-                                                              ''))
-                                                      : null;
-                                                },
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                                // 分组选择和附件上传
-                                Container(
-                                margin: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 2),
-                                  padding: spacing.formItemPadding,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerLow,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                      color: colorScheme.outline.withAlpha(15),
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // 分组选择徽章
-                                      Expanded(
-                                        child: Selector<NoteFormProvider, List<AccountSymbol>>(
-                                          selector: (_, p) => p.groups,
-                                          builder: (context, groups, _) {
-                                            return CommonSelectFormField<AccountSymbol>(
-                                              items: groups,
-                                              value: provider.groupCode,
-                                              displayMode: DisplayMode.badge,
-                                              displayField: (item) => item.name,
-                                              keyField: (item) => item.code,
-                                              icon: Icons.folder_outlined,
-                                              hint: '分组',
-                                              onChanged: (val) => provider.updateGroup(val as AccountSymbol),
-                                              allowCreate: true,
-                                              onCreateItem: (value) async {
-                                                final result = await DriverFactory.driver.createSymbol(
-                                                  AppConfigManager.instance.userId,
-                                                  provider.bookMeta.id,
-                                                  name: value,
-                                                  symbolType: SymbolType.noteGroup,
-                                                );
-                                                if (result.data != null) {
-                                                  await provider.loadGroups();
-                                                  return provider.groups
-                                                      .firstWhere((group) => group.name == value);
-                                                }
-                                                return null;
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      // 分隔线
-                                      Container(
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: spacing.contentPadding.left),
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _showDetails = !_showDetails),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: _showDetails
+                                          ? colorScheme.primaryContainer
+                                          : colorScheme.surfaceContainerHighest.withAlpha(150),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: _showDetails
+                                            ? colorScheme.primary.withAlpha(30)
+                                            : colorScheme.outline.withAlpha(20),
                                         width: 0.5,
-                                        height: 20,
-                                        color: colorScheme.outline.withAlpha(25),
                                       ),
-                                      const SizedBox(width: 8),
-                                      // 附件上传
-                                      Expanded(
-                                        child: CommonAttachmentField(
-                                          attachments: provider.attachments,
-                                          label: L10nManager.l10n.attachments,
-                                          onUpload: (files) async {
-                                            final userId =
-                                                provider.note.updatedBy ?? '';
-                                            final attachments = files
-                                                .map((file) =>
-                                                    AttachmentUtil.generateVoFromFile(
-                                                      BusinessType.note,
-                                                      provider.note.id,
-                                                      file,
-                                                      userId,
-                                                    ))
-                                                .toList();
-
-                                            provider.updateAttachments([
-                                              ...provider.attachments,
-                                              ...attachments
-                                            ]);
-
-                                            // 处理图片类型的附件
-                                            for (final attachment in attachments) {
-                                              final fileName =
-                                                  attachment.originName.toLowerCase();
-                                              if (FileUtil.isImage(fileName)) {
-                                                try {
-                                                  // 确保文档以换行符结束
-                                                  final delta = _quillController
-                                                      .document
-                                                      .toDelta();
-                                                  if (delta.isNotEmpty &&
-                                                      !delta.last.data
-                                                          .toString()
-                                                          .endsWith('\n')) {
-                                                    _quillController.document
-                                                        .insert(delta.length, '\n');
-                                                  }
-
-                                                  // 构建图片Delta
-                                                  final imageDelta = Delta()
-                                                    ..insert('\n')
-                                                    ..insert(
-                                                      {'image': attachment.id},
-                                                      {'align': 'left'},
-                                                    )
-                                                    ..insert('\n');
-
-                                                  // 将Delta合并到文档中
-                                                  _quillController.document.compose(
-                                                    imageDelta,
-                                                    ChangeSource.local,
-                                                  );
-                                                } catch (e) {
-                                                  print('插入图片时出错: $e');
-                                                }
-                                              }
-                                            }
-                                          },
-                                          onDelete: (attachment) async {
-                                            provider.updateAttachments(
-                                              provider.attachments
-                                                  .where((a) => a.id != attachment.id)
-                                                  .toList(),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: spacing.listItemSpacing / 2),
-                                  padding: EdgeInsets.only(
-                                    bottom: bottomPadding,
-                                    top: spacing.listItemSpacing / 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surface,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      topRight: Radius.circular(8),
                                     ),
-                                    border: Border(
-                                      top: BorderSide(
-                                          color: colorScheme.outline
-                                              .withAlpha(50)),
+                                    child: Icon(
+                                      _showDetails ? Icons.close : Icons.grid_view_rounded,
+                                      size: 15,
+                                      color: _showDetails
+                                          ? colorScheme.onPrimaryContainer
+                                          : colorScheme.onSurfaceVariant,
                                     ),
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // 展开按钮
-                                      Container(
-                                        margin: EdgeInsets.symmetric(vertical: spacing.listItemSpacing / 4),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(6),
-                                            onTap: () {
-                                              setState(() {
-                                                _showFullToolbar =
-                                                    !_showFullToolbar;
-                                              });
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: spacing.listItemSpacing, vertical: spacing.listItemSpacing / 2),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    _showFullToolbar
-                                                        ? Icons.expand_more
-                                                        : Icons.expand_less,
-                                                    size: 16,
-                                                    color: colorScheme.primary,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    _showFullToolbar
-                                                        ? '收起'
-                                                        : '展开',
-                                                    style: theme
-                                                        .textTheme.bodySmall
-                                                        ?.copyWith(
-                                                      color: colorScheme.primary,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      // 工具栏
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: QuillSimpleToolbar(
-                                              controller: _quillController,
-                                              config: QuillSimpleToolbarConfig(
-                                                showListCheck: true,
-                                                showListBullets: true,
-                                                showListNumbers: true,
-                                                showHeaderStyle:
-                                                    _showFullToolbar,
-                                                showSearchButton:
-                                                    _showFullToolbar,
-                                                showAlignmentButtons:
-                                                    _showFullToolbar,
-                                                showCodeBlock: _showFullToolbar,
-                                                showQuote: _showFullToolbar,
-                                                showIndent: _showFullToolbar,
-                                                showLink: _showFullToolbar,
-                                                showUndo: true,
-                                                showRedo: true,
-                                                showClearFormat:
-                                                    _showFullToolbar,
-                                                showColorButton:
-                                                    _showFullToolbar,
-                                                showBackgroundColorButton:
-                                                    _showFullToolbar,
-                                                showSmallButton:
-                                                    _showFullToolbar,
-                                                showLineHeightButton:
-                                                    _showFullToolbar,
-                                                showStrikeThrough:
-                                                    _showFullToolbar,
-                                                showInlineCode:
-                                                    _showFullToolbar,
-                                                showJustifyAlignment:
-                                                    _showFullToolbar,
-                                                showFontFamily:
-                                                    _showFullToolbar,
-                                                showFontSize: _showFullToolbar,
-                                                showBoldButton: true,
-                                                showItalicButton: true,
-                                                showUnderLineButton:
-                                                    _showFullToolbar,
-                                                showClipboardPaste:
-                                                    _showFullToolbar,
-                                                showClipboardCopy:
-                                                    _showFullToolbar,
-                                                showClipboardCut:
-                                                    _showFullToolbar,
-                                                showSubscript: _showFullToolbar,
-                                                showSuperscript:
-                                                    _showFullToolbar,
-                                                multiRowsDisplay:
-                                                    _showFullToolbar,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
                                 ),
-                              ],
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: QuillSimpleToolbar(
+                                  controller: _quillController,
+                                  config: const QuillSimpleToolbarConfig(
+                              multiRowsDisplay: false,
+                              showBoldButton: true,
+                              showItalicButton: true,
+                              showUnderLineButton: true,
+                              showListCheck: true,
+                              showListBullets: true,
+                              showHeaderStyle: false,
+                              showListNumbers: false,
+                              showAlignmentButtons: false,
+                              showCodeBlock: false,
+                              showQuote: false,
+                              showIndent: false,
+                              showLink: false,
+                              showUndo: false,
+                              showRedo: false,
+                              showClearFormat: false,
+                              showColorButton: false,
+                              showBackgroundColorButton: false,
+                              showSmallButton: false,
+                              showLineHeightButton: false,
+                              showStrikeThrough: false,
+                              showInlineCode: false,
+                              showJustifyAlignment: false,
+                              showFontFamily: false,
+                              showFontSize: false,
+                              showSearchButton: false,
+                              showSubscript: false,
+                              showSuperscript: false,
+                              showClipboardCut: false,
+                              showClipboardCopy: false,
+                              showClipboardPaste: false,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+                  // 底部可折叠区域（分组、附件、关联账目）
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: _showDetails
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Divider(
+                                height: 1,
+                                thickness: 0.5,
+                                color: colorScheme.outline.withAlpha(25),
+                                indent: spacing.contentPadding.left,
+                                endIndent: spacing.contentPadding.right,
+                              ),
+                              _buildBottomSections(provider, colorScheme, spacing),
+                              if (!provider.isNew && provider.note.id.isNotEmpty)
+                                ItemRelationPanel(
+                                  relationCode: 'note',
+                                  relationId: provider.note.id,
+                                  accountBookId: provider.bookMeta.id,
+                                  displayMode: RelationDisplayMode.compact,
+                                  target: RelationTargetConfig(
+                                    code: 'item',
+                                    label: '账目',
+                                    multiSelect: true,
+                                    searchBuilder: (context, query, bookId) async {
+                                      final userId = AppConfigManager.instance.userId;
+                                      final bid = bookId ?? provider.bookMeta.id;
+                                      final filter = query.isNotEmpty ? ItemFilterDTO(keyword: query) : null;
+                                      final result = await DriverFactory.driver.listItemsByBook(
+                                        userId,
+                                        bid,
+                                        filter: filter,
+                                        limit: 50,
+                                      );
+                                      if (!result.ok || result.data == null) {
+                                        return <SearchResult>[];
+                                      }
+                                      return result.data!.map((item) {
+                                        final isIncome = item.type == 'INCOME';
+                                        final sign = isIncome ? '+' : '-';
+                                        final icon = isIncome
+                                            ? Icons.account_balance_outlined
+                                            : Icons.shopping_cart_outlined;
+                                        final subtitle = [
+                                          if (item.categoryName != null) item.categoryName,
+                                          if (item.fundName != null) item.fundName,
+                                          item.accountDateOnly,
+                                        ].join('  ');
+                                        return SearchResult(
+                                          id: item.id,
+                                          display: '$sign${item.amount.abs().toStringAsFixed(2)}  ${item.description ?? ''}',
+                                          subtitle: subtitle,
+                                          leading: Icon(icon, size: 20),
+                                        );
+                                      }).toList();
+                                    },
+                                    bookListBuilder: () async {
+                                      final userId = AppConfigManager.instance.userId;
+                                      final result = await DriverFactory.driver.listBooksByUser(userId);
+                                      if (result.ok && result.data != null) {
+                                        return result.data!.map((b) => BookSwitcherItem(id: b.id, name: b.name)).toList();
+                                      }
+                                      return [];
+                                    },
+                                    initialBookId: provider.bookMeta.id,
+                                    displayBuilder: (context, relation, onTap) {
+                                      return FutureBuilder<AccountItem?>(
+                                        future: DaoManager.itemDao.findById(relation.itemId),
+                                        builder: (context, snapshot) {
+                                          final item = snapshot.data;
+                                          final isIncome = item?.type == 'INCOME';
+                                          final sign = isIncome ? '+' : '-';
+                                          final amount = item?.amount ?? 0;
+                                          final amountColor =
+                                              isIncome ? Colors.green : Colors.redAccent;
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: colorScheme.surfaceContainerHighest
+                                                  .withAlpha(80),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  isIncome
+                                                      ? Icons.arrow_upward
+                                                      : Icons.arrow_downward,
+                                                  size: 14,
+                                                  color: amountColor,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  '$sign${amount.abs().toStringAsFixed(0)}',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: amountColor,
+                                                  ),
+                                                ),
+                                                if (item?.description != null &&
+                                                    item!.description!.isNotEmpty) ...[
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '·',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: colorScheme.onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    item.description!,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: colorScheme.onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    onTap: (context, relation) {
+                                      Navigator.of(context).pushNamed(
+                                        AppRoutes.itemsList,
+                                        arguments: provider.bookMeta,
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  SizedBox(height: bottomPadding + 16),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildBottomSections(
+    NoteFormProvider provider,
+    ColorScheme colorScheme,
+    ThemeSpacing spacing,
+  ) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: spacing.contentPadding.left,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: spacing.formItemSpacing),
+          // 分组标签
+          _buildGroupSection(provider, colorScheme, spacing),
+          SizedBox(height: spacing.formItemSpacing),
+          // 附件
+          _buildAttachmentSection(provider, colorScheme, spacing),
+          SizedBox(height: spacing.formItemSpacing),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGroupSection(
+    NoteFormProvider provider,
+    ColorScheme colorScheme,
+    ThemeSpacing spacing,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.folder_outlined, size: 14, color: colorScheme.onSurfaceVariant),
+            const SizedBox(width: 4),
+            Text(
+              '分组',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+        SizedBox(height: spacing.formItemSpacing / 2),
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: [
+            ...provider.groups.map((group) {
+              final selected = provider.groupCode == group.code;
+              return FilterChip(
+                label: Text(group.name),
+                selected: selected,
+                onSelected: (_) => provider.updateGroup(group),
+                visualDensity: VisualDensity.compact,
+                selectedColor: colorScheme.primaryContainer,
+                checkmarkColor: colorScheme.onPrimaryContainer,
+                labelStyle: TextStyle(
+                  fontSize: 13,
+                  color: selected
+                      ? colorScheme.onPrimaryContainer
+                      : colorScheme.onSurface,
+                ),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                side: BorderSide.none,
+              );
+            }),
+            ActionChip(
+              label: const Icon(Icons.add, size: 16),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              side: BorderSide(
+                color: colorScheme.outline.withAlpha(50),
+              ),
+              onPressed: () => _handleCreateGroup(provider),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAttachmentSection(
+    NoteFormProvider provider,
+    ColorScheme colorScheme,
+    ThemeSpacing spacing,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.attach_file, size: 14, color: colorScheme.onSurfaceVariant),
+            const SizedBox(width: 4),
+            Text(
+              '附件',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+        SizedBox(height: spacing.formItemSpacing / 2),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ...provider.attachments.map((attachment) {
+                final isImage = FileUtil.isImage(attachment.originName);
+                return GestureDetector(
+                  onLongPress: () => _handleDeleteAttachment(provider, attachment.id),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: colorScheme.surfaceContainerHighest,
+                      image: isImage && attachment.file != null
+                          ? DecorationImage(
+                              image: FileImage(attachment.file!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: !isImage
+                        ? Icon(Icons.attach_file,
+                            size: 20, color: colorScheme.onSurfaceVariant)
+                        : null,
+                  ),
+                );
+              }),
+              GestureDetector(
+                onTap: () => _handleAddAttachment(provider),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: colorScheme.outline.withAlpha(30),
+                    ),
+                  ),
+                  child: Icon(Icons.add, color: colorScheme.onSurfaceVariant),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Future<void> _handleCreateGroup(NoteFormProvider provider) async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('新建分组'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: '输入分组名称',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+    if (name != null && name.isNotEmpty) {
+      final result = await DriverFactory.driver.createSymbol(
+        AppConfigManager.instance.userId,
+        provider.bookMeta.id,
+        name: name,
+        symbolType: SymbolType.noteGroup,
+      );
+      if (result.data != null) {
+        await provider.loadGroups();
+        final newGroup = provider.groups.firstWhere((g) => g.name == name);
+        provider.updateGroup(newGroup);
+      }
+    }
+  }
+
+  void _handleDeleteAttachment(NoteFormProvider provider, String attachmentId) {
+    provider.updateAttachments(
+      provider.attachments.where((a) => a.id != attachmentId).toList(),
     );
   }
 }
