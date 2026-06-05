@@ -22,6 +22,7 @@ import 'activity_record.builder.dart';
 import 'user.builder.dart';
 import 'vehicle.builder.dart';
 import 'fuel_record.builder.dart';
+import 'item_relation.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
 
@@ -214,6 +215,8 @@ abstract class LogBuilder<T, RunResult> {
         return VehicleCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.fuelRecord:
         return FuelRecordCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.itemRelation:
+        return ItemRelationCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
@@ -288,6 +291,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.vehicleDao.delete(businessId!);
       case BusinessType.fuelRecord:
         return DaoManager.fuelRecordDao.delete(businessId!);
+      case BusinessType.itemRelation:
+        return DaoManager.itemRelationDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
