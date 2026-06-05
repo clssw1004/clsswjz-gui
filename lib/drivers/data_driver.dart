@@ -29,6 +29,7 @@ import '../models/vo/vehicle_vo.dart';
 import '../models/vo/fuel_record_vo.dart';
 import '../models/vo/fuel_statistics_vo.dart';
 import '../models/dto/fuel_record_filter_dto.dart';
+import '../models/vo/item_relation_vo.dart';
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -441,4 +442,28 @@ abstract class BookDataDriver {
 
   /// 获取车辆油耗统计
   Future<OperateResult<FuelStatisticsVO>> getFuelStatistics(String userId, String vehicleId);
+
+  /// ==================== 账目关联 ====================
+
+  /// 创建关联
+  Future<OperateResult<void>> createItemRelation(String userId, {
+    required String itemId,
+    required String accountBookId,
+    required String relationCode,
+    required String relationId,
+  });
+
+  /// 删除关联
+  Future<OperateResult<void>> deleteItemRelation(String userId, String relationId);
+
+  /// 按关联业务查询关联的账目ID列表
+  Future<OperateResult<List<String>>> getRelatedItemIds(String userId, {
+    required String relationCode,
+    required String relationId,
+  });
+
+  /// 按账目ID查询关联记录
+  Future<OperateResult<List<ItemRelationVO>>> getItemRelations(String userId, {
+    required String itemId,
+  });
 }
