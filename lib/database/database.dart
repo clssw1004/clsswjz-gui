@@ -15,6 +15,7 @@ import 'tables/gift_card_table.dart';
 import 'tables/activity_record_table.dart';
 import 'tables/vehicle_table.dart';
 import 'tables/fuel_record_table.dart';
+import 'tables/item_relation_table.dart';
 
 part 'database.g.dart';
 
@@ -36,13 +37,14 @@ part 'database.g.dart';
     ActivityRecordTable,
     VehicleTable,
     FuelRecordTable,
+    ItemRelationTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +69,10 @@ class AppDatabase extends _$AppDatabase {
             // 版本4到版本5的迁移：添加 vehicle_table 和 fuel_record_table
             await m.create(vehicleTable);
             await m.create(fuelRecordTable);
+          }
+          if (from < 6) {
+            // 版本5到版本6的迁移：添加 item_relation_table
+            await m.create(itemRelationTable);
           }
         },
       );

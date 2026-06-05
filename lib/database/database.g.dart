@@ -9732,6 +9732,483 @@ class FuelRecordTableCompanion extends UpdateCompanion<FuelRecord> {
   }
 }
 
+class $ItemRelationTableTable extends ItemRelationTable
+    with TableInfo<$ItemRelationTableTable, ItemRelation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ItemRelationTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountBookIdMeta =
+      const VerificationMeta('accountBookId');
+  @override
+  late final GeneratedColumn<String> accountBookId = GeneratedColumn<String>(
+      'account_book_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _relationCodeMeta =
+      const VerificationMeta('relationCode');
+  @override
+  late final GeneratedColumn<String> relationCode = GeneratedColumn<String>(
+      'relation_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _relationIdMeta =
+      const VerificationMeta('relationId');
+  @override
+  late final GeneratedColumn<String> relationId = GeneratedColumn<String>(
+      'relation_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        itemId,
+        accountBookId,
+        relationCode,
+        relationId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'item_relation_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ItemRelation> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('account_book_id')) {
+      context.handle(
+          _accountBookIdMeta,
+          accountBookId.isAcceptableOrUnknown(
+              data['account_book_id']!, _accountBookIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountBookIdMeta);
+    }
+    if (data.containsKey('relation_code')) {
+      context.handle(
+          _relationCodeMeta,
+          relationCode.isAcceptableOrUnknown(
+              data['relation_code']!, _relationCodeMeta));
+    } else if (isInserting) {
+      context.missing(_relationCodeMeta);
+    }
+    if (data.containsKey('relation_id')) {
+      context.handle(
+          _relationIdMeta,
+          relationId.isAcceptableOrUnknown(
+              data['relation_id']!, _relationIdMeta));
+    } else if (isInserting) {
+      context.missing(_relationIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ItemRelation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ItemRelation(
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      accountBookId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
+      relationCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}relation_code'])!,
+      relationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}relation_id'])!,
+    );
+  }
+
+  @override
+  $ItemRelationTableTable createAlias(String alias) {
+    return $ItemRelationTableTable(attachedDatabase, alias);
+  }
+}
+
+class ItemRelation extends DataClass implements Insertable<ItemRelation> {
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+  final String itemId;
+  final String accountBookId;
+  final String relationCode;
+  final String relationId;
+  const ItemRelation(
+      {required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.itemId,
+      required this.accountBookId,
+      required this.relationCode,
+      required this.relationId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    map['account_book_id'] = Variable<String>(accountBookId);
+    map['relation_code'] = Variable<String>(relationCode);
+    map['relation_id'] = Variable<String>(relationId);
+    return map;
+  }
+
+  ItemRelationTableCompanion toCompanion(bool nullToAbsent) {
+    return ItemRelationTableCompanion(
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      itemId: Value(itemId),
+      accountBookId: Value(accountBookId),
+      relationCode: Value(relationCode),
+      relationId: Value(relationId),
+    );
+  }
+
+  factory ItemRelation.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ItemRelation(
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      accountBookId: serializer.fromJson<String>(json['accountBookId']),
+      relationCode: serializer.fromJson<String>(json['relationCode']),
+      relationId: serializer.fromJson<String>(json['relationId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'accountBookId': serializer.toJson<String>(accountBookId),
+      'relationCode': serializer.toJson<String>(relationCode),
+      'relationId': serializer.toJson<String>(relationId),
+    };
+  }
+
+  ItemRelation copyWith(
+          {String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? itemId,
+          String? accountBookId,
+          String? relationCode,
+          String? relationId}) =>
+      ItemRelation(
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        accountBookId: accountBookId ?? this.accountBookId,
+        relationCode: relationCode ?? this.relationCode,
+        relationId: relationId ?? this.relationId,
+      );
+  ItemRelation copyWithCompanion(ItemRelationTableCompanion data) {
+    return ItemRelation(
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      accountBookId: data.accountBookId.present
+          ? data.accountBookId.value
+          : this.accountBookId,
+      relationCode: data.relationCode.present
+          ? data.relationCode.value
+          : this.relationCode,
+      relationId:
+          data.relationId.present ? data.relationId.value : this.relationId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemRelation(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('relationCode: $relationCode, ')
+          ..write('relationId: $relationId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(createdBy, updatedBy, createdAt, updatedAt,
+      id, itemId, accountBookId, relationCode, relationId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ItemRelation &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.accountBookId == this.accountBookId &&
+          other.relationCode == this.relationCode &&
+          other.relationId == this.relationId);
+}
+
+class ItemRelationTableCompanion extends UpdateCompanion<ItemRelation> {
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String> accountBookId;
+  final Value<String> relationCode;
+  final Value<String> relationId;
+  final Value<int> rowid;
+  const ItemRelationTableCompanion({
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.accountBookId = const Value.absent(),
+    this.relationCode = const Value.absent(),
+    this.relationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ItemRelationTableCompanion.insert({
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String itemId,
+    required String accountBookId,
+    required String relationCode,
+    required String relationId,
+    this.rowid = const Value.absent(),
+  })  : createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        itemId = Value(itemId),
+        accountBookId = Value(accountBookId),
+        relationCode = Value(relationCode),
+        relationId = Value(relationId);
+  static Insertable<ItemRelation> custom({
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? accountBookId,
+    Expression<String>? relationCode,
+    Expression<String>? relationId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (accountBookId != null) 'account_book_id': accountBookId,
+      if (relationCode != null) 'relation_code': relationCode,
+      if (relationId != null) 'relation_id': relationId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ItemRelationTableCompanion copyWith(
+      {Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? itemId,
+      Value<String>? accountBookId,
+      Value<String>? relationCode,
+      Value<String>? relationId,
+      Value<int>? rowid}) {
+    return ItemRelationTableCompanion(
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      accountBookId: accountBookId ?? this.accountBookId,
+      relationCode: relationCode ?? this.relationCode,
+      relationId: relationId ?? this.relationId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (accountBookId.present) {
+      map['account_book_id'] = Variable<String>(accountBookId.value);
+    }
+    if (relationCode.present) {
+      map['relation_code'] = Variable<String>(relationCode.value);
+    }
+    if (relationId.present) {
+      map['relation_id'] = Variable<String>(relationId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemRelationTableCompanion(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('relationCode: $relationCode, ')
+          ..write('relationId: $relationId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9763,6 +10240,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $VehicleTableTable vehicleTable = $VehicleTableTable(this);
   late final $FuelRecordTableTable fuelRecordTable =
       $FuelRecordTableTable(this);
+  late final $ItemRelationTableTable itemRelationTable =
+      $ItemRelationTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9783,7 +10262,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         giftCardTable,
         activityRecordTable,
         vehicleTable,
-        fuelRecordTable
+        fuelRecordTable,
+        itemRelationTable
       ];
 }
 
@@ -14255,6 +14735,243 @@ typedef $$FuelRecordTableTableProcessedTableManager = ProcessedTableManager<
     ),
     FuelRecord,
     PrefetchHooks Function()>;
+typedef $$ItemRelationTableTableCreateCompanionBuilder
+    = ItemRelationTableCompanion Function({
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String itemId,
+  required String accountBookId,
+  required String relationCode,
+  required String relationId,
+  Value<int> rowid,
+});
+typedef $$ItemRelationTableTableUpdateCompanionBuilder
+    = ItemRelationTableCompanion Function({
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> itemId,
+  Value<String> accountBookId,
+  Value<String> relationCode,
+  Value<String> relationId,
+  Value<int> rowid,
+});
+
+class $$ItemRelationTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ItemRelationTableTable> {
+  $$ItemRelationTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get relationCode => $composableBuilder(
+      column: $table.relationCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get relationId => $composableBuilder(
+      column: $table.relationId, builder: (column) => ColumnFilters(column));
+}
+
+class $$ItemRelationTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ItemRelationTableTable> {
+  $$ItemRelationTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get relationCode => $composableBuilder(
+      column: $table.relationCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get relationId => $composableBuilder(
+      column: $table.relationId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ItemRelationTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ItemRelationTableTable> {
+  $$ItemRelationTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get relationCode => $composableBuilder(
+      column: $table.relationCode, builder: (column) => column);
+
+  GeneratedColumn<String> get relationId => $composableBuilder(
+      column: $table.relationId, builder: (column) => column);
+}
+
+class $$ItemRelationTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ItemRelationTableTable,
+    ItemRelation,
+    $$ItemRelationTableTableFilterComposer,
+    $$ItemRelationTableTableOrderingComposer,
+    $$ItemRelationTableTableAnnotationComposer,
+    $$ItemRelationTableTableCreateCompanionBuilder,
+    $$ItemRelationTableTableUpdateCompanionBuilder,
+    (
+      ItemRelation,
+      BaseReferences<_$AppDatabase, $ItemRelationTableTable, ItemRelation>
+    ),
+    ItemRelation,
+    PrefetchHooks Function()> {
+  $$ItemRelationTableTableTableManager(
+      _$AppDatabase db, $ItemRelationTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ItemRelationTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ItemRelationTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ItemRelationTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String> accountBookId = const Value.absent(),
+            Value<String> relationCode = const Value.absent(),
+            Value<String> relationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemRelationTableCompanion(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            itemId: itemId,
+            accountBookId: accountBookId,
+            relationCode: relationCode,
+            relationId: relationId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String itemId,
+            required String accountBookId,
+            required String relationCode,
+            required String relationId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemRelationTableCompanion.insert(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            itemId: itemId,
+            accountBookId: accountBookId,
+            relationCode: relationCode,
+            relationId: relationId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ItemRelationTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ItemRelationTableTable,
+    ItemRelation,
+    $$ItemRelationTableTableFilterComposer,
+    $$ItemRelationTableTableOrderingComposer,
+    $$ItemRelationTableTableAnnotationComposer,
+    $$ItemRelationTableTableCreateCompanionBuilder,
+    $$ItemRelationTableTableUpdateCompanionBuilder,
+    (
+      ItemRelation,
+      BaseReferences<_$AppDatabase, $ItemRelationTableTable, ItemRelation>
+    ),
+    ItemRelation,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14292,4 +15009,6 @@ class $AppDatabaseManager {
       $$VehicleTableTableTableManager(_db, _db.vehicleTable);
   $$FuelRecordTableTableTableManager get fuelRecordTable =>
       $$FuelRecordTableTableTableManager(_db, _db.fuelRecordTable);
+  $$ItemRelationTableTableTableManager get itemRelationTable =>
+      $$ItemRelationTableTableTableManager(_db, _db.itemRelationTable);
 }

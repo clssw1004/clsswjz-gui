@@ -52,7 +52,10 @@ enum BusinessType {
   vehicle('vehicle'),
 
   /// 加油记录
-  fuelRecord('fuelRecord');
+  fuelRecord('fuelRecord'),
+
+  /// 账目关联
+  itemRelation('itemRelation');
 
   final String code;
   const BusinessType(this.code);
