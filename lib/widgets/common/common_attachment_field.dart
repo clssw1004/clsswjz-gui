@@ -147,7 +147,7 @@ class _CommonAttachmentFieldState extends State<CommonAttachmentField> {
     try {
       setState(() => _isUploading = true);
 
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         allowMultiple: true,
         type: FileType.any,
         dialogTitle: L10nManager.l10n.addAttachment,

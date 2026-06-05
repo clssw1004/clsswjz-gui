@@ -132,6 +132,7 @@ class DebtListProvider extends ChangeNotifier {
   void dispose() {
     _bookSubscription.cancel();
     _syncSubscription.cancel();
+    _debtChangedSubscription.cancel();
     super.dispose();
   }
 }

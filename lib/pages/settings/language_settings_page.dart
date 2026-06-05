@@ -17,27 +17,25 @@ class LanguageSettingsPage extends StatelessWidget {
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.languageSettings),
       ),
-      body: ListView(
-        children: [
-          RadioListTile<Locale>(
-            title: const Text('简体中文'),
-            value: const Locale('zh'),
-            groupValue: currentLocale,
-            onChanged: (value) => localeProvider.setLocale(value),
-          ),
-          RadioListTile<Locale>(
-            title: const Text('繁體中文'),
-            value: const Locale('zh', 'TW'),
-            groupValue: currentLocale,
-            onChanged: (value) => localeProvider.setLocale(value),
-          ),
-          RadioListTile<Locale>(
-            title: const Text('English'),
-            value: const Locale('en'),
-            groupValue: currentLocale,
-            onChanged: (value) => localeProvider.setLocale(value),
-          ),
-        ],
+      body: RadioGroup<Locale>(
+        groupValue: currentLocale,
+        onChanged: (value) => localeProvider.setLocale(value),
+        child: ListView(
+          children: [
+            RadioListTile<Locale>(
+              title: const Text('简体中文'),
+              value: const Locale('zh'),
+            ),
+            RadioListTile<Locale>(
+              title: const Text('繁體中文'),
+              value: const Locale('zh', 'TW'),
+            ),
+            RadioListTile<Locale>(
+              title: const Text('English'),
+              value: const Locale('en'),
+            ),
+          ],
+        ),
       ),
     );
   }

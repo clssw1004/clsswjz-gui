@@ -26,9 +26,9 @@ class BoheDataImport extends ImportInterface {
       final input = String.fromCharCodes(bytes.buffer.asUint16List(2));
 
       // 使用CSV解析器解析内容
-      final rows = const CsvToListConverter(
+      final rows = const CsvDecoder(
         fieldDelimiter: '\t', // 使用制表符作为分隔符
-        eol: '\n', // 使用换行符作为行结束符
+        skipEmptyLines: false,
       ).convert(input);
 
       // 跳过标题行，处理数据行

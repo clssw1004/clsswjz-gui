@@ -238,7 +238,7 @@ class _ImportPageState extends State<ImportPage> {
   Future<void> _pickFile() async {
     if (_selectedSource == null) return;
 
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: _selectedSource!.fileTypes,
     );

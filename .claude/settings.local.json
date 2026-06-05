@@ -32,7 +32,14 @@
       "Read(//Users/cuiwi/fvm/**)",
       "Bash(grep -v \"^$\")",
       "Bash(git commit *)",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(grep -i '\\\\.dart$')",
+      "Bash(python3 *)",
+      "Bash(git tag *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(flutter --version)",
+      "Bash(flutter build *)"
     ]
   }
 }

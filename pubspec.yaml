@@ -25,18 +25,18 @@ dependencies:
   crypto: ^3.0.6
   url_launcher: ^6.3.1
   mime: ^2.0.0
-  file_picker: ^10.2.0
+  file_picker: ^11.0.2
   pull_to_refresh: ^2.0.0
   json_annotation: ^4.9.0
   image_picker: ^1.2.0
   custom_refresh_indicator: ^4.0.1
-  device_info_plus: ^11.2.0
-  csv: ^6.0.0
+  device_info_plus: ^12.4.0
+  csv: ^8.0.0
   flutter_slidable: ^4.0.0
   cupertino_icons: ^1.0.9
   syncfusion_flutter_charts: ^33.1.44
   syncfusion_flutter_calendar: ^33.1.44
-  package_info_plus: ^8.3.0
+  package_info_plus: ^9.0.1
   open_filex: ^4.7.0
   flutter_quill_extensions: ^11.0.0
   flutter_quill: ^11.2.0
