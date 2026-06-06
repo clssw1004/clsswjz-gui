@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
+import '../../models/vo/book_meta.dart';
 import '../../models/vo/fuel_record_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/vehicle_vo.dart';
+import '../../providers/item_relation_provider.dart';
+import '../../routes/app_routes.dart';
+import '../../utils/color_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 
 /// 加油记录详情页面
@@ -25,6 +32,13 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
   VehicleVO? _vehicle;
   bool _loading = true;
   String? _error;
+
+  final _relationProvider = ItemRelationProvider();
+  static const _relationCode = 'fuel_record';
+
+  AccountItem? _linkedItem;
+  String? _linkedCategoryName;
+  String? _linkedBookId;
 
   @override
   void initState() {
@@ -64,6 +78,8 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
             _vehicle = vehicle;
             _loading = false;
           });
+          // 加载关联账目
+          _loadRelation();
         }
       } else {
         if (mounted) {
@@ -80,6 +96,34 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
           _loading = false;
         });
       }
+    }
+  }
+
+  Future<void> _loadRelation() async {
+    final relations = await _relationProvider.getSourceRelations(
+      _relationCode, widget.recordId,
+    );
+    if (relations.isEmpty || !mounted) return;
+    final rel = relations.first;
+
+    final item = await DaoManager.itemDao.findById(rel.itemId);
+    if (item == null || !mounted) return;
+
+    String? categoryName;
+    if (item.categoryCode != null) {
+      final category = await DaoManager.categoryDao.findByBookAndCode(
+        item.accountBookId,
+        item.categoryCode!,
+      );
+      categoryName = category?.name;
+    }
+
+    if (mounted) {
+      setState(() {
+        _linkedItem = item;
+        _linkedCategoryName = categoryName;
+        _linkedBookId = rel.accountBookId;
+      });
     }
   }
 
@@ -297,9 +341,11 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
           ),
         ],
 
-        // 底部操作按钮
-        const SizedBox(height: 24),
-        _buildActionButtons(context, record, colorScheme, theme),
+        // 关联账目
+        if (_linkedItem != null) ...[
+          const SizedBox(height: 16),
+          _buildRelationCard(colorScheme, theme),
+        ],
       ],
     );
   }
@@ -367,90 +413,116 @@ class _FuelRecordDetailPageState extends State<FuelRecordDetailPage> {
     );
   }
 
-  Widget _buildActionButtons(
-    BuildContext context,
-    FuelRecordVO record,
-    ColorScheme colorScheme,
-    ThemeData theme,
-  ) {
-    if (record.hasLinkedAccount) {
-      return Center(
-        child: Chip(
-          avatar: const Icon(Icons.check_circle, size: 18),
-          label: const Text('已关联账目'),
-          backgroundColor: colorScheme.primaryContainer,
-        ),
-      );
-    }
+  /// 关联账目卡片
+  Widget _buildRelationCard(ColorScheme colorScheme, ThemeData theme) {
+    if (_linkedItem == null) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ElevatedButton.icon(
-          onPressed: _onLinkAccount,
-          icon: const Icon(Icons.book),
-          label: const Text('记一笔'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
+    final isIncome = _linkedItem!.type == 'INCOME';
+    final sign = isIncome ? '+' : '-';
+    final amountColor = ColorUtil.getAmountColor(_linkedItem!.type);
+
+    return GestureDetector(
+      onTap: _openLinkedItemDetail,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: colorScheme.outline.withValues(alpha: 0.06),
           ),
         ),
-      ],
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 3.5,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      amountColor,
+                      amountColor.withValues(alpha: 0.2),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _linkedCategoryName ?? '未分类',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      if (_linkedItem!.description != null &&
+                          _linkedItem!.description!.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          _linkedItem!.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  '$sign${_linkedItem!.amount.abs().toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: amountColor,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Future<void> _onLinkAccount() async {
-    final messenger = ScaffoldMessenger.of(context);
-
-    // Step 1: Load books
-    final booksResult = await DriverFactory.driver.listBooksByUser(
-      AppConfigManager.instance.userId,
+  Future<void> _openLinkedItemDetail() async {
+    if (_linkedItem == null || _linkedBookId == null) return;
+    final userId = AppConfigManager.instance.userId;
+    final bookResult =
+        await DriverFactory.driver.getBook(userId, _linkedBookId!);
+    if (!mounted || !bookResult.ok || bookResult.data == null) return;
+    final userItem = UserItemVO.fromAccountItem(
+      item: _linkedItem!,
+      categoryName: _linkedCategoryName,
     );
-
     if (!mounted) return;
-
-    if (!booksResult.ok || booksResult.data == null || booksResult.data!.isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('没有可用的账本')),
-      );
-      return;
-    }
-
-    final books = booksResult.data!;
-
-    // Step 2: Show book selector dialog
-    final selectedBook = await showDialog<Map<String, String>>(
-      context: context,
-      builder: (ctx) {
-        return SimpleDialog(
-          title: const Text('选择账本'),
-          children: books.map((book) {
-            return SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, {
-                'bookId': book.id,
-                'bookName': book.name,
-              }),
-              child: ListTile(
-                leading: Icon(
-                  Icons.book,
-                  color: Theme.of(ctx).colorScheme.primary,
-                ),
-                title: Text(book.name),
-                subtitle: Text(book.description ?? ''),
-                dense: true,
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-
-    if (selectedBook == null || !mounted) return;
-
-    // Step 3: Navigate to itemAdd with the selected book
-    // For now, show a placeholder message since full integration
-    // requires additional UX decisions
-    messenger.showSnackBar(
-      const SnackBar(content: Text('记账功能将在下一版本集成')),
+    Navigator.of(context).pushNamed(
+      AppRoutes.itemEdit,
+      arguments: [
+        BookMetaVO(bookInfo: bookResult.data!),
+        userItem,
+      ],
     );
   }
 }

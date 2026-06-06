@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
+import '../../models/dto/item_filter_dto.dart';
+import '../../models/vo/book_meta.dart';
+import '../../models/vo/user_book_vo.dart';
+import '../../models/vo/user_item_vo.dart';
+import '../../providers/item_relation_provider.dart';
+import '../../routes/app_routes.dart';
+import '../../utils/color_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 
@@ -35,6 +44,19 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
   bool _isFuelLightOn = false;
   int _refuelTime = DateTime.now().millisecondsSinceEpoch;
   bool _saving = false;
+
+  final _relationProvider = ItemRelationProvider();
+  static const _relationCode = 'fuel_record';
+
+  String? _linkedItemId;
+  String? _linkedBookId;
+  AccountItem? _linkedItem;
+  String? _linkedCategoryName;
+  String? _linkedDescription;
+  double? _linkedAmount;
+  String? _linkedType;
+
+  bool get hasLinkedItem => _linkedItemId != null && _linkedBookId != null;
 
   bool get isCreateMode => widget.recordId == null;
 
@@ -75,8 +97,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
   }
 
   void _loadRecord() async {
+    final userId = AppConfigManager.instance.userId;
     final result = await DriverFactory.driver.getFuelRecord(
-      AppConfigManager.instance.userId,
+      userId,
       widget.recordId!,
     );
     if (result.ok && result.data != null && mounted) {
@@ -92,6 +115,47 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         _stationController.text = record.station ?? '';
         _remarkController.text = record.remark ?? '';
         _refuelTime = record.refuelTime;
+      });
+      // 从关联表加载已关联账目
+      _loadExistingRelation();
+    }
+  }
+
+  Future<void> _loadExistingRelation() async {
+    if (widget.recordId == null) return;
+    final relations = await _relationProvider.getSourceRelations(
+      _relationCode, widget.recordId!,
+    );
+    if (relations.isNotEmpty && mounted) {
+      final rel = relations.first;
+      setState(() {
+        _linkedItemId = rel.itemId;
+        _linkedBookId = rel.accountBookId;
+      });
+      _loadLinkedItemDisplay(rel.itemId);
+    }
+  }
+
+  Future<void> _loadLinkedItemDisplay(String itemId) async {
+    final item = await DaoManager.itemDao.findById(itemId);
+    if (item == null || !mounted) return;
+
+    String? categoryName;
+    if (item.categoryCode != null) {
+      final category = await DaoManager.categoryDao.findByBookAndCode(
+        item.accountBookId,
+        item.categoryCode!,
+      );
+      categoryName = category?.name;
+    }
+
+    if (mounted) {
+      setState(() {
+        _linkedItem = item;
+        _linkedCategoryName = categoryName;
+        _linkedDescription = item.description;
+        _linkedAmount = item.amount;
+        _linkedType = item.type;
       });
     }
   }
@@ -175,50 +239,256 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
             ),
             const SizedBox(height: 16),
 
-            // 总价
-            Focus(
-              onFocusChange: (focused) {
-                if (!focused) _recalculate();
-              },
-              child: CommonTextFormField(
-                controller: _totalAmountController,
-                labelText: '总价（元）',
-                hintText: '请输入总价',
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                prefixIcon: Icons.payments,
+            // 费用计算：单价 × 油量 = 总价
+            Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // 单价
-            Focus(
-              onFocusChange: (focused) {
-                if (!focused) _recalculate();
-              },
-              child: CommonTextFormField(
-                controller: _unitPriceController,
-                labelText: '单价（元/升）',
-                hintText: '请输入单价',
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                prefixIcon: Icons.monetization_on,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // 加油量
-            Focus(
-              onFocusChange: (focused) {
-                if (!focused) _recalculate();
-              },
-              child: CommonTextFormField(
-                controller: _volumeController,
-                labelText: '加油量（升）',
-                hintText: '请输入加油量',
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                prefixIcon: Icons.local_gas_station,
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calculate_outlined,
+                            size: 14,
+                            color: colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 5),
+                        Text(
+                          '费用计算',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 单价
+                        Expanded(
+                          child: Focus(
+                            onFocusChange: (focused) {
+                              if (!focused) _recalculate();
+                            },
+                            child: TextFormField(
+                              controller: _unitPriceController,
+                              keyboardType: const TextInputType
+                                  .numberWithOptions(decimal: true),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                label: const Text('单价',
+                                    style: TextStyle(fontSize: 13)),
+                                hintText: '0.00',
+                                hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: colorScheme.onSurface
+                                        .withValues(alpha: 0.25)),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                floatingLabelStyle: TextStyle(
+                                    fontSize: 11,
+                                    color: colorScheme.onSurfaceVariant),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.primary
+                                        .withValues(alpha: 0.4),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: colorScheme.surface,
+                              ),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 5),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Spacer(),
+                              Text(
+                                '×',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.5),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                        // 加油量
+                        Expanded(
+                          child: Focus(
+                            onFocusChange: (focused) {
+                              if (!focused) _recalculate();
+                            },
+                            child: TextFormField(
+                              controller: _volumeController,
+                              keyboardType: const TextInputType
+                                  .numberWithOptions(decimal: true),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                label: const Text('油量',
+                                    style: TextStyle(fontSize: 13)),
+                                hintText: '0.00',
+                                hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: colorScheme.onSurface
+                                        .withValues(alpha: 0.25)),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                floatingLabelStyle: TextStyle(
+                                    fontSize: 11,
+                                    color: colorScheme.onSurfaceVariant),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.primary
+                                        .withValues(alpha: 0.4),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: colorScheme.surface,
+                              ),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 5),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Spacer(),
+                              Text(
+                                '=',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.5),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                        // 总价
+                        Expanded(
+                          child: Focus(
+                            onFocusChange: (focused) {
+                              if (!focused) _recalculate();
+                            },
+                            child: TextFormField(
+                              controller: _totalAmountController,
+                              keyboardType: const TextInputType
+                                  .numberWithOptions(decimal: true),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                label: const Text('总价',
+                                    style: TextStyle(fontSize: 13)),
+                                hintText: '0.00',
+                                hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: colorScheme.onSurface
+                                        .withValues(alpha: 0.25)),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                floatingLabelStyle: TextStyle(
+                                    fontSize: 11,
+                                    color: colorScheme.onSurfaceVariant),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 14),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.12)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.primary
+                                        .withValues(alpha: 0.4),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: colorScheme.surface,
+                              ),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -306,9 +576,219 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
               hintText: '可选',
               maxLines: 3,
             ),
+            const SizedBox(height: 8),
+
+            // 关联账目（始终可见）
+            _buildRelationSection(colorScheme),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRelationSection(ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 8),
+          child: Row(
+            children: [
+              Icon(Icons.link, size: 14, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 5),
+              Text(
+                '关联账目',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _showItemSearchDialog,
+                icon: Icon(
+                  hasLinkedItem ? Icons.swap_horiz : Icons.add,
+                  size: 16,
+                ),
+                label: Text(hasLinkedItem ? '更换' : '新增'),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  foregroundColor: colorScheme.primary,
+                  textStyle: const TextStyle(fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (hasLinkedItem) _buildLinkedItemCard(colorScheme),
+      ],
+    );
+  }
+
+  Widget _buildLinkedItemCard(ColorScheme colorScheme) {
+    if (_linkedType == null) return const SizedBox.shrink();
+
+    final isIncome = _linkedType == 'INCOME';
+    final sign = isIncome ? '+' : '-';
+    final amountColor = ColorUtil.getAmountColor(_linkedType);
+
+    return Dismissible(
+      key: const ValueKey('linked_item'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        color: colorScheme.error,
+        child: Icon(Icons.delete_outline, color: colorScheme.onError),
+      ),
+      onDismissed: (_) {
+        setState(() {
+          _linkedItemId = null;
+          _linkedBookId = null;
+          _linkedItem = null;
+          _linkedCategoryName = null;
+          _linkedDescription = null;
+          _linkedAmount = null;
+          _linkedType = null;
+        });
+      },
+      child: GestureDetector(
+        onTap: _openLinkedItemDetail,
+        child: Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.06),
+            ),
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 3.5,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        amountColor,
+                        amountColor.withValues(alpha: 0.2),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _linkedCategoryName ?? '未分类',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        if (_linkedDescription != null &&
+                            _linkedDescription!.isNotEmpty) ...[
+                          const SizedBox(height: 1),
+                          Text(
+                            _linkedDescription!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    '$sign${(_linkedAmount ?? 0).abs().toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: amountColor,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showItemSearchDialog() async {
+    final userId = AppConfigManager.instance.userId;
+    final maxHeight = MediaQuery.of(context).size.height * 0.66;
+
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: _ItemSearchSheet(
+          userId: userId,
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      // result format: "itemId|bookId"
+      final parts = result.split('|');
+      if (parts.length == 2) {
+        setState(() {
+          _linkedItemId = parts[0];
+          _linkedBookId = parts[1];
+        });
+        _loadLinkedItemDisplay(parts[0]);
+      }
+    }
+  }
+
+  Future<void> _openLinkedItemDetail() async {
+    if (_linkedItem == null || _linkedBookId == null) return;
+    final userId = AppConfigManager.instance.userId;
+    final bookResult =
+        await DriverFactory.driver.getBook(userId, _linkedBookId!);
+    if (!mounted || !bookResult.ok || bookResult.data == null) return;
+    final userItem = UserItemVO.fromAccountItem(
+      item: _linkedItem!,
+      categoryName: _linkedCategoryName,
+    );
+    if (!mounted) return;
+    Navigator.of(context).pushNamed(
+      AppRoutes.itemEdit,
+      arguments: [
+        BookMetaVO(bookInfo: bookResult.data!),
+        userItem,
+      ],
     );
   }
 
@@ -410,7 +890,16 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         );
 
         if (result.ok && mounted) {
-          Navigator.pop(context, true);
+          // 创建关联
+          if (hasLinkedItem) {
+            await _relationProvider.createRelation(
+              itemId: _linkedItemId!,
+              accountBookId: _linkedBookId!,
+              relationCode: _relationCode,
+              relationId: result.data!,
+            );
+          }
+          if (mounted) Navigator.pop(context, true);
         } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(result.message ?? '保存失败')),
@@ -438,7 +927,38 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         );
 
         if (result.ok && mounted) {
-          Navigator.pop(context, true);
+          // 同步关联表
+          final existing = await _relationProvider.getSourceRelations(
+            _relationCode, widget.recordId!,
+          );
+          final oldItemId = existing.isNotEmpty ? existing.first.itemId : null;
+
+          if (hasLinkedItem && oldItemId != _linkedItemId) {
+            // 更换关联：先删旧的，再建新的
+            if (oldItemId != null) {
+              await _relationProvider.deleteRelation(
+                relationId: existing.first.id,
+                itemId: oldItemId,
+                relationCode: _relationCode,
+                sourceId: widget.recordId!,
+              );
+            }
+            await _relationProvider.createRelation(
+              itemId: _linkedItemId!,
+              accountBookId: _linkedBookId!,
+              relationCode: _relationCode,
+              relationId: widget.recordId!,
+            );
+          } else if (!hasLinkedItem && oldItemId != null) {
+            // 移除关联
+            await _relationProvider.deleteRelation(
+              relationId: existing.first.id,
+              itemId: oldItemId,
+              relationCode: _relationCode,
+              sourceId: widget.recordId!,
+            );
+          }
+          if (mounted) Navigator.pop(context, true);
         } else if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(result.message ?? '保存失败')),
@@ -450,5 +970,355 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         setState(() => _saving = false);
       }
     }
+  }
+}
+
+/// 单选框选账目
+class _ItemSearchSheet extends StatefulWidget {
+  final String userId;
+
+  const _ItemSearchSheet({required this.userId});
+
+  @override
+  State<_ItemSearchSheet> createState() => _ItemSearchSheetState();
+}
+
+class _ItemSearchSheetState extends State<_ItemSearchSheet> {
+  final _searchController = TextEditingController();
+  List<UserItemVO> _items = [];
+  bool _searching = false;
+  List<UserBookVO> _books = [];
+  String? _selectedBookId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBooks();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadBooks() async {
+    final result = await DriverFactory.driver.listBooksByUser(widget.userId);
+    if (result.ok && result.data != null && mounted) {
+      setState(() {
+        _books = result.data!;
+        _selectedBookId = result.data!.isNotEmpty ? result.data!.first.id : null;
+      });
+      _search();
+    }
+  }
+
+  Future<void> _handleCreateItem() async {
+    if (_selectedBookId == null) return;
+    final book = _books.firstWhere((b) => b.id == _selectedBookId);
+    final bookMeta = BookMetaVO(bookInfo: book);
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.itemAdd,
+      arguments: [bookMeta],
+    );
+    if (result == true && mounted) {
+      final items =
+          await DaoManager.itemDao.listByBook(_selectedBookId!, limit: 1);
+      if (items.isNotEmpty && mounted) {
+        Navigator.pop(context,
+            '${items.first.id}|${items.first.accountBookId}');
+      } else if (mounted) {
+        _search();
+      }
+    } else if (mounted) {
+      _search();
+    }
+  }
+
+  Future<void> _search() async {
+    if (_selectedBookId == null) {
+      if (mounted) setState(() => _searching = false);
+      return;
+    }
+    setState(() => _searching = true);
+    try {
+      final result = await DriverFactory.driver.listItemsByBook(
+        widget.userId,
+        _selectedBookId!,
+        filter: _searchController.text.isNotEmpty
+            ? ItemFilterDTO(keyword: _searchController.text)
+            : null,
+        limit: 50,
+      );
+      if (mounted) {
+        setState(() {
+          _items = result.data ?? [];
+          _searching = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _searching = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
+            child: Row(
+              children: [
+                Icon(Icons.link, size: 18, color: colorScheme.primary),
+                const SizedBox(width: 6),
+                Text(
+                  '选择关联账目',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                if (_books.length > 1)
+                  PopupMenuButton<UserBookVO>(
+                    onSelected: (book) {
+                      setState(() => _selectedBookId = book.id);
+                      _search();
+                    },
+                    itemBuilder: (context) => _books
+                        .map((book) => PopupMenuItem(
+                              value: book,
+                              child: Row(
+                                children: [
+                                  if (book.id == _selectedBookId)
+                                    Icon(Icons.check, size: 18,
+                                        color: colorScheme.primary),
+                                  if (book.id == _selectedBookId)
+                                    const SizedBox(width: 8),
+                                  Text(book.name),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.menu_book_outlined, size: 14,
+                              color: colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Text(
+                            _books
+                                    .where((b) => b.id == _selectedBookId)
+                                    .firstOrNull
+                                    ?.name ??
+                                '',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const Icon(Icons.arrow_drop_down, size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                TextButton.icon(
+                  onPressed: _handleCreateItem,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('新建'),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    foregroundColor: colorScheme.primary,
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '搜索账目',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          _search();
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      BorderSide(color: colorScheme.outline.withValues(alpha: 0.12)),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                filled: true,
+                fillColor:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              ),
+              onChanged: (_) => _search(),
+            ),
+          ),
+          Flexible(
+            child: _searching
+                ? const Center(child: CircularProgressIndicator())
+                : _items.isEmpty
+                    ? Center(
+                        child: Text(
+                          _searchController.text.isEmpty
+                              ? '暂无账目'
+                              : '未找到匹配账目',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                        itemCount: _items.length,
+                        itemBuilder: (context, index) {
+                          final item = _items[index];
+                          final isIncome = item.type == 'INCOME';
+                          final sign = isIncome ? '+' : '-';
+                          final amountColor =
+                              ColorUtil.getAmountColor(item.type);
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: GestureDetector(
+                              onTap: () => Navigator.pop(
+                                context,
+                                '${item.id}|${item.accountBookId}',
+                              ),
+                              child: Container(
+                                clipBehavior: Clip.antiAlias,
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: colorScheme.outline
+                                        .withValues(alpha: 0.06),
+                                  ),
+                                ),
+                                child: IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Container(
+                                        width: 3.5,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              amountColor,
+                                              amountColor.withValues(alpha: 0.2),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                item.categoryName ??
+                                                    '未分类',
+                                                maxLines: 1,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                                style: theme
+                                                    .textTheme.bodyMedium
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              if (item.description != null &&
+                                                  item.description!
+                                                      .isNotEmpty) ...[
+                                                const SizedBox(height: 1),
+                                                Text(
+                                                  item.description!,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: theme
+                                                      .textTheme.bodySmall
+                                                      ?.copyWith(
+                                                    color: colorScheme
+                                                        .onSurfaceVariant
+                                                        .withValues(
+                                                            alpha: 0.6),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        child: Text(
+                                          '$sign${item.amount.abs().toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: amountColor,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
   }
 }

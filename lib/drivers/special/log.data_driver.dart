@@ -29,6 +29,7 @@ import '../../models/vo/vehicle_vo.dart';
 import '../../models/vo/fuel_record_vo.dart';
 import '../../models/vo/fuel_statistics_vo.dart';
 import '../../models/dto/fuel_record_filter_dto.dart';
+import '../../models/vo/item_relation_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -54,6 +55,7 @@ import 'log/builder/gift_card.builder.dart';
 import 'log/builder/activity_record.builder.dart';
 import 'log/builder/vehicle.builder.dart';
 import 'log/builder/fuel_record.builder.dart';
+import 'log/builder/item_relation.builder.dart';
 import 'log/builder/book_item.builder.dart';
 import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
@@ -1433,6 +1435,93 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取油耗统计失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> createItemRelation(String userId, {
+    required String itemId,
+    required String accountBookId,
+    required String relationCode,
+    required String relationId,
+  }) async {
+    try {
+      await ItemRelationCULog.create(
+        userId,
+        itemId: itemId,
+        accountBookId: accountBookId,
+        relationCode: relationCode,
+        relationId: relationId,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '创建关联失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteItemRelation(String userId, String relationId) async {
+    try {
+      await ItemRelationCULog.delete(userId, relationId).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '删除关联失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<String>>> getRelatedItemIds(String userId, {
+    required String relationCode,
+    required String relationId,
+  }) async {
+    try {
+      final relations = await DaoManager.itemRelationDao.findByRelation(relationCode, relationId);
+      final ids = relations.map((r) => r.itemId).toList();
+      return OperateResult.success(ids);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询关联账目失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ItemRelationVO>>> getSourceItemRelations(String userId, {
+    required String relationCode,
+    required String relationId,
+  }) async {
+    try {
+      final relations = await DaoManager.itemRelationDao.findByRelation(relationCode, relationId);
+      final vos = relations.map((r) => ItemRelationVO.fromItemRelation(r)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询关联记录失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ItemRelationVO>>> getItemRelations(String userId, {
+    required String itemId,
+  }) async {
+    try {
+      final relations = await DaoManager.itemRelationDao.findByItemId(itemId);
+      final vos = relations.map((r) => ItemRelationVO.fromItemRelation(r)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询账目关联失败：$e',
+        exception: e as Exception,
+      );
     }
   }
 }

@@ -14,6 +14,7 @@ import '../database/dao/gift_card_dao.dart';
 import '../database/dao/activity_record_dao.dart';
 import '../database/dao/vehicle_dao.dart';
 import '../database/dao/fuel_record_dao.dart';
+import '../database/dao/item_relation_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
@@ -33,6 +34,7 @@ class DaoManager {
   static late ActivityRecordDao activityRecordDao;
   static late VehicleDao vehicleDao;
   static late FuelRecordDao fuelRecordDao;
+  static late ItemRelationDao itemRelationDao;
 
   static void refreshDaos() {
     bookDao = BookDao(DatabaseManager.db);
@@ -51,5 +53,6 @@ class DaoManager {
     activityRecordDao = ActivityRecordDao(DatabaseManager.db);
     vehicleDao = VehicleDao(DatabaseManager.db);
     fuelRecordDao = FuelRecordDao(DatabaseManager.db);
+    itemRelationDao = ItemRelationDao(DatabaseManager.db);
   }
 }

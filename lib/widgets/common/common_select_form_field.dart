@@ -134,7 +134,7 @@ class _CommonSelectFormFieldWidgetState<T>
 
   void _handleItemChanged(T? item) {
     if (widget.onChanged != null) {
-      widget.onChanged!(widget.onchangeArgs(item as T));
+      widget.onChanged!(item != null ? widget.onchangeArgs(item) : null);
     }
   }
 
