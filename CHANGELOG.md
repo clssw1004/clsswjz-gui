@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2026-06-07
+
+### Features
+- Added generic item relation module (ItemRelationPanel) with display, replace, and swipe-to-dismiss
+- Fuel record detail page now shows linked account card, tappable to item edit
+- Redesigned fuel record form relation area with "Add"/"Replace" header pattern and swipe-to-dismiss
+- Redesigned multi-select indicator to corner check icon style
+- Added inline "Create Item" in relation search dialog with auto-select after creation
+
+### UI Enhancements
+- Redesigned fuel record form with compact formula row: `price × volume = total`
+- Added gradient accent bars to relation cards, matching item list page style
+- Note form relation cards now navigate to item detail on tap
+- Removed "Quick Add" button from fuel record detail page
+
 ## [1.1.1] - 2026-06-03
 
 ### UI Enhancements
