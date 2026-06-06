@@ -15,6 +15,7 @@ import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -22,6 +23,7 @@ import '../../widgets/common/item_relation_panel.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../utils/attachment.util.dart';
+import '../../utils/color_util.dart';
 import '../../utils/file_util.dart';
 import '../../providers/note_form_provider.dart';
 import '../../models/vo/book_meta.dart';
@@ -85,6 +87,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     super.initState();
     _editorFocusNode.addListener(_collapseAllPanels);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
       if (mounted) {
         final provider = context.read<NoteFormProvider>();
         _titleController.text = provider.title;
@@ -245,8 +248,6 @@ class _NoteFormContentState extends State<_NoteFormContent> {
               key: _formKey,
               child: Column(
                 children: [
-                  // 捕获 Navigator 首帧自动聚焦，防止键盘弹出
-                  Focus(autofocus: true, child: const SizedBox.shrink()),
                   // 标题
                   Padding(
                     padding: EdgeInsets.fromLTRB(
@@ -319,7 +320,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                           decoration: BoxDecoration(
                             border: Border(
                               top: BorderSide(
-                                color: colorScheme.outline.withAlpha(20),
+                                color: colorScheme.outline.withValues(alpha: 0.18),
                                 width: 0.5,
                               ),
                             ),
@@ -335,7 +336,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                               VerticalDivider(
                                 width: 1,
                                 thickness: 1,
-                                color: colorScheme.outline.withAlpha(20),
+                                color: colorScheme.outline.withValues(alpha: 0.18),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
@@ -382,22 +383,39 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                       ],
                     ),
                   ),
-                  // 分组面板
-                  if (provider.groups.isNotEmpty)
-                    _buildSectionAnimated(
-                      show: _showGroup,
-                      child: _buildGroupSection(provider, colorScheme, spacing),
+                  // 功能面板区域（与编辑器有明显边界）
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.15),
+                          width: 0.5,
+                        ),
+                      ),
                     ),
-                  // 附件面板
-                  if (provider.attachments.isNotEmpty || provider.isNew)
-                    _buildSectionAnimated(
-                      show: _showAttachment,
-                      child: _buildAttachmentSection(
-                          provider, colorScheme, spacing),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (provider.groups.isNotEmpty)
+                          _buildSectionAnimated(
+                            show: _showGroup,
+                            child: _buildGroupSection(
+                                provider, colorScheme, spacing),
+                            maxHeight: mediaQuery.size.height * 0.33,
+                          ),
+                        if (provider.attachments.isNotEmpty || provider.isNew)
+                          _buildSectionAnimated(
+                            show: _showAttachment,
+                            child: _buildAttachmentSection(
+                                provider, colorScheme, spacing),
+                            maxHeight: mediaQuery.size.height * 0.33,
+                          ),
+                        if (!provider.isNew && provider.note.id.isNotEmpty)
+                          _buildRelationPanel(provider, colorScheme, spacing,
+                              mediaQuery.size.height * 0.33),
+                      ],
                     ),
-                  // 关联账目面板
-                  if (!provider.isNew && provider.note.id.isNotEmpty)
-                    _buildRelationPanel(provider, colorScheme, spacing),
+                  ),
                   SizedBox(height: bottomPadding + 16),
                 ],
               ),
@@ -408,18 +426,18 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   /// 三段切换药丸（互斥，每次只展示一个面板）
   Widget _buildTogglePill(ColorScheme colorScheme) {
     return Container(
-      height: 32,
+      height: 34,
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(100),
-        borderRadius: BorderRadius.circular(16),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(17),
       ),
       padding: const EdgeInsets.all(2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _toggleIcon(
-            icon: Icons.folder_outlined,
-            activeIcon: Icons.folder,
+            icon: Icons.label_outlined,
+            activeIcon: Icons.label,
             active: _showGroup,
             onTap: () => _toggleSection('group'),
             colorScheme: colorScheme,
@@ -434,8 +452,8 @@ class _NoteFormContentState extends State<_NoteFormContent> {
           ),
           const SizedBox(width: 1),
           _toggleIcon(
-            icon: Icons.account_balance_outlined,
-            activeIcon: Icons.account_balance,
+            icon: Icons.link_outlined,
+            activeIcon: Icons.link,
             active: _showRelation,
             onTap: () => _toggleSection('relation'),
             colorScheme: colorScheme,
@@ -446,6 +464,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   }
 
   void _toggleSection(String section) {
+    FocusScope.of(context).unfocus();
     setState(() {
       final wasActive = switch (section) {
         'group' => _showGroup,
@@ -491,24 +510,22 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   Widget _buildSectionAnimated({
     required bool show,
     required Widget child,
+    double? maxHeight,
   }) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      alignment: Alignment.topCenter,
-      child: show
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  height: 1,
-                  thickness: 0.5,
-                  color: Theme.of(context).colorScheme.outline.withAlpha(25),
-                ),
-                child,
-              ],
-            )
-          : const SizedBox(width: double.infinity),
+    final content = maxHeight != null
+        ? ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight, minHeight: 0),
+            child: child,
+          )
+        : child;
+    return ClipRect(
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        heightFactor: show ? 1.0 : 0.0,
+        child: content,
+      ),
     );
   }
 
@@ -517,102 +534,119 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     NoteFormProvider provider,
     ColorScheme colorScheme,
     ThemeSpacing spacing,
+    double maxHeight,
   ) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      alignment: Alignment.topCenter,
-      child: _showRelation
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  height: 1,
-                  thickness: 0.5,
-                  color: colorScheme.outline.withAlpha(25),
-                ),
-                ItemRelationPanel(
-                  relationCode: 'note',
-                  relationId: provider.note.id,
-                  accountBookId: provider.bookMeta.id,
-                  displayMode: RelationDisplayMode.compact,
-                  target: RelationTargetConfig(
-                    code: 'item',
-                    label: '账目',
-                    multiSelect: true,
-                    searchBuilder: (context, query, bookId) async {
-                      final userId = AppConfigManager.instance.userId;
-                      final bid = bookId ?? provider.bookMeta.id;
-                      final filter = query.isNotEmpty
-                          ? ItemFilterDTO(keyword: query)
-                          : null;
-                      final result = await DriverFactory.driver
-                          .listItemsByBook(
-                        userId,
-                        bid,
-                        filter: filter,
-                        limit: 50,
-                      );
-                      if (!result.ok || result.data == null) {
-                        return <SearchResult>[];
-                      }
-                      return result.data!.map((item) {
-                        final isIncome = item.type == 'INCOME';
-                        final sign = isIncome ? '+' : '-';
-                        final icon = isIncome
-                            ? Icons.account_balance_outlined
-                            : Icons.shopping_cart_outlined;
-                        final subtitle = [
-                          if (item.categoryName != null) item.categoryName,
-                          if (item.fundName != null) item.fundName,
-                          item.accountDateOnly,
-                        ].join('  ');
-                        return SearchResult(
-                          id: item.id,
-                          display:
-                              '$sign${item.amount.abs().toStringAsFixed(2)}  ${item.description ?? ''}',
-                          subtitle: subtitle,
-                          leading: Icon(icon, size: 20),
-                        );
-                      }).toList();
-                    },
-                    bookListBuilder: () async {
-                      final userId = AppConfigManager.instance.userId;
-                      final result =
-                          await DriverFactory.driver.listBooksByUser(userId);
-                      if (result.ok && result.data != null) {
-                        return result.data!
-                            .map((b) =>
-                                BookSwitcherItem(id: b.id, name: b.name))
-                            .toList();
-                      }
-                      return [];
-                    },
-                    initialBookId: provider.bookMeta.id,
-                    displayBuilder: (context, relation, onTap) {
-                      return FutureBuilder<_ItemDisplayData>(
-                        future:
-                            _loadItemDisplayData(relation.itemId),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return _buildCardPlaceholder(colorScheme);
-                          }
-                          return _buildAccountCard(
-                              snapshot.data!, colorScheme);
-                        },
-                      );
-                    },
-                    onTap: (context, relation) {
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.itemsList,
-                        arguments: provider.bookMeta,
-                      );
-                    },
-                  ),
-                ),
+    final content = ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxHeight, minHeight: 0),
+      child: ItemRelationPanel(
+        relationCode: 'note',
+        relationId: provider.note.id,
+        accountBookId: provider.bookMeta.id,
+        displayMode: RelationDisplayMode.list,
+        target: RelationTargetConfig(
+          code: 'item',
+          label: '账目',
+          multiSelect: true,
+          searchBuilder: (context, query, bookId) async {
+            final userId = AppConfigManager.instance.userId;
+            final bid = bookId ?? provider.bookMeta.id;
+            final filter = query.isNotEmpty
+                ? ItemFilterDTO(keyword: query)
+                : null;
+            final result = await DriverFactory.driver.listItemsByBook(
+              userId,
+              bid,
+              filter: filter,
+              limit: 50,
+            );
+            if (!result.ok || result.data == null) {
+              return <SearchResult>[];
+            }
+            return result.data!.map((item) {
+              final isIncome = item.type == 'INCOME';
+              final sign = isIncome ? '+' : '-';
+              final amountColor = ColorUtil.getAmountColor(item.type);
+              return SearchResult(
+                id: item.id,
+                display: item.categoryName ?? '未分类',
+                subtitle: item.description ?? '',
+                colorValue: amountColor.toARGB32(),
+                trailingText:
+                    '$sign${item.amount.abs().toStringAsFixed(2)}',
+              );
+            }).toList();
+          },
+          bookListBuilder: () async {
+            final userId = AppConfigManager.instance.userId;
+            final result = await DriverFactory.driver.listBooksByUser(userId);
+            if (result.ok && result.data != null) {
+              return result.data!
+                  .map((b) =>
+                      BookSwitcherItem(id: b.id, name: b.name))
+                  .toList();
+            }
+            return [];
+          },
+          initialBookId: provider.bookMeta.id,
+          onCreateItem: (context, bookId) async {
+            final userId = AppConfigManager.instance.userId;
+            final bookResult =
+                await DriverFactory.driver.getBook(userId, bookId);
+            if (!bookResult.ok || bookResult.data == null) return null;
+            if (!context.mounted) return null;
+            final result = await Navigator.pushNamed(
+              context,
+              AppRoutes.itemAdd,
+              arguments: [
+                BookMetaVO(bookInfo: bookResult.data!),
               ],
-            )
-          : const SizedBox(width: double.infinity),
+            );
+            if (result == true) {
+              final items =
+                  await DaoManager.itemDao.listByBook(bookId, limit: 1);
+              return items.isNotEmpty ? items.first.id : null;
+            }
+            return null;
+          },
+          displayBuilder: (context, relation, onTap) {
+            return FutureBuilder<_ItemDisplayData>(
+              future: _loadItemDisplayData(relation.itemId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return _buildCardPlaceholder(colorScheme);
+                }
+                return GestureDetector(
+                  onTap: onTap,
+                  child: _buildAccountCard(
+                      snapshot.data!, colorScheme),
+                );
+              },
+            );
+          },
+          onTap: (context, relation) async {
+            final item = await DaoManager.itemDao
+                .findById(relation.itemId);
+            if (item != null && context.mounted) {
+              Navigator.of(context).pushNamed(
+                AppRoutes.itemEdit,
+                arguments: [
+                  provider.bookMeta,
+                  UserItemVO.fromAccountItem(item: item),
+                ],
+              );
+            }
+          },
+        ),
+      ),
+    );
+    return ClipRect(
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        heightFactor: _showRelation ? 1.0 : 0.0,
+        child: content,
+      ),
     );
   }
 
@@ -622,9 +656,11 @@ class _NoteFormContentState extends State<_NoteFormContent> {
 
     String? categoryName;
     if (item.categoryCode != null) {
-      final symbol =
-          await DaoManager.symbolDao.findByCode(item.categoryCode!);
-      categoryName = symbol?.name;
+      final category = await DaoManager.categoryDao.findByBookAndCode(
+        item.accountBookId,
+        item.categoryCode!,
+      );
+      categoryName = category?.name;
     }
 
     String? fundName;
@@ -642,8 +678,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
 
   Widget _buildCardPlaceholder(ColorScheme colorScheme) {
     return Container(
-      width: 210,
-      height: 74,
+      height: 52,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: colorScheme.surfaceContainerHighest.withAlpha(40),
@@ -651,100 +686,71 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     );
   }
 
-  /// 账目关联卡片（展示完整账目信息）
+  /// 账目关联卡片
   Widget _buildAccountCard(_ItemDisplayData data, ColorScheme colorScheme) {
     final item = data.item;
     final isIncome = item.type == 'INCOME';
     final sign = isIncome ? '+' : '-';
-    final amountColor = isIncome ? Colors.green : Colors.redAccent;
-
-    final lines = <String>[
-      if (data.categoryName != null) data.categoryName!,
-      if (data.fundName != null) data.fundName!,
-      item.accountDate,
-    ];
+    final amountColor = ColorUtil.getAmountColor(item.type);
 
     return Container(
-      width: 210,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: colorScheme.outline.withAlpha(15),
+          color: colorScheme.outline.withValues(alpha: 0.06),
         ),
       ),
-      clipBehavior: Clip.antiAlias,
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 左翼颜色条
-            Container(width: 3.5, color: amountColor.withAlpha(180)),
+            // 色条
+            Container(
+              width: 3.5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    amountColor,
+                    amountColor.withValues(alpha: 0.2),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(width: 10),
-            // 内容
+            // 分类 + 描述
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 第一行：金额 + 分类
-                    Row(
-                      children: [
-                        Text(
-                          '$sign${item.amount.abs().toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: amountColor,
-                            height: 1.2,
-                          ),
-                        ),
-                        const Spacer(),
-                        if (data.categoryName != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: isIncome
-                                  ? Colors.green.withAlpha(20)
-                                  : Colors.redAccent.withAlpha(20),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              data.categoryName!,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: amountColor,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    // 第二行：资金账户 + 日期
                     Text(
-                      lines.join('  ·  '),
+                      data.categoryName ?? '未分类',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 11,
-                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface,
+                        height: 1.3,
                       ),
                     ),
-                    // 第三行：描述
                     if (item.description != null &&
                         item.description!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 1),
                       Text(
                         item.description!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 11,
-                          color: colorScheme.onSurfaceVariant.withAlpha(160),
-                          fontStyle: FontStyle.italic,
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          height: 1.3,
                         ),
                       ),
                     ],
@@ -753,6 +759,20 @@ class _NoteFormContentState extends State<_NoteFormContent> {
               ),
             ),
             const SizedBox(width: 8),
+            // 金额
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                '$sign${item.amount.abs().toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: amountColor,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
           ],
         ),
       ),
@@ -765,6 +785,9 @@ class _NoteFormContentState extends State<_NoteFormContent> {
     ThemeSpacing spacing,
   ) {
     final theme = Theme.of(context);
+    final groups = provider.groups;
+    final selectedCode = provider.groupCode;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
         spacing.contentPadding.left,
@@ -775,56 +798,193 @@ class _NoteFormContentState extends State<_NoteFormContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '分组',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
-            ),
-          ),
-          SizedBox(height: spacing.formItemSpacing / 1.5),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
+          Row(
             children: [
-              ...provider.groups.map((group) {
-                final selected = provider.groupCode == group.code;
-                return FilterChip(
-                  label: Text(group.name),
-                  selected: selected,
-                  onSelected: (_) => provider.updateGroup(group),
-                  visualDensity: VisualDensity.compact,
-                  selectedColor: colorScheme.primaryContainer.withAlpha(120),
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    color: selected
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurfaceVariant,
-                  ),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  side: selected
-                      ? BorderSide(
-                          color: colorScheme.primary.withAlpha(30), width: 0.5)
-                      : BorderSide.none,
-                  showCheckmark: false,
-                );
-              }),
-              ActionChip(
-                label: const Icon(Icons.add, size: 15),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                side: BorderSide(
-                  color: colorScheme.outline.withAlpha(40),
-                  width: 0.5,
+              Icon(Icons.folder_outlined,
+                  size: 14, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 5),
+              Text(
+                '分组',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w600,
                 ),
-                onPressed: () => _handleCreateGroup(provider),
               ),
+              const Spacer(),
+              if (selectedCode != 'none')
+                Text(
+                  groups.where((g) => g.code == selectedCode).firstOrNull?.name ?? '',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
             ],
+          ),
+          SizedBox(height: spacing.formItemSpacing * 0.45),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ...groups.map((group) {
+                  final selected = selectedCode == group.code;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _buildGroupChip(
+                      group, selected, colorScheme, theme, provider),
+                  );
+                }),
+                _buildAddGroupChip(colorScheme, provider),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildGroupChip(
+    AccountSymbol group,
+    bool selected,
+    ColorScheme colorScheme,
+    ThemeData theme,
+    NoteFormProvider provider,
+  ) {
+    return GestureDetector(
+      onTap: () => provider.updateGroup(group),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.7)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected
+                ? colorScheme.outline.withValues(alpha: 0.3)
+                : colorScheme.outline.withValues(alpha: 0.08),
+            width: selected ? 1.0 : 0.5,
+          ),
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 100),
+            child: Text(
+              group.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: selected
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurfaceVariant,
+                fontWeight: selected ? FontWeight.w600 : null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddGroupChip(ColorScheme colorScheme, NoteFormProvider provider) {
+    return GestureDetector(
+      onTap: () => _showCreateGroupSheet(provider),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+          border: Border.all(
+            color: colorScheme.outline.withValues(alpha: 0.08),
+            width: 0.5,
+          ),
+        ),
+        child: Icon(Icons.add_rounded,
+            size: 18, color: colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
+
+  Future<void> _showCreateGroupSheet(NoteFormProvider provider) async {
+    final controller = TextEditingController();
+    final name = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(ctx)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '新建分组',
+                style: Theme.of(ctx)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: '输入分组名称',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+                child: const Text('创建'),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+    if (name != null && name.isNotEmpty && mounted) {
+      final result = await DriverFactory.driver.createSymbol(
+        AppConfigManager.instance.userId,
+        provider.bookMeta.id,
+        name: name,
+        symbolType: SymbolType.noteGroup,
+      );
+      if (result.data != null && mounted) {
+        await provider.loadGroups();
+        final newGroup = provider.groups.firstWhere((g) => g.name == name);
+        provider.updateGroup(newGroup);
+      }
+    }
   }
 
   Widget _buildAttachmentSection(
@@ -843,14 +1003,32 @@ class _NoteFormContentState extends State<_NoteFormContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '附件',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
-            ),
+          Row(
+            children: [
+              Icon(Icons.attach_file_outlined,
+                  size: 14, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 5),
+              Text(
+                '附件',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (provider.attachments.isNotEmpty) ...[
+                const SizedBox(width: 6),
+                Text(
+                  '${provider.attachments.length}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ],
           ),
-          SizedBox(height: spacing.formItemSpacing / 1.5),
+          SizedBox(height: spacing.formItemSpacing * 0.45),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -861,39 +1039,76 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                   onLongPress: () =>
                       _handleDeleteAttachment(provider, attachment.id),
                   child: Container(
-                    width: 52,
-                    height: 52,
+                    width: 56,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: colorScheme.surfaceContainerHighest,
-                      image: isImage && attachment.file != null
-                          ? DecorationImage(
-                              image: FileImage(attachment.file!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
                     ),
-                    child: !isImage
-                        ? Icon(Icons.insert_drive_file_outlined,
-                            size: 20, color: colorScheme.onSurfaceVariant)
-                        : null,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: colorScheme.surfaceContainerHighest,
+                            image: isImage && attachment.file != null
+                                ? DecorationImage(
+                                    image: FileImage(attachment.file!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: !isImage
+                              ? Icon(Icons.insert_drive_file_outlined,
+                                  size: 22, color: colorScheme.onSurfaceVariant)
+                              : null,
+                        ),
+                        const SizedBox(height: 3),
+                        SizedBox(
+                          width: 56,
+                          child: Text(
+                            attachment.originName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }),
               GestureDetector(
                 onTap: () => _handleAddAttachment(provider),
                 child: Container(
-                  width: 52,
-                  height: 52,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: colorScheme.outline.withAlpha(30),
+                      color: colorScheme.outline.withValues(alpha: 0.25),
                       width: 0.5,
                     ),
                   ),
-                  child:
-                      Icon(Icons.add, color: colorScheme.onSurfaceVariant),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add, size: 20,
+                          color: colorScheme.onSurfaceVariant),
+                      Text(
+                        '添加',
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -901,46 +1116,6 @@ class _NoteFormContentState extends State<_NoteFormContent> {
         ],
       ),
     );
-  }
-
-  Future<void> _handleCreateGroup(NoteFormProvider provider) async {
-    final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('新建分组'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '输入分组名称',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-    if (name != null && name.isNotEmpty) {
-      final result = await DriverFactory.driver.createSymbol(
-        AppConfigManager.instance.userId,
-        provider.bookMeta.id,
-        name: name,
-        symbolType: SymbolType.noteGroup,
-      );
-      if (result.data != null) {
-        await provider.loadGroups();
-        final newGroup = provider.groups.firstWhere((g) => g.name == name);
-        provider.updateGroup(newGroup);
-      }
-    }
   }
 
   void _handleDeleteAttachment(NoteFormProvider provider, String attachmentId) {
