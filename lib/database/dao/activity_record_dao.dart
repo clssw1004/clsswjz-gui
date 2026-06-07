@@ -17,18 +17,23 @@ class ActivityRecordDao extends BaseBookDao<ActivityRecordTable, ActivityRecord>
     ];
   }
 
-  /// 按日期范围查询
+  /// 按日期范围查询（可选按活动定义筛选）
   Future<List<ActivityRecord>> listByDateRange(
     String bookId,
     String startDate,
     String endDate, {
     int? limit,
     int? offset,
+    String? activityDefId,
   }) {
+    final a = db.activityRecordTable;
+    var where = a.accountBookId.equals(bookId) &
+        a.recordDate.isBetweenValues(startDate, endDate);
+    if (activityDefId != null) {
+      where = where & a.activityDefId.equals(activityDefId);
+    }
     final query = (db.select(table)
-      ..where((t) =>
-          t.accountBookId.equals(bookId) &
-          t.recordDate.isBetweenValues(startDate, endDate))
+      ..where((_) => where)
       ..orderBy([(t) => OrderingTerm.desc(t.recordDate), (t) => OrderingTerm.desc(t.createdAt)]));
     if (limit != null) query.limit(limit, offset: offset);
     return query.get();

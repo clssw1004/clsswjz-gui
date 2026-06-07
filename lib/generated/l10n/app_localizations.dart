@@ -2660,6 +2660,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show activity check-in entry button on Mine tab'**
   String get activityCheckinEntryDescription;
+
+  /// This week label
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeek;
+
+  /// Active label
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// Activity detail page title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Detail'**
+  String get activityDetail;
+
+  /// No description provided for @checkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check In'**
+  String get checkIn;
+
+  /// Activity statistics card title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Statistics'**
+  String get activityStatistics;
 }
 
 class _AppLocalizationsDelegate

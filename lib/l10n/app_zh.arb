@@ -1398,5 +1398,19 @@
     "activityCheckinEntryDescription": "在「我的」页面显示活动打卡入口按钮",
     "@activityCheckinEntryDescription": {
         "description": "活动打卡入口开关描述"
-    }
+    },
+    "thisWeek": "本周",
+    "@thisWeek": {
+        "description": "本周标签"
+    },
+    "active": "活跃",
+    "@active": {
+        "description": "活跃标签"
+    },
+    "activityStatistics": "活动统计",
+    "activityDetail": "活动详情",
+    "@activityDetail": {
+        "description": "活动详情页面标题"
+    },
+    "checkIn": "打卡"
 }

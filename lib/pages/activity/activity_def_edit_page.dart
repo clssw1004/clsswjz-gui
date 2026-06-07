@@ -18,14 +18,22 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
   bool get isEditing => widget.definition != null;
 
   static const List<int> _presetColors = [
-    0xFFE53935, 0xFFFF7043, 0xFFFDD835, 0xFF43A047,
-    0xFF26A69A, 0xFF1E88E5, 0xFF5C6BC0, 0xFFAB47BC,
-    0xFFEC407A, 0xFF8D6E63,
+    0xFFE53935, 0xFFEF5350, 0xFFFF7043, 0xFFFF8A65,
+    0xFFFDD835, 0xFFFFCA28, 0xFFF9A825, 0xFFFF6F00,
+    0xFF43A047, 0xFF66BB6A, 0xFF26A69A, 0xFF80CBC4,
+    0xFF1E88E5, 0xFF42A5F5, 0xFF5C6BC0, 0xFF7E57C2,
+    0xFFAB47BC, 0xFFCE93D8, 0xFFEC407A, 0xFFF06292,
+    0xFF8D6E63, 0xFFA1887F, 0xFF78909C, 0xFF90A4AE,
   ];
 
-  static const List<String> _presetEmojis = [
-    '🏃', '📖', '🧘', '💧', '🥗', '🎵', '✍️', '🎨',
-    '🏋️', '🚴', '🧹', '🌱', '📝', '☕', '💊', '🦷',
+  static const List<Map<String, List<String>>> _emojiCategories = [
+    {'运动': ['🏃', '🚶', '🏊', '🚴', '🧘', '🤸', '⛹️', '🏋️', '⚽', '🏀', '🎾', '🏸']},
+    {'学习': ['📖', '✍️', '📝', '📚', '🎓', '💡', '🧠', '📌']},
+    {'生活': ['💧', '🥗', '☕', '🍎', '🥦', '💊', '🦷', '🧹', '🛌', '🚿']},
+    {'健康': ['❤️', '💪', '🧘‍♀️', '🌿', '🧴', '🏥', '🩺', '😌']},
+    {'爱好': ['🎵', '🎨', '🎮', '🎬', '📷', '🎸', '🎹', '🎧', '✈️', '🌍']},
+    {'自然': ['🌱', '🌻', '🌲', '🌸', '☀️', '🌙', '⭐', '🌈', '🍀']},
+    {'其他': ['🎯', '⭐', '🔥', '💎', '🎁', '🔔', '💼', '🗂️', '🔄']},
   ];
 
   @override
@@ -50,46 +58,84 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
   void _showEmojiPicker() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(L10nManager.l10n.selectEmoji,
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _presetEmojis.map((emoji) {
-                  final selected = _emoji == emoji;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => _emoji = emoji);
-                      Navigator.pop(context);
-                    },
+        final colorScheme = Theme.of(context).colorScheme;
+        return DraggableScrollableSheet(
+          initialChildSize: 0.55,
+          minChildSize: 0.35,
+          maxChildSize: 0.7,
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
                     child: Container(
-                      padding: const EdgeInsets.all(10),
+                      width: 32, height: 4,
                       decoration: BoxDecoration(
-                        color: selected
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: selected
-                            ? Border.all(
-                                color: Theme.of(context).colorScheme.primary, width: 2)
-                            : null,
+                        color: colorScheme.onSurfaceVariant.withAlpha(80),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      child: Text(emoji, style: const TextStyle(fontSize: 24)),
                     ),
-                  );
-                }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(L10nManager.l10n.selectEmoji,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: _emojiCategories.map((category) {
+                        final name = category.keys.first;
+                        final emojis = category.values.first;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name,
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant)),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: emojis.map((emoji) {
+                                  final selected = _emoji == emoji;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() => _emoji = emoji);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: selected
+                                            ? colorScheme.primaryContainer
+                                            : colorScheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: selected
+                                            ? Border.all(color: colorScheme.primary, width: 2)
+                                            : null,
+                                      ),
+                                      child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -234,9 +280,9 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
     if (name.isEmpty) return;
 
     Navigator.pop(context, (
-      name: name,
-      emoji: _emoji,
-      color: _color,
+      name,
+      _emoji,
+      _color,
     ));
   }
 }

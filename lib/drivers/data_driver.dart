@@ -347,6 +347,7 @@ abstract class BookDataDriver {
     int offset = 0,
     String? startDate,
     String? endDate,
+    String? activityDefId,
   });
 
   /// 获取去重的活动名称列表（用于自动补全）

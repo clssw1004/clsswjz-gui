@@ -1041,12 +1041,13 @@ class LogDataDriver implements BookDataDriver {
     int offset = 0,
     String? startDate,
     String? endDate,
+    String? activityDefId,
   }) async {
     try {
       List<ActivityRecord> records;
       if (startDate != null && endDate != null) {
         records = await DaoManager.activityRecordDao
-            .listByDateRange(bookId, startDate, endDate, limit: limit, offset: offset);
+            .listByDateRange(bookId, startDate, endDate, limit: limit, offset: offset, activityDefId: activityDefId);
       } else {
         records = await DaoManager.activityRecordDao
             .listByBook(bookId, limit: limit, offset: offset);

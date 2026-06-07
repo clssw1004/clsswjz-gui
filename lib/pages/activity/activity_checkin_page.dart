@@ -5,6 +5,7 @@ import '../../models/vo/activity_definition_vo.dart';
 import '../../providers/activity_checkin_provider.dart';
 import '../../widgets/activity/activity_checkin_grid.dart';
 import 'activity_def_edit_page.dart';
+import 'activity_detail_page.dart';
 
 class ActivityCheckinPage extends StatefulWidget {
   const ActivityCheckinPage({super.key});
@@ -26,6 +27,15 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
     context.read<ActivityCheckinProvider>().checkIn(def.id);
   }
 
+  void _onTapDetail(ActivityDefinitionVO def) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ActivityDetailPage(definition: def),
+      ),
+    );
+  }
+
   void _onLongPress(ActivityDefinitionVO def) {
     showModalBottomSheet(
       context: context,
@@ -33,6 +43,14 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ListTile(
+              leading: const Icon(Icons.bar_chart_outlined),
+              title: Text(L10nManager.l10n.activityDetail),
+              onTap: () {
+                Navigator.pop(ctx);
+                _onTapDetail(def);
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.edit),
               title: Text(L10nManager.l10n.edit),
@@ -113,6 +131,82 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
         .createDefinition(name: name, emoji: emoji, color: color);
   }
 
+  Widget _buildStatsCard(
+    ActivityCheckinProvider provider,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Card(
+        elevation: 0,
+        color: colorScheme.surfaceContainerHighest.withAlpha(100),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: Row(
+            children: [
+              _buildStatItem(
+                icon: Icons.today_outlined,
+                value: '${provider.todayTotal}',
+                label: L10nManager.l10n.currentDay,
+                color: colorScheme.primary,
+                theme: theme,
+              ),
+              _buildDivider(colorScheme),
+              _buildStatItem(
+                icon: Icons.date_range_outlined,
+                value: '${provider.weekTotal}',
+                label: L10nManager.l10n.thisWeek,
+                color: colorScheme.tertiary,
+                theme: theme,
+              ),
+              _buildDivider(colorScheme),
+              _buildStatItem(
+                icon: Icons.favorite_outline,
+                value: '${provider.todayDistinctCount}',
+                label: L10nManager.l10n.active,
+                color: colorScheme.error,
+                theme: theme,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+    required ThemeData theme,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(height: 4),
+          Text(value,
+              style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold, color: color)),
+          Text(label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                  color: color.withAlpha(180))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider(ColorScheme colorScheme) {
+    return Container(
+      width: 1,
+      height: 36,
+      color: colorScheme.outlineVariant.withAlpha(80),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -162,12 +256,14 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
             child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
+                  child: _buildStatsCard(provider, theme, colorScheme),
+                ),
+                SliverToBoxAdapter(
                   child: ActivityCheckinGrid(
                     definitions: provider.definitions,
                     todayCounts: provider.todayCounts,
                     onCheckIn: _onCheckIn,
                     onLongPress: _onLongPress,
-                    onAddNew: _navigateToCreate,
                   ),
                 ),
                 SliverToBoxAdapter(

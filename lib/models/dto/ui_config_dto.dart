@@ -19,6 +19,13 @@ class UiConfigDTO {
     this.statisticsSelectedProjects = const [],
     this.mineTabShowActivityCheckin = true,
     this.useNewItemForm = true,
+    this.itemTabComponentOrder = const [
+      'daily_bar',
+      'daily_calendar',
+      'user_monthly',
+      'activity_recent',
+      'debt',
+    ],
   });
 
   final bool itemTabShowDebt;
@@ -29,6 +36,9 @@ class UiConfigDTO {
 
   /// 是否使用新版账目表单
   final bool useNewItemForm;
+
+  /// 记账页组件显示顺序
+  final List<String> itemTabComponentOrder;
 
   /// 是否在「我的」页面显示活动打卡入口
   final bool mineTabShowActivityCheckin;
@@ -85,6 +95,16 @@ class UiConfigDTO {
           [],
       mineTabShowActivityCheckin: json['mineTabShowActivityCheckin'] ?? true,
       useNewItemForm: json['useNewItemForm'] ?? false,
+      itemTabComponentOrder: (json['itemTabComponentOrder'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [
+            'daily_bar',
+            'daily_calendar',
+            'user_monthly',
+            'activity_recent',
+            'debt',
+          ],
     );
   }
 
@@ -111,6 +131,7 @@ class UiConfigDTO {
       'statisticsSelectedProjects': uiConfig.statisticsSelectedProjects,
       'mineTabShowActivityCheckin': uiConfig.mineTabShowActivityCheckin,
       'useNewItemForm': uiConfig.useNewItemForm,
+      'itemTabComponentOrder': uiConfig.itemTabComponentOrder,
     };
   }
 

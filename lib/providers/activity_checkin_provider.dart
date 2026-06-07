@@ -30,6 +30,13 @@ class ActivityCheckinProvider extends ChangeNotifier {
   int get todayTotal =>
       _todayCounts.values.fold(0, (sum, v) => sum + v);
 
+  /// 今日活跃活动数
+  int get todayDistinctCount => _todayCounts.length;
+
+  /// 本周累计打卡次数
+  int _weekTotal = 0;
+  int get weekTotal => _weekTotal;
+
   /// 最近打卡记录
   List<ActivityRecordVO> _recentRecords = [];
   List<ActivityRecordVO> get recentRecords => _recentRecords;
@@ -65,7 +72,12 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 全量加载
   Future<void> loadAll() async {
-    await Future.wait([loadDefinitions(), loadTodayCounts(), loadRecentRecords()]);
+    await Future.wait([
+      loadDefinitions(),
+      loadTodayCounts(),
+      loadWeekCounts(),
+      loadRecentRecords(),
+    ]);
   }
 
   /// 加载所有活动定义
@@ -104,6 +116,24 @@ class ActivityCheckinProvider extends ChangeNotifier {
     }
   }
 
+  /// 加载本周打卡记录
+  Future<void> loadWeekCounts() async {
+    if (_currentBookId == null) return;
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    final sunday = monday.add(const Duration(days: 6));
+    final result = await DriverFactory.driver.listActivityRecordsByBook(
+      AppConfigManager.instance.userId,
+      _currentBookId!,
+      startDate: DateUtil.formatDate(monday),
+      endDate: DateUtil.formatDate(sunday),
+    );
+    if (result.ok) {
+      _weekTotal = result.data?.length ?? 0;
+      notifyListeners();
+    }
+  }
+
   /// 加载最近打卡记录
   Future<void> loadRecentRecords({int limit = 5}) async {
     if (_currentBookId == null) return;
@@ -115,6 +145,29 @@ class ActivityCheckinProvider extends ChangeNotifier {
     );
     if (result.ok) {
       _recentRecords = result.data ?? [];
+      notifyListeners();
+    }
+  }
+
+  /// 加载指定活动的打卡记录
+  List<ActivityRecordVO> _recordsByDefId = [];
+  List<ActivityRecordVO> get recordsByDefId => _recordsByDefId;
+  int _todayCountByDefId = 0;
+  int get todayCountByDefId => _todayCountByDefId;
+
+  Future<void> loadRecordsByDefId(String defId, {int limit = 50}) async {
+    if (_currentBookId == null) return;
+    final today = DateUtil.nowDate();
+    final result = await DriverFactory.driver.listActivityRecordsByBook(
+      AppConfigManager.instance.userId,
+      _currentBookId!,
+      activityDefId: defId,
+      limit: limit,
+      offset: 0,
+    );
+    if (result.ok) {
+      _recordsByDefId = result.data ?? [];
+      _todayCountByDefId = _recordsByDefId.where((r) => r.recordDate == today).length;
       notifyListeners();
     }
   }
@@ -135,6 +188,23 @@ class ActivityCheckinProvider extends ChangeNotifier {
     );
     if (result.ok) {
       _todayCounts[defId] = (_todayCounts[defId] ?? 0) + 1;
+      notifyListeners();
+    }
+    return result.ok;
+  }
+
+  /// 删除打卡记录
+  Future<bool> deleteRecord(String recordId) async {
+    if (_currentBookId == null) return false;
+    final result = await DriverFactory.driver.deleteActivityRecord(
+      AppConfigManager.instance.userId,
+      _currentBookId!,
+      recordId,
+    );
+    if (result.ok) {
+      _recordsByDefId.removeWhere((r) => r.id == recordId);
+      final today = DateUtil.nowDate();
+      _todayCountByDefId = _recordsByDefId.where((r) => r.recordDate == today).length;
       notifyListeners();
     }
     return result.ok;

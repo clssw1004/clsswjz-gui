@@ -8,6 +8,7 @@ import '../../providers/item_list_provider.dart';
 import '../../providers/statistics_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/navigation_util.dart';
+import '../../models/vo/book_meta.dart';
 import '../../widgets/book/book_selector.dart';
 import '../../widgets/book/book_statistic_card.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -102,7 +103,9 @@ class _ItemsTabState extends State<ItemsTab>
           final spacing = Theme.of(context).spacing;
           // 加载最近打卡
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.read<ActivityCheckinProvider>().loadRecentRecords();
+            final p = context.read<ActivityCheckinProvider>();
+            p.loadRecentRecords();
+            p.loadDefinitions();
           });
 
           return Stack(
@@ -136,68 +139,14 @@ class _ItemsTabState extends State<ItemsTab>
                     ),
                   ),
 
-                  // 每日统计卡片（柱状图） - 根据配置决定是否显示
-                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyBar)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                      child: DailyStatisticBar(
-                        dailyStats: statisticsProvider.dailyStatistics ?? [],
-                        loading: statisticsProvider.loadingDailyStatistics,
-                      ),
-                    ),
-
-                  // 每日统计（日历） - 根据配置决定是否显示
-                  if (AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                      child: DailyStatisticCalendar(
-                        dailyStats: statisticsProvider.dailyStatistics ?? [],
-                        loading: statisticsProvider.loadingDailyStatistics,
-                      ),
-                    ),
-
-                  // 按用户当月统计（双Y轴柱状图） - 根据配置决定是否显示
-                  if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                      child: UserMonthlyStatisticChart(
-                        data: statisticsProvider.userMonthlyStatistics ?? [],
-                        loading: statisticsProvider.loadingUserMonthly,
-                      ),
-                    ),
-
-
-                  // 最近打卡 - 根据配置决定是否显示
-                  Consumer<ActivityCheckinProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.recentRecords.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                        child: ActivityRecentRecords(
-                          records: provider.recentRecords,
-                          onViewAll: () => Navigator.pushNamed(
-                              context, AppRoutes.activityCheckin),
-                        ),
-                      );
-                    },
+                  ..._buildOrderedComponents(
+                    bookMeta: bookMeta,
+                    spacing: spacing,
+                    statisticsProvider: statisticsProvider,
+                    debtListProvider: debtListProvider,
+                    bookProvider: bookProvider,
+                    context: context,
                   ),
-
-                  // 债务信息 - 根据配置决定是否显示
-                  if (AppConfigManager.instance.uiConfig.itemTabShowDebt)
-                    Padding(
-                      padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                      child: DebtsContainer(
-                        debts: debtListProvider.debts.take(3).toList(),
-                        bookMeta: bookProvider.selectedBook,
-                        loading: debtListProvider.loading,
-                        onItemTap: (debt) {
-                          NavigationUtil.toDebtEdit(context, debt);
-                        },
-                        onRefresh: () => debtListProvider.loadDebts(),
-                      ),
-                    ),
                 ],
               ),
             ],
@@ -205,5 +154,91 @@ class _ItemsTabState extends State<ItemsTab>
         },
       ),
     );
+  }
+
+  /// 根据配置顺序渲染记账页统计组件
+  List<Widget> _buildOrderedComponents({
+    required BookMetaVO? bookMeta,
+    required ThemeSpacing spacing,
+    required StatisticsProvider statisticsProvider,
+    required DebtListProvider debtListProvider,
+    required BooksProvider bookProvider,
+    required BuildContext context,
+  }) {
+    final order = AppConfigManager.instance.uiConfig.itemTabComponentOrder;
+    final widgets = <Widget>[];
+
+    for (final key in order) {
+      switch (key) {
+        case 'daily_bar':
+          if (AppConfigManager.instance.uiConfig.itemTabShowDailyBar) {
+            widgets.add(Padding(
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+              child: DailyStatisticBar(
+                dailyStats: statisticsProvider.dailyStatistics ?? [],
+                loading: statisticsProvider.loadingDailyStatistics,
+              ),
+            ));
+          }
+          break;
+        case 'daily_calendar':
+          if (AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar) {
+            widgets.add(Padding(
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+              child: DailyStatisticCalendar(
+                dailyStats: statisticsProvider.dailyStatistics ?? [],
+                loading: statisticsProvider.loadingDailyStatistics,
+              ),
+            ));
+          }
+          break;
+        case 'user_monthly':
+          if (AppConfigManager.instance.uiConfig.itemTabShowUserMonthly) {
+            widgets.add(Padding(
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+              child: UserMonthlyStatisticChart(
+                data: statisticsProvider.userMonthlyStatistics ?? [],
+                loading: statisticsProvider.loadingUserMonthly,
+              ),
+            ));
+          }
+          break;
+        case 'activity_recent':
+          widgets.add(
+            Consumer<ActivityCheckinProvider>(
+              builder: (context, provider, _) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+                  child: ActivityRecentRecords(
+                    definitions: provider.definitions,
+                    todayCounts: provider.todayCounts,
+                    onViewAll: () => Navigator.pushNamed(
+                        context, AppRoutes.activityCheckin),
+                  ),
+                );
+              },
+            ),
+          );
+          break;
+        case 'debt':
+          if (AppConfigManager.instance.uiConfig.itemTabShowDebt) {
+            widgets.add(Padding(
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+              child: DebtsContainer(
+                debts: debtListProvider.debts.take(3).toList(),
+                bookMeta: bookProvider.selectedBook,
+                loading: debtListProvider.loading,
+                onItemTap: (debt) {
+                  NavigationUtil.toDebtEdit(context, debt);
+                },
+                onRefresh: () => debtListProvider.loadDebts(),
+              ),
+            ));
+          }
+          break;
+      }
+    }
+
+    return widgets;
   }
 }

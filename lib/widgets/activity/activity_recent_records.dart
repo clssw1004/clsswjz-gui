@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../manager/l10n_manager.dart';
-import '../../models/vo/activity_record_vo.dart';
+import '../../models/vo/activity_definition_vo.dart';
 
+/// 最近打卡活动摘要（按活动分组展示）
 class ActivityRecentRecords extends StatelessWidget {
-  final List<ActivityRecordVO> records;
+  final List<ActivityDefinitionVO> definitions;
+  final Map<String, int> todayCounts;
   final VoidCallback? onViewAll;
 
   const ActivityRecentRecords({
     super.key,
-    required this.records,
+    required this.definitions,
+    required this.todayCounts,
     this.onViewAll,
   });
 
@@ -16,6 +19,12 @@ class ActivityRecentRecords extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    final activeDefs = definitions
+        .where((d) => (todayCounts[d.id] ?? 0) > 0)
+        .toList();
+
+    if (activeDefs.isEmpty) return const SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -58,40 +67,46 @@ class ActivityRecentRecords extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            if (records.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(L10nManager.l10n.noCheckinRecords,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant)),
-              )
-            else
-              ...records.map((r) => _buildRecordTile(r, theme, colorScheme)),
+            ...activeDefs.map((d) => _buildRow(d, theme, colorScheme)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecordTile(
-      ActivityRecordVO record, ThemeData theme, ColorScheme colorScheme) {
-    final time = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
-    final timeStr =
-        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  Widget _buildRow(
+    ActivityDefinitionVO def,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    final count = todayCounts[def.id] ?? 0;
+    final bgColor = Color(def.color);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Text('🏃', style: const TextStyle(fontSize: 18)),
+          Text(def.emoji, style: const TextStyle(fontSize: 22)),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(record.activityName,
+            child: Text(def.name,
                 style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500)),
           ),
-          Text(timeStr,
-              style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: bgColor.withAlpha(40),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              L10nManager.l10n.activityTimes(count),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: bgColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
       ),
     );

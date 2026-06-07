@@ -12,31 +12,21 @@ import '../../widgets/book/note_group_filter.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../widgets/common/common_search_field.dart';
-import '../../widgets/activity/activity_list_view.dart';
 
 class NotesTab extends StatefulWidget {
-  final ValueChanged<bool>? onActivityTabChanged;
-
-  const NotesTab({super.key, this.onActivityTabChanged});
+  const NotesTab({super.key});
 
   @override
   State<NotesTab> createState() => _NotesTabState();
 }
 
-class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _NotesTabState extends State<NotesTab> {
   bool _isRefreshing = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        widget.onActivityTabChanged?.call(_tabController.index == 1);
-      }
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<NoteListProvider>();
       provider.loadNotes();
@@ -45,7 +35,6 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -75,118 +64,96 @@ class _NotesTabState extends State<NotesTab> with SingleTickerProviderStateMixin
     provider.setGroupCodes(groupCodes);
   }
 
-  Widget _buildNotesView(ThemeData theme, BooksProvider booksProvider) {
-    final spacing = theme.spacing;
-
-    return Consumer2<NoteListProvider, SyncProvider>(
-      builder: (context, noteListProvider, syncProvider, child) {
-        return Column(
-          children: [
-            // 搜索栏
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                spacing.contentPadding.left,
-                spacing.contentPadding.top,
-                spacing.contentPadding.right,
-                spacing.formItemSpacing,
-              ),
-              child: CommonSearchField(
-                width: double.infinity,
-                controller: _searchController,
-                hintText: L10nManager.l10n.search,
-                onSubmitted: (_) => _handleSearch(),
-                onClear: _handleSearch,
-              ),
-            ),
-            // 分组筛选
-            if (booksProvider.selectedBook != null)
-              Padding(
-                padding: EdgeInsets.only(
-                  left: spacing.contentPadding.left,
-                  right: spacing.contentPadding.right,
-                  bottom: spacing.formItemSpacing,
-                ),
-                child: NoteGroupFilter(
-                  bookId: booksProvider.selectedBook!.id,
-                  selectedGroupCodes: noteListProvider.groupCodes,
-                  onGroupCodesChanged: _handleGroupFilterChanged,
-                ),
-              ),
-            // 笔记列表
-            Expanded(
-              child: Stack(
-                children: [
-                  CustomRefreshIndicator(
-                    onRefresh: _handleRefresh,
-                    builder: (context, child, controller) => child,
-                    child: NoteList(
-                      accountBook: booksProvider.selectedBook,
-                      initialNotes: noteListProvider.notes,
-                      loading: noteListProvider.loading,
-                      hasMore: noteListProvider.hasMore,
-                      onLoadMore: () => noteListProvider.loadMore(),
-                      onDelete: noteListProvider.deleteNote,
-                      onNoteTap: (note) {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.noteEdit,
-                          arguments: [note, booksProvider.selectedBook],
-                        ).then((updated) {
-                          if (updated == true) {
-                            noteListProvider.loadNotes(true);
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  if (syncProvider.syncing && syncProvider.currentStep != null)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: ProgressIndicatorBar(
-                        value: syncProvider.progress,
-                        label: syncProvider.currentStep!,
-                        height: 24,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final booksProvider = Provider.of<BooksProvider>(context);
-    final l10n = L10nManager.l10n;
+    final spacing = theme.spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(l10n.tabNotes),
+        title: Text(L10nManager.l10n.tabNotes),
         showBackButton: false,
         centerTitle: false,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: theme.colorScheme.onSurface,
-          unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-          indicatorColor: theme.colorScheme.primary,
-          tabs: [
-            Tab(text: l10n.tabNotes),
-            Tab(text: l10n.tabActivity),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildNotesView(theme, booksProvider),
-          const ActivityListView(),
-        ],
+      body: Consumer2<NoteListProvider, SyncProvider>(
+        builder: (context, noteListProvider, syncProvider, child) {
+          return Column(
+            children: [
+              // 搜索栏
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  spacing.contentPadding.left,
+                  spacing.contentPadding.top,
+                  spacing.contentPadding.right,
+                  spacing.formItemSpacing,
+                ),
+                child: CommonSearchField(
+                  width: double.infinity,
+                  controller: _searchController,
+                  hintText: L10nManager.l10n.search,
+                  onSubmitted: (_) => _handleSearch(),
+                  onClear: _handleSearch,
+                ),
+              ),
+              // 分组筛选
+              if (booksProvider.selectedBook != null)
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: spacing.contentPadding.left,
+                    right: spacing.contentPadding.right,
+                    bottom: spacing.formItemSpacing,
+                  ),
+                  child: NoteGroupFilter(
+                    bookId: booksProvider.selectedBook!.id,
+                    selectedGroupCodes: noteListProvider.groupCodes,
+                    onGroupCodesChanged: _handleGroupFilterChanged,
+                  ),
+                ),
+              // 笔记列表
+              Expanded(
+                child: Stack(
+                  children: [
+                    CustomRefreshIndicator(
+                      onRefresh: _handleRefresh,
+                      builder: (context, child, controller) => child,
+                      child: NoteList(
+                        accountBook: booksProvider.selectedBook,
+                        initialNotes: noteListProvider.notes,
+                        loading: noteListProvider.loading,
+                        hasMore: noteListProvider.hasMore,
+                        onLoadMore: () => noteListProvider.loadMore(),
+                        onDelete: noteListProvider.deleteNote,
+                        onNoteTap: (note) {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.noteEdit,
+                            arguments: [note, booksProvider.selectedBook],
+                          ).then((updated) {
+                            if (updated == true) {
+                              noteListProvider.loadNotes(true);
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    if (syncProvider.syncing && syncProvider.currentStep != null)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: ProgressIndicatorBar(
+                          value: syncProvider.progress,
+                          label: syncProvider.currentStep!,
+                          height: 24,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

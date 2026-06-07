@@ -1392,5 +1392,22 @@
     "activityCheckinEntryDescription": "Show activity check-in entry button on Mine tab",
     "@activityCheckinEntryDescription": {
         "description": "Activity check-in entry toggle description"
+    },
+    "thisWeek": "This Week",
+    "@thisWeek": {
+        "description": "This week label"
+    },
+    "active": "Active",
+    "@active": {
+        "description": "Active label"
+    },
+    "activityDetail": "Activity Detail",
+    "@activityDetail": {
+        "description": "Activity detail page title"
+    },
+    "checkIn": "Check In",
+    "activityStatistics": "Activity Statistics",
+    "@activityStatistics": {
+        "description": "Activity statistics card title"
     }
 }

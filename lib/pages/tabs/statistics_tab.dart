@@ -139,11 +139,13 @@ class _StatisticsTabState extends State<StatisticsTab> {
 
   /// 加载活动统计数据
   Future<void> _loadActivityStatistics(String bookId, DateTime? start, DateTime? end) async {
-    if (start == null || end == null) return;
     setState(() => _activityStatsLoading = true);
     try {
-      final startStr = '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
-      final endStr = '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}';
+      // 全时间范围时使用宽范围查询
+      final s = start ?? DateTime(2000, 1, 1);
+      final e = end ?? DateTime(2099, 12, 31);
+      final startStr = '${s.year}-${s.month.toString().padLeft(2, '0')}-${s.day.toString().padLeft(2, '0')}';
+      final endStr = '${e.year}-${e.month.toString().padLeft(2, '0')}-${e.day.toString().padLeft(2, '0')}';
       final result = await DriverFactory.driver.getActivityStatistics(
         AppConfigManager.instance.userId,
         bookId,

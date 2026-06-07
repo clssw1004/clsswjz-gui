@@ -1375,4 +1375,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get activityCheckinEntryDescription =>
       'Show activity check-in entry button on Mine tab';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get activityDetail => 'Activity Detail';
+
+  @override
+  String get checkIn => 'Check In';
+
+  @override
+  String get activityStatistics => 'Activity Statistics';
 }

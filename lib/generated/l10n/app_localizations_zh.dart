@@ -1364,6 +1364,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get activityCheckinEntryDescription => '在「我的」页面显示活动打卡入口按钮';
+
+  @override
+  String get thisWeek => '本周';
+
+  @override
+  String get active => '活跃';
+
+  @override
+  String get activityDetail => '活动详情';
+
+  @override
+  String get checkIn => '打卡';
+
+  @override
+  String get activityStatistics => '活动统计';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
