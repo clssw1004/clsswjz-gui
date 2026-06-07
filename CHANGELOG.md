@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2026-06-07
+
+### Features
+- Added activity check-in module: prefabricated activity list, daily tap to increment count
+- Activity check-in page, activity definition editor, check-in entry on Me tab
+- Drag-to-reorder for statistics components on Items tab (configured in Settings)
+
+### UI Enhancements
+- Recent checkins now grouped by activity with emoji and count badges
+- Activity statistics card standalone with "Activity Statistics" title
+- Statistics tab time range selector supports "All" range, activity stats adapts to all periods
+
+### Bug Fixes
+- Fixed activity statistics not loading when "All" time range selected
+- Fixed activity statistics title not using internationalization
+
 ## [1.1.2] - 2026-06-07
 
 ### Features
