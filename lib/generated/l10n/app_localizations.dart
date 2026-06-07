@@ -2546,6 +2546,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details'**
   String get details;
+
+  /// Activity check-in page title
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in'**
+  String get activityCheckin;
+
+  /// Edit activity title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Activity'**
+  String get activityEdit;
+
+  /// Create activity page title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Activity'**
+  String get activityCreate;
+
+  /// Delete action
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get activityDelete;
+
+  /// Select emoji dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Emoji'**
+  String get selectEmoji;
+
+  /// Tap to select emoji hint
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select emoji'**
+  String get clickToSelectEmoji;
+
+  /// Color label
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get color;
+
+  /// Emoji label
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get emoji;
+
+  /// Recent check-ins title
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Check-ins'**
+  String get recentCheckins;
+
+  /// View all link text
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No check-in records prompt
+  ///
+  /// In en, this message translates to:
+  /// **'No check-in records'**
+  String get noCheckinRecords;
+
+  /// Empty state when no activity definitions exist
+  ///
+  /// In en, this message translates to:
+  /// **'No activities yet'**
+  String get noActivityDefinitions;
+
+  /// Create first activity button text
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first activity'**
+  String get createFirstActivity;
+
+  /// Today's total check-in count
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {count} check-ins'**
+  String todayCheckinCount(int count);
+
+  /// Delete activity confirmation dialog content
+  ///
+  /// In en, this message translates to:
+  /// **'Delete [{name}]? Related check-in records will be kept.'**
+  String deleteActivityConfirm(String name);
+
+  /// Fuel record module name
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Record'**
+  String get fuelRecord;
+
+  /// Mine page settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Mine Page'**
+  String get minePageSettings;
+
+  /// Activity check-in entry toggle label
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Check-in Entry'**
+  String get activityCheckinEntry;
+
+  /// Activity check-in entry toggle description
+  ///
+  /// In en, this message translates to:
+  /// **'Show activity check-in entry button on Mine tab'**
+  String get activityCheckinEntryDescription;
+
+  /// This week label
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeek;
+
+  /// Active label
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// Activity detail page title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Detail'**
+  String get activityDetail;
+
+  /// No description provided for @checkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check In'**
+  String get checkIn;
+
+  /// Activity statistics card title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Statistics'**
+  String get activityStatistics;
 }
 
 class _AppLocalizationsDelegate

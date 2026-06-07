@@ -54,7 +54,7 @@ class ActivityStatisticCard extends StatelessWidget {
                     size: 18, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  L10nManager.l10n.activityMonthlyStats,
+                  L10nManager.l10n.activityStatistics,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

@@ -349,6 +349,7 @@ class AppConfigManager {
       statisticsCustomRangeEnd: _uiConfig.statisticsCustomRangeEnd,
       statisticsSelectedProjects: _uiConfig.statisticsSelectedProjects,
       useNewItemForm: _uiConfig.useNewItemForm,
+      itemTabComponentOrder: _uiConfig.itemTabComponentOrder,
     );
     await CacheManager.instance
         .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));

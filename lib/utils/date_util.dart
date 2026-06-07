@@ -9,4 +9,14 @@ class DateUtil {
   static String format(int timestamp) {
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(timestamp));
   }
+
+  /// 获取今日日期字符串：YYYY-MM-DD
+  static String nowDate() {
+    return DateFormat('yyyy-MM-dd').format(DateTime.now());
+  }
+
+  /// 格式化指定日期：YYYY-MM-DD
+  static String formatDate(DateTime date) {
+    return DateFormat('yyyy-MM-dd').format(date);
+  }
 }

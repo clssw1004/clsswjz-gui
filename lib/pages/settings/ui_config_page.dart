@@ -27,8 +27,10 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showStatisticsProjectStatistic;
   late bool _showStatisticsCategoryStatistic;
   late bool _showStatisticsActivityStatistic;
+  late bool _showActivityCheckin;
   late String _statisticsSelectedRange;
   DateTimeRange? _customRange;
+  late List<String> _itemTabOrder;
   List<String> _selectedProjects = [];
   List<AccountSymbol> _availableProjects = [];
   bool _loadingProjects = true;
@@ -52,8 +54,12 @@ class _UiConfigPageState extends State<UiConfigPage> {
         AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic;
     _showStatisticsActivityStatistic =
         AppConfigManager.instance.uiConfig.statisticsShowActivityStatistic;
+    _showActivityCheckin =
+        AppConfigManager.instance.uiConfig.mineTabShowActivityCheckin;
     _statisticsSelectedRange =
         AppConfigManager.instance.uiConfig.statisticsSelectedRange;
+    _itemTabOrder =
+        List.from(AppConfigManager.instance.uiConfig.itemTabComponentOrder);
     _selectedProjects =
         List.from(AppConfigManager.instance.uiConfig.statisticsSelectedProjects);
     final customStart =
@@ -139,158 +145,50 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // 债务展示开关
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              L10nManager.l10n.showDebt,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              L10nManager.l10n.showDebtDescription,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+
+                  // 组件排序提示
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.swap_vert,
+                            size: 16, color: colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Text(
+                          '拖拽调整组件显示顺序',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      Switch(
-                        value: _showDebt,
-                        onChanged: (value) {
-                          setState(() {
-                            _showDebt = value;
-                          });
-                          _updateUiConfig();
-                        },
-                        activeThumbColor: colorScheme.primary,
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+
+                  // 可拖拽排序的组件列表
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    itemCount: _itemTabOrder.length,
+                    onReorder: _onItemTabReorder,
+                    proxyDecorator: (child, index, animation) => Material(
+                      elevation: 2,
+                      borderRadius: BorderRadius.circular(12),
+                      color: colorScheme.surface,
+                      child: child,
+                    ),
+                    itemBuilder: (context, index) {
+                      final key = _itemTabOrder[index];
+                      return _buildItemTabComponentRow(
+                        key: key,
+                        index: index,
+                        theme: theme,
+                        colorScheme: colorScheme,
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 16),
-                  // 每日收支统计展示开关
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              L10nManager.l10n.showDailyStats,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              L10nManager.l10n.showDailyStatsDescription,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Switch(
-                        value: _showDailyStats,
-                        onChanged: (value) {
-                          setState(() {
-                            _showDailyStats = value;
-                          });
-                          _updateUiConfig();
-                        },
-                        activeThumbColor: colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // 每日收支统计（日历）展示开关
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              L10nManager.l10n.showDailyCalendar,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              L10nManager.l10n.showDailyCalendarDescription,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Switch(
-                        value: _showDailyCalendar,
-                        onChanged: (value) {
-                          setState(() {
-                            _showDailyCalendar = value;
-                          });
-                          _updateUiConfig();
-                        },
-                        activeThumbColor: colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // 按用户当月统计展示开关
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '按用户当月统计',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '显示当月各用户的收入/支出柱状图',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Switch(
-                        value: _showUserMonthly,
-                        onChanged: (value) {
-                          setState(() {
-                            _showUserMonthly = value;
-                          });
-                          _updateUiConfig();
-                        },
-                        activeThumbColor: colorScheme.primary,
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 16),
                   // 按项目当月统计展示开关
                   Row(
@@ -374,6 +272,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                             statisticsCustomRangeStart: AppConfigManager.instance.uiConfig.statisticsCustomRangeStart,
                             statisticsCustomRangeEnd: AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd,
                             statisticsSelectedProjects: AppConfigManager.instance.uiConfig.statisticsSelectedProjects,
+                            itemTabComponentOrder: _itemTabOrder,
                             useNewItemForm: value,
                           );
                           AppConfigManager.instance.setUiConfig(newConfig);
@@ -678,6 +577,69 @@ class _UiConfigPageState extends State<UiConfigPage> {
                 ],
               ),
             ),
+
+          // 我的页面设置
+          CommonCardContainer(
+            padding: spacing.listItemPadding,
+            margin: EdgeInsets.only(bottom: spacing.formGroupSpacing),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.person_outlined,
+                        size: 20, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      L10nManager.l10n.minePageSettings,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            L10nManager.l10n.activityCheckinEntry,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            L10nManager.l10n.activityCheckinEntryDescription,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _showActivityCheckin,
+                      onChanged: (value) {
+                        setState(() {
+                          _showActivityCheckin = value;
+                        });
+                        _updateUiConfig();
+                      },
+                      activeThumbColor: colorScheme.primary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
           ],
         ),
       ),
@@ -716,10 +678,12 @@ class _UiConfigPageState extends State<UiConfigPage> {
       statisticsShowProjectStatistic: _showStatisticsProjectStatistic,
       statisticsShowCategoryStatistic: _showStatisticsCategoryStatistic,
       statisticsShowActivityStatistic: _showStatisticsActivityStatistic,
+      mineTabShowActivityCheckin: _showActivityCheckin,
       statisticsSelectedRange: _statisticsSelectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
       statisticsSelectedProjects: _selectedProjects,
+      itemTabComponentOrder: _itemTabOrder,
     );
     await AppConfigManager.instance.setUiConfig(newConfig);
   }
@@ -752,6 +716,122 @@ class _UiConfigPageState extends State<UiConfigPage> {
     final startStr = '${start.year}/${start.month}/${start.day}';
     final endStr = '${end.year}/${end.month}/${end.day}';
     return '$startStr - $endStr';
+  }
+
+  /// 记账页组件拖拽排序
+  void _onItemTabReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex--;
+      final item = _itemTabOrder.removeAt(oldIndex);
+      _itemTabOrder.insert(newIndex, item);
+    });
+    _updateUiConfig();
+  }
+
+  /// 构建记账页组件行（拖拽手柄 + 名称 + 开关）
+  Widget _buildItemTabComponentRow({
+    required String key,
+    required int index,
+    required ThemeData theme,
+    required ColorScheme colorScheme,
+  }) {
+    final info = _componentInfo(key);
+
+    bool? toggleValue;
+    void Function(bool)? onChanged;
+    switch (key) {
+      case 'daily_bar':
+        toggleValue = _showDailyStats;
+        onChanged = (v) {
+          setState(() => _showDailyStats = v);
+          _updateUiConfig();
+        };
+        break;
+      case 'daily_calendar':
+        toggleValue = _showDailyCalendar;
+        onChanged = (v) {
+          setState(() => _showDailyCalendar = v);
+          _updateUiConfig();
+        };
+        break;
+      case 'user_monthly':
+        toggleValue = _showUserMonthly;
+        onChanged = (v) {
+          setState(() => _showUserMonthly = v);
+          _updateUiConfig();
+        };
+        break;
+      case 'debt':
+        toggleValue = _showDebt;
+        onChanged = (v) {
+          setState(() => _showDebt = v);
+          _updateUiConfig();
+        };
+        break;
+    }
+
+    return Padding(
+      key: ValueKey('item_tab_$key'),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(Icons.drag_handle,
+                  color: colorScheme.onSurfaceVariant),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  info.label,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  info.description,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (toggleValue != null)
+            Switch(
+              value: toggleValue,
+              onChanged: onChanged,
+              activeThumbColor: colorScheme.primary,
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 获取组件信息（标签 + 描述）
+  ({String label, String description}) _componentInfo(String key) {
+    switch (key) {
+      case 'daily_bar':
+        return (label: L10nManager.l10n.showDailyStats, description: L10nManager.l10n.showDailyStatsDescription);
+      case 'daily_calendar':
+        return (label: L10nManager.l10n.showDailyCalendar, description: L10nManager.l10n.showDailyCalendarDescription);
+      case 'user_monthly':
+        return (label: '按用户当月统计', description: '显示当月各用户的收入/支出柱状图');
+      case 'activity_recent':
+        return (label: '最近打卡活动', description: '显示最近打卡活动记录');
+      case 'debt':
+        return (label: L10nManager.l10n.showDebt, description: L10nManager.l10n.showDebtDescription);
+      default:
+        return (label: key, description: '');
+    }
   }
 }
 

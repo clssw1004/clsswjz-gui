@@ -14,6 +14,9 @@ class ActivityRecordVO {
   /// 地点
   final String? location;
 
+  /// 关联的活动定义ID
+  final String? activityDefId;
+
   /// 活动日期 (yyyy-MM-dd)
   final String recordDate;
 
@@ -34,6 +37,7 @@ class ActivityRecordVO {
     required this.accountBookId,
     required this.activityName,
     this.location,
+    this.activityDefId,
     required this.recordDate,
     required this.createdAt,
     required this.updatedAt,
@@ -48,6 +52,7 @@ class ActivityRecordVO {
       accountBookId: record.accountBookId,
       activityName: record.activityName,
       location: record.location,
+      activityDefId: record.activityDefId,
       recordDate: record.recordDate,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
@@ -60,6 +65,7 @@ class ActivityRecordVO {
   ActivityRecordVO copyWith({
     String? activityName,
     String? location,
+    String? activityDefId,
     String? recordDate,
   }) {
     return ActivityRecordVO(
@@ -67,6 +73,7 @@ class ActivityRecordVO {
       accountBookId: accountBookId,
       activityName: activityName ?? this.activityName,
       location: location ?? this.location,
+      activityDefId: activityDefId ?? this.activityDefId,
       recordDate: recordDate ?? this.recordDate,
       createdAt: createdAt,
       updatedAt: updatedAt,

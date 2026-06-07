@@ -1310,5 +1310,107 @@
             }
         }
     },
-    "details": "详细信息"
+    "details": "详细信息",
+    "activityCheckin": "活动打卡",
+    "@activityCheckin": {
+        "description": "活动打卡页面标题"
+    },
+    "activityEdit": "编辑活动",
+    "@activityEdit": {
+        "description": "编辑活动标题"
+    },
+    "activityCreate": "新建活动",
+    "@activityCreate": {
+        "description": "创建活动页面标题"
+    },
+    "activityDelete": "删除",
+    "@activityDelete": {
+        "description": "删除操作"
+    },
+    "selectEmoji": "选择 Emoji",
+    "@selectEmoji": {
+        "description": "选择 Emoji 对话框标题"
+    },
+    "clickToSelectEmoji": "点击选择 Emoji",
+    "@clickToSelectEmoji": {
+        "description": "点击选择 Emoji 提示"
+    },
+    "color": "颜色",
+    "@color": {
+        "description": "颜色标签"
+    },
+    "emoji": "Emoji",
+    "@emoji": {
+        "description": "表情标签"
+    },
+    "recentCheckins": "最近打卡",
+    "@recentCheckins": {
+        "description": "最近打卡记录标题"
+    },
+    "viewAll": "查看全部",
+    "@viewAll": {
+        "description": "查看全部链接文本"
+    },
+    "noCheckinRecords": "暂无打卡记录",
+    "@noCheckinRecords": {
+        "description": "暂无打卡记录提示"
+    },
+    "noActivityDefinitions": "还没有活动定义",
+    "@noActivityDefinitions": {
+        "description": "没有活动定义时的空状态提示"
+    },
+    "createFirstActivity": "创建第一个活动",
+    "@createFirstActivity": {
+        "description": "创建第一个活动按钮文本"
+    },
+    "todayCheckinCount": "今日打卡 共 {count} 次",
+    "@todayCheckinCount": {
+        "description": "今日打卡总次数",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "deleteActivityConfirm": "确定要删除[{name}]吗？相关打卡记录将保留。",
+    "@deleteActivityConfirm": {
+        "description": "删除活动确认对话框内容",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "跑步"
+            }
+        }
+    },
+    "fuelRecord": "油耗记录",
+    "@fuelRecord": {
+        "description": "油耗记录模块名称"
+    },
+    "minePageSettings": "我的页面",
+    "@minePageSettings": {
+        "description": "我的页面设置区域标题"
+    },
+    "activityCheckinEntry": "活动打卡入口",
+    "@activityCheckinEntry": {
+        "description": "活动打卡入口开关标签"
+    },
+    "activityCheckinEntryDescription": "在「我的」页面显示活动打卡入口按钮",
+    "@activityCheckinEntryDescription": {
+        "description": "活动打卡入口开关描述"
+    },
+    "thisWeek": "本周",
+    "@thisWeek": {
+        "description": "本周标签"
+    },
+    "active": "活跃",
+    "@active": {
+        "description": "活跃标签"
+    },
+    "activityStatistics": "活动统计",
+    "activityDetail": "活动详情",
+    "@activityDetail": {
+        "description": "活动详情页面标题"
+    },
+    "checkIn": "打卡"
 }

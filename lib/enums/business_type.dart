@@ -48,6 +48,9 @@ enum BusinessType {
   /// 活动
   activity('activity'),
 
+  /// 活动定义
+  activityDefinition('activityDefinition'),
+
   /// 车辆
   vehicle('vehicle'),
 

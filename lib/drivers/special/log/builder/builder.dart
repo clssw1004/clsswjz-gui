@@ -18,6 +18,7 @@ import 'book_shop.builder.dart';
 import 'book_symbol.builder.dart';
 import 'fund.builder.dart';
 import 'gift_card.builder.dart';
+import 'activity_definition.builder.dart';
 import 'activity_record.builder.dart';
 import 'user.builder.dart';
 import 'vehicle.builder.dart';
@@ -211,6 +212,8 @@ abstract class LogBuilder<T, RunResult> {
         return GiftCardCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.activity:
         return ActivityRecordCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.activityDefinition:
+        return ActivityDefinitionCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.vehicle:
         return VehicleCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.fuelRecord:
@@ -287,6 +290,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.giftCardDao.delete(businessId!);
       case BusinessType.activity:
         return DaoManager.activityRecordDao.delete(businessId!);
+      case BusinessType.activityDefinition:
+        return DaoManager.activityDefinitionDao.delete(businessId!);
       case BusinessType.vehicle:
         return DaoManager.vehicleDao.delete(businessId!);
       case BusinessType.fuelRecord:

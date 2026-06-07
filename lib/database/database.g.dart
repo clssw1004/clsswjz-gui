@@ -7724,6 +7724,521 @@ class GiftCardTableCompanion extends UpdateCompanion<GiftCard> {
   }
 }
 
+class $ActivityDefinitionTableTable extends ActivityDefinitionTable
+    with TableInfo<$ActivityDefinitionTableTable, ActivityDefinition> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ActivityDefinitionTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountBookIdMeta =
+      const VerificationMeta('accountBookId');
+  @override
+  late final GeneratedColumn<String> accountBookId = GeneratedColumn<String>(
+      'account_book_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _emojiMeta = const VerificationMeta('emoji');
+  @override
+  late final GeneratedColumn<String> emoji = GeneratedColumn<String>(
+      'emoji', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<int> color = GeneratedColumn<int>(
+      'color', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountBookId,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        name,
+        emoji,
+        color,
+        sortOrder
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'activity_definition_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ActivityDefinition> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_book_id')) {
+      context.handle(
+          _accountBookIdMeta,
+          accountBookId.isAcceptableOrUnknown(
+              data['account_book_id']!, _accountBookIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountBookIdMeta);
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('emoji')) {
+      context.handle(
+          _emojiMeta, emoji.isAcceptableOrUnknown(data['emoji']!, _emojiMeta));
+    } else if (isInserting) {
+      context.missing(_emojiMeta);
+    }
+    if (data.containsKey('color')) {
+      context.handle(
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    } else if (isInserting) {
+      context.missing(_colorMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ActivityDefinition map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ActivityDefinition(
+      accountBookId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      emoji: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}emoji'])!,
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}color'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $ActivityDefinitionTableTable createAlias(String alias) {
+    return $ActivityDefinitionTableTable(attachedDatabase, alias);
+  }
+}
+
+class ActivityDefinition extends DataClass
+    implements Insertable<ActivityDefinition> {
+  final String accountBookId;
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 活动名称
+  final String name;
+
+  /// 活动图标
+  final String emoji;
+
+  /// 活动颜色
+  final int color;
+
+  /// 排序序号
+  final int sortOrder;
+  const ActivityDefinition(
+      {required this.accountBookId,
+      required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.name,
+      required this.emoji,
+      required this.color,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_book_id'] = Variable<String>(accountBookId);
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['emoji'] = Variable<String>(emoji);
+    map['color'] = Variable<int>(color);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  ActivityDefinitionTableCompanion toCompanion(bool nullToAbsent) {
+    return ActivityDefinitionTableCompanion(
+      accountBookId: Value(accountBookId),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      name: Value(name),
+      emoji: Value(emoji),
+      color: Value(color),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory ActivityDefinition.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ActivityDefinition(
+      accountBookId: serializer.fromJson<String>(json['accountBookId']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      emoji: serializer.fromJson<String>(json['emoji']),
+      color: serializer.fromJson<int>(json['color']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountBookId': serializer.toJson<String>(accountBookId),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'emoji': serializer.toJson<String>(emoji),
+      'color': serializer.toJson<int>(color),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  ActivityDefinition copyWith(
+          {String? accountBookId,
+          String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? name,
+          String? emoji,
+          int? color,
+          int? sortOrder}) =>
+      ActivityDefinition(
+        accountBookId: accountBookId ?? this.accountBookId,
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        name: name ?? this.name,
+        emoji: emoji ?? this.emoji,
+        color: color ?? this.color,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  ActivityDefinition copyWithCompanion(ActivityDefinitionTableCompanion data) {
+    return ActivityDefinition(
+      accountBookId: data.accountBookId.present
+          ? data.accountBookId.value
+          : this.accountBookId,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      emoji: data.emoji.present ? data.emoji.value : this.emoji,
+      color: data.color.present ? data.color.value : this.color,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityDefinition(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('emoji: $emoji, ')
+          ..write('color: $color, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
+      createdAt, updatedAt, id, name, emoji, color, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ActivityDefinition &&
+          other.accountBookId == this.accountBookId &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.emoji == this.emoji &&
+          other.color == this.color &&
+          other.sortOrder == this.sortOrder);
+}
+
+class ActivityDefinitionTableCompanion
+    extends UpdateCompanion<ActivityDefinition> {
+  final Value<String> accountBookId;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> emoji;
+  final Value<int> color;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const ActivityDefinitionTableCompanion({
+    this.accountBookId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.emoji = const Value.absent(),
+    this.color = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ActivityDefinitionTableCompanion.insert({
+    required String accountBookId,
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String name,
+    required String emoji,
+    required int color,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : accountBookId = Value(accountBookId),
+        createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        name = Value(name),
+        emoji = Value(emoji),
+        color = Value(color);
+  static Insertable<ActivityDefinition> custom({
+    Expression<String>? accountBookId,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? emoji,
+    Expression<int>? color,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountBookId != null) 'account_book_id': accountBookId,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (emoji != null) 'emoji': emoji,
+      if (color != null) 'color': color,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ActivityDefinitionTableCompanion copyWith(
+      {Value<String>? accountBookId,
+      Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? name,
+      Value<String>? emoji,
+      Value<int>? color,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return ActivityDefinitionTableCompanion(
+      accountBookId: accountBookId ?? this.accountBookId,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
+      color: color ?? this.color,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountBookId.present) {
+      map['account_book_id'] = Variable<String>(accountBookId.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (emoji.present) {
+      map['emoji'] = Variable<String>(emoji.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<int>(color.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityDefinitionTableCompanion(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('emoji: $emoji, ')
+          ..write('color: $color, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ActivityRecordTableTable extends ActivityRecordTable
     with TableInfo<$ActivityRecordTableTable, ActivityRecord> {
   @override
@@ -7783,6 +8298,12 @@ class $ActivityRecordTableTable extends ActivityRecordTable
   late final GeneratedColumn<String> recordDate = GeneratedColumn<String>(
       'record_date', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _activityDefIdMeta =
+      const VerificationMeta('activityDefId');
+  @override
+  late final GeneratedColumn<String> activityDefId = GeneratedColumn<String>(
+      'activity_def_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -7793,7 +8314,8 @@ class $ActivityRecordTableTable extends ActivityRecordTable
         id,
         activityName,
         location,
-        recordDate
+        recordDate,
+        activityDefId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7862,6 +8384,12 @@ class $ActivityRecordTableTable extends ActivityRecordTable
     } else if (isInserting) {
       context.missing(_recordDateMeta);
     }
+    if (data.containsKey('activity_def_id')) {
+      context.handle(
+          _activityDefIdMeta,
+          activityDefId.isAcceptableOrUnknown(
+              data['activity_def_id']!, _activityDefIdMeta));
+    }
     return context;
   }
 
@@ -7889,6 +8417,8 @@ class $ActivityRecordTableTable extends ActivityRecordTable
           .read(DriftSqlType.string, data['${effectivePrefix}location']),
       recordDate: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}record_date'])!,
+      activityDefId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activity_def_id']),
     );
   }
 
@@ -7914,6 +8444,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
 
   /// 活动日期 (yyyy-MM-dd)
   final String recordDate;
+
+  /// 关联的活动定义ID (可选)
+  final String? activityDefId;
   const ActivityRecord(
       {required this.accountBookId,
       required this.createdBy,
@@ -7923,7 +8456,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       required this.id,
       required this.activityName,
       this.location,
-      required this.recordDate});
+      required this.recordDate,
+      this.activityDefId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -7938,6 +8472,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       map['location'] = Variable<String>(location);
     }
     map['record_date'] = Variable<String>(recordDate);
+    if (!nullToAbsent || activityDefId != null) {
+      map['activity_def_id'] = Variable<String>(activityDefId);
+    }
     return map;
   }
 
@@ -7954,6 +8491,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           ? const Value.absent()
           : Value(location),
       recordDate: Value(recordDate),
+      activityDefId: activityDefId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(activityDefId),
     );
   }
 
@@ -7970,6 +8510,7 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       activityName: serializer.fromJson<String>(json['activityName']),
       location: serializer.fromJson<String?>(json['location']),
       recordDate: serializer.fromJson<String>(json['recordDate']),
+      activityDefId: serializer.fromJson<String?>(json['activityDefId']),
     );
   }
   @override
@@ -7985,6 +8526,7 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       'activityName': serializer.toJson<String>(activityName),
       'location': serializer.toJson<String?>(location),
       'recordDate': serializer.toJson<String>(recordDate),
+      'activityDefId': serializer.toJson<String?>(activityDefId),
     };
   }
 
@@ -7997,7 +8539,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           String? id,
           String? activityName,
           Value<String?> location = const Value.absent(),
-          String? recordDate}) =>
+          String? recordDate,
+          Value<String?> activityDefId = const Value.absent()}) =>
       ActivityRecord(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -8008,6 +8551,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
         activityName: activityName ?? this.activityName,
         location: location.present ? location.value : this.location,
         recordDate: recordDate ?? this.recordDate,
+        activityDefId:
+            activityDefId.present ? activityDefId.value : this.activityDefId,
       );
   ActivityRecord copyWithCompanion(ActivityRecordTableCompanion data) {
     return ActivityRecord(
@@ -8025,6 +8570,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       location: data.location.present ? data.location.value : this.location,
       recordDate:
           data.recordDate.present ? data.recordDate.value : this.recordDate,
+      activityDefId: data.activityDefId.present
+          ? data.activityDefId.value
+          : this.activityDefId,
     );
   }
 
@@ -8039,14 +8587,24 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           ..write('id: $id, ')
           ..write('activityName: $activityName, ')
           ..write('location: $location, ')
-          ..write('recordDate: $recordDate')
+          ..write('recordDate: $recordDate, ')
+          ..write('activityDefId: $activityDefId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, activityName, location, recordDate);
+  int get hashCode => Object.hash(
+      accountBookId,
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      activityName,
+      location,
+      recordDate,
+      activityDefId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8059,7 +8617,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           other.id == this.id &&
           other.activityName == this.activityName &&
           other.location == this.location &&
-          other.recordDate == this.recordDate);
+          other.recordDate == this.recordDate &&
+          other.activityDefId == this.activityDefId);
 }
 
 class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
@@ -8072,6 +8631,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
   final Value<String> activityName;
   final Value<String?> location;
   final Value<String> recordDate;
+  final Value<String?> activityDefId;
   final Value<int> rowid;
   const ActivityRecordTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -8083,6 +8643,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     this.activityName = const Value.absent(),
     this.location = const Value.absent(),
     this.recordDate = const Value.absent(),
+    this.activityDefId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ActivityRecordTableCompanion.insert({
@@ -8095,6 +8656,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     required String activityName,
     this.location = const Value.absent(),
     required String recordDate,
+    this.activityDefId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -8114,6 +8676,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     Expression<String>? activityName,
     Expression<String>? location,
     Expression<String>? recordDate,
+    Expression<String>? activityDefId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8126,6 +8689,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       if (activityName != null) 'activity_name': activityName,
       if (location != null) 'location': location,
       if (recordDate != null) 'record_date': recordDate,
+      if (activityDefId != null) 'activity_def_id': activityDefId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8140,6 +8704,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       Value<String>? activityName,
       Value<String?>? location,
       Value<String>? recordDate,
+      Value<String?>? activityDefId,
       Value<int>? rowid}) {
     return ActivityRecordTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -8151,6 +8716,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       activityName: activityName ?? this.activityName,
       location: location ?? this.location,
       recordDate: recordDate ?? this.recordDate,
+      activityDefId: activityDefId ?? this.activityDefId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8185,6 +8751,9 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     if (recordDate.present) {
       map['record_date'] = Variable<String>(recordDate.value);
     }
+    if (activityDefId.present) {
+      map['activity_def_id'] = Variable<String>(activityDefId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8203,6 +8772,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
           ..write('activityName: $activityName, ')
           ..write('location: $location, ')
           ..write('recordDate: $recordDate, ')
+          ..write('activityDefId: $activityDefId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10235,6 +10805,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AccountDebtTableTable accountDebtTable =
       $AccountDebtTableTable(this);
   late final $GiftCardTableTable giftCardTable = $GiftCardTableTable(this);
+  late final $ActivityDefinitionTableTable activityDefinitionTable =
+      $ActivityDefinitionTableTable(this);
   late final $ActivityRecordTableTable activityRecordTable =
       $ActivityRecordTableTable(this);
   late final $VehicleTableTable vehicleTable = $VehicleTableTable(this);
@@ -10260,6 +10832,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         accountNoteTable,
         accountDebtTable,
         giftCardTable,
+        activityDefinitionTable,
         activityRecordTable,
         vehicleTable,
         fuelRecordTable,
@@ -13836,6 +14409,262 @@ typedef $$GiftCardTableTableProcessedTableManager = ProcessedTableManager<
     (GiftCard, BaseReferences<_$AppDatabase, $GiftCardTableTable, GiftCard>),
     GiftCard,
     PrefetchHooks Function()>;
+typedef $$ActivityDefinitionTableTableCreateCompanionBuilder
+    = ActivityDefinitionTableCompanion Function({
+  required String accountBookId,
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String name,
+  required String emoji,
+  required int color,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$ActivityDefinitionTableTableUpdateCompanionBuilder
+    = ActivityDefinitionTableCompanion Function({
+  Value<String> accountBookId,
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> name,
+  Value<String> emoji,
+  Value<int> color,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$ActivityDefinitionTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ActivityDefinitionTableTable> {
+  $$ActivityDefinitionTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get emoji => $composableBuilder(
+      column: $table.emoji, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$ActivityDefinitionTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ActivityDefinitionTableTable> {
+  $$ActivityDefinitionTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get emoji => $composableBuilder(
+      column: $table.emoji, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get color => $composableBuilder(
+      column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ActivityDefinitionTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ActivityDefinitionTableTable> {
+  $$ActivityDefinitionTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get emoji =>
+      $composableBuilder(column: $table.emoji, builder: (column) => column);
+
+  GeneratedColumn<int> get color =>
+      $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ActivityDefinitionTableTable,
+    ActivityDefinition,
+    $$ActivityDefinitionTableTableFilterComposer,
+    $$ActivityDefinitionTableTableOrderingComposer,
+    $$ActivityDefinitionTableTableAnnotationComposer,
+    $$ActivityDefinitionTableTableCreateCompanionBuilder,
+    $$ActivityDefinitionTableTableUpdateCompanionBuilder,
+    (
+      ActivityDefinition,
+      BaseReferences<_$AppDatabase, $ActivityDefinitionTableTable,
+          ActivityDefinition>
+    ),
+    ActivityDefinition,
+    PrefetchHooks Function()> {
+  $$ActivityDefinitionTableTableTableManager(
+      _$AppDatabase db, $ActivityDefinitionTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ActivityDefinitionTableTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActivityDefinitionTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActivityDefinitionTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountBookId = const Value.absent(),
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> emoji = const Value.absent(),
+            Value<int> color = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ActivityDefinitionTableCompanion(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            name: name,
+            emoji: emoji,
+            color: color,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountBookId,
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String name,
+            required String emoji,
+            required int color,
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ActivityDefinitionTableCompanion.insert(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            name: name,
+            emoji: emoji,
+            color: color,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ActivityDefinitionTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $ActivityDefinitionTableTable,
+        ActivityDefinition,
+        $$ActivityDefinitionTableTableFilterComposer,
+        $$ActivityDefinitionTableTableOrderingComposer,
+        $$ActivityDefinitionTableTableAnnotationComposer,
+        $$ActivityDefinitionTableTableCreateCompanionBuilder,
+        $$ActivityDefinitionTableTableUpdateCompanionBuilder,
+        (
+          ActivityDefinition,
+          BaseReferences<_$AppDatabase, $ActivityDefinitionTableTable,
+              ActivityDefinition>
+        ),
+        ActivityDefinition,
+        PrefetchHooks Function()>;
 typedef $$ActivityRecordTableTableCreateCompanionBuilder
     = ActivityRecordTableCompanion Function({
   required String accountBookId,
@@ -13847,6 +14676,7 @@ typedef $$ActivityRecordTableTableCreateCompanionBuilder
   required String activityName,
   Value<String?> location,
   required String recordDate,
+  Value<String?> activityDefId,
   Value<int> rowid,
 });
 typedef $$ActivityRecordTableTableUpdateCompanionBuilder
@@ -13860,6 +14690,7 @@ typedef $$ActivityRecordTableTableUpdateCompanionBuilder
   Value<String> activityName,
   Value<String?> location,
   Value<String> recordDate,
+  Value<String?> activityDefId,
   Value<int> rowid,
 });
 
@@ -13898,6 +14729,9 @@ class $$ActivityRecordTableTableFilterComposer
 
   ColumnFilters<String> get recordDate => $composableBuilder(
       column: $table.recordDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activityDefId => $composableBuilder(
+      column: $table.activityDefId, builder: (column) => ColumnFilters(column));
 }
 
 class $$ActivityRecordTableTableOrderingComposer
@@ -13937,6 +14771,10 @@ class $$ActivityRecordTableTableOrderingComposer
 
   ColumnOrderings<String> get recordDate => $composableBuilder(
       column: $table.recordDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get activityDefId => $composableBuilder(
+      column: $table.activityDefId,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ActivityRecordTableTableAnnotationComposer
@@ -13974,6 +14812,9 @@ class $$ActivityRecordTableTableAnnotationComposer
 
   GeneratedColumn<String> get recordDate => $composableBuilder(
       column: $table.recordDate, builder: (column) => column);
+
+  GeneratedColumn<String> get activityDefId => $composableBuilder(
+      column: $table.activityDefId, builder: (column) => column);
 }
 
 class $$ActivityRecordTableTableTableManager extends RootTableManager<
@@ -14014,6 +14855,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             Value<String> activityName = const Value.absent(),
             Value<String?> location = const Value.absent(),
             Value<String> recordDate = const Value.absent(),
+            Value<String?> activityDefId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityRecordTableCompanion(
@@ -14026,6 +14868,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             activityName: activityName,
             location: location,
             recordDate: recordDate,
+            activityDefId: activityDefId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14038,6 +14881,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             required String activityName,
             Value<String?> location = const Value.absent(),
             required String recordDate,
+            Value<String?> activityDefId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityRecordTableCompanion.insert(
@@ -14050,6 +14894,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             activityName: activityName,
             location: location,
             recordDate: recordDate,
+            activityDefId: activityDefId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -15003,6 +15848,9 @@ class $AppDatabaseManager {
       $$AccountDebtTableTableTableManager(_db, _db.accountDebtTable);
   $$GiftCardTableTableTableManager get giftCardTable =>
       $$GiftCardTableTableTableManager(_db, _db.giftCardTable);
+  $$ActivityDefinitionTableTableTableManager get activityDefinitionTable =>
+      $$ActivityDefinitionTableTableTableManager(
+          _db, _db.activityDefinitionTable);
   $$ActivityRecordTableTableTableManager get activityRecordTable =>
       $$ActivityRecordTableTableTableManager(_db, _db.activityRecordTable);
   $$VehicleTableTableTableManager get vehicleTable =>

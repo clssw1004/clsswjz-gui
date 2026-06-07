@@ -43,6 +43,7 @@ import '../pages/gift_card/gift_card_list_page.dart';
 import '../pages/gift_card/gift_card_form_page.dart';
 import '../pages/gift_card/gift_card_detail_page.dart';
 import '../models/vo/gift_card_vo.dart';
+import '../pages/activity/activity_checkin_page.dart';
 import '../pages/fuel/vehicle_list_page.dart' show FuelHubPage;
 import '../pages/fuel/vehicle_form_page.dart';
 import '../pages/fuel/fuel_record_list_page.dart';
@@ -153,6 +154,9 @@ class AppRoutes {
 
   /// 油耗统计页面
   static const String fuelStatistics = '/fuel/statistics';
+
+  /// 活动打卡页面
+  static const String activityCheckin = '/activity/checkin';
 
   /// 统一页面过渡动画构建
   static Route<dynamic> _buildPageRoute(Widget page) {
@@ -351,6 +355,8 @@ class AppRoutes {
           plateNumber: map['plateNumber'],
         );
       }
+      case activityCheckin:
+        return const ActivityCheckinPage();
       default:
         return null;
     }
