@@ -27,6 +27,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showStatisticsProjectStatistic;
   late bool _showStatisticsCategoryStatistic;
   late bool _showStatisticsActivityStatistic;
+  late bool _showActivityCheckin;
   late String _statisticsSelectedRange;
   DateTimeRange? _customRange;
   List<String> _selectedProjects = [];
@@ -52,6 +53,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
         AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic;
     _showStatisticsActivityStatistic =
         AppConfigManager.instance.uiConfig.statisticsShowActivityStatistic;
+    _showActivityCheckin =
+        AppConfigManager.instance.uiConfig.mineTabShowActivityCheckin;
     _statisticsSelectedRange =
         AppConfigManager.instance.uiConfig.statisticsSelectedRange;
     _selectedProjects =
@@ -678,6 +681,69 @@ class _UiConfigPageState extends State<UiConfigPage> {
                 ],
               ),
             ),
+
+          // 我的页面设置
+          CommonCardContainer(
+            padding: spacing.listItemPadding,
+            margin: EdgeInsets.only(bottom: spacing.formGroupSpacing),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.person_outlined,
+                        size: 20, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      L10nManager.l10n.minePageSettings,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            L10nManager.l10n.activityCheckinEntry,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            L10nManager.l10n.activityCheckinEntryDescription,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _showActivityCheckin,
+                      onChanged: (value) {
+                        setState(() {
+                          _showActivityCheckin = value;
+                        });
+                        _updateUiConfig();
+                      },
+                      activeThumbColor: colorScheme.primary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
           ],
         ),
       ),
@@ -716,6 +782,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
       statisticsShowProjectStatistic: _showStatisticsProjectStatistic,
       statisticsShowCategoryStatistic: _showStatisticsCategoryStatistic,
       statisticsShowActivityStatistic: _showStatisticsActivityStatistic,
+      mineTabShowActivityCheckin: _showActivityCheckin,
       statisticsSelectedRange: _statisticsSelectedRange,
       statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,

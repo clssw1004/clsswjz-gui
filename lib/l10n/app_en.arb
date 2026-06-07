@@ -1304,5 +1304,93 @@
             }
         }
     },
-    "details": "Details"
+    "details": "Details",
+    "activityCheckin": "Check-in",
+    "@activityCheckin": {
+        "description": "Activity check-in page title"
+    },
+    "activityEdit": "Edit Activity",
+    "@activityEdit": {
+        "description": "Edit activity title"
+    },
+    "activityCreate": "Create Activity",
+    "@activityCreate": {
+        "description": "Create activity page title"
+    },
+    "activityDelete": "Delete",
+    "@activityDelete": {
+        "description": "Delete action"
+    },
+    "selectEmoji": "Select Emoji",
+    "@selectEmoji": {
+        "description": "Select emoji dialog title"
+    },
+    "clickToSelectEmoji": "Tap to select emoji",
+    "@clickToSelectEmoji": {
+        "description": "Tap to select emoji hint"
+    },
+    "color": "Color",
+    "@color": {
+        "description": "Color label"
+    },
+    "emoji": "Emoji",
+    "@emoji": {
+        "description": "Emoji label"
+    },
+    "recentCheckins": "Recent Check-ins",
+    "@recentCheckins": {
+        "description": "Recent check-ins title"
+    },
+    "viewAll": "View All",
+    "@viewAll": {
+        "description": "View all link text"
+    },
+    "noCheckinRecords": "No check-in records",
+    "@noCheckinRecords": {
+        "description": "No check-in records prompt"
+    },
+    "noActivityDefinitions": "No activities yet",
+    "@noActivityDefinitions": {
+        "description": "Empty state when no activity definitions exist"
+    },
+    "createFirstActivity": "Create your first activity",
+    "@createFirstActivity": {
+        "description": "Create first activity button text"
+    },
+    "todayCheckinCount": "Today: {count} check-ins",
+    "@todayCheckinCount": {
+        "description": "Today's total check-in count",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "5"
+            }
+        }
+    },
+    "deleteActivityConfirm": "Delete [{name}]? Related check-in records will be kept.",
+    "@deleteActivityConfirm": {
+        "description": "Delete activity confirmation dialog content",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "Running"
+            }
+        }
+    },
+    "fuelRecord": "Fuel Record",
+    "@fuelRecord": {
+        "description": "Fuel record module name"
+    },
+    "minePageSettings": "Mine Page",
+    "@minePageSettings": {
+        "description": "Mine page settings section title"
+    },
+    "activityCheckinEntry": "Activity Check-in Entry",
+    "@activityCheckinEntry": {
+        "description": "Activity check-in entry toggle label"
+    },
+    "activityCheckinEntryDescription": "Show activity check-in entry button on Mine tab",
+    "@activityCheckinEntryDescription": {
+        "description": "Activity check-in entry toggle description"
+    }
 }

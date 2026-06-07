@@ -1313,4 +1313,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get details => 'Details';
+
+  @override
+  String get activityCheckin => 'Check-in';
+
+  @override
+  String get activityEdit => 'Edit Activity';
+
+  @override
+  String get activityCreate => 'Create Activity';
+
+  @override
+  String get activityDelete => 'Delete';
+
+  @override
+  String get selectEmoji => 'Select Emoji';
+
+  @override
+  String get clickToSelectEmoji => 'Tap to select emoji';
+
+  @override
+  String get color => 'Color';
+
+  @override
+  String get emoji => 'Emoji';
+
+  @override
+  String get recentCheckins => 'Recent Check-ins';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get noCheckinRecords => 'No check-in records';
+
+  @override
+  String get noActivityDefinitions => 'No activities yet';
+
+  @override
+  String get createFirstActivity => 'Create your first activity';
+
+  @override
+  String todayCheckinCount(int count) {
+    return 'Today: $count check-ins';
+  }
+
+  @override
+  String deleteActivityConfirm(String name) {
+    return 'Delete [$name]? Related check-in records will be kept.';
+  }
+
+  @override
+  String get fuelRecord => 'Fuel Record';
+
+  @override
+  String get minePageSettings => 'Mine Page';
+
+  @override
+  String get activityCheckinEntry => 'Activity Check-in Entry';
+
+  @override
+  String get activityCheckinEntryDescription =>
+      'Show activity check-in entry button on Mine tab';
 }

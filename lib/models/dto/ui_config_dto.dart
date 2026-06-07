@@ -17,6 +17,7 @@ class UiConfigDTO {
     this.statisticsCustomRangeStart,
     this.statisticsCustomRangeEnd,
     this.statisticsSelectedProjects = const [],
+    this.mineTabShowActivityCheckin = true,
     this.useNewItemForm = true,
   });
 
@@ -28,6 +29,9 @@ class UiConfigDTO {
 
   /// 是否使用新版账目表单
   final bool useNewItemForm;
+
+  /// 是否在「我的」页面显示活动打卡入口
+  final bool mineTabShowActivityCheckin;
 
   /// 是否在账目页显示按用户当月统计图
   final bool itemTabShowUserMonthly;
@@ -79,6 +83,7 @@ class UiConfigDTO {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      mineTabShowActivityCheckin: json['mineTabShowActivityCheckin'] ?? true,
       useNewItemForm: json['useNewItemForm'] ?? false,
     );
   }
@@ -104,6 +109,7 @@ class UiConfigDTO {
       'statisticsCustomRangeStart': uiConfig.statisticsCustomRangeStart,
       'statisticsCustomRangeEnd': uiConfig.statisticsCustomRangeEnd,
       'statisticsSelectedProjects': uiConfig.statisticsSelectedProjects,
+      'mineTabShowActivityCheckin': uiConfig.mineTabShowActivityCheckin,
       'useNewItemForm': uiConfig.useNewItemForm,
     };
   }

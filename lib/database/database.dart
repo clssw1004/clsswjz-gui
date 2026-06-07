@@ -12,6 +12,7 @@ import 'tables/rel_accountbook_user_table.dart';
 import 'tables/user_table.dart';
 import 'tables/account_debt_table.dart';
 import 'tables/gift_card_table.dart';
+import 'tables/activity_definition_table.dart';
 import 'tables/activity_record_table.dart';
 import 'tables/vehicle_table.dart';
 import 'tables/fuel_record_table.dart';
@@ -34,6 +35,7 @@ part 'database.g.dart';
     AccountNoteTable,
     AccountDebtTable,
     GiftCardTable,
+    ActivityDefinitionTable,
     ActivityRecordTable,
     VehicleTable,
     FuelRecordTable,
@@ -44,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -73,6 +75,11 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) {
             // 版本5到版本6的迁移：添加 item_relation_table
             await m.create(itemRelationTable);
+          }
+          if (from < 7) {
+            // 版本6到版本7的迁移：添加活动定义表，activityRecord表新增activityDefId列
+            await m.create(activityDefinitionTable);
+            await m.addColumn(activityRecordTable, activityRecordTable.activityDefId);
           }
         },
       );

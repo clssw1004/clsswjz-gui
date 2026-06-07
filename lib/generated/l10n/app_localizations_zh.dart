@@ -1303,6 +1303,67 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get details => '详细信息';
+
+  @override
+  String get activityCheckin => '活动打卡';
+
+  @override
+  String get activityEdit => '编辑活动';
+
+  @override
+  String get activityCreate => '新建活动';
+
+  @override
+  String get activityDelete => '删除';
+
+  @override
+  String get selectEmoji => '选择 Emoji';
+
+  @override
+  String get clickToSelectEmoji => '点击选择 Emoji';
+
+  @override
+  String get color => '颜色';
+
+  @override
+  String get emoji => 'Emoji';
+
+  @override
+  String get recentCheckins => '最近打卡';
+
+  @override
+  String get viewAll => '查看全部';
+
+  @override
+  String get noCheckinRecords => '暂无打卡记录';
+
+  @override
+  String get noActivityDefinitions => '还没有活动定义';
+
+  @override
+  String get createFirstActivity => '创建第一个活动';
+
+  @override
+  String todayCheckinCount(int count) {
+    return '今日打卡 共 $count 次';
+  }
+
+  @override
+  String deleteActivityConfirm(String name) {
+    return '确定要删除[$name]吗？相关打卡记录将保留。';
+  }
+
+  @override
+  String get fuelRecord => '油耗记录';
+
+  @override
+  String get minePageSettings => '我的页面';
+
+  @override
+  String get activityCheckinEntry => '活动打卡入口';
+
+  @override
+  String get activityCheckinEntryDescription => '在「我的」页面显示活动打卡入口按钮';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

@@ -4,6 +4,7 @@ import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/setting/user_info_card.dart';
+import '../../manager/app_config_manager.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
@@ -81,6 +82,13 @@ class _MineTabView extends StatelessWidget {
         onTap: () => Navigator.pushNamed(
           context, AppRoutes.projects, arguments: accountBook),
       ),
+      if (AppConfigManager.instance.uiConfig.mineTabShowActivityCheckin)
+        _GridFeatureItemData(
+          icon: Icons.emoji_events_outlined,
+          label: L10nManager.l10n.tabActivity,
+          onTap: () => Navigator.pushNamed(
+            context, AppRoutes.activityCheckin),
+        ),
     ];
 
     final dataToolItems = [
@@ -96,12 +104,12 @@ class _MineTabView extends StatelessWidget {
       ),
       _GridFeatureItemData(
         icon: Icons.card_giftcard,
-        label: '礼物卡',
+        label: L10nManager.l10n.giftCard,
         onTap: () => Navigator.pushNamed(context, AppRoutes.giftCardList),
       ),
       _GridFeatureItemData(
         icon: Icons.local_gas_station,
-        label: '油耗记录',
+        label: L10nManager.l10n.fuelRecord,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(

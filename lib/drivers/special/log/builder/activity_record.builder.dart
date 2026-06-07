@@ -55,6 +55,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
     required String bookId,
     required String activityName,
     required String recordDate,
+    String? activityDefId,
     String? location,
     int? createdAt,
   }) {
@@ -67,6 +68,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           accountBookId: bookId,
           activityName: activityName,
           recordDate: recordDate,
+          activityDefId: activityDefId,
           location: location,
           createdAt: createdAt,
         )) as ActivityRecordCULog;
@@ -92,6 +94,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
       accountBookId: json['accountBookId'] != null ? Value(json['accountBookId'] as String) : const Value.absent(),
       activityName: json['activityName'] != null ? Value(json['activityName'] as String) : const Value.absent(),
       recordDate: json['recordDate'] != null ? Value(json['recordDate'] as String) : const Value.absent(),
+      activityDefId: json['activityDefId'] != null ? Value(json['activityDefId'] as String) : const Value.absent(),
       location: json['location'] != null ? Value(json['location'] as String) : const Value.absent(),
       createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
       updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),

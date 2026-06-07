@@ -23,6 +23,7 @@ import '../models/vo/user_fund_vo.dart';
 import '../models/vo/user_vo.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/vo/gift_card_vo.dart';
+import '../models/vo/activity_definition_vo.dart';
 import '../models/vo/activity_record_vo.dart';
 import '../models/vo/activity_statistic_vo.dart';
 import '../models/vo/vehicle_vo.dart';
@@ -330,6 +331,7 @@ abstract class BookDataDriver {
     String bookId, {
     required String activityName,
     required String recordDate,
+    String? activityDefId,
     String? location,
     int? createdAt,
   });
@@ -357,6 +359,36 @@ abstract class BookDataDriver {
     required String startDate,
     required String endDate,
   });
+
+  // ============ 活动定义相关 ============
+
+  /// 创建活动定义
+  Future<OperateResult<String>> createActivityDefinition(
+    String userId,
+    String bookId, {
+    required String name,
+    required String emoji,
+    required int color,
+    int sortOrder = 0,
+  });
+
+  /// 更新活动定义
+  Future<OperateResult<void>> updateActivityDefinition(
+    String userId,
+    String definitionId, {
+    String? name,
+    String? emoji,
+    int? color,
+    int? sortOrder,
+  });
+
+  /// 删除活动定义
+  Future<OperateResult<void>> deleteActivityDefinition(
+    String userId, String definitionId);
+
+  /// 获取活动定义列表
+  Future<OperateResult<List<ActivityDefinitionVO>>> listActivityDefinitions(
+    String userId, String bookId);
 
   // ============ 油耗记录相关 ============
 

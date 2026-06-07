@@ -16,7 +16,10 @@ import '../../widgets/item_widgets/debts_container.dart';
 import '../../widgets/item_widgets/daily_statistic_bar.dart';
 import '../../widgets/item_widgets/daily_statistic_calendar.dart';
 import '../../widgets/item_widgets/user_monthly_statistic_chart.dart';
+import '../../providers/activity_checkin_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
+import '../../widgets/activity/activity_recent_records.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -97,6 +100,11 @@ class _ItemsTabState extends State<ItemsTab>
             syncProvider, statisticsProvider, child) {
           final bookMeta = bookProvider.selectedBook;
           final spacing = Theme.of(context).spacing;
+          // 加载最近打卡
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.read<ActivityCheckinProvider>().loadRecentRecords();
+          });
+
           return Stack(
             children: [
               ListView(
@@ -158,6 +166,23 @@ class _ItemsTabState extends State<ItemsTab>
                       ),
                     ),
 
+
+                  // 最近打卡 - 根据配置决定是否显示
+                  Consumer<ActivityCheckinProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.recentRecords.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+                        child: ActivityRecentRecords(
+                          records: provider.recentRecords,
+                          onViewAll: () => Navigator.pushNamed(
+                              context, AppRoutes.activityCheckin),
+                        ),
+                      );
+                    },
+                  ),
 
                   // 债务信息 - 根据配置决定是否显示
                   if (AppConfigManager.instance.uiConfig.itemTabShowDebt)

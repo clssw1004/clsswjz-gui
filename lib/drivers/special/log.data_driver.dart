@@ -23,6 +23,7 @@ import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/attachment_show_vo.dart';
 import '../../models/vo/gift_card_vo.dart';
+import '../../models/vo/activity_definition_vo.dart';
 import '../../models/vo/activity_record_vo.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/vehicle_vo.dart';
@@ -52,6 +53,7 @@ import 'log/builder/book_note.build.dart';
 import 'log/builder/builder.dart';
 import 'log/builder/fund.builder.dart';
 import 'log/builder/gift_card.builder.dart';
+import 'log/builder/activity_definition.builder.dart';
 import 'log/builder/activity_record.builder.dart';
 import 'log/builder/vehicle.builder.dart';
 import 'log/builder/fuel_record.builder.dart';
@@ -994,6 +996,7 @@ class LogDataDriver implements BookDataDriver {
     String bookId, {
     required String activityName,
     required String recordDate,
+    String? activityDefId,
     String? location,
     int? createdAt,
   }) async {
@@ -1003,6 +1006,7 @@ class LogDataDriver implements BookDataDriver {
         bookId: bookId,
         activityName: activityName,
         recordDate: recordDate,
+        activityDefId: activityDefId,
         location: location,
         createdAt: createdAt,
       );
@@ -1084,6 +1088,91 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取活动统计失败：$e', exception: e as Exception);
+    }
+  }
+
+  // ============ 活动定义相关 ============
+
+  @override
+  Future<OperateResult<String>> createActivityDefinition(
+    String userId,
+    String bookId, {
+    required String name,
+    required String emoji,
+    required int color,
+    int sortOrder = 0,
+  }) async {
+    try {
+      final logBuilder = ActivityDefinitionCULog.create(
+        who: userId,
+        bookId: bookId,
+        name: name,
+        emoji: emoji,
+        color: color,
+        sortOrder: sortOrder,
+      );
+      final id = await logBuilder.execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '创建活动定义失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateActivityDefinition(
+    String userId,
+    String definitionId, {
+    String? name,
+    String? emoji,
+    int? color,
+    int? sortOrder,
+  }) async {
+    try {
+      final logBuilder = ActivityDefinitionCULog.update(
+        who: userId,
+        id: definitionId,
+        name: name,
+        emoji: emoji,
+        color: color,
+        sortOrder: sortOrder,
+      );
+      await logBuilder.execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新活动定义失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteActivityDefinition(
+      String userId, String definitionId) async {
+    try {
+      await ActivityDefinitionCULog.delete(
+        who: userId,
+        id: definitionId,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除活动定义失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ActivityDefinitionVO>>> listActivityDefinitions(
+      String userId, String bookId) async {
+    try {
+      final definitions =
+          await DaoManager.activityDefinitionDao.listByBook(bookId);
+      final vos = definitions
+          .map((e) => ActivityDefinitionVO.fromEntity(e))
+          .toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动定义列表失败：$e', exception: e as Exception);
     }
   }
 

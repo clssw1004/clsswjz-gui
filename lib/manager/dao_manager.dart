@@ -11,6 +11,7 @@ import '../database/dao/rel_book_user_dao.dart';
 import '../database/dao/user_dao.dart';
 import '../database/dao/debt_dao.dart';
 import '../database/dao/gift_card_dao.dart';
+import '../database/dao/activity_definition_dao.dart';
 import '../database/dao/activity_record_dao.dart';
 import '../database/dao/vehicle_dao.dart';
 import '../database/dao/fuel_record_dao.dart';
@@ -31,6 +32,7 @@ class DaoManager {
   static late NoteDao noteDao;
   static late DebtDao debtDao;
   static late GiftCardDao giftCardDao;
+  static late ActivityDefinitionDao activityDefinitionDao;
   static late ActivityRecordDao activityRecordDao;
   static late VehicleDao vehicleDao;
   static late FuelRecordDao fuelRecordDao;
@@ -50,6 +52,7 @@ class DaoManager {
     noteDao = NoteDao(DatabaseManager.db);
     debtDao = DebtDao(DatabaseManager.db);
     giftCardDao = GiftCardDao(DatabaseManager.db);
+    activityDefinitionDao = ActivityDefinitionDao(DatabaseManager.db);
     activityRecordDao = ActivityRecordDao(DatabaseManager.db);
     vehicleDao = VehicleDao(DatabaseManager.db);
     fuelRecordDao = FuelRecordDao(DatabaseManager.db);

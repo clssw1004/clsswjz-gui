@@ -19,12 +19,16 @@ class ActivityRecordTable extends BaseAccountBookTable {
   /// 活动日期 (yyyy-MM-dd)
   TextColumn get recordDate => text().named('record_date')();
 
+  /// 关联的活动定义ID (可选)
+  TextColumn get activityDefId => text().named('activity_def_id').nullable()();
+
   /// 创建Companion
   static ActivityRecordTableCompanion toCreateCompanion(
     String who, {
     required String accountBookId,
     required String activityName,
     required String recordDate,
+    String? activityDefId,
     String? location,
     int? createdAt,
   }) {
@@ -34,6 +38,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
       accountBookId: Value(accountBookId),
       activityName: Value(activityName),
       recordDate: Value(recordDate),
+      activityDefId: Value.absentIfNull(activityDefId),
       location: Value.absentIfNull(location),
       createdBy: Value(who),
       createdAt: Value(now),
@@ -49,6 +54,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'activityName', companion.activityName);
     MapUtil.setIfPresent(map, 'recordDate', companion.recordDate);
+    MapUtil.setIfPresent(map, 'activityDefId', companion.activityDefId);
     MapUtil.setIfPresent(map, 'location', companion.location);
     MapUtil.setIfPresent(map, 'createdAt', companion.createdAt);
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
@@ -64,6 +70,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
       accountBookId: json['accountBookId'] != null ? Value(json['accountBookId'] as String) : const Value.absent(),
       activityName: json['activityName'] != null ? Value(json['activityName'] as String) : const Value.absent(),
       recordDate: json['recordDate'] != null ? Value(json['recordDate'] as String) : const Value.absent(),
+      activityDefId: json['activityDefId'] != null ? Value(json['activityDefId'] as String) : const Value.absent(),
       location: json['location'] != null ? Value(json['location'] as String) : const Value.absent(),
       createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
       updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),
