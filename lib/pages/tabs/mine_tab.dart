@@ -9,7 +9,6 @@ import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
 import '../../theme/theme_spacing.dart';
-import '../../widgets/common/common_grid_feature_item.dart';
 import '../fuel/fuel_record_list_page.dart';
 
 class MineTab extends StatelessWidget {
@@ -122,58 +121,49 @@ class _MineTabView extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           _buildProfileSliver(context, userProvider, spacing, colorScheme),
-          _buildSectionSliver(
-            context,
-            spacing: spacing,
-            child: _buildSectionCard(
-              context,
-              child: Padding(
-                padding: spacing.formPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                          bottom: spacing.formItemSpacing),
-                      child: _buildSectionHeader(
-                        context,
-                        icon: Icons.book_outlined,
-                        title: accountBook?.name ?? '未选择账本',
-                      ),
-                    ),
-                    _buildFeatureGrid(
-                      items: bookFeatureItems,
-                    ),
-                  ],
-                ),
+          // 账本功能
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: spacing.contentPadding.copyWith(top: 16, bottom: 0),
+              child: _buildSectionHeader(
+                context,
+                icon: Icons.book_outlined,
+                title: accountBook?.name ?? '未选择账本',
               ),
             ),
           ),
-          _buildSectionSliver(
-            context,
-            spacing: spacing,
-            child: _buildSectionCard(
-              context,
-              child: Padding(
-                padding: spacing.formPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                          bottom: spacing.formItemSpacing),
-                      child: _buildSectionHeader(
-                        context,
-                        icon: Icons.build_outlined,
-                        title: '数据工具',
-                      ),
-                    ),
-                    _buildFeatureGrid(
-                      items: dataToolItems,
-                    ),
-                  ],
-                ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: spacing.contentPadding.copyWith(top: 12, bottom: 0),
+              child: _buildCompactFeatureRow(context, items: bookFeatureItems),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing.contentPadding.left,
+                vertical: 8,
               ),
+              child: Divider(
+                height: 1,
+                color: colorScheme.outlineVariant.withAlpha(60),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: spacing.contentPadding.copyWith(bottom: 0),
+              child: _buildSectionHeader(
+                context,
+                icon: Icons.build_outlined,
+                title: '数据工具',
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: spacing.contentPadding.copyWith(top: 12, bottom: 8),
+              child: _buildCompactFeatureRow(context, items: dataToolItems),
             ),
           ),
           _buildSectionSliver(
@@ -452,23 +442,41 @@ class _MineTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureGrid({
+  Widget _buildCompactFeatureRow(
+    BuildContext context, {
     required List<_GridFeatureItemData> items,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
-      children: [
-        for (int i = 0; i < items.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Expanded(
-            child: CommonGridFeatureItem(
-              icon: items[i].icon,
-              label: items[i].label,
-              onTap: items[i].onTap,
-              isHighlighted: items[i].isHighlighted,
+      children: items.map((item) {
+        return Expanded(
+          child: InkWell(
+            onTap: item.onTap,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(item.icon, size: 24, color: colorScheme.primary),
+                  const SizedBox(height: 4),
+                  Text(
+                    item.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ],
+        );
+      }).toList(),
     );
   }
 
