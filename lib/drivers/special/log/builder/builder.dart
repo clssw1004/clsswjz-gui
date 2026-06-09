@@ -298,6 +298,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.fuelRecordDao.delete(businessId!);
       case BusinessType.itemRelation:
         return DaoManager.itemRelationDao.delete(businessId!);
+      case BusinessType.debt:
+        return DaoManager.debtDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
