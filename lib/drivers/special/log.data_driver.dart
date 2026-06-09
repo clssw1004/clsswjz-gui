@@ -18,6 +18,7 @@ import '../../enums/note_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
+import '../../manager/database_manager.dart';
 import '../../manager/service_manager.dart';
 import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/dto/item_filter_dto.dart';
@@ -613,26 +614,29 @@ class LogDataDriver implements BookDataDriver {
       required String debtDate,
       String? expectedClearDate,
       DebtClearState? clearState}) async {
-    final id = await DebtCULog.create(
-      userId,
-      bookId,
-      debtor: debtor,
-      debtType: debtType,
-      amount: amount,
-      fundId: fundId,
-      debtDate: debtDate,
-      expectedClearDate: expectedClearDate,
-    ).execute();
-    await ItemCULog.create(userId, bookId,
-            amount: amount,
-            type: AccountItemType.transfer,
-            accountDate: '$debtDate 00:00:00',
-            fundId: fundId,
-            categoryCode: debtType.code,
-            description: '${debtType.text} $debtor',
-            source: BusinessType.debt.code,
-            sourceId: id)
-        .execute();
+    final id = await DatabaseManager.db.transaction(() async {
+      final debtId = await DebtCULog.create(
+        userId,
+        bookId,
+        debtor: debtor,
+        debtType: debtType,
+        amount: amount,
+        fundId: fundId,
+        debtDate: debtDate,
+        expectedClearDate: expectedClearDate,
+      ).execute();
+      await ItemCULog.create(userId, bookId,
+              amount: amount,
+              type: AccountItemType.transfer,
+              accountDate: '$debtDate 00:00:00',
+              fundId: fundId,
+              categoryCode: debtType.code,
+              description: '${debtType.text} $debtor',
+              source: BusinessType.debt.code,
+              sourceId: debtId)
+          .execute();
+      return debtId;
+    });
     return OperateResult.success(id);
   }
 

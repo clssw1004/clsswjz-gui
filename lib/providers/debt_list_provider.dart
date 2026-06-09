@@ -101,7 +101,7 @@ class DebtListProvider extends ChangeNotifier {
 
   /// 加载更多债务
   Future<void> loadMore() async {
-    if (_loadingMore || !_hasMore) return;
+    if (_loadingMore || _loading || !_hasMore) return;
 
     _loadingMore = true;
     notifyListeners();
