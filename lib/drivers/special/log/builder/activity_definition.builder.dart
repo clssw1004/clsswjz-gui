@@ -41,6 +41,7 @@ class ActivityDefinitionCULog extends LogBuilder<ActivityDefinitionTableCompanio
     required String emoji,
     required int color,
     int sortOrder = 0,
+    int? maxDailyCount,
   }) {
     return ActivityDefinitionCULog()
         .who(who)
@@ -53,6 +54,7 @@ class ActivityDefinitionCULog extends LogBuilder<ActivityDefinitionTableCompanio
           emoji: emoji,
           color: color,
           sortOrder: sortOrder,
+          maxDailyCount: maxDailyCount,
         )) as ActivityDefinitionCULog;
   }
 
@@ -63,6 +65,7 @@ class ActivityDefinitionCULog extends LogBuilder<ActivityDefinitionTableCompanio
     String? emoji,
     int? color,
     int? sortOrder,
+    int? maxDailyCount,
   }) {
     return ActivityDefinitionCULog()
         .who(who)
@@ -74,6 +77,7 @@ class ActivityDefinitionCULog extends LogBuilder<ActivityDefinitionTableCompanio
           emoji: emoji,
           color: color,
           sortOrder: sortOrder,
+          maxDailyCount: maxDailyCount,
         )) as ActivityDefinitionCULog;
   }
 
@@ -108,6 +112,7 @@ class ActivityDefinitionCULog extends LogBuilder<ActivityDefinitionTableCompanio
             emoji: data['emoji'] as String?,
             color: data['color'] as int?,
             sortOrder: data['sortOrder'] as int?,
+            maxDailyCount: data['maxDailyCount'] as int?,
           )) as ActivityDefinitionCULog;
     }
     return ActivityDefinitionCULog()

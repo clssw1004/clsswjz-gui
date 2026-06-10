@@ -2634,7 +2634,7 @@ abstract class AppLocalizations {
   /// Delete activity confirmation dialog content
   ///
   /// In en, this message translates to:
-  /// **'Delete [{name}]? Related check-in records will be kept.'**
+  /// **'Delete [{name}]?'**
   String deleteActivityConfirm(String name);
 
   /// Fuel record module name
@@ -2738,6 +2738,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Debt'**
   String get moduleDebt;
+
+  /// Daily check-in limit label
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Limit'**
+  String get activityDailyLimit;
+
+  /// Unlimited daily check-in option
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get activityDailyLimitUnlimited;
+
+  /// Check-in sheet hint text
+  ///
+  /// In en, this message translates to:
+  /// **'Tap emoji to check in'**
+  String get tapToCheckIn;
 }
 
 class _AppLocalizationsDelegate

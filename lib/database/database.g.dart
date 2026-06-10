@@ -7788,6 +7788,12 @@ class $ActivityDefinitionTableTable extends ActivityDefinitionTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _maxDailyCountMeta =
+      const VerificationMeta('maxDailyCount');
+  @override
+  late final GeneratedColumn<int> maxDailyCount = GeneratedColumn<int>(
+      'max_daily_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -7799,7 +7805,8 @@ class $ActivityDefinitionTableTable extends ActivityDefinitionTable
         name,
         emoji,
         color,
-        sortOrder
+        sortOrder,
+        maxDailyCount
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7870,6 +7877,12 @@ class $ActivityDefinitionTableTable extends ActivityDefinitionTable
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
     }
+    if (data.containsKey('max_daily_count')) {
+      context.handle(
+          _maxDailyCountMeta,
+          maxDailyCount.isAcceptableOrUnknown(
+              data['max_daily_count']!, _maxDailyCountMeta));
+    }
     return context;
   }
 
@@ -7899,6 +7912,8 @@ class $ActivityDefinitionTableTable extends ActivityDefinitionTable
           .read(DriftSqlType.int, data['${effectivePrefix}color'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      maxDailyCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_daily_count']),
     );
   }
 
@@ -7928,6 +7943,9 @@ class ActivityDefinition extends DataClass
 
   /// 排序序号
   final int sortOrder;
+
+  /// 每日最大打卡次数 (null=不限制)
+  final int? maxDailyCount;
   const ActivityDefinition(
       {required this.accountBookId,
       required this.createdBy,
@@ -7938,7 +7956,8 @@ class ActivityDefinition extends DataClass
       required this.name,
       required this.emoji,
       required this.color,
-      required this.sortOrder});
+      required this.sortOrder,
+      this.maxDailyCount});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -7952,6 +7971,9 @@ class ActivityDefinition extends DataClass
     map['emoji'] = Variable<String>(emoji);
     map['color'] = Variable<int>(color);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || maxDailyCount != null) {
+      map['max_daily_count'] = Variable<int>(maxDailyCount);
+    }
     return map;
   }
 
@@ -7967,6 +7989,9 @@ class ActivityDefinition extends DataClass
       emoji: Value(emoji),
       color: Value(color),
       sortOrder: Value(sortOrder),
+      maxDailyCount: maxDailyCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxDailyCount),
     );
   }
 
@@ -7984,6 +8009,7 @@ class ActivityDefinition extends DataClass
       emoji: serializer.fromJson<String>(json['emoji']),
       color: serializer.fromJson<int>(json['color']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      maxDailyCount: serializer.fromJson<int?>(json['maxDailyCount']),
     );
   }
   @override
@@ -8000,6 +8026,7 @@ class ActivityDefinition extends DataClass
       'emoji': serializer.toJson<String>(emoji),
       'color': serializer.toJson<int>(color),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'maxDailyCount': serializer.toJson<int?>(maxDailyCount),
     };
   }
 
@@ -8013,7 +8040,8 @@ class ActivityDefinition extends DataClass
           String? name,
           String? emoji,
           int? color,
-          int? sortOrder}) =>
+          int? sortOrder,
+          Value<int?> maxDailyCount = const Value.absent()}) =>
       ActivityDefinition(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -8025,6 +8053,8 @@ class ActivityDefinition extends DataClass
         emoji: emoji ?? this.emoji,
         color: color ?? this.color,
         sortOrder: sortOrder ?? this.sortOrder,
+        maxDailyCount:
+            maxDailyCount.present ? maxDailyCount.value : this.maxDailyCount,
       );
   ActivityDefinition copyWithCompanion(ActivityDefinitionTableCompanion data) {
     return ActivityDefinition(
@@ -8040,6 +8070,9 @@ class ActivityDefinition extends DataClass
       emoji: data.emoji.present ? data.emoji.value : this.emoji,
       color: data.color.present ? data.color.value : this.color,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      maxDailyCount: data.maxDailyCount.present
+          ? data.maxDailyCount.value
+          : this.maxDailyCount,
     );
   }
 
@@ -8055,14 +8088,15 @@ class ActivityDefinition extends DataClass
           ..write('name: $name, ')
           ..write('emoji: $emoji, ')
           ..write('color: $color, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('maxDailyCount: $maxDailyCount')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(accountBookId, createdBy, updatedBy,
-      createdAt, updatedAt, id, name, emoji, color, sortOrder);
+      createdAt, updatedAt, id, name, emoji, color, sortOrder, maxDailyCount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8076,7 +8110,8 @@ class ActivityDefinition extends DataClass
           other.name == this.name &&
           other.emoji == this.emoji &&
           other.color == this.color &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.maxDailyCount == this.maxDailyCount);
 }
 
 class ActivityDefinitionTableCompanion
@@ -8091,6 +8126,7 @@ class ActivityDefinitionTableCompanion
   final Value<String> emoji;
   final Value<int> color;
   final Value<int> sortOrder;
+  final Value<int?> maxDailyCount;
   final Value<int> rowid;
   const ActivityDefinitionTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -8103,6 +8139,7 @@ class ActivityDefinitionTableCompanion
     this.emoji = const Value.absent(),
     this.color = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.maxDailyCount = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ActivityDefinitionTableCompanion.insert({
@@ -8116,6 +8153,7 @@ class ActivityDefinitionTableCompanion
     required String emoji,
     required int color,
     this.sortOrder = const Value.absent(),
+    this.maxDailyCount = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -8137,6 +8175,7 @@ class ActivityDefinitionTableCompanion
     Expression<String>? emoji,
     Expression<int>? color,
     Expression<int>? sortOrder,
+    Expression<int>? maxDailyCount,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8150,6 +8189,7 @@ class ActivityDefinitionTableCompanion
       if (emoji != null) 'emoji': emoji,
       if (color != null) 'color': color,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (maxDailyCount != null) 'max_daily_count': maxDailyCount,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8165,6 +8205,7 @@ class ActivityDefinitionTableCompanion
       Value<String>? emoji,
       Value<int>? color,
       Value<int>? sortOrder,
+      Value<int?>? maxDailyCount,
       Value<int>? rowid}) {
     return ActivityDefinitionTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -8177,6 +8218,7 @@ class ActivityDefinitionTableCompanion
       emoji: emoji ?? this.emoji,
       color: color ?? this.color,
       sortOrder: sortOrder ?? this.sortOrder,
+      maxDailyCount: maxDailyCount ?? this.maxDailyCount,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8214,6 +8256,9 @@ class ActivityDefinitionTableCompanion
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (maxDailyCount.present) {
+      map['max_daily_count'] = Variable<int>(maxDailyCount.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8233,6 +8278,7 @@ class ActivityDefinitionTableCompanion
           ..write('emoji: $emoji, ')
           ..write('color: $color, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('maxDailyCount: $maxDailyCount, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8304,6 +8350,12 @@ class $ActivityRecordTableTable extends ActivityRecordTable
   late final GeneratedColumn<String> activityDefId = GeneratedColumn<String>(
       'activity_def_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _maxDailyCountMeta =
+      const VerificationMeta('maxDailyCount');
+  @override
+  late final GeneratedColumn<int> maxDailyCount = GeneratedColumn<int>(
+      'max_daily_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -8315,7 +8367,8 @@ class $ActivityRecordTableTable extends ActivityRecordTable
         activityName,
         location,
         recordDate,
-        activityDefId
+        activityDefId,
+        maxDailyCount
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8390,6 +8443,12 @@ class $ActivityRecordTableTable extends ActivityRecordTable
           activityDefId.isAcceptableOrUnknown(
               data['activity_def_id']!, _activityDefIdMeta));
     }
+    if (data.containsKey('max_daily_count')) {
+      context.handle(
+          _maxDailyCountMeta,
+          maxDailyCount.isAcceptableOrUnknown(
+              data['max_daily_count']!, _maxDailyCountMeta));
+    }
     return context;
   }
 
@@ -8419,6 +8478,8 @@ class $ActivityRecordTableTable extends ActivityRecordTable
           .read(DriftSqlType.string, data['${effectivePrefix}record_date'])!,
       activityDefId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}activity_def_id']),
+      maxDailyCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_daily_count']),
     );
   }
 
@@ -8447,6 +8508,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
 
   /// 关联的活动定义ID (可选)
   final String? activityDefId;
+
+  /// 每日最大打卡次数 (null=不限制)
+  final int? maxDailyCount;
   const ActivityRecord(
       {required this.accountBookId,
       required this.createdBy,
@@ -8457,7 +8521,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       required this.activityName,
       this.location,
       required this.recordDate,
-      this.activityDefId});
+      this.activityDefId,
+      this.maxDailyCount});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -8474,6 +8539,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
     map['record_date'] = Variable<String>(recordDate);
     if (!nullToAbsent || activityDefId != null) {
       map['activity_def_id'] = Variable<String>(activityDefId);
+    }
+    if (!nullToAbsent || maxDailyCount != null) {
+      map['max_daily_count'] = Variable<int>(maxDailyCount);
     }
     return map;
   }
@@ -8494,6 +8562,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       activityDefId: activityDefId == null && nullToAbsent
           ? const Value.absent()
           : Value(activityDefId),
+      maxDailyCount: maxDailyCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxDailyCount),
     );
   }
 
@@ -8511,6 +8582,7 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       location: serializer.fromJson<String?>(json['location']),
       recordDate: serializer.fromJson<String>(json['recordDate']),
       activityDefId: serializer.fromJson<String?>(json['activityDefId']),
+      maxDailyCount: serializer.fromJson<int?>(json['maxDailyCount']),
     );
   }
   @override
@@ -8527,6 +8599,7 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       'location': serializer.toJson<String?>(location),
       'recordDate': serializer.toJson<String>(recordDate),
       'activityDefId': serializer.toJson<String?>(activityDefId),
+      'maxDailyCount': serializer.toJson<int?>(maxDailyCount),
     };
   }
 
@@ -8540,7 +8613,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           String? activityName,
           Value<String?> location = const Value.absent(),
           String? recordDate,
-          Value<String?> activityDefId = const Value.absent()}) =>
+          Value<String?> activityDefId = const Value.absent(),
+          Value<int?> maxDailyCount = const Value.absent()}) =>
       ActivityRecord(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -8553,6 +8627,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
         recordDate: recordDate ?? this.recordDate,
         activityDefId:
             activityDefId.present ? activityDefId.value : this.activityDefId,
+        maxDailyCount:
+            maxDailyCount.present ? maxDailyCount.value : this.maxDailyCount,
       );
   ActivityRecord copyWithCompanion(ActivityRecordTableCompanion data) {
     return ActivityRecord(
@@ -8573,6 +8649,9 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       activityDefId: data.activityDefId.present
           ? data.activityDefId.value
           : this.activityDefId,
+      maxDailyCount: data.maxDailyCount.present
+          ? data.maxDailyCount.value
+          : this.maxDailyCount,
     );
   }
 
@@ -8588,7 +8667,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           ..write('activityName: $activityName, ')
           ..write('location: $location, ')
           ..write('recordDate: $recordDate, ')
-          ..write('activityDefId: $activityDefId')
+          ..write('activityDefId: $activityDefId, ')
+          ..write('maxDailyCount: $maxDailyCount')
           ..write(')'))
         .toString();
   }
@@ -8604,7 +8684,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
       activityName,
       location,
       recordDate,
-      activityDefId);
+      activityDefId,
+      maxDailyCount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8618,7 +8699,8 @@ class ActivityRecord extends DataClass implements Insertable<ActivityRecord> {
           other.activityName == this.activityName &&
           other.location == this.location &&
           other.recordDate == this.recordDate &&
-          other.activityDefId == this.activityDefId);
+          other.activityDefId == this.activityDefId &&
+          other.maxDailyCount == this.maxDailyCount);
 }
 
 class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
@@ -8632,6 +8714,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
   final Value<String?> location;
   final Value<String> recordDate;
   final Value<String?> activityDefId;
+  final Value<int?> maxDailyCount;
   final Value<int> rowid;
   const ActivityRecordTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -8644,6 +8727,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     this.location = const Value.absent(),
     this.recordDate = const Value.absent(),
     this.activityDefId = const Value.absent(),
+    this.maxDailyCount = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ActivityRecordTableCompanion.insert({
@@ -8657,6 +8741,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     this.location = const Value.absent(),
     required String recordDate,
     this.activityDefId = const Value.absent(),
+    this.maxDailyCount = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -8677,6 +8762,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     Expression<String>? location,
     Expression<String>? recordDate,
     Expression<String>? activityDefId,
+    Expression<int>? maxDailyCount,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8690,6 +8776,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       if (location != null) 'location': location,
       if (recordDate != null) 'record_date': recordDate,
       if (activityDefId != null) 'activity_def_id': activityDefId,
+      if (maxDailyCount != null) 'max_daily_count': maxDailyCount,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8705,6 +8792,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       Value<String?>? location,
       Value<String>? recordDate,
       Value<String?>? activityDefId,
+      Value<int?>? maxDailyCount,
       Value<int>? rowid}) {
     return ActivityRecordTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -8717,6 +8805,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
       location: location ?? this.location,
       recordDate: recordDate ?? this.recordDate,
       activityDefId: activityDefId ?? this.activityDefId,
+      maxDailyCount: maxDailyCount ?? this.maxDailyCount,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8754,6 +8843,9 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
     if (activityDefId.present) {
       map['activity_def_id'] = Variable<String>(activityDefId.value);
     }
+    if (maxDailyCount.present) {
+      map['max_daily_count'] = Variable<int>(maxDailyCount.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8773,6 +8865,7 @@ class ActivityRecordTableCompanion extends UpdateCompanion<ActivityRecord> {
           ..write('location: $location, ')
           ..write('recordDate: $recordDate, ')
           ..write('activityDefId: $activityDefId, ')
+          ..write('maxDailyCount: $maxDailyCount, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14830,6 +14923,7 @@ typedef $$ActivityDefinitionTableTableCreateCompanionBuilder
   required String emoji,
   required int color,
   Value<int> sortOrder,
+  Value<int?> maxDailyCount,
   Value<int> rowid,
 });
 typedef $$ActivityDefinitionTableTableUpdateCompanionBuilder
@@ -14844,6 +14938,7 @@ typedef $$ActivityDefinitionTableTableUpdateCompanionBuilder
   Value<String> emoji,
   Value<int> color,
   Value<int> sortOrder,
+  Value<int?> maxDailyCount,
   Value<int> rowid,
 });
 
@@ -14885,6 +14980,9 @@ class $$ActivityDefinitionTableTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount, builder: (column) => ColumnFilters(column));
 }
 
 class $$ActivityDefinitionTableTableOrderingComposer
@@ -14926,6 +15024,10 @@ class $$ActivityDefinitionTableTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ActivityDefinitionTableTableAnnotationComposer
@@ -14966,6 +15068,9 @@ class $$ActivityDefinitionTableTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount, builder: (column) => column);
 }
 
 class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
@@ -15009,6 +15114,7 @@ class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
             Value<String> emoji = const Value.absent(),
             Value<int> color = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<int?> maxDailyCount = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityDefinitionTableCompanion(
@@ -15022,6 +15128,7 @@ class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
             emoji: emoji,
             color: color,
             sortOrder: sortOrder,
+            maxDailyCount: maxDailyCount,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -15035,6 +15142,7 @@ class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
             required String emoji,
             required int color,
             Value<int> sortOrder = const Value.absent(),
+            Value<int?> maxDailyCount = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityDefinitionTableCompanion.insert(
@@ -15048,6 +15156,7 @@ class $$ActivityDefinitionTableTableTableManager extends RootTableManager<
             emoji: emoji,
             color: color,
             sortOrder: sortOrder,
+            maxDailyCount: maxDailyCount,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -15086,6 +15195,7 @@ typedef $$ActivityRecordTableTableCreateCompanionBuilder
   Value<String?> location,
   required String recordDate,
   Value<String?> activityDefId,
+  Value<int?> maxDailyCount,
   Value<int> rowid,
 });
 typedef $$ActivityRecordTableTableUpdateCompanionBuilder
@@ -15100,6 +15210,7 @@ typedef $$ActivityRecordTableTableUpdateCompanionBuilder
   Value<String?> location,
   Value<String> recordDate,
   Value<String?> activityDefId,
+  Value<int?> maxDailyCount,
   Value<int> rowid,
 });
 
@@ -15141,6 +15252,9 @@ class $$ActivityRecordTableTableFilterComposer
 
   ColumnFilters<String> get activityDefId => $composableBuilder(
       column: $table.activityDefId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount, builder: (column) => ColumnFilters(column));
 }
 
 class $$ActivityRecordTableTableOrderingComposer
@@ -15184,6 +15298,10 @@ class $$ActivityRecordTableTableOrderingComposer
   ColumnOrderings<String> get activityDefId => $composableBuilder(
       column: $table.activityDefId,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ActivityRecordTableTableAnnotationComposer
@@ -15224,6 +15342,9 @@ class $$ActivityRecordTableTableAnnotationComposer
 
   GeneratedColumn<String> get activityDefId => $composableBuilder(
       column: $table.activityDefId, builder: (column) => column);
+
+  GeneratedColumn<int> get maxDailyCount => $composableBuilder(
+      column: $table.maxDailyCount, builder: (column) => column);
 }
 
 class $$ActivityRecordTableTableTableManager extends RootTableManager<
@@ -15265,6 +15386,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             Value<String?> location = const Value.absent(),
             Value<String> recordDate = const Value.absent(),
             Value<String?> activityDefId = const Value.absent(),
+            Value<int?> maxDailyCount = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityRecordTableCompanion(
@@ -15278,6 +15400,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             location: location,
             recordDate: recordDate,
             activityDefId: activityDefId,
+            maxDailyCount: maxDailyCount,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -15291,6 +15414,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             Value<String?> location = const Value.absent(),
             required String recordDate,
             Value<String?> activityDefId = const Value.absent(),
+            Value<int?> maxDailyCount = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ActivityRecordTableCompanion.insert(
@@ -15304,6 +15428,7 @@ class $$ActivityRecordTableTableTableManager extends RootTableManager<
             location: location,
             recordDate: recordDate,
             activityDefId: activityDefId,
+            maxDailyCount: maxDailyCount,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

@@ -1216,5 +1216,17 @@
     "noSharedUsers": "暫無共享用戶",
     "moduleVehicle": "車輛",
     "moduleFuelRecord": "油耗記錄",
-    "moduleDebt": "債務"
+    "moduleDebt": "債務",
+    "activityDailyLimit": "每日打卡上限",
+    "@activityDailyLimit": {
+        "description": "每日打卡上限標籤"
+    },
+    "activityDailyLimitUnlimited": "不限制",
+    "@activityDailyLimitUnlimited": {
+        "description": "每日打卡上限-不限制選項"
+    },
+    "tapToCheckIn": "輕點圖示快速打卡",
+    "@tapToCheckIn": {
+        "description": "打卡彈窗提示輕點即可打卡"
+    }
 }

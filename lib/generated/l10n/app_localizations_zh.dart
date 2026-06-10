@@ -1350,7 +1350,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deleteActivityConfirm(String name) {
-    return '确定要删除[$name]吗？相关打卡记录将保留。';
+    return '确定要删除[$name]吗？';
   }
 
   @override
@@ -1403,6 +1403,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moduleDebt => '债务';
+
+  @override
+  String get activityDailyLimit => '每日打卡上限';
+
+  @override
+  String get activityDailyLimitUnlimited => '不限制';
+
+  @override
+  String get tapToCheckIn => '轻点图标快速打卡';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2679,4 +2688,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get moduleDebt => '債務';
+
+  @override
+  String get activityDailyLimit => '每日打卡上限';
+
+  @override
+  String get activityDailyLimitUnlimited => '不限制';
+
+  @override
+  String get tapToCheckIn => '輕點圖示快速打卡';
 }

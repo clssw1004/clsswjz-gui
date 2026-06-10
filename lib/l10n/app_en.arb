@@ -1367,7 +1367,7 @@
             }
         }
     },
-    "deleteActivityConfirm": "Delete [{name}]? Related check-in records will be kept.",
+    "deleteActivityConfirm": "Delete [{name}]?",
     "@deleteActivityConfirm": {
         "description": "Delete activity confirmation dialog content",
         "placeholders": {
@@ -1418,5 +1418,17 @@
     "noSharedUsers": "No shared users",
     "moduleVehicle": "Vehicle",
     "moduleFuelRecord": "Fuel Record",
-    "moduleDebt": "Debt"
+    "moduleDebt": "Debt",
+    "activityDailyLimit": "Daily Limit",
+    "@activityDailyLimit": {
+        "description": "Daily check-in limit label"
+    },
+    "activityDailyLimitUnlimited": "Unlimited",
+    "@activityDailyLimitUnlimited": {
+        "description": "Unlimited daily check-in option"
+    },
+    "tapToCheckIn": "Tap emoji to check in",
+    "@tapToCheckIn": {
+        "description": "Check-in sheet hint text"
+    }
 }

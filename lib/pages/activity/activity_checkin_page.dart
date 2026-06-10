@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/activity_definition_vo.dart';
@@ -23,10 +24,6 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
     });
   }
 
-  void _onCheckIn(ActivityDefinitionVO def) {
-    context.read<ActivityCheckinProvider>().checkIn(def.id);
-  }
-
   void _onTapDetail(ActivityDefinitionVO def) {
     Navigator.push(
       context,
@@ -37,98 +34,31 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
   }
 
   void _onLongPress(ActivityDefinitionVO def) {
+    final bgColor = Color(def.color);
     showModalBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.bar_chart_outlined),
-              title: Text(L10nManager.l10n.activityDetail),
-              onTap: () {
-                Navigator.pop(ctx);
-                _onTapDetail(def);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: Text(L10nManager.l10n.edit),
-              onTap: () {
-                Navigator.pop(ctx);
-                _editDefinition(def);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: Text(L10nManager.l10n.activityDelete, style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(ctx);
-                _deleteDefinition(def);
-              },
-            ),
-          ],
-        ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _CheckInSheet(
+        definition: def,
+        bgColor: bgColor,
+        provider: context.read<ActivityCheckinProvider>(),
       ),
     );
-  }
-
-  Future<void> _editDefinition(ActivityDefinitionVO def) async {
-    final result = await Navigator.push<(String, String, int)>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ActivityDefEditPage(definition: def),
-      ),
-    );
-    if (result == null || !mounted) return;
-    final (name, emoji, color) = result;
-    final updated = ActivityDefinitionVO(
-      id: def.id,
-      accountBookId: def.accountBookId,
-      name: name,
-      emoji: emoji,
-      color: color,
-      sortOrder: def.sortOrder,
-      createdAt: def.createdAt,
-      updatedAt: def.updatedAt,
-    );
-    await context.read<ActivityCheckinProvider>().updateDefinition(updated);
-  }
-
-  Future<void> _deleteDefinition(ActivityDefinitionVO def) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(L10nManager.l10n.confirmDelete),
-        content: Text(L10nManager.l10n.deleteActivityConfirm(def.name)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(L10nManager.l10n.cancel)),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text(L10nManager.l10n.activityDelete)),
-        ],
-      ),
-    );
-    if (confirm == true && mounted) {
-      await context.read<ActivityCheckinProvider>().deleteDefinition(def.id);
-    }
   }
 
   void _navigateToCreate() async {
-    final result = await Navigator.push<(String, String, int)>(
+    final result = await Navigator.push<(String, String, int, int?)>(
       context,
       MaterialPageRoute(
         builder: (_) => const ActivityDefEditPage(),
       ),
     );
     if (result == null || !mounted) return;
-    final (name, emoji, color) = result;
+    final (name, emoji, color, maxDailyCount) = result;
     await context
         .read<ActivityCheckinProvider>()
-        .createDefinition(name: name, emoji: emoji, color: color);
+        .createDefinition(name: name, emoji: emoji, color: color, maxDailyCount: maxDailyCount);
   }
 
   Widget _buildStatsCard(
@@ -262,7 +192,7 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
                   child: ActivityCheckinGrid(
                     definitions: provider.definitions,
                     todayCounts: provider.todayCounts,
-                    onCheckIn: _onCheckIn,
+                    onTap: _onTapDetail,
                     onLongPress: _onLongPress,
                   ),
                 ),
@@ -291,6 +221,250 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// 炫酷打卡弹窗 — 弹动Emoji + 飞出的+1
+
+/// 炫酷打卡弹窗 — 弹动Emoji + 飞出的+1
+class _CheckInSheet extends StatefulWidget {
+  final ActivityDefinitionVO definition;
+  final Color bgColor;
+  final ActivityCheckinProvider provider;
+
+  const _CheckInSheet({
+    required this.definition,
+    required this.bgColor,
+    required this.provider,
+  });
+
+  @override
+  State<_CheckInSheet> createState() => _CheckInSheetState();
+}
+
+class _CheckInSheetState extends State<_CheckInSheet>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _bounceAnim;
+  double _floatY = 0;
+  double _floatOpacity = 0;
+  bool _checkedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _bounceAnim = Tween<double>(begin: 1.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool get _isLimitReached {
+    final limit = widget.definition.maxDailyCount;
+    return limit != null && widget.provider.todayCountOf(widget.definition.id) >= limit;
+  }
+
+  Future<void> _doCheckIn() async {
+    if (_checkedIn) return;
+    if (_isLimitReached) {
+      HapticFeedback.heavyImpact();
+      return;
+    }
+    _checkedIn = true;
+
+    setState(() {
+      _bounceAnim = Tween<double>(begin: 0.8, end: 1.3)
+          .animate(_controller);
+    });
+    _controller.value = 0.0;
+    await _controller.forward();
+    HapticFeedback.heavyImpact();
+
+    setState(() {
+      _floatY = 0;
+      _floatOpacity = 1;
+    });
+    for (int i = 0; i < 10; i++) {
+      await Future.delayed(const Duration(milliseconds: 30));
+      if (mounted) {
+        setState(() {
+          _floatY = -20 - (i * 8);
+          _floatOpacity = 1 - (i * 0.1);
+        });
+      }
+    }
+
+    if (mounted) {
+      Navigator.pop(context);
+      widget.provider.checkIn(widget.definition.id);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final def = widget.definition;
+    final bgColor = widget.bgColor;
+    final count = widget.provider.todayCountOf(def.id);
+    final limitReached = _isLimitReached;
+    final l10n = L10nManager.l10n;
+    final screenH = MediaQuery.of(context).size.height;
+    final screenW = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(maxHeight: screenH * 0.65),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽手柄
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurfaceVariant.withAlpha(50),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // Emoji
+          GestureDetector(
+            onTap: _doCheckIn,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    final scale = 1 + (1 - _controller.value) * 0.2;
+                    return Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        width: screenW * 0.28,
+                        height: screenW * 0.28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: bgColor.withAlpha(25),
+                          border: Border.all(
+                            color: bgColor.withAlpha(70),
+                            width: 2.5,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                AnimatedBuilder(
+                  animation: _bounceAnim,
+                  builder: (context, child) => Transform.scale(
+                    scale: _bounceAnim.value,
+                    child: Text(def.emoji,
+                        style: TextStyle(fontSize: screenW * 0.15)),
+                  ),
+                ),
+                if (limitReached)
+                  Positioned(
+                    bottom: 2, right: -screenW * 0.02,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF6B35),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('已满',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                if (_floatOpacity > 0)
+                  Positioned(
+                    top: 0,
+                    child: Transform.translate(
+                      offset: Offset(0, _floatY),
+                      child: Opacity(
+                        opacity: _floatOpacity,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text('+1',
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // 名称
+          Text(def.name,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+
+          // 次数
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: bgColor.withAlpha(25),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${l10n.currentDay} $count${def.maxDailyCount != null ? ' / ${def.maxDailyCount}' : ''}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      color: bgColor, fontWeight: FontWeight.w600),
+                ),
+                if (limitReached)
+                  const SizedBox(width: 4),
+                if (limitReached)
+                  Icon(Icons.check_circle,
+                      size: 14, color: const Color(0xFFFF6B35)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 提示
+          Text(
+              limitReached
+                  ? '已达每日上限，明日再来'
+                  : l10n.tapToCheckIn,
+              style: theme.textTheme.bodySmall?.copyWith(
+                  color: limitReached
+                      ? Colors.orange.shade400
+                      : theme.colorScheme.onSurfaceVariant.withAlpha(120))),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

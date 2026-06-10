@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/activity_definition_vo.dart';
 
@@ -13,6 +14,7 @@ class ActivityDefEditPage extends StatefulWidget {
 
 class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
   final _nameController = TextEditingController();
+  final _dailyLimitController = TextEditingController();
   String _emoji = '🏃';
   int _color = 0xFF5C6BC0;
   bool get isEditing => widget.definition != null;
@@ -43,12 +45,16 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
       _nameController.text = widget.definition!.name;
       _emoji = widget.definition!.emoji;
       _color = widget.definition!.color;
+      if (widget.definition!.maxDailyCount != null) {
+        _dailyLimitController.text = widget.definition!.maxDailyCount.toString();
+      }
     }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _dailyLimitController.dispose();
     super.dispose();
   }
 
@@ -269,6 +275,23 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
                 );
               }).toList(),
             ),
+            const SizedBox(height: 24),
+
+            // 每日打卡上限
+            TextFormField(
+              controller: _dailyLimitController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: L10nManager.l10n.activityDailyLimit,
+                hintText: L10nManager.l10n.activityDailyLimitUnlimited,
+                suffixText: '次/天',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              ),
+            ),
           ],
         ),
       ),
@@ -279,10 +302,14 @@ class _ActivityDefEditPageState extends State<ActivityDefEditPage> {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
+    final limitText = _dailyLimitController.text.trim();
+    final maxDailyCount = limitText.isEmpty ? null : int.tryParse(limitText);
+
     Navigator.pop(context, (
       name,
       _emoji,
       _color,
+      maxDailyCount,
     ));
   }
 }

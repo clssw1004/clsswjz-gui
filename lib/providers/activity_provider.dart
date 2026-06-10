@@ -42,6 +42,9 @@ class ActivityProvider extends ChangeNotifier {
   List<String> _activityNames = [];
   List<String> get activityNames => _activityNames;
 
+  /// 活动每日打卡上限缓存 (activityName -> maxDailyCount)
+  final Map<String, int> _dailyLimits = {};
+
   String? _currentBookId;
 
   ActivityProvider() {
@@ -130,6 +133,13 @@ class ActivityProvider extends ChangeNotifier {
       if (result.ok) {
         _records.clear();
         _records.addAll(result.data ?? []);
+        // 刷新每日上限缓存
+        _dailyLimits.clear();
+        for (final r in _records) {
+          if (r.maxDailyCount != null && !_dailyLimits.containsKey(r.activityName)) {
+            _dailyLimits[r.activityName] = r.maxDailyCount!;
+          }
+        }
       }
     } finally {
       _loading = false;
@@ -178,10 +188,24 @@ class ActivityProvider extends ChangeNotifier {
     required String recordDate,
     String? location,
     int? createdAt,
+    int? maxDailyCount,
   }) async {
     if (_currentBookId == null) {
       return OperateResult.failWithMessage(message: '请先选择账本');
     }
+
+    // 校验每日上限
+    final limit = maxDailyCount ?? _dailyLimits[activityName];
+    if (limit != null) {
+      final todayCount = _records.where((r) =>
+          r.activityName == activityName && r.recordDate == recordDate).length;
+      if (todayCount >= limit) {
+        return OperateResult.failWithMessage(
+          message: '已达每日打卡上限 ($limit 次)',
+        );
+      }
+    }
+
     final result = await DriverFactory.driver.createActivityRecord(
       AppConfigManager.instance.userId,
       _currentBookId!,
@@ -189,8 +213,12 @@ class ActivityProvider extends ChangeNotifier {
       recordDate: recordDate,
       location: location,
       createdAt: createdAt,
+      maxDailyCount: maxDailyCount,
     );
     if (result.ok) {
+      if (maxDailyCount != null) {
+        _dailyLimits[activityName] = maxDailyCount;
+      }
       await loadRecords();
       await loadActivityNames();
       final vo = ActivityRecordVO(
@@ -198,6 +226,7 @@ class ActivityProvider extends ChangeNotifier {
         accountBookId: _currentBookId!,
         activityName: activityName,
         location: location,
+        maxDailyCount: maxDailyCount,
         recordDate: recordDate,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         updatedAt: DateTime.now().millisecondsSinceEpoch,
@@ -207,6 +236,21 @@ class ActivityProvider extends ChangeNotifier {
       EventBus.instance.emit(ActivityChangedEvent(OperateType.create, vo));
     }
     return result;
+  }
+
+  /// 检查某活动某日是否已达打卡上限
+  Future<bool> isDailyLimitReached(String activityName, String date) async {
+    final limit = _dailyLimits[activityName];
+    if (limit == null) return false;
+    final todayCount = _records
+        .where((r) => r.activityName == activityName && r.recordDate == date)
+        .length;
+    return todayCount >= limit;
+  }
+
+  /// 获取某活动的每日上限
+  int? getActivityDailyLimit(String activityName) {
+    return _dailyLimits[activityName];
   }
 
   /// 删除活动记录

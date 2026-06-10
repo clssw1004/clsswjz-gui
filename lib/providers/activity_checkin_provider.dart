@@ -177,6 +177,15 @@ class ActivityCheckinProvider extends ChangeNotifier {
     if (_currentBookId == null) return false;
     final def = _definitions.where((d) => d.id == defId).firstOrNull;
     if (def == null) return false;
+
+    // 检查每日上限
+    if (def.maxDailyCount != null) {
+      final todayCount = _todayCounts[defId] ?? 0;
+      if (todayCount >= def.maxDailyCount!) {
+        return false;
+      }
+    }
+
     final today = DateUtil.nowDate();
     final result = await DriverFactory.driver.createActivityRecord(
       AppConfigManager.instance.userId,
@@ -185,6 +194,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
       recordDate: today,
       activityDefId: defId,
       location: location,
+      maxDailyCount: def.maxDailyCount,
     );
     if (result.ok) {
       _todayCounts[defId] = (_todayCounts[defId] ?? 0) + 1;
@@ -193,9 +203,39 @@ class ActivityCheckinProvider extends ChangeNotifier {
     return result.ok;
   }
 
+  /// 更新记录时间
+  Future<bool> updateRecordTime(String recordId, {required int createdAt}) async {
+    final result = await DriverFactory.driver.updateActivityRecordTime(
+      AppConfigManager.instance.userId,
+      recordId,
+      createdAt: createdAt,
+    );
+    if (result.ok) {
+      final idx = _recordsByDefId.indexWhere((r) => r.id == recordId);
+      if (idx != -1) {
+        _recordsByDefId[idx] = ActivityRecordVO(
+          id: _recordsByDefId[idx].id,
+          accountBookId: _recordsByDefId[idx].accountBookId,
+          activityName: _recordsByDefId[idx].activityName,
+          location: _recordsByDefId[idx].location,
+          activityDefId: _recordsByDefId[idx].activityDefId,
+          maxDailyCount: _recordsByDefId[idx].maxDailyCount,
+          recordDate: _recordsByDefId[idx].recordDate,
+          createdAt: createdAt,
+          updatedAt: DateTime.now().millisecondsSinceEpoch,
+          createdBy: _recordsByDefId[idx].createdBy,
+          updatedBy: _recordsByDefId[idx].updatedBy,
+        );
+        notifyListeners();
+      }
+    }
+    return result.ok;
+  }
+
   /// 删除打卡记录
   Future<bool> deleteRecord(String recordId) async {
     if (_currentBookId == null) return false;
+    final deleted = _recordsByDefId.where((r) => r.id == recordId).firstOrNull;
     final result = await DriverFactory.driver.deleteActivityRecord(
       AppConfigManager.instance.userId,
       _currentBookId!,
@@ -205,6 +245,11 @@ class ActivityCheckinProvider extends ChangeNotifier {
       _recordsByDefId.removeWhere((r) => r.id == recordId);
       final today = DateUtil.nowDate();
       _todayCountByDefId = _recordsByDefId.where((r) => r.recordDate == today).length;
+      // 同步更新今日计数缓存，否则 checkIn 仍按旧值拦截
+      if (deleted != null && deleted.recordDate == today && deleted.activityDefId != null) {
+        final c = _todayCounts[deleted.activityDefId] ?? 0;
+        if (c > 0) _todayCounts[deleted.activityDefId!] = c - 1;
+      }
       notifyListeners();
     }
     return result.ok;
@@ -216,6 +261,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
     required String emoji,
     required int color,
     int sortOrder = 0,
+    int? maxDailyCount,
   }) async {
     if (_currentBookId == null) {
       return OperateResult.failWithMessage(message: '请先选择账本');
@@ -227,6 +273,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
       emoji: emoji,
       color: color,
       sortOrder: sortOrder,
+      maxDailyCount: maxDailyCount,
     );
     if (result.ok) {
       await loadDefinitions();
@@ -244,6 +291,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
       emoji: vo.emoji,
       color: vo.color,
       sortOrder: vo.sortOrder,
+      maxDailyCount: vo.maxDailyCount,
     );
     if (result.ok) {
       await loadDefinitions();

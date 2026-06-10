@@ -22,6 +22,9 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
   /// 排序序号
   IntColumn get sortOrder => integer().named('sort_order').withDefault(const Constant(0))();
 
+  /// 每日最大打卡次数 (null=不限制)
+  IntColumn get maxDailyCount => integer().named('max_daily_count').nullable()();
+
   /// 创建Companion
   static ActivityDefinitionTableCompanion toCreateCompanion(
     String who, {
@@ -30,6 +33,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
     required String emoji,
     required int color,
     int sortOrder = 0,
+    int? maxDailyCount,
   }) {
     final now = DateUtil.now();
     return ActivityDefinitionTableCompanion(
@@ -39,6 +43,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
       emoji: Value(emoji),
       color: Value(color),
       sortOrder: Value(sortOrder),
+      maxDailyCount: Value.absentIfNull(maxDailyCount),
       createdBy: Value(who),
       createdAt: Value(now),
       updatedBy: Value(who),
@@ -53,6 +58,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
     String? emoji,
     int? color,
     int? sortOrder,
+    int? maxDailyCount,
   }) {
     return ActivityDefinitionTableCompanion(
       updatedBy: Value(who),
@@ -61,6 +67,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
       emoji: Value.absentIfNull(emoji),
       color: Value.absentIfNull(color),
       sortOrder: Value.absentIfNull(sortOrder),
+      maxDailyCount: Value.absentIfNull(maxDailyCount),
     );
   }
 
@@ -73,6 +80,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'emoji', companion.emoji);
     MapUtil.setIfPresent(map, 'color', companion.color);
     MapUtil.setIfPresent(map, 'sortOrder', companion.sortOrder);
+    MapUtil.setIfPresent(map, 'maxDailyCount', companion.maxDailyCount);
     MapUtil.setIfPresent(map, 'createdAt', companion.createdAt);
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
     MapUtil.setIfPresent(map, 'updatedAt', companion.updatedAt);
@@ -89,6 +97,7 @@ class ActivityDefinitionTable extends BaseAccountBookTable {
       emoji: json['emoji'] != null ? Value(json['emoji'] as String) : const Value.absent(),
       color: json['color'] != null ? Value(json['color'] as int) : const Value.absent(),
       sortOrder: json['sortOrder'] != null ? Value(json['sortOrder'] as int) : const Value.absent(),
+      maxDailyCount: json['maxDailyCount'] != null ? Value(json['maxDailyCount'] as int) : const Value.absent(),
       createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
       updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),
       createdBy: json['createdBy'] != null ? Value(json['createdBy'] as String) : const Value.absent(),
