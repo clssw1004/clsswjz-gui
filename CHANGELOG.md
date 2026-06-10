@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4] - 2026-06-10
+
+### Features
+- Data permission: user-to-user module-level sharing (supports debt, vehicle, fuel records)
+- Activity module moved out of ledger scope, now controlled by data sharing permissions
+- Activity toggle added to data sharing settings page
+- Activity icon moved to Data Tools section on Me tab
+
+### Optimizations
+- Removed dedicated activity statistics API, unified with list query + client-side aggregation
+
+### Bug Fixes
+- Fixed debt sync bugs: DeleteLog missing debt case, createDebt transaction, loadMore concurrency
+- Fixed sync errors being silently ignored, ensuring sync exceptions are properly reported
+
 ## [1.1.3] - 2026-06-07
 
 ### Features
