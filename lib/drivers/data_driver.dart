@@ -339,11 +339,19 @@ abstract class BookDataDriver {
     String? activityDefId,
     String? location,
     int? createdAt,
+    int? maxDailyCount,
   });
 
   /// 删除活动记录
   Future<OperateResult<void>> deleteActivityRecord(
     String userId, String bookId, String recordId);
+
+  /// 更新活动记录时间
+  Future<OperateResult<void>> updateActivityRecordTime(
+    String userId,
+    String recordId, {
+    required int createdAt,
+  });
 
   /// 获取活动记录列表（按日期范围筛选）
   Future<OperateResult<List<ActivityRecordVO>>> listActivityRecordsByBook(
@@ -376,6 +384,7 @@ abstract class BookDataDriver {
     required String emoji,
     required int color,
     int sortOrder = 0,
+    int? maxDailyCount,
   });
 
   /// 更新活动定义
@@ -386,6 +395,7 @@ abstract class BookDataDriver {
     String? emoji,
     int? color,
     int? sortOrder,
+    int? maxDailyCount,
   });
 
   /// 删除活动定义

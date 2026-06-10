@@ -8,6 +8,7 @@ class ActivityDefinitionVO {
   final String emoji;
   final int color;
   final int sortOrder;
+  final int? maxDailyCount;
   final int createdAt;
   final int updatedAt;
 
@@ -18,6 +19,7 @@ class ActivityDefinitionVO {
     required this.emoji,
     required this.color,
     required this.sortOrder,
+    this.maxDailyCount,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -30,6 +32,7 @@ class ActivityDefinitionVO {
       emoji: entity.emoji,
       color: entity.color,
       sortOrder: entity.sortOrder,
+      maxDailyCount: entity.maxDailyCount,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

@@ -17,6 +17,9 @@ class ActivityRecordVO {
   /// 关联的活动定义ID
   final String? activityDefId;
 
+  /// 每日最大打卡次数
+  final int? maxDailyCount;
+
   /// 活动日期 (yyyy-MM-dd)
   final String recordDate;
 
@@ -38,6 +41,7 @@ class ActivityRecordVO {
     required this.activityName,
     this.location,
     this.activityDefId,
+    this.maxDailyCount,
     required this.recordDate,
     required this.createdAt,
     required this.updatedAt,
@@ -53,6 +57,7 @@ class ActivityRecordVO {
       activityName: record.activityName,
       location: record.location,
       activityDefId: record.activityDefId,
+      maxDailyCount: record.maxDailyCount,
       recordDate: record.recordDate,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

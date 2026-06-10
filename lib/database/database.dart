@@ -48,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -86,6 +86,16 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await m.create(userShareTable);
+          }
+          if (from < 9) {
+            // 版本8到版本9的迁移：activityRecord表新增maxDailyCount列
+            await m.addColumn(
+                activityRecordTable, activityRecordTable.maxDailyCount);
+          }
+          if (from < 10) {
+            // 版本9到版本10的迁移：activityDefinition表新增maxDailyCount列
+            await m.addColumn(
+                activityDefinitionTable, activityDefinitionTable.maxDailyCount);
           }
         },
       );

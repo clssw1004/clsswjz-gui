@@ -1360,7 +1360,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteActivityConfirm(String name) {
-    return 'Delete [$name]? Related check-in records will be kept.';
+    return 'Delete [$name]?';
   }
 
   @override
@@ -1415,4 +1415,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moduleDebt => 'Debt';
+
+  @override
+  String get activityDailyLimit => 'Daily Limit';
+
+  @override
+  String get activityDailyLimitUnlimited => 'Unlimited';
+
+  @override
+  String get tapToCheckIn => 'Tap emoji to check in';
 }

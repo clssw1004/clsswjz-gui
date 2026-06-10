@@ -1036,6 +1036,7 @@ class LogDataDriver implements BookDataDriver {
     String? activityDefId,
     String? location,
     int? createdAt,
+    int? maxDailyCount,
   }) async {
     try {
       final logBuilder = ActivityRecordCULog.create(
@@ -1046,12 +1047,32 @@ class LogDataDriver implements BookDataDriver {
         activityDefId: activityDefId,
         location: location,
         createdAt: createdAt,
+        maxDailyCount: maxDailyCount,
       );
       final id = await logBuilder.execute();
       return OperateResult.success(id);
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '创建活动记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateActivityRecordTime(
+    String userId,
+    String recordId, {
+    required int createdAt,
+  }) async {
+    try {
+      await ActivityRecordCULog.updateTime(
+        who: userId,
+        id: recordId,
+        createdAt: createdAt,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新活动记录时间失败：$e', exception: e as Exception);
     }
   }
 
@@ -1139,6 +1160,7 @@ class LogDataDriver implements BookDataDriver {
     required String emoji,
     required int color,
     int sortOrder = 0,
+    int? maxDailyCount,
   }) async {
     try {
       final logBuilder = ActivityDefinitionCULog.create(
@@ -1148,6 +1170,7 @@ class LogDataDriver implements BookDataDriver {
         emoji: emoji,
         color: color,
         sortOrder: sortOrder,
+        maxDailyCount: maxDailyCount,
       );
       final id = await logBuilder.execute();
       return OperateResult.success(id);
@@ -1165,6 +1188,7 @@ class LogDataDriver implements BookDataDriver {
     String? emoji,
     int? color,
     int? sortOrder,
+    int? maxDailyCount,
   }) async {
     try {
       final logBuilder = ActivityDefinitionCULog.update(
@@ -1174,6 +1198,7 @@ class LogDataDriver implements BookDataDriver {
         emoji: emoji,
         color: color,
         sortOrder: sortOrder,
+        maxDailyCount: maxDailyCount,
       );
       await logBuilder.execute();
       return OperateResult.success(null);

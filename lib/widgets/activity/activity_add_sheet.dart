@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/activity_provider.dart';
@@ -18,6 +19,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _dailyLimitController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
   bool _saving = false;
   bool _showSuggestions = false;
@@ -35,6 +37,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
     _locationController.dispose();
     _dateController.dispose();
     _nameController.dispose();
+    _dailyLimitController.dispose();
     _nameFocusNode.dispose();
     super.dispose();
   }
@@ -70,6 +73,9 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
     final name = _selectedActivityName ?? _nameController.text.trim();
     if (name.isEmpty) return;
 
+    final limitText = _dailyLimitController.text.trim();
+    final maxDailyCount = limitText.isEmpty ? null : int.tryParse(limitText);
+
     setState(() => _saving = true);
     try {
       final OperateResult<String> result = await context.read<ActivityProvider>().createRecord(
@@ -78,6 +84,7 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
         location: _locationController.text.trim().isEmpty
             ? null
             : _locationController.text.trim(),
+        maxDailyCount: maxDailyCount,
       );
       if (result.ok && mounted) {
         Navigator.pop(context, true);
@@ -254,6 +261,32 @@ class _ActivityAddSheetState extends State<ActivityAddSheet> {
             controller: _locationController,
             labelText: l10n.activityLocation,
             hintText: l10n.activityLocationHint,
+          ),
+          const SizedBox(height: 16),
+
+          // 每日打卡上限
+          TextFormField(
+            controller: _dailyLimitController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l10n.activityDailyLimit,
+              hintText: l10n.activityDailyLimitUnlimited,
+              prefixIcon: const Icon(Icons.repeat_outlined),
+              suffixText: '次/天',
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              contentPadding: const EdgeInsets.all(16),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.outline),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.outline),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: theme.colorScheme.primary),
+              ),
+            ),
+            style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
 

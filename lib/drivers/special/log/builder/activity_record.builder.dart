@@ -7,6 +7,7 @@ import '../../../../database/tables/activity_record_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
+import '../../../../utils/date_util.dart';
 import 'builder.dart';
 
 class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, String> {
@@ -58,6 +59,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
     String? activityDefId,
     String? location,
     int? createdAt,
+    int? maxDailyCount,
   }) {
     return ActivityRecordCULog()
         .who(who)
@@ -71,6 +73,24 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           activityDefId: activityDefId,
           location: location,
           createdAt: createdAt,
+          maxDailyCount: maxDailyCount,
+        )) as ActivityRecordCULog;
+  }
+
+  /// 更新时间
+  static ActivityRecordCULog updateTime({
+    required String who,
+    required String id,
+    required int createdAt,
+  }) {
+    return ActivityRecordCULog()
+        .who(who)
+        .target(id)
+        .doUpdate()
+        .withData(ActivityRecordTableCompanion(
+          createdAt: Value(createdAt),
+          updatedBy: Value(who),
+          updatedAt: Value(DateUtil.now()),
         )) as ActivityRecordCULog;
   }
 

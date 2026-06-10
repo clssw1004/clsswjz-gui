@@ -1373,7 +1373,7 @@
             }
         }
     },
-    "deleteActivityConfirm": "确定要删除[{name}]吗？相关打卡记录将保留。",
+    "deleteActivityConfirm": "确定要删除[{name}]吗？",
     "@deleteActivityConfirm": {
         "description": "删除活动确认对话框内容",
         "placeholders": {
@@ -1421,5 +1421,17 @@
     "noSharedUsers": "暂无共享用户",
     "moduleVehicle": "车辆",
     "moduleFuelRecord": "油耗记录",
-    "moduleDebt": "债务"
+    "moduleDebt": "债务",
+    "activityDailyLimit": "每日打卡上限",
+    "@activityDailyLimit": {
+        "description": "每日打卡上限标签"
+    },
+    "activityDailyLimitUnlimited": "不限制",
+    "@activityDailyLimitUnlimited": {
+        "description": "每日打卡上限-不限制选项"
+    },
+    "tapToCheckIn": "轻点图标快速打卡",
+    "@tapToCheckIn": {
+        "description": "打卡弹窗提示轻点即可打卡"
+    }
 }
