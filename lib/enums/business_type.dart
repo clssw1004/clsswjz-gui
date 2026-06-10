@@ -58,7 +58,10 @@ enum BusinessType {
   fuelRecord('fuelRecord'),
 
   /// 账目关联
-  itemRelation('itemRelation');
+  itemRelation('itemRelation'),
+
+  /// 用户模块共享
+  userShare('userShare');
 
   final String code;
   const BusinessType(this.code);

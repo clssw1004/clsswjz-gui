@@ -49,6 +49,9 @@ class ActivityRecordTable extends BaseAccountBookTable {
 
   /// 活动日期 (yyyy-MM-dd 格式)
   TextColumn get recordDate => text().named('record_date')();
+
+  /// 每日最大打卡次数 (null=不限制)
+  IntColumn get maxDailyCount => integer().named('max_daily_count').nullable()();
 }
 ```
 
@@ -61,6 +64,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
 | activity_name | TEXT | 是 | 活动名称 |
 | location | TEXT | 否 | 地点 |
 | record_date | TEXT | 是 | 活动日期 (yyyy-MM-dd) |
+| max_daily_count | INTEGER | 否 | 每日最大打卡次数 (null=不限制) |
 | created_at | INTEGER | 是 | 创建时间 (毫秒时间戳) |
 | updated_at | INTEGER | 是 | 更新时间 (毫秒时间戳) |
 | created_by | TEXT | 是 | 创建人ID |
@@ -77,6 +81,7 @@ class ActivityRecordVO {
   final String activityName;
   final String? location;
   final String recordDate; // yyyy-MM-dd
+  final int? maxDailyCount; // null=不限制
   final int createdAt;
   final int updatedAt;
   final String createdBy;
@@ -91,6 +96,7 @@ class ActivityRecordVO {
       activityName: entity.activityName,
       location: entity.location,
       recordDate: entity.recordDate,
+      maxDailyCount: entity.maxDailyCount,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       createdBy: entity.createdBy,
@@ -220,6 +226,11 @@ activity('activity'),
 │  │  公园                      │  │ ← 自由文本，可选
 │  └────────────────────────────┘  │
 │                                  │
+│  每日打卡上限 (可选)             │
+│  ┌────────────────────────────┐  │
+│  │  不限制          [▼]       │  │ ← 下拉: 不限制/1次/2次/...
+│  └────────────────────────────┘  │
+│                                  │
 │  ┌────────────────────────────┐  │
 │  │      + 记录活动            │  │ ← 按钮
 │  └────────────────────────────┘  │
@@ -234,6 +245,7 @@ activity('activity'),
 | 日期 | DatePicker | 是 | 默认今天 |
 | 活动名称 | 文本 + 自动补全 | 是 | 输入时自动匹配历史记录 |
 | 地点 | 文本 | 否 | 自由输入 |
+| 每日打卡上限 | 下拉选择 | 否 | 不限制/1次/2次/...，默认不限制 |
 
 ### 5.4 统计视图
 
@@ -279,6 +291,7 @@ Future<OperateResult<String>> createActivityRecord(
   required String activityName,
   required String recordDate, // yyyy-MM-dd
   String? location,
+  int? maxDailyCount, // null=不限制
 });
 
 /// 删除活动记录
@@ -417,6 +430,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
     required String activityName,
     required String recordDate,
     String? location,
+    int? maxDailyCount,
   }) {
     return ActivityRecordCULog()
         .who(who)
@@ -427,6 +441,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           activityName: activityName,
           recordDate: recordDate,
           location: location,
+          maxDailyCount: maxDailyCount,
         )) as ActivityRecordCULog;
   }
 
@@ -539,6 +554,12 @@ class ActivityProvider extends ChangeNotifier {
 
   /// 删除记录
   Future<bool> deleteRecord(String id);
+
+  /// 检查今日打卡是否已达上限
+  Future<bool> isDailyLimitReached(String activityName, String date);
+
+  /// 获取活动的每日上限
+  int? getActivityDailyLimit(String activityName);
 }
 ```
 
@@ -549,6 +570,51 @@ class ActivityProvider extends ChangeNotifier {
 当前月: DateTime.now() 所在月，1日 ~ 月末
 前一周/月: statOffset -= 1，对应偏移
 ```
+
+### 6.10 每日打卡上限校验逻辑
+
+创建记录时 Provider 校验逻辑：
+
+```dart
+Future<OperateResult<String>> createRecord({
+  required String activityName,
+  required String recordDate,
+  String? location,
+  int? maxDailyCount,
+}) async {
+  // 1. 设置每日上限（首次创建时）
+  if (maxDailyCount != null) {
+    _dailyLimits[activityName] = maxDailyCount;
+  }
+
+  // 2. 校验今日是否已达上限
+  final limit = _dailyLimits[activityName];
+  if (limit != null) {
+    final todayCount = _records.where((r) =>
+        r.activityName == activityName && r.recordDate == recordDate).length;
+    if (todayCount >= limit) {
+      return OperateResult.fail('已达每日打卡上限 ($limit 次)');
+    }
+  }
+
+  // 3. 创建记录
+  final result = await DriverFactory.driver.createActivityRecord(
+    AppConfigManager.instance.userId,
+    _currentBookId!,
+    activityName: activityName,
+    recordDate: recordDate,
+    location: location,
+    maxDailyCount: maxDailyCount,
+  );
+  if (result.ok) {
+    await loadRecords();
+    _activityNames = await _loadDistinctNames();
+  }
+  return result;
+}
+```
+
+注意：每日上限以活动名称+账本为粒度。首次为某活动设置上限后，后续该活动的上线由 Provider 中缓存的 _dailyLimits 维护。上限可在 +1 快速记录时一并校验。
 
 ## 七、数据迁移
 
@@ -573,3 +639,5 @@ if (from < 4) {
 8. **上下周/月切换**：◀ ▶ 切换正常，数据正确
 9. **账本隔离**：切换账本后看到不同的活动记录
 10. **与笔记共存**：SegmentedButton 切换正常，笔记和活动各自独立
+11. **每日上限**：设置每日3次，记录3条后第4条创建失败并提示已达上限
+12. **无上限默认**：不设置每日打卡上限，可无限创建记录

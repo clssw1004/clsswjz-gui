@@ -1412,5 +1412,14 @@
     "@activityDetail": {
         "description": "活动详情页面标题"
     },
-    "checkIn": "打卡"
+    "checkIn": "打卡",
+    "shareSettings": "数据共享",
+    "addUser": "添加用户",
+    "userNotFound": "未找到用户",
+    "confirmAdd": "确认添加",
+    "confirmRemoveShare": "确定要移除该用户的所有共享权限吗？",
+    "noSharedUsers": "暂无共享用户",
+    "moduleVehicle": "车辆",
+    "moduleFuelRecord": "油耗记录",
+    "moduleDebt": "债务"
 }

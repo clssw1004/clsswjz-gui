@@ -990,7 +990,7 @@ abstract class AppLocalizations {
   /// User not found prompt
   ///
   /// In en, this message translates to:
-  /// **'User not found, please try again later'**
+  /// **'User not found'**
   String get userNotFound;
 
   /// Book creator prompt text
@@ -2690,6 +2690,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Activity Statistics'**
   String get activityStatistics;
+
+  /// No description provided for @shareSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Sharing'**
+  String get shareSettings;
+
+  /// No description provided for @addUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get addUser;
+
+  /// No description provided for @confirmAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Add'**
+  String get confirmAdd;
+
+  /// No description provided for @confirmRemoveShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all sharing permissions for this user?'**
+  String get confirmRemoveShare;
+
+  /// No description provided for @noSharedUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'No shared users'**
+  String get noSharedUsers;
+
+  /// No description provided for @moduleVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get moduleVehicle;
+
+  /// No description provided for @moduleFuelRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Record'**
+  String get moduleFuelRecord;
+
+  /// No description provided for @moduleDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt'**
+  String get moduleDebt;
 }
 
 class _AppLocalizationsDelegate

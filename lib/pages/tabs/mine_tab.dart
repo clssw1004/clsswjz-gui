@@ -189,6 +189,13 @@ class _MineTabView extends StatelessWidget {
                   ),
                   _buildSettingsTile(
                     context,
+                    icon: Icons.share_outlined,
+                    label: L10nManager.l10n.shareSettings,
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.shareSettings),
+                  ),
+                  _buildSettingsTile(
+                    context,
                     icon: Icons.palette_outlined,
                     label: L10nManager.l10n.themeSettings,
                     onTap: () => Navigator.pushNamed(

@@ -17,6 +17,7 @@ import 'tables/activity_record_table.dart';
 import 'tables/vehicle_table.dart';
 import 'tables/fuel_record_table.dart';
 import 'tables/item_relation_table.dart';
+import 'tables/user_share_table.dart';
 
 part 'database.g.dart';
 
@@ -40,13 +41,14 @@ part 'database.g.dart';
     VehicleTable,
     FuelRecordTable,
     ItemRelationTable,
+    UserShareTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -79,7 +81,11 @@ class AppDatabase extends _$AppDatabase {
           if (from < 7) {
             // 版本6到版本7的迁移：添加活动定义表，activityRecord表新增activityDefId列
             await m.create(activityDefinitionTable);
-            await m.addColumn(activityRecordTable, activityRecordTable.activityDefId);
+            await m.addColumn(
+                activityRecordTable, activityRecordTable.activityDefId);
+          }
+          if (from < 8) {
+            await m.create(userShareTable);
           }
         },
       );

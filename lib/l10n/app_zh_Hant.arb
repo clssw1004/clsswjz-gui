@@ -1207,5 +1207,14 @@
             }
         }
     },
-    "details": "詳細信息"
+    "details": "詳細信息",
+    "shareSettings": "數據共享",
+    "addUser": "添加用戶",
+    "userNotFound": "未找到用戶",
+    "confirmAdd": "確認添加",
+    "confirmRemoveShare": "確定要移除該用戶的所有共享權限嗎？",
+    "noSharedUsers": "暫無共享用戶",
+    "moduleVehicle": "車輛",
+    "moduleFuelRecord": "油耗記錄",
+    "moduleDebt": "債務"
 }

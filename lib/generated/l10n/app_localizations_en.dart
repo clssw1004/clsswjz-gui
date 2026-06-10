@@ -477,7 +477,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberAlreadyExists => 'Member already exists';
 
   @override
-  String get userNotFound => 'User not found, please try again later';
+  String get userNotFound => 'User not found';
 
   @override
   String get bookCreator => 'Book Creator';
@@ -1390,4 +1390,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activityStatistics => 'Activity Statistics';
+
+  @override
+  String get shareSettings => 'Data Sharing';
+
+  @override
+  String get addUser => 'Add User';
+
+  @override
+  String get confirmAdd => 'Confirm Add';
+
+  @override
+  String get confirmRemoveShare =>
+      'Remove all sharing permissions for this user?';
+
+  @override
+  String get noSharedUsers => 'No shared users';
+
+  @override
+  String get moduleVehicle => 'Vehicle';
+
+  @override
+  String get moduleFuelRecord => 'Fuel Record';
+
+  @override
+  String get moduleDebt => 'Debt';
 }

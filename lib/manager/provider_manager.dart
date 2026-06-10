@@ -16,6 +16,7 @@ import '../providers/gift_card_provider.dart';
 import '../providers/activity_checkin_provider.dart';
 import '../providers/activity_provider.dart';
 import '../providers/item_relation_provider.dart';
+import '../providers/shared_module_provider.dart';
 import 'app_config_manager.dart';
 import 'sync_manager.dart';
 
@@ -60,6 +61,7 @@ class ProviderManager {
           ChangeNotifierProvider(create: (_) => ActivityProvider()),
           ChangeNotifierProvider(create: (_) => ActivityCheckinProvider()),
           ChangeNotifierProvider(create: (_) => ItemRelationProvider()),
+          ChangeNotifierProvider(create: (_) => SharedModuleProvider()),
         ],
         child: child,
       ),

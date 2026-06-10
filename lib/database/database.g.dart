@@ -10779,6 +10779,413 @@ class ItemRelationTableCompanion extends UpdateCompanion<ItemRelation> {
   }
 }
 
+class $UserShareTableTable extends UserShareTable
+    with TableInfo<$UserShareTableTable, UserShare> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserShareTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownerUserIdMeta =
+      const VerificationMeta('ownerUserId');
+  @override
+  late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
+      'owner_user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetUserIdMeta =
+      const VerificationMeta('targetUserId');
+  @override
+  late final GeneratedColumn<String> targetUserId = GeneratedColumn<String>(
+      'target_user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _businessTypeMeta =
+      const VerificationMeta('businessType');
+  @override
+  late final GeneratedColumn<String> businessType = GeneratedColumn<String>(
+      'business_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isEnabledMeta =
+      const VerificationMeta('isEnabled');
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+      'is_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_enabled" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdAt,
+        updatedAt,
+        id,
+        ownerUserId,
+        targetUserId,
+        businessType,
+        isEnabled
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_share_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserShare> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_user_id')) {
+      context.handle(
+          _ownerUserIdMeta,
+          ownerUserId.isAcceptableOrUnknown(
+              data['owner_user_id']!, _ownerUserIdMeta));
+    } else if (isInserting) {
+      context.missing(_ownerUserIdMeta);
+    }
+    if (data.containsKey('target_user_id')) {
+      context.handle(
+          _targetUserIdMeta,
+          targetUserId.isAcceptableOrUnknown(
+              data['target_user_id']!, _targetUserIdMeta));
+    } else if (isInserting) {
+      context.missing(_targetUserIdMeta);
+    }
+    if (data.containsKey('business_type')) {
+      context.handle(
+          _businessTypeMeta,
+          businessType.isAcceptableOrUnknown(
+              data['business_type']!, _businessTypeMeta));
+    } else if (isInserting) {
+      context.missing(_businessTypeMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(_isEnabledMeta,
+          isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {ownerUserId, targetUserId, businessType},
+      ];
+  @override
+  UserShare map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserShare(
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      ownerUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owner_user_id'])!,
+      targetUserId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_user_id'])!,
+      businessType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}business_type'])!,
+      isEnabled: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_enabled'])!,
+    );
+  }
+
+  @override
+  $UserShareTableTable createAlias(String alias) {
+    return $UserShareTableTable(attachedDatabase, alias);
+  }
+}
+
+class UserShare extends DataClass implements Insertable<UserShare> {
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+  final String ownerUserId;
+  final String targetUserId;
+  final String businessType;
+  final bool isEnabled;
+  const UserShare(
+      {required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.ownerUserId,
+      required this.targetUserId,
+      required this.businessType,
+      required this.isEnabled});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['owner_user_id'] = Variable<String>(ownerUserId);
+    map['target_user_id'] = Variable<String>(targetUserId);
+    map['business_type'] = Variable<String>(businessType);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    return map;
+  }
+
+  UserShareTableCompanion toCompanion(bool nullToAbsent) {
+    return UserShareTableCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      ownerUserId: Value(ownerUserId),
+      targetUserId: Value(targetUserId),
+      businessType: Value(businessType),
+      isEnabled: Value(isEnabled),
+    );
+  }
+
+  factory UserShare.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserShare(
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      ownerUserId: serializer.fromJson<String>(json['ownerUserId']),
+      targetUserId: serializer.fromJson<String>(json['targetUserId']),
+      businessType: serializer.fromJson<String>(json['businessType']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'ownerUserId': serializer.toJson<String>(ownerUserId),
+      'targetUserId': serializer.toJson<String>(targetUserId),
+      'businessType': serializer.toJson<String>(businessType),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+    };
+  }
+
+  UserShare copyWith(
+          {int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? ownerUserId,
+          String? targetUserId,
+          String? businessType,
+          bool? isEnabled}) =>
+      UserShare(
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        ownerUserId: ownerUserId ?? this.ownerUserId,
+        targetUserId: targetUserId ?? this.targetUserId,
+        businessType: businessType ?? this.businessType,
+        isEnabled: isEnabled ?? this.isEnabled,
+      );
+  UserShare copyWithCompanion(UserShareTableCompanion data) {
+    return UserShare(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      ownerUserId:
+          data.ownerUserId.present ? data.ownerUserId.value : this.ownerUserId,
+      targetUserId: data.targetUserId.present
+          ? data.targetUserId.value
+          : this.targetUserId,
+      businessType: data.businessType.present
+          ? data.businessType.value
+          : this.businessType,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserShare(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('targetUserId: $targetUserId, ')
+          ..write('businessType: $businessType, ')
+          ..write('isEnabled: $isEnabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(createdAt, updatedAt, id, ownerUserId,
+      targetUserId, businessType, isEnabled);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserShare &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.ownerUserId == this.ownerUserId &&
+          other.targetUserId == this.targetUserId &&
+          other.businessType == this.businessType &&
+          other.isEnabled == this.isEnabled);
+}
+
+class UserShareTableCompanion extends UpdateCompanion<UserShare> {
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> ownerUserId;
+  final Value<String> targetUserId;
+  final Value<String> businessType;
+  final Value<bool> isEnabled;
+  final Value<int> rowid;
+  const UserShareTableCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.targetUserId = const Value.absent(),
+    this.businessType = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserShareTableCompanion.insert({
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String ownerUserId,
+    required String targetUserId,
+    required String businessType,
+    this.isEnabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        ownerUserId = Value(ownerUserId),
+        targetUserId = Value(targetUserId),
+        businessType = Value(businessType);
+  static Insertable<UserShare> custom({
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? ownerUserId,
+    Expression<String>? targetUserId,
+    Expression<String>? businessType,
+    Expression<bool>? isEnabled,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (targetUserId != null) 'target_user_id': targetUserId,
+      if (businessType != null) 'business_type': businessType,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserShareTableCompanion copyWith(
+      {Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? ownerUserId,
+      Value<String>? targetUserId,
+      Value<String>? businessType,
+      Value<bool>? isEnabled,
+      Value<int>? rowid}) {
+    return UserShareTableCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      targetUserId: targetUserId ?? this.targetUserId,
+      businessType: businessType ?? this.businessType,
+      isEnabled: isEnabled ?? this.isEnabled,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerUserId.present) {
+      map['owner_user_id'] = Variable<String>(ownerUserId.value);
+    }
+    if (targetUserId.present) {
+      map['target_user_id'] = Variable<String>(targetUserId.value);
+    }
+    if (businessType.present) {
+      map['business_type'] = Variable<String>(businessType.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserShareTableCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('targetUserId: $targetUserId, ')
+          ..write('businessType: $businessType, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10814,6 +11221,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $FuelRecordTableTable(this);
   late final $ItemRelationTableTable itemRelationTable =
       $ItemRelationTableTable(this);
+  late final $UserShareTableTable userShareTable = $UserShareTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10836,7 +11244,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         activityRecordTable,
         vehicleTable,
         fuelRecordTable,
-        itemRelationTable
+        itemRelationTable,
+        userShareTable
       ];
 }
 
@@ -15817,6 +16226,206 @@ typedef $$ItemRelationTableTableProcessedTableManager = ProcessedTableManager<
     ),
     ItemRelation,
     PrefetchHooks Function()>;
+typedef $$UserShareTableTableCreateCompanionBuilder = UserShareTableCompanion
+    Function({
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String ownerUserId,
+  required String targetUserId,
+  required String businessType,
+  Value<bool> isEnabled,
+  Value<int> rowid,
+});
+typedef $$UserShareTableTableUpdateCompanionBuilder = UserShareTableCompanion
+    Function({
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> ownerUserId,
+  Value<String> targetUserId,
+  Value<String> businessType,
+  Value<bool> isEnabled,
+  Value<int> rowid,
+});
+
+class $$UserShareTableTableFilterComposer
+    extends Composer<_$AppDatabase, $UserShareTableTable> {
+  $$UserShareTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetUserId => $composableBuilder(
+      column: $table.targetUserId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get businessType => $composableBuilder(
+      column: $table.businessType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+      column: $table.isEnabled, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserShareTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserShareTableTable> {
+  $$UserShareTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetUserId => $composableBuilder(
+      column: $table.targetUserId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get businessType => $composableBuilder(
+      column: $table.businessType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+      column: $table.isEnabled, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserShareTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserShareTableTable> {
+  $$UserShareTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerUserId => $composableBuilder(
+      column: $table.ownerUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get targetUserId => $composableBuilder(
+      column: $table.targetUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get businessType => $composableBuilder(
+      column: $table.businessType, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+}
+
+class $$UserShareTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UserShareTableTable,
+    UserShare,
+    $$UserShareTableTableFilterComposer,
+    $$UserShareTableTableOrderingComposer,
+    $$UserShareTableTableAnnotationComposer,
+    $$UserShareTableTableCreateCompanionBuilder,
+    $$UserShareTableTableUpdateCompanionBuilder,
+    (UserShare, BaseReferences<_$AppDatabase, $UserShareTableTable, UserShare>),
+    UserShare,
+    PrefetchHooks Function()> {
+  $$UserShareTableTableTableManager(
+      _$AppDatabase db, $UserShareTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserShareTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserShareTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserShareTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> ownerUserId = const Value.absent(),
+            Value<String> targetUserId = const Value.absent(),
+            Value<String> businessType = const Value.absent(),
+            Value<bool> isEnabled = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserShareTableCompanion(
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            ownerUserId: ownerUserId,
+            targetUserId: targetUserId,
+            businessType: businessType,
+            isEnabled: isEnabled,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String ownerUserId,
+            required String targetUserId,
+            required String businessType,
+            Value<bool> isEnabled = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserShareTableCompanion.insert(
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            ownerUserId: ownerUserId,
+            targetUserId: targetUserId,
+            businessType: businessType,
+            isEnabled: isEnabled,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserShareTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $UserShareTableTable,
+    UserShare,
+    $$UserShareTableTableFilterComposer,
+    $$UserShareTableTableOrderingComposer,
+    $$UserShareTableTableAnnotationComposer,
+    $$UserShareTableTableCreateCompanionBuilder,
+    $$UserShareTableTableUpdateCompanionBuilder,
+    (UserShare, BaseReferences<_$AppDatabase, $UserShareTableTable, UserShare>),
+    UserShare,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -15859,4 +16468,6 @@ class $AppDatabaseManager {
       $$FuelRecordTableTableTableManager(_db, _db.fuelRecordTable);
   $$ItemRelationTableTableTableManager get itemRelationTable =>
       $$ItemRelationTableTableTableManager(_db, _db.itemRelationTable);
+  $$UserShareTableTableTableManager get userShareTable =>
+      $$UserShareTableTableTableManager(_db, _db.userShareTable);
 }

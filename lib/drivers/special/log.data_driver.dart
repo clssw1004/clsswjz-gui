@@ -32,6 +32,7 @@ import '../../models/vo/fuel_record_vo.dart';
 import '../../models/vo/fuel_statistics_vo.dart';
 import '../../models/dto/fuel_record_filter_dto.dart';
 import '../../models/vo/item_relation_vo.dart';
+import '../../models/vo/user_share_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -64,6 +65,7 @@ import 'log/builder/book_member.builder.dart';
 import 'log/builder/book_shop.builder.dart';
 import 'log/builder/book_symbol.builder.dart';
 import 'log/builder/user.builder.dart';
+import 'log/builder/user_share.builder.dart';
 
 class LogDataDriver implements BookDataDriver {
   @override
@@ -680,6 +682,37 @@ class LogDataDriver implements BookDataDriver {
         await VOTransfer.transferDebts(bookId, userId, debts));
   }
 
+  @override
+  Future<OperateResult<List<UserDebtVO>>> listDebts(String userId,
+      {int limit = 200, int offset = 0, String? keyword}) async {
+    try {
+      final sharedBy = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.debt.code);
+      final debts = await DaoManager.debtDao.findByCreatorOrShared(
+          userId, sharedBy,
+          limit: limit, offset: offset, keyword: keyword);
+      final fundIds = debts.map((d) => d.fundId).toSet().toList();
+      final funds = fundIds.isNotEmpty
+          ? await DaoManager.fundDao.findByIds(fundIds)
+          : <AccountFund>[];
+      final fundMap = <String, String>{};
+      for (final f in funds) {
+        fundMap[f.id] = f.name;
+      }
+      final vos = debts
+          .map((d) => UserDebtVO.fromDebt(
+              debt: d,
+              totalAmount: 0.0,
+              remainAmount: 0.0,
+              fundName: fundMap[d.fundId] ?? ''))
+          .toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取债务列表失败：$e', exception: e as Exception);
+    }
+  }
+
   Future<void> initDefaultBookData(String userId, String bookId) async {
     DefaultBookData defaultData =
         getDefaultDataByLocale(AppConfigManager.instance.locale);
@@ -1260,7 +1293,10 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<List<VehicleVO>>> listVehicles(String userId) async {
     try {
-      final vehicles = await DaoManager.vehicleDao.findByUserId(userId);
+      final sharedBy = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.vehicle.code);
+      final vehicles =
+          await DaoManager.vehicleDao.findByCreatorOrShared(userId, sharedBy);
       final vos = vehicles.map((v) => VehicleVO.fromVehicle(v)).toList();
       return OperateResult.success(vos);
     } catch (e) {
@@ -1614,6 +1650,74 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '查询账目关联失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  // ==================== 模块共享 ====================
+
+  @override
+  Future<OperateResult<void>> setUserShare(
+    String userId, {
+    required String targetUserId,
+    required String businessType,
+    required bool isEnabled,
+  }) async {
+    try {
+      if (isEnabled) {
+        // Enable: upsert (create or replace)
+        await UserShareCULog.create(
+          who: userId,
+          ownerUserId: userId,
+          targetUserId: targetUserId,
+          businessType: businessType,
+        ).execute();
+      } else {
+        // Disable: find existing and update isEnabled=false
+        final shares = await DaoManager.userShareDao
+            .findByOwnerAndTarget(userId, targetUserId, businessType);
+        final share = shares.firstOrNull;
+        if (share != null) {
+          await UserShareCULog.update(
+            who: userId,
+            id: share.id,
+            isEnabled: false,
+          ).execute();
+        }
+      }
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '设置共享失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<UserShareVO>>> listUserShares(String userId) async {
+    try {
+      final shares = await DaoManager.userShareDao.findEnabledByOwner(userId);
+      final vos = shares.map((s) => UserShareVO.fromUserShare(s)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '获取共享列表失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<UserShareVO>>> listUserSharesByTarget(String userId) async {
+    try {
+      final shares = await DaoManager.userShareDao.findEnabledByTarget(userId);
+      final vos = shares.map((s) => UserShareVO.fromUserShare(s)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '获取被共享列表失败：$e',
         exception: e as Exception,
       );
     }
