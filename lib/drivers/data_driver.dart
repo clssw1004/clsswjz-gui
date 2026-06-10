@@ -31,6 +31,7 @@ import '../models/vo/fuel_record_vo.dart';
 import '../models/vo/fuel_statistics_vo.dart';
 import '../models/dto/fuel_record_filter_dto.dart';
 import '../models/vo/item_relation_vo.dart';
+import '../models/vo/user_share_vo.dart';
 
 abstract class BookDataDriver {
   /// 用户相关
@@ -505,4 +506,22 @@ abstract class BookDataDriver {
   Future<OperateResult<List<ItemRelationVO>>> getItemRelations(String userId, {
     required String itemId,
   });
+
+  // ==================== 模块共享 ====================
+
+  /// 创建或更新模块共享（开启/关闭共享）
+  ///
+  /// [isEnabled] true=开启共享，false=关闭共享
+  Future<OperateResult<void>> setUserShare(
+    String userId, {
+    required String targetUserId,
+    required String businessType,
+    required bool isEnabled,
+  });
+
+  /// 获取我共享出去的配置
+  Future<OperateResult<List<UserShareVO>>> listUserShares(String userId);
+
+  /// 获取我被共享的配置
+  Future<OperateResult<List<UserShareVO>>> listUserSharesByTarget(String userId);
 }

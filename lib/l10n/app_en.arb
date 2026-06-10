@@ -1409,5 +1409,14 @@
     "activityStatistics": "Activity Statistics",
     "@activityStatistics": {
         "description": "Activity statistics card title"
-    }
+    },
+    "shareSettings": "Data Sharing",
+    "addUser": "Add User",
+    "userNotFound": "User not found",
+    "confirmAdd": "Confirm Add",
+    "confirmRemoveShare": "Remove all sharing permissions for this user?",
+    "noSharedUsers": "No shared users",
+    "moduleVehicle": "Vehicle",
+    "moduleFuelRecord": "Fuel Record",
+    "moduleDebt": "Debt"
 }

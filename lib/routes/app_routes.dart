@@ -31,6 +31,7 @@ import '../pages/book/note_form_page.dart';
 import '../models/vo/user_note_vo.dart';
 import '../pages/settings/reset_auth_page.dart';
 import '../pages/settings/ui_config_page.dart';
+import '../pages/settings/share_settings_page.dart';
 import '../pages/book/debt_add_page.dart';
 import '../pages/book/item_list_page.dart';
 import '../pages/book/items.page.dart';
@@ -154,6 +155,9 @@ class AppRoutes {
 
   /// 油耗统计页面
   static const String fuelStatistics = '/fuel/statistics';
+
+  /// 数据共享设置页面
+  static const String shareSettings = '/share_settings';
 
   /// 活动打卡页面
   static const String activityCheckin = '/activity/checkin';
@@ -355,6 +359,8 @@ class AppRoutes {
           plateNumber: map['plateNumber'],
         );
       }
+      case shareSettings:
+        return const ShareSettingsPage();
       case activityCheckin:
         return const ActivityCheckinPage();
       default:

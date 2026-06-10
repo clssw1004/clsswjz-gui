@@ -477,7 +477,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get memberAlreadyExists => '该成员已在列表中';
 
   @override
-  String get userNotFound => '未查找到用户，请稍后再输入';
+  String get userNotFound => '未找到用户';
 
   @override
   String get bookCreator => '账本创建人';
@@ -1379,6 +1379,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get activityStatistics => '活动统计';
+
+  @override
+  String get shareSettings => '数据共享';
+
+  @override
+  String get addUser => '添加用户';
+
+  @override
+  String get confirmAdd => '确认添加';
+
+  @override
+  String get confirmRemoveShare => '确定要移除该用户的所有共享权限吗？';
+
+  @override
+  String get noSharedUsers => '暂无共享用户';
+
+  @override
+  String get moduleVehicle => '车辆';
+
+  @override
+  String get moduleFuelRecord => '油耗记录';
+
+  @override
+  String get moduleDebt => '债务';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -1854,7 +1878,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get memberAlreadyExists => '該成員已在列表中';
 
   @override
-  String get userNotFound => '未查找到用戶，請稍後再輸入';
+  String get userNotFound => '未找到用戶';
 
   @override
   String get bookCreator => '賬本創建人';
@@ -2631,4 +2655,28 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get details => '詳細信息';
+
+  @override
+  String get shareSettings => '數據共享';
+
+  @override
+  String get addUser => '添加用戶';
+
+  @override
+  String get confirmAdd => '確認添加';
+
+  @override
+  String get confirmRemoveShare => '確定要移除該用戶的所有共享權限嗎？';
+
+  @override
+  String get noSharedUsers => '暫無共享用戶';
+
+  @override
+  String get moduleVehicle => '車輛';
+
+  @override
+  String get moduleFuelRecord => '油耗記錄';
+
+  @override
+  String get moduleDebt => '債務';
 }

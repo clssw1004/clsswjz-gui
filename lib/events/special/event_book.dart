@@ -42,3 +42,8 @@ class ActivityChangedEvent {
   final OperateType operateType;
   const ActivityChangedEvent(this.operateType, this.record);
 }
+
+class UserShareChangedEvent {
+  final OperateType operateType;
+  const UserShareChangedEvent(this.operateType);
+}
