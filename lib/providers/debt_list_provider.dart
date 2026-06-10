@@ -10,7 +10,6 @@ import '../models/vo/user_debt_vo.dart';
 
 /// 债务列表数据提供者
 class DebtListProvider extends ChangeNotifier {
-  late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
   late final StreamSubscription _debtChangedSubscription;
 
@@ -29,9 +28,6 @@ class DebtListProvider extends ChangeNotifier {
   /// 每页数量
   static const int _pageSize = 10;
 
-  /// 当前账本ID
-  String? _currentBookId;
-
   /// 是否正在加载更多
   bool _loadingMore = false;
 
@@ -48,12 +44,6 @@ class DebtListProvider extends ChangeNotifier {
   bool get loadingMore => _loadingMore;
 
   DebtListProvider() {
-    _currentBookId = AppConfigManager.instance.defaultBookId;
-    // 监听账本切换事件
-    _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
-      _currentBookId = event.book.id;
-      loadDebts();
-    });
 
     // 监听同步完成事件
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
@@ -69,8 +59,7 @@ class DebtListProvider extends ChangeNotifier {
   /// 加载债务列表（分页）
   Future<void> loadDebts({bool refresh = true}) async {
     final userId = AppConfigManager.instance.userId;
-    final bookId = _currentBookId;
-    if (_loading || bookId == null) return;
+    if (_loading) return;
     if (!refresh && !_hasMore) return;
 
     _loading = true;
@@ -79,9 +68,8 @@ class DebtListProvider extends ChangeNotifier {
       _hasMore = true;
     }
     try {
-      final result = await DriverFactory.driver.listDebtsByBook(
+      final result = await DriverFactory.driver.listDebts(
         userId,
-        bookId,
         offset: (_page - 1) * _pageSize,
         limit: _pageSize,
       );
@@ -130,7 +118,6 @@ class DebtListProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _bookSubscription.cancel();
     _syncSubscription.cancel();
     _debtChangedSubscription.cancel();
     super.dispose();

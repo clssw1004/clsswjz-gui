@@ -280,9 +280,13 @@ abstract class BookDataDriver {
       String? clearDate,
       DebtClearState? clearState});
 
-  /// 获取债务列表
+  /// 获取债务列表（按账本）
   Future<OperateResult<List<UserDebtVO>>> listDebtsByBook(
       String userId, String bookId,
+      {int limit = 200, int offset = 0, String? keyword});
+
+  /// 获取债务列表（按用户权限）
+  Future<OperateResult<List<UserDebtVO>>> listDebts(String userId,
       {int limit = 200, int offset = 0, String? keyword});
 
   /// 获取账本附件列表

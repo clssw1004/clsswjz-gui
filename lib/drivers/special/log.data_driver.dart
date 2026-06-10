@@ -682,6 +682,37 @@ class LogDataDriver implements BookDataDriver {
         await VOTransfer.transferDebts(bookId, userId, debts));
   }
 
+  @override
+  Future<OperateResult<List<UserDebtVO>>> listDebts(String userId,
+      {int limit = 200, int offset = 0, String? keyword}) async {
+    try {
+      final sharedBy = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.debt.code);
+      final debts = await DaoManager.debtDao.findByCreatorOrShared(
+          userId, sharedBy,
+          limit: limit, offset: offset, keyword: keyword);
+      final fundIds = debts.map((d) => d.fundId).toSet().toList();
+      final funds = fundIds.isNotEmpty
+          ? await DaoManager.fundDao.findByIds(fundIds)
+          : <AccountFund>[];
+      final fundMap = <String, String>{};
+      for (final f in funds) {
+        fundMap[f.id] = f.name;
+      }
+      final vos = debts
+          .map((d) => UserDebtVO.fromDebt(
+              debt: d,
+              totalAmount: 0.0,
+              remainAmount: 0.0,
+              fundName: fundMap[d.fundId] ?? ''))
+          .toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取债务列表失败：$e', exception: e as Exception);
+    }
+  }
+
   Future<void> initDefaultBookData(String userId, String bookId) async {
     DefaultBookData defaultData =
         getDefaultDataByLocale(AppConfigManager.instance.locale);
