@@ -25,7 +25,6 @@ import '../models/vo/user_note_vo.dart';
 import '../models/vo/gift_card_vo.dart';
 import '../models/vo/activity_definition_vo.dart';
 import '../models/vo/activity_record_vo.dart';
-import '../models/vo/activity_statistic_vo.dart';
 import '../models/vo/vehicle_vo.dart';
 import '../models/vo/fuel_record_vo.dart';
 import '../models/vo/fuel_statistics_vo.dart';
@@ -367,13 +366,6 @@ abstract class BookDataDriver {
   Future<OperateResult<List<String>>> listDistinctActivityNames(
     String userId, String bookId);
 
-  /// 获取活动统计（按活动名聚合）
-  Future<OperateResult<List<ActivityStatisticVO>>> getActivityStatistics(
-    String userId, String bookId, {
-    required String startDate,
-    required String endDate,
-  });
-
   // ============ 活动定义相关 ============
 
   /// 创建活动定义
@@ -402,9 +394,19 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteActivityDefinition(
     String userId, String definitionId);
 
-  /// 获取活动定义列表
+  /// 获取活动记录列表（按权限筛选，不含账本范围）
+  Future<OperateResult<List<ActivityRecordVO>>> listActivityRecords(
+    String userId, {
+    int limit = 200,
+    int offset = 0,
+    String? startDate,
+    String? endDate,
+    String? activityDefId,
+  });
+
+  /// 获取活动定义列表（按权限筛选，不含账本范围）
   Future<OperateResult<List<ActivityDefinitionVO>>> listActivityDefinitions(
-    String userId, String bookId);
+    String userId);
 
   // ============ 油耗记录相关 ============
 

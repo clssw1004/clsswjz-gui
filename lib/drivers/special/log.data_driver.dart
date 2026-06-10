@@ -26,7 +26,6 @@ import '../../models/vo/attachment_show_vo.dart';
 import '../../models/vo/gift_card_vo.dart';
 import '../../models/vo/activity_definition_vo.dart';
 import '../../models/vo/activity_record_vo.dart';
-import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/vehicle_vo.dart';
 import '../../models/vo/fuel_record_vo.dart';
 import '../../models/vo/fuel_statistics_vo.dart';
@@ -1119,6 +1118,49 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<List<ActivityRecordVO>>> listActivityRecords(
+    String userId, {
+    int limit = 200,
+    int offset = 0,
+    String? startDate,
+    String? endDate,
+    String? activityDefId,
+  }) async {
+    try {
+      final sharedBy = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.activity.code);
+      final records = await DaoManager.activityRecordDao
+          .findByCreatorOrShared(userId, sharedBy,
+              limit: limit, offset: offset,
+              activityDefId: activityDefId,
+              startDate: startDate, endDate: endDate);
+      final vos = records.map((e) => ActivityRecordVO.fromActivityRecord(e)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动记录列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<ActivityDefinitionVO>>> listActivityDefinitions(
+      String userId) async {
+    try {
+      final sharedBy = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.activity.code);
+      final definitions =
+          await DaoManager.activityDefinitionDao.findByCreatorOrShared(userId, sharedBy);
+      final vos = definitions
+          .map((e) => ActivityDefinitionVO.fromEntity(e))
+          .toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取活动定义列表失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
   Future<OperateResult<List<String>>> listDistinctActivityNames(
       String userId, String bookId) async {
     try {
@@ -1127,26 +1169,6 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取活动名称列表失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<List<ActivityStatisticVO>>> getActivityStatistics(
-    String userId, String bookId, {
-    required String startDate,
-    required String endDate,
-  }) async {
-    try {
-      final results = await DaoManager.activityRecordDao
-          .countByDateRange(bookId, startDate, endDate);
-      final vos = results.map((r) => ActivityStatisticVO(
-        activityName: r.activityName,
-        count: r.count,
-      )).toList();
-      return OperateResult.success(vos);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取活动统计失败：$e', exception: e as Exception);
     }
   }
 
@@ -1220,22 +1242,6 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '删除活动定义失败：$e', exception: e as Exception);
-    }
-  }
-
-  @override
-  Future<OperateResult<List<ActivityDefinitionVO>>> listActivityDefinitions(
-      String userId, String bookId) async {
-    try {
-      final definitions =
-          await DaoManager.activityDefinitionDao.listByBook(bookId);
-      final vos = definitions
-          .map((e) => ActivityDefinitionVO.fromEntity(e))
-          .toList();
-      return OperateResult.success(vos);
-    } catch (e) {
-      return OperateResult.failWithMessage(
-          message: '获取活动定义列表失败：$e', exception: e as Exception);
     }
   }
 

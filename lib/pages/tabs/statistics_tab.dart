@@ -133,12 +133,12 @@ class _StatisticsTabState extends State<StatisticsTab> {
     statisticsProvider.loadStatistics(bookId, start: start, end: end);
     statisticsProvider.loadBookStatisticInfo(bookId, start: start, end: end);
     statisticsProvider.loadProjectMonthlyStatistics(bookId, start: start, end: end);
-    _loadActivityStatistics(bookId, start, end);
+    _loadActivityStatistics(start, end);
     _saveSelectedRange();
   }
 
   /// 加载活动统计数据
-  Future<void> _loadActivityStatistics(String bookId, DateTime? start, DateTime? end) async {
+  Future<void> _loadActivityStatistics(DateTime? start, DateTime? end) async {
     setState(() => _activityStatsLoading = true);
     try {
       // 全时间范围时使用宽范围查询
@@ -146,15 +146,22 @@ class _StatisticsTabState extends State<StatisticsTab> {
       final e = end ?? DateTime(2099, 12, 31);
       final startStr = '${s.year}-${s.month.toString().padLeft(2, '0')}-${s.day.toString().padLeft(2, '0')}';
       final endStr = '${e.year}-${e.month.toString().padLeft(2, '0')}-${e.day.toString().padLeft(2, '0')}';
-      final result = await DriverFactory.driver.getActivityStatistics(
+      final result = await DriverFactory.driver.listActivityRecords(
         AppConfigManager.instance.userId,
-        bookId,
         startDate: startStr,
         endDate: endStr,
       );
       if (mounted) {
+        final grouped = <String, int>{};
+        for (final r in result.data ?? []) {
+          grouped[r.activityName] = (grouped[r.activityName] ?? 0) + 1;
+        }
+        final sorted = grouped.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
         setState(() {
-          _activityStats = result.data ?? [];
+          _activityStats = sorted.map((e) => ActivityStatisticVO(
+            activityName: e.key, count: e.value,
+          )).toList();
           _activityStatsLoading = false;
         });
       }
