@@ -248,13 +248,11 @@ class SyncService extends BaseService {
       final change = changes[i];
       bool exist = await DaoManager.logSyncDao.existById(change.id);
       if (!exist && change.businessType.isNotEmpty) {
-        try {
-          await DatabaseManager.db.transaction(() async {
-            final log = LogBuilder.fromLog(change);
-            await log.executeWithoutRecord();
-            await DaoManager.logSyncDao.insert(change);
-          });
-        } catch (_) {}
+        await DatabaseManager.db.transaction(() async {
+          final log = LogBuilder.fromLog(change);
+          await log.executeWithoutRecord();
+          await DaoManager.logSyncDao.insert(change);
+        });
       }
       final processedPercent = (((i + 1) * 100) / total).floor();
       if (processedPercent > lastPercentStep) {

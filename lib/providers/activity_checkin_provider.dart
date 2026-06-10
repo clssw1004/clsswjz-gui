@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../events/event_bus.dart';
-import '../events/special/event_book.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_activity_checkin.dart';
 import '../manager/app_config_manager.dart';
@@ -12,11 +11,8 @@ import '../models/vo/activity_record_vo.dart';
 import '../utils/date_util.dart';
 
 class ActivityCheckinProvider extends ChangeNotifier {
-  late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
   late final StreamSubscription _defChangedSubscription;
-
-  String? _currentBookId;
 
   /// 所有活动定义
   List<ActivityDefinitionVO> _definitions = [];
@@ -44,13 +40,6 @@ class ActivityCheckinProvider extends ChangeNotifier {
   bool loading = false;
 
   ActivityCheckinProvider() {
-    _currentBookId = AppConfigManager.instance.defaultBookId;
-
-    _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
-      _currentBookId = event.book.id;
-      loadAll();
-    });
-
     _syncSubscription = EventBus.instance.on<SyncCompletedEvent>((event) {
       loadAll();
     });
@@ -64,7 +53,6 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _bookSubscription.cancel();
     _syncSubscription.cancel();
     _defChangedSubscription.cancel();
     super.dispose();
@@ -82,10 +70,8 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 加载所有活动定义
   Future<void> loadDefinitions() async {
-    if (_currentBookId == null) return;
     final result = await DriverFactory.driver.listActivityDefinitions(
       AppConfigManager.instance.userId,
-      _currentBookId!,
     );
     if (result.ok) {
       _definitions = result.data ?? [];
@@ -95,11 +81,9 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 加载今日打卡计数
   Future<void> loadTodayCounts() async {
-    if (_currentBookId == null) return;
     final today = DateUtil.nowDate();
-    final result = await DriverFactory.driver.listActivityRecordsByBook(
+    final result = await DriverFactory.driver.listActivityRecords(
       AppConfigManager.instance.userId,
-      _currentBookId!,
       startDate: today,
       endDate: today,
     );
@@ -118,13 +102,11 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 加载本周打卡记录
   Future<void> loadWeekCounts() async {
-    if (_currentBookId == null) return;
     final now = DateTime.now();
     final monday = now.subtract(Duration(days: now.weekday - 1));
     final sunday = monday.add(const Duration(days: 6));
-    final result = await DriverFactory.driver.listActivityRecordsByBook(
+    final result = await DriverFactory.driver.listActivityRecords(
       AppConfigManager.instance.userId,
-      _currentBookId!,
       startDate: DateUtil.formatDate(monday),
       endDate: DateUtil.formatDate(sunday),
     );
@@ -136,10 +118,8 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 加载最近打卡记录
   Future<void> loadRecentRecords({int limit = 5}) async {
-    if (_currentBookId == null) return;
-    final result = await DriverFactory.driver.listActivityRecordsByBook(
+    final result = await DriverFactory.driver.listActivityRecords(
       AppConfigManager.instance.userId,
-      _currentBookId!,
       limit: limit,
       offset: 0,
     );
@@ -156,11 +136,9 @@ class ActivityCheckinProvider extends ChangeNotifier {
   int get todayCountByDefId => _todayCountByDefId;
 
   Future<void> loadRecordsByDefId(String defId, {int limit = 50}) async {
-    if (_currentBookId == null) return;
     final today = DateUtil.nowDate();
-    final result = await DriverFactory.driver.listActivityRecordsByBook(
+    final result = await DriverFactory.driver.listActivityRecords(
       AppConfigManager.instance.userId,
-      _currentBookId!,
       activityDefId: defId,
       limit: limit,
       offset: 0,
@@ -174,7 +152,6 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 打卡 +1
   Future<bool> checkIn(String defId, {String? location}) async {
-    if (_currentBookId == null) return false;
     final def = _definitions.where((d) => d.id == defId).firstOrNull;
     if (def == null) return false;
 
@@ -187,9 +164,10 @@ class ActivityCheckinProvider extends ChangeNotifier {
     }
 
     final today = DateUtil.nowDate();
+    final bookId = AppConfigManager.instance.defaultBookId!;
     final result = await DriverFactory.driver.createActivityRecord(
       AppConfigManager.instance.userId,
-      _currentBookId!,
+      bookId,
       activityName: def.name,
       recordDate: today,
       activityDefId: defId,
@@ -234,11 +212,11 @@ class ActivityCheckinProvider extends ChangeNotifier {
 
   /// 删除打卡记录
   Future<bool> deleteRecord(String recordId) async {
-    if (_currentBookId == null) return false;
     final deleted = _recordsByDefId.where((r) => r.id == recordId).firstOrNull;
+    final bookId = AppConfigManager.instance.defaultBookId!;
     final result = await DriverFactory.driver.deleteActivityRecord(
       AppConfigManager.instance.userId,
-      _currentBookId!,
+      bookId,
       recordId,
     );
     if (result.ok) {
@@ -263,12 +241,10 @@ class ActivityCheckinProvider extends ChangeNotifier {
     int sortOrder = 0,
     int? maxDailyCount,
   }) async {
-    if (_currentBookId == null) {
-      return OperateResult.failWithMessage(message: '请先选择账本');
-    }
+    final bookId = AppConfigManager.instance.defaultBookId!;
     final result = await DriverFactory.driver.createActivityDefinition(
       AppConfigManager.instance.userId,
-      _currentBookId!,
+      bookId,
       name: name,
       emoji: emoji,
       color: color,

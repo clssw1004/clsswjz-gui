@@ -154,14 +154,22 @@ class ActivityProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final range = _statMode == 'week' ? _getWeekRange(_statOffset) : _getMonthRange(_statOffset);
-      final result = await DriverFactory.driver.getActivityStatistics(
+      final result = await DriverFactory.driver.listActivityRecordsByBook(
         AppConfigManager.instance.userId,
         _currentBookId!,
         startDate: range.start,
         endDate: range.end,
       );
       if (result.ok) {
-        _statistics = result.data ?? [];
+        final grouped = <String, int>{};
+        for (final r in result.data ?? []) {
+          grouped[r.activityName] = (grouped[r.activityName] ?? 0) + 1;
+        }
+        final sorted = grouped.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        _statistics = sorted.map((e) => ActivityStatisticVO(
+          activityName: e.key, count: e.value,
+        )).toList();
       }
     } finally {
       _statisticsLoading = false;

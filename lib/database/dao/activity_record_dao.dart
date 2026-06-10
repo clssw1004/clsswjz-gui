@@ -17,6 +17,34 @@ class ActivityRecordDao extends BaseBookDao<ActivityRecordTable, ActivityRecord>
     ];
   }
 
+  /// 查询用户有权限的活动记录（自己创建的 + 共享者创建的）
+  Future<List<ActivityRecord>> findByCreatorOrShared(
+    String userId, List<String> sharedByUserIds, {
+    int? limit,
+    int? offset,
+    String? activityDefId,
+    String? startDate,
+    String? endDate,
+  }) {
+    final query = (db.select(table)
+      ..where((t) {
+        var predicate = t.createdBy.equals(userId);
+        if (sharedByUserIds.isNotEmpty) {
+          predicate = predicate | t.createdBy.isIn(sharedByUserIds);
+        }
+        if (activityDefId != null) {
+          predicate = predicate & t.activityDefId.equals(activityDefId);
+        }
+        if (startDate != null && endDate != null) {
+          predicate = predicate & t.recordDate.isBetweenValues(startDate, endDate);
+        }
+        return predicate;
+      })
+      ..orderBy([(t) => OrderingTerm.desc(t.recordDate), (t) => OrderingTerm.desc(t.createdAt)]));
+    if (limit != null) query.limit(limit, offset: offset);
+    return query.get();
+  }
+
   /// 按日期范围查询（可选按活动定义筛选）
   Future<List<ActivityRecord>> listByDateRange(
     String bookId,
@@ -48,23 +76,5 @@ class ActivityRecordDao extends BaseBookDao<ActivityRecordTable, ActivityRecord>
       ..groupBy([activityTable.activityName])
       ..orderBy([OrderingTerm.asc(activityTable.activityName)]);
     return query.get().then((rows) => rows.map((r) => r.read(activityTable.activityName)!).toList());
-  }
-
-  /// 按活动名聚合统计指定日期范围内的次数
-  Future<List<({String activityName, int count})>> countByDateRange(
-    String bookId,
-    String startDate,
-    String endDate,
-  ) {
-    final activityTable = db.activityRecordTable;
-    final query = db.selectOnly(activityTable)
-      ..addColumns([activityTable.activityName, activityTable.id.count()])
-      ..where(activityTable.accountBookId.equals(bookId) & activityTable.recordDate.isBetweenValues(startDate, endDate))
-      ..groupBy([activityTable.activityName])
-      ..orderBy([OrderingTerm.desc(activityTable.id.count())]);
-    return query.get().then((rows) => rows.map((r) => (
-      activityName: r.read(activityTable.activityName)!,
-      count: r.read(activityTable.id.count())!,
-    )).toList());
   }
 }

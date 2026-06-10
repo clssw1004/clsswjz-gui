@@ -20,6 +20,8 @@ List<_ShareModule> get _modules => [
           L10nManager.l10n.moduleFuelRecord),
       _ShareModule('debt', Icons.account_balance_outlined,
           L10nManager.l10n.moduleDebt),
+      _ShareModule('activity', Icons.emoji_events_outlined,
+          L10nManager.l10n.tabActivity),
     ];
 
 class _ShareModule {
