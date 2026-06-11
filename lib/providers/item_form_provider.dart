@@ -111,7 +111,7 @@ class ItemFormProvider extends ChangeNotifier {
   /// 更新金额并保存
   Future<void> updateAmountAndSave(double amount) async {
     updateAmount(amount);
-    await partUpdate(amount: amount);
+    await partUpdate(amount: _item.amount);
   }
 
   /// 更新分类并保存

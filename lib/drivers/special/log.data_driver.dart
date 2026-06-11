@@ -677,8 +677,7 @@ class LogDataDriver implements BookDataDriver {
       {int limit = 200, int offset = 0, String? keyword}) async {
     final debts = await DaoManager.debtDao
         .listByBook(bookId, limit: limit, offset: offset, keyword: keyword);
-    return OperateResult.success(
-        await VOTransfer.transferDebts(bookId, userId, debts));
+    return OperateResult.success(await VOTransfer.transferDebts(debts));
   }
 
   @override
@@ -690,22 +689,10 @@ class LogDataDriver implements BookDataDriver {
       final debts = await DaoManager.debtDao.findByCreatorOrShared(
           userId, sharedBy,
           limit: limit, offset: offset, keyword: keyword);
-      final fundIds = debts.map((d) => d.fundId).toSet().toList();
-      final funds = fundIds.isNotEmpty
-          ? await DaoManager.fundDao.findByIds(fundIds)
-          : <AccountFund>[];
-      final fundMap = <String, String>{};
-      for (final f in funds) {
-        fundMap[f.id] = f.name;
-      }
-      final vos = debts
-          .map((d) => UserDebtVO.fromDebt(
-              debt: d,
-              totalAmount: 0.0,
-              remainAmount: 0.0,
-              fundName: fundMap[d.fundId] ?? ''))
-          .toList();
-      return OperateResult.success(vos);
+      if (debts.isEmpty) return OperateResult.success([]);
+
+      final results = await VOTransfer.transferDebts(debts);
+      return OperateResult.success(results);
     } catch (e) {
       return OperateResult.failWithMessage(
           message: '获取债务列表失败：$e', exception: e as Exception);

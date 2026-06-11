@@ -95,6 +95,16 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
     return query.get();
   }
 
+  /// 按来源类型和来源ID列表查询，不限账本
+  Future<List<AccountItem>> findBySource(
+      String source, List<String> sourceIds) async {
+    return (db.select(table)
+      ..where((t) =>
+          t.source.equals(source) & t.sourceId.isIn(sourceIds))
+      ..orderBy([...defaultOrderBy()]))
+        .get();
+  }
+
   @override
   TableInfo<AccountItemTable, AccountItem> get table => db.accountItemTable;
 }
