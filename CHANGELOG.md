@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.5] - 2026-06-11
+
+### Features
+- Add remark field to check-in records, enter notes when checking in
+- Display creator avatar and username in detail page records
+- Add 💩 emoji to activity definition picker
+
+### Optimizations
+- Cards show total check-in count instead of today count, per-user daily limit tracking
+- Redesigned record rows: two-line layout with datetime + user + remark
+- Activity definition changes now auto-trigger data sync
+
+### Style
+- Activity page upgraded to claymorphism: larger border-radius, multi-layer shadows, progress indicators
+
 ## [1.1.4] - 2026-06-10
 
 ### Features
