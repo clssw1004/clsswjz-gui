@@ -195,6 +195,7 @@ class ActivityProvider extends ChangeNotifier {
     required String activityName,
     required String recordDate,
     String? location,
+    String? remark,
     int? createdAt,
     int? maxDailyCount,
   }) async {
@@ -222,6 +223,7 @@ class ActivityProvider extends ChangeNotifier {
       location: location,
       createdAt: createdAt,
       maxDailyCount: maxDailyCount,
+      remark: remark,
     );
     if (result.ok) {
       if (maxDailyCount != null) {
@@ -234,6 +236,7 @@ class ActivityProvider extends ChangeNotifier {
         accountBookId: _currentBookId!,
         activityName: activityName,
         location: location,
+        remark: remark,
         maxDailyCount: maxDailyCount,
         recordDate: recordDate,
         createdAt: DateTime.now().millisecondsSinceEpoch,

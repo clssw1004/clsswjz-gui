@@ -60,6 +60,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
     String? location,
     int? createdAt,
     int? maxDailyCount,
+    String? remark,
   }) {
     return ActivityRecordCULog()
         .who(who)
@@ -74,6 +75,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           location: location,
           createdAt: createdAt,
           maxDailyCount: maxDailyCount,
+          remark: remark,
         )) as ActivityRecordCULog;
   }
 
@@ -116,6 +118,7 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
       recordDate: json['recordDate'] != null ? Value(json['recordDate'] as String) : const Value.absent(),
       activityDefId: json['activityDefId'] != null ? Value(json['activityDefId'] as String) : const Value.absent(),
       location: json['location'] != null ? Value(json['location'] as String) : const Value.absent(),
+      remark: json['remark'] != null ? Value(json['remark'] as String) : const Value.absent(),
       createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
       updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),
       createdBy: json['createdBy'] != null ? Value(json['createdBy'] as String) : const Value.absent(),

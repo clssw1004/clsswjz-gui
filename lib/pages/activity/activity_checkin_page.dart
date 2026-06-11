@@ -68,39 +68,45 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
   ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Card(
-        elevation: 0,
-        color: colorScheme.surfaceContainerHighest.withAlpha(100),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Row(
-            children: [
-              _buildStatItem(
-                icon: Icons.today_outlined,
-                value: '${provider.todayTotal}',
-                label: L10nManager.l10n.currentDay,
-                color: colorScheme.primary,
-                theme: theme,
-              ),
-              _buildDivider(colorScheme),
-              _buildStatItem(
-                icon: Icons.date_range_outlined,
-                value: '${provider.weekTotal}',
-                label: L10nManager.l10n.thisWeek,
-                color: colorScheme.tertiary,
-                theme: theme,
-              ),
-              _buildDivider(colorScheme),
-              _buildStatItem(
-                icon: Icons.favorite_outline,
-                value: '${provider.todayDistinctCount}',
-                label: L10nManager.l10n.active,
-                color: colorScheme.error,
-                theme: theme,
-              ),
-            ],
-          ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withAlpha(100),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withAlpha(10),
+              offset: const Offset(0, 3),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
+        child: Row(
+          children: [
+            _buildStatItem(
+              icon: Icons.today_outlined,
+              value: '${provider.todayTotal}',
+              label: L10nManager.l10n.currentDay,
+              color: colorScheme.primary,
+              theme: theme,
+            ),
+            _buildDivider(colorScheme),
+            _buildStatItem(
+              icon: Icons.date_range_outlined,
+              value: '${provider.weekTotal}',
+              label: L10nManager.l10n.thisWeek,
+              color: colorScheme.tertiary,
+              theme: theme,
+            ),
+            _buildDivider(colorScheme),
+            _buildStatItem(
+              icon: Icons.auto_awesome_outlined,
+              value: '${provider.totalAll}',
+              label: '累计',
+              color: colorScheme.secondary,
+              theme: theme,
+            ),
+          ],
         ),
       ),
     );
@@ -191,7 +197,8 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
                 SliverToBoxAdapter(
                   child: ActivityCheckinGrid(
                     definitions: provider.definitions,
-                    todayCounts: provider.todayCounts,
+                    totalCounts: provider.totalCounts,
+                    myTodayCounts: provider.myTodayCounts,
                     onTap: _onTapDetail,
                     onLongPress: _onLongPress,
                   ),
@@ -208,7 +215,7 @@ class _ActivityCheckinPageState extends State<ActivityCheckinPage> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          L10nManager.l10n.todayCheckinCount(provider.todayTotal),
+                          '累计打卡 ${provider.totalAll} 次',
                           style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onPrimaryContainer,
                               fontWeight: FontWeight.w600),
@@ -251,6 +258,7 @@ class _CheckInSheetState extends State<_CheckInSheet>
   double _floatY = 0;
   double _floatOpacity = 0;
   bool _checkedIn = false;
+  final _remarkController = TextEditingController();
 
   @override
   void initState() {
@@ -265,12 +273,13 @@ class _CheckInSheetState extends State<_CheckInSheet>
   @override
   void dispose() {
     _controller.dispose();
+    _remarkController.dispose();
     super.dispose();
   }
 
   bool get _isLimitReached {
     final limit = widget.definition.maxDailyCount;
-    return limit != null && widget.provider.todayCountOf(widget.definition.id) >= limit;
+    return limit != null && widget.provider.myTodayCountOf(widget.definition.id) >= limit;
   }
 
   Future<void> _doCheckIn() async {
@@ -304,8 +313,9 @@ class _CheckInSheetState extends State<_CheckInSheet>
     }
 
     if (mounted) {
+      final remark = _remarkController.text.trim();
       Navigator.pop(context);
-      widget.provider.checkIn(widget.definition.id);
+      widget.provider.checkIn(widget.definition.id, remark: remark.isNotEmpty ? remark : null);
     }
   }
 
@@ -314,7 +324,8 @@ class _CheckInSheetState extends State<_CheckInSheet>
     final theme = Theme.of(context);
     final def = widget.definition;
     final bgColor = widget.bgColor;
-    final count = widget.provider.todayCountOf(def.id);
+    final myToday = widget.provider.myTodayCountOf(def.id);
+    final totalCount = widget.provider.totalCountOf(def.id);
     final limitReached = _isLimitReached;
     final l10n = L10nManager.l10n;
     final screenH = MediaQuery.of(context).size.height;
@@ -362,10 +373,13 @@ class _CheckInSheetState extends State<_CheckInSheet>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: bgColor.withAlpha(25),
-                          border: Border.all(
-                            color: bgColor.withAlpha(70),
-                            width: 2.5,
-                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: bgColor.withAlpha(25),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -436,23 +450,57 @@ class _CheckInSheetState extends State<_CheckInSheet>
               color: bgColor.withAlpha(25),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Column(
               children: [
-                Text(
-                  '${l10n.currentDay} $count${def.maxDailyCount != null ? ' / ${def.maxDailyCount}' : ''}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                      color: bgColor, fontWeight: FontWeight.w600),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '今日 $myToday${def.maxDailyCount != null ? ' / ${def.maxDailyCount}' : ''}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color: bgColor, fontWeight: FontWeight.w600),
+                    ),
+                    if (limitReached)
+                      const SizedBox(width: 4),
+                    if (limitReached)
+                      Icon(Icons.check_circle,
+                          size: 14, color: const Color(0xFFFF6B35)),
+                  ],
                 ),
-                if (limitReached)
-                  const SizedBox(width: 4),
-                if (limitReached)
-                  Icon(Icons.check_circle,
-                      size: 14, color: const Color(0xFFFF6B35)),
+                Text(
+                  '累计 $totalCount 次',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      color: bgColor.withAlpha(150)),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
+
+          // 备注输入
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: TextField(
+              controller: _remarkController,
+              decoration: InputDecoration(
+                hintText: '添加备注...',
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: bgColor.withAlpha(50)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: bgColor.withAlpha(120)),
+                ),
+              ),
+              style: theme.textTheme.bodySmall,
+              maxLines: 1,
+              textInputAction: TextInputAction.done,
+            ),
+          ),
+          const SizedBox(height: 12),
 
           // 提示
           Text(
