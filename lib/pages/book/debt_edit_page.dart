@@ -13,9 +13,7 @@ import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/color_util.dart';
-import '../../widgets/common/common_card_container.dart';
 import '../../routes/app_routes.dart';
-import '../../widgets/common/common_tag.dart';
 
 class DebtEditPage extends StatefulWidget {
   final BookMetaVO book;
@@ -193,145 +191,231 @@ class _DebtInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final spacing = theme.spacing;
-
-    return CommonCardContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CommonTag(
-                icon: debtType == DebtType.lend
-                    ? Icons.arrow_circle_up_outlined
-                    : Icons.arrow_circle_down_outlined,
-                label: debtType == DebtType.lend
-                    ? L10nManager.l10n.lend
-                    : L10nManager.l10n.borrow,
-                color: ColorUtil.getDebtAmountColor(debtType),
-              ),
-              SizedBox(width: spacing.listItemSpacing),
-              Expanded(
-                child: Text(
-                  debt.debtor,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              // CommonTag(
-              //   label: clearState.text,
-              //   color: clearState.color,
-              //   outlined: true,
-              // ),
-            ],
-          ),
-          SizedBox(height: spacing.formItemSpacing),
-          _buildRemainingAmount(context),
-          SizedBox(height: spacing.formItemSpacing),
-          _buildInfoRow(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRemainingAmount(BuildContext context) {
-    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
+    final isLending = debtType == DebtType.lend;
+    final amountColor = ColorUtil.getDebtAmountColor(debtType);
     final isSettled = remainingAmount <= 0;
-    final bgColor =
-        isSettled ? DebtClearState.cleared.color.withAlpha(13) : colorScheme.primary.withAlpha(13);
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-          horizontal: spacing.formItemSpacing,
-          vertical: spacing.listItemSpacing),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
+    return Card(
+      elevation: 0,
+      color: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outline.withAlpha(30)),
       ),
-      child: Column(
-        children: [
-          Text(
-            isSettled
-                ? L10nManager.l10n.debtStatus
-                : (debtType == DebtType.lend
-                    ? L10nManager.l10n.remainingReceivable
-                    : L10nManager.l10n.remainingPayable),
-            style: theme.textTheme.bodyMedium?.copyWith(
-                color: isSettled
-                    ? DebtClearState.cleared.color
-                    : colorScheme.primary),
-          ),
-          SizedBox(height: spacing.listItemSpacing / 2),
-          if (isSettled)
+      child: Padding(
+        padding: EdgeInsets.all(spacing.formItemSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 债务人 + 类型
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.check_circle,
-                    size: 24, color: DebtClearState.cleared.color),
-                const SizedBox(width: 6),
-                Text(
-                  L10nManager.l10n.debtStatusCleared,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: DebtClearState.cleared.color,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: amountColor.withAlpha(20),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isLending
+                            ? Icons.arrow_circle_up_outlined
+                            : Icons.arrow_circle_down_outlined,
+                        size: 16,
+                        color: amountColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isLending
+                            ? L10nManager.l10n.lend
+                            : L10nManager.l10n.borrow,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: amountColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            )
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  book.currencySymbol.symbol,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(width: spacing.listItemSpacing / 2),
-                Text(
-                  remainingAmount.toString(),
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    debt.debtor,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-        ],
+            SizedBox(height: spacing.formItemSpacing),
+
+            // 进度条
+            if (!isSettled) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: (debt.totalAmount - remainingAmount) / debt.totalAmount,
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  color: colorScheme.primary.withAlpha(180),
+                  minHeight: 4,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text(
+                    '${L10nManager.l10n.amount}: ${debt.totalAmount}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant.withAlpha(150),
+                      fontSize: 11,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${((debt.totalAmount - remainingAmount) / debt.totalAmount * 100).toStringAsFixed(0)}%',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: spacing.formItemSpacing),
+            ],
+
+            // 剩余金额 / 结清
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                vertical: spacing.formItemSpacing,
+                horizontal: spacing.formItemSpacing,
+              ),
+              decoration: BoxDecoration(
+                color: isSettled
+                    ? DebtClearState.cleared.color.withAlpha(10)
+                    : colorScheme.primary.withAlpha(8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSettled
+                      ? DebtClearState.cleared.color.withAlpha(30)
+                      : colorScheme.primary.withAlpha(20),
+                ),
+              ),
+              child: isSettled
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle,
+                            size: 22, color: DebtClearState.cleared.color),
+                        const SizedBox(width: 8),
+                        Text(
+                          L10nManager.l10n.debtStatusCleared,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: DebtClearState.cleared.color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Text(
+                          isLending
+                              ? L10nManager.l10n.remainingReceivable
+                              : L10nManager.l10n.remainingPayable,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              book.currencySymbol.symbol,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              remainingAmount.toString(),
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
+            SizedBox(height: spacing.formItemSpacing),
+
+            // 信息标签
+            Wrap(
+              spacing: spacing.listItemSpacing,
+              runSpacing: spacing.listItemSpacing / 2,
+              children: [
+                _infoTag(
+                  context,
+                  Icons.calendar_today_outlined,
+                  debt.debtDate,
+                  colorScheme,
+                ),
+                _infoTag(
+                  context,
+                  Icons.account_balance_wallet_outlined,
+                  debt.fundName,
+                  colorScheme,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoRow(BuildContext context) {
+  Widget _infoTag(
+    BuildContext context,
+    IconData icon,
+    String label,
+    ColorScheme colorScheme,
+  ) {
     final theme = Theme.of(context);
-    final spacing = theme.spacing;
-    final colorScheme = theme.colorScheme;
-
-    return Wrap(
-      spacing: spacing.listItemSpacing,
-      runSpacing: spacing.listItemSpacing / 2,
-      children: [
-        CommonTag(
-          icon: Icons.calendar_today_outlined,
-          label: debt.debtDate,
-          color: colorScheme.onSurfaceVariant,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(50),
-        ),
-        CommonTag(
-          icon: Icons.account_balance_wallet_outlined,
-          label: debt.fundName,
-          color: colorScheme.onSurfaceVariant,
-          backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(50),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(60),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -364,100 +448,129 @@ class _DebtRecordCard extends StatelessWidget {
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final colorScheme = theme.colorScheme;
+    final amountColor = isOperation
+        ? ColorUtil.getDebtAmountReverseColor(debtType)
+        : ColorUtil.getDebtAmountColor(debtType);
+    final iconData = isOperation
+        ? (debtType == DebtType.lend
+            ? Icons.arrow_circle_down_outlined
+            : Icons.arrow_circle_up_outlined)
+        : (debtType == DebtType.lend
+            ? Icons.arrow_circle_up_outlined
+            : Icons.arrow_circle_down_outlined);
 
-    return CommonCardContainer(
+    return Card(
+      elevation: 0,
+      color: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outline.withAlpha(30)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                isOperation
-                    ? (debtType == DebtType.lend
-                        ? Icons.arrow_circle_down_outlined
-                        : Icons.arrow_circle_up_outlined)
-                    : (debtType == DebtType.lend
-                        ? Icons.arrow_circle_up_outlined
-                        : Icons.arrow_circle_down_outlined),
-                size: 18,
-                color: colorScheme.onSurfaceVariant,
-              ),
-              SizedBox(width: spacing.listItemSpacing / 2),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: spacing.listItemSpacing),
-                    Text(
-                      amount.toString(),
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: isOperation
-                            ? ColorUtil.getDebtAmountReverseColor(debtType)
-                            : ColorUtil.getDebtAmountColor(debtType),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+          // 标题栏
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              spacing.formItemSpacing,
+              spacing.formItemSpacing / 2,
+              spacing.formItemSpacing / 2,
+              0,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: amountColor.withAlpha(15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(iconData, size: 18, color: amountColor),
                 ),
-              ),
-              TextButton.icon(
-                onPressed: onAddPressed,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: spacing.listItemSpacing / 2,
-                      vertical: spacing.listItemSpacing / 2),
-                  foregroundColor: colorScheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        amount.toString(),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: amountColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  size: 18,
-                  color: colorScheme.primary,
-                ),
-                label: Text(
-                  title,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: colorScheme.primary,
+                TextButton.icon(
+                  onPressed: onAddPressed,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    foregroundColor: colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(
+                    title,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+
+          // 列表
           if (items.isNotEmpty) ...[
             Divider(
-              height: spacing.listItemSpacing,
-              thickness: 1,
-              color: colorScheme.outlineVariant.withAlpha(128),
+              height: 1,
+              thickness: 0.5,
+              indent: spacing.formItemSpacing,
+              endIndent: spacing.formItemSpacing,
+              color: colorScheme.outlineVariant.withAlpha(80),
             ),
             _DebtItemList(
               items: items,
               book: book,
               onRefresh: onRefresh,
             ),
-          ] else ...[
-            SizedBox(height: spacing.listItemSpacing),
-            Center(
-              child: Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: spacing.listItemSpacing),
-                child: Text(
-                  L10nManager.l10n.noData,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant.withAlpha(102),
-                  ),
+            // 底部留白
+            SizedBox(height: spacing.listItemSpacing / 2),
+          ] else
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: spacing.formItemSpacing,
+                horizontal: spacing.formItemSpacing,
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.inbox_outlined,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant.withAlpha(80)),
+                    const SizedBox(width: 6),
+                    Text(
+                      L10nManager.l10n.noData,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant.withAlpha(80),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
         ],
       ),
     );
@@ -481,28 +594,18 @@ class _DebtItemList extends StatelessWidget {
     final spacing = theme.spacing;
     final colorScheme = theme.colorScheme;
 
-    if (items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: spacing.listItemSpacing),
-          child: Text(
-            L10nManager.l10n.noData,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant.withAlpha(102),
-            ),
-          ),
-        ),
-      );
-    }
-
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
       itemCount: items.length,
-      separatorBuilder: (_, __) => Divider(
-        height: 1,
-        thickness: 0.5,
-        color: colorScheme.outlineVariant.withAlpha(77),
+      separatorBuilder: (_, __) => Padding(
+        padding: EdgeInsets.only(left: spacing.formItemSpacing),
+        child: Divider(
+          height: 1,
+          thickness: 0.5,
+          color: colorScheme.outlineVariant.withAlpha(50),
+        ),
       ),
       itemBuilder: (context, index) {
         final item = items[index];
@@ -511,43 +614,48 @@ class _DebtItemList extends StatelessWidget {
             await NavigationUtil.toItemEdit(context, item);
             onRefresh();
           },
-          borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: spacing.listItemSpacing,
-              horizontal: spacing.listItemSpacing / 2,
+            padding: EdgeInsets.fromLTRB(
+              spacing.formItemSpacing,
+              spacing.listItemSpacing,
+              spacing.formItemSpacing,
+              spacing.listItemSpacing,
             ),
             child: Row(
               children: [
+                // 日期 + 账户
                 Expanded(
-                  child: Wrap(
-                    spacing: spacing.listItemSpacing / 2,
-                    runSpacing: spacing.listItemSpacing / 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      CommonTag(
-                        icon: Icons.calendar_today_outlined,
-                        label: DateFormat('yyyy-MM-dd')
+                      Text(
+                        DateFormat('yyyy-MM-dd')
                             .format(DateTime.parse(item.accountDate)),
-                        color: colorScheme.onSurfaceVariant,
-                        backgroundColor:
-                            colorScheme.surfaceContainerHighest.withAlpha(50),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      CommonTag(
-                        icon: Icons.account_balance_wallet_outlined,
-                        label: item.fundName ?? '',
-                        color: colorScheme.onSurfaceVariant,
-                        backgroundColor:
-                            colorScheme.surfaceContainerHighest.withAlpha(50),
-                      ),
+                      const SizedBox(height: 2),
+                      if (item.fundName != null && item.fundName!.isNotEmpty)
+                        Text(
+                          item.fundName!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant.withAlpha(150),
+                            fontSize: 11,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                SizedBox(width: spacing.listItemSpacing),
+                const SizedBox(width: 12),
                 Text(
                   item.amount.toString(),
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: ColorUtil.getTransferCategoryColor(item),
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ],
