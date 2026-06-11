@@ -49,46 +49,40 @@ class _MineTabView extends StatelessWidget {
       _GridFeatureItemData(
         icon: Icons.category_outlined,
         label: L10nManager.l10n.category,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.categories, arguments: accountBook),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.categories,
+            arguments: accountBook),
         isHighlighted: true,
       ),
       _GridFeatureItemData(
         icon: Icons.account_balance_wallet_outlined,
         label: L10nManager.l10n.account,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.funds, arguments: accountBook),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.funds,
+            arguments: accountBook),
         isHighlighted: true,
       ),
       _GridFeatureItemData(
         icon: Icons.store_outlined,
         label: L10nManager.l10n.merchant,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.merchants, arguments: accountBook),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.merchants,
+            arguments: accountBook),
         isHighlighted: true,
       ),
       _GridFeatureItemData(
         icon: Icons.local_offer_outlined,
         label: L10nManager.l10n.tag,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.tags, arguments: accountBook),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.tags,
+            arguments: accountBook),
         isHighlighted: true,
       ),
       _GridFeatureItemData(
         icon: Icons.folder_outlined,
         label: L10nManager.l10n.project,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.projects, arguments: accountBook),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.projects,
+            arguments: accountBook),
       ),
     ];
 
     final dataToolItems = [
-      _GridFeatureItemData(
-        icon: Icons.emoji_events_outlined,
-        label: L10nManager.l10n.tabActivity,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.activityCheckin),
-      ),
       _GridFeatureItemData(
         icon: Icons.book_outlined,
         label: L10nManager.l10n.accountBook,
@@ -109,15 +103,13 @@ class _MineTabView extends StatelessWidget {
         label: L10nManager.l10n.fuelRecord,
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const FuelRecordListPage()),
+          MaterialPageRoute(builder: (_) => const FuelRecordListPage()),
         ),
       ),
       _GridFeatureItemData(
         icon: Icons.emoji_events_outlined,
         label: L10nManager.l10n.tabActivity,
-        onTap: () => Navigator.pushNamed(
-          context, AppRoutes.activityCheckin),
+        onTap: () => Navigator.pushNamed(context, AppRoutes.activityCheckin),
       ),
     ];
 
@@ -195,15 +187,15 @@ class _MineTabView extends StatelessWidget {
                     context,
                     icon: Icons.share_outlined,
                     label: L10nManager.l10n.shareSettings,
-                    onTap: () => Navigator.pushNamed(
-                        context, AppRoutes.shareSettings),
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.shareSettings),
                   ),
                   _buildSettingsTile(
                     context,
                     icon: Icons.palette_outlined,
                     label: L10nManager.l10n.themeSettings,
-                    onTap: () => Navigator.pushNamed(
-                        context, AppRoutes.themeSettings),
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.themeSettings),
                   ),
                   _buildSettingsTile(
                     context,
@@ -223,15 +215,14 @@ class _MineTabView extends StatelessWidget {
                     context,
                     icon: Icons.storage_outlined,
                     label: L10nManager.l10n.database,
-                    onTap: () => Navigator.pushNamed(
-                        context, AppRoutes.databaseViewer),
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.databaseViewer),
                   ),
                   _buildSettingsTile(
                     context,
                     icon: Icons.info_outline,
                     label: L10nManager.l10n.about,
-                    onTap: () => Navigator.pushNamed(
-                        context, AppRoutes.about),
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.about),
                   ),
                 ],
               ),
@@ -266,8 +257,7 @@ class _MineTabView extends StatelessWidget {
               UserInfoCard(
                 user: provider.user,
                 statistic: provider.statistic,
-                onTap: () =>
-                    Navigator.pushNamed(context, '/user_info'),
+                onTap: () => Navigator.pushNamed(context, '/user_info'),
               ),
               _buildCompactSyncRow(context),
             ],
@@ -306,8 +296,7 @@ class _MineTabView extends StatelessWidget {
                       : Text(
                           syncProvider.lastSyncTime != null
                               ? L10nManager.l10n.lastSyncTime(
-                                  DateUtil.format(
-                                      syncProvider.lastSyncTime!))
+                                  DateUtil.format(syncProvider.lastSyncTime!))
                               : L10nManager.l10n.notSynced,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
@@ -342,8 +331,7 @@ class _MineTabView extends StatelessWidget {
               const SizedBox(width: 4),
               _buildMiniButton(
                 context,
-                onPressed: () =>
-                    Navigator.pushNamed(context, '/sync_settings'),
+                onPressed: () => Navigator.pushNamed(context, '/sync_settings'),
                 child: Icon(
                   Icons.settings,
                   size: 16,
@@ -360,8 +348,7 @@ class _MineTabView extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: syncProvider.progress,
                   minHeight: 2,
-                  backgroundColor:
-                      colorScheme.surfaceContainerHighest,
+                  backgroundColor: colorScheme.surfaceContainerHighest,
                   valueColor:
                       AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
@@ -388,8 +375,7 @@ class _MineTabView extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        backgroundColor:
-            colorScheme.surfaceContainerHighest.withAlpha(128),
+        backgroundColor: colorScheme.surfaceContainerHighest.withAlpha(128),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
