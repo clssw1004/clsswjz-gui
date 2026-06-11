@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - "v*"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # 添加一个新的作业来提取发布说明
   extract_release_notes:
@@ -43,7 +47,7 @@ jobs:
         platform: [windows, linux, android]
         include:
           - platform: windows
-            os: windows-latest
+            os: windows-2025
             build-command: flutter build windows --release
             artifact-path: build/windows/x64/runner/Release
             artifact-name: clsswjz-${{ github.ref_name }}-windows-x64
