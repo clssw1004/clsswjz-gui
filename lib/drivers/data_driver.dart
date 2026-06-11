@@ -339,6 +339,7 @@ abstract class BookDataDriver {
     String? location,
     int? createdAt,
     int? maxDailyCount,
+    String? remark,
   });
 
   /// 删除活动记录

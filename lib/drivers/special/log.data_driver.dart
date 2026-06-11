@@ -1023,6 +1023,7 @@ class LogDataDriver implements BookDataDriver {
     String? location,
     int? createdAt,
     int? maxDailyCount,
+    String? remark,
   }) async {
     try {
       final logBuilder = ActivityRecordCULog.create(
@@ -1034,6 +1035,7 @@ class LogDataDriver implements BookDataDriver {
         location: location,
         createdAt: createdAt,
         maxDailyCount: maxDailyCount,
+        remark: remark,
       );
       final id = await logBuilder.execute();
       return OperateResult.success(id);

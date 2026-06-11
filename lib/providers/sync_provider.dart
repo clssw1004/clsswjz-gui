@@ -6,6 +6,7 @@ import '../manager/app_config_manager.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_book.dart';
+import '../events/special/event_activity_checkin.dart';
 import '../enums/operate_type.dart';
 
 class SyncProvider extends ChangeNotifier {
@@ -22,6 +23,7 @@ class SyncProvider extends ChangeNotifier {
       EventBus.instance.on<DebtChangedEvent>(_handleDebtChanged),
       EventBus.instance.on<GiftCardChangedEvent>(_handleGiftCardChanged),
       EventBus.instance.on<ActivityChangedEvent>(_handleActivityChanged),
+      EventBus.instance.on<ActivityDefinitionChangedEvent>(_handleActivityDefinitionChanged),
       EventBus.instance.on<UserShareChangedEvent>(_handleUserShareChanged),
     ]);
   }
@@ -50,6 +52,10 @@ class SyncProvider extends ChangeNotifier {
   }
 
   void _handleActivityChanged(ActivityChangedEvent event) {
+    syncData();
+  }
+
+  void _handleActivityDefinitionChanged(ActivityDefinitionChangedEvent event) {
     syncData();
   }
 

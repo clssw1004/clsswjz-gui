@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../manager/dao_manager.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../manager/service_manager.dart';
 import '../../models/vo/activity_definition_vo.dart';
+import '../../models/vo/attachment_vo.dart';
 import '../../providers/activity_checkin_provider.dart';
-import '../../utils/date_util.dart';
+import 'package:intl/intl.dart';
 import 'activity_def_edit_page.dart';
 
 class ActivityDetailPage extends StatefulWidget {
@@ -19,6 +23,9 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
+  Map<String, String> _userNames = {};
+  Map<String, Color> _userColors = {};
+  Map<String, AttachmentVO?> _userAvatars = {};
 
   @override
   void initState() {
@@ -31,8 +38,69 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ActivityCheckinProvider>().loadRecordsByDefId(widget.definition.id);
+      _loadData();
     });
+  }
+
+  Future<void> _loadData() async {
+    final provider = context.read<ActivityCheckinProvider>();
+    await provider.loadRecordsByDefId(widget.definition.id);
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    final provider = context.read<ActivityCheckinProvider>();
+    final userIds = provider.recordsByDefId
+        .map((r) => r.createdBy)
+        .toSet()
+        .toList();
+    if (userIds.isEmpty) return;
+    try {
+      final users = await DaoManager.userDao.findByIds(userIds);
+      final nameMap = <String, String>{};
+      final colorMap = <String, Color>{};
+      final avatarIds = <String>[];
+      for (final u in users) {
+        final displayName = u.nickname.isNotEmpty ? u.nickname : u.username;
+        nameMap[u.id] = displayName;
+        colorMap[u.id] = _hashColor(u.id);
+        if (u.avatar != null && u.avatar!.isNotEmpty) {
+          avatarIds.add(u.avatar!);
+        }
+      }
+
+      // 加载头像（同数据共享页面方式）
+      final avatarMap = <String, AttachmentVO?>{};
+      if (avatarIds.isNotEmpty) {
+        try {
+          final attachments = await ServiceManager.attachmentService.getAttachments(avatarIds);
+          for (final a in attachments) {
+            avatarMap[a.id] = a;
+          }
+        } catch (_) {}
+      }
+      final userAvatarMap = <String, AttachmentVO?>{};
+      for (final u in users) {
+        if (u.avatar != null) {
+          userAvatarMap[u.id] = avatarMap[u.avatar];
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _userNames = nameMap;
+          _userColors = colorMap;
+          _userAvatars = userAvatarMap;
+        });
+      }
+    } catch (_) {}
+  }
+
+  static Color _hashColor(String id) {
+    final hash = id.hashCode;
+    final hues = [0, 30, 60, 120, 180, 210, 240, 300, 330];
+    final hue = hues[hash.abs() % hues.length];
+    return HSLColor.fromAHSL(0.35, hue.toDouble(), 0.6, 0.5).toColor();
   }
 
   @override
@@ -140,16 +208,19 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
         scale: _scaleAnim.value,
         child: child,
       ),
-      child: Card(
-        elevation: 0,
-        color: bgColor.withAlpha(25),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: bgColor.withAlpha(60), width: 1.5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: bgColor.withAlpha(25),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: bgColor.withAlpha(20),
+              offset: const Offset(0, 4),
+              blurRadius: 10,
+            ),
+          ],
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
+        child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
             child: Column(
               children: [
@@ -169,17 +240,17 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
                   child: Column(
                     children: [
                       Text(
-                        '${provider.todayCountByDefId}',
+                        '${provider.totalCountOf(def.id)}',
                         style: theme.textTheme.displayMedium?.copyWith(
                             fontWeight: FontWeight.bold, color: bgColor),
                       ),
-                      Text(L10nManager.l10n.currentDay,
+                      Text('累计',
                           style: theme.textTheme.labelMedium?.copyWith(
                               color: bgColor.withAlpha(180))),
                     ],
                   ),
                 ),
-                if (def.maxDailyCount != null && provider.todayCountByDefId >= def.maxDailyCount!)
+                if (def.maxDailyCount != null && provider.myTodayCountOf(def.id) >= def.maxDailyCount!)
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: Container(
@@ -211,8 +282,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildRecordsList(
@@ -260,9 +330,14 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
     ThemeData theme,
     ColorScheme colorScheme,
   ) {
-    final timeStr = DateUtil.format(record.createdAt);
+    final dt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
+    final dateTimeStr = DateFormat('yyyy/MM/dd HH:mm').format(dt);
+    final isMine = record.createdBy == AppConfigManager.instance.userId;
+    final userName = _userNames[record.createdBy] ?? record.createdBy.substring(0, 6);
+    final userColor = _userColors[record.createdBy] ?? colorScheme.secondaryContainer;
 
     Future<void> onEditTime() async {
+      if (!isMine) return;
       final dt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
       final date = await showDatePicker(
         context: context,
@@ -281,6 +356,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
     }
 
     Future<bool> onDelete() async {
+      if (!isMine) return false;
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -303,17 +379,19 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
       return false;
     }
 
+    final avatarAttach = _userAvatars[record.createdBy];
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Dismissible(
         key: ValueKey(record.id),
-        direction: DismissDirection.endToStart,
+        direction: isMine ? DismissDirection.endToStart : DismissDirection.none,
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: 20),
           decoration: BoxDecoration(
             color: colorScheme.error,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(Icons.delete_outline, color: colorScheme.onError),
         ),
@@ -322,24 +400,102 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
           return deleted;
         },
         child: GestureDetector(
-          onLongPress: onEditTime,
+          onLongPress: isMine ? onEditTime : null,
           child: Container(
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadowColor.withAlpha(8),
+                  offset: const Offset(0, 2),
+                  blurRadius: 6,
+                ),
+              ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
             child: Row(
               children: [
-                Icon(Icons.access_time,
-                    size: 18, color: colorScheme.primary),
+                // 用户头像
+                Container(
+                  width: 36, height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: userColor.withAlpha(120),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: avatarAttach?.file != null
+                      ? Image.file(avatarAttach!.file!,
+                          width: 36, height: 36,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildAvatarFallback(userName))
+                      : _buildAvatarFallback(userName),
+                ),
                 const SizedBox(width: 12),
-                Text(timeStr,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 第一行：日期时间 + 用户名
+                      Row(
+                        children: [
+                          Text(dateTimeStr,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w700)),
+                          const SizedBox(width: 8),
+                          Icon(Icons.person_outline,
+                              size: 12, color: colorScheme.onSurfaceVariant.withAlpha(100)),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(userName,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant.withAlpha(150)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ],
+                      ),
+                      // 第二行：备注
+                      if (record.remark != null && record.remark!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Text(record.remark!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant.withAlpha(180)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                    ],
+                  ),
+                ),
+                // 自己的记录显示编辑提示
+                if (isMine)
+                  Container(
+                    width: 24, height: 24,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withAlpha(80),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.edit_outlined,
+                        size: 14, color: colorScheme.onPrimaryContainer.withAlpha(160)),
+                  ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarFallback(String name) {
+    return Container(
+      alignment: Alignment.center,
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
         ),
       ),
     );

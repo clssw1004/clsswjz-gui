@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
+import '../enums/operate_type.dart';
 import '../events/event_bus.dart';
+import '../events/special/event_book.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_activity_checkin.dart';
 import '../manager/app_config_manager.dart';
@@ -18,9 +20,20 @@ class ActivityCheckinProvider extends ChangeNotifier {
   List<ActivityDefinitionVO> _definitions = [];
   List<ActivityDefinitionVO> get definitions => _definitions;
 
-  /// 今日打卡次数 (defId → count)
+  /// 今日打卡次数 (defId → count, 包含共享)
   Map<String, int> _todayCounts = {};
   Map<String, int> get todayCounts => _todayCounts;
+
+  /// 我今日打卡次数 (defId → count, 仅我自己)
+  Map<String, int> _myTodayCounts = {};
+  Map<String, int> get myTodayCounts => _myTodayCounts;
+
+  /// 累计打卡次数 (defId → count, 包含共享)
+  Map<String, int> _totalCounts = {};
+  Map<String, int> get totalCounts => _totalCounts;
+
+  /// 累计打卡总次数
+  int get totalAll => _totalCounts.values.fold(0, (sum, v) => sum + v);
 
   /// 今日打卡总次数
   int get todayTotal =>
@@ -65,6 +78,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
       loadTodayCounts(),
       loadWeekCounts(),
       loadRecentRecords(),
+      loadTotalCounts(),
     ]);
   }
 
@@ -82,20 +96,26 @@ class ActivityCheckinProvider extends ChangeNotifier {
   /// 加载今日打卡计数
   Future<void> loadTodayCounts() async {
     final today = DateUtil.nowDate();
+    final userId = AppConfigManager.instance.userId;
     final result = await DriverFactory.driver.listActivityRecords(
-      AppConfigManager.instance.userId,
+      userId,
       startDate: today,
       endDate: today,
     );
     if (result.ok) {
       final counts = <String, int>{};
+      final myCounts = <String, int>{};
       for (final record in result.data ?? []) {
         final defId = record.activityDefId;
         if (defId != null) {
           counts[defId] = (counts[defId] ?? 0) + 1;
+          if (record.createdBy == userId) {
+            myCounts[defId] = (myCounts[defId] ?? 0) + 1;
+          }
         }
       }
       _todayCounts = counts;
+      _myTodayCounts = myCounts;
       notifyListeners();
     }
   }
@@ -129,6 +149,26 @@ class ActivityCheckinProvider extends ChangeNotifier {
     }
   }
 
+  /// 加载累计打卡次数
+  Future<void> loadTotalCounts() async {
+    final result = await DriverFactory.driver.listActivityRecords(
+      AppConfigManager.instance.userId,
+      limit: 99999,
+      offset: 0,
+    );
+    if (result.ok) {
+      final counts = <String, int>{};
+      for (final record in result.data ?? []) {
+        final defId = record.activityDefId;
+        if (defId != null) {
+          counts[defId] = (counts[defId] ?? 0) + 1;
+        }
+      }
+      _totalCounts = counts;
+      notifyListeners();
+    }
+  }
+
   /// 加载指定活动的打卡记录
   List<ActivityRecordVO> _recordsByDefId = [];
   List<ActivityRecordVO> get recordsByDefId => _recordsByDefId;
@@ -151,14 +191,14 @@ class ActivityCheckinProvider extends ChangeNotifier {
   }
 
   /// 打卡 +1
-  Future<bool> checkIn(String defId, {String? location}) async {
+  Future<bool> checkIn(String defId, {String? location, String? remark}) async {
     final def = _definitions.where((d) => d.id == defId).firstOrNull;
     if (def == null) return false;
 
-    // 检查每日上限
+    // 检查每日上限（按用户独立）
     if (def.maxDailyCount != null) {
-      final todayCount = _todayCounts[defId] ?? 0;
-      if (todayCount >= def.maxDailyCount!) {
+      final myTodayCount = _myTodayCounts[defId] ?? 0;
+      if (myTodayCount >= def.maxDailyCount!) {
         return false;
       }
     }
@@ -173,10 +213,31 @@ class ActivityCheckinProvider extends ChangeNotifier {
       activityDefId: defId,
       location: location,
       maxDailyCount: def.maxDailyCount,
+      remark: remark,
     );
     if (result.ok) {
       _todayCounts[defId] = (_todayCounts[defId] ?? 0) + 1;
+      _myTodayCounts[defId] = (_myTodayCounts[defId] ?? 0) + 1;
+      _totalCounts[defId] = (_totalCounts[defId] ?? 0) + 1;
       notifyListeners();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      EventBus.instance.emit(ActivityChangedEvent(
+        OperateType.create,
+        ActivityRecordVO(
+          id: result.data!,
+          accountBookId: bookId,
+          activityName: def.name,
+          location: location,
+          remark: remark,
+          activityDefId: defId,
+          maxDailyCount: def.maxDailyCount,
+          recordDate: today,
+          createdAt: now,
+          updatedAt: now,
+          createdBy: AppConfigManager.instance.userId,
+          updatedBy: AppConfigManager.instance.userId,
+        ),
+      ));
     }
     return result.ok;
   }
@@ -190,22 +251,25 @@ class ActivityCheckinProvider extends ChangeNotifier {
     );
     if (result.ok) {
       final idx = _recordsByDefId.indexWhere((r) => r.id == recordId);
-      if (idx != -1) {
-        _recordsByDefId[idx] = ActivityRecordVO(
-          id: _recordsByDefId[idx].id,
-          accountBookId: _recordsByDefId[idx].accountBookId,
-          activityName: _recordsByDefId[idx].activityName,
-          location: _recordsByDefId[idx].location,
-          activityDefId: _recordsByDefId[idx].activityDefId,
-          maxDailyCount: _recordsByDefId[idx].maxDailyCount,
-          recordDate: _recordsByDefId[idx].recordDate,
-          createdAt: createdAt,
-          updatedAt: DateTime.now().millisecondsSinceEpoch,
-          createdBy: _recordsByDefId[idx].createdBy,
-          updatedBy: _recordsByDefId[idx].updatedBy,
-        );
-        notifyListeners();
-      }
+      if (idx == -1) return result.ok;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final updated = ActivityRecordVO(
+        id: _recordsByDefId[idx].id,
+        accountBookId: _recordsByDefId[idx].accountBookId,
+        activityName: _recordsByDefId[idx].activityName,
+        location: _recordsByDefId[idx].location,
+        remark: _recordsByDefId[idx].remark,
+        activityDefId: _recordsByDefId[idx].activityDefId,
+        maxDailyCount: _recordsByDefId[idx].maxDailyCount,
+        recordDate: _recordsByDefId[idx].recordDate,
+        createdAt: createdAt,
+        updatedAt: now,
+        createdBy: _recordsByDefId[idx].createdBy,
+        updatedBy: _recordsByDefId[idx].updatedBy,
+      );
+      _recordsByDefId[idx] = updated;
+      notifyListeners();
+      EventBus.instance.emit(ActivityChangedEvent(OperateType.update, updated));
     }
     return result.ok;
   }
@@ -213,6 +277,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
   /// 删除打卡记录
   Future<bool> deleteRecord(String recordId) async {
     final deleted = _recordsByDefId.where((r) => r.id == recordId).firstOrNull;
+    final userId = AppConfigManager.instance.userId;
     final bookId = AppConfigManager.instance.defaultBookId!;
     final result = await DriverFactory.driver.deleteActivityRecord(
       AppConfigManager.instance.userId,
@@ -224,11 +289,24 @@ class ActivityCheckinProvider extends ChangeNotifier {
       final today = DateUtil.nowDate();
       _todayCountByDefId = _recordsByDefId.where((r) => r.recordDate == today).length;
       // 同步更新今日计数缓存，否则 checkIn 仍按旧值拦截
-      if (deleted != null && deleted.recordDate == today && deleted.activityDefId != null) {
-        final c = _todayCounts[deleted.activityDefId] ?? 0;
-        if (c > 0) _todayCounts[deleted.activityDefId!] = c - 1;
+      if (deleted != null && deleted.activityDefId != null) {
+        final defId = deleted.activityDefId!;
+        // 更新今日计数
+        final c = _todayCounts[defId] ?? 0;
+        if (c > 0) _todayCounts[defId] = c - 1;
+        // 更新我今日计数
+        if (deleted.createdBy == userId) {
+          final mc = _myTodayCounts[defId] ?? 0;
+          if (mc > 0) _myTodayCounts[defId] = mc - 1;
+        }
+        // 更新累计计数
+        final tc = _totalCounts[defId] ?? 0;
+        if (tc > 0) _totalCounts[defId] = tc - 1;
       }
       notifyListeners();
+      if (deleted != null) {
+        EventBus.instance.emit(ActivityChangedEvent(OperateType.delete, deleted));
+      }
     }
     return result.ok;
   }
@@ -254,6 +332,20 @@ class ActivityCheckinProvider extends ChangeNotifier {
     if (result.ok) {
       await loadDefinitions();
       await loadTodayCounts();
+      EventBus.instance.emit(ActivityDefinitionChangedEvent(
+        OperateType.create,
+        ActivityDefinitionVO(
+          id: result.data!,
+          accountBookId: bookId,
+          name: name,
+          emoji: emoji,
+          color: color,
+          sortOrder: sortOrder,
+          maxDailyCount: maxDailyCount,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          updatedAt: DateTime.now().millisecondsSinceEpoch,
+        ),
+      ));
     }
     return result;
   }
@@ -271,6 +363,7 @@ class ActivityCheckinProvider extends ChangeNotifier {
     );
     if (result.ok) {
       await loadDefinitions();
+      EventBus.instance.emit(ActivityDefinitionChangedEvent(OperateType.update, vo));
     }
     return result.ok;
   }
@@ -284,11 +377,32 @@ class ActivityCheckinProvider extends ChangeNotifier {
     if (result.ok) {
       _definitions.removeWhere((d) => d.id == id);
       _todayCounts.remove(id);
+      _myTodayCounts.remove(id);
+      _totalCounts.remove(id);
       notifyListeners();
+      EventBus.instance.emit(ActivityDefinitionChangedEvent(
+        OperateType.delete,
+        ActivityDefinitionVO(
+          id: id,
+          accountBookId: '',
+          name: '',
+          emoji: '',
+          color: 0,
+          sortOrder: 0,
+          createdAt: 0,
+          updatedAt: 0,
+        ),
+      ));
     }
     return result.ok;
   }
 
-  /// 获取今日指定定义的打卡次数
+  /// 获取指定定义今日打卡总次数（含共享）
   int todayCountOf(String defId) => _todayCounts[defId] ?? 0;
+
+  /// 获取指定定义我今日打卡次数（用于上限检测）
+  int myTodayCountOf(String defId) => _myTodayCounts[defId] ?? 0;
+
+  /// 获取指定定义累计打卡次数
+  int totalCountOf(String defId) => _totalCounts[defId] ?? 0;
 }

@@ -48,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +96,15 @@ class AppDatabase extends _$AppDatabase {
             // 版本9到版本10的迁移：activityDefinition表新增maxDailyCount列
             await m.addColumn(
                 activityDefinitionTable, activityDefinitionTable.maxDailyCount);
+          }
+          if (from < 11) {
+            // 版本10到版本11的迁移：activityRecord表新增remark列
+            try {
+              await m.addColumn(
+                  activityRecordTable, activityRecordTable.remark);
+            } catch (_) {
+              // 列已存在时忽略
+            }
           }
         },
       );

@@ -25,6 +25,9 @@ class ActivityRecordTable extends BaseAccountBookTable {
   /// 每日最大打卡次数 (null=不限制)
   IntColumn get maxDailyCount => integer().named('max_daily_count').nullable()();
 
+  /// 备注 (可选)
+  TextColumn get remark => text().named('remark').nullable()();
+
   /// 创建Companion
   static ActivityRecordTableCompanion toCreateCompanion(
     String who, {
@@ -35,6 +38,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
     String? location,
     int? createdAt,
     int? maxDailyCount,
+    String? remark,
   }) {
     final now = createdAt ?? DateUtil.now();
     return ActivityRecordTableCompanion(
@@ -45,6 +49,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
       activityDefId: Value.absentIfNull(activityDefId),
       location: Value.absentIfNull(location),
       maxDailyCount: Value.absentIfNull(maxDailyCount),
+      remark: Value.absentIfNull(remark),
       createdBy: Value(who),
       createdAt: Value(now),
       updatedBy: Value(who),
@@ -61,6 +66,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'recordDate', companion.recordDate);
     MapUtil.setIfPresent(map, 'activityDefId', companion.activityDefId);
     MapUtil.setIfPresent(map, 'location', companion.location);
+    MapUtil.setIfPresent(map, 'remark', companion.remark);
     MapUtil.setIfPresent(map, 'maxDailyCount', companion.maxDailyCount);
     MapUtil.setIfPresent(map, 'createdAt', companion.createdAt);
     MapUtil.setIfPresent(map, 'createdBy', companion.createdBy);
@@ -78,6 +84,7 @@ class ActivityRecordTable extends BaseAccountBookTable {
       recordDate: json['recordDate'] != null ? Value(json['recordDate'] as String) : const Value.absent(),
       activityDefId: json['activityDefId'] != null ? Value(json['activityDefId'] as String) : const Value.absent(),
       location: json['location'] != null ? Value(json['location'] as String) : const Value.absent(),
+      remark: json['remark'] != null ? Value(json['remark'] as String) : const Value.absent(),
       maxDailyCount: json['maxDailyCount'] != null ? Value(json['maxDailyCount'] as int) : const Value.absent(),
       createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
       updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),
