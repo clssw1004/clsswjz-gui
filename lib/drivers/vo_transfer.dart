@@ -149,10 +149,11 @@ class VOTransfer {
               ?.where((item) => item.categoryCode != debt.debtType)
               .fold<double>(0.0, (sum, e) => sum + e.amount) ??
           0.0;
+      // 历史数据中存在符号存储（借出为负），abs() 兼容新旧数据
       final remainAmount = debtAmount.abs() - operationAmount.abs();
       return UserDebtVO.fromDebt(
         debt: debt,
-        totalAmount: debtAmount,
+        totalAmount: debtAmount.abs(),
         remainAmount: remainAmount,
         fundName: fundMap[debt.fundId]?.name ?? '',
       );

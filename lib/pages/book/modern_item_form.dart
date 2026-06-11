@@ -117,16 +117,14 @@ class _ModernItemFormState extends State<ModernItemForm> {
         initialValue:
             double.tryParse(_amountController.text)?.abs(),
         onConfirm: (value) {
-          final isExpense = widget.provider.item.type ==
-              AccountItemType.expense.code;
-          final signedValue = isExpense ? -value.abs() : value.abs();
-          setState(() {
-            _amountController.text = signedValue.toString();
-          });
           widget.provider.updateAmount(value);
+          setState(() {
+            _amountController.text =
+                widget.provider.item.amount.toString();
+          });
           if (widget.autoSave) {
-            _debounce(
-                () => widget.provider.updateAmountAndSave(value));
+            _debounce(() =>
+                widget.provider.updateAmountAndSave(value));
           }
         },
       ),

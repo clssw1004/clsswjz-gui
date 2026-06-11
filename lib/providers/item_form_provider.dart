@@ -5,6 +5,7 @@ import '../enums/operate_type.dart';
 import '../enums/symbol_type.dart';
 import '../database/database.dart';
 import '../enums/account_type.dart';
+import '../enums/debt_type.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_book.dart';
 import '../manager/dao_manager.dart';
@@ -327,10 +328,12 @@ class ItemFormProvider extends ChangeNotifier {
 
   /// 更新金额
   void updateAmount(double amount) {
-    // 根据类型转换金额正负
-    final finalAmount = _item.type == AccountItemType.expense.code
-        ? -amount.abs()
-        : amount.abs();
+    // 根据类型或债务分类转换金额正负
+    // 支出、借出(LEND)、还款(REPAYMENT)为负数
+    final isNegative = _item.type == AccountItemType.expense.code ||
+        _item.categoryCode == DebtType.lend.code ||
+        _item.categoryCode == DebtType.borrow.operationCategory;
+    final finalAmount = isNegative ? -amount.abs() : amount.abs();
     _item = _item.copyWith(amount: finalAmount);
     notifyListeners();
   }

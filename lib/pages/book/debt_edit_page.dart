@@ -58,7 +58,9 @@ class _DebtEditPageState extends State<DebtEditPage> {
 
   /// 获取剩余金额
   double get _remainingAmount {
-    return (_debtAmount.abs() - _operationAmount.abs()).clamp(0, double.infinity);
+    final debt = _debtAmount.abs();
+    final operation = _operationAmount.abs();
+    return (debt - operation).clamp(0, double.infinity);
   }
 
   @override
@@ -236,8 +238,11 @@ class _DebtInfoCard extends StatelessWidget {
 
   Widget _buildRemainingAmount(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
-    final debtColor = ColorUtil.getDebtAmountReverseColor(debtType);
+    final isSettled = remainingAmount <= 0;
+    final bgColor =
+        isSettled ? DebtClearState.cleared.color.withAlpha(13) : colorScheme.primary.withAlpha(13);
 
     return Container(
       width: double.infinity,
@@ -245,39 +250,61 @@ class _DebtInfoCard extends StatelessWidget {
           horizontal: spacing.formItemSpacing,
           vertical: spacing.listItemSpacing),
       decoration: BoxDecoration(
-        color: debtColor.withAlpha(13),
+        color: bgColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           Text(
-            debtType == DebtType.lend
-                ? L10nManager.l10n.remainingReceivable
-                : L10nManager.l10n.remainingPayable,
-            style: theme.textTheme.bodyMedium?.copyWith(color: debtColor),
+            isSettled
+                ? L10nManager.l10n.debtStatus
+                : (debtType == DebtType.lend
+                    ? L10nManager.l10n.remainingReceivable
+                    : L10nManager.l10n.remainingPayable),
+            style: theme.textTheme.bodyMedium?.copyWith(
+                color: isSettled
+                    ? DebtClearState.cleared.color
+                    : colorScheme.primary),
           ),
           SizedBox(height: spacing.listItemSpacing / 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                book.currencySymbol.symbol,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: debtColor,
-                  fontWeight: FontWeight.w500,
+          if (isSettled)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle,
+                    size: 24, color: DebtClearState.cleared.color),
+                const SizedBox(width: 6),
+                Text(
+                  L10nManager.l10n.debtStatusCleared,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: DebtClearState.cleared.color,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(width: spacing.listItemSpacing / 2),
-              Text(
-                remainingAmount.toString(),
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: debtColor,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
+              ],
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  book.currencySymbol.symbol,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
+                SizedBox(width: spacing.listItemSpacing / 2),
+                Text(
+                  remainingAmount.toString(),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -480,8 +507,8 @@ class _DebtItemList extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         return InkWell(
-          onTap: () {
-            NavigationUtil.toItemEdit(context, item);
+          onTap: () async {
+            await NavigationUtil.toItemEdit(context, item);
             onRefresh();
           },
           borderRadius: BorderRadius.circular(12),
