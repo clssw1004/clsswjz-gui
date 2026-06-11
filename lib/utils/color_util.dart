@@ -28,7 +28,7 @@ class ColorUtil {
     }
   }
 
-  /// 获取债务金额颜色
+  /// 获取债务标签颜色（借出同支出，借入同收入）
   static Color getDebtAmountColor(DebtType type) {
     switch (type) {
       case DebtType.lend:
@@ -38,7 +38,7 @@ class ColorUtil {
     }
   }
 
-  /// 获取债务金额颜色反转
+  /// 获取债务反转颜色（收款同收入，还款同支出）
   static Color getDebtAmountReverseColor(DebtType type) {
     switch (type) {
       case DebtType.lend:

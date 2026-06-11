@@ -130,12 +130,13 @@ class _DebtPaymentPageState extends State<DebtPaymentPage> {
     try {
       // 根据categoryCode调整金额的正负号
       // 借出(LEND)或还款(REPAYMENT)时为负数，反之为正数
+      // 使用有符号金额，在统计时可互相冲抵
       double amount = double.parse(_amountController.text);
       if (widget.categoryCode == DebtType.lend.code ||
           widget.categoryCode == DebtType.borrow.operationCategory) {
-        amount = -amount.abs(); // 确保为负数
+        amount = -amount.abs();
       } else {
-        amount = amount.abs(); // 确保为正数
+        amount = amount.abs();
       }
 
       final result = await DriverFactory.driver.createItem(
