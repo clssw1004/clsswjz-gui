@@ -3,14 +3,12 @@ import '../database/database.dart';
 import '../enums/business_type.dart';
 import '../enums/symbol_type.dart';
 import '../manager/dao_manager.dart';
-import '../models/dto/item_filter_dto.dart';
 import '../models/vo/attachment_show_vo.dart';
 import '../models/vo/user_debt_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../models/vo/user_fund_vo.dart';
 import '../models/vo/user_note_vo.dart';
 import '../utils/collection_util.dart';
-import 'driver_factory.dart';
 
 class VOTransfer {
   static Future<List<UserItemVO>> transferItems(
@@ -125,35 +123,36 @@ class VOTransfer {
   }
 
   static Future<List<UserDebtVO>> transferDebts(
-      String bookId, String userId, List<AccountDebt> debts) async {
+      List<AccountDebt> debts) async {
     final fundIds = debts.map((debt) => debt.fundId).toSet().toList();
 
     final funds = await DaoManager.fundDao.findByIds(fundIds);
 
     final fundMap = CollectionUtil.toMap(funds, (e) => e.id);
 
-    final items = await DriverFactory.driver
-            .listItemsByBook(userId, bookId,
-                filter: ItemFilterDTO(
-                  source: BusinessType.debt.code,
-                  sourceIds: debts.map((debt) => debt.id).toList(),
-                ))
-            .then((value) => value.data) ??
-        [];
+    final items = debts.isNotEmpty
+        ? await DaoManager.itemDao.findBySource(
+            BusinessType.debt.code,
+            debts.map((debt) => debt.id).toList(),
+          )
+        : <AccountItem>[];
 
     final itemMap = CollectionUtil.groupBy(items, (e) => e.sourceId);
 
     return debts.map((debt) {
       final subItems = itemMap[debt.id];
-      final remainAmount =
-          subItems?.fold<double>(0.0, (sum, e) => sum + e.amount) ?? 0.0;
-      final totalAmount = subItems
+      final debtAmount = subItems
               ?.where((item) => item.categoryCode == debt.debtType)
               .fold<double>(0.0, (sum, e) => sum + e.amount) ??
           0.0;
+      final operationAmount = subItems
+              ?.where((item) => item.categoryCode != debt.debtType)
+              .fold<double>(0.0, (sum, e) => sum + e.amount) ??
+          0.0;
+      final remainAmount = debtAmount.abs() - operationAmount.abs();
       return UserDebtVO.fromDebt(
         debt: debt,
-        totalAmount: totalAmount,
+        totalAmount: debtAmount,
         remainAmount: remainAmount,
         fundName: fundMap[debt.fundId]?.name ?? '',
       );

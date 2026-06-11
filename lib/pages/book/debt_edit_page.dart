@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../drivers/driver_factory.dart';
+import '../../drivers/vo_transfer.dart';
 import '../../enums/business_type.dart';
 import '../../enums/debt_type.dart';
 import '../../enums/debt_clear_state.dart';
-import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -59,7 +58,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
 
   /// 获取剩余金额
   double get _remainingAmount {
-    return _debtAmount + _operationAmount;
+    return (_debtAmount.abs() - _operationAmount.abs()).clamp(0, double.infinity);
   }
 
   @override
@@ -81,18 +80,15 @@ class _DebtEditPageState extends State<DebtEditPage> {
 
   Future<void> _loadItems() async {
     try {
-      final itemResult = await DriverFactory.driver.listItemsByBook(
-        AppConfigManager.instance.userId,
-        widget.book.id,
-        filter: ItemFilterDTO(
-          source: BusinessType.debt.code,
-          sourceIds: [widget.debt.id],
-        ),
+      final dbItems = await DaoManager.itemDao.findBySource(
+        BusinessType.debt.code,
+        [widget.debt.id],
       );
+      final items = await VOTransfer.transferItems(dbItems);
 
       if (mounted) {
         setState(() {
-          _items = itemResult.ok ? itemResult.data ?? [] : [];
+          _items = items;
         });
       }
     } catch (e) {
