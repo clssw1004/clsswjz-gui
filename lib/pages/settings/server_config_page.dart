@@ -10,12 +10,12 @@ import '../../services/auth_service.dart';
 import '../../utils/device.util.dart';
 import '../../utils/toast_util.dart';
 
-import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/restart_widget.dart';
 import '../../widgets/setting/offline_form.dart';
 import '../../widgets/setting/self_host_form.dart';
 import '../../theme/theme_spacing.dart';
+import '../../theme/theme_radius.dart';
 
 class ServerConfigPage extends StatefulWidget {
   const ServerConfigPage({super.key});
@@ -25,11 +25,9 @@ class ServerConfigPage extends StatefulWidget {
 }
 
 class _ServerConfigPageState extends State<ServerConfigPage> {
-  final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   StorageMode _storageMode = StorageMode.selfHost;
 
-  /// 初始化离线模式
   Future<void> _initOffline(OfflineFormData data) async {
     setState(() => _isLoading = true);
     await AppConfigManager.storageOfflineMode(
@@ -43,16 +41,15 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
     await AppConfigManager.instance.makeStorageInit();
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       RestartWidget.restartApp(context);
     }
   }
 
   Future<void> _initSelfhost(
-      SelfHostFormData data, SelfHostFormType type) async {
-    if (_isLoading) {
-      return;
-    }
+    SelfHostFormData data,
+    SelfHostFormType type,
+  ) async {
+    if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
       final deviceInfo = await DeviceUtil.getDeviceInfo(context);
@@ -65,64 +62,199 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
           accessToken: result.data!.accessToken,
           bookName: data.bookName,
         );
+        if (!mounted) return;
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
         await syncProvider.syncData();
         await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
           RestartWidget.restartApp(context);
         }
       } else {
         ToastUtil.showError(L10nManager.l10n.loginFailed);
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final spacing = Theme.of(context).spacing;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final spacing = theme.spacing;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.serverConfig),
+        showBackButton: canPop,
         showLanguageSelector: true,
         showThemeSelector: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: spacing.formPadding,
+      body: SingleChildScrollView(
+        padding: spacing.pagePadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CommonSelectFormField<StorageMode>(
-              items: StorageMode.values.toList(),
-              value: _storageMode,
-              displayMode: DisplayMode.iconText,
-              displayField: (item) => item.displayName(context),
-              keyField: (item) => item,
-              label: L10nManager.l10n.storageMode,
-              icon: Icons.storage,
-              onChanged: (value) {
-                setState(() {
-                  _storageMode = value;
-                });
-              },
-            ),
+            _buildHeader(theme, colorScheme),
             SizedBox(height: spacing.formItemSpacing),
-            if (_storageMode == StorageMode.selfHost)
-              SelfHostForm(
-                isLoading: _isLoading,
-                onSubmit: _initSelfhost,
-              ),
-            if (_storageMode == StorageMode.offline)
-              OfflineForm(
-                isLoading: _isLoading,
-                onSubmit: _initOffline,
-              ),
+            _buildFormCard(theme, colorScheme, radius),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme, ColorScheme colorScheme) {
+    return Center(
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Icon(
+          Icons.cloud_sync_rounded,
+          size: 24,
+          color: colorScheme.onPrimaryContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    double radius,
+  ) {
+    return Card(
+      elevation: 0,
+      color: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius * 1.5),
+        side: BorderSide(color: colorScheme.outline.withAlpha(25)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildModeTiles(theme, colorScheme),
+            const SizedBox(height: 16),
+            Divider(height: 1, color: colorScheme.outline.withAlpha(20)),
+            const SizedBox(height: 16),
+            Theme(
+              data: theme.copyWith(
+                visualDensity: VisualDensity.compact,
+                extensions: [
+                  ThemeSpacing(
+                    formItemSpacing: 10,
+                    formGroupSpacing: 14,
+                  ),
+                  if (theme.extension<ThemeRadius>() case final tr?)
+                    tr,
+                ],
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.06),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _storageMode == StorageMode.selfHost
+                    ? SelfHostForm(
+                        key: const ValueKey('selfhost'),
+                        isLoading: _isLoading,
+                        onSubmit: _initSelfhost,
+                      )
+                    : OfflineForm(
+                        key: const ValueKey('offline'),
+                        isLoading: _isLoading,
+                        onSubmit: _initOffline,
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModeTiles(ThemeData theme, ColorScheme colorScheme) {
+    const modeData = {
+      StorageMode.selfHost: Icons.dns_rounded,
+      StorageMode.offline: Icons.phone_android_rounded,
+    };
+
+    return Row(
+      children: StorageMode.values.map((mode) {
+        final isSelected = _storageMode == mode;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: mode == StorageMode.values.last ? 0 : 8,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => setState(() => _storageMode = mode),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surfaceContainerHighest.withAlpha(40),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isSelected
+                          ? colorScheme.primary.withAlpha(80)
+                          : colorScheme.outline.withAlpha(40),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        modeData[mode],
+                        size: 18,
+                        color: isSelected
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        mode.displayName(context),
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: isSelected
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                          fontWeight: isSelected ? FontWeight.w600 : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

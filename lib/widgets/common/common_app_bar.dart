@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/theme_radius.dart';
 
 /// 通用导航栏组件
@@ -63,7 +64,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       // 使用 pushNamedAndRemoveUntil 而不是 pushReplacementNamed，
       // 因为我们需要清除整个导航栈以确保所有页面都使用新的语言
       Navigator.of(context, rootNavigator: true)
-          .pushNamedAndRemoveUntil('/', (route) => false);
+          .pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
     }
   }
 
