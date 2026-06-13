@@ -16,6 +16,7 @@ import '../../widgets/common/restart_widget.dart';
 import '../../widgets/setting/server_url_field.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
+import '../../theme/theme_radius.dart';
 
 class ResetAuthPage extends StatefulWidget {
   final String serverUrl;
@@ -39,9 +40,8 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   void initState() {
     super.initState();
     _serverController.text = widget.serverUrl;
-    // 从配置中获取并设置用户名和密码
-    _usernameController.text = ''; // 用户名通常需要用户重新输入
-    _passwordController.text = ''; // 密码通常需要用户重新输入
+    _usernameController.text = '';
+    _passwordController.text = '';
   }
 
   @override
@@ -55,7 +55,6 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   Future<void> _showConfirmDialog() async {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final spacing = theme.spacing;
 
     int countdown = 5;
     bool canConfirm = false;
@@ -84,10 +83,10 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: spacing.formItemPadding,
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +154,6 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // 先保存服务器URL配置
     await AppConfigManager.instance.setServerUrl(serverUrl);
     try {
       final deviceInfo = await DeviceUtil.getDeviceInfo(context);
@@ -172,11 +170,11 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
           accessToken: result.data!.accessToken,
           clearData: true,
         );
+        if (!mounted) return;
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
         await syncProvider.syncData();
         await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
           RestartWidget.restartApp(context);
         }
       } else {
@@ -192,7 +190,6 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // 先保存服务器URL配置
     try {
       final deviceInfo = await DeviceUtil.getDeviceInfo(context);
       final authService = AuthService(serverUrl);
@@ -216,90 +213,144 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
     final syncProvider = context.watch<SyncProvider>();
-    final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.serverConfig),
       ),
-      body: Padding(
-        padding: spacing.formPadding,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              ServerUrlField(
-                controller: _serverController,
-              ),
-              SizedBox(height: spacing.formItemSpacing),
-              CommonTextFormField(
-                controller: _usernameController,
-                labelText: L10nManager.l10n.username,
-                prefixIcon: Icons.person,
-                required: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return L10nManager.l10n
-                        .pleaseInput(L10nManager.l10n.username);
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: spacing.formItemSpacing),
-              CommonTextFormField(
-                controller: _passwordController,
-                labelText: L10nManager.l10n.password,
-                prefixIcon: Icons.lock,
-                obscureText: true,
-                required: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return L10nManager.l10n
-                        .pleaseInput(L10nManager.l10n.password);
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: spacing.formGroupSpacing),
-              if (syncProvider.syncing)
-                if (syncProvider.syncing)
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(theme, colorScheme),
+            const SizedBox(height: 16),
+            _buildFormCard(theme, colorScheme, radius, syncProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme, ColorScheme colorScheme) {
+    return Center(
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Icon(
+          Icons.fingerprint_rounded,
+          size: 24,
+          color: colorScheme.onErrorContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard(
+    ThemeData theme,
+    ColorScheme colorScheme,
+    double radius,
+    SyncProvider syncProvider,
+  ) {
+    return Card(
+      elevation: 0,
+      color: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius * 1.5),
+        side: BorderSide(color: colorScheme.outline.withAlpha(25)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Theme(
+          data: theme.copyWith(
+            visualDensity: VisualDensity.compact,
+            extensions: [
+              ThemeSpacing(formItemSpacing: 10, formGroupSpacing: 14),
+              if (theme.extension<ThemeRadius>() case final tr?) tr,
+            ],
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ServerUrlField(controller: _serverController),
+                const SizedBox(height: 10),
+                CommonTextFormField(
+                  controller: _usernameController,
+                  labelText: L10nManager.l10n.username,
+                  prefixIcon: Icons.person,
+                  required: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return L10nManager.l10n
+                          .pleaseInput(L10nManager.l10n.username);
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                CommonTextFormField(
+                  controller: _passwordController,
+                  labelText: L10nManager.l10n.password,
+                  prefixIcon: Icons.lock,
+                  obscureText: true,
+                  required: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return L10nManager.l10n
+                          .pleaseInput(L10nManager.l10n.password);
+                    }
+                    return null;
+                  },
+                ),
+                if (syncProvider.syncing) ...[
+                  const SizedBox(height: 14),
                   ProgressIndicatorBar(
                     value: syncProvider.progress,
-                    label: syncProvider.currentStep ?? L10nManager.l10n.syncing,
+                    label: syncProvider.currentStep ??
+                        L10nManager.l10n.syncing,
                     height: 24,
                   ),
-              SizedBox(height: spacing.formGroupSpacing),
-              Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.tonal(
-                      onPressed: syncProvider.syncing
-                          ? null
-                          : _handleRefreshCredentials,
-                      child: Text('刷新凭证'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed:
-                          syncProvider.syncing ? null : _showConfirmDialog,
-                      child: syncProvider.syncing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(
-                              "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
-                    ),
-                  ),
                 ],
-              ),
-            ],
+                const SizedBox(height: 14),
+                const Divider(),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonal(
+                    onPressed: syncProvider.syncing
+                        ? null
+                        : _handleRefreshCredentials,
+                    child: Text(L10nManager.l10n.reconnect),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed:
+                        syncProvider.syncing ? null : _showConfirmDialog,
+                    child: syncProvider.syncing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
