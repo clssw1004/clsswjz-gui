@@ -6,7 +6,6 @@ import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../utils/navigation_util.dart';
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -21,7 +20,8 @@ class _HomePageState extends State<HomePage>
 
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
-  final double centerIconSize = 50.0;
+  late Animation<double> _fadeAnimation;
+  final double centerIconSize = 52.0;
 
   late final List<Widget> _pages;
 
@@ -35,10 +35,15 @@ class _HomePageState extends State<HomePage>
       const MineTab(),
     ];
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+      reverseCurve: Curves.easeIn,
+    );
+    _fadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
     );
@@ -73,42 +78,49 @@ class _HomePageState extends State<HomePage>
       animation: _expandAnimation,
       builder: (context, child) {
         return Positioned(
-          right: MediaQuery.of(context).size.width / 2 - 20,
+          right: MediaQuery.of(context).size.width / 2 - 22,
           bottom: 0,
           child: Padding(
             padding: EdgeInsets.only(bottom: padding * _expandAnimation.value),
             child: IgnorePointer(
               ignoring: _expandAnimation.value == 0,
               child: Opacity(
-                opacity: _expandAnimation.value,
+                opacity: _fadeAnimation.value,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Card(
-                      elevation: 2,
+                      elevation: 3,
+                      shadowColor: backgroundColor.withAlpha(80),
                       color: Theme.of(context).colorScheme.surface,
-                      surfaceTintColor: Theme.of(context).colorScheme.surface,
+                      surfaceTintColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                            horizontal: 14, vertical: 8),
                         child: Text(
                           label,
                           style: TextStyle(
                             color: backgroundColor,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     SizedBox(
                       width: centerIconSize,
                       height: centerIconSize,
                       child: FloatingActionButton(
                         heroTag: 'home_page_fab_$label',
-                        elevation: 2,
+                        elevation: 4,
+                        highlightElevation: 8,
                         backgroundColor: backgroundColor,
                         foregroundColor: iconColor,
+                        shape: const CircleBorder(),
                         onPressed: () {
                           _toggleMenu();
                           onPressed();
@@ -133,13 +145,13 @@ class _HomePageState extends State<HomePage>
       return;
     }
     switch (_currentIndex) {
-      case 0: // 记账tab
+      case 0:
         await NavigationUtil.toItemAdd(context);
         break;
-      case 1: // 记事tab
+      case 1:
         await NavigationUtil.toNoteAdd(context);
         break;
-      default: // 其他tab
+      default:
         _toggleMenu();
         break;
     }
@@ -152,6 +164,8 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -161,50 +175,53 @@ class _HomePageState extends State<HomePage>
               child: GestureDetector(
                 onTap: _toggleMenu,
                 child: Container(
-                  color: theme.colorScheme.scrim.withAlpha(31),
+                  color: colorScheme.scrim.withAlpha(40),
                 ),
               ),
             ),
-          // 展开的按钮
+          // 展开的动作按钮
           ...[
             _buildExpandingActionButton(
               padding: 25 + centerIconSize * 2,
               icon: Icons.note_alt,
               label: L10nManager.l10n.addNew(L10nManager.l10n.note),
-              backgroundColor: theme.colorScheme.secondary,
-              iconColor: theme.colorScheme.onSecondary,
+              backgroundColor: colorScheme.secondary,
+              iconColor: colorScheme.onSecondary,
               onPressed: () => NavigationUtil.toNoteAdd(context),
             ),
             _buildExpandingActionButton(
               padding: 20 + centerIconSize,
               icon: Icons.money,
               label: L10nManager.l10n.addNew(L10nManager.l10n.debt),
-              backgroundColor: theme.colorScheme.tertiary,
-              iconColor: theme.colorScheme.onTertiary,
+              backgroundColor: colorScheme.tertiary,
+              iconColor: colorScheme.onTertiary,
               onPressed: () => NavigationUtil.toDebtAdd(context),
             ),
             _buildExpandingActionButton(
               padding: 15,
               icon: Icons.account_balance_wallet,
               label: L10nManager.l10n.addNew(L10nManager.l10n.accountItem),
-              backgroundColor: theme.colorScheme.primary,
-              iconColor: theme.colorScheme.onPrimary,
+              backgroundColor: colorScheme.primary,
+              iconColor: colorScheme.onPrimary,
               onPressed: () => NavigationUtil.toItemAdd(context),
             ),
           ],
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        elevation: 0,
-        height: 72,
-        backgroundColor: theme.colorScheme.surface,
-        indicatorColor: theme.colorScheme.secondaryContainer,
+        elevation: 2,
+        height: 68,
+        shadowColor: colorScheme.shadow,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colorScheme.secondaryContainer,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         selectedIndex: _currentIndex > 1 ? _currentIndex + 1 : _currentIndex,
         onDestinationSelected: (index) {
-          // 切换 tab 前先收起键盘
           FocusScope.of(context).unfocus();
           if (index == 2) {
-            // 点击中间的新增按钮
             _handleAddButtonTap(context);
             return;
           }
@@ -218,13 +235,17 @@ class _HomePageState extends State<HomePage>
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: const Icon(Icons.account_balance_wallet),
+            icon: Icon(Icons.account_balance_wallet_outlined,
+                color: colorScheme.onSurfaceVariant),
+            selectedIcon: Icon(Icons.account_balance_wallet,
+                color: colorScheme.onSecondaryContainer),
             label: L10nManager.l10n.tabAccountItems,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.note_alt_outlined),
-            selectedIcon: const Icon(Icons.note_alt),
+            icon: Icon(Icons.note_alt_outlined,
+                color: colorScheme.onSurfaceVariant),
+            selectedIcon: Icon(Icons.note_alt,
+                color: colorScheme.onSecondaryContainer),
             label: L10nManager.l10n.tabNotes,
           ),
           NavigationDestination(
@@ -232,25 +253,34 @@ class _HomePageState extends State<HomePage>
               onLongPress: _handleLongPress,
               onTap: () => _handleAddButtonTap(context),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
                 margin: const EdgeInsets.only(top: 2),
                 width: centerIconSize,
                 height: centerIconSize,
                 decoration: BoxDecoration(
                   color: _isMenuOpen
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.secondaryContainer,
+                      ? colorScheme.primary
+                      : colorScheme.secondary,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_isMenuOpen
+                              ? colorScheme.primary
+                              : colorScheme.secondary)
+                          .withAlpha(80),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: AnimatedRotation(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 300),
                   turns: _isMenuOpen ? 0.125 : 0,
                   child: Icon(
                     Icons.add_rounded,
-                    size: 35,
-                    color: _isMenuOpen
-                        ? theme.colorScheme.onPrimary
-                        : theme.colorScheme.onSecondaryContainer,
+                    size: 32,
+                    color: colorScheme.onSecondary,
                   ),
                 ),
               ),
@@ -258,13 +288,17 @@ class _HomePageState extends State<HomePage>
             label: '',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.bar_chart_outlined),
-            selectedIcon: const Icon(Icons.bar_chart),
+            icon: Icon(Icons.bar_chart_outlined,
+                color: colorScheme.onSurfaceVariant),
+            selectedIcon: Icon(Icons.bar_chart,
+                color: colorScheme.onSecondaryContainer),
             label: L10nManager.l10n.tabStatistics,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.person_outline),
-            selectedIcon: const Icon(Icons.person),
+            icon: Icon(Icons.person_outline,
+                color: colorScheme.onSurfaceVariant),
+            selectedIcon: Icon(Icons.person,
+                color: colorScheme.onSecondaryContainer),
             label: L10nManager.l10n.tabMine,
           ),
         ],

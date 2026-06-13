@@ -96,8 +96,37 @@ class ThemeProvider extends ChangeNotifier {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        indicatorColor: colorScheme.primaryContainer,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colorScheme.secondaryContainer,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              fontSize: 12 * fontSize,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            );
+          }
+          return TextStyle(
+            fontSize: 11 * fontSize,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurfaceVariant,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(
+              size: 24,
+              color: colorScheme.onSecondaryContainer,
+            );
+          }
+          return IconThemeData(
+            size: 22,
+            color: colorScheme.onSurfaceVariant,
+          );
+        }),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
@@ -152,7 +181,36 @@ class ThemeProvider extends ChangeNotifier {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: colorScheme.primaryContainer,
+        indicatorColor: colorScheme.secondaryContainer,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              fontSize: 12 * fontSize,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            );
+          }
+          return TextStyle(
+            fontSize: 11 * fontSize,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurfaceVariant,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(
+              size: 24,
+              color: colorScheme.onSecondaryContainer,
+            );
+          }
+          return IconThemeData(
+            size: 22,
+            color: colorScheme.onSurfaceVariant,
+          );
+        }),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
