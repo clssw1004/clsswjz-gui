@@ -4,7 +4,6 @@ import '../../constants/account_book_icons.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../manager/service_manager.dart';
 import '../../models/common.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
@@ -13,8 +12,11 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/common_select_form_field.dart';
+import '../../widgets/common/user_avatar.dart';
 import '../../enums/currency_symbol.dart';
 import '../../widgets/common/common_icon_picker.dart';
+import '../../widgets/common/common_user_picker.dart';
+import '../../models/vo/attachment_vo.dart';
 import '../../theme/theme_radius.dart';
 import '../../theme/theme_spacing.dart';
 
@@ -35,13 +37,13 @@ class _BookFormPageState extends State<BookFormPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _listScrollController = ScrollController();
-  final inviteCodeController = TextEditingController();
 
   String? _icon;
   CurrencySymbol _currencySymbol = CurrencySymbol.cny;
   String? _defaultFundId;
   List<UserFundVO> _funds = [];
   late List<BookMemberVO> _members;
+  final Map<String, AttachmentVO?> _memberAvatars = {};
   bool _saving = false;
 
   bool get isCreateMode => widget.book == null;
@@ -62,6 +64,7 @@ class _BookFormPageState extends State<BookFormPage> {
       _members = [];
     }
     _loadFunds();
+    if (!isCreateMode) _loadMemberAvatars(_members);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (int i = 0; i < _sectionVisible.length; i++) {
@@ -86,7 +89,6 @@ class _BookFormPageState extends State<BookFormPage> {
     _nameController.dispose();
     _descriptionController.dispose();
     _listScrollController.dispose();
-    inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -136,6 +138,17 @@ class _BookFormPageState extends State<BookFormPage> {
     }
   }
 
+  Future<void> _loadMemberAvatars(List<BookMemberVO> members) async {
+    final futures = members.map((m) async {
+      final result = await DriverFactory.driver.getUserInfo(m.userId);
+      return MapEntry(m.userId, result.ok ? result.data?.avatar : null);
+    });
+    final entries = await Future.wait(futures);
+    _memberAvatars
+      ..clear()
+      ..addEntries(entries);
+  }
+
   Future<void> _selectIcon() async {
     await CommonIconPicker.show(
       context: context,
@@ -159,8 +172,6 @@ class _BookFormPageState extends State<BookFormPage> {
   // ── 基础信息 Hero 区块 ──
 
   Widget _buildHeroSection(ThemeData theme, ColorScheme colorScheme) {
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-
     return CommonCardContainer(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -218,7 +229,9 @@ class _BookFormPageState extends State<BookFormPage> {
           const SizedBox(height: 12),
           InkWell(
             onTap: () => _selectCurrency(context),
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: BorderRadius.circular(
+              theme.extension<ThemeRadius>()?.radius ?? 12,
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
@@ -240,11 +253,8 @@ class _BookFormPageState extends State<BookFormPage> {
                     ),
                   ),
                   const Spacer(),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 22,
-                  ),
+                  Icon(Icons.keyboard_arrow_down_rounded,
+                      color: colorScheme.onSurfaceVariant, size: 22),
                 ],
               ),
             ),
@@ -258,17 +268,20 @@ class _BookFormPageState extends State<BookFormPage> {
               prefixIcon: Icon(Icons.description_outlined,
                   size: 20, color: colorScheme.onSurfaceVariant),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(radius),
+                borderRadius: BorderRadius.circular(
+                    theme.extension<ThemeRadius>()?.radius ?? 12),
                 borderSide: BorderSide(
                     color: colorScheme.outline.withAlpha(50)),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(radius),
+                borderRadius: BorderRadius.circular(
+                    theme.extension<ThemeRadius>()?.radius ?? 12),
                 borderSide: BorderSide(
                     color: colorScheme.outline.withAlpha(50)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(radius),
+                borderRadius: BorderRadius.circular(
+                    theme.extension<ThemeRadius>()?.radius ?? 12),
                 borderSide: BorderSide(
                     color: colorScheme.primary.withAlpha(120)),
               ),
@@ -296,55 +309,55 @@ class _BookFormPageState extends State<BookFormPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 32, height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(60),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                L10nManager.l10n.currency,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...CurrencySymbol.values.map((c) => ListTile(
-                leading: Container(
-                  width: 40, height: 40,
+                const SizedBox(height: 8),
+                Container(
+                  width: 32, height: 4,
                   decoration: BoxDecoration(
-                    color: c == _currencySymbol
-                        ? colorScheme.primaryContainer
-                        : colorScheme.surfaceContainerHighest,
-                    shape: BoxShape.circle,
+                    color: colorScheme.onSurfaceVariant.withAlpha(60),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: Center(
-                    child: Text(
-                      c.symbol,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: c == _currencySymbol
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  L10nManager.l10n.currency,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...CurrencySymbol.values.map((c) => ListTile(
+                  leading: Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      color: c == _currencySymbol
+                          ? colorScheme.primaryContainer
+                          : colorScheme.surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        c.symbol,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: c == _currencySymbol
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                title: Text('${c.code} - ${c.name}'),
-                trailing: c == _currencySymbol
-                    ? Icon(Icons.check_circle_rounded,
-                        color: colorScheme.primary, size: 22)
-                    : null,
-                onTap: () => Navigator.pop(ctx, c),
-              )),
-              const SizedBox(height: 8),
-            ],
+                  title: Text('${c.code} - ${c.name}'),
+                  trailing: c == _currencySymbol
+                      ? Icon(Icons.check_circle_rounded,
+                          color: colorScheme.primary, size: 22)
+                      : null,
+                  onTap: () => Navigator.pop(ctx, c),
+                )),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
-        ),
-      );
+        );
       },
     );
     if (result != null) {
@@ -352,25 +365,22 @@ class _BookFormPageState extends State<BookFormPage> {
     }
   }
 
-  // ── 默认资金账户（编辑模式） ──
+  // ── 默认资金账户 ──
 
   Widget _buildFundSection(ThemeData theme, ColorScheme colorScheme) {
-    return CommonCardContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: CommonSelectFormField<UserFundVO>(
-        items: _funds,
-        value: _defaultFundId,
-        displayMode: DisplayMode.iconText,
-        displayField: (item) => item.name,
-        keyField: (item) => item.id,
-        icon: Icons.account_balance_wallet_outlined,
-        label: L10nManager.l10n.defaultFund,
-        hint: L10nManager.l10n.optional,
-        onChanged: (value) {
-          final fund = value as UserFundVO?;
-          setState(() => _defaultFundId = fund?.id);
-        },
-      ),
+    return CommonSelectFormField<UserFundVO>(
+      items: _funds,
+      value: _defaultFundId,
+      displayMode: DisplayMode.iconText,
+      displayField: (item) => item.name,
+      keyField: (item) => item.id,
+      icon: Icons.account_balance_wallet_outlined,
+      label: L10nManager.l10n.defaultFund,
+      hint: L10nManager.l10n.optional,
+      onChanged: (value) {
+        final fund = value as UserFundVO?;
+        setState(() => _defaultFundId = fund?.id);
+      },
     );
   }
 
@@ -381,9 +391,11 @@ class _BookFormPageState extends State<BookFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          padding: const EdgeInsets.only(left: 4, bottom: 10),
           child: Row(
             children: [
+              Icon(Icons.people_rounded, size: 18, color: colorScheme.primary),
+              const SizedBox(width: 6),
               Text(
                 L10nManager.l10n.members,
                 style: theme.textTheme.titleSmall?.copyWith(
@@ -392,209 +404,119 @@ class _BookFormPageState extends State<BookFormPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withAlpha(150),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '${_members.length}',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
+              if (_members.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${_members.length}',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
               const Spacer(),
-              TextButton.icon(
-                onPressed: _addMember,
-                icon: const Icon(Icons.person_add_outlined, size: 18),
-                label: Text(L10nManager.l10n.inviteCode),
-                style: TextButton.styleFrom(
-                  foregroundColor: colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  minimumSize: Size.zero,
+              SizedBox(
+                height: 32,
+                child: FilledButton.tonalIcon(
+                  onPressed: _addMember,
+                  icon: const Icon(Icons.person_add_rounded, size: 16),
+                  label: Text(
+                    L10nManager.l10n.addUser,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withAlpha(40),
-            borderRadius: BorderRadius.circular(
-                theme.extension<ThemeRadius>()?.radius ?? 12),
-          ),
-          child: _members.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(Icons.people_outline, size: 36,
-                            color: colorScheme.onSurfaceVariant.withAlpha(80)),
-                        const SizedBox(height: 8),
-                        Text(
-                          L10nManager.l10n.noMembers,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: _listScrollController,
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  itemCount: _members.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final member = _members[index];
-                    return _MemberCard(
-                      member: member,
-                      onRemove: () => _confirmRemoveMember(member),
-                      onPermissionChanged: (key, value) =>
-                          _updateMemberPermission(member, key, value),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  /// 搜索添加成员
-  Future<void> _addMember() async {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-    inviteCodeController.clear();
-    BookMemberVO? foundMember;
-    bool isSearching = false;
-    bool hasSearched = false;
-
-    await CommonDialog.show(
-      context: context,
-      title: L10nManager.l10n.findUserByInviteCode,
-      width: 320,
-      height: 320,
-      content: StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          final isMemberExists = foundMember != null &&
-              (_members.any((m) => m.userId == foundMember!.userId) ||
-                  foundMember!.userId == widget.book!.createdBy);
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: inviteCodeController,
-                autofocus: true,
-                style: theme.textTheme.bodyLarge,
-                decoration: InputDecoration(
-                  hintText: L10nManager.l10n.inviteCode,
-                  prefixIcon: Icon(Icons.qr_code_outlined,
-                      color: colorScheme.primary),
-                  suffixIcon: isSearching
-                      ? Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colorScheme.primary,
-                          ),
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.search,
-                              color: inviteCodeController.text.isEmpty
-                                  ? colorScheme.outline
-                                  : colorScheme.primary),
-                          onPressed: inviteCodeController.text.isEmpty
-                              ? null
-                              : () async {
-                                  setDialogState(() {
-                                    isSearching = true;
-                                    hasSearched = true;
-                                  });
-                                  try {
-                                    final result = await ServiceManager
-                                        .accountBookService
-                                        .gernerateDefaultMemberByInviteCode(
-                                            inviteCodeController.text);
-                                    setDialogState(() {
-                                      foundMember =
-                                          result.ok ? result.data : null;
-                                    });
-                                  } finally {
-                                    setDialogState(
-                                        () => isSearching = false);
-                                  }
-                                },
-                        ),
-                  filled: true,
-                  fillColor:
-                      colorScheme.surfaceContainerHighest.withAlpha(50),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(radius),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
-                ),
-                onChanged: (value) {
-                  if (hasSearched) {
-                    setDialogState(() {
-                      foundMember = null;
-                      hasSearched = false;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              if (foundMember != null)
-                _buildSearchResult(
-                  theme,
-                  colorScheme,
-                  radius,
-                  foundMember!,
-                  isMemberExists,
-                  () {
-                    setState(() => _members = [..._members, foundMember!]);
-                    _scrollToBottom();
-                    Navigator.of(ctx).pop();
-                  },
-                )
-              else if (hasSearched && !isSearching)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.errorContainer.withAlpha(100),
-                    borderRadius: BorderRadius.circular(radius),
-                  ),
-                  child: Row(
+        _members.isEmpty
+            ? CommonCardContainer(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Column(
                     children: [
-                      Icon(Icons.error_outline,
-                          color: colorScheme.error, size: 20),
-                      const SizedBox(width: 8),
+                      Icon(Icons.people_outline_rounded, size: 40,
+                          color: colorScheme.onSurfaceVariant.withAlpha(80)),
+                      const SizedBox(height: 10),
                       Text(
-                        L10nManager.l10n.userNotFound,
+                        L10nManager.l10n.noMembers,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.error,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        L10nManager.l10n.inviteCode,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant.withAlpha(120),
                         ),
                       ),
                     ],
                   ),
                 ),
-            ],
-          );
-        },
-      ),
+              )
+            : ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _listScrollController,
+                padding: EdgeInsets.zero,
+                itemCount: _members.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final member = _members[index];
+                  return _MemberCard(
+                    member: member,
+                    avatar: _memberAvatars[member.userId],
+                    onRemove: () => _confirmRemoveMember(member),
+                    onPermissionChanged: (key, value) =>
+                        _updateMemberPermission(member, key, value),
+                  );
+                },
+              ),
+      ],
     );
+  }
+
+  Future<void> _addMember() async {
+    final excludeIds = _members.map((m) => m.userId).toSet();
+    if (widget.book != null) excludeIds.add(widget.book!.createdBy);
+
+    final result = await CommonUserPicker.showPicker(
+      context: context,
+      userId: AppConfigManager.instance.userId,
+      excludeIds: excludeIds,
+    );
+
+    if (result != null) {
+      final newMember = BookMemberVO(
+        id: result.userId,
+        userId: result.userId,
+        nickname: result.nickname,
+        permission: AccountBookPermissionVO(
+          canViewBook: true,
+          canEditBook: true,
+          canDeleteBook: false,
+          canViewItem: true,
+          canEditItem: true,
+          canDeleteItem: false,
+        ),
+      );
+      final newMembers = [..._members, newMember];
+      setState(() => _members = newMembers);
+      _loadMemberAvatars(newMembers);
+      _scrollToBottom();
+    }
   }
 
   void _scrollToBottom() {
@@ -609,93 +531,6 @@ class _BookFormPageState extends State<BookFormPage> {
     });
   }
 
-  Widget _buildSearchResult(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    double radius,
-    BookMemberVO member,
-    bool isMemberExists,
-    VoidCallback onAdd,
-  ) {
-    return InkWell(
-      onTap: isMemberExists ? null : onAdd,
-      borderRadius: BorderRadius.circular(radius),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isMemberExists
-              ? colorScheme.surfaceContainerHighest
-              : colorScheme.primaryContainer.withAlpha(80),
-          borderRadius: BorderRadius.circular(radius),
-          border: Border.all(
-            color: isMemberExists
-                ? colorScheme.outlineVariant
-                : colorScheme.primary.withAlpha(80),
-          ),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: isMemberExists
-                  ? colorScheme.surfaceContainerHigh
-                  : colorScheme.primaryContainer,
-              child: Icon(
-                Icons.person_outline,
-                color: isMemberExists
-                    ? colorScheme.onSurfaceVariant
-                    : colorScheme.onPrimaryContainer,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.nickname ?? L10nManager.l10n.unknownUser,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: isMemberExists
-                          ? colorScheme.onSurfaceVariant
-                          : colorScheme.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  if (isMemberExists)
-                    Text(
-                      member.userId == widget.book!.createdBy
-                          ? L10nManager.l10n.bookCreator
-                          : L10nManager.l10n.memberAlreadyExists,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.error,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (!isMemberExists)
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withAlpha(25),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.person_add_outlined,
-                  color: colorScheme.primary,
-                  size: 18,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 更新成员权限
   void _updateMemberPermission(
       BookMemberVO member, String permissionKey, bool value) {
     final index = _members.indexOf(member);
@@ -738,7 +573,9 @@ class _BookFormPageState extends State<BookFormPage> {
       message: L10nManager.l10n.deleteConfirmMessage(member.nickname ?? ''),
     );
     if (result == true && mounted) {
-      setState(() => _members.remove(member));
+      _members.remove(member);
+      setState(() {});
+      _loadMemberAvatars(_members);
     }
   }
 
@@ -807,11 +644,13 @@ class _BookFormPageState extends State<BookFormPage> {
 
 class _MemberCard extends StatelessWidget {
   final BookMemberVO member;
+  final AttachmentVO? avatar;
   final VoidCallback onRemove;
   final void Function(String key, bool value) onPermissionChanged;
 
   const _MemberCard({
     required this.member,
+    this.avatar,
     required this.onRemove,
     required this.onPermissionChanged,
   });
@@ -821,30 +660,22 @@ class _MemberCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+    return Card(
+      elevation: 0,
+      color: colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: colorScheme.outline.withAlpha(25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 成员信息行
+          // member header
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: colorScheme.secondaryContainer,
-                  child: Text(
-                    (member.nickname ?? '?').substring(0, 1).toUpperCase(),
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: colorScheme.onSecondaryContainer,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                UserAvatar(avatar: avatar, size: 36),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -854,58 +685,31 @@ class _MemberCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete_outline_rounded,
-                      color: colorScheme.error, size: 18),
-                  onPressed: onRemove,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  tooltip: L10nManager.l10n.delete(''),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: IconButton(
+                    icon: Icon(Icons.remove_circle_outline_rounded,
+                        color: colorScheme.error, size: 20),
+                    onPressed: onRemove,
+                    padding: EdgeInsets.zero,
+                    tooltip: L10nManager.l10n.delete(''),
+                  ),
                 ),
               ],
             ),
           ),
-          // 权限区域
+          const SizedBox(height: 2),
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(height: 20, color: colorScheme.outline.withAlpha(15)),
-                _buildCompactPermissionRow(
-                  theme: theme,
-                  colorScheme: colorScheme,
-                  label: L10nManager.l10n.accountBook,
-                  keys: const ['canViewBook', 'canEditBook', 'canDeleteBook'],
-                  labels: const ['', '', ''],
-                  icons: const [
-                    Icons.visibility_outlined,
-                    Icons.edit_outlined,
-                    Icons.delete_outline,
-                  ],
-                  values: [
-                    member.permission.canViewBook,
-                    member.permission.canEditBook,
-                    member.permission.canDeleteBook,
-                  ],
-                ),
+                Divider(height: 16, color: colorScheme.outline.withAlpha(15)),
                 const SizedBox(height: 6),
-                _buildCompactPermissionRow(
-                  theme: theme,
-                  colorScheme: colorScheme,
-                  label: L10nManager.l10n.accountItem,
-                  keys: const ['canViewItem', 'canEditItem', 'canDeleteItem'],
-                  labels: const ['', '', ''],
-                  icons: const [
-                    Icons.visibility_outlined,
-                    Icons.edit_outlined,
-                    Icons.delete_outline,
-                  ],
-                  values: [
-                    member.permission.canViewItem,
-                    member.permission.canEditItem,
-                    member.permission.canDeleteItem,
-                  ],
+                _PermissionTable(
+                  permission: member.permission,
+                  onChanged: onPermissionChanged,
                 ),
               ],
             ),
@@ -914,126 +718,105 @@ class _MemberCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildCompactPermissionRow({
-    required ThemeData theme,
-    required ColorScheme colorScheme,
-    required String label,
-    required List<String> keys,
-    required List<String> labels,
-    required List<IconData> icons,
-    required List<bool> values,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 36,
-          child: Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-              fontSize: 11,
-            ),
-          ),
-        ),
-        const SizedBox(width: 6),
-        ...List.generate(keys.length, (i) {
-          final permissionLabel = labels[i].isNotEmpty
-              ? labels[i]
-              : _defaultLabel(keys[i]);
-          return Padding(
-            padding: EdgeInsets.only(right: 6),
-            child: _CompactPermissionChip(
-              icon: icons[i],
-              label: permissionLabel,
-              value: values[i],
-              onChanged: (v) => onPermissionChanged(keys[i], v),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  String _defaultLabel(String key) {
-    switch (key) {
-      case 'canViewBook': return L10nManager.l10n.canViewBook;
-      case 'canEditBook': return L10nManager.l10n.canEditBook;
-      case 'canDeleteBook': return L10nManager.l10n.canDeleteBook;
-      case 'canViewItem': return L10nManager.l10n.canViewItem;
-      case 'canEditItem': return L10nManager.l10n.canEditItem;
-      case 'canDeleteItem': return L10nManager.l10n.canDeleteItem;
-      default: return '';
-    }
-  }
 }
 
-// ── 紧凑权限开关 ──
+// ── 权限切换组 ──
 
-class _CompactPermissionChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
+class _PermissionTable extends StatelessWidget {
+  final AccountBookPermissionVO permission;
+  final void Function(String key, bool value) onChanged;
 
-  const _CompactPermissionChip({
-    required this.icon,
-    required this.label,
-    required this.value,
+  const _PermissionTable({
+    required this.permission,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildRow(
+          colorScheme,
+          label: L10nManager.l10n.accountBook,
+          icon: Icons.menu_book_rounded,
+          items: [
+            _PermItem(label: L10nManager.l10n.canViewBook, icon: Icons.visibility_rounded, value: permission.canViewBook, key: 'canViewBook'),
+            _PermItem(label: L10nManager.l10n.canEditBook, icon: Icons.edit_rounded, value: permission.canEditBook, key: 'canEditBook'),
+            _PermItem(label: L10nManager.l10n.canDeleteBook, icon: Icons.delete_outline_rounded, value: permission.canDeleteBook, key: 'canDeleteBook'),
+          ],
+        ),
+        const SizedBox(height: 6),
+        _buildRow(
+          colorScheme,
+          label: L10nManager.l10n.accountItem,
+          icon: Icons.receipt_rounded,
+          items: [
+            _PermItem(label: L10nManager.l10n.canViewItem, icon: Icons.visibility_rounded, value: permission.canViewItem, key: 'canViewItem'),
+            _PermItem(label: L10nManager.l10n.canEditItem, icon: Icons.edit_rounded, value: permission.canEditItem, key: 'canEditItem'),
+            _PermItem(label: L10nManager.l10n.canDeleteItem, icon: Icons.delete_outline_rounded, value: permission.canDeleteItem, key: 'canDeleteItem'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRow(ColorScheme colorScheme, {required String label, required IconData icon, required List<_PermItem> items}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(30),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500, fontSize: 11)),
+          const Spacer(),
+          ...items.map((item) => Padding(
+            padding: const EdgeInsets.only(left: 6),
+            child: _buildChip(colorScheme, item),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip(ColorScheme colorScheme, _PermItem item) {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onChanged(!value);
-      },
+      onTap: () { HapticFeedback.selectionClick(); onChanged(item.key, !item.value); },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: value
-              ? colorScheme.primaryContainer
-              : Colors.transparent,
+          color: item.value ? colorScheme.primaryContainer : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: value
-                ? colorScheme.primary.withAlpha(120)
-                : colorScheme.outline.withAlpha(40),
-            width: value ? 1.2 : 1,
-          ),
+          border: Border.all(color: item.value ? colorScheme.primary.withAlpha(120) : colorScheme.outline.withAlpha(40)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 14,
-              color: value
-                  ? colorScheme.onPrimaryContainer
-                  : colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 4),
+            Icon(item.icon, size: 14, color: item.value ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant),
+            const SizedBox(width: 3),
             Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: value
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-                fontWeight: value ? FontWeight.w600 : null,
-                fontSize: 11,
-              ),
+              item.label.replaceAll(RegExp(r'(账本|账目|Book|Item)'), '').trim(),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: item.value ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _PermItem {
+  final String label;
+  final IconData icon;
+  final bool value;
+  final String key;
+  const _PermItem({required this.label, required this.icon, required this.value, required this.key});
 }

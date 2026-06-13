@@ -6,13 +6,12 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
 import '../../routes/app_routes.dart';
-import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_dialog.dart';
 import '../../widgets/common/shared_badge.dart';
 import '../../widgets/common/empty_data_view.dart';
+import '../../theme/theme_radius.dart';
 import 'book_form_page.dart';
 
 /// 账本列表页面
@@ -64,7 +63,6 @@ class _BookListPageState extends State<BookListPage> {
       ),
       body: Consumer<BooksProvider>(
         builder: (context, provider, child) {
-          final spacing = Theme.of(context).spacing;
           if (provider.loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -83,7 +81,7 @@ class _BookListPageState extends State<BookListPage> {
             onRefresh: () =>
                 provider.loadBooks(AppConfigManager.instance.userId),
             child: ListView.builder(
-              padding: spacing.contentPadding,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
               itemCount: provider.books.length,
               itemBuilder: (context, index) {
                 final book = provider.books[index];
@@ -94,7 +92,7 @@ class _BookListPageState extends State<BookListPage> {
                       : DismissDirection.none,
                   background: Container(
                     alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: spacing.formItemSpacing),
+                    padding: const EdgeInsets.only(right: 24),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.error,
                       borderRadius: BorderRadius.circular(16),
@@ -108,7 +106,7 @@ class _BookListPageState extends State<BookListPage> {
                     await _deleteBook(context, book, provider);
                     return false;
                   },
-                  child: _AccountBookCard(
+                  child: _BookCard(
                     book: book,
                     userId: AppConfigManager.instance.userId,
                     onEdit: () => _showAccountBookForm(context, book),
@@ -119,10 +117,9 @@ class _BookListPageState extends State<BookListPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showAccountBookForm(context),
-        icon: const Icon(Icons.add),
-        label: Text(L10nManager.l10n.addNew(L10nManager.l10n.accountBook)),
+        child: const Icon(Icons.add_rounded),
       ),
     );
   }
@@ -173,152 +170,176 @@ class _BookListPageState extends State<BookListPage> {
 }
 
 /// 账本卡片
-class _AccountBookCard extends StatelessWidget {
+class _BookCard extends StatelessWidget {
   final UserBookVO book;
   final String userId;
   final VoidCallback onEdit;
 
-  const _AccountBookCard({
+  const _BookCard({
     required this.book,
     required this.userId,
     required this.onEdit,
   });
 
+  IconData _getIcon(String? icon) {
+    if (icon == null || icon.isEmpty) return Icons.book_outlined;
+    return IconData(int.parse(icon), fontFamily: 'MaterialIcons');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
     final isShared = book.createdBy != userId;
 
-    return CommonCardContainer(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16),
-      onTap: onEdit,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 账本图标
-          Container(
-            width: 44,
-            height: 44,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(radius * 1.5),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(radius * 1.5),
+          onTap: onEdit,
+          child: Container(
             decoration: BoxDecoration(
-              color: colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius * 1.5),
+              border: Border.all(color: colorScheme.outline.withAlpha(25)),
             ),
-            child: Icon(
-              _getBookIcon(book.icon),
-              size: 22,
-              color: colorScheme.onSecondaryContainer,
-            ),
-          ),
-          const SizedBox(width: 14),
-          // 右侧内容
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 标题行
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        book.name,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // book icon
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    if (isShared && book.createdByName != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: SharedBadge(name: book.createdByName!),
-                      ),
-                  ],
-                ),
-                // 描述
-                if (book.description?.isNotEmpty == true)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      book.description!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Icon(
+                      _getIcon(book.icon),
+                      size: 24,
+                      color: colorScheme.onSecondaryContainer,
                     ),
                   ),
-                const SizedBox(height: 10),
-                // 底部元数据
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        book.currencySymbol.symbol,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    if (book.members.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // title row
+                        Row(
                           children: [
-                            Icon(
-                              Icons.people_outline,
-                              size: 14,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${book.members.length}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Text(
+                                book.name,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
+                            ),
+                            if (isShared && book.createdByName != null)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: SharedBadge(name: book.createdByName!),
+                              ),
+                          ],
+                        ),
+                        // description
+                        if (book.description?.isNotEmpty == true)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              book.description!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        const SizedBox(height: 10),
+                        // metadata row
+                        Row(
+                          children: [
+                            _MetaBadge(
+                              child: Text(
+                                book.currencySymbol.symbol,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (book.members.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              _MetaBadge(
+                                icon: Icons.people_outline,
+                                text: '${book.members.length}',
+                              ),
+                            ],
+                            const Spacer(),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 20,
+                              color: colorScheme.onSurfaceVariant.withAlpha(80),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                    const Spacer(),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: colorScheme.onSurfaceVariant.withAlpha(80),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// 获取账本图标
-IconData _getBookIcon(String? icon) {
-  if (icon == null || icon.isEmpty) {
-    return Icons.book_outlined;
+/// 元数据徽章
+class _MetaBadge extends StatelessWidget {
+  final Widget? child;
+  final IconData? icon;
+  final String? text;
+
+  const _MetaBadge({this.child, this.icon, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(80),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: child ??
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon!, size: 13, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                text ?? '',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+    );
   }
-  return IconData(int.parse(icon), fontFamily: 'MaterialIcons');
 }

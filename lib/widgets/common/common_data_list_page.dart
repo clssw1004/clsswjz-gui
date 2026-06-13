@@ -16,11 +16,19 @@ class CommonDataListPageConfig<T> {
   /// 添加按钮点击事件
   final VoidCallback? onAdd;
 
+  /// 空数据提示文本（默认使用 l10n.noData）
+  final String? emptyText;
+
+  /// 空数据图标
+  final IconData? emptyIcon;
+
   const CommonDataListPageConfig({
     required this.title,
     required this.onLoad,
     required this.itemBuilder,
     this.onAdd,
+    this.emptyText,
+    this.emptyIcon,
   });
 }
 
@@ -45,13 +53,8 @@ class CommonDataListPage<T> extends StatefulWidget {
 }
 
 class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
-  /// 数据列表
   List<T>? _items;
-
-  /// 是否正在加载
   bool _loading = false;
-
-  /// 错误信息
   String? _error;
 
   @override
@@ -60,7 +63,6 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
     _loadData();
   }
 
-  /// 加载数据
   Future<void> _loadData() async {
     if (_loading) return;
 
@@ -90,47 +92,154 @@ class _CommonDataListPageState<T> extends State<CommonDataListPage<T>> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: CommonAppBar(
-        title: Text(widget.config.title),
-      ),
+      appBar: CommonAppBar(title: Text(widget.config.title)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildLoading()
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _error!,
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
-                      TextButton(
-                        onPressed: _loadData,
-                        child: Text(L10nManager.l10n.retry),
-                      ),
-                    ],
-                  ),
-                )
+              ? _buildError(theme, colorScheme)
               : _items?.isEmpty == true
-                  ? Center(
-                      child: Text(L10nManager.l10n.noData),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _items?.length ?? 0,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        return widget.config.itemBuilder(context, _items![index]);
-                      },
-                    ),
+                  ? _buildEmpty(theme, colorScheme)
+                  : _buildList(),
       floatingActionButton: widget.config.onAdd != null
           ? FloatingActionButton(
               onPressed: widget.config.onAdd,
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.add_rounded),
             )
           : null,
+    );
+  }
+
+  Widget _buildLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      itemCount: 6,
+      itemBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          height: 72,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(60),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(height: 12, width: 160, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(4))),
+                      const SizedBox(height: 8),
+                      Container(height: 10, width: 100, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(4))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(ThemeData theme, ColorScheme colorScheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64, height: 64,
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withAlpha(120),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(Icons.error_outline_rounded, size: 32, color: colorScheme.error),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _error!,
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.error),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.tonalIcon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(L10nManager.l10n.retry),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmpty(ThemeData theme, ColorScheme colorScheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72, height: 72,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(
+                widget.config.emptyIcon ?? Icons.inbox_outlined,
+                size: 36,
+                color: colorScheme.onSurfaceVariant.withAlpha(100),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.config.emptyText ?? L10nManager.l10n.noData,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (widget.config.onAdd != null) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: widget.config.onAdd,
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(L10nManager.l10n.addNew(widget.config.title)),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildList() {
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: _items?.length ?? 0,
+        itemBuilder: (context, index) {
+          return widget.config.itemBuilder(context, _items![index]);
+        },
+      ),
     );
   }
 }
