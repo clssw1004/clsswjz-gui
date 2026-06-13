@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.6] - 2026-06-13
+
+### Features
+- Member cards now display real user avatars with photo fallback
+- Replace invite code dialog with CommonUserPicker (search + avatars)
+- Fund list cards now have edit entry point
+
+### Optimizations
+- Redesign server config page: compact header, unified form card with mode toggle, AnimatedSwitcher
+- Redesign reset auth page: card-based form layout matching server config
+- Redesign bottom navigation bar: rounded indicator, center FAB glow shadow, smoother expand animation
+- Redesign book list page: Material+InkWell cards, MetaBadge widget, consistent spacing
+- Redesign book form page: permission grid table, simplified permission labels
+- Redesign fund form page: compact card layout, themed spacing overrides
+- Optimize CommonDataListPage: skeleton loading, empty state with CTA, error retry, pull-to-refresh
+- Server URL field: link/link-off status icons with three-state color coding
+- Hide back button on first-launch guided setup
+
+### Bug Fixes
+- Fix crash when disposed UserProvider is accessed after sync completion
+- Fix navigation error using '/' instead of '/home' route name
+- Fix crash after credential reset due to disposed provider access
+
 ## [1.1.5] - 2026-06-11
 
 ### Features
