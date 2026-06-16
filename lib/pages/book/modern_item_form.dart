@@ -65,10 +65,18 @@ class _ModernItemFormState extends State<ModernItemForm> {
 
     // 初始化日期和时间
     if (widget.provider.isNew) {
-      final now = DateTime.now();
-      _selectedDate = DateFormat('yyyy-MM-dd').format(now);
-      _selectedTime = DateFormat('HH:mm').format(now);
-      widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+      final itemDate = item.accountDate;
+      if (itemDate.contains(' ')) {
+        // 已有预填的日期时间
+        _selectedDate = itemDate.split(' ')[0];
+        final timePart = itemDate.split(' ')[1];
+        _selectedTime = timePart.length >= 5 ? timePart.substring(0, 5) : '00:00';
+      } else {
+        final now = DateTime.now();
+        _selectedDate = DateFormat('yyyy-MM-dd').format(now);
+        _selectedTime = DateFormat('HH:mm').format(now);
+        widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+      }
     } else {
       _selectedDate = item.accountDateOnly;
       _selectedTime = item.accountTimeOnly;

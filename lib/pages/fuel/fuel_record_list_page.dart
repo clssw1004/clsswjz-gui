@@ -221,7 +221,6 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
             return _buildTimelineItem(
               context,
               entry.value,
-              i,
               tripKm,
               i == 0,
               i == items.length - 1,
@@ -407,7 +406,6 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
   Widget _buildTimelineItem(
     BuildContext context,
     FuelRecordVO record,
-    int index,
     int tripKm,
     bool isFirst,
     bool isLast,
@@ -634,7 +632,6 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
                   '${record.fuelGrade}#',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.outline,
-                    fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
