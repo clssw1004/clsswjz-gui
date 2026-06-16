@@ -71,7 +71,7 @@ class ItemFilterDTO {
       String? startDate,
       String? endDate,
       String? source,
-      String? sourceId,
+      List<String>? sourceIds,
       String? keyword}) {
     return ItemFilterDTO(
       types: types ?? this.types,
@@ -85,7 +85,7 @@ class ItemFilterDTO {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       source: source ?? this.source,
-      sourceIds: sourceIds ?? sourceIds,
+      sourceIds: sourceIds ?? this.sourceIds,
       keyword: keyword ?? this.keyword,
     );
   }

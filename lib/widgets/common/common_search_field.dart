@@ -7,9 +7,12 @@ class CommonSearchField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final double? width;
+  final double? expandedWidth;
   final bool autofocus;
   final bool showBorder;
   final bool enableShadow;
+  final FocusNode? focusNode;
+  final ValueChanged<bool>? onFocusChange;
 
   const CommonSearchField({
     super.key,
@@ -19,9 +22,12 @@ class CommonSearchField extends StatefulWidget {
     this.onChanged,
     this.onClear,
     this.width,
+    this.expandedWidth,
     this.autofocus = false,
     this.showBorder = false,
     this.enableShadow = false,
+    this.focusNode,
+    this.onFocusChange,
   });
 
   @override
@@ -30,19 +36,26 @@ class CommonSearchField extends StatefulWidget {
 
 class _CommonSearchFieldState extends State<CommonSearchField> {
   late final TextEditingController _controller;
+  late final FocusNode _focusNode;
   bool _showClear = false;
+  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? TextEditingController();
     _controller.addListener(_handleTextChanged);
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_handleFocusChanged);
   }
 
   @override
   void dispose() {
     if (widget.controller == null) {
       _controller.dispose();
+    }
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
     }
     super.dispose();
   }
@@ -55,8 +68,16 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
     widget.onChanged?.call(_controller.text);
   }
 
+  void _handleFocusChanged() {
+    if (_isFocused != _focusNode.hasFocus) {
+      setState(() => _isFocused = _focusNode.hasFocus);
+      widget.onFocusChange?.call(_isFocused);
+    }
+  }
+
   void _handleClear() {
     _controller.clear();
+    _focusNode.unfocus();
     widget.onClear?.call();
   }
 
@@ -64,72 +85,60 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final expand = _showClear;
 
-    return Container(
-      width: widget.width,
-      height: 40,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      width: expand ? (widget.expandedWidth ?? widget.width) : widget.width,
+      height: expand ? 44 : 40,
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(128),
-        borderRadius: BorderRadius.circular(20),
-        border: widget.showBorder
-            ? Border.all(color: colorScheme.outline.withAlpha(51))
+        color: expand
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainerHighest.withAlpha(128),
+        borderRadius: BorderRadius.circular(22),
+        border: expand
+            ? Border.all(color: colorScheme.primary.withAlpha(80), width: 1.5)
             : null,
-        boxShadow: widget.enableShadow
-            ? [
-                BoxShadow(
-                  color: colorScheme.shadow.withAlpha(26),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ]
+        boxShadow: expand
+            ? [BoxShadow(color: colorScheme.primary.withAlpha(20), blurRadius: 8, offset: const Offset(0, 2))]
             : null,
       ),
       child: TextField(
         controller: _controller,
+        focusNode: _focusNode,
         autofocus: widget.autofocus,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          height: 1.0,
-        ),
+        style: theme.textTheme.bodyMedium?.copyWith(height: 1.0),
         textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           hintText: widget.hintText,
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant.withValues(alpha:0.7),
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             height: 1.0,
           ),
           border: InputBorder.none,
           prefixIcon: Icon(
             Icons.search_rounded,
             size: 20,
-            color: colorScheme.onSurfaceVariant,
+            color: expand ? colorScheme.primary : colorScheme.onSurfaceVariant,
           ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 40,
-            minHeight: 40,
-          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
           suffixIcon: _showClear
               ? IconButton(
-                  icon: Icon(
-                    Icons.close_rounded,
-                    size: 18,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  icon: Icon(Icons.close_rounded, size: 18, color: colorScheme.onSurfaceVariant),
                   onPressed: _handleClear,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 40,
-                    minHeight: 40,
-                  ),
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                 )
               : null,
         ),
         textInputAction: TextInputAction.search,
-        onSubmitted: widget.onSubmitted,
+        onSubmitted: (v) {
+          _focusNode.unfocus();
+          widget.onSubmitted?.call(v);
+        },
       ),
     );
   }
