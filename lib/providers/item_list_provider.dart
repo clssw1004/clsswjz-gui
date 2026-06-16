@@ -96,7 +96,7 @@ class ItemListProvider extends ChangeNotifier {
 
   /// 设置筛选条件
   void setKeyword(String keyword) {
-    _filter = _filter?.copyWith(keyword: keyword);
+    _filter = (_filter ?? ItemFilterDTO()).copyWith(keyword: keyword);
     loadItems(refresh: true);
     notifyListeners();
   }

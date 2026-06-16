@@ -17,7 +17,7 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
 
   @override
   Future<List<AccountItem>> listByBook(String accountBookId,
-      {int? limit, int? offset, ItemFilterDTO? filter}) {
+      {int? limit, int? offset, ItemFilterDTO? filter}) async {
     var query = db.select(table)
       ..where((t) => t.accountBookId.equals(accountBookId));
 
@@ -80,7 +80,85 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
       }
       // 关键字筛选
       if (filter.keyword != null && filter.keyword!.isNotEmpty) {
-        query = query..where((t) => t.description.contains(filter.keyword!));
+        final kw = filter.keyword!.trim();
+
+        // 纯数字 → 金额检索（账目可能为负数，双向匹配）
+        final isNum = RegExp(r'^-?\d+(\.\d+)?$').hasMatch(kw);
+        final amountVal = isNum ? double.tryParse(kw) : null;
+
+        // 日期格式 yyyy-MM-dd 或 yyyy/MM/dd → 日期检索
+        final isDate = RegExp(r'^\d{4}[-/]\d{1,2}[-/]\d{1,2}$').hasMatch(kw);
+        final dateStr = isDate ? kw.replaceAll('/', '-') : null;
+
+        // 分类名称反向查找 → 匹配的 category_code
+        final catCodes = (await (db.select(db.accountCategoryTable)
+          ..where((tbl) =>
+              tbl.accountBookId.equals(accountBookId) &
+              tbl.name.contains(kw))).get())
+            .map((c) => c.code)
+            .toList();
+
+        // 商户名称反向查找 → 匹配的 shop_code
+        final shopCodes = (await (db.select(db.accountShopTable)
+          ..where((tbl) =>
+              tbl.accountBookId.equals(accountBookId) &
+              tbl.name.contains(kw))).get())
+            .map((s) => s.code)
+            .toList();
+
+        // 资金账户名称反向查找 → 匹配的 fund_id
+        final fundIds = (await (db.select(db.accountFundTable)
+          ..where((tbl) =>
+              tbl.accountBookId.equals(accountBookId) &
+              tbl.name.contains(kw))).get())
+            .map((f) => f.id)
+            .toList();
+
+        // 项目名称反向查找 → 匹配的 project_code
+        final projectCodes = (await (db.select(db.accountSymbolTable)
+          ..where((tbl) =>
+              tbl.accountBookId.equals(accountBookId) &
+              tbl.symbolType.equals('PROJECT') &
+              tbl.name.contains(kw))).get())
+            .map((s) => s.code)
+            .toList();
+
+        // 标签名称反向查找 → 匹配的 tag_code
+        final tagCodes = (await (db.select(db.accountSymbolTable)
+          ..where((tbl) =>
+              tbl.accountBookId.equals(accountBookId) &
+              tbl.symbolType.equals('TAG') &
+              tbl.name.contains(kw))).get())
+            .map((s) => s.code)
+            .toList();
+
+        query = query..where((t) {
+          final conds = <Expression<bool>>[
+            t.description.contains(kw),
+          ];
+          if (amountVal != null) {
+            conds.add(t.amount.isIn([amountVal, -amountVal]));
+          }
+          if (dateStr != null) {
+            conds.add(t.accountDate.like('$dateStr%'));
+          }
+          if (catCodes.isNotEmpty) {
+            conds.add(t.categoryCode.isIn(catCodes));
+          }
+          if (shopCodes.isNotEmpty) {
+            conds.add(t.shopCode.isIn(shopCodes));
+          }
+          if (fundIds.isNotEmpty) {
+            conds.add(t.fundId.isIn(fundIds));
+          }
+          if (projectCodes.isNotEmpty) {
+            conds.add(t.projectCode.isIn(projectCodes));
+          }
+          if (tagCodes.isNotEmpty) {
+            conds.add(t.tagCode.isIn(tagCodes));
+          }
+          return conds.reduce((a, b) => a | b);
+        });
       }
     }
 
@@ -92,7 +170,7 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
       query = query..limit(limit, offset: offset);
     }
 
-    return query.get();
+    return await query.get();
   }
 
   /// 按来源类型和来源ID列表查询，不限账本

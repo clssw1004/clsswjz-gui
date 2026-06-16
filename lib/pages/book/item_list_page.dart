@@ -34,6 +34,7 @@ class ItemListPage extends StatefulWidget {
 
 class _ItemListPageState extends State<ItemListPage> {
   bool _isRefreshing = false;
+  bool _searchHasText = false;
   ItemViewMode _viewMode = ItemViewMode.advance;
   late BookMetaVO _bookMeta;
   final TextEditingController _searchController = TextEditingController();
@@ -88,22 +89,19 @@ class _ItemListPageState extends State<ItemListPage> {
       isScrollControlled: true,
       useSafeArea: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: ItemFilterSheet(
-            initialFilter: provider.filter,
-            selectedBook: _bookMeta,
-            onConfirm: (filter) {
-              provider.setFilter(filter);
-            },
-            onClear: () {
-              provider.setFilter(null);
-            },
-          ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: ItemFilterSheet(
+          initialFilter: provider.filter,
+          selectedBook: _bookMeta,
+          onConfirm: (filter) {
+            provider.setFilter(filter);
+          },
+          onClear: () {
+            provider.setFilter(null);
+          },
         ),
       ),
     );
@@ -221,44 +219,49 @@ class _ItemListPageState extends State<ItemListPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(L10nManager.l10n.tabAccountItems),
+        title: Text(L10nManager.l10n.tabAccountItems, overflow: TextOverflow.ellipsis),
         actions: [
           // 搜索框
           Padding(
             padding: EdgeInsets.only(right: spacing.formItemSpacing),
             child: CommonSearchField(
               width: size.width * 0.35,
+              expandedWidth: size.width * 0.55,
               controller: _searchController,
               hintText: L10nManager.l10n.search,
+              onChanged: (_) => setState(() => _searchHasText = _searchController.text.isNotEmpty),
               onSubmitted: (_) => _handleSearch(),
-              onClear: _handleSearch,
+              onClear: () { setState(() => _searchHasText = false); _handleSearch(); },
             ),
           ),
-          // 筛选按钮
-          IconButton(
-            onPressed: _showFilterSheet,
-            icon: Stack(
-              children: [
-                const Icon(Icons.filter_list),
-                if (context.read<ItemListProvider>().filter?.isNotEmpty == true)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
+          // 搜索激活时隐藏筛选按钮和视图切换以腾出空间
+          if (!_searchHasText) ...[
+            // 筛选按钮
+            IconButton(
+              onPressed: _showFilterSheet,
+              icon: Stack(
+                children: [
+                  const Icon(Icons.filter_list),
+                  if (context.read<ItemListProvider>().filter?.isNotEmpty == true)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
+              tooltip: L10nManager.l10n.more,
             ),
-            tooltip: L10nManager.l10n.more,
-          ),
-          // 视图切换按钮
-          _buildViewModeButton(theme),
+            // 视图切换按钮
+            _buildViewModeButton(theme),
+          ],
         ],
       ),
       body: Consumer2<ItemListProvider, SyncProvider>(
