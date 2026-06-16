@@ -35,17 +35,23 @@ class CommonSearchField extends StatefulWidget {
 }
 
 class _CommonSearchFieldState extends State<CommonSearchField> {
-  late final TextEditingController _controller;
-  late final FocusNode _focusNode;
+  TextEditingController _controller = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   bool _showClear = false;
   bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ?? TextEditingController();
+    if (widget.controller != null) {
+      _controller.dispose();
+      _controller = widget.controller!;
+    }
     _controller.addListener(_handleTextChanged);
-    _focusNode = widget.focusNode ?? FocusNode();
+    if (widget.focusNode != null) {
+      _focusNode.dispose();
+      _focusNode = widget.focusNode!;
+    }
     _focusNode.addListener(_handleFocusChanged);
   }
 

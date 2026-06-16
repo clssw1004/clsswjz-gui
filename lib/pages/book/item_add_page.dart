@@ -95,11 +95,19 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
     // 初始化日期和时间
     if (widget.provider.item.id.isEmpty) {
-      // 新建账目，使用当前时间
-      final now = DateTime.now();
-      _selectedDate = DateFormat('yyyy-MM-dd').format(now);
-      _selectedTime = DateFormat('HH:mm').format(now);
-      widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+      // 预填日期时间或使用当前时间
+      final itemDate = widget.provider.item.accountDate;
+      if (itemDate.contains(' ')) {
+        // 已有预填的日期时间
+        _selectedDate = itemDate.split(' ')[0];
+        final timePart = itemDate.split(' ')[1];
+        _selectedTime = timePart.length >= 5 ? timePart.substring(0, 5) : '00:00';
+      } else {
+        final now = DateTime.now();
+        _selectedDate = DateFormat('yyyy-MM-dd').format(now);
+        _selectedTime = DateFormat('HH:mm').format(now);
+        widget.provider.item.updateDateTime(_selectedDate, '$_selectedTime:00');
+      }
 
       // 延迟一帧后弹出金额输入
       WidgetsBinding.instance.addPostFrameCallback((_) {

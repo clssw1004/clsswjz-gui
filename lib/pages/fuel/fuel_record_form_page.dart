@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
+import '../../enums/account_type.dart';
+import '../../enums/operate_type.dart';
+import '../../events/event_bus.dart';
+import '../../events/special/event_book.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
@@ -12,6 +18,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_relation_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/color_util.dart';
+import '../../utils/date_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
 
@@ -124,7 +131,8 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
   Future<void> _loadExistingRelation() async {
     if (widget.recordId == null) return;
     final relations = await _relationProvider.getSourceRelations(
-      _relationCode, widget.recordId!,
+      _relationCode,
+      widget.recordId!,
     );
     if (relations.isNotEmpty && mounted) {
       final rel = relations.first;
@@ -242,8 +250,8 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
             // 费用计算：单价 × 油量 = 总价
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.25),
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
@@ -256,8 +264,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                     child: Row(
                       children: [
                         Icon(Icons.calculate_outlined,
-                            size: 14,
-                            color: colorScheme.onSurfaceVariant),
+                            size: 14, color: colorScheme.onSurfaceVariant),
                         const SizedBox(width: 5),
                         Text(
                           '费用计算',
@@ -282,8 +289,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                             },
                             child: TextFormField(
                               controller: _unitPriceController,
-                              keyboardType: const TextInputType
-                                  .numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 label: const Text('单价',
@@ -332,8 +340,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                           ),
                         ),
                         Padding(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -359,8 +366,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                             },
                             child: TextFormField(
                               controller: _volumeController,
-                              keyboardType: const TextInputType
-                                  .numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 label: const Text('油量',
@@ -409,8 +417,7 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                           ),
                         ),
                         Padding(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -436,8 +443,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
                             },
                             child: TextFormField(
                               controller: _totalAmountController,
-                              keyboardType: const TextInputType
-                                  .numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 label: const Text('总价',
@@ -755,6 +763,16 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         constraints: BoxConstraints(maxHeight: maxHeight),
         child: _ItemSearchSheet(
           userId: userId,
+          vehicleId: widget.vehicleId,
+          totalAmount: double.tryParse(_totalAmountController.text) ?? 0,
+          unitPrice: double.tryParse(_unitPriceController.text) ?? 0,
+          volume: double.tryParse(_volumeController.text) ?? 0,
+          fuelGrade: _fuelGrade,
+          isFullTank: _isFullTank,
+          isFuelLightOn: _isFuelLightOn,
+          refuelTime: _refuelTime,
+          isCreateMode: isCreateMode,
+          currentRecordId: widget.recordId,
         ),
       ),
     );
@@ -845,7 +863,9 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
     final unitPriceText = _unitPriceController.text.trim();
     final totalAmountText = _totalAmountController.text.trim();
 
-    if (volumeText.isEmpty || unitPriceText.isEmpty || totalAmountText.isEmpty) {
+    if (volumeText.isEmpty ||
+        unitPriceText.isEmpty ||
+        totalAmountText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('请填写加油量、单价和总价中的至少两项')),
       );
@@ -929,7 +949,8 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
         if (result.ok && mounted) {
           // 同步关联表
           final existing = await _relationProvider.getSourceRelations(
-            _relationCode, widget.recordId!,
+            _relationCode,
+            widget.recordId!,
           );
           final oldItemId = existing.isNotEmpty ? existing.first.itemId : null;
 
@@ -976,8 +997,30 @@ class _FuelRecordFormPageState extends State<FuelRecordFormPage> {
 /// 单选框选账目
 class _ItemSearchSheet extends StatefulWidget {
   final String userId;
+  final String vehicleId;
+  final double totalAmount;
+  final double unitPrice;
+  final double volume;
+  final String fuelGrade;
+  final bool isFullTank;
+  final bool isFuelLightOn;
+  final int refuelTime;
+  final bool isCreateMode;
+  final String? currentRecordId;
 
-  const _ItemSearchSheet({required this.userId});
+  const _ItemSearchSheet({
+    required this.userId,
+    required this.vehicleId,
+    required this.totalAmount,
+    required this.unitPrice,
+    required this.volume,
+    required this.fuelGrade,
+    required this.isFullTank,
+    required this.isFuelLightOn,
+    required this.refuelTime,
+    required this.isCreateMode,
+    this.currentRecordId,
+  });
 
   @override
   State<_ItemSearchSheet> createState() => _ItemSearchSheetState();
@@ -1005,9 +1048,17 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
   Future<void> _loadBooks() async {
     final result = await DriverFactory.driver.listBooksByUser(widget.userId);
     if (result.ok && result.data != null && mounted) {
+      final defaultBookId = AppConfigManager.instance.defaultBookId;
+      String? selectedId;
+      if (defaultBookId != null &&
+          result.data!.any((b) => b.id == defaultBookId)) {
+        selectedId = defaultBookId;
+      } else if (result.data!.isNotEmpty) {
+        selectedId = result.data!.first.id;
+      }
       setState(() {
         _books = result.data!;
-        _selectedBookId = result.data!.isNotEmpty ? result.data!.first.id : null;
+        _selectedBookId = selectedId;
       });
       _search();
     }
@@ -1017,19 +1068,101 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
     if (_selectedBookId == null) return;
     final book = _books.firstWhere((b) => b.id == _selectedBookId);
     final bookMeta = BookMetaVO(bookInfo: book);
-    final result = await Navigator.pushNamed(
+    final userId = AppConfigManager.instance.userId;
+
+    // 构建描述：标号最前，表情符号拼接
+    final descParts = <String>[
+      '${widget.fuelGrade}号汽油',
+      '${widget.unitPrice.toStringAsFixed(2)}元/L*${widget.volume.toStringAsFixed(2)}L',
+    ];
+    if (widget.isFuelLightOn) descParts.add('亮灯');
+    if (widget.isFullTank) descParts.add('跳枪');
+    final description = descParts.join(' | ');
+
+    // 格式化加油日期时间
+    final refuelDt = DateTime.fromMillisecondsSinceEpoch(widget.refuelTime);
+    final accountDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(refuelDt);
+
+    // 构建预填账目
+    final preFilledItem = UserItemVO(
+      id: '',
+      amount: widget.totalAmount,
+      description: description,
+      type: AccountItemType.expense.code,
+      accountDate: accountDate,
+      accountBookId: _selectedBookId!,
+      fundId: bookMeta.defaultFundId,
+      createdBy: userId,
+      updatedBy: userId,
+      createdAt: DateUtil.now(),
+      updatedAt: DateUtil.now(),
+      createdAtString: DateTime.now().toString(),
+      updatedAtString: DateTime.now().toString(),
+    );
+
+    // 查询最近一条存在关联账目的加油记录（新建/编辑都执行）
+    // 编辑模式排除当前记录自身
+    try {
+      final records = await DaoManager.fuelRecordDao.findByVehicleId(
+        widget.vehicleId,
+        limit: 20,
+      );
+      for (final record in records) {
+        // 编辑模式：跳过当前记录
+        if (!widget.isCreateMode &&
+            widget.currentRecordId != null &&
+            widget.currentRecordId == record.id) {
+          continue;
+        }
+        // 查 ItemRelation 表
+        final relations = await DaoManager.itemRelationDao.findByRelation(
+          'fuel_record',
+          record.id,
+        );
+        if (relations.isEmpty) continue;
+        final rel = relations.first;
+        if (rel.accountBookId != _selectedBookId) continue;
+        // 找到最近一条有关联的记录
+        final lastItem = await DaoManager.itemDao.findById(rel.itemId);
+        if (lastItem != null) {
+          preFilledItem.categoryCode = lastItem.categoryCode;
+          preFilledItem.shopCode = lastItem.shopCode;
+          preFilledItem.tagCode = lastItem.tagCode;
+          preFilledItem.projectCode = lastItem.projectCode;
+        }
+        break;
+      }
+    } catch (_) {
+      // 静默失败，不影响创建
+    }
+
+    if (!mounted) return;
+    // 监听 ItemChangedEvent 获取新建账目 ID
+    final completer = Completer<String>();
+    StreamSubscription? sub;
+    sub = EventBus.instance.on<ItemChangedEvent>((event) {
+      if (event.operateType == OperateType.create && !completer.isCompleted) {
+        completer.complete(event.item.id);
+      }
+    });
+
+    final result = await Navigator.pushNamed<Object?>(
       context,
       AppRoutes.itemAdd,
-      arguments: [bookMeta],
+      arguments: [bookMeta, preFilledItem],
     );
+
+    await sub.cancel();
+
     if (result == true && mounted) {
-      final items =
-          await DaoManager.itemDao.listByBook(_selectedBookId!, limit: 1);
-      if (items.isNotEmpty && mounted) {
-        Navigator.pop(context,
-            '${items.first.id}|${items.first.accountBookId}');
-      } else if (mounted) {
-        _search();
+      try {
+        final newItemId =
+            await completer.future.timeout(const Duration(seconds: 2));
+        if (mounted) {
+          Navigator.pop(context, '$newItemId|$_selectedBookId');
+        }
+      } catch (_) {
+        if (mounted) _search();
       }
     } else if (mounted) {
       _search();
@@ -1083,59 +1216,66 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               children: [
                 Icon(Icons.link, size: 18, color: colorScheme.primary),
                 const SizedBox(width: 6),
                 Text(
-                  '选择关联账目',
+                  '关联账目',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Spacer(),
                 if (_books.length > 1)
-                  PopupMenuButton<UserBookVO>(
-                    onSelected: (book) {
-                      setState(() => _selectedBookId = book.id);
-                      _search();
-                    },
-                    itemBuilder: (context) => _books
-                        .map((book) => PopupMenuItem(
-                              value: book,
-                              child: Row(
-                                children: [
-                                  if (book.id == _selectedBookId)
-                                    Icon(Icons.check, size: 18,
-                                        color: colorScheme.primary),
-                                  if (book.id == _selectedBookId)
-                                    const SizedBox(width: 8),
-                                  Text(book.name),
-                                ],
+                  Expanded(
+                    child: PopupMenuButton<UserBookVO>(
+                      onSelected: (book) {
+                        setState(() => _selectedBookId = book.id);
+                        _search();
+                      },
+                      itemBuilder: (context) => _books
+                          .map((book) => PopupMenuItem(
+                                value: book,
+                                child: Row(
+                                  children: [
+                                    if (book.id == _selectedBookId)
+                                      Icon(Icons.check,
+                                          size: 18, color: colorScheme.primary),
+                                    if (book.id == _selectedBookId)
+                                      const SizedBox(width: 8),
+                                    Text(book.name),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.menu_book_outlined,
+                                  size: 14,
+                                  color: colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  _books
+                                          .where((b) => b.id == _selectedBookId)
+                                          .firstOrNull
+                                          ?.name ??
+                                      '',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ))
-                        .toList(),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.menu_book_outlined, size: 14,
-                              color: colorScheme.onSurfaceVariant),
-                          const SizedBox(width: 4),
-                          Text(
-                            _books
-                                    .where((b) => b.id == _selectedBookId)
-                                    .firstOrNull
-                                    ?.name ??
-                                '',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                              const Icon(Icons.arrow_drop_down, size: 18),
+                            ],
                           ),
-                          const Icon(Icons.arrow_drop_down, size: 18),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -1148,10 +1288,6 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                     foregroundColor: colorScheme.primary,
                     textStyle: const TextStyle(fontSize: 12),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
@@ -1174,13 +1310,13 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                  borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.2)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: colorScheme.outline.withValues(alpha: 0.12)),
+                  borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.12)),
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 filled: true,
@@ -1196,9 +1332,7 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                 : _items.isEmpty
                     ? Center(
                         child: Text(
-                          _searchController.text.isEmpty
-                              ? '暂无账目'
-                              : '未找到匹配账目',
+                          _searchController.text.isEmpty ? '暂无账目' : '未找到匹配账目',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -1244,7 +1378,8 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                                             end: Alignment.bottomCenter,
                                             colors: [
                                               amountColor,
-                                              amountColor.withValues(alpha: 0.2),
+                                              amountColor.withValues(
+                                                  alpha: 0.2),
                                             ],
                                           ),
                                         ),
@@ -1260,11 +1395,9 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text(
-                                                item.categoryName ??
-                                                    '未分类',
+                                                item.categoryName ?? '未分类',
                                                 maxLines: 1,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: theme
                                                     .textTheme.bodyMedium
                                                     ?.copyWith(
@@ -1285,8 +1418,7 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
                                                       ?.copyWith(
                                                     color: colorScheme
                                                         .onSurfaceVariant
-                                                        .withValues(
-                                                            alpha: 0.6),
+                                                        .withValues(alpha: 0.6),
                                                   ),
                                                 ),
                                               ],

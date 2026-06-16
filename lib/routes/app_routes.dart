@@ -216,10 +216,11 @@ class AppRoutes {
       case itemAdd: {
         final list = args as List<dynamic>;
         final accountBook = list[0] as BookMetaVO;
+        final preFilledItem = list.length > 1 ? list[1] as UserItemVO? : null;
         if (AppConfigManager.instance.uiConfig.useNewItemForm) {
-          return ItemAddPageV2(bookMeta: accountBook);
+          return ItemAddPageV2(bookMeta: accountBook, item: preFilledItem);
         }
-        return ItemAddPage(bookMeta: accountBook);
+        return ItemAddPage(bookMeta: accountBook, item: preFilledItem);
       }
       case itemEdit: {
         final list = args as List<dynamic>;
