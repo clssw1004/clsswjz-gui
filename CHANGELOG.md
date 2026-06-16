@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.7] - 2026-06-16
+
+### Features
+- Quick-create account items from fuel form: pre-fill amount/date/description, inherit category/merchant/tags from last linked record
+
+### Optimizations
+- Fuel link-panel defaults to current book, shorter title, removed close button
+- Fuel list fuel grade no longer italic
+- Fix common search field crash on hot restart
+
 ## [1.1.6] - 2026-06-13
 
 ### Features
