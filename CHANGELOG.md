@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Features
 - Quick-create account items from fuel form: pre-fill amount/date/description, inherit category/merchant/tags from last linked record
+- Redesign filter sheet: dynamic condition cards, type switching, visual operation
 
 ### Optimizations
 - Fuel link-panel defaults to current book, shorter title, removed close button
