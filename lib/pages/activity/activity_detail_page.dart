@@ -167,7 +167,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(def.name),
+        title: const Text(''),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
@@ -336,25 +336,6 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
     final userName = _userNames[record.createdBy] ?? record.createdBy.substring(0, 6);
     final userColor = _userColors[record.createdBy] ?? colorScheme.secondaryContainer;
 
-    Future<void> onEditTime() async {
-      if (!isMine) return;
-      final dt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
-      final date = await showDatePicker(
-        context: context,
-        initialDate: dt,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2030),
-      );
-      if (date == null || !mounted) return;
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(dt),
-      );
-      if (time == null || !mounted) return;
-      final newDt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      await provider.updateRecordTime(record.id, createdAt: newDt.millisecondsSinceEpoch);
-    }
-
     Future<bool> onDelete() async {
       if (!isMine) return false;
       final confirmed = await showDialog<bool>(
@@ -400,20 +381,22 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
           return deleted;
         },
         child: GestureDetector(
-          onLongPress: isMine ? onEditTime : null,
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withAlpha(8),
-                  offset: const Offset(0, 2),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
+          onLongPress: isMine ? () => _showEditRecordSheet(context, record, provider, theme) : null,
+          child: Opacity(
+            opacity: isMine ? 1.0 : 0.7,
+            child: Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.shadowColor.withAlpha(8),
+                    offset: const Offset(0, 2),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+            padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
             child: Row(
               children: [
                 // 用户头像
@@ -436,26 +419,11 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 第一行：日期时间 + 用户名
-                      Row(
-                        children: [
-                          Text(dateTimeStr,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w700)),
-                          const SizedBox(width: 8),
-                          Icon(Icons.person_outline,
-                              size: 12, color: colorScheme.onSurfaceVariant.withAlpha(100)),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(userName,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.onSurfaceVariant.withAlpha(150)),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis),
-                          ),
-                        ],
-                      ),
-                      // 第二行：备注
+                      // 日期时间
+                      Text(dateTimeStr,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700)),
+                      // 备注
                       if (record.remark != null && record.remark!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 3),
@@ -468,22 +436,154 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
                     ],
                   ),
                 ),
-                // 自己的记录显示编辑提示
-                if (isMine)
-                  Container(
-                    width: 24, height: 24,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withAlpha(80),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(Icons.edit_outlined,
-                        size: 14, color: colorScheme.onPrimaryContainer.withAlpha(160)),
+                // 用户名
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person_outline,
+                          size: 12,
+                          color: colorScheme.onSurfaceVariant.withAlpha(100)),
+                      if (!isMine) ...[
+                        const SizedBox(width: 4),
+                        Icon(Icons.lock_outline,
+                            size: 10,
+                            color: colorScheme.onSurfaceVariant.withAlpha(80)),
+                      ],
+                      const SizedBox(width: 2),
+                      Text(userName,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withAlpha(150)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
         ),
       ),
+      ),
+    );
+  }
+
+  Future<void> _showEditRecordSheet(
+    BuildContext context,
+    dynamic record,
+    ActivityCheckinProvider provider,
+    ThemeData theme,
+  ) async {
+    final dt = DateTime.fromMillisecondsSinceEpoch(record.createdAt);
+    TextEditingController remarkCtrl = TextEditingController(text: record.remark ?? '');
+    TextEditingController locationCtrl = TextEditingController(text: record.location ?? '');
+    DateTime selectedDt = dt;
+
+    final result = await showModalBottomSheet<(int?, String?, String?)>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                left: 24, right: 24, top: 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('编辑记录', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: ctx,
+                            initialDate: selectedDt,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (date == null || !ctx.mounted) return;
+                          final time = await showTimePicker(
+                            context: ctx,
+                            initialTime: TimeOfDay.fromDateTime(selectedDt),
+                          );
+                          if (time == null) return;
+                          setSheetState(() {
+                            selectedDt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                          });
+                        },
+                        icon: const Icon(Icons.access_time, size: 18),
+                        label: Text(DateFormat('yyyy/MM/dd HH:mm').format(selectedDt)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: remarkCtrl,
+                    decoration: InputDecoration(
+                      labelText: '备注',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: locationCtrl,
+                    decoration: InputDecoration(
+                      labelText: '地点',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        final newCreatedAt = selectedDt.millisecondsSinceEpoch;
+                        final newRemark = remarkCtrl.text.trim();
+                        final newLocation = locationCtrl.text.trim();
+                        Navigator.pop(ctx, (
+                          newCreatedAt != dt.millisecondsSinceEpoch ? newCreatedAt : null,
+                          newLocation.isNotEmpty ? newLocation : null,
+                          newRemark.isNotEmpty ? newRemark : null,
+                        ));
+                      },
+                      child: const Text('保存'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null || !mounted) return;
+    final (newCreatedAt, newLocation, newRemark) = result;
+
+    // 检查是否有实际变更
+    final hasTimeChange = newCreatedAt != null && newCreatedAt != dt.millisecondsSinceEpoch;
+    final hasLocationChange = newLocation != null && newLocation != (record.location ?? '');
+    final hasRemarkChange = newRemark != null && newRemark != (record.remark ?? '');
+    if (!hasTimeChange && !hasLocationChange && !hasRemarkChange) return;
+
+    await provider.updateRecord(record.id,
+      createdAt: hasTimeChange ? newCreatedAt : null,
+      location: hasLocationChange ? newLocation : null,
+      remark: hasRemarkChange ? newRemark : null,
     );
   }
 

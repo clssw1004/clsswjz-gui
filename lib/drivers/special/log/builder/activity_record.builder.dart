@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-import 'package:drift/drift.dart';
-
 import '../../../../database/database.dart';
 import '../../../../database/tables/activity_record_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
-import '../../../../utils/date_util.dart';
 import 'builder.dart';
 
 class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, String> {
@@ -21,6 +18,8 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
       await DaoManager.activityRecordDao.insert(data!);
       target(data!.id.value);
       return data!.id.value;
+    } else if (operateType == OperateType.update) {
+      await DaoManager.activityRecordDao.update(businessId!, data!);
     } else if (operateType == OperateType.delete) {
       await DaoManager.activityRecordDao.delete(businessId!);
     }
@@ -42,10 +41,18 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
           .inBook(log.parentId)
           .target(log.businessId)
           .doCreate()
-          .withData(_parseCompanion(jsonDecode(log.operateData))) as ActivityRecordCULog;
+          .withData(ActivityRecordTable.fromJson(jsonDecode(log.operateData))) as ActivityRecordCULog;
+    } else if (operateType == OperateType.update) {
+      return ActivityRecordCULog()
+          .who(log.operatorId)
+          .inBook(log.parentId)
+          .target(log.businessId)
+          .doUpdate()
+          .withData(ActivityRecordTable.fromJson(jsonDecode(log.operateData))) as ActivityRecordCULog;
     }
     return ActivityRecordCULog()
         .who(log.operatorId)
+        .inBook(log.parentId)
         .target(log.businessId)
         .doDelete() as ActivityRecordCULog;
   }
@@ -79,20 +86,23 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
         )) as ActivityRecordCULog;
   }
 
-  /// 更新时间
-  static ActivityRecordCULog updateTime({
+  /// 更新记录（改时间/备注/地点）
+  static ActivityRecordCULog update({
     required String who,
     required String id,
-    required int createdAt,
+    int? createdAt,
+    String? location,
+    String? remark,
   }) {
     return ActivityRecordCULog()
         .who(who)
         .target(id)
         .doUpdate()
-        .withData(ActivityRecordTableCompanion(
-          createdAt: Value(createdAt),
-          updatedBy: Value(who),
-          updatedAt: Value(DateUtil.now()),
+        .withData(ActivityRecordTable.toUpdateCompanion(
+          who,
+          createdAt: createdAt,
+          location: location,
+          remark: remark,
         )) as ActivityRecordCULog;
   }
 
@@ -107,22 +117,5 @@ class ActivityRecordCULog extends LogBuilder<ActivityRecordTableCompanion, Strin
         .inBook(bookId)
         .target(id)
         .doDelete() as ActivityRecordCULog;
-  }
-
-  /// 解析JSON为Companion
-  static ActivityRecordTableCompanion _parseCompanion(Map<String, dynamic> json) {
-    return ActivityRecordTableCompanion(
-      id: json['id'] != null ? Value(json['id'] as String) : const Value.absent(),
-      accountBookId: json['accountBookId'] != null ? Value(json['accountBookId'] as String) : const Value.absent(),
-      activityName: json['activityName'] != null ? Value(json['activityName'] as String) : const Value.absent(),
-      recordDate: json['recordDate'] != null ? Value(json['recordDate'] as String) : const Value.absent(),
-      activityDefId: json['activityDefId'] != null ? Value(json['activityDefId'] as String) : const Value.absent(),
-      location: json['location'] != null ? Value(json['location'] as String) : const Value.absent(),
-      remark: json['remark'] != null ? Value(json['remark'] as String) : const Value.absent(),
-      createdAt: json['createdAt'] != null ? Value(json['createdAt'] as int) : const Value.absent(),
-      updatedAt: json['updatedAt'] != null ? Value(json['updatedAt'] as int) : const Value.absent(),
-      createdBy: json['createdBy'] != null ? Value(json['createdBy'] as String) : const Value.absent(),
-      updatedBy: json['updatedBy'] != null ? Value(json['updatedBy'] as String) : const Value.absent(),
-    );
   }
 }

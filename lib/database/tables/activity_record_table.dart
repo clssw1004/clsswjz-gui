@@ -57,6 +57,22 @@ class ActivityRecordTable extends BaseAccountBookTable {
     );
   }
 
+  /// 更新Companion
+  static ActivityRecordTableCompanion toUpdateCompanion(
+    String who, {
+    int? createdAt,
+    String? location,
+    String? remark,
+  }) {
+    return ActivityRecordTableCompanion(
+      createdAt: Value.absentIfNull(createdAt),
+      location: Value.absentIfNull(location),
+      remark: Value.absentIfNull(remark),
+      updatedBy: Value(who),
+      updatedAt: Value(DateUtil.now()),
+    );
+  }
+
   /// 转换为JSON字符串
   static String toJsonString(ActivityRecordTableCompanion companion) {
     final Map<String, dynamic> map = {};

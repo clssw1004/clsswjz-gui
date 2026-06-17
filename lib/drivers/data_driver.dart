@@ -346,11 +346,13 @@ abstract class BookDataDriver {
   Future<OperateResult<void>> deleteActivityRecord(
     String userId, String bookId, String recordId);
 
-  /// 更新活动记录时间
-  Future<OperateResult<void>> updateActivityRecordTime(
+  /// 更新活动记录（改时间/备注/地点）
+  Future<OperateResult<void>> updateActivityRecord(
     String userId,
     String recordId, {
-    required int createdAt,
+    int? createdAt,
+    String? location,
+    String? remark,
   });
 
   /// 获取活动记录列表（按日期范围筛选）
