@@ -11,6 +11,7 @@ import '../events/special/event_book.dart';
 import '../manager/dao_manager.dart';
 import '../models/common.dart';
 import '../models/vo/book_meta.dart';
+import '../models/vo/user_book_vo.dart';
 import '../models/vo/user_item_vo.dart';
 import '../utils/date_util.dart';
 import '../models/vo/attachment_vo.dart';
@@ -59,6 +60,17 @@ class ItemFormProvider extends ChangeNotifier {
   List<dynamic> _projects = [];
   List<dynamic> get projects => _projects;
 
+  /// 所有账本列表
+  List<UserBookVO> _allBooks = [];
+  List<UserBookVO> get allBooks => _allBooks;
+
+  /// 当前选中的账本
+  UserBookVO? get currentBook =>
+      _allBooks.cast<UserBookVO?>().firstWhere(
+        (b) => b?.id == _item.accountBookId,
+        orElse: () => null,
+      );
+
   /// 附件列表
   List<AttachmentVO> _attachments = [];
   List<AttachmentVO> get attachments => _attachments;
@@ -92,6 +104,7 @@ class ItemFormProvider extends ChangeNotifier {
     notifyListeners();
 
     await Future.wait([
+      loadBooks(),
       loadCategories(),
       loadFunds(),
       loadShops(),
@@ -100,6 +113,25 @@ class ItemFormProvider extends ChangeNotifier {
     ]);
 
     _loading = false;
+    notifyListeners();
+  }
+
+  /// 加载账本列表
+  Future<void> loadBooks() async {
+    final result = await DriverFactory.driver.listBooksByUser(
+      AppConfigManager.instance.userId,
+    );
+    if (result.ok) {
+      _allBooks = result.data ?? [];
+    }
+  }
+
+  /// 切换账本（仅新增模式可用）
+  void changeBook(UserBookVO book) {
+    _item = _item.copyWith(
+      accountBookId: book.id,
+      fundId: book.defaultFundId ?? _item.fundId,
+    );
     notifyListeners();
   }
 

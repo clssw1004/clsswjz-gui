@@ -537,6 +537,12 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
+  /// Message shown when search yields no results
+  ///
+  /// In en, this message translates to:
+  /// **'No matching results'**
+  String get noMatchingResults;
+
   /// Add new item text
   ///
   /// In en, this message translates to:
