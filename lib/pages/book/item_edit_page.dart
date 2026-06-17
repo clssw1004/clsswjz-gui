@@ -192,6 +192,31 @@ class _AccountItemFormState extends State<_AccountItemForm> {
       key: _formKey,
       child: Column(
         children: [
+          // === 账本 ===
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withAlpha(40),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.book_outlined, size: 20, color: colorScheme.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    provider.currentBook?.name ?? L10nManager.l10n.noAccountBooks,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
           // === 金额 ===
           SegmentedButton<AccountItemType>(
             segments: [

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../manager/l10n_manager.dart';
-
 /// 共享徽章组件
 class SharedBadge extends StatelessWidget {
-  /// 共享来源名称
+  /// 用户名
   final String name;
 
   const SharedBadge({
@@ -18,32 +16,19 @@ class SharedBadge extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 6,
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha:0.8),
+        color: colorScheme.primary.withAlpha(15),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.share_outlined,
-            size: 10,
-            color: colorScheme.onPrimaryContainer,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            L10nManager.l10n.sharedFrom(name),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontSize: 11,
-              height: 1.2,
-            ),
-          ),
-        ],
+      child: Text(
+        name,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: colorScheme.primary,
+          fontSize: 10,
+          height: 1.3,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

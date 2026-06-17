@@ -55,10 +55,14 @@ class _BookSelectorState extends State<BookSelector>
 
   Future<void> _showBookSelector() async {
     _arrowController.forward();
-    final result = await showDialog<UserBookVO>(
+    final result = await showModalBottomSheet<UserBookVO>(
       context: context,
-      useSafeArea: false,
-      builder: (ctx) => _BookSelectorDialog(
+      isScrollControlled: true,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _BookSelectorSheet(
         userId: widget.userId,
         books: widget.books,
         selectedBook: widget.selectedBook,
@@ -81,7 +85,6 @@ class _BookSelectorState extends State<BookSelector>
 
     final book = widget.selectedBook!;
     final isOwner = book.createdBy == widget.userId;
-    final bookName = book.name;
 
     return InkWell(
       onTap: _showBookSelector,
@@ -89,7 +92,6 @@ class _BookSelectorState extends State<BookSelector>
       child: AnimatedBuilder(
         animation: _arrowAnimation,
         builder: (context, child) => Container(
-          constraints: const BoxConstraints(maxWidth: 220),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
@@ -109,7 +111,7 @@ class _BookSelectorState extends State<BookSelector>
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  bookName,
+                  book.name,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: colorScheme.onSurface,
                   ),
@@ -138,26 +140,25 @@ class _BookSelectorState extends State<BookSelector>
   }
 }
 
-/// 账本选择弹窗
-class _BookSelectorDialog extends StatefulWidget {
+/// 账本选择底部抽屉
+class _BookSelectorSheet extends StatefulWidget {
   final String userId;
   final List<UserBookVO> books;
   final UserBookVO? selectedBook;
 
-  const _BookSelectorDialog({
+  const _BookSelectorSheet({
     required this.userId,
     required this.books,
     this.selectedBook,
   });
 
   @override
-  State<_BookSelectorDialog> createState() => _BookSelectorDialogState();
+  State<_BookSelectorSheet> createState() => _BookSelectorSheetState();
 }
 
-class _BookSelectorDialogState extends State<_BookSelectorDialog> {
+class _BookSelectorSheetState extends State<_BookSelectorSheet> {
   final TextEditingController _searchCtrl = TextEditingController();
   List<UserBookVO> _filteredBooks = [];
-  bool _showSearch = false;
 
   @override
   void initState() {
@@ -195,214 +196,170 @@ class _BookSelectorDialogState extends State<_BookSelectorDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isSelected = widget.selectedBook;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 标题栏 + 搜索切换
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 12, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _showSearch
-                      ? TextField(
-                          controller: _searchCtrl,
-                          autofocus: true,
-                          decoration: InputDecoration(
-                            hintText: L10nManager.l10n.search,
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          style: theme.textTheme.titleMedium,
-                        )
-                      : Text(
-                          L10nManager.l10n.selectAccountBook,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: Column(
+          children: [
+            // 拖拽指示条
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withAlpha(50),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                IconButton(
-                  icon: Icon(
-                    _showSearch ? Icons.close : Icons.search,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _showSearch = !_showSearch;
-                      if (!_showSearch) {
-                        _searchCtrl.clear();
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          // 列表
-          Flexible(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 380,
-                minHeight: 100,
               ),
+            ),
+            // 标题
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      L10nManager.l10n.selectAccountBook,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 搜索框
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: TextField(
+                controller: _searchCtrl,
+                style: theme.textTheme.bodyLarge,
+                decoration: InputDecoration(
+                  hintText: L10nManager.l10n.search,
+                  prefixIcon:
+                      Icon(Icons.search, color: colorScheme.primary, size: 22),
+                  suffixIcon: _searchCtrl.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 20),
+                          onPressed: () => _searchCtrl.clear(),
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerHighest.withAlpha(40),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ),
+            // 分割线
+            if (_filteredBooks.isNotEmpty)
+              Divider(height: 1, color: colorScheme.outline.withAlpha(20)),
+            // 列表
+            Expanded(
               child: _filteredBooks.isEmpty
                   ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.search_off,
-                                size: 40,
-                                color: colorScheme.onSurfaceVariant.withAlpha(80)),
-                            const SizedBox(height: 8),
-                            Text(
-                              L10nManager.l10n.noMatchingResults,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.inbox_outlined,
+                              size: 40,
+                              color: colorScheme.onSurfaceVariant.withAlpha(60)),
+                          const SizedBox(height: 8),
+                          Text(
+                            L10nManager.l10n.noMatchingResults,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant.withAlpha(100),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     )
-                  : ListView.separated(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
-                      itemCount: _filteredBooks.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(height: 2),
-                      itemBuilder: (context, index) {
-                        final book = _filteredBooks[index];
-                        final isOwner =
-                            book.createdBy == widget.userId;
+                  : ListView(
+                      padding: const EdgeInsets.only(top: 4, bottom: 12),
+                      children: _filteredBooks.map((book) {
+                        final isOwner = book.createdBy == widget.userId;
                         final selected =
-                            isSelected?.id == book.id;
+                            widget.selectedBook?.id == book.id;
 
-                        return Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () => _select(book),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              decoration: BoxDecoration(
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 1),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? colorScheme.primary.withAlpha(10)
+                                  : null,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
+                              leading: Icon(
+                                _getBookIcon(book.icon),
+                                size: 22,
                                 color: selected
-                                    ? colorScheme.primaryContainer
-                                        .withAlpha(120)
-                                    : null,
-                                borderRadius: BorderRadius.circular(12),
-                                border: selected
-                                    ? Border.all(
-                                        color: colorScheme.primary
-                                            .withAlpha(60),
-                                      )
-                                    : null,
+                                    ? colorScheme.primary
+                                    : colorScheme.outline.withAlpha(60),
                               ),
-                              child: Row(
+                              title: Row(
                                 children: [
-                                  // 图标
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: selected
-                                          ? colorScheme.primaryContainer
-                                          : colorScheme
-                                              .surfaceContainerHigh,
-                                      borderRadius:
-                                          BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      _getBookIcon(book.icon),
-                                      size: 20,
-                                      color: selected
-                                          ? colorScheme.onPrimaryContainer
-                                          : colorScheme.primary,
+                                  Flexible(
+                                    child: Text(
+                                      book.name,
+                                      style: theme
+                                          .textTheme.bodyMedium
+                                          ?.copyWith(
+                                        fontWeight: selected
+                                            ? FontWeight.w600
+                                            : null,
+                                        color: selected
+                                            ? colorScheme.primary
+                                            : null,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  // 名称 + 描述
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                book.name,
-                                                style: theme
-                                                    .textTheme.bodyLarge
-                                                    ?.copyWith(
-                                                  fontWeight:
-                                                      FontWeight.w600,
-                                                ),
-                                                maxLines: 1,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            if (!isOwner &&
-                                                book.createdByName !=
-                                                    null) ...[
-                                              const SizedBox(width: 6),
-                                              SharedBadge(
-                                                  name:
-                                                      book.createdByName!),
-                                            ],
-                                          ],
-                                        ),
-                                        if (book.description
-                                                ?.isNotEmpty ==
-                                            true)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 2),
-                                            child: Text(
-                                              book.description!,
-                                              style: theme
-                                                  .textTheme.bodySmall
-                                                  ?.copyWith(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                              maxLines: 1,
-                                              overflow:
-                                                  TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                      ],
+                                  if (!isOwner && book.createdByName != null)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 6),
+                                      child: SharedBadge(
+                                          name: book.createdByName!),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (selected)
-                                    Icon(Icons.check_circle,
-                                        size: 22,
-                                        color: colorScheme.primary),
                                 ],
                               ),
+                              subtitle: book.description?.isNotEmpty == true
+                                  ? Text(
+                                      book.description!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  : null,
+                              trailing: selected
+                                  ? Icon(Icons.check_circle_rounded,
+                                      size: 22, color: colorScheme.primary)
+                                  : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              onTap: () => _select(book),
                             ),
                           ),
                         );
-                      },
+                      }).toList(),
                     ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

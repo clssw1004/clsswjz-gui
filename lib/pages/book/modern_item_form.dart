@@ -10,6 +10,7 @@ import '../../enums/business_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../providers/item_form_provider.dart';
@@ -54,7 +55,7 @@ class _ModernItemFormState extends State<ModernItemForm> {
   Timer? _debounceTimer;
 
   /// 错落入场动画
-  final List<bool> _sectionVisible = List.filled(6, false);
+  final List<bool> _sectionVisible = List.filled(7, false);
 
   @override
   void initState() {
@@ -235,9 +236,17 @@ class _ModernItemFormState extends State<ModernItemForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── 区块 0: 类型切换 ──
+          // ── 区块 0: 账本选择（新增模式） ──
           _buildAnimatedSection(
             index: 0,
+            child: _buildBookSection(theme, colorScheme, provider, item),
+          ),
+
+          SizedBox(height: spacing.formGroupSpacing),
+
+          // ── 区块 1: 类型切换 ──
+          _buildAnimatedSection(
+            index: 1,
             child: AnimatedTypeToggle(
               value: AccountItemType.fromCode(item.type) ??
                   AccountItemType.expense,
@@ -247,45 +256,45 @@ class _ModernItemFormState extends State<ModernItemForm> {
 
           SizedBox(height: spacing.formGroupSpacing),
 
-          // ── 区块 1: 金额 ──
+          // ── 区块 2: 金额 ──
           _buildAnimatedSection(
-            index: 1,
+            index: 2,
             child: _buildAmountSection(theme, colorScheme),
           ),
 
           SizedBox(height: spacing.formGroupSpacing),
 
-          // ── 区块 2: 分类与账户 ──
+          // ── 区块 3: 分类与账户 ──
           _buildAnimatedSection(
-            index: 2,
+            index: 3,
             child: _buildCategoryAccountSection(
                 theme, colorScheme, provider, item),
           ),
 
           SizedBox(height: spacing.formGroupSpacing),
 
-          // ── 区块 3: 详细信息 ──
+          // ── 区块 4: 详细信息 ──
           _buildAnimatedSection(
-            index: 3,
+            index: 4,
             child: _buildDetailsSection(
                 theme, colorScheme, provider, item),
           ),
 
           SizedBox(height: spacing.formGroupSpacing),
 
-          // ── 区块 4: 备注 ──
+          // ── 区块 5: 备注 ──
           _buildAnimatedSection(
-            index: 4,
+            index: 5,
             child: _buildNotesSection(
                 theme, colorScheme, provider),
           ),
 
           SizedBox(height: spacing.formGroupSpacing),
 
-          // ── 区块 5: 保存按钮 (仅新增页面) ──
+          // ── 区块 6: 保存按钮 (仅新增页面) ──
           if (!widget.autoSave)
             _buildAnimatedSection(
-              index: 5,
+              index: 6,
               child: _buildSaveButton(theme, colorScheme, provider),
             ),
 
@@ -332,6 +341,81 @@ class _ModernItemFormState extends State<ModernItemForm> {
         ),
       ],
     );
+  }
+
+  /// 区块 0: 账本选择
+  Widget _buildBookSection(ThemeData theme, ColorScheme colorScheme,
+      ItemFormProvider provider, UserItemVO item) {
+    final isNew = provider.isNew;
+    final book = provider.currentBook;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: isNew ? () => _showBookPicker(provider) : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withAlpha(40),
+          borderRadius: BorderRadius.circular(12),
+          border: isNew
+              ? Border.all(color: colorScheme.outlineVariant.withAlpha(80))
+              : null,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.book_outlined,
+                size: 20, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book?.name ?? L10nManager.l10n.noAccountBooks,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (book?.description?.isNotEmpty == true)
+                    Text(
+                      book!.description!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            if (isNew)
+              Icon(Icons.chevron_right,
+                  size: 20, color: colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showBookPicker(ItemFormProvider provider) async {
+    final books = provider.allBooks;
+    if (books.isEmpty) return;
+
+    final book = await showModalBottomSheet<UserBookVO>(
+      context: context,
+      isScrollControlled: true,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _BookPickerSheet(
+        books: books,
+        selectedId: provider.item.accountBookId,
+      ),
+    );
+    if (book != null && mounted) {
+      provider.changeBook(book);
+    }
   }
 
   /// 区块 1: 英雄金额
@@ -727,6 +811,98 @@ class _ModernItemFormState extends State<ModernItemForm> {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 账本选择面板（用于账目表单内的切换）
+class _BookPickerSheet extends StatelessWidget {
+  final List<UserBookVO> books;
+  final String? selectedId;
+
+  const _BookPickerSheet({
+    required this.books,
+    this.selectedId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.6,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withAlpha(50),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    L10nManager.l10n.selectAccountBook,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+              shrinkWrap: true,
+              children: books.map((book) {
+                final selected = book.id == selectedId;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: selected ? colorScheme.primary.withAlpha(10) : null,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                      leading: Icon(
+                        Icons.book_outlined,
+                        size: 22,
+                        color: selected ? colorScheme.primary : colorScheme.outline.withAlpha(60),
+                      ),
+                      title: Text(
+                        book.name,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: selected ? FontWeight.w600 : null,
+                          color: selected ? colorScheme.primary : null,
+                        ),
+                      ),
+                      trailing: selected
+                          ? Icon(Icons.check_circle_rounded, size: 22, color: colorScheme.primary)
+                          : null,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      onTap: () => Navigator.of(context).pop(book),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
