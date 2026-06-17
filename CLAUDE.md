@@ -52,6 +52,7 @@ lib/
 3. **数据库**：使用 Drift，模型在 `lib/models/`，数据库定义在 `lib/database/`
 4. **状态管理**：Provider，Provider定义在 `lib/providers/`
 5. **Lint**：不得使用过时API（如 `withOpacity`），修改后检查 lint 问题
+6. **新模块 checklist**：新增模块接口必须对照 `docs/design/data_driver_guide.md` 逐条确认——update 用统一方法而非单字段专用方法、LogBuilder 的 `executeLog`/`fromLog` 必须覆盖 create/update/delete 三个 OperateType
 
 ## 礼物卡模块
 

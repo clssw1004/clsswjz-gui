@@ -1046,21 +1046,25 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<void>> updateActivityRecordTime(
+  Future<OperateResult<void>> updateActivityRecord(
     String userId,
     String recordId, {
-    required int createdAt,
+    int? createdAt,
+    String? location,
+    String? remark,
   }) async {
     try {
-      await ActivityRecordCULog.updateTime(
+      await ActivityRecordCULog.update(
         who: userId,
         id: recordId,
         createdAt: createdAt,
+        location: location,
+        remark: remark,
       ).execute();
       return OperateResult.success(null);
     } catch (e) {
       return OperateResult.failWithMessage(
-          message: '更新活动记录时间失败：$e', exception: e as Exception);
+          message: '更新活动记录失败：$e', exception: e as Exception);
     }
   }
 

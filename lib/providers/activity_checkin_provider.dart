@@ -242,30 +242,37 @@ class ActivityCheckinProvider extends ChangeNotifier {
     return result.ok;
   }
 
-  /// 更新记录时间
-  Future<bool> updateRecordTime(String recordId, {required int createdAt}) async {
-    final result = await DriverFactory.driver.updateActivityRecordTime(
+  /// 更新记录（改时间/备注/地点）
+  Future<bool> updateRecord(String recordId, {
+    int? createdAt,
+    String? location,
+    String? remark,
+  }) async {
+    final result = await DriverFactory.driver.updateActivityRecord(
       AppConfigManager.instance.userId,
       recordId,
       createdAt: createdAt,
+      location: location,
+      remark: remark,
     );
     if (result.ok) {
       final idx = _recordsByDefId.indexWhere((r) => r.id == recordId);
       if (idx == -1) return result.ok;
+      final old = _recordsByDefId[idx];
       final now = DateTime.now().millisecondsSinceEpoch;
       final updated = ActivityRecordVO(
-        id: _recordsByDefId[idx].id,
-        accountBookId: _recordsByDefId[idx].accountBookId,
-        activityName: _recordsByDefId[idx].activityName,
-        location: _recordsByDefId[idx].location,
-        remark: _recordsByDefId[idx].remark,
-        activityDefId: _recordsByDefId[idx].activityDefId,
-        maxDailyCount: _recordsByDefId[idx].maxDailyCount,
-        recordDate: _recordsByDefId[idx].recordDate,
-        createdAt: createdAt,
+        id: old.id,
+        accountBookId: old.accountBookId,
+        activityName: old.activityName,
+        location: location ?? old.location,
+        remark: remark ?? old.remark,
+        activityDefId: old.activityDefId,
+        maxDailyCount: old.maxDailyCount,
+        recordDate: old.recordDate,
+        createdAt: createdAt ?? old.createdAt,
         updatedAt: now,
-        createdBy: _recordsByDefId[idx].createdBy,
-        updatedBy: _recordsByDefId[idx].updatedBy,
+        createdBy: old.createdBy,
+        updatedBy: old.updatedBy,
       );
       _recordsByDefId[idx] = updated;
       notifyListeners();
