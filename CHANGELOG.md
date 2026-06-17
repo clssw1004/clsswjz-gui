@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.8] - 2026-06-17
+
+### Features
+- Activity record now supports editing remark/location/time
+- Item create form supports selecting target account book
+
+### Bug Fixes
+- Activity record sync replay missing update branch caused remote data deletion
+- Activity record local update had no DB effect (missing update in executeLog)
+- Modern item form _sectionVisible list index out of range
+
+### Optimizations
+- Book selector redesigned: M3 bottom sheet style with search filter
+- Shared badge simplified: icon removed, subtle background with username only
+- Activity detail: username moved to right, shared records shown with opacity + lock icon
+- Removed duplicate activity name from navigation bar
+- Unified update method, removed single-field updateActivityRecordTime
+
 ## [1.1.7] - 2026-06-16
 
 ### Features
