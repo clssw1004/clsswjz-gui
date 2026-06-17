@@ -94,6 +94,10 @@
     "@search": {
         "description": "搜索文本"
     },
+    "noMatchingResults": "未找到匹配結果",
+    "@noMatchingResults": {
+        "description": "搜索無匹配結果時的提示"
+    },
     "addNew": "新增{value}",
     "@addNew": {
         "description": "新增選項文本",

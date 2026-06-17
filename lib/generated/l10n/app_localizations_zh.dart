@@ -228,6 +228,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get search => '搜索';
 
   @override
+  String get noMatchingResults => '未找到匹配结果';
+
+  @override
   String addNew(Object value) {
     return '新增$value';
   }
@@ -1636,6 +1639,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get search => '搜索';
+
+  @override
+  String get noMatchingResults => '未找到匹配結果';
 
   @override
   String addNew(Object value) {

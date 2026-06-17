@@ -228,6 +228,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
+  String get noMatchingResults => 'No matching results';
+
+  @override
   String addNew(Object value) {
     return 'Add $value';
   }

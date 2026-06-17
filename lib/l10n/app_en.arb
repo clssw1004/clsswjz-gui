@@ -94,6 +94,10 @@
     "@search": {
         "description": "Search text"
     },
+    "noMatchingResults": "No matching results",
+    "@noMatchingResults": {
+        "description": "Message shown when search yields no results"
+    },
     "addNew": "Add {value}",
     "@addNew": {
         "description": "Add new item text",
