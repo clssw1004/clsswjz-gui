@@ -1232,5 +1232,25 @@
     "tapToCheckIn": "輕點圖示快速打卡",
     "@tapToCheckIn": {
         "description": "打卡彈窗提示輕點即可打卡"
+    },
+    "all": "全部",
+    "@all": {
+        "description": "全部"
+    },
+    "groupFilterTitle": "篩選分組",
+    "@groupFilterTitle": {
+        "description": "記事分組篩選彈窗標題"
+    },
+    "groupFilterMultiple": "{name}等{count}個",
+    "@groupFilterMultiple": {
+        "description": "多選分組時顯示選中項（如「項目A等3個」）",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            },
+            "count": {
+                "type": "int"
+            }
+        }
     }
 }

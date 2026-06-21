@@ -627,20 +627,27 @@ class StatisticService {
     final db = DatabaseManager.db;
 
     // 时间范围
-    final now = DateTime.now();
-    final firstDayOfMonth = DateTime(now.year, now.month, 1);
-    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+    final startStr = start != null
+        ? DateFormat('yyyy-MM-dd HH:mm:ss').format(start)
+        : null;
+    final endStr = end != null
+        ? DateFormat('yyyy-MM-dd HH:mm:ss').format(end)
+        : null;
 
-    final monthStart = start ?? firstDayOfMonth;
-    final monthEnd = end ?? lastDayOfMonth;
-    final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(monthStart);
-    final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(monthEnd);
+    final dateFilterIncome = startStr != null && endStr != null
+        ? (db.accountItemTable.accountDate.isBetweenValues(startStr, endStr) &
+            db.accountItemTable.type.equals(AccountItemType.income.code))
+        : db.accountItemTable.type.equals(AccountItemType.income.code);
 
-    // 查询收入（排除退款）
+    final dateFilterExpense = startStr != null && endStr != null
+        ? (db.accountItemTable.accountDate.isBetweenValues(startStr, endStr) &
+            db.accountItemTable.type.equals(AccountItemType.expense.code))
+        : db.accountItemTable.type.equals(AccountItemType.expense.code);
+
+    // 查询收入
     final incomeQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-          db.accountItemTable.type.equals(AccountItemType.income.code) &
-          db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
+          dateFilterIncome)
       ..addColumns([
         db.accountItemTable.projectCode,
         db.accountItemTable.amount.sum(),
@@ -651,8 +658,7 @@ class StatisticService {
     // 查询支出
     final expenseQuery = db.selectOnly(db.accountItemTable)
       ..where(db.accountItemTable.accountBookId.equals(accountBookId) &
-          db.accountItemTable.type.equals(AccountItemType.expense.code) &
-          db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
+          dateFilterExpense)
       ..addColumns([
         db.accountItemTable.projectCode,
         db.accountItemTable.amount.sum(),

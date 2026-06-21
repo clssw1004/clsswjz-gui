@@ -2762,6 +2762,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap emoji to check in'**
   String get tapToCheckIn;
+
+  /// All
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// Note group filter sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Groups'**
+  String get groupFilterTitle;
+
+  /// Multiple groups selected label (e.g. 'Project A +3')
+  ///
+  /// In en, this message translates to:
+  /// **'{name} +{count}'**
+  String groupFilterMultiple(String name, int count);
 }
 
 class _AppLocalizationsDelegate

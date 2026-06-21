@@ -1434,5 +1434,25 @@
     "tapToCheckIn": "Tap emoji to check in",
     "@tapToCheckIn": {
         "description": "Check-in sheet hint text"
+    },
+    "all": "All",
+    "@all": {
+        "description": "All"
+    },
+    "groupFilterTitle": "Filter Groups",
+    "@groupFilterTitle": {
+        "description": "Note group filter sheet title"
+    },
+    "groupFilterMultiple": "{name} +{count}",
+    "@groupFilterMultiple": {
+        "description": "Multiple groups selected label (e.g. 'Project A +3')",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            },
+            "count": {
+                "type": "int"
+            }
+        }
     }
 }
