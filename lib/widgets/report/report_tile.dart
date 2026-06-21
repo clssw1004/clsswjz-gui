@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../manager/l10n_manager.dart';
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../utils/date_util.dart';
@@ -51,10 +52,10 @@ class ReportTile extends StatelessWidget {
               Row(children: [
                 _changeTag(cs, s.totalExpense, s.expenseDiff, s.hasComparison),
                 const Spacer(),
-                Text('收入 ¥${s.totalIncome.toStringAsFixed(0)}',
+                Text('${L10nManager.l10n.reportLabelIncome} ¥${s.totalIncome.toStringAsFixed(0)}',
                     style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                 const SizedBox(width: 10),
-                Text('结余 ¥${s.balance.toStringAsFixed(0)}',
+                Text('${L10nManager.l10n.reportLabelBalance} ¥${s.balance.toStringAsFixed(0)}',
                     style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
               ]),
               // 预警提示
@@ -76,7 +77,7 @@ class ReportTile extends StatelessWidget {
 
   Widget _changeTag(ColorScheme cs, double amount, double diff, bool hasComp) {
     if (!hasComp) {
-      return Text('支出 ¥${amount.toStringAsFixed(0)}',
+      return Text('${L10nManager.l10n.reportLabelExpense} ¥${amount.toStringAsFixed(0)}',
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurface));
     }
     final up = diff > 0;
@@ -87,7 +88,7 @@ class ReportTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        '支出 ${up ? "↑" : "↓"} ¥${diff.abs().toStringAsFixed(0)}',
+        '${L10nManager.l10n.reportLabelExpense} ${up ? "↑" : "↓"} ¥${diff.abs().toStringAsFixed(0)}',
         style: TextStyle(
             fontSize: 12, fontWeight: FontWeight.w600,
             color: up ? cs.error : cs.primary),

@@ -176,7 +176,8 @@ class _NoteListState extends State<NoteList> {
       return const CommonLoadingView();
     }
 
-    if (_notes == null || _notes!.isEmpty) {
+    if ((_notes == null || _notes!.isEmpty) &&
+        (widget.footerItems == null || widget.footerItems!.isEmpty)) {
       return RefreshIndicator(
         onRefresh: widget.onLoadMore ?? Future.value,
         child: ListView(

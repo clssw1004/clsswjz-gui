@@ -183,10 +183,10 @@ class _NotesTabState extends State<NotesTab> {
     final noteId = await service.regenerateReport(bookId, year, month);
     if (mounted) {
       if (noteId != null) {
-        ToastUtil.showSuccess('$year年$month月报告已生成');
+        ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
         provider.loadNotes(true);
       } else {
-        ToastUtil.showError('该月无记账数据或生成失败');
+        ToastUtil.showError(L10nManager.l10n.reportNoData);
       }
     }
   }
@@ -232,7 +232,7 @@ class _MissingMonthCard extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('$year年$month月', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cs.onSurface)),
               const SizedBox(height: 1),
-              Text('未生成', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+              Text(L10nManager.l10n.reportNotGenerated, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
             ]),
           ),
           SizedBox(
@@ -240,7 +240,7 @@ class _MissingMonthCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onGenerate,
               icon: const Icon(Icons.add, size: 14),
-              label: const Text('生成', style: TextStyle(fontSize: 11)),
+              label: Text(L10nManager.l10n.reportGenerate, style: TextStyle(fontSize: 11)),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
@@ -23,13 +24,11 @@ class ReportDetailPage extends StatefulWidget {
 class _ReportDetailPageState extends State<ReportDetailPage> {
   bool _regenerating = false;
   String _content = '';
-  String _plainContent = '';
 
   @override
   void initState() {
     super.initState();
     _content = widget.note.content;
-    _plainContent = widget.note.plainContent;
   }
 
   Future<void> _regenerate() async {
@@ -38,7 +37,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     final regExp = RegExp(r'(\d+)年(\d+)月');
     final match = regExp.firstMatch(title);
     if (match == null) {
-      ToastUtil.showError('无法解析报告月份');
+      ToastUtil.showError(L10nManager.l10n.reportRegenFailed);
       setState(() => _regenerating = false);
       return;
     }
@@ -54,12 +53,11 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
         if (updated != null && mounted) {
           setState(() {
             _content = updated.content ?? '';
-            _plainContent = updated.plainContent ?? '';
           });
-          ToastUtil.showSuccess('报告已重新生成');
+          ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
         }
       } else {
-        ToastUtil.showError('重新生成失败');
+        ToastUtil.showError(L10nManager.l10n.reportRegenFailed);
       }
       setState(() => _regenerating = false);
     }
@@ -81,13 +79,13 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                     ? SizedBox(width: 20, height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : Icon(Icons.refresh_rounded),
-                tooltip: '重新生成',
+                tooltip: L10nManager.l10n.reportRegenerate,
               ),
             ),
         ],
       ),
       body: r == null
-          ? Center(child: Text('无法解析报告', style: Theme.of(context).textTheme.bodyLarge))
+          ? Center(child: Text(L10nManager.l10n.reportRegenFailed, style: Theme.of(context).textTheme.bodyLarge))
           : _Body(r: r),
     );
   }
@@ -127,7 +125,7 @@ class _Body extends StatelessWidget {
 
         // ═══ CATEGORY DONUT CHART ═══
         if (r.categoryExpenses.isNotEmpty) ...[
-          _sectionTitle(cs, '支出构成'),
+          _sectionTitle(cs, L10nManager.l10n.reportSectionCategories),
           const SizedBox(height: 8),
           _CategoryDonut(categories: r.categoryExpenses),
           const SizedBox(height: 24),
@@ -135,7 +133,7 @@ class _Body extends StatelessWidget {
 
         // ═══ CATEGORY COMPARISON BARS ═══
         if (r.categoryExpenses.isNotEmpty) ...[
-          _sectionTitle(cs, '分类同比（本月 vs 上月）'),
+          _sectionTitle(cs, L10nManager.l10n.reportSectionComparison),
           const SizedBox(height: 8),
           _CategoryComparison(categories: r.categoryExpenses, cs: cs, hasComp: hasComp),
           const SizedBox(height: 24),
@@ -143,14 +141,14 @@ class _Body extends StatelessWidget {
 
         // ═══ DAILY EXPENSE CHART ═══
         if (r.dailyAmounts.isNotEmpty) ...[
-          _sectionTitle(cs, '每日支出趋势'),
+          _sectionTitle(cs, L10nManager.l10n.reportSectionDaily),
           const SizedBox(height: 8),
           _DailyChart(dailyAmounts: r.dailyAmounts, cs: cs),
           const SizedBox(height: 24),
         ],
 
         // ═══ KEY METRICS ═══
-        _sectionTitle(cs, '关键指标'),
+        _sectionTitle(cs, L10nManager.l10n.reportSectionMetrics),
         const SizedBox(height: 10),
         _KeyMetrics(s: s, r: r, cs: cs),
 
@@ -196,7 +194,7 @@ class _Header extends StatelessWidget {
       ),
       const SizedBox(width: 14),
       if (hasComp) ...[
-        Text('支出', style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant)),
+        Text(L10nManager.l10n.reportLabelExpense, style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant)),
         const SizedBox(width: 6),
         Icon(expenseDown ? Icons.arrow_downward : Icons.arrow_upward,
             size: 20, color: expenseDown ? cs.primary : cs.error),
@@ -221,11 +219,11 @@ class _KpiComparisonRow extends StatelessWidget {
     return Column(children: [
       // Row 1: KPI values only
       Row(children: [
-        _kpiValue(cs, '支出', s.totalExpense, cs.error),
+        _kpiValue(cs, L10nManager.l10n.reportLabelExpense, s.totalExpense, cs.error),
         const SizedBox(width: 10),
-        _kpiValue(cs, '收入', s.totalIncome, cs.primary),
+        _kpiValue(cs, L10nManager.l10n.reportLabelIncome, s.totalIncome, cs.primary),
         const SizedBox(width: 10),
-        _kpiValue(cs, '结余', s.balance, cs.tertiary),
+        _kpiValue(cs, L10nManager.l10n.reportLabelBalance, s.balance, cs.tertiary),
       ]),
       // Row 2: Full-width comparison
       if (hasComp) ...[
@@ -270,11 +268,11 @@ class _ComparisonStrip extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
-        _compLine(cs, '支出', s.prevExpense, s.totalExpense),
+        _compLine(cs, L10nManager.l10n.reportLabelExpense, s.prevExpense, s.totalExpense),
         const SizedBox(height: 6),
-        _compLine(cs, '收入', s.prevIncome, s.totalIncome),
+        _compLine(cs, L10nManager.l10n.reportLabelIncome, s.prevIncome, s.totalIncome),
         const SizedBox(height: 6),
-        _compLine(cs, '结余', s.prevBalance, s.balance),
+        _compLine(cs, L10nManager.l10n.reportLabelBalance, s.prevBalance, s.balance),
       ]),
     );
   }
@@ -412,7 +410,7 @@ class _CategoryComparison extends StatelessWidget {
       child: Column(children: [
         // Header row
         Row(children: [
-          const SizedBox(width: 60, child: Text('分类', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey))),
+          const SizedBox(width: 60, child: Text('', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey))),
           Expanded(child: Container()),
           SizedBox(width: 44, child: Text('本月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
           if (hasComp) SizedBox(width: 44, child: Text('上月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
@@ -557,12 +555,12 @@ class _KeyMetrics extends StatelessWidget {
         border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
       ),
       child: Wrap(spacing: 4, runSpacing: 10, children: [
-        _metric(cs, '储蓄率', '${r.savingsRate.toStringAsFixed(1)}%', r.savingsRate >= 20 ? cs.primary : cs.error),
-        _metric(cs, '日均支出', '¥${s.dailyAverage.toStringAsFixed(1)}', cs.onSurface),
-        _metric(cs, '记账笔数', '${r.itemCount}', cs.onSurface),
-        _metric(cs, '分类数', '${r.categoryExpenses.length}', cs.onSurface),
-        _metric(cs, '有支出天数', '${r.dailyAmounts.where((d) => d > 0).length}天', cs.onSurface),
-        _metric(cs, '单笔最高', '¥${r.trends.maxSpendAmount?.toStringAsFixed(0) ?? "-"}', cs.onSurface),
+        _metric(cs, L10nManager.l10n.reportMetricSavingsRate, '${r.savingsRate.toStringAsFixed(1)}%', r.savingsRate >= 20 ? cs.primary : cs.error),
+        _metric(cs, L10nManager.l10n.reportMetricDailyAvg, '¥${s.dailyAverage.toStringAsFixed(1)}', cs.onSurface),
+        _metric(cs, L10nManager.l10n.reportMetricItemCount, '${r.itemCount}', cs.onSurface),
+        _metric(cs, L10nManager.l10n.reportMetricCategoryCount, '${r.categoryExpenses.length}', cs.onSurface),
+        _metric(cs, L10nManager.l10n.reportMetricSpendingDays, '${r.dailyAmounts.where((d) => d > 0).length}天', cs.onSurface),
+        _metric(cs, L10nManager.l10n.reportMetricMaxTxn, '¥${r.trends.maxSpendAmount?.toStringAsFixed(0) ?? "-"}', cs.onSurface),
       ]),
     );
   }

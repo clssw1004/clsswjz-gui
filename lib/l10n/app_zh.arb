@@ -379,7 +379,7 @@
     "@memberAlreadyExists": {
         "description": "成员已存在提示"
     },
-    "userNotFound": "未查找到用户，请稍后再输入",
+    "userNotFound": "未找到用户",
     "@userNotFound": {
         "description": "未找到用户提示"
     },
@@ -1419,7 +1419,6 @@
     "checkIn": "打卡",
     "shareSettings": "数据共享",
     "addUser": "添加用户",
-    "userNotFound": "未找到用户",
     "confirmAdd": "确认添加",
     "confirmRemoveShare": "确定要移除该用户的所有共享权限吗？",
     "noSharedUsers": "暂无共享用户",
@@ -1455,6 +1454,111 @@
             },
             "count": {
                 "type": "int"
+            }
+        }
+    },
+    "reportLabelExpense": "支出",
+    "@reportLabelExpense": {
+        "description": ""
+    },
+    "reportLabelIncome": "收入",
+    "@reportLabelIncome": {
+        "description": ""
+    },
+    "reportLabelBalance": "结余",
+    "@reportLabelBalance": {
+        "description": ""
+    },
+    "reportSectionCategories": "支出构成",
+    "@reportSectionCategories": {
+        "description": ""
+    },
+    "reportSectionComparison": "分类同比",
+    "@reportSectionComparison": {
+        "description": ""
+    },
+    "reportSectionDaily": "每日支出趋势",
+    "@reportSectionDaily": {
+        "description": ""
+    },
+    "reportSectionMetrics": "关键指标",
+    "@reportSectionMetrics": {
+        "description": ""
+    },
+    "reportMetricSavingsRate": "储蓄率",
+    "@reportMetricSavingsRate": {
+        "description": ""
+    },
+    "reportMetricDailyAvg": "日均支出",
+    "@reportMetricDailyAvg": {
+        "description": ""
+    },
+    "reportMetricItemCount": "记账笔数",
+    "@reportMetricItemCount": {
+        "description": ""
+    },
+    "reportMetricCategoryCount": "分类数",
+    "@reportMetricCategoryCount": {
+        "description": ""
+    },
+    "reportMetricSpendingDays": "有支出天数",
+    "@reportMetricSpendingDays": {
+        "description": ""
+    },
+    "reportMetricMaxTxn": "单笔最高",
+    "@reportMetricMaxTxn": {
+        "description": ""
+    },
+    "reportGenerate": "生成",
+    "@reportGenerate": {
+        "description": ""
+    },
+    "reportRegenerate": "重新生成",
+    "@reportRegenerate": {
+        "description": ""
+    },
+    "reportGenerated": "已生成",
+    "@reportGenerated": {
+        "description": ""
+    },
+    "reportNotGenerated": "未生成",
+    "@reportNotGenerated": {
+        "description": ""
+    },
+    "reportRegenerated": "报告已重新生成",
+    "@reportRegenerated": {
+        "description": ""
+    },
+    "reportRegenFailed": "无法解析报告",
+    "@reportRegenFailed": {
+        "description": ""
+    },
+    "reportDeleteTitle": "删除月度报告",
+    "@reportDeleteTitle": {
+        "description": ""
+    },
+    "reportDeleteConfirm": "确定删除该月度的收支报告？",
+    "@reportDeleteConfirm": {
+        "description": ""
+    },
+    "reportFilterLabel": "月度报表",
+    "@reportFilterLabel": {
+        "description": ""
+    },
+    "reportNoData": "该月无记账数据或生成失败",
+    "@reportNoData": {
+        "description": ""
+    },
+    "reportNoMonths": "当年暂无已完成的月份",
+    "@reportNoMonths": {
+        "description": ""
+    },
+    "reportGeneratedAt": "生成于 {date}",
+    "@reportGeneratedAt": {
+        "description": "",
+        "placeholders": {
+            "date": {
+                "type": "String"
             }
         }
     }

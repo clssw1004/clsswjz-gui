@@ -134,8 +134,8 @@ class _DeletableReportTile extends StatelessWidget {
       builder: (ctx) {
         final theme = Theme.of(ctx);
         return AlertDialog(
-          title: Text(l10n.delete(l10n.tabNotes)),
-          content: Text('${l10n.delete(l10n.tabNotes)}？'),
+          title: Text(L10nManager.l10n.reportDeleteTitle),
+          content: Text(L10nManager.l10n.reportDeleteConfirm),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),

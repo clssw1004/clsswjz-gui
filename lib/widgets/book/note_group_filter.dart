@@ -347,13 +347,13 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
             color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
           ),
           title: Text(
-            '月度报表',
+            L10nManager.l10n.reportFilterLabel,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : null,
               color: isSelected ? colorScheme.primary : null,
             ),
           ),
-          subtitle: Text('按月生成的分析报告', style: theme.textTheme.bodySmall?.copyWith(
+          subtitle: Text(L10nManager.l10n.reportSectionComparison, style: theme.textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurfaceVariant,
           )),
           trailing: isSelected
