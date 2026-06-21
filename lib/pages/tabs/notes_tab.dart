@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import '../../enums/note_type.dart';
 import '../../manager/l10n_manager.dart';
+import '../../widgets/note_renderer.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../providers/note_list_provider.dart';
@@ -126,13 +126,17 @@ class _NotesTabState extends State<NotesTab> {
                         onLoadMore: () => noteListProvider.loadMore(),
                         onDelete: noteListProvider.deleteNote,
                         onNoteTap: (note) {
-                          if (note.noteType == NoteType.report.code) {
+                          final renderer = NoteRendererRegistry.resolve(
+                              note.noteType, note.template);
+                          if (renderer != null && !renderer.isEditable) {
+                            // 只读笔记 → 渲染器详情页
                             Navigator.pushNamed(
                               context,
                               AppRoutes.reportDetail,
                               arguments: note,
                             );
                           } else {
+                            // 可编辑笔记 → 编辑页
                             Navigator.pushNamed(
                               context,
                               AppRoutes.noteEdit,

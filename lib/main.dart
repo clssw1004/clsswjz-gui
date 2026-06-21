@@ -6,6 +6,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'generated/l10n/app_localizations.dart';
 import 'manager/cache_manager.dart';
 import 'manager/l10n_manager.dart';
+import 'widgets/note_renderer.dart';
 import 'providers/locale_provider.dart';
 import 'manager/provider_manager.dart';
 import 'providers/theme_provider.dart';
@@ -19,6 +20,8 @@ void main() async {
   await CacheManager.init();
   //  初始化配置管理器
   await AppConfigManager.init();
+  //  初始化笔记渲染器注册
+  initNoteRenderers();
   runApp(
     ProviderManager.init(
       child: const ClsswjzApp(),

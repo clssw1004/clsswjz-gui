@@ -15,6 +15,7 @@ class UserNoteVO {
 
   /// 笔记类型 (NOTE / TODO / REPORT)
   final String? noteType;
+  final String? template;
 
   /// 作用域 (book / global)
   final String? scope;
@@ -47,6 +48,7 @@ class UserNoteVO {
     required this.plainContent,
     required this.accountBookId,
     this.noteType,
+    this.template,
     this.scope,
     this.groupCode,
     this.groupName,
@@ -62,6 +64,7 @@ class UserNoteVO {
     required String content,
     required String plainContent,
     String? noteType,
+    String? template,
     String? scope,
     String? groupCode,
     String? groupName,
@@ -77,6 +80,7 @@ class UserNoteVO {
       content: content,
       plainContent: plainContent,
       noteType: noteType ?? this.noteType,
+      template: template ?? this.template,
       scope: scope ?? this.scope,
       groupCode: groupCode ?? this.groupCode,
       groupName: groupName ?? this.groupName,
@@ -95,6 +99,7 @@ class UserNoteVO {
       content: note.content ?? '',
       plainContent: note.plainContent ?? '',
       noteType: note.noteType,
+      template: note.template,
       scope: note.scope,
       groupCode: note.groupCode,
       groupName: groupName,

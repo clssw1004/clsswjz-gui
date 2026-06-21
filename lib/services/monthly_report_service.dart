@@ -39,6 +39,7 @@ class MonthlyReportService {
       noteType: NoteType.report,
       content: report.toJsonString(),
       plainContent: report.toPlainText(),
+      template: 'report_v1',
     );
 
     if (result.ok) {
@@ -64,6 +65,7 @@ class MonthlyReportService {
         title: '月度收支报告 —— $year年$month月',
         content: report.toJsonString(),
         plainContent: report.toPlainText(),
+        template: 'report_v1',
       );
       if (result.ok) return existing.id;
       return null;
@@ -76,6 +78,7 @@ class MonthlyReportService {
         noteType: NoteType.report,
         content: report.toJsonString(),
         plainContent: report.toPlainText(),
+        template: 'report_v1',
       );
       if (result.ok) return result.data;
       return null;

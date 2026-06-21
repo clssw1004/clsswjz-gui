@@ -553,6 +553,7 @@ class LogDataDriver implements BookDataDriver {
       required String plainContent,
       String? groupCode,
       String? scope,
+      String? template,
       List<AttachmentVO>? attachments}) async {
     final id = await NoteCULog.create(who, bookId,
             title: title,
@@ -560,7 +561,8 @@ class LogDataDriver implements BookDataDriver {
             content: content,
             plainContent: plainContent,
             groupCode: groupCode,
-            scope: scope)
+            scope: scope,
+            template: template)
         .execute();
     if (attachments != null && attachments.isNotEmpty) {
       for (var attachment in attachments) {
@@ -589,13 +591,15 @@ class LogDataDriver implements BookDataDriver {
       String? plainContent,
       String? groupCode,
       String? scope,
+      String? template,
       List<AttachmentVO>? attachments}) async {
     await NoteCULog.update(who, bookId, noteId,
             title: title,
             content: content,
             plainContent: plainContent,
             groupCode: groupCode,
-            scope: scope)
+            scope: scope,
+            template: template)
         .execute();
     await updateAttachments(who, BusinessType.note, noteId, attachments ?? []);
     return OperateResult.success(null);

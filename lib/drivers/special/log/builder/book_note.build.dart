@@ -43,6 +43,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? plainContent,
     String? groupCode,
     String? scope,
+    String? template,
   }) {
     return NoteCULog().who(who).inBook(bookId).doCreate().withData(
         AccountNoteTable.toCreateCompanion(who, bookId,
@@ -51,7 +52,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
             content: content,
             plainContent: plainContent,
             groupCode: groupCode,
-            scope: scope)) as NoteCULog;
+            scope: scope,
+            template: template)) as NoteCULog;
   }
 
   static NoteCULog update(
@@ -63,6 +65,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? plainContent,
     String? groupCode,
     String? scope,
+    String? template,
   }) {
     return NoteCULog()
         .who(userId)
@@ -74,7 +77,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
             content: content,
             plainContent: plainContent,
             groupCode: groupCode,
-            scope: scope)) as NoteCULog;
+            scope: scope,
+            template: template)) as NoteCULog;
   }
 
   static NoteCULog fromCreateLog(LogSync log) {
@@ -97,6 +101,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
       plainContent: data['plainContent'],
       groupCode: data['groupCode'],
       scope: data['scope'],
+      template: data['template'],
     );
   }
 
