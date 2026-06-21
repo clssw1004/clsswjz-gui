@@ -8,7 +8,6 @@ import '../../drivers/driver_factory.dart';
 import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
 import '../../events/special/event_sync.dart';
-import '../../theme/theme_spacing.dart';
 
 /// 笔记分组筛选组件
 class NoteGroupFilter extends StatefulWidget {
@@ -97,14 +96,12 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     }
   }
 
-  /// 处理分组选择
-  void _handleGroupSelection(String groupCode) {
-    if (groupCode == 'all') {
-      // 点击全部按钮，清空所有选择
+  /// 处理分组选择（多选）
+  void _handleGroupSelection(List<String> selectedCodes) {
+    if (selectedCodes.isEmpty || selectedCodes.contains('all')) {
       widget.onGroupCodesChanged?.call(null);
     } else {
-      // 单选逻辑：直接选中该分组，取消其他分组
-      widget.onGroupCodesChanged?.call([groupCode]);
+      widget.onGroupCodesChanged?.call(selectedCodes);
     }
   }
 
@@ -118,117 +115,255 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     return widget.selectedGroupCodes!.contains(groupCode);
   }
 
-  /// 打开全部分组选择面板
-  void _showAllGroupsSheet(BuildContext context, ThemeData theme) {
+  /// 获取当前选中分组的名称
+  String _getSelectedLabel() {
+    final l10n = L10nManager.l10n;
+    if (_isAllSelected) return l10n.all;
+    if (_isGroupSelected('none')) return l10n.noGroup;
+    final selected = _groups.where(
+      (g) => _isGroupSelected(g.code),
+    );
+    if (selected.length == 1) return selected.first.name;
+    return l10n.groupFilterMultiple(selected.first.name, selected.length);
+  }
+
+  /// 打开分组选择抽屉（多选列表）
+  void _showGroupDrawer(BuildContext context, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final l10n = L10nManager.l10n;
 
+    // 本地选中副本
+    final selected = <String>{};
+    if (!_isAllSelected) {
+      selected.addAll(widget.selectedGroupCodes!);
+    }
+
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.fromLTRB(
-            theme.spacing.contentPadding.left,
-            20,
-            theme.spacing.contentPadding.right,
-            20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '筛选分组',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final isAll = selected.isEmpty || selected.contains('all');
+
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.68,
               ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 10,
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(18)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildSheetChip(
-                    theme: theme,
-                    label: '全部',
-                    groupCode: 'all',
-                    isSelected: _isAllSelected,
+                  // ── 拖拽手柄 ──
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 2),
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurfaceVariant.withAlpha(50),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                  _buildSheetChip(
-                    theme: theme,
-                    label: l10n.noGroup,
-                    groupCode: 'none',
-                    isSelected: _isGroupSelected('none'),
+
+                  // ── 标题 ──
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.folder_outlined,
+                            size: 18, color: colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.groupFilterTitle,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  ..._groups.map((group) => _buildSheetChip(
-                        theme: theme,
-                        label: group.name,
-                        groupCode: group.code,
-                        isSelected: _isGroupSelected(group.code),
-                      )),
+
+                  // ── 分割线 ──
+                  Divider(height: 1, color: colorScheme.outline.withAlpha(20)),
+
+                  // ── 列表 ──
+                  Flexible(
+                    child: ListView(
+                      padding: const EdgeInsets.only(top: 4, bottom: 8),
+                      children: [
+                        // 全部选项
+                        _buildSheetItem(
+                          theme: theme,
+                          label: l10n.all,
+                          groupCode: 'all',
+                          isSelected: isAll,
+                          onTap: () {
+                            setSheetState(() => selected.clear());
+                          },
+                        ),
+                        // 分割线：全部 与 具体分组 之间
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          child: Divider(height: 1, color: colorScheme.outline.withAlpha(30)),
+                        ),
+                        _buildSheetItem(
+                          theme: theme,
+                          label: l10n.noGroup,
+                          groupCode: 'none',
+                          isSelected: !isAll && selected.contains('none'),
+                          onTap: () {
+                            setSheetState(() {
+                              selected.remove('all');
+                              if (selected.contains('none')) {
+                                selected.remove('none');
+                              } else {
+                                selected.add('none');
+                              }
+                            });
+                          },
+                        ),
+                        ..._groups.map((group) {
+                          final isGroupSelected =
+                              !isAll && selected.contains(group.code);
+                          return _buildSheetItem(
+                            theme: theme,
+                            label: group.name,
+                            groupCode: group.code,
+                            isSelected: isGroupSelected,
+                            onTap: () {
+                              setSheetState(() {
+                                selected.remove('all');
+                                if (selected.contains(group.code)) {
+                                  selected.remove(group.code);
+                                } else {
+                                  selected.add(group.code);
+                                }
+                              });
+                            },
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+
+                  // ── 底部操作栏 ──
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      8,
+                      16,
+                      MediaQuery.of(context).padding.bottom + 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(l10n.cancel),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _handleGroupSelection(selected.toList());
+                            },
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(l10n.confirm),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  /// 构建底部面板中的分组按钮
-  Widget _buildSheetChip({
+  /// 构建抽屉列表项（匹配 _SheetItemTile 样式）
+  Widget _buildSheetItem({
     required ThemeData theme,
     required String label,
     required String groupCode,
     required bool isSelected,
+    required VoidCallback onTap,
   }) {
     final colorScheme = theme.colorScheme;
 
-    return FilterChip(
-      label: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: isSelected
-              ? colorScheme.onPrimary
-              : colorScheme.onSurfaceVariant,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          fontSize: 13,
-          height: 1.2,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? colorScheme.primary.withAlpha(10) : null,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          dense: true,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          leading: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color:
+                  isSelected ? colorScheme.primary : colorScheme.outline.withAlpha(40),
+            ),
+          ),
+          title: Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isSelected ? FontWeight.w600 : null,
+              color: isSelected ? colorScheme.primary : null,
+            ),
+          ),
+          trailing: isSelected
+              ? Icon(
+                  Icons.check_circle_rounded,
+                  color: colorScheme.primary,
+                  size: 22,
+                )
+              : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          onTap: onTap,
         ),
       ),
-      selected: isSelected,
-      showCheckmark: false,
-      selectedColor: colorScheme.primary,
-      backgroundColor: Colors.transparent,
-      side: BorderSide(
-        color: isSelected
-            ? colorScheme.primary
-            : colorScheme.outline.withValues(alpha: 0.25),
-        width: 1,
-      ),
-      elevation: 0,
-      pressElevation: 0,
-      shadowColor: Colors.transparent,
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      onSelected: (selected) {
-        Navigator.of(context).pop();
-        _handleGroupSelection(groupCode);
-      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = L10nManager.l10n;
-    final spacing = theme.spacing;
     final colorScheme = theme.colorScheme;
 
     if (_loading) {
@@ -245,123 +380,50 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
     }
 
     return SizedBox(
-      height: 38,
-      child: Stack(
-        children: [
-          ListView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(
-              left: spacing.contentPadding.left,
-              right: spacing.contentPadding.right + 24,
+      height: 42,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showGroupDrawer(context, theme),
+          borderRadius: BorderRadius.circular(12),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
             ),
-            children: [
-              _buildChip(
-                theme: theme,
-                label: '全部',
-                groupCode: 'all',
-                isSelected: _isAllSelected,
-              ),
-              const SizedBox(width: 8),
-              _buildChip(
-                theme: theme,
-                label: l10n.noGroup,
-                groupCode: 'none',
-                isSelected: _isGroupSelected('none'),
-              ),
-              for (var i = 0; i < _groups.length; i++) ...[
-                const SizedBox(width: 8),
-                _buildChip(
-                  theme: theme,
-                  label: _groups[i].name,
-                  groupCode: _groups[i].code,
-                  isSelected: _isGroupSelected(_groups[i].code),
-                ),
-              ],
-            ],
-          ),
-          // 右侧渐变 + 展开按钮
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: GestureDetector(
-              onTap: () => _showAllGroupsSheet(context, theme),
-              child: Container(
-                width: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      colorScheme.surface.withValues(alpha: 0.0),
-                      colorScheme.surface,
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.folder_outlined,
+                    size: 18,
+                    color: colorScheme.primary,
                   ),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
-                      color: colorScheme.onSurfaceVariant,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _getSelectedLabel(),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  /// 构建行内分组按钮
-  Widget _buildChip({
-    required ThemeData theme,
-    required String label,
-    required String groupCode,
-    required bool isSelected,
-  }) {
-    final colorScheme = theme.colorScheme;
-
-    return FilterChip(
-      label: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: isSelected
-              ? colorScheme.onPrimary
-              : colorScheme.onSurfaceVariant,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          fontSize: 13,
-          height: 1.2,
         ),
       ),
-      selected: isSelected,
-      showCheckmark: false,
-      selectedColor: colorScheme.primary,
-      backgroundColor: Colors.transparent,
-      side: BorderSide(
-        color: isSelected
-            ? colorScheme.primary
-            : colorScheme.outline.withValues(alpha: 0.25),
-        width: 1,
-      ),
-      elevation: 0,
-      pressElevation: 0,
-      shadowColor: Colors.transparent,
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      onSelected: (selected) => _handleGroupSelection(groupCode),
     );
   }
 }

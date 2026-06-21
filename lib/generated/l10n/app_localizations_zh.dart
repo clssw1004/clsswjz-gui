@@ -1415,6 +1415,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tapToCheckIn => '轻点图标快速打卡';
+
+  @override
+  String get all => '全部';
+
+  @override
+  String get groupFilterTitle => '筛选分组';
+
+  @override
+  String groupFilterMultiple(String name, int count) {
+    return '$name等$count个';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -2703,4 +2714,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get tapToCheckIn => '輕點圖示快速打卡';
+
+  @override
+  String get all => '全部';
+
+  @override
+  String get groupFilterTitle => '篩選分組';
+
+  @override
+  String groupFilterMultiple(String name, int count) {
+    return '$name等$count個';
+  }
 }

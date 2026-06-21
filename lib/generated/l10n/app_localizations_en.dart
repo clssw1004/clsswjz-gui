@@ -1427,4 +1427,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapToCheckIn => 'Tap emoji to check in';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get groupFilterTitle => 'Filter Groups';
+
+  @override
+  String groupFilterMultiple(String name, int count) {
+    return '$name +$count';
+  }
 }
