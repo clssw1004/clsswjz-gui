@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../enums/note_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
 import '../common/common_empty_view.dart';
 import '../common/common_loading_view.dart';
+import '../report/report_tile.dart';
 import 'note_tile.dart';
 
 /// 笔记列表
@@ -146,6 +148,14 @@ class _NoteListState extends State<NoteList> {
 
   /// 构建列表项
   Widget _buildListItem(UserNoteVO note, int index, ThemeData theme) {
+    // 根据笔记类型选择不同组件
+    if (note.noteType == NoteType.report.code) {
+      return ReportTile(
+        note: note,
+        onTap: () => widget.onNoteTap?.call(note),
+      );
+    }
+    // TODO: noteType == TODO 时使用 TodoTile
     return NoteTile(
       note: note,
       index: index,

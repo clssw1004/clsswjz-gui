@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../database/database.dart';
 import '../drivers/driver_factory.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_book.dart';
 import '../manager/app_config_manager.dart';
+import '../manager/dao_manager.dart';
+import '../models/common.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/dto/note_filter_dto.dart';
 
@@ -90,22 +93,49 @@ class NoteListProvider extends ChangeNotifier {
     }
     try {
       // 创建筛选条件
-      final filter = NoteFilterDTO(_keyword, _groupCodes);
-      
-      final result = await DriverFactory.driver.listNotesByBook(
-        AppConfigManager.instance.userId,
-        _currentBookId!,
-        offset: (_page - 1) * _pageSize,
-        limit: _pageSize,
-        filter: filter,
+      final filter = NoteFilterDTO(
+        keyword: _keyword,
+        groupCodes: _groupCodes,
       );
-      if (result.ok) {
-        if (refresh) {
-          _notes.clear();
-        }
-        _notes.addAll(result.data ?? []);
-        _hasMore = (result.data?.length ?? 0) >= _pageSize;
+
+      // 并行查询：账本笔记 + 全局笔记
+      final results = await Future.wait([
+        DriverFactory.driver.listNotesByBook(
+          AppConfigManager.instance.userId,
+          _currentBookId!,
+          offset: (_page - 1) * _pageSize,
+          limit: _pageSize,
+          filter: filter,
+        ),
+        DaoManager.noteDao.listGlobalNotes(
+          limit: _pageSize,
+          filter: NoteFilterDTO(keyword: _keyword),
+        ),
+      ]);
+
+      final bookResult = results[0] as OperateResult<List<UserNoteVO>>;
+      final globalNotes = results[1] as List<AccountNote>;
+
+      if (refresh) {
+        _notes.clear();
       }
+
+      if (bookResult.ok) {
+        _notes.addAll(bookResult.data ?? []);
+        _hasMore = (bookResult.data?.length ?? 0) >= _pageSize;
+      }
+
+      // 合并全局笔记，按更新时间排序
+      for (final gn in globalNotes) {
+        final vo = UserNoteVO.fromAccountNote(gn, null);
+        // 去重：全局笔记在 listNotesByBook 中可能已存在（根据 noteType 区分）
+        if (!_notes.any((n) => n.id == vo.id)) {
+          _notes.add(vo);
+        }
+      }
+      _notes.sort((a, b) =>
+          (b.updatedAt ?? b.createdAt ?? 0)
+              .compareTo((a.updatedAt ?? a.createdAt ?? 0)));
     } finally {
       _loading = false;
       notifyListeners();

@@ -48,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -102,6 +102,14 @@ class AppDatabase extends _$AppDatabase {
             try {
               await m.addColumn(
                   activityRecordTable, activityRecordTable.remark);
+            } catch (_) {
+              // 列已存在时忽略
+            }
+          }
+          if (from < 12) {
+            // 版本11到版本12的迁移：account_note_table新增scope列
+            try {
+              await m.addColumn(accountNoteTable, accountNoteTable.scope);
             } catch (_) {
               // 列已存在时忽略
             }

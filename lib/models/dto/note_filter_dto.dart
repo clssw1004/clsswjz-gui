@@ -5,6 +5,13 @@ import 'package:json_annotation/json_annotation.dart';
 class NoteFilterDTO {
   final String? keyword;
   final List<String>? groupCodes;
+  final String? noteType;
+  final String? scope;
 
-  NoteFilterDTO(this.keyword, this.groupCodes);
+  const NoteFilterDTO({
+    this.keyword,
+    this.groupCodes,
+    this.noteType,
+    this.scope,
+  });
 }

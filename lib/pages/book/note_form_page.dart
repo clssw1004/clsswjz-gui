@@ -81,6 +81,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
   bool _showGroup = false;
   bool _showAttachment = false;
   bool _showRelation = false;
+  bool _showScope = false;
 
   @override
   void initState() {
@@ -403,6 +404,11 @@ class _NoteFormContentState extends State<_NoteFormContent> {
                                 provider, colorScheme, spacing),
                             maxHeight: mediaQuery.size.height * 0.33,
                           ),
+                        _buildSectionAnimated(
+                          show: _showScope,
+                          child: _buildScopeSection(provider, colorScheme, spacing),
+                          maxHeight: 120,
+                        ),
                         if (provider.attachments.isNotEmpty || provider.isNew)
                           _buildSectionAnimated(
                             show: _showAttachment,
@@ -458,6 +464,14 @@ class _NoteFormContentState extends State<_NoteFormContent> {
             onTap: () => _toggleSection('relation'),
             colorScheme: colorScheme,
           ),
+          const SizedBox(width: 1),
+          _toggleIcon(
+            icon: Icons.public_outlined,
+            activeIcon: Icons.public,
+            active: _showScope,
+            onTap: () => _toggleSection('scope'),
+            colorScheme: colorScheme,
+          ),
         ],
       ),
     );
@@ -470,11 +484,13 @@ class _NoteFormContentState extends State<_NoteFormContent> {
         'group' => _showGroup,
         'attachment' => _showAttachment,
         'relation' => _showRelation,
+        'scope' => _showScope,
         _ => false,
       };
       _showGroup = section == 'group' && !wasActive;
       _showAttachment = section == 'attachment' && !wasActive;
       _showRelation = section == 'relation' && !wasActive;
+      _showScope = section == 'scope' && !wasActive;
     });
   }
 
@@ -773,6 +789,126 @@ class _NoteFormContentState extends State<_NoteFormContent> {
               ),
             ),
             const SizedBox(width: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScopeSection(
+    NoteFormProvider provider,
+    ColorScheme colorScheme,
+    ThemeSpacing spacing,
+  ) {
+    final theme = Theme.of(context);
+    final isGlobal = provider.scope == 'global';
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        spacing.contentPadding.left,
+        spacing.formItemSpacing,
+        spacing.contentPadding.right,
+        spacing.formItemSpacing,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.public_outlined,
+                  size: 14, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 5),
+              Text(
+                '笔记范围',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildScopeOption(
+                  icon: Icons.book_outlined,
+                  title: '当前账本',
+                  subtitle: '仅在当前账本中可见',
+                  selected: !isGlobal,
+                  onTap: () => provider.updateScope('book'),
+                  colorScheme: colorScheme,
+                  theme: theme,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildScopeOption(
+                  icon: Icons.public,
+                  title: '全局',
+                  subtitle: '在所有账本中可见',
+                  selected: isGlobal,
+                  onTap: () => provider.updateScope('global'),
+                  colorScheme: colorScheme,
+                  theme: theme,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScopeOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool selected,
+    required VoidCallback onTap,
+    required ColorScheme colorScheme,
+    required ThemeData theme,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: selected
+                ? colorScheme.primary.withValues(alpha: 0.4)
+                : colorScheme.outline.withValues(alpha: 0.1),
+            width: selected ? 1.5 : 0.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon,
+                size: 24,
+                color: selected ? colorScheme.primary : colorScheme.onSurfaceVariant),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected ? colorScheme.primary : colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 10,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

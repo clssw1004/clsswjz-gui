@@ -5911,6 +5911,13 @@ class $AccountNoteTableTable extends AccountNoteTable
   late final GeneratedColumn<String> groupCode = GeneratedColumn<String>(
       'groupCode', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _scopeMeta = const VerificationMeta('scope');
+  @override
+  late final GeneratedColumn<String> scope = GeneratedColumn<String>(
+      'scope', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('book'));
   @override
   List<GeneratedColumn> get $columns => [
         accountBookId,
@@ -5923,7 +5930,8 @@ class $AccountNoteTableTable extends AccountNoteTable
         content,
         noteType,
         plainContent,
-        groupCode
+        groupCode,
+        scope
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5996,6 +6004,10 @@ class $AccountNoteTableTable extends AccountNoteTable
       context.handle(_groupCodeMeta,
           groupCode.isAcceptableOrUnknown(data['groupCode']!, _groupCodeMeta));
     }
+    if (data.containsKey('scope')) {
+      context.handle(
+          _scopeMeta, scope.isAcceptableOrUnknown(data['scope']!, _scopeMeta));
+    }
     return context;
   }
 
@@ -6027,6 +6039,8 @@ class $AccountNoteTableTable extends AccountNoteTable
           .read(DriftSqlType.string, data['${effectivePrefix}plain_content']),
       groupCode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}groupCode']),
+      scope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scope'])!,
     );
   }
 
@@ -6048,6 +6062,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
   final String noteType;
   final String? plainContent;
   final String? groupCode;
+  final String scope;
   const AccountNote(
       {required this.accountBookId,
       required this.createdBy,
@@ -6059,7 +6074,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       this.content,
       required this.noteType,
       this.plainContent,
-      this.groupCode});
+      this.groupCode,
+      required this.scope});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6082,6 +6098,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
     if (!nullToAbsent || groupCode != null) {
       map['groupCode'] = Variable<String>(groupCode);
     }
+    map['scope'] = Variable<String>(scope);
     return map;
   }
 
@@ -6105,6 +6122,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       groupCode: groupCode == null && nullToAbsent
           ? const Value.absent()
           : Value(groupCode),
+      scope: Value(scope),
     );
   }
 
@@ -6123,6 +6141,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       noteType: serializer.fromJson<String>(json['noteType']),
       plainContent: serializer.fromJson<String?>(json['plainContent']),
       groupCode: serializer.fromJson<String?>(json['groupCode']),
+      scope: serializer.fromJson<String>(json['scope']),
     );
   }
   @override
@@ -6140,6 +6159,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       'noteType': serializer.toJson<String>(noteType),
       'plainContent': serializer.toJson<String?>(plainContent),
       'groupCode': serializer.toJson<String?>(groupCode),
+      'scope': serializer.toJson<String>(scope),
     };
   }
 
@@ -6154,7 +6174,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           Value<String?> content = const Value.absent(),
           String? noteType,
           Value<String?> plainContent = const Value.absent(),
-          Value<String?> groupCode = const Value.absent()}) =>
+          Value<String?> groupCode = const Value.absent(),
+          String? scope}) =>
       AccountNote(
         accountBookId: accountBookId ?? this.accountBookId,
         createdBy: createdBy ?? this.createdBy,
@@ -6168,6 +6189,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
         plainContent:
             plainContent.present ? plainContent.value : this.plainContent,
         groupCode: groupCode.present ? groupCode.value : this.groupCode,
+        scope: scope ?? this.scope,
       );
   AccountNote copyWithCompanion(AccountNoteTableCompanion data) {
     return AccountNote(
@@ -6186,6 +6208,7 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           ? data.plainContent.value
           : this.plainContent,
       groupCode: data.groupCode.present ? data.groupCode.value : this.groupCode,
+      scope: data.scope.present ? data.scope.value : this.scope,
     );
   }
 
@@ -6202,7 +6225,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           ..write('content: $content, ')
           ..write('noteType: $noteType, ')
           ..write('plainContent: $plainContent, ')
-          ..write('groupCode: $groupCode')
+          ..write('groupCode: $groupCode, ')
+          ..write('scope: $scope')
           ..write(')'))
         .toString();
   }
@@ -6219,7 +6243,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
       content,
       noteType,
       plainContent,
-      groupCode);
+      groupCode,
+      scope);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6234,7 +6259,8 @@ class AccountNote extends DataClass implements Insertable<AccountNote> {
           other.content == this.content &&
           other.noteType == this.noteType &&
           other.plainContent == this.plainContent &&
-          other.groupCode == this.groupCode);
+          other.groupCode == this.groupCode &&
+          other.scope == this.scope);
 }
 
 class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
@@ -6249,6 +6275,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
   final Value<String> noteType;
   final Value<String?> plainContent;
   final Value<String?> groupCode;
+  final Value<String> scope;
   final Value<int> rowid;
   const AccountNoteTableCompanion({
     this.accountBookId = const Value.absent(),
@@ -6262,6 +6289,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     this.noteType = const Value.absent(),
     this.plainContent = const Value.absent(),
     this.groupCode = const Value.absent(),
+    this.scope = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountNoteTableCompanion.insert({
@@ -6276,6 +6304,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     required String noteType,
     this.plainContent = const Value.absent(),
     this.groupCode = const Value.absent(),
+    this.scope = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -6296,6 +6325,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     Expression<String>? noteType,
     Expression<String>? plainContent,
     Expression<String>? groupCode,
+    Expression<String>? scope,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6310,6 +6340,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       if (noteType != null) 'note_type': noteType,
       if (plainContent != null) 'plain_content': plainContent,
       if (groupCode != null) 'groupCode': groupCode,
+      if (scope != null) 'scope': scope,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6326,6 +6357,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       Value<String>? noteType,
       Value<String?>? plainContent,
       Value<String?>? groupCode,
+      Value<String>? scope,
       Value<int>? rowid}) {
     return AccountNoteTableCompanion(
       accountBookId: accountBookId ?? this.accountBookId,
@@ -6339,6 +6371,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
       noteType: noteType ?? this.noteType,
       plainContent: plainContent ?? this.plainContent,
       groupCode: groupCode ?? this.groupCode,
+      scope: scope ?? this.scope,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6379,6 +6412,9 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
     if (groupCode.present) {
       map['groupCode'] = Variable<String>(groupCode.value);
     }
+    if (scope.present) {
+      map['scope'] = Variable<String>(scope.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6399,6 +6435,7 @@ class AccountNoteTableCompanion extends UpdateCompanion<AccountNote> {
           ..write('noteType: $noteType, ')
           ..write('plainContent: $plainContent, ')
           ..write('groupCode: $groupCode, ')
+          ..write('scope: $scope, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14113,6 +14150,7 @@ typedef $$AccountNoteTableTableCreateCompanionBuilder
   required String noteType,
   Value<String?> plainContent,
   Value<String?> groupCode,
+  Value<String> scope,
   Value<int> rowid,
 });
 typedef $$AccountNoteTableTableUpdateCompanionBuilder
@@ -14128,6 +14166,7 @@ typedef $$AccountNoteTableTableUpdateCompanionBuilder
   Value<String> noteType,
   Value<String?> plainContent,
   Value<String?> groupCode,
+  Value<String> scope,
   Value<int> rowid,
 });
 
@@ -14172,6 +14211,9 @@ class $$AccountNoteTableTableFilterComposer
 
   ColumnFilters<String> get groupCode => $composableBuilder(
       column: $table.groupCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountNoteTableTableOrderingComposer
@@ -14217,6 +14259,9 @@ class $$AccountNoteTableTableOrderingComposer
 
   ColumnOrderings<String> get groupCode => $composableBuilder(
       column: $table.groupCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountNoteTableTableAnnotationComposer
@@ -14260,6 +14305,9 @@ class $$AccountNoteTableTableAnnotationComposer
 
   GeneratedColumn<String> get groupCode =>
       $composableBuilder(column: $table.groupCode, builder: (column) => column);
+
+  GeneratedColumn<String> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
 }
 
 class $$AccountNoteTableTableTableManager extends RootTableManager<
@@ -14300,6 +14348,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             Value<String> noteType = const Value.absent(),
             Value<String?> plainContent = const Value.absent(),
             Value<String?> groupCode = const Value.absent(),
+            Value<String> scope = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountNoteTableCompanion(
@@ -14314,6 +14363,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             noteType: noteType,
             plainContent: plainContent,
             groupCode: groupCode,
+            scope: scope,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14328,6 +14378,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             required String noteType,
             Value<String?> plainContent = const Value.absent(),
             Value<String?> groupCode = const Value.absent(),
+            Value<String> scope = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountNoteTableCompanion.insert(
@@ -14342,6 +14393,7 @@ class $$AccountNoteTableTableTableManager extends RootTableManager<
             noteType: noteType,
             plainContent: plainContent,
             groupCode: groupCode,
+            scope: scope,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

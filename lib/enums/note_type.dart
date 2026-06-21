@@ -4,7 +4,10 @@ enum NoteType {
   note('NOTE'),
 
   /// 待办事项
-  todo('TODO');
+  todo('TODO'),
+
+  /// 月度收支报告
+  report('REPORT');
 
   /// 编码
   final String code;

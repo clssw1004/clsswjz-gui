@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../services/monthly_report_service.dart';
+import '../../utils/toast_util.dart';
 import '../../models/dto/ui_config_dto.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/activity_definition_vo.dart';
@@ -50,6 +52,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reloadStatistics(context);
+      _checkAutoGenerateReport();
     });
   }
 
@@ -197,6 +200,70 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
   }
 
+  /// 生成月度报告
+  Future<void> _generateMonthlyReport() async {
+    final booksProvider = Provider.of<BooksProvider>(context, listen: false);
+    final bookId = booksProvider.selectedBook?.id;
+    if (bookId == null) return;
+
+    // 根据当前时间范围确定目标月份
+    final now = DateTime.now();
+    int year;
+    int month;
+
+    if (_selectedRange == 'month') {
+      // 当前月范围 → 生成上月的报告
+      final currentStart = DateTime(now.year, now.month, 1);
+      year = currentStart.year;
+      month = currentStart.month - 1;
+      if (month < 1) {
+        month = 12;
+        year -= 1;
+      }
+    } else {
+      // 其他范围 → 生成上月的报告（默认行为）
+      year = now.year;
+      month = now.month - 1;
+      if (month < 1) {
+        month = 12;
+        year -= 1;
+      }
+    }
+
+    final service = MonthlyReportService();
+    final noteId = await service.regenerateReport(bookId, year, month);
+
+    if (mounted) {
+      if (noteId != null) {
+        ToastUtil.showSuccess('$year年$month月月度报告已生成');
+      } else {
+        ToastUtil.showError('生成失败，请确认$year年$month月有记账数据');
+      }
+    }
+  }
+
+  /// 检查并自动生成上月报告（新月份首次打开时）
+  Future<void> _checkAutoGenerateReport() async {
+    final booksProvider = Provider.of<BooksProvider>(context, listen: false);
+    final bookId = booksProvider.selectedBook?.id;
+    if (bookId == null) return;
+
+    // 只有当月度筛选时（月初首次打开）才自动检查
+    // 当前日期 > 1号表示已进入新月份
+    final now = DateTime.now();
+    if (now.day <= 1) return;
+
+    final lastMonth = now.month - 1;
+    final year = lastMonth < 1 ? now.year - 1 : now.year;
+    final month = lastMonth < 1 ? 12 : lastMonth;
+
+    final service = MonthlyReportService();
+    final noteId = await service.generateReport(bookId, year, month);
+    if (noteId != null && mounted) {
+      ToastUtil.showSuccess('$year年$month月月度报告已自动生成');
+    }
+  }
+
   /// 保存选择的时间范围
   Future<void> _saveSelectedRange() async {
     final config = AppConfigManager.instance.uiConfig;
@@ -290,6 +357,22 @@ class _StatisticsTabState extends State<StatisticsTab> {
             data: _activityStats,
             loading: _activityStatsLoading,
           ),
+
+        // 月度报告生成按钮
+        Padding(
+          padding: EdgeInsets.only(top: spacing.formGroupSpacing),
+          child: OutlinedButton.icon(
+            onPressed: _generateMonthlyReport,
+            icon: const Icon(Icons.assessment_rounded, size: 18),
+            label: const Text('生成月度报告'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

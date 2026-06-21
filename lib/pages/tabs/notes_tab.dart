@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import '../../enums/note_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
@@ -125,15 +126,23 @@ class _NotesTabState extends State<NotesTab> {
                         onLoadMore: () => noteListProvider.loadMore(),
                         onDelete: noteListProvider.deleteNote,
                         onNoteTap: (note) {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.noteEdit,
-                            arguments: [note, booksProvider.selectedBook],
-                          ).then((updated) {
-                            if (updated == true) {
-                              noteListProvider.loadNotes(true);
-                            }
-                          });
+                          if (note.noteType == NoteType.report.code) {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.reportDetail,
+                              arguments: note,
+                            );
+                          } else {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.noteEdit,
+                              arguments: [note, booksProvider.selectedBook],
+                            ).then((updated) {
+                              if (updated == true) {
+                                noteListProvider.loadNotes(true);
+                              }
+                            });
+                          }
                         },
                       ),
                     ),

@@ -233,6 +233,7 @@ abstract class BookDataDriver {
       required String content,
       required String plainContent,
       String? groupCode,
+      String? scope,
       List<AttachmentVO>? attachments});
 
   /// 删除记事
@@ -246,6 +247,7 @@ abstract class BookDataDriver {
       String? content,
       String? plainContent,
       String? groupCode,
+      String? scope,
       List<AttachmentVO>? attachments});
 
   /// 获取用户记事列表
