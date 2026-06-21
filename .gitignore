@@ -165,3 +165,6 @@ untranslated_messages.txt
 # Agent/Skills generated files
 .agents/
 skills-lock.json
+
+# Generated l10n (regenerate from lib/l10n/*.arb)
+lib/generated/l10n/

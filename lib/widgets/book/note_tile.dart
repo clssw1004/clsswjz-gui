@@ -250,6 +250,11 @@ class _NoteTileState extends State<NoteTile> {
                                   ),
                                   if (widget.note.groupName?.isNotEmpty == true)
                                     _buildGroupChip(widget.note.groupName!, accentColor, theme),
+                                  if (widget.note.scope == 'global')
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 4),
+                                      child: _buildScopeBadge(theme, colorScheme),
+                                    ),
                                 ],
                               ),
                             ),
@@ -258,7 +263,16 @@ class _NoteTileState extends State<NoteTile> {
                               widget.note.groupName?.isNotEmpty == true)
                             Padding(
                               padding: EdgeInsets.only(bottom: spacing.listItemSpacing / 2),
-                              child: _buildGroupChip(widget.note.groupName!, accentColor, theme),
+                              child: Row(
+                                children: [
+                                  _buildGroupChip(widget.note.groupName!, accentColor, theme),
+                                  if (widget.note.scope == 'global')
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 4),
+                                      child: _buildScopeBadge(theme, colorScheme),
+                                    ),
+                                ],
+                              ),
                             ),
                           // 内容区
                           _isExpanded && document != null
@@ -345,6 +359,24 @@ class _NoteTileState extends State<NoteTile> {
           color: accentColor,
           fontWeight: FontWeight.w600,
           fontSize: 11,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScopeBadge(ThemeData theme, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        '全局',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: colorScheme.tertiary,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

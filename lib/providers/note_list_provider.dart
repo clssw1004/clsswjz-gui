@@ -1,12 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../database/database.dart';
 import '../drivers/driver_factory.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_book.dart';
 import '../manager/app_config_manager.dart';
+import '../manager/dao_manager.dart';
+import '../models/common.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/dto/note_filter_dto.dart';
+
+/// 缺失月份占位数据
+class MissingMonthItem {
+  final int year;
+  final int month;
+  MissingMonthItem({required this.year, required this.month});
+}
+
+/// 笔记列表筛选类型
+enum NoteFilterType {
+  /// 显示报表
+  report,
+}
 
 class NoteListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
@@ -41,6 +57,14 @@ class NoteListProvider extends ChangeNotifier {
   List<String>? _groupCodes;
   List<String>? get groupCodes => _groupCodes;
 
+  /// 筛选类型（报表等）
+  NoteFilterType? _filterType;
+  NoteFilterType? get filterType => _filterType;
+
+  /// 当前年未生成报表的月份列表
+  final List<MissingMonthItem> _missingMonths = [];
+  List<MissingMonthItem> get missingMonths => _missingMonths;
+
   NoteListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
@@ -74,6 +98,14 @@ class NoteListProvider extends ChangeNotifier {
   /// 设置分组筛选
   Future<void> setGroupCodes(List<String>? groupCodes) async {
     _groupCodes = groupCodes;
+    _filterType = null;
+    loadNotes(true);
+  }
+
+  /// 设置筛选类型（报表等）
+  Future<void> setFilterType(NoteFilterType? type) async {
+    _filterType = type;
+    if (type != null) _groupCodes = null;
     loadNotes(true);
   }
 
@@ -90,26 +122,82 @@ class NoteListProvider extends ChangeNotifier {
     }
     try {
       // 创建筛选条件
-      final filter = NoteFilterDTO(_keyword, _groupCodes);
-      
-      final result = await DriverFactory.driver.listNotesByBook(
-        AppConfigManager.instance.userId,
-        _currentBookId!,
-        offset: (_page - 1) * _pageSize,
-        limit: _pageSize,
-        filter: filter,
+      final noteType = _filterType == NoteFilterType.report ? 'REPORT' : null;
+      final filter = NoteFilterDTO(
+        keyword: _keyword,
+        groupCodes: _groupCodes,
+        noteType: noteType,
       );
-      if (result.ok) {
-        if (refresh) {
-          _notes.clear();
+
+      // 并行查询：账本笔记 + 全局笔记
+      final results = await Future.wait([
+        DriverFactory.driver.listNotesByBook(
+          AppConfigManager.instance.userId,
+          _currentBookId!,
+          offset: (_page - 1) * _pageSize,
+          limit: _pageSize,
+          filter: filter,
+        ),
+        DaoManager.noteDao.listGlobalNotes(
+          limit: _pageSize,
+          filter: NoteFilterDTO(keyword: _keyword, noteType: noteType),
+        ),
+      ]);
+
+      final bookResult = results[0] as OperateResult<List<UserNoteVO>>;
+      final globalNotes = results[1] as List<AccountNote>;
+
+      if (refresh) {
+        _notes.clear();
+      }
+
+      if (bookResult.ok) {
+        _notes.addAll(bookResult.data ?? []);
+        _hasMore = (bookResult.data?.length ?? 0) >= _pageSize;
+      }
+
+      // 合并全局笔记，按更新时间排序
+      for (final gn in globalNotes) {
+        final vo = UserNoteVO.fromAccountNote(gn, null);
+        // 去重：全局笔记在 listNotesByBook 中可能已存在（根据 noteType 区分）
+        if (!_notes.any((n) => n.id == vo.id)) {
+          _notes.add(vo);
         }
-        _notes.addAll(result.data ?? []);
-        _hasMore = (result.data?.length ?? 0) >= _pageSize;
+      }
+      _notes.sort((a, b) =>
+          (b.updatedAt ?? b.createdAt ?? 0)
+              .compareTo((a.updatedAt ?? a.createdAt ?? 0)));
+
+      // 报表筛选时计算缺失月份
+      if (_filterType == NoteFilterType.report) {
+        _computeMissingMonths();
+      } else {
+        _missingMonths.clear();
       }
     } finally {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  /// 计算今年已过去月份中未生成报表的月份
+  void _computeMissingMonths() {
+    _missingMonths.clear();
+    final now = DateTime.now();
+    // 已生成的月份标题
+    final generatedTitles = _notes
+        .where((n) => n.noteType == 'REPORT')
+        .map((n) => n.title ?? '')
+        .toSet();
+    // 今年1月至上月
+    for (int m = 1; m < now.month; m++) {
+      final title = '月度收支报告 —— ${now.year}年$m月';
+      if (!generatedTitles.contains(title)) {
+        _missingMonths.add(MissingMonthItem(year: now.year, month: m));
+      }
+    }
+    // 倒序
+    _missingMonths.sort((a, b) => b.month.compareTo(a.month));
   }
 
   /// 加载更多笔记

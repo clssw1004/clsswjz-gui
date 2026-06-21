@@ -385,7 +385,7 @@
     "@memberAlreadyExists": {
         "description": "Member exists prompt"
     },
-    "userNotFound": "User not found, please try again later",
+    "userNotFound": "User not found",
     "@userNotFound": {
         "description": "User not found prompt"
     },
@@ -1416,7 +1416,6 @@
     },
     "shareSettings": "Data Sharing",
     "addUser": "Add User",
-    "userNotFound": "User not found",
     "confirmAdd": "Confirm Add",
     "confirmRemoveShare": "Remove all sharing permissions for this user?",
     "noSharedUsers": "No shared users",
@@ -1454,5 +1453,164 @@
                 "type": "int"
             }
         }
+    },
+    "reportLabelExpense": "Expense",
+    "@reportLabelExpense": {
+        "description": ""
+    },
+    "reportLabelIncome": "Income",
+    "@reportLabelIncome": {
+        "description": ""
+    },
+    "reportLabelBalance": "Balance",
+    "@reportLabelBalance": {
+        "description": ""
+    },
+    "reportSectionCategories": "Expense by Category",
+    "@reportSectionCategories": {
+        "description": ""
+    },
+    "reportSectionComparison": "Category MoM Change",
+    "@reportSectionComparison": {
+        "description": ""
+    },
+    "reportSectionDaily": "Daily Expense",
+    "@reportSectionDaily": {
+        "description": ""
+    },
+    "reportSectionMetrics": "Summary",
+    "@reportSectionMetrics": {
+        "description": ""
+    },
+    "reportMetricSavingsRate": "Savings Rate",
+    "@reportMetricSavingsRate": {
+        "description": ""
+    },
+    "reportMetricDailyAvg": "Daily Avg",
+    "@reportMetricDailyAvg": {
+        "description": ""
+    },
+    "reportMetricItemCount": "Transactions",
+    "@reportMetricItemCount": {
+        "description": ""
+    },
+    "reportMetricCategoryCount": "Categories",
+    "@reportMetricCategoryCount": {
+        "description": ""
+    },
+    "reportMetricSpendingDays": "Days w/ Spending",
+    "@reportMetricSpendingDays": {
+        "description": ""
+    },
+    "reportMetricMaxTxn": "Largest",
+    "@reportMetricMaxTxn": {
+        "description": ""
+    },
+    "reportGenerate": "Generate",
+    "@reportGenerate": {
+        "description": ""
+    },
+    "reportRegenerate": "Regenerate",
+    "@reportRegenerate": {
+        "description": ""
+    },
+    "reportGenerated": "Generated",
+    "@reportGenerated": {
+        "description": ""
+    },
+    "reportNotGenerated": "Not Generated",
+    "@reportNotGenerated": {
+        "description": ""
+    },
+    "reportRegenerated": "Report regenerated",
+    "@reportRegenerated": {
+        "description": ""
+    },
+    "reportRegenFailed": "Report not available",
+    "@reportRegenFailed": {
+        "description": ""
+    },
+    "reportDeleteTitle": "Delete Monthly Report",
+    "@reportDeleteTitle": {
+        "description": ""
+    },
+    "reportDeleteConfirm": "Delete this monthly report?",
+    "@reportDeleteConfirm": {
+        "description": ""
+    },
+    "reportFilterLabel": "Monthly Reports",
+    "@reportFilterLabel": {
+        "description": ""
+    },
+    "reportNoData": "No data for this month",
+    "@reportNoData": {
+        "description": ""
+    },
+    "reportNoMonths": "No completed months this year",
+    "@reportNoMonths": {
+        "description": ""
+    },
+    "reportGeneratedAt": "Generated at {date}",
+    "@reportGeneratedAt": {
+        "description": "",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "reportSectionIncome": "Income by Category",
+    "@reportSectionIncome": {
+        "description": ""
+    },
+    "reportSectionYtd": "Year-to-Date Summary",
+    "@reportSectionYtd": {
+        "description": ""
+    },
+    "reportSectionMonthlyTrend": "Monthly Trend",
+    "@reportSectionMonthlyTrend": {
+        "description": ""
+    },
+    "reportPrevVsCurrent": "Prev ¥{prev} → ¥{cur}",
+    "@reportPrevVsCurrent": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "String"
+            },
+            "cur": {
+                "type": "String"
+            }
+        }
+    },
+    "reportLabelPrevMonth": "Prev Month",
+    "reportLabelCurrentMonth": "This Month",
+    "reportMonthlyAvg": "Monthly Avg ¥{amount}",
+    "@reportMonthlyAvg": {
+        "description": "",
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "reportYtdExpense": "YTD Expense",
+    "reportYtdIncome": "YTD Income",
+    "reportYtdSavingsRate": "YTD Savings Rate",
+    "reportCoverageMonths": "{count}/{total} months",
+    "@reportCoverageMonths": {
+        "description": "e.g. 3/5 months",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "reportLabelVsPrevMonth": "Expense vs Prev Month",
+    "@reportLabelVsPrevMonth": {
+        "description": ""
     }
 }

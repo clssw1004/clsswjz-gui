@@ -62,6 +62,11 @@ class NoteFormProvider extends ChangeNotifier {
   /// 当前分组ID
   String get groupCode => _groupCode ;
 
+  String _scope = 'book';
+
+  /// 当前作用域
+  String get scope => _scope;
+
   NoteFormProvider(BookMetaVO bookMeta, UserNoteVO? note)
       : _bookMeta = bookMeta,
         _note = note ??
@@ -91,10 +96,12 @@ class NoteFormProvider extends ChangeNotifier {
       _title = _note.title ?? '';
       _content = _note.content;
       _groupCode = _note.groupCode ?? 'none';
+      _scope = _note.scope ?? 'book';
       await loadAttachments();
     } else {
       // 新建模式下设置默认值
       _groupCode = 'none';
+      _scope = 'book';
     }
 
     _loading = false;
@@ -136,6 +143,12 @@ class NoteFormProvider extends ChangeNotifier {
       ),
       ...?result.data
     ];
+    notifyListeners();
+  }
+
+  /// 更新作用域
+  void updateScope(String scope) {
+    _scope = scope;
     notifyListeners();
   }
 
@@ -192,6 +205,7 @@ class NoteFormProvider extends ChangeNotifier {
         content: _content,
         plainContent: _note.plainContent,
         groupCode: groupCode,
+        scope: _scope,
         attachments: _attachments,
       );
 
@@ -232,6 +246,7 @@ class NoteFormProvider extends ChangeNotifier {
         content: _content,
         plainContent: _note.plainContent,
         groupCode: groupCode,
+        scope: _scope,
         attachments: _attachments,
       );
 

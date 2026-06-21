@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../drivers/driver_factory.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../services/monthly_report_service.dart';
+import '../../utils/toast_util.dart';
 import '../../models/dto/ui_config_dto.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/activity_definition_vo.dart';
@@ -50,6 +52,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reloadStatistics(context);
+      _checkAutoGenerateReport();
     });
   }
 
@@ -194,6 +197,28 @@ class _StatisticsTabState extends State<StatisticsTab> {
       }
     } catch (e) {
       if (mounted) setState(() => _activityStatsLoading = false);
+    }
+  }
+
+  /// 检查并自动生成上月报告（新月份首次打开时）
+  Future<void> _checkAutoGenerateReport() async {
+    final booksProvider = Provider.of<BooksProvider>(context, listen: false);
+    final bookId = booksProvider.selectedBook?.id;
+    if (bookId == null) return;
+
+    // 只有当月度筛选时（月初首次打开）才自动检查
+    // 当前日期 > 1号表示已进入新月份
+    final now = DateTime.now();
+    if (now.day <= 1) return;
+
+    final lastMonth = now.month - 1;
+    final year = lastMonth < 1 ? now.year - 1 : now.year;
+    final month = lastMonth < 1 ? 12 : lastMonth;
+
+    final service = MonthlyReportService();
+    final noteId = await service.generateReport(bookId, year, month);
+    if (noteId != null && mounted) {
+      ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
     }
   }
 

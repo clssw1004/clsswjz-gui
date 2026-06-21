@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/l10n_manager.dart';
+import '../../services/monthly_report_service.dart';
+import '../../utils/toast_util.dart';
+import '../../widgets/note_renderer.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../providers/note_list_provider.dart';
@@ -28,8 +31,7 @@ class _NotesTabState extends State<NotesTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<NoteListProvider>();
-      provider.loadNotes();
+      context.read<NoteListProvider>().loadNotes();
     });
   }
 
@@ -41,27 +43,24 @@ class _NotesTabState extends State<NotesTab> {
 
   Future<void> _handleRefresh() async {
     if (_isRefreshing) return;
-
     setState(() => _isRefreshing = true);
-
     try {
-      final syncProvider = context.read<SyncProvider>();
-      await syncProvider.syncData();
+      await context.read<SyncProvider>().syncData();
     } finally {
-      if (mounted) {
-        setState(() => _isRefreshing = false);
-      }
+      if (mounted) setState(() => _isRefreshing = false);
     }
   }
 
   void _handleSearch() {
-    final provider = context.read<NoteListProvider>();
-    provider.setKeyword(_searchController.text);
+    context.read<NoteListProvider>().setKeyword(_searchController.text);
   }
 
-  void _handleGroupFilterChanged(List<String>? groupCodes) {
-    final provider = context.read<NoteListProvider>();
-    provider.setGroupCodes(groupCodes);
+  void _handleGroupChanged(List<String>? codes) {
+    if (codes != null && codes.contains(kReportFilterCode)) {
+      context.read<NoteListProvider>().setFilterType(NoteFilterType.report);
+    } else {
+      context.read<NoteListProvider>().setGroupCodes(codes);
+    }
   }
 
   @override
@@ -78,6 +77,7 @@ class _NotesTabState extends State<NotesTab> {
       ),
       body: Consumer2<NoteListProvider, SyncProvider>(
         builder: (context, noteListProvider, syncProvider, child) {
+          final isReport = noteListProvider.filterType == NoteFilterType.report;
           return Column(
             children: [
               // 搜索栏
@@ -106,8 +106,9 @@ class _NotesTabState extends State<NotesTab> {
                   ),
                   child: NoteGroupFilter(
                     bookId: booksProvider.selectedBook!.id,
-                    selectedGroupCodes: noteListProvider.groupCodes,
-                    onGroupCodesChanged: _handleGroupFilterChanged,
+                    selectedGroupCodes: isReport ? [kReportFilterCode] : noteListProvider.groupCodes,
+                    onGroupCodesChanged: _handleGroupChanged,
+                    isReportActive: isReport,
                   ),
                 ),
               // 笔记列表
@@ -125,23 +126,30 @@ class _NotesTabState extends State<NotesTab> {
                         onLoadMore: () => noteListProvider.loadMore(),
                         onDelete: noteListProvider.deleteNote,
                         onNoteTap: (note) {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.noteEdit,
-                            arguments: [note, booksProvider.selectedBook],
-                          ).then((updated) {
-                            if (updated == true) {
-                              noteListProvider.loadNotes(true);
-                            }
-                          });
+                          final renderer = NoteRendererRegistry.resolve(
+                              note.noteType, note.template);
+                          if (renderer != null && !renderer.isEditable) {
+                            Navigator.pushNamed(
+                              context, AppRoutes.reportDetail,
+                              arguments: note,
+                            ).then((_) => noteListProvider.loadNotes(true));
+                          } else {
+                            Navigator.pushNamed(
+                              context, AppRoutes.noteEdit,
+                              arguments: [note, booksProvider.selectedBook],
+                            ).then((updated) {
+                              if (updated == true) noteListProvider.loadNotes(true);
+                            });
+                          }
                         },
+                        footerItems: isReport
+                            ? _buildMissingMonthWidgets(noteListProvider)
+                            : null,
                       ),
                     ),
                     if (syncProvider.syncing && syncProvider.currentStep != null)
                       Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
+                        left: 0, right: 0, bottom: 0,
                         child: ProgressIndicatorBar(
                           value: syncProvider.progress,
                           label: syncProvider.currentStep!,
@@ -154,6 +162,92 @@ class _NotesTabState extends State<NotesTab> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> _buildMissingMonthWidgets(NoteListProvider provider) {
+    final cs = Theme.of(context).colorScheme;
+    return provider.missingMonths.map((m) => _MissingMonthCard(
+      year: m.year,
+      month: m.month,
+      cs: cs,
+      onGenerate: () => _generateReport(provider, m.year, m.month),
+    )).toList();
+  }
+
+  Future<void> _generateReport(NoteListProvider provider, int year, int month) async {
+    final bookId = context.read<BooksProvider>().selectedBook?.id;
+    if (bookId == null) return;
+    final service = MonthlyReportService();
+    final noteId = await service.regenerateReport(bookId, year, month);
+    if (mounted) {
+      if (noteId != null) {
+        ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
+        provider.loadNotes(true);
+      } else {
+        ToastUtil.showError(L10nManager.l10n.reportNoData);
+      }
+    }
+  }
+}
+
+/// 缺失月份占位卡片
+class _MissingMonthCard extends StatelessWidget {
+  final int year;
+  final int month;
+  final ColorScheme cs;
+  final VoidCallback onGenerate;
+
+  const _MissingMonthCard({
+    required this.year,
+    required this.month,
+    required this.cs,
+    required this.onGenerate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.06)),
+        ),
+        child: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(child: Text('$month',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant))),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('$year年$month月', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cs.onSurface)),
+              const SizedBox(height: 1),
+              Text(L10nManager.l10n.reportNotGenerated, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+            ]),
+          ),
+          SizedBox(
+            height: 30,
+            child: OutlinedButton.icon(
+              onPressed: onGenerate,
+              icon: const Icon(Icons.add, size: 14),
+              label: Text(L10nManager.l10n.reportGenerate, style: TextStyle(fontSize: 11)),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }

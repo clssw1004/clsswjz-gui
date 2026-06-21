@@ -42,6 +42,9 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? content,
     String? plainContent,
     String? groupCode,
+    String? scope,
+    String? template,
+    int? createdAt,
   }) {
     return NoteCULog().who(who).inBook(bookId).doCreate().withData(
         AccountNoteTable.toCreateCompanion(who, bookId,
@@ -49,7 +52,10 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
             noteType: noteType.code,
             content: content,
             plainContent: plainContent,
-            groupCode: groupCode)) as NoteCULog;
+            groupCode: groupCode,
+            scope: scope,
+            template: template,
+            createdAt: createdAt)) as NoteCULog;
   }
 
   static NoteCULog update(
@@ -60,6 +66,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? content,
     String? plainContent,
     String? groupCode,
+    String? scope,
+    String? template,
   }) {
     return NoteCULog()
         .who(userId)
@@ -70,15 +78,22 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
             title: title,
             content: content,
             plainContent: plainContent,
-            groupCode: groupCode)) as NoteCULog;
+            groupCode: groupCode,
+            scope: scope,
+            template: template)) as NoteCULog;
   }
 
   static NoteCULog fromCreateLog(LogSync log) {
+    final data = <String, dynamic>{
+      // 兼容旧数据：缺省字段补默认值
+      'scope': 'book',
+      ...jsonDecode(log.operateData) as Map<String, dynamic>,
+    };
     return NoteCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountNote.fromJson(jsonDecode(log.operateData))
+        .withData(AccountNote.fromJson(data)
             .toCompanion(true)) as NoteCULog;
   }
 
@@ -92,6 +107,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
       content: data['content'],
       plainContent: data['plainContent'],
       groupCode: data['groupCode'],
+      scope: data['scope'],
+      template: data['template'],
     );
   }
 

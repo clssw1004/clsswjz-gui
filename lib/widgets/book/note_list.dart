@@ -5,6 +5,7 @@ import '../../manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
 import '../common/common_empty_view.dart';
 import '../common/common_loading_view.dart';
+import '../note_renderer.dart';
 import 'note_tile.dart';
 
 /// 笔记列表
@@ -30,6 +31,9 @@ class NoteList extends StatefulWidget {
   /// 点击笔记回调
   final void Function(UserNoteVO note)? onNoteTap;
 
+  /// 列表底部额外组件（报表缺失月份等）
+  final List<Widget>? footerItems;
+
   const NoteList({
     super.key,
     this.accountBook,
@@ -39,6 +43,7 @@ class NoteList extends StatefulWidget {
     this.onLoadMore,
     this.onDelete,
     this.onNoteTap,
+    this.footerItems,
   });
 
   @override
@@ -146,6 +151,15 @@ class _NoteListState extends State<NoteList> {
 
   /// 构建列表项
   Widget _buildListItem(UserNoteVO note, int index, ThemeData theme) {
+    final renderer = NoteRendererRegistry.resolve(note.noteType, note.template);
+    if (renderer != null) {
+      return renderer.buildTile(
+        note,
+        () => widget.onNoteTap?.call(note),
+        onDelete: widget.onDelete != null ? () => widget.onDelete!(note) : null,
+      );
+    }
+    // 兜底：默认 Quill 笔记
     return NoteTile(
       note: note,
       index: index,
@@ -162,7 +176,8 @@ class _NoteListState extends State<NoteList> {
       return const CommonLoadingView();
     }
 
-    if (_notes == null || _notes!.isEmpty) {
+    if ((_notes == null || _notes!.isEmpty) &&
+        (widget.footerItems == null || widget.footerItems!.isEmpty)) {
       return RefreshIndicator(
         onRefresh: widget.onLoadMore ?? Future.value,
         child: ListView(
@@ -180,19 +195,23 @@ class _NoteListState extends State<NoteList> {
       );
     }
 
+    final footer = widget.footerItems ?? [];
     return RefreshIndicator(
       onRefresh: widget.onLoadMore ?? Future.value,
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: _notes!.length + 1,
+        itemCount: _notes!.length + 1 + footer.length,
         itemBuilder: (context, index) {
-          if (index == _notes!.length) {
-            return _buildLoadMoreIndicator(theme);
+          if (index < _notes!.length) {
+            final note = _notes![index];
+            return _buildListItem(note, index, theme);
           }
-
-          final note = _notes![index];
-          return _buildListItem(note, index, theme);
+          final footerIdx = index - _notes!.length;
+          if (footerIdx <= footer.length && footerIdx > 0) {
+            return footer[footerIdx - 1];
+          }
+          return _buildLoadMoreIndicator(theme);
         },
       ),
     );

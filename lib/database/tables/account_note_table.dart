@@ -16,6 +16,8 @@ class AccountNoteTable extends BaseAccountBookTable {
   TextColumn get plainContent =>
       text().nullable().named('plain_content').withLength(max: 4294967295)();
   TextColumn get groupCode => text().nullable().named('groupCode')();
+  TextColumn get scope => text().named('scope').withDefault(const Constant('book'))();
+  TextColumn get template => text().nullable().named('template')();
 
   static AccountNoteTableCompanion toUpdateCompanion(
     String who, {
@@ -24,6 +26,8 @@ class AccountNoteTable extends BaseAccountBookTable {
     String? plainContent,
     String? accountBookId,
     String? groupCode,
+    String? scope,
+    String? template,
   }) {
     return AccountNoteTableCompanion(
       updatedBy: Value(who),
@@ -32,6 +36,8 @@ class AccountNoteTable extends BaseAccountBookTable {
       content: Value.absentIfNull(content),
       plainContent: Value.absentIfNull(plainContent),
       groupCode: Value.absentIfNull(groupCode),
+      scope: Value.absentIfNull(scope),
+      template: Value.absentIfNull(template),
       accountBookId: Value.absentIfNull(accountBookId),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -46,6 +52,9 @@ class AccountNoteTable extends BaseAccountBookTable {
     String? content,
     String? plainContent,
     String? groupCode,
+    String? scope,
+    String? template,
+    int? createdAt,
   }) =>
       AccountNoteTableCompanion(
         id: Value(IdUtil.genId()),
@@ -55,10 +64,12 @@ class AccountNoteTable extends BaseAccountBookTable {
         content: Value.absentIfNull(content),
         plainContent: Value.absentIfNull(plainContent),
         groupCode: Value.absentIfNull(groupCode),
+        scope: Value.absentIfNull(scope),
+        template: Value.absentIfNull(template),
         createdBy: Value(who),
-        createdAt: Value(DateUtil.now()),
+        createdAt: Value(createdAt ?? DateUtil.now()),
         updatedBy: Value(who),
-        updatedAt: Value(DateUtil.now()),
+        updatedAt: Value(createdAt ?? DateUtil.now()),
       );
 
   static String toJsonString(AccountNoteTableCompanion companion) {
@@ -73,6 +84,8 @@ class AccountNoteTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'noteType', companion.noteType);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'groupCode', companion.groupCode);
+    MapUtil.setIfPresent(map, 'scope', companion.scope);
+    MapUtil.setIfPresent(map, 'template', companion.template);
     return jsonEncode(map);
   }
 }

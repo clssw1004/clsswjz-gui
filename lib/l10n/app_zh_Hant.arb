@@ -595,7 +595,7 @@
     "canDeleteItem": "刪除賬目",
     "findUserByInviteCode": "根據邀請碼添加賬本成員",
     "memberAlreadyExists": "該成員已在列表中",
-    "userNotFound": "未查找到用戶，請稍後再輸入",
+    "userNotFound": "未找到用戶",
     "bookCreator": "賬本創建人",
     "accountItem": "賬目",
     "title": "標題",
@@ -1214,7 +1214,6 @@
     "details": "詳細信息",
     "shareSettings": "數據共享",
     "addUser": "添加用戶",
-    "userNotFound": "未找到用戶",
     "confirmAdd": "確認添加",
     "confirmRemoveShare": "確定要移除該用戶的所有共享權限嗎？",
     "noSharedUsers": "暫無共享用戶",
@@ -1252,5 +1251,164 @@
                 "type": "int"
             }
         }
+    },
+    "reportLabelExpense": "支出",
+    "@reportLabelExpense": {
+        "description": ""
+    },
+    "reportLabelIncome": "收入",
+    "@reportLabelIncome": {
+        "description": ""
+    },
+    "reportLabelBalance": "結餘",
+    "@reportLabelBalance": {
+        "description": ""
+    },
+    "reportSectionCategories": "支出分類構成",
+    "@reportSectionCategories": {
+        "description": ""
+    },
+    "reportSectionComparison": "分類環比變化",
+    "@reportSectionComparison": {
+        "description": ""
+    },
+    "reportSectionDaily": "每日支出分佈",
+    "@reportSectionDaily": {
+        "description": ""
+    },
+    "reportSectionMetrics": "指標一覽",
+    "@reportSectionMetrics": {
+        "description": ""
+    },
+    "reportMetricSavingsRate": "儲蓄率",
+    "@reportMetricSavingsRate": {
+        "description": ""
+    },
+    "reportMetricDailyAvg": "日均支出",
+    "@reportMetricDailyAvg": {
+        "description": ""
+    },
+    "reportMetricItemCount": "記賬筆數",
+    "@reportMetricItemCount": {
+        "description": ""
+    },
+    "reportMetricCategoryCount": "支出分類數",
+    "@reportMetricCategoryCount": {
+        "description": ""
+    },
+    "reportMetricSpendingDays": "有支出天數",
+    "@reportMetricSpendingDays": {
+        "description": ""
+    },
+    "reportMetricMaxTxn": "單筆最大",
+    "@reportMetricMaxTxn": {
+        "description": ""
+    },
+    "reportGenerate": "生成",
+    "@reportGenerate": {
+        "description": ""
+    },
+    "reportRegenerate": "重新生成",
+    "@reportRegenerate": {
+        "description": ""
+    },
+    "reportGenerated": "已生成",
+    "@reportGenerated": {
+        "description": ""
+    },
+    "reportNotGenerated": "未生成",
+    "@reportNotGenerated": {
+        "description": ""
+    },
+    "reportRegenerated": "報告已重新生成",
+    "@reportRegenerated": {
+        "description": ""
+    },
+    "reportRegenFailed": "無法解析報告",
+    "@reportRegenFailed": {
+        "description": ""
+    },
+    "reportDeleteTitle": "刪除月度報告",
+    "@reportDeleteTitle": {
+        "description": ""
+    },
+    "reportDeleteConfirm": "確定刪除該月度的收支報告？",
+    "@reportDeleteConfirm": {
+        "description": ""
+    },
+    "reportFilterLabel": "月度報表",
+    "@reportFilterLabel": {
+        "description": ""
+    },
+    "reportNoData": "該月無記賬數據或生成失敗",
+    "@reportNoData": {
+        "description": ""
+    },
+    "reportNoMonths": "當年暫無已完成的月份",
+    "@reportNoMonths": {
+        "description": ""
+    },
+    "reportGeneratedAt": "生成於 {date}",
+    "@reportGeneratedAt": {
+        "description": "",
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "reportSectionIncome": "收入分類構成",
+    "@reportSectionIncome": {
+        "description": ""
+    },
+    "reportSectionYtd": "年度累計概況",
+    "@reportSectionYtd": {
+        "description": ""
+    },
+    "reportSectionMonthlyTrend": "每月收支走勢",
+    "@reportSectionMonthlyTrend": {
+        "description": ""
+    },
+    "reportPrevVsCurrent": "上月 ¥{prev}  →  ¥{cur}",
+    "@reportPrevVsCurrent": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "String"
+            },
+            "cur": {
+                "type": "String"
+            }
+        }
+    },
+    "reportLabelPrevMonth": "上月",
+    "reportLabelCurrentMonth": "本月",
+    "reportMonthlyAvg": "月均 ¥{amount}",
+    "@reportMonthlyAvg": {
+        "description": "",
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "reportYtdExpense": "累計支出",
+    "reportYtdIncome": "累計收入",
+    "reportYtdSavingsRate": "累計儲蓄率",
+    "reportCoverageMonths": "{count}/{total} 個月",
+    "@reportCoverageMonths": {
+        "description": "",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "reportLabelVsPrevMonth": "支出較上月",
+    "@reportLabelVsPrevMonth": {
+        "description": ""
     }
 }

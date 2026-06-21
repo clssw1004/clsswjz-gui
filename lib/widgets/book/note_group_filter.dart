@@ -9,6 +9,9 @@ import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
 import '../../events/special/event_sync.dart';
 
+/// 报表筛选标记（用于分组筛选器中标识报表模式）
+const String kReportFilterCode = '__report__';
+
 /// 笔记分组筛选组件
 class NoteGroupFilter extends StatefulWidget {
   /// 当前选中的分组代码列表
@@ -20,11 +23,15 @@ class NoteGroupFilter extends StatefulWidget {
   /// 账本ID
   final String bookId;
 
+  /// 是否启用报表筛选模式
+  final bool isReportActive;
+
   const NoteGroupFilter({
     super.key,
     this.selectedGroupCodes,
     this.onGroupCodesChanged,
     required this.bookId,
+    this.isReportActive = false,
   });
 
   @override
@@ -118,6 +125,7 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
   /// 获取当前选中分组的名称
   String _getSelectedLabel() {
     final l10n = L10nManager.l10n;
+    if (widget.isReportActive) return '报表';
     if (_isAllSelected) return l10n.all;
     if (_isGroupSelected('none')) return l10n.noGroup;
     final selected = _groups.where(
@@ -207,12 +215,19 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
                           theme: theme,
                           label: l10n.all,
                           groupCode: 'all',
-                          isSelected: isAll,
+                          isSelected: isAll && !selected.contains(kReportFilterCode),
                           onTap: () {
                             setSheetState(() => selected.clear());
                           },
                         ),
-                        // 分割线：全部 与 具体分组 之间
+                        // 报表选项
+                        _buildReportItem(theme: theme, isSelected: selected.contains(kReportFilterCode), onTap: () {
+                          setSheetState(() {
+                            selected.clear();
+                            selected.add(kReportFilterCode);
+                          });
+                        }),
+                        // 分割线：全部/报表 与 具体分组 之间
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           child: Divider(height: 1, color: colorScheme.outline.withAlpha(30)),
@@ -305,6 +320,49 @@ class _NoteGroupFilterState extends State<NoteGroupFilter> {
           },
         );
       },
+    );
+  }
+
+  /// 构建报表筛选项
+  Widget _buildReportItem({
+    required ThemeData theme,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? colorScheme.primary.withAlpha(10) : null,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          leading: Icon(
+            Icons.assessment_rounded,
+            size: 20,
+            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          ),
+          title: Text(
+            L10nManager.l10n.reportFilterLabel,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isSelected ? FontWeight.w600 : null,
+              color: isSelected ? colorScheme.primary : null,
+            ),
+          ),
+          subtitle: Text(L10nManager.l10n.reportSectionComparison, style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          )),
+          trailing: isSelected
+              ? Icon(Icons.check_circle_rounded, color: colorScheme.primary, size: 22)
+              : null,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          onTap: onTap,
+        ),
+      ),
     );
   }
 
