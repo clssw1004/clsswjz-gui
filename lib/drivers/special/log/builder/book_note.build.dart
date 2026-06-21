@@ -84,11 +84,16 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
   }
 
   static NoteCULog fromCreateLog(LogSync log) {
+    final data = <String, dynamic>{
+      // 兼容旧数据：缺省字段补默认值
+      'scope': 'book',
+      ...jsonDecode(log.operateData) as Map<String, dynamic>,
+    };
     return NoteCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountNote.fromJson(jsonDecode(log.operateData))
+        .withData(AccountNote.fromJson(data)
             .toCompanion(true)) as NoteCULog;
   }
 

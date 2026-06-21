@@ -18,6 +18,9 @@ class MonthlyReportVO {
   /// 支出分类排行榜
   final List<CategoryExpenseItem> categoryExpenses;
 
+  /// 收入分类排行榜
+  final List<IncomeCategoryItem> categoryIncomes;
+
   /// 大笔支出（单笔 ≥ 月总支出 5%）
   final List<LargeTransaction> largeTransactions;
 
@@ -26,6 +29,9 @@ class MonthlyReportVO {
 
   /// 每日支出金额列表（用于趋势图）
   final List<double> dailyAmounts;
+
+  /// 每日收入金额列表（用于趋势图）
+  final List<double> dailyIncomes;
 
   /// 支出趋势
   final ReportTrends trends;
@@ -36,18 +42,28 @@ class MonthlyReportVO {
   /// 支出笔数
   final int itemCount;
 
+  /// 年度累计数据
+  final YtdSummary? ytdSummary;
+
+  /// 每月收支趋势（当年各月）
+  final List<MonthlyTrendPoint> monthlyTrend;
+
   const MonthlyReportVO({
     this.version = 1,
     required this.generatedAt,
     required this.period,
     required this.summary,
     this.categoryExpenses = const [],
+    this.categoryIncomes = const [],
     this.largeTransactions = const [],
     this.alerts = const [],
     this.dailyAmounts = const [],
+    this.dailyIncomes = const [],
     required this.trends,
     this.savingsRate = 0,
     this.itemCount = 0,
+    this.ytdSummary,
+    this.monthlyTrend = const [],
   });
 
   factory MonthlyReportVO.fromJson(Map<String, dynamic> json) {
@@ -59,6 +75,11 @@ class MonthlyReportVO {
       categoryExpenses: (json['categoryExpenses'] as List<dynamic>?)
               ?.map((e) =>
                   CategoryExpenseItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      categoryIncomes: (json['categoryIncomes'] as List<dynamic>?)
+              ?.map((e) =>
+                  IncomeCategoryItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       largeTransactions: (json['largeTransactions'] as List<dynamic>?)
@@ -74,9 +95,21 @@ class MonthlyReportVO {
               ?.map((e) => (e as num).toDouble())
               .toList() ??
           [],
+      dailyIncomes: (json['dailyIncomes'] as List<dynamic>?)
+              ?.map((e) => (e as num).toDouble())
+              .toList() ??
+          [],
       trends: ReportTrends.fromJson(json['trends'] as Map<String, dynamic>),
       savingsRate: (json['savingsRate'] as num?)?.toDouble() ?? 0,
       itemCount: json['itemCount'] as int? ?? 0,
+      ytdSummary: json['ytdSummary'] != null
+          ? YtdSummary.fromJson(json['ytdSummary'] as Map<String, dynamic>)
+          : null,
+      monthlyTrend: (json['monthlyTrend'] as List<dynamic>?)
+              ?.map((e) =>
+                  MonthlyTrendPoint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -87,13 +120,18 @@ class MonthlyReportVO {
         'summary': summary.toJson(),
         'categoryExpenses':
             categoryExpenses.map((e) => e.toJson()).toList(),
+        'categoryIncomes':
+            categoryIncomes.map((e) => e.toJson()).toList(),
         'largeTransactions':
             largeTransactions.map((e) => e.toJson()).toList(),
         'alerts': alerts.map((e) => e.toJson()).toList(),
         'dailyAmounts': dailyAmounts,
+        'dailyIncomes': dailyIncomes,
         'trends': trends.toJson(),
         'savingsRate': savingsRate,
         'itemCount': itemCount,
+        'ytdSummary': ytdSummary?.toJson(),
+        'monthlyTrend': monthlyTrend.map((e) => e.toJson()).toList(),
       };
 
   String toJsonString() => jsonEncode(toJson());
@@ -259,6 +297,52 @@ class CategoryExpenseItem {
       };
 }
 
+/// 收入分类项
+class IncomeCategoryItem {
+  final String categoryCode;
+  final String categoryName;
+  final double amount;
+  final double percentage;
+  final int count;
+  final double prevAmount;
+  final int prevCount;
+
+  const IncomeCategoryItem({
+    required this.categoryCode,
+    required this.categoryName,
+    this.amount = 0,
+    this.percentage = 0,
+    this.count = 0,
+    this.prevAmount = 0,
+    this.prevCount = 0,
+  });
+
+  double get diff => amount - prevAmount;
+  double get diffPercent =>
+      prevAmount > 0 ? (amount - prevAmount) / prevAmount : 0;
+
+  factory IncomeCategoryItem.fromJson(Map<String, dynamic> json) =>
+      IncomeCategoryItem(
+        categoryCode: json['categoryCode'] as String? ?? '',
+        categoryName: json['categoryName'] as String? ?? '',
+        amount: (json['amount'] as num?)?.toDouble() ?? 0,
+        percentage: (json['percentage'] as num?)?.toDouble() ?? 0,
+        count: json['count'] as int? ?? 0,
+        prevAmount: (json['prevAmount'] as num?)?.toDouble() ?? 0,
+        prevCount: json['prevCount'] as int? ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'categoryCode': categoryCode,
+        'categoryName': categoryName,
+        'amount': amount,
+        'percentage': percentage,
+        'count': count,
+        'prevAmount': prevAmount,
+        'prevCount': prevCount,
+      };
+}
+
 /// 大笔支出
 class LargeTransaction {
   /// 日期字符串 (yyyy-MM-dd)
@@ -380,5 +464,71 @@ class ReportTrends {
         'maxSpendAmount': maxSpendAmount,
         'minSpendDay': minSpendDay,
         'minSpendAmount': minSpendAmount,
+      };
+}
+
+/// 年度累计数据
+class YtdSummary {
+  final double totalIncome;
+  final double totalExpense;
+  final double monthlyAvgIncome;
+  final double monthlyAvgExpense;
+  final int monthsWithData;
+  final int monthCount;
+
+  const YtdSummary({
+    this.totalIncome = 0,
+    this.totalExpense = 0,
+    this.monthlyAvgIncome = 0,
+    this.monthlyAvgExpense = 0,
+    this.monthsWithData = 0,
+    this.monthCount = 0,
+  });
+
+  double get savingsRate =>
+      totalIncome > 0 ? ((totalIncome - totalExpense.abs()) / totalIncome) * 100 : 0;
+
+  factory YtdSummary.fromJson(Map<String, dynamic> json) => YtdSummary(
+        totalIncome: (json['totalIncome'] as num?)?.toDouble() ?? 0,
+        totalExpense: (json['totalExpense'] as num?)?.toDouble() ?? 0,
+        monthlyAvgIncome: (json['monthlyAvgIncome'] as num?)?.toDouble() ?? 0,
+        monthlyAvgExpense: (json['monthlyAvgExpense'] as num?)?.toDouble() ?? 0,
+        monthsWithData: json['monthsWithData'] as int? ?? 0,
+        monthCount: json['monthCount'] as int? ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'totalIncome': totalIncome,
+        'totalExpense': totalExpense,
+        'monthlyAvgIncome': monthlyAvgIncome,
+        'monthlyAvgExpense': monthlyAvgExpense,
+        'monthsWithData': monthsWithData,
+        'monthCount': monthCount,
+      };
+}
+
+/// 每月收支趋势点
+class MonthlyTrendPoint {
+  final int month;
+  final double income;
+  final double expense;
+
+  const MonthlyTrendPoint({
+    required this.month,
+    this.income = 0,
+    this.expense = 0,
+  });
+
+  factory MonthlyTrendPoint.fromJson(Map<String, dynamic> json) =>
+      MonthlyTrendPoint(
+        month: json['month'] as int? ?? 0,
+        income: (json['income'] as num?)?.toDouble() ?? 0,
+        expense: (json['expense'] as num?)?.toDouble() ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'month': month,
+        'income': income,
+        'expense': expense,
       };
 }

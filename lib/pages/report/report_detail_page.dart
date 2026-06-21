@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../manager/l10n_manager.dart';
 import '../../manager/dao_manager.dart';
+import '../../utils/color_util.dart';
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../services/monthly_report_service.dart';
@@ -63,29 +64,32 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     }
   }
 
+  static const int _expectedVersion = 1;
+
   @override
   Widget build(BuildContext context) {
     final r = _parse(_content);
+    final versionOk = r != null && r.version == _expectedVersion;
+
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(widget.note.title ?? '月度报告'),
         actions: [
-          if (r != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: IconButton(
-                onPressed: _regenerating ? null : _regenerate,
-                icon: _regenerating
-                    ? SizedBox(width: 20, height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Icon(Icons.refresh_rounded),
-                tooltip: L10nManager.l10n.reportRegenerate,
-              ),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: IconButton(
+              onPressed: _regenerating ? null : _regenerate,
+              icon: _regenerating
+                  ? SizedBox(width: 20, height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Icon(Icons.refresh_rounded),
+              tooltip: L10nManager.l10n.reportRegenerate,
             ),
+          ),
         ],
       ),
-      body: r == null
-          ? Center(child: Text(L10nManager.l10n.reportRegenFailed, style: Theme.of(context).textTheme.bodyLarge))
+      body: !versionOk
+          ? _ErrorState(onRegenerate: _regenerating ? null : _regenerate, isRegenerating: _regenerating)
           : _Body(r: r),
     );
   }
@@ -94,6 +98,45 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     try { return c != null && c.isNotEmpty
         ? MonthlyReportVO.fromJson(jsonDecode(c) as Map<String, dynamic>) : null; }
     catch (_) { return null; }
+  }
+}
+
+/// 渲染失败/版本不匹配时的兜底界面
+class _ErrorState extends StatelessWidget {
+  final VoidCallback? onRegenerate;
+  final bool isRegenerating;
+  const _ErrorState({this.onRegenerate, this.isRegenerating = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: cs.error),
+            const SizedBox(height: 16),
+            Text('报告数据格式已更新',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: cs.onSurface),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text('请重新生成以查看最新内容',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: onRegenerate,
+              icon: isRegenerating
+                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Icon(Icons.refresh_rounded),
+              label: Text(isRegenerating ? '重新生成中…' : '重新生成'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -110,28 +153,41 @@ class _Body extends StatelessWidget {
     final expAbsDiff = s.totalExpense.abs() - s.prevExpense.abs();
     final expDown = expAbsDiff < 0;
     final expDiffDisplay = expAbsDiff.abs();
+    final expPct = s.prevExpense.abs() > 0 ? (expAbsDiff / s.prevExpense.abs()) * 100 : 0.0;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
         // ═══ HEADER ═══
         _Header(period: r.period, expenseDiffDisplay: expDiffDisplay,
-            expenseDown: expDown, hasComp: hasComp, cs: cs),
+            expenseDown: expDown, expensePct: expPct,
+            prevExpense: s.prevExpense.abs(), currentExpense: s.totalExpense.abs(),
+            hasComp: hasComp, cs: cs),
         const SizedBox(height: 20),
 
         // ═══ KPI COMPARISON CARDS ═══
         _KpiComparisonRow(cs: cs, s: s, hasComp: hasComp),
         const SizedBox(height: 24),
 
-        // ═══ CATEGORY DONUT CHART ═══
+        // ═══ EXPENSE DONUT ═══
         if (r.categoryExpenses.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionCategories),
           const SizedBox(height: 8),
-          _CategoryDonut(categories: r.categoryExpenses),
+          _DonutChart(data: r.categoryExpenses
+              .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
           const SizedBox(height: 24),
         ],
 
-        // ═══ CATEGORY COMPARISON BARS ═══
+        // ═══ INCOME DONUT ═══
+        if (r.categoryIncomes.isNotEmpty) ...[
+          _sectionTitle(cs, L10nManager.l10n.reportSectionIncome),
+          const SizedBox(height: 8),
+          _DonutChart(data: r.categoryIncomes
+              .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
+          const SizedBox(height: 24),
+        ],
+
+        // ═══ EXPENSE COMPARISON ═══
         if (r.categoryExpenses.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionComparison),
           const SizedBox(height: 8),
@@ -139,11 +195,27 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 24),
         ],
 
-        // ═══ DAILY EXPENSE CHART ═══
+        // ═══ DAILY CHART ═══
         if (r.dailyAmounts.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionDaily),
           const SizedBox(height: 8),
           _DailyChart(dailyAmounts: r.dailyAmounts, cs: cs),
+          const SizedBox(height: 24),
+        ],
+
+        // ═══ YTD COMPARISON ═══
+        if (r.ytdSummary != null) ...[
+          _sectionTitle(cs, L10nManager.l10n.reportSectionYtd),
+          const SizedBox(height: 8),
+          _YtdCard(cs: cs, s: s, ytd: r.ytdSummary!),
+          const SizedBox(height: 24),
+        ],
+
+        // ═══ MONTHLY TREND ═══
+        if (r.monthlyTrend.length >= 2) ...[
+          _sectionTitle(cs, L10nManager.l10n.reportSectionMonthlyTrend),
+          const SizedBox(height: 8),
+          _TrendChart(points: r.monthlyTrend, cs: cs),
           const SizedBox(height: 24),
         ],
 
@@ -154,7 +226,7 @@ class _Body extends StatelessWidget {
 
         // ═══ FOOTER ═══
         const SizedBox(height: 24),
-        Center(child: Text('生成于 ${DateUtil.format(r.generatedAt)}',
+        Center(child: Text(L10nManager.l10n.reportGeneratedAt(DateUtil.format(r.generatedAt)),
             style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant))),
       ],
     );
@@ -175,35 +247,86 @@ class _Header extends StatelessWidget {
   final ReportPeriod period;
   final double expenseDiffDisplay;
   final bool expenseDown;
+  final double expensePct;
+  final double prevExpense;
+  final double currentExpense;
   final bool hasComp;
   final ColorScheme cs;
   const _Header({required this.period, required this.expenseDiffDisplay,
-      required this.expenseDown, required this.hasComp, required this.cs});
+      required this.expenseDown, required this.expensePct,
+      required this.prevExpense, required this.currentExpense,
+      required this.hasComp, required this.cs});
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text('${period.year}.${period.month.toString().padLeft(2, '0')}',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+    final cc = ColorUtil.EXPENSE;
+    final arrow = expenseDown ? Icons.arrow_downward : Icons.arrow_upward;
+    final monthLabel = '${period.year}.${period.month.toString().padLeft(2, '0')}';
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
       ),
-      const SizedBox(width: 14),
-      if (hasComp) ...[
-        Text(L10nManager.l10n.reportLabelExpense, style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant)),
-        const SizedBox(width: 6),
-        Icon(expenseDown ? Icons.arrow_downward : Icons.arrow_upward,
-            size: 20, color: expenseDown ? cs.primary : cs.error),
-        const SizedBox(width: 4),
-        Text('¥${expenseDiffDisplay.toStringAsFixed(0)}',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
-                color: expenseDown ? cs.primary : cs.error, fontFamily: 'monospace', height: 1.1)),
-      ],
-    ]);
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // 第一行：月份 + 变化
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: cs.primaryContainer,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(monthLabel,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+          ),
+          if (hasComp) ...[
+            const SizedBox(width: 10),
+            Text(L10nManager.l10n.reportLabelVsPrevMonth,
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+            const Spacer(),
+            Icon(arrow, size: 16, color: cc),
+            const SizedBox(width: 3),
+            Text('¥${expenseDiffDisplay.toStringAsFixed(0)}',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: cc, fontFamily: 'monospace')),
+            const SizedBox(width: 5),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: cc.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text('${(expensePct).toStringAsFixed(1)}%',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cc)),
+            ),
+          ],
+        ]),
+        // 第二行：上月 → 本月
+        if (hasComp) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Text('上月', style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+              const SizedBox(width: 4),
+              Text('¥${prevExpense.toStringAsFixed(0)}',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace')),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Icon(Icons.arrow_forward, size: 11, color: cs.onSurfaceVariant),
+              ),
+              Text('¥${currentExpense.toStringAsFixed(0)}',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cc, fontFamily: 'monospace')),
+            ]),
+          ),
+        ],
+      ]),
+    );
   }
 }
 
@@ -219,9 +342,9 @@ class _KpiComparisonRow extends StatelessWidget {
     return Column(children: [
       // Row 1: KPI values only
       Row(children: [
-        _kpiValue(cs, L10nManager.l10n.reportLabelExpense, s.totalExpense, cs.error),
+        _kpiValue(cs, L10nManager.l10n.reportLabelExpense, s.totalExpense, ColorUtil.EXPENSE),
         const SizedBox(width: 10),
-        _kpiValue(cs, L10nManager.l10n.reportLabelIncome, s.totalIncome, cs.primary),
+        _kpiValue(cs, L10nManager.l10n.reportLabelIncome, s.totalIncome, ColorUtil.INCOME),
         const SizedBox(width: 10),
         _kpiValue(cs, L10nManager.l10n.reportLabelBalance, s.balance, cs.tertiary),
       ]),
@@ -268,16 +391,16 @@ class _ComparisonStrip extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
-        _compLine(cs, L10nManager.l10n.reportLabelExpense, s.prevExpense, s.totalExpense),
+        _compLine(cs, L10nManager.l10n.reportLabelExpense, s.prevExpense, s.totalExpense, true),
         const SizedBox(height: 6),
-        _compLine(cs, L10nManager.l10n.reportLabelIncome, s.prevIncome, s.totalIncome),
+        _compLine(cs, L10nManager.l10n.reportLabelIncome, s.prevIncome, s.totalIncome, false),
         const SizedBox(height: 6),
-        _compLine(cs, L10nManager.l10n.reportLabelBalance, s.prevBalance, s.balance),
+        _compLine(cs, L10nManager.l10n.reportLabelBalance, s.prevBalance, s.balance, false),
       ]),
     );
   }
 
-  Widget _compLine(ColorScheme cs, String label, double prev, double current) {
+  Widget _compLine(ColorScheme cs, String label, double prev, double current, [bool isExpense = false]) {
     // 金额可能为负值（支出），用绝对值计算变化
     final absPrev = prev.abs();
     final absCur = current.abs();
@@ -286,13 +409,13 @@ class _ComparisonStrip extends StatelessWidget {
     final displayDiff = absDiff.abs();
     final pct = absPrev > 0 ? (displayDiff / absPrev) * 100 : 0.0;
     // 费用降低（支出减少）意味着正向变化，用 primary 色；费用升高用 error 色
-    final isGoodChange = label == '支出' ? isDown : !isDown;
+    final isGoodChange = isExpense ? isDown : !isDown;
     final changeColor = isGoodChange ? cs.primary : cs.error;
     return Row(children: [
       SizedBox(width: 36, child: Text(label,
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: cs.onSurface))),
       const SizedBox(width: 8),
-      Text('上月 ¥${absPrev.toStringAsFixed(0)}',
+      Text('${L10nManager.l10n.reportLabelPrevMonth} ¥${absPrev.toStringAsFixed(0)}',
           style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontFamily: 'monospace')),
       const SizedBox(width: 8),
       Icon(Icons.arrow_forward, size: 12, color: cs.onSurfaceVariant),
@@ -312,14 +435,13 @@ class _ComparisonStrip extends StatelessWidget {
 }
 
 // ═══ CATEGORY DONUT CHART ═══
-class _CategoryDonut extends StatelessWidget {
-  final List<CategoryExpenseItem> categories;
-  const _CategoryDonut({required this.categories});
+class _DonutChart extends StatelessWidget {
+  final List<_ChartData> data;
+  const _DonutChart({required this.data});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final data = categories.map((c) => _ChartData(c.categoryName, c.amount.abs())).toList();
     final total = data.fold<double>(0, (s, d) => s + d.y);
 
     return Container(
@@ -412,8 +534,8 @@ class _CategoryComparison extends StatelessWidget {
         Row(children: [
           const SizedBox(width: 60, child: Text('', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey))),
           Expanded(child: Container()),
-          SizedBox(width: 44, child: Text('本月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
-          if (hasComp) SizedBox(width: 44, child: Text('上月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
+          SizedBox(width: 44, child: Text(L10nManager.l10n.reportLabelCurrentMonth, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
+          if (hasComp) SizedBox(width: 44, child: Text(L10nManager.l10n.reportLabelPrevMonth, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
           const SizedBox(width: 6),
         ]),
         const SizedBox(height: 6),
@@ -443,7 +565,7 @@ class _CategoryComparison extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: thisRatio,
                     backgroundColor: Colors.transparent,
-                    color: cs.error,
+                    color: ColorUtil.EXPENSE,
                     minHeight: 8,
                   ),
                 ),
@@ -526,10 +648,99 @@ class _DailyChart extends StatelessWidget {
               dataSource: data,
               xValueMapper: (d, _) => d.x,
               yValueMapper: (d, _) => d.y,
-              pointColorMapper: (d, _) => d.y > 0 ? cs.error.withValues(alpha: 0.6) : Colors.transparent,
+              pointColorMapper: (d, _) => d.y > 0 ? ColorUtil.EXPENSE.withValues(alpha: 0.6) : Colors.transparent,
               width: 0.6,
               spacing: 0.15,
               borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 每月收支趋势双线图
+class _TrendChart extends StatelessWidget {
+  final List<MonthlyTrendPoint> points;
+  final ColorScheme cs;
+  const _TrendChart({required this.points, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: SizedBox(
+        height: 210,
+        child: SfCartesianChart(
+          margin: const EdgeInsets.only(right: 8),
+          plotAreaBorderWidth: 0,
+          primaryXAxis: CategoryAxis(
+            majorGridLines: MajorGridLines(width: 0),
+            axisLine: AxisLine(width: 0),
+            labelStyle: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w500),
+          ),
+          primaryYAxis: NumericAxis(
+            isVisible: true,
+            axisLine: AxisLine(width: 0),
+            majorGridLines: MajorGridLines(color: cs.outline.withValues(alpha: 0.06)),
+            labelFormat: '{value}',
+            labelStyle: TextStyle(fontSize: 9, color: cs.onSurfaceVariant),
+            numberFormat: null,
+          ),
+          tooltipBehavior: TooltipBehavior(
+            enable: true,
+            color: cs.surface,
+            textStyle: TextStyle(color: cs.onSurface, fontSize: 11),
+          ),
+          legend: Legend(
+            isVisible: true,
+            position: LegendPosition.bottom,
+            textStyle: TextStyle(fontSize: 11, color: cs.onSurface),
+          ),
+          series: <CartesianSeries>[
+            LineSeries<MonthlyTrendPoint, String>(
+              dataSource: points,
+              xValueMapper: (p, _) => '${p.month}月',
+              yValueMapper: (p, _) => p.income,
+              name: L10nManager.l10n.reportLabelIncome,
+              color: ColorUtil.INCOME,
+              width: 2.5,
+              markerSettings: MarkerSettings(
+                isVisible: true,
+                shape: DataMarkerType.circle,
+                width: 8, height: 8,
+              ),
+              dataLabelSettings: DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.top,
+                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.INCOME),
+              ),
+              animationDuration: 600,
+            ),
+            LineSeries<MonthlyTrendPoint, String>(
+              dataSource: points,
+              xValueMapper: (p, _) => '${p.month}月',
+              yValueMapper: (p, _) => p.expense,
+              name: L10nManager.l10n.reportLabelExpense,
+              color: ColorUtil.EXPENSE,
+              width: 2.5,
+              markerSettings: MarkerSettings(
+                isVisible: true,
+                shape: DataMarkerType.diamond,
+                width: 9, height: 9,
+              ),
+              dataLabelSettings: DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.bottom,
+                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.EXPENSE),
+              ),
+              animationDuration: 600,
             ),
           ],
         ),
@@ -574,5 +785,61 @@ class _KeyMetrics extends StatelessWidget {
         Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor, fontFamily: 'monospace')),
       ]),
     );
+  }
+}
+
+/// 年度累计对比卡片
+class _YtdCard extends StatelessWidget {
+  final ColorScheme cs;
+  final ReportSummary s;
+  final YtdSummary ytd;
+
+  const _YtdCard({required this.cs, required this.s, required this.ytd});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final curExpense = s.totalExpense.abs();
+    final curIncome = s.totalIncome.abs();
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(children: [
+        // 本月 vs 月均
+        _row(theme, cs, L10nManager.l10n.reportLabelExpense, '¥${curExpense.toStringAsFixed(0)}',
+             L10nManager.l10n.reportMonthlyAvg(ytd.monthlyAvgExpense.toStringAsFixed(0)),
+             curExpense > ytd.monthlyAvgExpense ? cs.error : cs.primary),
+        const SizedBox(height: 10),
+        _row(theme, cs, L10nManager.l10n.reportLabelIncome, '¥${curIncome.toStringAsFixed(0)}',
+             L10nManager.l10n.reportMonthlyAvg(ytd.monthlyAvgIncome.toStringAsFixed(0)),
+             curIncome > ytd.monthlyAvgIncome ? cs.primary : cs.onSurfaceVariant),
+        const SizedBox(height: 10),
+        Divider(height: 1, color: cs.outline.withValues(alpha: 0.1)),
+        const SizedBox(height: 10),
+        _row(theme, cs, L10nManager.l10n.reportYtdExpense, '¥${ytd.totalExpense.toStringAsFixed(0)}',
+             '${L10nManager.l10n.reportYtdIncome} ¥${ytd.totalIncome.toStringAsFixed(0)}', cs.onSurface),
+        const SizedBox(height: 6),
+        _row(theme, cs, L10nManager.l10n.reportYtdSavingsRate, '${ytd.savingsRate.toStringAsFixed(1)}%',
+             L10nManager.l10n.reportCoverageMonths(ytd.monthsWithData, ytd.monthCount),
+             ytd.savingsRate >= 20 ? cs.primary : cs.error),
+      ]),
+    );
+  }
+
+  Widget _row(ThemeData theme, ColorScheme cs, String label, String value,
+      String sub, Color valueColor) {
+    return Row(children: [
+      SizedBox(width: 90, child: Text(label,
+          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant))),
+      Expanded(child: Text(sub,
+          style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant))),
+      Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+          color: valueColor, fontFamily: 'monospace')),
+    ]);
   }
 }

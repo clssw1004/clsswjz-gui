@@ -1469,19 +1469,19 @@
     "@reportLabelBalance": {
         "description": ""
     },
-    "reportSectionCategories": "支出构成",
+    "reportSectionCategories": "支出分类构成",
     "@reportSectionCategories": {
         "description": ""
     },
-    "reportSectionComparison": "分类同比",
+    "reportSectionComparison": "分类环比变化",
     "@reportSectionComparison": {
         "description": ""
     },
-    "reportSectionDaily": "每日支出趋势",
+    "reportSectionDaily": "每日支出分布",
     "@reportSectionDaily": {
         "description": ""
     },
-    "reportSectionMetrics": "关键指标",
+    "reportSectionMetrics": "指标一览",
     "@reportSectionMetrics": {
         "description": ""
     },
@@ -1497,7 +1497,7 @@
     "@reportMetricItemCount": {
         "description": ""
     },
-    "reportMetricCategoryCount": "分类数",
+    "reportMetricCategoryCount": "支出分类数",
     "@reportMetricCategoryCount": {
         "description": ""
     },
@@ -1505,7 +1505,7 @@
     "@reportMetricSpendingDays": {
         "description": ""
     },
-    "reportMetricMaxTxn": "单笔最高",
+    "reportMetricMaxTxn": "单笔最大",
     "@reportMetricMaxTxn": {
         "description": ""
     },
@@ -1561,5 +1561,59 @@
                 "type": "String"
             }
         }
+    },
+    "reportSectionIncome": "收入分类构成",
+    "@reportSectionIncome": {
+        "description": ""
+    },
+    "reportSectionYtd": "年度累计概况",
+    "@reportSectionYtd": {
+        "description": ""
+    },
+    "reportSectionMonthlyTrend": "每月收支走势",
+    "@reportSectionMonthlyTrend": {
+        "description": ""
+    },
+    "reportPrevVsCurrent": "上月 ¥{prev}  →  ¥{cur}",
+    "@reportPrevVsCurrent": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "String"
+            },
+            "cur": {
+                "type": "String"
+            }
+        }
+    },
+    "reportLabelPrevMonth": "上月",
+    "reportLabelCurrentMonth": "本月",
+    "reportMonthlyAvg": "月均 ¥{amount}",
+    "@reportMonthlyAvg": {
+        "description": "",
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "reportYtdExpense": "累计支出",
+    "reportYtdIncome": "累计收入",
+    "reportYtdSavingsRate": "累计储蓄率",
+    "reportCoverageMonths": "{count}/{total} 个月",
+    "@reportCoverageMonths": {
+        "description": "",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "reportLabelVsPrevMonth": "支出较上月",
+    "@reportLabelVsPrevMonth": {
+        "description": ""
     }
 }

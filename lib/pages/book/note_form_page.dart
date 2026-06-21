@@ -828,7 +828,7 @@ class _NoteFormContentState extends State<_NoteFormContent> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Row(
             children: [
               Expanded(

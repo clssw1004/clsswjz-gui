@@ -99,14 +99,23 @@ class MonthlyReportService {
     final lastMonth = month > 1 ? month - 1 : 12;
     final prevPeriod = _monthRange(lastYear, lastMonth);
 
+    // 年度累计查询范围（当年1月到目标月）
+    final ytdStart = DateTime(year, 1, 1);
+    final ytdEnd = period.end;
+
     // 并行查询目标月和上月的统计数据
     final results = await Future.wait([
       _querySummary(bookId, period.start, period.end),
       _querySummary(bookId, prevPeriod.start, prevPeriod.end),
-      _queryCategoryExpenses(bookId, period.start, period.end),
-      _queryCategoryExpenses(bookId, prevPeriod.start, prevPeriod.end),
-      _queryDailyStats(bookId, period.start, period.end),
+      _queryCategoryExpenses(bookId, period.start, period.end, AccountItemType.expense.code),
+      _queryCategoryExpenses(bookId, prevPeriod.start, prevPeriod.end, AccountItemType.expense.code),
+      _queryDailyStats(bookId, period.start, period.end, AccountItemType.expense.code),
       _queryExpenseItems(bookId, period.start, period.end),
+      _queryCategoryExpenses(bookId, period.start, period.end, AccountItemType.income.code),
+      _queryCategoryExpenses(bookId, prevPeriod.start, prevPeriod.end, AccountItemType.income.code),
+      _queryDailyStats(bookId, period.start, period.end, AccountItemType.income.code),
+      _querySummary(bookId, ytdStart, ytdEnd),
+      _queryMonthlyTrend(bookId, year, month),
     ]);
 
     final summary = results[0] as _SummaryResult;
@@ -115,6 +124,11 @@ class MonthlyReportService {
     final prevCategoryExpenses = results[3] as List<_CategoryResult>;
     final dailyStats = results[4] as List<_DailyStatResult>;
     final expenseItems = results[5] as List<_ExpenseItemResult>;
+    final incomeCategories = results[6] as List<_CategoryResult>;
+    final prevIncomeCategories = results[7] as List<_CategoryResult>;
+    final dailyIncomeStats = results[8] as List<_DailyStatResult>;
+    final ytdSummaryResult = results[9] as _SummaryResult;
+    final monthlyTrendData = results[10] as List<MonthlyTrendPoint>;
 
     // 如果目标月没有数据，返回null
     if (summary.income == 0 && summary.expense == 0) return null;
@@ -273,17 +287,62 @@ class MonthlyReportService {
       trends = const ReportTrends();
     }
 
+    // ── 收入分类排行 ──
+    final prevIncomeMap = {
+      for (final p in prevIncomeCategories) p.categoryCode: p
+    };
+    final reportIncomes = incomeCategories.map((c) {
+      final prev = prevIncomeMap[c.categoryCode];
+      final total = summary.income > 0
+          ? c.amount.abs() / summary.income.abs()
+          : 0.0;
+      return IncomeCategoryItem(
+        categoryCode: c.categoryCode,
+        categoryName: c.categoryName,
+        amount: c.amount.abs(),
+        percentage: total * 100,
+        count: c.count,
+        prevAmount: prev?.amount.abs() ?? 0,
+        prevCount: prev?.count ?? 0,
+      );
+    }).toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+
+    // ── 每日收入数组 ──
+    final dailyIncomeMap = <int, double>{};
+    for (final d in dailyIncomeStats) {
+      final day = int.tryParse(d.date.split('-').last) ?? 0;
+      if (day > 0) dailyIncomeMap[day] = d.expense.abs();
+    }
+    final dailyIncomes = List.generate(daysInMonth, (i) => dailyIncomeMap[i + 1] ?? 0.0);
+
+    // ── 年度累计 ──
+    final ytdMonths = month; // 当前月是第 month 个月
+    final ytd = YtdSummary(
+      totalIncome: ytdSummaryResult.income.abs(),
+      totalExpense: ytdSummaryResult.expense.abs(),
+      monthlyAvgIncome: ytdMonths > 0 ? ytdSummaryResult.income.abs() / ytdMonths : 0,
+      monthlyAvgExpense: ytdMonths > 0 ? ytdSummaryResult.expense.abs() / ytdMonths : 0,
+      monthsWithData: ytdSummaryResult.count > 0 ? ytdMonths : 0,
+      monthCount: ytdMonths,
+    );
+
     return MonthlyReportVO(
+      version: 1,
       generatedAt: DateTime.now().millisecondsSinceEpoch,
       period: ReportPeriod(year: year, month: month),
       summary: reportSummary,
       categoryExpenses: reportCategories,
+      categoryIncomes: reportIncomes,
       largeTransactions: largeTxns,
       alerts: alerts,
       dailyAmounts: dailyAmounts,
+      dailyIncomes: dailyIncomes,
       trends: trends,
       savingsRate: savingsRate,
       itemCount: summary.count,
+      ytdSummary: ytd,
+      monthlyTrend: monthlyTrendData,
     );
   }
 
@@ -302,6 +361,25 @@ class MonthlyReportService {
   }
 
   // ---- 内部查询方法 ----
+
+  /// 查询今年各月的收支趋势
+  Future<List<MonthlyTrendPoint>> _queryMonthlyTrend(
+      String bookId, int year, int month) async {
+    final points = <MonthlyTrendPoint>[];
+    for (int m = 1; m <= month; m++) {
+      final range = _monthRange(year, m);
+      final income = await _querySum(bookId, AccountItemType.income.code,
+          range.start, range.end);
+      final expense = await _querySum(bookId, AccountItemType.expense.code,
+          range.start, range.end);
+      points.add(MonthlyTrendPoint(
+        month: m,
+        income: income.abs(),
+        expense: expense.abs(),
+      ));
+    }
+    return points;
+  }
 
   _Period _monthRange(int year, int month) {
     final start = DateTime(year, month, 1);
@@ -347,13 +425,14 @@ class MonthlyReportService {
   }
 
   Future<List<_CategoryResult>> _queryCategoryExpenses(
-      String bookId, DateTime start, DateTime end) async {
+      String bookId, DateTime start, DateTime end, [String? itemType]) async {
     final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(start);
     final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(end);
+    final type = itemType ?? AccountItemType.expense.code;
 
     final query = _db.selectOnly(_db.accountItemTable)
       ..where(_db.accountItemTable.accountBookId.equals(bookId) &
-          _db.accountItemTable.type.equals(AccountItemType.expense.code) &
+          _db.accountItemTable.type.equals(type) &
           _db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
       ..addColumns([
         _db.accountItemTable.categoryCode,
@@ -394,15 +473,16 @@ class MonthlyReportService {
   }
 
   Future<List<_DailyStatResult>> _queryDailyStats(
-      String bookId, DateTime start, DateTime end) async {
+      String bookId, DateTime start, DateTime end, [String? itemType]) async {
     final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(start);
     final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(end);
+    final type = itemType ?? AccountItemType.expense.code;
 
-    // 直接查所有支出项，按日期分组聚合
+    // 直接查所有项目，按日期分组聚合
     final items = await (_db.select(_db.accountItemTable)
           ..where((t) =>
               t.accountBookId.equals(bookId) &
-              t.type.equals(AccountItemType.expense.code) &
+              t.type.equals(type) &
               t.accountDate.isBetweenValues(startStr, endStr)))
         .get();
 

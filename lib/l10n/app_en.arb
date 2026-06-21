@@ -1466,19 +1466,19 @@
     "@reportLabelBalance": {
         "description": ""
     },
-    "reportSectionCategories": "Expense Breakdown",
+    "reportSectionCategories": "Expense by Category",
     "@reportSectionCategories": {
         "description": ""
     },
-    "reportSectionComparison": "Month-over-Month",
+    "reportSectionComparison": "Category MoM Change",
     "@reportSectionComparison": {
         "description": ""
     },
-    "reportSectionDaily": "Daily Trend",
+    "reportSectionDaily": "Daily Expense",
     "@reportSectionDaily": {
         "description": ""
     },
-    "reportSectionMetrics": "Key Metrics",
+    "reportSectionMetrics": "Summary",
     "@reportSectionMetrics": {
         "description": ""
     },
@@ -1502,7 +1502,7 @@
     "@reportMetricSpendingDays": {
         "description": ""
     },
-    "reportMetricMaxTxn": "Max Transaction",
+    "reportMetricMaxTxn": "Largest",
     "@reportMetricMaxTxn": {
         "description": ""
     },
@@ -1558,5 +1558,59 @@
                 "type": "String"
             }
         }
+    },
+    "reportSectionIncome": "Income by Category",
+    "@reportSectionIncome": {
+        "description": ""
+    },
+    "reportSectionYtd": "Year-to-Date Summary",
+    "@reportSectionYtd": {
+        "description": ""
+    },
+    "reportSectionMonthlyTrend": "Monthly Trend",
+    "@reportSectionMonthlyTrend": {
+        "description": ""
+    },
+    "reportPrevVsCurrent": "Prev ¥{prev} → ¥{cur}",
+    "@reportPrevVsCurrent": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "String"
+            },
+            "cur": {
+                "type": "String"
+            }
+        }
+    },
+    "reportLabelPrevMonth": "Prev Month",
+    "reportLabelCurrentMonth": "This Month",
+    "reportMonthlyAvg": "Monthly Avg ¥{amount}",
+    "@reportMonthlyAvg": {
+        "description": "",
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "reportYtdExpense": "YTD Expense",
+    "reportYtdIncome": "YTD Income",
+    "reportYtdSavingsRate": "YTD Savings Rate",
+    "reportCoverageMonths": "{count}/{total} months",
+    "@reportCoverageMonths": {
+        "description": "e.g. 3/5 months",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "reportLabelVsPrevMonth": "Expense vs Prev Month",
+    "@reportLabelVsPrevMonth": {
+        "description": ""
     }
 }
