@@ -11,6 +11,12 @@ import '../models/common.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/dto/note_filter_dto.dart';
 
+/// 笔记列表筛选类型
+enum NoteFilterType {
+  /// 显示报表
+  report,
+}
+
 class NoteListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
@@ -43,6 +49,10 @@ class NoteListProvider extends ChangeNotifier {
   /// 分组筛选代码列表
   List<String>? _groupCodes;
   List<String>? get groupCodes => _groupCodes;
+
+  /// 筛选类型（报表等）
+  NoteFilterType? _filterType;
+  NoteFilterType? get filterType => _filterType;
 
   NoteListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
@@ -77,6 +87,14 @@ class NoteListProvider extends ChangeNotifier {
   /// 设置分组筛选
   Future<void> setGroupCodes(List<String>? groupCodes) async {
     _groupCodes = groupCodes;
+    _filterType = null;
+    loadNotes(true);
+  }
+
+  /// 设置筛选类型（报表等）
+  Future<void> setFilterType(NoteFilterType? type) async {
+    _filterType = type;
+    if (type != null) _groupCodes = null;
     loadNotes(true);
   }
 
@@ -93,9 +111,11 @@ class NoteListProvider extends ChangeNotifier {
     }
     try {
       // 创建筛选条件
+      final noteType = _filterType == NoteFilterType.report ? 'REPORT' : null;
       final filter = NoteFilterDTO(
         keyword: _keyword,
         groupCodes: _groupCodes,
+        noteType: noteType,
       );
 
       // 并行查询：账本笔记 + 全局笔记
@@ -109,7 +129,7 @@ class NoteListProvider extends ChangeNotifier {
         ),
         DaoManager.noteDao.listGlobalNotes(
           limit: _pageSize,
-          filter: NoteFilterDTO(keyword: _keyword),
+          filter: NoteFilterDTO(keyword: _keyword, noteType: noteType),
         ),
       ]);
 
