@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/l10n_manager.dart';
+import '../../manager/dao_manager.dart';
+import '../../models/vo/user_note_vo.dart';
 import '../../widgets/note_renderer.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
@@ -13,6 +15,7 @@ import '../../widgets/book/note_group_filter.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/progress_indicator_bar.dart';
 import '../../widgets/common/common_search_field.dart';
+import '../../widgets/report/report_month_filter.dart';
 
 class NotesTab extends StatefulWidget {
   const NotesTab({super.key});
@@ -97,7 +100,7 @@ class _NotesTabState extends State<NotesTab> {
                   onClear: _handleSearch,
                 ),
               ),
-              // 分组筛选
+              // 分组筛选 + 报表入口
               if (booksProvider.selectedBook != null)
                 Padding(
                   padding: EdgeInsets.only(
@@ -105,10 +108,18 @@ class _NotesTabState extends State<NotesTab> {
                     right: spacing.contentPadding.right,
                     bottom: spacing.formItemSpacing,
                   ),
-                  child: NoteGroupFilter(
-                    bookId: booksProvider.selectedBook!.id,
-                    selectedGroupCodes: noteListProvider.groupCodes,
-                    onGroupCodesChanged: _handleGroupFilterChanged,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: NoteGroupFilter(
+                          bookId: booksProvider.selectedBook!.id,
+                          selectedGroupCodes: noteListProvider.groupCodes,
+                          onGroupCodesChanged: _handleGroupFilterChanged,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _ReportFilterButton(bookId: booksProvider.selectedBook!.id),
+                    ],
                   ),
                 ),
               // 笔记列表
@@ -169,5 +180,98 @@ class _NotesTabState extends State<NotesTab> {
         },
       ),
     );
+  }
+}
+
+/// 报表筛选按钮
+class _ReportFilterButton extends StatelessWidget {
+  final String bookId;
+  const _ReportFilterButton({required this.bookId});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 42,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showReportSheet(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.assessment_rounded, size: 18, color: cs.primary),
+                const SizedBox(width: 4),
+                Text('报表', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cs.onSurface)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showReportSheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.68,
+        ),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 拖拽手柄
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 2),
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withAlpha(50),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            // 内容
+            Flexible(
+              child: ReportMonthFilter(
+                bookId: bookId,
+                onReportSelected: (noteId) {
+                  Navigator.of(ctx).pop();
+                  // 通过 noteId 查找笔记并跳转
+                  _navigateToReport(context, noteId);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _navigateToReport(BuildContext context, String noteId) async {
+    final note = await DaoManager.noteDao.findById(noteId);
+    if (note != null && context.mounted) {
+      final vo = UserNoteVO.fromAccountNote(note, null);
+      Navigator.pushNamed(context, AppRoutes.reportDetail, arguments: vo);
+    }
   }
 }
