@@ -40,14 +40,17 @@ class _Body extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final s = r.summary;
     final hasComp = s.hasComparison;
-    final up = s.expenseDiff > 0;
+    // 支出金额为负值，用绝对值计算变化方向
+    final expAbsDiff = s.totalExpense.abs() - s.prevExpense.abs();
+    final expDown = expAbsDiff < 0;
+    final expDiffDisplay = expAbsDiff.abs();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
         // ═══ HEADER ═══
-        _Header(period: r.period, expenseDiff: s.expenseDiff,
-            expenseChangeRatio: s.expenseChangeRatio, hasComp: hasComp, up: up, cs: cs),
+        _Header(period: r.period, expenseDiffDisplay: expDiffDisplay,
+            expenseDown: expDown, hasComp: hasComp, cs: cs),
         const SizedBox(height: 20),
 
         // ═══ KPI COMPARISON CARDS ═══
@@ -104,13 +107,12 @@ class _Body extends StatelessWidget {
 // ═══ HEADER ═══
 class _Header extends StatelessWidget {
   final ReportPeriod period;
-  final double expenseDiff;
-  final double expenseChangeRatio;
+  final double expenseDiffDisplay;
+  final bool expenseDown;
   final bool hasComp;
-  final bool up;
   final ColorScheme cs;
-  const _Header({required this.period, required this.expenseDiff,
-      required this.expenseChangeRatio, required this.hasComp, required this.up, required this.cs});
+  const _Header({required this.period, required this.expenseDiffDisplay,
+      required this.expenseDown, required this.hasComp, required this.cs});
 
   @override
   Widget build(BuildContext context) {
@@ -128,16 +130,12 @@ class _Header extends StatelessWidget {
       if (hasComp) ...[
         Text('支出', style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant)),
         const SizedBox(width: 6),
-        Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
-            size: 20, color: up ? cs.error : cs.primary),
+        Icon(expenseDown ? Icons.arrow_downward : Icons.arrow_upward,
+            size: 20, color: expenseDown ? cs.primary : cs.error),
         const SizedBox(width: 4),
-        Text('¥${expenseDiff.abs().toStringAsFixed(0)}',
+        Text('¥${expenseDiffDisplay.toStringAsFixed(0)}',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
-                color: up ? cs.error : cs.primary, fontFamily: 'monospace', height: 1.1)),
-        const SizedBox(width: 6),
-        Text('${(expenseChangeRatio * 100).toStringAsFixed(1)}%',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500,
-                color: up ? cs.error : cs.primary)),
+                color: expenseDown ? cs.primary : cs.error, fontFamily: 'monospace', height: 1.1)),
       ],
     ]);
   }
@@ -204,37 +202,42 @@ class _ComparisonStrip extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
-        _compLine(cs, '支出', s.prevExpense, s.totalExpense, cs.error),
+        _compLine(cs, '支出', s.prevExpense, s.totalExpense),
         const SizedBox(height: 6),
-        _compLine(cs, '收入', s.prevIncome, s.totalIncome, cs.primary),
+        _compLine(cs, '收入', s.prevIncome, s.totalIncome),
         const SizedBox(height: 6),
-        _compLine(cs, '结余', s.prevBalance, s.balance, cs.tertiary),
+        _compLine(cs, '结余', s.prevBalance, s.balance),
       ]),
     );
   }
 
-  Widget _compLine(ColorScheme cs, String label, double prev, double current, Color color) {
-    final diff = current - prev;
-    final up = diff > 0;
-    final pct = prev != 0 ? (diff / prev.abs()) * 100 : 0.0;
+  Widget _compLine(ColorScheme cs, String label, double prev, double current) {
+    // 金额可能为负值（支出），用绝对值计算变化
+    final absPrev = prev.abs();
+    final absCur = current.abs();
+    final absDiff = absCur - absPrev;
+    final isDown = absDiff < 0; // 绝对值减少 = 降低
+    final displayDiff = absDiff.abs();
+    final pct = absPrev > 0 ? (displayDiff / absPrev) * 100 : 0.0;
+    // 费用降低（支出减少）意味着正向变化，用 primary 色；费用升高用 error 色
+    final isGoodChange = label == '支出' ? isDown : !isDown;
+    final changeColor = isGoodChange ? cs.primary : cs.error;
     return Row(children: [
       SizedBox(width: 36, child: Text(label,
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: cs.onSurface))),
       const SizedBox(width: 8),
-      Text('上月 ¥${prev.abs().toStringAsFixed(0)}',
+      Text('上月 ¥${absPrev.toStringAsFixed(0)}',
           style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontFamily: 'monospace')),
       const SizedBox(width: 8),
       Icon(Icons.arrow_forward, size: 12, color: cs.onSurfaceVariant),
       const SizedBox(width: 8),
-      Text('¥${current.abs().toStringAsFixed(0)}',
+      Text('¥${absCur.toStringAsFixed(0)}',
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace')),
       const Spacer(),
-      Icon(up ? Icons.arrow_upward : Icons.arrow_downward, size: 14,
-          color: up && label == '支出' ? cs.error : cs.primary),
+      Icon(isDown ? Icons.arrow_downward : Icons.arrow_upward, size: 14, color: changeColor),
       const SizedBox(width: 2),
-      Text('${up ? "+" : ""}${diff.abs().toStringAsFixed(0)}',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
-              color: up && label == '支出' ? cs.error : cs.primary, fontFamily: 'monospace')),
+      Text(displayDiff.toStringAsFixed(0),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: changeColor, fontFamily: 'monospace')),
       const SizedBox(width: 4),
       Text('(${pct.toStringAsFixed(1)}%)',
           style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
