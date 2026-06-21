@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.9] - 2026-06-21
+
+### Features
+- Monthly report: monthly income/expense statistics based on filtered notes, with year/month switching and charts
+- Notes tab redesign: added Notes/Reports tab switch, unified filter conditions
+- Report tile supports swipe-to-delete
+
+### Optimizations
+- Report strings migrated to ARB for complete i18n support
+- Report filter integrated into note filter panel for unified filtering experience
+
 ## [1.1.8] - 2026-06-17
 
 ### Features
