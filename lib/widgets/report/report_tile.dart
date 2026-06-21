@@ -7,215 +7,124 @@ import '../../models/vo/user_note_vo.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/date_util.dart';
 
-/// 报告笔记在列表中的预览卡片
 class ReportTile extends StatelessWidget {
   final UserNoteVO note;
   final VoidCallback? onTap;
 
-  const ReportTile({
-    super.key,
-    required this.note,
-    this.onTap,
-  });
+  const ReportTile({super.key, required this.note, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final cs = theme.colorScheme;
     final spacing = theme.spacing;
-
-    // 解析报告数据
     final report = _parseReport(note.content);
-    final summary = report?.summary;
+    final s = report?.summary;
 
     return Padding(
       padding: spacing.listItemMargin,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        color: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: colorScheme.primary.withValues(alpha: 0.15),
-          ),
-        ),
+      child: Material(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
         child: InkWell(
+          borderRadius: BorderRadius.circular(10),
           onTap: onTap,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 标题栏
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(spacing.listItemPadding.left),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colorScheme.primaryContainer.withValues(alpha: 0.4),
-                      colorScheme.surface,
-                    ],
-                  ),
-                ),
-                child: Row(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Icon(Icons.assessment_rounded,
-                        size: 22, color: colorScheme.primary),
-                    const SizedBox(width: 10),
+                        size: 18, color: cs.primary),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        note.title ?? '月度收支报告',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
-                        ),
+                        note.title ?? '',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600, color: cs.onSurface),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (note.scope == 'global')
-                      Container(
-                        margin: const EdgeInsets.only(left: 6),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: colorScheme.tertiary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '全局',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colorScheme.tertiary,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
                     if (note.createdAt != null)
-                      Text(
-                        DateUtil.format(note.createdAt!),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                      Text(DateUtil.format(note.createdAt!),
+                          style: theme.textTheme.labelSmall
+                              ?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),
-              ),
-              // KPI 预览
-              if (summary != null)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    spacing.listItemPadding.left,
-                    0,
-                    spacing.listItemPadding.right,
-                    spacing.listItemPadding.bottom,
-                  ),
-                  child: Row(
+                if (s != null) ...[
+                  const SizedBox(height: 10),
+                  Row(
                     children: [
-                      _buildKpiChip(
-                          context, '收入', summary.totalIncome,
-                          colorScheme.primary, summary.incomeDiff, summary.hasComparison),
+                      _miniKpi(cs, '支出', s.totalExpense, cs.error,
+                          s.expenseDiff, s.hasComparison),
                       const SizedBox(width: 8),
-                      _buildKpiChip(
-                          context, '支出', summary.totalExpense,
-                          colorScheme.error, summary.expenseDiff, summary.hasComparison),
+                      _miniKpi(cs, '收入', s.totalIncome, cs.primary,
+                          s.incomeDiff, s.hasComparison),
                       const SizedBox(width: 8),
-                      _buildKpiChip(
-                          context, '结余', summary.balance,
-                          colorScheme.tertiary, summary.balance - summary.prevBalance,
-                          summary.hasComparison),
+                      _miniKpi(cs, '结余', s.balance, cs.tertiary,
+                          s.balance - s.prevBalance, s.hasComparison),
                     ],
                   ),
-                ),
-              // 预警标签
-              if (report != null && report.alerts.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    spacing.listItemPadding.left,
-                    0,
-                    spacing.listItemPadding.right,
-                    spacing.listItemPadding.bottom,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber_rounded,
-                          size: 14, color: colorScheme.error),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${report.alerts.length}条预警',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.error,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  if (report != null && report.alerts.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded,
+                              size: 13, color: cs.error),
+                          const SizedBox(width: 4),
+                          Text('${report.alerts.length}条关注',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                  color: cs.error,
+                                  fontWeight: FontWeight.w500)),
+                          const Spacer(),
+                          Icon(Icons.chevron_right,
+                              size: 16, color: cs.onSurfaceVariant),
+                        ],
                       ),
-                      const Spacer(),
-                      Icon(Icons.chevron_right,
-                          size: 18, color: colorScheme.onSurfaceVariant),
-                    ],
-                  ),
-                ),
-            ],
+                    ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildKpiChip(
-    BuildContext context,
-    String label,
-    double amount,
-    Color color,
-    double diff,
-    bool hasComparison,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isPositive = diff >= 0;
-    final sign = isPositive ? '+' : '';
-
+  Widget _miniKpi(ColorScheme cs, String label, double amount, Color color,
+      double diff, bool hasComp) {
+    final isUp = diff >= 0;
+    final sign = isUp ? '+' : '';
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontSize: 10,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '¥${amount.abs().toStringAsFixed(0)}',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (hasComparison)
-              Text(
-                '$sign${diff.toStringAsFixed(0)}',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: isPositive ? colorScheme.error : colorScheme.primary,
-                  fontSize: 9,
-                ),
-              ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: TextStyle(
+                  fontSize: 10, color: cs.onSurfaceVariant)),
+          const SizedBox(height: 1),
+          Text('¥${amount.abs().toStringAsFixed(0)}',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  height: 1.1)),
+          if (hasComp)
+            Text('$sign${diff.toStringAsFixed(0)}',
+                style: TextStyle(
+                    fontSize: 9,
+                    color: isUp && label == '支出'
+                        ? color
+                        : cs.onSurfaceVariant)),
+        ],
       ),
     );
   }
@@ -223,8 +132,8 @@ class ReportTile extends StatelessWidget {
   MonthlyReportVO? _parseReport(String? content) {
     if (content == null || content.isEmpty) return null;
     try {
-      final json = jsonDecode(content);
-      return MonthlyReportVO.fromJson(json as Map<String, dynamic>);
+      return MonthlyReportVO.fromJson(
+          jsonDecode(content) as Map<String, dynamic>);
     } catch (_) {
       return null;
     }
