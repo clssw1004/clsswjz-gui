@@ -4,20 +4,88 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../manager/dao_manager.dart';
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
+import '../../services/monthly_report_service.dart';
 import '../../utils/date_util.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 
-class ReportDetailPage extends StatelessWidget {
+class ReportDetailPage extends StatefulWidget {
   final UserNoteVO note;
   const ReportDetailPage({super.key, required this.note});
 
   @override
+  State<ReportDetailPage> createState() => _ReportDetailPageState();
+}
+
+class _ReportDetailPageState extends State<ReportDetailPage> {
+  bool _regenerating = false;
+  String _content = '';
+  String _plainContent = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _content = widget.note.content;
+    _plainContent = widget.note.plainContent;
+  }
+
+  Future<void> _regenerate() async {
+    setState(() => _regenerating = true);
+    final title = widget.note.title ?? '';
+    final regExp = RegExp(r'(\d+)年(\d+)月');
+    final match = regExp.firstMatch(title);
+    if (match == null) {
+      ToastUtil.showError('无法解析报告月份');
+      setState(() => _regenerating = false);
+      return;
+    }
+    final year = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final bookId = widget.note.accountBookId;
+
+    final service = MonthlyReportService();
+    final noteId = await service.regenerateReport(bookId, year, month);
+    if (mounted) {
+      if (noteId != null) {
+        final updated = await DaoManager.noteDao.findById(noteId);
+        if (updated != null && mounted) {
+          setState(() {
+            _content = updated.content ?? '';
+            _plainContent = updated.plainContent ?? '';
+          });
+          ToastUtil.showSuccess('报告已重新生成');
+        }
+      } else {
+        ToastUtil.showError('重新生成失败');
+      }
+      setState(() => _regenerating = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final r = _parse(note.content);
+    final r = _parse(_content);
     return Scaffold(
-      appBar: CommonAppBar(title: Text(note.title ?? '月度报告')),
+      appBar: CommonAppBar(
+        title: Text(widget.note.title ?? '月度报告'),
+        actions: [
+          if (r != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: IconButton(
+                onPressed: _regenerating ? null : _regenerate,
+                icon: _regenerating
+                    ? SizedBox(width: 20, height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : Icon(Icons.refresh_rounded),
+                tooltip: '重新生成',
+              ),
+            ),
+        ],
+      ),
       body: r == null
           ? Center(child: Text('无法解析报告', style: Theme.of(context).textTheme.bodyLarge))
           : _Body(r: r),
