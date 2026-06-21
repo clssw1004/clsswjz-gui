@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
-import '../../theme/theme_spacing.dart';
 import '../../utils/date_util.dart';
 
 class ReportTile extends StatelessWidget {
@@ -13,16 +12,13 @@ class ReportTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final spacing = Theme.of(context).spacing;
     final r = _parse(note.content);
     final s = r?.summary;
 
-    return Padding(
-      padding: spacing.listItemMargin,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: cs.surface,
@@ -74,7 +70,6 @@ class ReportTile extends StatelessWidget {
                 ),
             ],
           ]),
-        ),
       ),
     );
   }
