@@ -53,6 +53,14 @@ class _NotesTabState extends State<NotesTab> {
     context.read<NoteListProvider>().setKeyword(_searchController.text);
   }
 
+  void _handleGroupChanged(List<String>? codes) {
+    if (codes != null && codes.contains(kReportFilterCode)) {
+      context.read<NoteListProvider>().setFilterType(NoteFilterType.report);
+    } else {
+      context.read<NoteListProvider>().setGroupCodes(codes);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -67,6 +75,7 @@ class _NotesTabState extends State<NotesTab> {
       ),
       body: Consumer2<NoteListProvider, SyncProvider>(
         builder: (context, noteListProvider, syncProvider, child) {
+          final isReport = noteListProvider.filterType == NoteFilterType.report;
           return Column(
             children: [
               // 搜索栏
@@ -85,7 +94,7 @@ class _NotesTabState extends State<NotesTab> {
                   onClear: _handleSearch,
                 ),
               ),
-              // 分组筛选 + 报表切换
+              // 分组筛选
               if (booksProvider.selectedBook != null)
                 Padding(
                   padding: EdgeInsets.only(
@@ -93,31 +102,11 @@ class _NotesTabState extends State<NotesTab> {
                     right: spacing.contentPadding.right,
                     bottom: spacing.formItemSpacing,
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: NoteGroupFilter(
-                          bookId: booksProvider.selectedBook!.id,
-                          selectedGroupCodes: noteListProvider.filterType == NoteFilterType.report ? null : noteListProvider.groupCodes,
-                          onGroupCodesChanged: (codes) {
-                            noteListProvider.setGroupCodes(codes);
-                            noteListProvider.setFilterType(null);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _FilterChip(
-                        label: '报表',
-                        icon: Icons.assessment_rounded,
-                        selected: noteListProvider.filterType == NoteFilterType.report,
-                        onTap: () {
-                          noteListProvider.setFilterType(
-                            noteListProvider.filterType == NoteFilterType.report
-                                ? null : NoteFilterType.report,
-                          );
-                        },
-                      ),
-                    ],
+                  child: NoteGroupFilter(
+                    bookId: booksProvider.selectedBook!.id,
+                    selectedGroupCodes: isReport ? [kReportFilterCode] : noteListProvider.groupCodes,
+                    onGroupCodesChanged: _handleGroupChanged,
+                    isReportActive: isReport,
                   ),
                 ),
               // 笔记列表
@@ -168,60 +157,6 @@ class _NotesTabState extends State<NotesTab> {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-/// 小型筛选切换块
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 42,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Ink(
-            decoration: BoxDecoration(
-              color: selected
-                  ? cs.primaryContainer
-                  : cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-              border: selected
-                  ? Border.all(color: cs.primary.withValues(alpha: 0.3))
-                  : null,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 18, color: selected ? cs.onPrimaryContainer : cs.primary),
-                const SizedBox(width: 4),
-                Text(label,
-                    style: TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w500,
-                      color: selected ? cs.onPrimaryContainer : cs.onSurface,
-                    )),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
