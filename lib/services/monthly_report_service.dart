@@ -123,11 +123,13 @@ class MonthlyReportService {
     }
     final dailyAmounts = List.generate(daysInMonth, (i) => dailyMap[i + 1] ?? 0.0);
 
-    // 构建 summary
+    // 构建 summary（支出为负值，收入为正值）
     final balance = summary.income + summary.expense;
     final prevBalance = prevSummary.income + prevSummary.expense;
-    final savingsRate = summary.income > 0
-        ? ((summary.income + summary.expense) / summary.income.abs()) * 100
+    final totalIncome = summary.income.abs();
+    final totalExpense = summary.expense.abs();
+    final savingsRate = totalIncome > 0
+        ? ((totalIncome - totalExpense) / totalIncome) * 100
         : 0.0;
     final reportSummary = ReportSummary(
       totalIncome: summary.income,
@@ -136,7 +138,7 @@ class MonthlyReportService {
       prevIncome: prevSummary.income,
       prevExpense: prevSummary.expense,
       prevBalance: prevBalance,
-      dailyAverage: daysWithData > 0 ? summary.expense / daysWithData : 0,
+      dailyAverage: daysWithData > 0 ? summary.expense.abs() / daysWithData : 0,
     );
 
     // 构建分类排行（合并上月数据）
@@ -253,7 +255,7 @@ class MonthlyReportService {
       });
 
       trends = ReportTrends(
-        dailyAverage: daysWithData > 0 ? summary.expense / daysWithData : 0,
+        dailyAverage: daysWithData > 0 ? summary.expense.abs() / daysWithData : 0,
         maxSpendDay: maxStat.date,
         maxSpendAmount: maxStat.expense.abs(),
         minSpendDay: minStat?.date,
@@ -299,30 +301,40 @@ class MonthlyReportService {
     return _Period(start: start, end: end);
   }
 
-  Future<_SummaryResult> _querySummary(
-      String bookId, DateTime start, DateTime end) async {
+  Future<double> _querySum(String bookId, String type,
+      DateTime start, DateTime end) async {
     final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(start);
     final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(end);
-
-    // 收入
-    final incomeQuery = _db.selectOnly(_db.accountItemTable)
+    final query = _db.selectOnly(_db.accountItemTable)
       ..where(_db.accountItemTable.accountBookId.equals(bookId) &
-          _db.accountItemTable.type.equals(AccountItemType.income.code) &
+          _db.accountItemTable.type.equals(type) &
           _db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
       ..addColumns([_db.accountItemTable.amount.sum()]);
-    final incomeResult = await incomeQuery.getSingle();
-    final income = incomeResult.read(_db.accountItemTable.amount.sum()) ?? 0.0;
+    final row = await query.getSingleOrNull();
+    return row?.read(_db.accountItemTable.amount.sum()) ?? 0.0;
+  }
 
-    // 支出（不含退款）
-    final expenseQuery = _db.selectOnly(_db.accountItemTable)
-      ..where(_db.accountItemTable.accountBookId.equals(bookId) &
-          _db.accountItemTable.type.equals(AccountItemType.expense.code) &
-          _db.accountItemTable.accountDate.isBetweenValues(startStr, endStr))
-      ..addColumns([_db.accountItemTable.amount.sum(), _db.accountItemTable.id.count()]);
-    final expenseResult = await expenseQuery.getSingle();
-    final expense = expenseResult.read(_db.accountItemTable.amount.sum()) ?? 0.0;
-    final count = expenseResult.read(_db.accountItemTable.id.count()) ?? 0;
+  Future<int> _queryCount(String bookId, String type,
+      DateTime start, DateTime end) async {
+    final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(start);
+    final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(end);
+    final items = await (_db.select(_db.accountItemTable)
+          ..where((t) =>
+              t.accountBookId.equals(bookId) &
+              t.type.equals(type) &
+              t.accountDate.isBetweenValues(startStr, endStr)))
+        .get();
+    return items.length;
+  }
 
+  Future<_SummaryResult> _querySummary(
+      String bookId, DateTime start, DateTime end) async {
+    final income = await _querySum(
+        bookId, AccountItemType.income.code, start, end);
+    final expense = await _querySum(
+        bookId, AccountItemType.expense.code, start, end);
+    final count = await _queryCount(
+        bookId, AccountItemType.expense.code, start, end);
     return _SummaryResult(income: income, expense: expense, count: count);
   }
 
@@ -375,41 +387,25 @@ class MonthlyReportService {
 
   Future<List<_DailyStatResult>> _queryDailyStats(
       String bookId, DateTime start, DateTime end) async {
-    final startStr = DateFormat('yyyy-MM-dd').format(start);
-    final endStr = DateFormat('yyyy-MM-dd').format(end);
+    final startStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(start);
+    final endStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(end);
 
-    final dateQuery = _db.selectOnly(_db.accountItemTable)
-      ..where(_db.accountItemTable.accountBookId.equals(bookId) &
-          _db.accountItemTable.type.equals(AccountItemType.expense.code) &
-          _db.accountItemTable.accountDate
-              .isBetweenValues('$startStr 00:00:00', '$endStr 23:59:59'))
-      ..addColumns([_db.accountItemTable.accountDate])
-      ..groupBy([_db.accountItemTable.accountDate]);
+    // 直接查所有支出项，按日期分组聚合
+    final items = await (_db.select(_db.accountItemTable)
+          ..where((t) =>
+              t.accountBookId.equals(bookId) &
+              t.type.equals(AccountItemType.expense.code) &
+              t.accountDate.isBetweenValues(startStr, endStr)))
+        .get();
 
-    final dateResults = await dateQuery.get();
-    final dates = dateResults
-        .map((r) => DateFormat('yyyy-MM-dd').format(
-            DateTime.parse(r.read(_db.accountItemTable.accountDate)!)))
-        .toSet()
-        .toList()
-      ..sort();
-
-    final result = <_DailyStatResult>[];
-    for (final dateStr in dates) {
-      final dayStart = '$dateStr 00:00:00';
-      final dayEnd = '$dateStr 23:59:59';
-
-      final expenseQuery = _db.selectOnly(_db.accountItemTable)
-        ..where(_db.accountItemTable.accountBookId.equals(bookId) &
-            _db.accountItemTable.type.equals(AccountItemType.expense.code) &
-            _db.accountItemTable.accountDate.isBetweenValues(dayStart, dayEnd))
-        ..addColumns([_db.accountItemTable.amount.sum()]);
-
-      final row = await expenseQuery.getSingleOrNull();
-      final expense = row?.read(_db.accountItemTable.amount.sum()) ?? 0.0;
-      result.add(_DailyStatResult(date: dateStr, expense: expense));
+    // 按日期字符前10位（yyyy-MM-dd）分组求和
+    final dailyMap = <String, double>{};
+    for (final item in items) {
+      final date = item.accountDate.substring(0, 10);
+      dailyMap.update(date, (v) => v + item.amount, ifAbsent: () => item.amount);
     }
-    return result;
+    final dates = dailyMap.keys.toList()..sort();
+    return dates.map((d) => _DailyStatResult(date: d, expense: dailyMap[d]!)).toList();
   }
 
   Future<List<_ExpenseItemResult>> _queryExpenseItems(
