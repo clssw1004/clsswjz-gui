@@ -153,7 +153,11 @@ class _NoteListState extends State<NoteList> {
   Widget _buildListItem(UserNoteVO note, int index, ThemeData theme) {
     final renderer = NoteRendererRegistry.resolve(note.noteType, note.template);
     if (renderer != null) {
-      return renderer.buildTile(note, () => widget.onNoteTap?.call(note));
+      return renderer.buildTile(
+        note,
+        () => widget.onNoteTap?.call(note),
+        onDelete: widget.onDelete != null ? () => widget.onDelete!(note) : null,
+      );
     }
     // 兜底：默认 Quill 笔记
     return NoteTile(
