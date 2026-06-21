@@ -6,6 +6,9 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/ui_config_dto.dart';
 import '../../models/vo/activity_statistic_vo.dart';
+import '../../models/vo/activity_definition_vo.dart';
+import '../../models/vo/activity_record_vo.dart';
+import '../../models/common.dart';
 import '../../providers/books_provider.dart';
 import '../../providers/statistics_provider.dart';
 import '../../theme/theme_spacing.dart';
@@ -141,26 +144,50 @@ class _StatisticsTabState extends State<StatisticsTab> {
   Future<void> _loadActivityStatistics(DateTime? start, DateTime? end) async {
     setState(() => _activityStatsLoading = true);
     try {
+      final userId = AppConfigManager.instance.userId;
+
       // 全时间范围时使用宽范围查询
       final s = start ?? DateTime(2000, 1, 1);
       final e = end ?? DateTime(2099, 12, 31);
       final startStr = '${s.year}-${s.month.toString().padLeft(2, '0')}-${s.day.toString().padLeft(2, '0')}';
       final endStr = '${e.year}-${e.month.toString().padLeft(2, '0')}-${e.day.toString().padLeft(2, '0')}';
-      final result = await DriverFactory.driver.listActivityRecords(
-        AppConfigManager.instance.userId,
-        startDate: startStr,
-        endDate: endStr,
-      );
+
+      // 并行查询活动记录和活动定义
+      final results = await Future.wait([
+        DriverFactory.driver.listActivityRecords(
+          userId,
+          startDate: startStr,
+          endDate: endStr,
+        ),
+        DriverFactory.driver.listActivityDefinitions(userId),
+      ]);
+
+      final records = results[0] as OperateResult<List<ActivityRecordVO>>;
+      final defs = results[1] as OperateResult<List<ActivityDefinitionVO>>;
+
+      // 构建 activityDefId -> 完整定义映射
+      final defMap = <String, ActivityDefinitionVO>{};
+      for (final d in defs.data ?? []) {
+        defMap[d.id] = d;
+      }
+
       if (mounted) {
-        final grouped = <String, int>{};
-        for (final r in result.data ?? []) {
-          grouped[r.activityName] = (grouped[r.activityName] ?? 0) + 1;
+        // 按 activityDefId 分组统计，无 defId 的 fallback 到 activityName
+        final grouped = <String, _ActivityGroup>{};
+        for (final r in records.data ?? []) {
+          final key = r.activityDefId ?? r.activityName;
+          final group = grouped.putIfAbsent(key, () => _ActivityGroup(
+            name: r.activityName,
+            emoji: r.activityDefId != null ? (defMap[r.activityDefId]?.emoji ?? '') : '',
+            definition: r.activityDefId != null ? defMap[r.activityDefId] : null,
+          ));
+          group.count++;
         }
-        final sorted = grouped.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+        final sorted = grouped.values.toList()
+          ..sort((a, b) => b.count.compareTo(a.count));
         setState(() {
-          _activityStats = sorted.map((e) => ActivityStatisticVO(
-            activityName: e.key, count: e.value,
+          _activityStats = sorted.map((g) => ActivityStatisticVO(
+            activityName: g.name, count: g.count, emoji: g.emoji, definition: g.definition,
           )).toList();
           _activityStatsLoading = false;
         });
@@ -266,4 +293,14 @@ class _StatisticsTabState extends State<StatisticsTab> {
       ],
     );
   }
+}
+
+/// 活动分组统计辅助类
+class _ActivityGroup {
+  final String name;
+  final String emoji;
+  final ActivityDefinitionVO? definition;
+  int count = 0;
+
+  _ActivityGroup({required this.name, required this.emoji, this.definition});
 }

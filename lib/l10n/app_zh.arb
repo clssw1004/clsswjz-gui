@@ -932,9 +932,9 @@
     "@setRemoteOnly": {
         "description": "仅设置远端按钮文本"
     },
-    "reconnect": "重连",
+    "reconnect": "刷新凭证",
     "@reconnect": {
-        "description": "重连按钮文本"
+        "description": "刷新凭证按钮文本"
     },
     "clearRoomCode": "清除房间码",
     "@clearRoomCode": {

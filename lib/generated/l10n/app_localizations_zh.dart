@@ -1017,7 +1017,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setRemoteOnly => '仅设置远端';
 
   @override
-  String get reconnect => '重连';
+  String get reconnect => '刷新凭证';
 
   @override
   String get clearRoomCode => '清除房间码';

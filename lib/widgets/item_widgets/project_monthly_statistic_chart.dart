@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/statistic_vo.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../providers/statistics_provider.dart';
 import '../../routes/app_routes.dart';
 import '../common/common_card_container.dart';
 
@@ -119,6 +121,21 @@ class ProjectMonthlyStatisticChart extends StatelessWidget {
                   final book = accountBook;
                   if (book != null) {
                     final filter = ItemFilterDTO(projectCodes: [item.projectId]);
+                    // 带时间范围
+                    final statsProvider =
+                        Provider.of<StatisticsProvider>(context, listen: false);
+                    final start = statsProvider.currentStart;
+                    final end = statsProvider.currentEnd;
+                    if (start != null || end != null) {
+                      final s = start?.toIso8601String().substring(0, 10);
+                      final e = end?.toIso8601String().substring(0, 10);
+                      final withDate = filter.copyWith(startDate: s, endDate: e);
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.items,
+                        arguments: [book, withDate, item.projectName],
+                      );
+                      return;
+                    }
                     Navigator.of(context).pushNamed(
                       AppRoutes.items,
                       arguments: [book, filter, item.projectName],

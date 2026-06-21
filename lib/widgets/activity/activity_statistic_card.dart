@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/vo/activity_statistic_vo.dart';
+import '../../pages/activity/activity_detail_page.dart';
 import '../common/common_card_container.dart';
 import '../../manager/l10n_manager.dart';
 
@@ -75,7 +76,7 @@ class ActivityStatisticCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    '该时段暂无活动记录',
+                    L10nManager.l10n.noData,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -85,15 +86,31 @@ class ActivityStatisticCard extends StatelessWidget {
             else
               ...data.map((stat) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
+                child: InkWell(
+                  onTap: stat.definition != null
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ActivityDetailPage(
+                                definition: stat.definition!,
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
                   children: [
                     CircleAvatar(
                       radius: 16,
                       backgroundColor: _colorForActivity(stat.activityName),
                       child: Text(
-                        stat.activityName.isNotEmpty
-                            ? stat.activityName[0]
-                            : '?',
+                        stat.emoji.isNotEmpty
+                            ? stat.emoji
+                            : (stat.activityName.isNotEmpty
+                                ? stat.activityName[0]
+                                : '?'),
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.white,
@@ -126,8 +143,9 @@ class ActivityStatisticCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              )),
+                ),   // close Row
+              ),     // close InkWell
+            )),      // close Padding + map expr
 
             // 合计
             if (data.isNotEmpty)
@@ -137,7 +155,7 @@ class ActivityStatisticCard extends StatelessWidget {
                   children: [
                     const Spacer(),
                     Text(
-                      '共 ${data.fold<int>(0, (sum, s) => sum + s.count)} 次',
+                      L10nManager.l10n.activityTimes(data.fold<int>(0, (sum, s) => sum + s.count)),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
