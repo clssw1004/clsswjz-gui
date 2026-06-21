@@ -44,6 +44,7 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
     String? groupCode,
     String? scope,
     String? template,
+    int? createdAt,
   }) {
     return NoteCULog().who(who).inBook(bookId).doCreate().withData(
         AccountNoteTable.toCreateCompanion(who, bookId,
@@ -53,7 +54,8 @@ class NoteCULog extends LogBuilder<AccountNoteTableCompanion, String> {
             plainContent: plainContent,
             groupCode: groupCode,
             scope: scope,
-            template: template)) as NoteCULog;
+            template: template,
+            createdAt: createdAt)) as NoteCULog;
   }
 
   static NoteCULog update(

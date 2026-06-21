@@ -32,6 +32,8 @@ class MonthlyReportService {
     // 通过 Driver 创建笔记
     final userId = AppConfigManager.instance.userId;
     final title = '月度收支报告 —— $year年$month月';
+    // 创建时间固定为下月1日00:00:00（月度报表特点）
+    final createdAt = DateTime(year, month + 1, 1).millisecondsSinceEpoch;
     final result = await DriverFactory.driver.createNote(
       userId,
       bookId,
@@ -40,6 +42,7 @@ class MonthlyReportService {
       content: report.toJsonString(),
       plainContent: report.toPlainText(),
       template: 'report_v1',
+      createdAt: createdAt,
     );
 
     if (result.ok) {
@@ -71,6 +74,7 @@ class MonthlyReportService {
       return null;
     } else {
       // 创建新报告
+      final createdAt = DateTime(year, month + 1, 1).millisecondsSinceEpoch;
       final result = await DriverFactory.driver.createNote(
         userId,
         bookId,
@@ -79,6 +83,7 @@ class MonthlyReportService {
         content: report.toJsonString(),
         plainContent: report.toPlainText(),
         template: 'report_v1',
+        createdAt: createdAt,
       );
       if (result.ok) return result.data;
       return null;

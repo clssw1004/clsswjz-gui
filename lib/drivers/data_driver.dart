@@ -235,6 +235,7 @@ abstract class BookDataDriver {
       String? groupCode,
       String? scope,
       String? template,
+      int? createdAt,
       List<AttachmentVO>? attachments});
 
   /// 删除记事

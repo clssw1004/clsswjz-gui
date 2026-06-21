@@ -54,6 +54,7 @@ class AccountNoteTable extends BaseAccountBookTable {
     String? groupCode,
     String? scope,
     String? template,
+    int? createdAt,
   }) =>
       AccountNoteTableCompanion(
         id: Value(IdUtil.genId()),
@@ -66,9 +67,9 @@ class AccountNoteTable extends BaseAccountBookTable {
         scope: Value.absentIfNull(scope),
         template: Value.absentIfNull(template),
         createdBy: Value(who),
-        createdAt: Value(DateUtil.now()),
+        createdAt: Value(createdAt ?? DateUtil.now()),
         updatedBy: Value(who),
-        updatedAt: Value(DateUtil.now()),
+        updatedAt: Value(createdAt ?? DateUtil.now()),
       );
 
   static String toJsonString(AccountNoteTableCompanion companion) {
