@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
 import '../../models/vo/monthly_report_vo.dart';
 import '../../models/vo/user_note_vo.dart';
 import '../../utils/date_util.dart';
@@ -39,240 +43,52 @@ class _Body extends StatelessWidget {
     final up = s.expenseDiff > 0;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
         // ═══ HEADER ═══
-        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          // 月份
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: cs.primaryContainer,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Text('${r.period.year}.${r.period.month.toString().padLeft(2, '0')}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onPrimaryContainer)),
-          ),
-          const SizedBox(width: 12),
-          // 支出变化
-          Text('支出 ${up ? "↑" : "↓"}',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: up ? cs.error : cs.primary)),
-          const SizedBox(width: 4),
-          Text('¥${s.expenseDiff.abs().toStringAsFixed(0)}',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700,
-                  color: up ? cs.error : cs.primary, fontFamily: 'monospace', height: 1.1)),
-          if (hasComp) ...[
-            const SizedBox(width: 6),
-            Text('(${(s.expenseChangeRatio * 100).toStringAsFixed(1)}%)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: up ? cs.error : cs.primary)),
-          ],
-        ]),
+        _Header(period: r.period, expenseDiff: s.expenseDiff,
+            expenseChangeRatio: s.expenseChangeRatio, hasComp: hasComp, up: up, cs: cs),
         const SizedBox(height: 20),
 
-        // ═══ KPI ROW ═══
-        Row(children: [
-          _kpi(cs, '支出', s.totalExpense, cs.error),
-          const SizedBox(width: 10),
-          _kpi(cs, '收入', s.totalIncome, cs.primary),
-          const SizedBox(width: 10),
-          _kpi(cs, '结余', s.balance, cs.tertiary),
-        ]),
+        // ═══ KPI COMPARISON CARDS ═══
+        _KpiComparisonRow(cs: cs, s: s, hasComp: hasComp),
         const SizedBox(height: 24),
 
-        // ═══ CATEGORY BAR CHART ═══
+        // ═══ CATEGORY DONUT CHART ═══
         if (r.categoryExpenses.isNotEmpty) ...[
-          _sectionTitle(cs, '支出分类'),
-          const SizedBox(height: 12),
-          // 表头
-          Row(children: [
-            const SizedBox(width: 60, child: Text('分类', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500))),
-            Expanded(child: Container()),
-            const SizedBox(width: 6, child: Text('金额', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500))),
-            const SizedBox(width: 12, child: Text('占比', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500))),
-            if (hasComp) const SizedBox(width: 6),
-          ]),
-          const SizedBox(height: 6),
-          ...r.categoryExpenses.take(6).map((c) => _catBar(cs, c, s.totalExpense, hasComp)),
-          const SizedBox(height: 20),
+          _sectionTitle(cs, '支出构成'),
+          const SizedBox(height: 8),
+          _CategoryDonut(categories: r.categoryExpenses),
+          const SizedBox(height: 24),
         ],
 
-        // ═══ INSIGHTS ═══
-        _sectionTitle(cs, '本月要点'),
-        const SizedBox(height: 10),
-        ..._buildInsights(cs, s, r),
+        // ═══ CATEGORY COMPARISON BARS ═══
+        if (r.categoryExpenses.isNotEmpty) ...[
+          _sectionTitle(cs, '分类同比（本月 vs 上月）'),
+          const SizedBox(height: 8),
+          _CategoryComparison(categories: r.categoryExpenses, cs: cs, hasComp: hasComp),
+          const SizedBox(height: 24),
+        ],
 
-        // ═══ TREND ═══
-        const SizedBox(height: 20),
-        _sectionTitle(cs, '支出趋势'),
-        const SizedBox(height: 8),
-        _trendBox(cs, r.trends),
+        // ═══ DAILY EXPENSE CHART ═══
+        if (r.dailyAmounts.isNotEmpty) ...[
+          _sectionTitle(cs, '每日支出趋势'),
+          const SizedBox(height: 8),
+          _DailyChart(dailyAmounts: r.dailyAmounts, cs: cs),
+          const SizedBox(height: 24),
+        ],
+
+        // ═══ KEY METRICS ═══
+        _sectionTitle(cs, '关键指标'),
+        const SizedBox(height: 10),
+        _KeyMetrics(s: s, r: r, cs: cs),
 
         // ═══ FOOTER ═══
         const SizedBox(height: 24),
-        Center(child: Text(DateUtil.format(r.generatedAt),
+        Center(child: Text('生成于 ${DateUtil.format(r.generatedAt)}',
             style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant))),
       ],
     );
-  }
-
-  // ------- KPI -------
-  Widget _kpi(ColorScheme cs, String label, double amount, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
-          const SizedBox(height: 2),
-          Text('¥${amount.abs().toStringAsFixed(0)}',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: color, fontFamily: 'monospace', height: 1.1)),
-        ]),
-      ),
-    );
-  }
-
-  // ------- HORIZONTAL BAR -------
-  Widget _catBar(ColorScheme cs, CategoryExpenseItem c, double total, bool hasComp) {
-    final ratio = total.abs() > 0 ? (c.amount / total.abs()).clamp(0.0, 1.0) : 0.0;
-    final isUp = c.diff > 0;
-    final hasDiff = c.prevAmount > 0;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [
-        SizedBox(width: 60,
-          child: Text(c.categoryName,
-              style: TextStyle(fontSize: 12, color: cs.onSurface),
-              maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: SizedBox(
-            height: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: ratio,
-                backgroundColor: cs.surfaceContainerHighest,
-                color: cs.error.withValues(alpha: 0.5),
-                minHeight: 16,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(width: 52,
-          child: Text('¥${c.amount.toStringAsFixed(0)}',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace'),
-              textAlign: TextAlign.right),
-        ),
-        const SizedBox(width: 4),
-        SizedBox(width: 40,
-          child: Text('${c.percentage.toStringAsFixed(1)}%',
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-              textAlign: TextAlign.right),
-        ),
-        if (hasDiff) ...[
-          const SizedBox(width: 4),
-          Text(
-            isUp ? '↑' : '↓',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isUp ? cs.error : cs.primary),
-          ),
-          Text('${(c.diffPercent * 100).toStringAsFixed(0)}%',
-              style: TextStyle(fontSize: 10, color: isUp ? cs.error : cs.primary, fontWeight: FontWeight.w500)),
-        ],
-      ]),
-    );
-  }
-
-  // ------- INSIGHTS -------
-  List<Widget> _buildInsights(ColorScheme cs, ReportSummary s, MonthlyReportVO report) {
-    final list = <Widget>[];
-
-    // 1. 支出变化
-    if (s.hasComparison) {
-      final up = s.expenseDiff > 0;
-      list.add(_insightRow(cs,
-        up ? Icons.trending_up : Icons.trending_down,
-        up ? cs.error : cs.primary,
-        '${up ? "增加" : "减少"}支出 ¥${s.expenseDiff.abs().toStringAsFixed(0)}'
-            '（${(s.expenseChangeRatio * 100).toStringAsFixed(1)}%）',
-      ));
-    }
-
-    // 2. 日均
-    list.add(_insightRow(cs, Icons.schedule, cs.primary,
-        '日均支出 ¥${s.dailyAverage.toStringAsFixed(1)}'));
-
-    // 3. Top 1 category
-    if (report.categoryExpenses.isNotEmpty) {
-      final top = report.categoryExpenses.first;
-      list.add(_insightRow(cs, Icons.pie_chart, cs.tertiary,
-          '最大支出「${top.categoryName}」¥${top.amount.toStringAsFixed(0)}'
-          '（${top.percentage.toStringAsFixed(1)}%）'));
-    }
-
-    // 4. Anomalies
-    final warnings = report.alerts.where((a) => a.severity == 'warning').toList();
-    for (final a in warnings.take(2)) {
-      list.add(_insightRow(cs, Icons.warning_amber_rounded, cs.error, a.message));
-    }
-
-    // 5. 大笔支出
-    for (final t in report.largeTransactions.take(1)) {
-      list.add(_insightRow(cs, Icons.receipt_long, cs.error,
-          '${t.date.substring(5)} ${t.categoryName}${t.description != null ? " ${t.description!}" : ""} ¥${t.amount.toStringAsFixed(0)}'));
-    }
-
-    if (list.isEmpty) {
-      list.add(_insightRow(cs, Icons.check_circle_outline, cs.primary, '本月无异常支出'));
-    }
-
-    return list;
-  }
-
-  Widget _insightRow(ColorScheme cs, IconData icon, Color color, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 15, color: color),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text,
-            style: TextStyle(fontSize: 13, color: cs.onSurface, height: 1.3))),
-      ]),
-    );
-  }
-
-  // ------- TREND -------
-  Widget _trendBox(ColorScheme cs, ReportTrends t) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(children: [
-        _trendLine(cs, '日均', '¥${t.dailyAverage.toStringAsFixed(1)}', Icons.trending_up),
-        if (t.maxSpendDay != null)
-          Padding(padding: const EdgeInsets.only(top: 6),
-              child: _trendLine(cs, '最高', '${t.maxSpendDay!.substring(5)}  ¥${t.maxSpendAmount?.toStringAsFixed(0) ?? ""}', Icons.arrow_upward)),
-        if (t.minSpendDay != null)
-          Padding(padding: const EdgeInsets.only(top: 6),
-              child: _trendLine(cs, '最低', '${t.minSpendDay!.substring(5)}  ¥${t.minSpendAmount?.toStringAsFixed(0) ?? ""}', Icons.arrow_downward)),
-      ]),
-    );
-  }
-
-  Widget _trendLine(ColorScheme cs, String label, String value, IconData icon) {
-    return Row(children: [
-      Icon(icon, size: 14, color: cs.onSurfaceVariant),
-      const SizedBox(width: 6),
-      Text(label, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
-      const Spacer(),
-      Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cs.onSurface, fontFamily: 'monospace')),
-    ]);
   }
 
   Widget _sectionTitle(ColorScheme cs, String text) {
@@ -282,5 +98,371 @@ class _Body extends StatelessWidget {
       const SizedBox(width: 8),
       Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: cs.onSurface)),
     ]);
+  }
+}
+
+// ═══ HEADER ═══
+class _Header extends StatelessWidget {
+  final ReportPeriod period;
+  final double expenseDiff;
+  final double expenseChangeRatio;
+  final bool hasComp;
+  final bool up;
+  final ColorScheme cs;
+  const _Header({required this.period, required this.expenseDiff,
+      required this.expenseChangeRatio, required this.hasComp, required this.up, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: cs.primaryContainer,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text('${period.year}.${period.month.toString().padLeft(2, '0')}',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+      ),
+      const SizedBox(width: 14),
+      if (hasComp) ...[
+        Text('支出', style: TextStyle(fontSize: 15, color: cs.onSurfaceVariant)),
+        const SizedBox(width: 6),
+        Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
+            size: 20, color: up ? cs.error : cs.primary),
+        const SizedBox(width: 4),
+        Text('¥${expenseDiff.abs().toStringAsFixed(0)}',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
+                color: up ? cs.error : cs.primary, fontFamily: 'monospace', height: 1.1)),
+        const SizedBox(width: 6),
+        Text('${(expenseChangeRatio * 100).toStringAsFixed(1)}%',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500,
+                color: up ? cs.error : cs.primary)),
+      ],
+    ]);
+  }
+}
+
+// ═══ KPI COMPARISON CARDS ═══
+class _KpiComparisonRow extends StatelessWidget {
+  final ColorScheme cs;
+  final ReportSummary s;
+  final bool hasComp;
+  const _KpiComparisonRow({required this.cs, required this.s, required this.hasComp});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      _kpiCard(cs, '支出', s.totalExpense, s.prevExpense, cs.error),
+      const SizedBox(width: 10),
+      _kpiCard(cs, '收入', s.totalIncome, s.prevIncome, cs.primary),
+      const SizedBox(width: 10),
+      _kpiCard(cs, '结余', s.balance, s.prevBalance, cs.tertiary),
+    ]);
+  }
+
+  Widget _kpiCard(ColorScheme cs, String label, double current, double prev, Color color) {
+    final diff = current - prev;
+    final up = diff > 0;
+    final changePct = prev != 0 ? (diff / prev.abs()) * 100 : 0.0;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: cs.onSurfaceVariant)),
+          const SizedBox(height: 4),
+          Text('¥${current.abs().toStringAsFixed(0)}',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color, fontFamily: 'monospace', height: 1.1)),
+          if (hasComp) ...[
+            const SizedBox(height: 4),
+            Divider(height: 1, color: cs.outline.withValues(alpha: 0.15)),
+            const SizedBox(height: 4),
+            Text('上月 ¥${prev.abs().toStringAsFixed(0)}',
+                style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontFamily: 'monospace')),
+            Row(children: [
+              Icon(up ? Icons.arrow_upward : Icons.arrow_downward, size: 12,
+                  color: up && label == '支出' ? cs.error : cs.primary),
+              const SizedBox(width: 2),
+              Text('${up ? "+" : ""}${diff.abs().toStringAsFixed(0)}',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
+                      color: up && label == '支出' ? cs.error : cs.primary, fontFamily: 'monospace')),
+              Text(' (${changePct.toStringAsFixed(1)}%)',
+                  style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+            ]),
+          ],
+        ]),
+      ),
+    );
+  }
+}
+
+// ═══ CATEGORY DONUT CHART ═══
+class _CategoryDonut extends StatelessWidget {
+  final List<CategoryExpenseItem> categories;
+  const _CategoryDonut({required this.categories});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final data = categories.map((c) => _ChartData(c.categoryName, c.amount.abs())).toList();
+    final total = data.fold<double>(0, (s, d) => s + d.y);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(children: [
+        SizedBox(
+          height: 180,
+          child: SfCircularChart(
+            margin: EdgeInsets.zero,
+            legend: Legend(isVisible: false),
+            series: <CircularSeries>[
+              DoughnutSeries<_ChartData, String>(
+                dataSource: data,
+                xValueMapper: (d, _) => d.x,
+                yValueMapper: (d, _) => d.y,
+                pointColorMapper: (d, _) => d.color,
+                dataLabelMapper: (d, _) => d.y / total >= 0.05 ? '${(d.y / total * 100).toStringAsFixed(0)}%' : '',
+                animationDuration: 600,
+                innerRadius: '60%',
+                dataLabelSettings: DataLabelSettings(
+                  isVisible: true,
+                  labelPosition: ChartDataLabelPosition.inside,
+                  textStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Legend
+        ...data.take(6).map((d) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(children: [
+            Container(width: 8, height: 8,
+                decoration: BoxDecoration(color: d.color, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 6),
+            Expanded(child: Text(d.x, style: TextStyle(fontSize: 11, color: cs.onSurface),
+                maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Text('${(d.y / total * 100).toStringAsFixed(1)}%',
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+            const SizedBox(width: 8),
+            Text('¥${d.y.toStringAsFixed(0)}',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace')),
+          ]),
+        )),
+      ]),
+    );
+  }
+}
+
+class _ChartData {
+  final String x;
+  final double y;
+  final Color color;
+  _ChartData(this.x, this.y) : color = _palette[x.hashCode.abs() % _palette.length];
+}
+
+const List<Color> _palette = [
+  Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFF43A047),
+  Color(0xFFFB8C00), Color(0xFF8E24AA), Color(0xFF00ACC1),
+  Color(0xFFD81B60), Color(0xFF3949AB), Color(0xFF6D4C41),
+  Color(0xFF546E7A),
+];
+
+// ═══ CATEGORY COMPARISON ═══
+class _CategoryComparison extends StatelessWidget {
+  final List<CategoryExpenseItem> categories;
+  final ColorScheme cs;
+  final bool hasComp;
+  const _CategoryComparison({required this.categories, required this.cs, required this.hasComp});
+
+  @override
+  Widget build(BuildContext context) {
+    final maxAmount = categories.fold<double>(0, (m, c) => max(m, c.amount));
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(children: [
+        // Header row
+        Row(children: [
+          const SizedBox(width: 60, child: Text('分类', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey))),
+          Expanded(child: Container()),
+          SizedBox(width: 44, child: Text('本月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
+          if (hasComp) SizedBox(width: 44, child: Text('上月', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey), textAlign: TextAlign.right)),
+          const SizedBox(width: 6),
+        ]),
+        const SizedBox(height: 6),
+        ...categories.take(5).map((c) => _compRow(c, maxAmount, cs, hasComp)),
+      ]),
+    );
+  }
+
+  Widget _compRow(CategoryExpenseItem c, double maxAmt, ColorScheme cs, bool hasComp) {
+    final thisRatio = maxAmt > 0 ? (c.amount / maxAmt).clamp(0.0, 1.0) : 0.0;
+    final prevRatio = maxAmt > 0 && c.prevAmount > 0 ? (c.prevAmount / maxAmt).clamp(0.0, 1.0) : 0.0;
+    final isUp = c.diff > 0;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(children: [
+        SizedBox(width: 60,
+            child: Text(c.categoryName, style: TextStyle(fontSize: 12, color: cs.onSurface),
+                maxLines: 1, overflow: TextOverflow.ellipsis)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(children: [
+            // This month bar
+            Row(children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: thisRatio,
+                    backgroundColor: Colors.transparent,
+                    color: cs.error,
+                    minHeight: 8,
+                  ),
+                ),
+              ),
+            ]),
+            // Previous month bar
+            if (hasComp && c.prevAmount > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: prevRatio,
+                        backgroundColor: Colors.transparent,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                        minHeight: 5,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+          ]),
+        ),
+        const SizedBox(width: 6),
+        SizedBox(width: 44,
+            child: Text('¥${c.amount.toStringAsFixed(0)}',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace'),
+                textAlign: TextAlign.right)),
+        if (hasComp) SizedBox(width: 44,
+            child: Text(c.prevAmount > 0 ? '¥${c.prevAmount.toStringAsFixed(0)}' : '-',
+                style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontFamily: 'monospace'),
+                textAlign: TextAlign.right)),
+        const SizedBox(width: 4),
+        if (hasComp && c.prevAmount > 0)
+          Text(isUp ? '↑' : '↓',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isUp ? cs.error : cs.primary)),
+      ]),
+    );
+  }
+}
+
+// ═══ DAILY EXPENSE CHART ═══
+class _DailyChart extends StatelessWidget {
+  final List<double> dailyAmounts;
+  final ColorScheme cs;
+  const _DailyChart({required this.dailyAmounts, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    final data = List.generate(dailyAmounts.length, (i) =>
+        _ChartData('${i + 1}', dailyAmounts[i]));
+    if (data.every((d) => d.y == 0)) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: SizedBox(
+        height: 140,
+        child: SfCartesianChart(
+          margin: EdgeInsets.zero,
+          plotAreaBorderWidth: 0,
+          primaryXAxis: CategoryAxis(
+            majorGridLines: MajorGridLines(width: 0),
+            axisLine: AxisLine(width: 0),
+            labelStyle: TextStyle(fontSize: 9, color: cs.onSurfaceVariant),
+            interval: dailyAmounts.length > 20 ? 5 : 3,
+          ),
+          primaryYAxis: NumericAxis(
+            isVisible: false,
+            minimum: 0,
+          ),
+          series: <CartesianSeries>[
+            ColumnSeries<_ChartData, String>(
+              dataSource: data,
+              xValueMapper: (d, _) => d.x,
+              yValueMapper: (d, _) => d.y,
+              pointColorMapper: (d, _) => d.y > 0 ? cs.error.withValues(alpha: 0.6) : Colors.transparent,
+              width: 0.6,
+              spacing: 0.15,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══ KEY METRICS ═══
+class _KeyMetrics extends StatelessWidget {
+  final ReportSummary s;
+  final MonthlyReportVO r;
+  final ColorScheme cs;
+  const _KeyMetrics({required this.s, required this.r, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Wrap(spacing: 4, runSpacing: 10, children: [
+        _metric(cs, '储蓄率', '${r.savingsRate.toStringAsFixed(1)}%', r.savingsRate >= 20 ? cs.primary : cs.error),
+        _metric(cs, '日均支出', '¥${s.dailyAverage.toStringAsFixed(1)}', cs.onSurface),
+        _metric(cs, '记账笔数', '${r.itemCount}', cs.onSurface),
+        _metric(cs, '分类数', '${r.categoryExpenses.length}', cs.onSurface),
+        _metric(cs, '有支出天数', '${r.dailyAmounts.where((d) => d > 0).length}天', cs.onSurface),
+        _metric(cs, '单笔最高', '¥${r.trends.maxSpendAmount?.toStringAsFixed(0) ?? "-"}', cs.onSurface),
+      ]),
+    );
+  }
+
+  Widget _metric(ColorScheme cs, String label, String value, Color valueColor) {
+    return SizedBox(
+      width: 100,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+        const SizedBox(height: 2),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor, fontFamily: 'monospace')),
+      ]),
+    );
   }
 }

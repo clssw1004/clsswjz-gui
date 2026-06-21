@@ -114,9 +114,21 @@ class MonthlyReportService {
     // 计算有支出的天数
     final daysWithData = dailyStats.length;
 
+    // 构建每日支出数组（按天填充，无支出的天为0）
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    final dailyMap = <int, double>{};
+    for (final d in dailyStats) {
+      final day = int.tryParse(d.date.split('-').last) ?? 0;
+      if (day > 0) dailyMap[day] = d.expense.abs();
+    }
+    final dailyAmounts = List.generate(daysInMonth, (i) => dailyMap[i + 1] ?? 0.0);
+
     // 构建 summary
     final balance = summary.income + summary.expense;
     final prevBalance = prevSummary.income + prevSummary.expense;
+    final savingsRate = summary.income > 0
+        ? ((summary.income + summary.expense) / summary.income.abs()) * 100
+        : 0.0;
     final reportSummary = ReportSummary(
       totalIncome: summary.income,
       totalExpense: summary.expense,
@@ -258,7 +270,10 @@ class MonthlyReportService {
       categoryExpenses: reportCategories,
       largeTransactions: largeTxns,
       alerts: alerts,
+      dailyAmounts: dailyAmounts,
       trends: trends,
+      savingsRate: savingsRate,
+      itemCount: summary.count,
     );
   }
 

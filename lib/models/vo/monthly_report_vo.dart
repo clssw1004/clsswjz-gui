@@ -24,8 +24,17 @@ class MonthlyReportVO {
   /// 预警分析
   final List<ReportAlert> alerts;
 
+  /// 每日支出金额列表（用于趋势图）
+  final List<double> dailyAmounts;
+
   /// 支出趋势
   final ReportTrends trends;
+
+  /// 储蓄率（%）
+  final double savingsRate;
+
+  /// 支出笔数
+  final int itemCount;
 
   const MonthlyReportVO({
     this.version = 1,
@@ -35,7 +44,10 @@ class MonthlyReportVO {
     this.categoryExpenses = const [],
     this.largeTransactions = const [],
     this.alerts = const [],
+    this.dailyAmounts = const [],
     required this.trends,
+    this.savingsRate = 0,
+    this.itemCount = 0,
   });
 
   factory MonthlyReportVO.fromJson(Map<String, dynamic> json) {
@@ -58,7 +70,13 @@ class MonthlyReportVO {
               ?.map((e) => ReportAlert.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      dailyAmounts: (json['dailyAmounts'] as List<dynamic>?)
+              ?.map((e) => (e as num).toDouble())
+              .toList() ??
+          [],
       trends: ReportTrends.fromJson(json['trends'] as Map<String, dynamic>),
+      savingsRate: (json['savingsRate'] as num?)?.toDouble() ?? 0,
+      itemCount: json['itemCount'] as int? ?? 0,
     );
   }
 
@@ -72,25 +90,25 @@ class MonthlyReportVO {
         'largeTransactions':
             largeTransactions.map((e) => e.toJson()).toList(),
         'alerts': alerts.map((e) => e.toJson()).toList(),
+        'dailyAmounts': dailyAmounts,
         'trends': trends.toJson(),
+        'savingsRate': savingsRate,
+        'itemCount': itemCount,
       };
 
   String toJsonString() => jsonEncode(toJson());
 
-  /// 生成纯文本摘要（用于 plainContent 和搜索）
   String toPlainText() {
     final buf = StringBuffer();
     buf.writeln('月度收支报告 —— ${period.year}年${period.month}月');
     buf.writeln('收入: ¥${summary.totalIncome.toStringAsFixed(2)}');
     buf.writeln('支出: ¥${summary.totalExpense.toStringAsFixed(2)}');
     buf.writeln('结余: ¥${summary.balance.toStringAsFixed(2)}');
-
     if (summary.prevExpense > 0) {
       final diff = summary.totalExpense - summary.prevExpense;
       final sign = diff >= 0 ? '+' : '';
       buf.writeln('支出环比: $sign${diff.toStringAsFixed(2)}');
     }
-
     if (alerts.isNotEmpty) {
       buf.writeln('预警: ${alerts.length}条');
       for (final alert in alerts.take(3)) {
@@ -99,6 +117,7 @@ class MonthlyReportVO {
     }
     return buf.toString();
   }
+
 }
 
 /// 报告期间
