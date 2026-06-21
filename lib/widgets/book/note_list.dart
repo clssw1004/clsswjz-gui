@@ -31,6 +31,9 @@ class NoteList extends StatefulWidget {
   /// 点击笔记回调
   final void Function(UserNoteVO note)? onNoteTap;
 
+  /// 列表底部额外组件（报表缺失月份等）
+  final List<Widget>? footerItems;
+
   const NoteList({
     super.key,
     this.accountBook,
@@ -40,6 +43,7 @@ class NoteList extends StatefulWidget {
     this.onLoadMore,
     this.onDelete,
     this.onNoteTap,
+    this.footerItems,
   });
 
   @override
@@ -186,19 +190,23 @@ class _NoteListState extends State<NoteList> {
       );
     }
 
+    final footer = widget.footerItems ?? [];
     return RefreshIndicator(
       onRefresh: widget.onLoadMore ?? Future.value,
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: _notes!.length + 1,
+        itemCount: _notes!.length + 1 + footer.length,
         itemBuilder: (context, index) {
-          if (index == _notes!.length) {
-            return _buildLoadMoreIndicator(theme);
+          if (index < _notes!.length) {
+            final note = _notes![index];
+            return _buildListItem(note, index, theme);
           }
-
-          final note = _notes![index];
-          return _buildListItem(note, index, theme);
+          final footerIdx = index - _notes!.length;
+          if (footerIdx <= footer.length && footerIdx > 0) {
+            return footer[footerIdx - 1];
+          }
+          return _buildLoadMoreIndicator(theme);
         },
       ),
     );

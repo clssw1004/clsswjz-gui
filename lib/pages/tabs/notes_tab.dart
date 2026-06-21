@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import '../../manager/l10n_manager.dart';
+import '../../services/monthly_report_service.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/note_renderer.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
@@ -130,7 +132,7 @@ class _NotesTabState extends State<NotesTab> {
                             Navigator.pushNamed(
                               context, AppRoutes.reportDetail,
                               arguments: note,
-                            );
+                            ).then((_) => noteListProvider.loadNotes(true));
                           } else {
                             Navigator.pushNamed(
                               context, AppRoutes.noteEdit,
@@ -140,6 +142,9 @@ class _NotesTabState extends State<NotesTab> {
                             });
                           }
                         },
+                        footerItems: isReport
+                            ? _buildMissingMonthWidgets(noteListProvider)
+                            : null,
                       ),
                     ),
                     if (syncProvider.syncing && syncProvider.currentStep != null)
@@ -157,6 +162,92 @@ class _NotesTabState extends State<NotesTab> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  List<Widget> _buildMissingMonthWidgets(NoteListProvider provider) {
+    final cs = Theme.of(context).colorScheme;
+    return provider.missingMonths.map((m) => _MissingMonthCard(
+      year: m.year,
+      month: m.month,
+      cs: cs,
+      onGenerate: () => _generateReport(provider, m.year, m.month),
+    )).toList();
+  }
+
+  Future<void> _generateReport(NoteListProvider provider, int year, int month) async {
+    final bookId = context.read<BooksProvider>().selectedBook?.id;
+    if (bookId == null) return;
+    final service = MonthlyReportService();
+    final noteId = await service.regenerateReport(bookId, year, month);
+    if (mounted) {
+      if (noteId != null) {
+        ToastUtil.showSuccess('$year年$month月报告已生成');
+        provider.loadNotes(true);
+      } else {
+        ToastUtil.showError('该月无记账数据或生成失败');
+      }
+    }
+  }
+}
+
+/// 缺失月份占位卡片
+class _MissingMonthCard extends StatelessWidget {
+  final int year;
+  final int month;
+  final ColorScheme cs;
+  final VoidCallback onGenerate;
+
+  const _MissingMonthCard({
+    required this.year,
+    required this.month,
+    required this.cs,
+    required this.onGenerate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.06)),
+        ),
+        child: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(child: Text('$month',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant))),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('$year年$month月', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cs.onSurface)),
+              const SizedBox(height: 1),
+              Text('未生成', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+            ]),
+          ),
+          SizedBox(
+            height: 30,
+            child: OutlinedButton.icon(
+              onPressed: onGenerate,
+              icon: const Icon(Icons.add, size: 14),
+              label: const Text('生成', style: TextStyle(fontSize: 11)),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }
