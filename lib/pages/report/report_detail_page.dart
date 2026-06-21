@@ -143,7 +143,7 @@ class _Header extends StatelessWidget {
   }
 }
 
-// ═══ KPI COMPARISON CARDS ═══
+// ═══ KPI + COMPARISON ═══
 class _KpiComparisonRow extends StatelessWidget {
   final ColorScheme cs;
   final ReportSummary s;
@@ -152,22 +152,27 @@ class _KpiComparisonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      _kpiCard(cs, '支出', s.totalExpense, s.prevExpense, cs.error),
-      const SizedBox(width: 10),
-      _kpiCard(cs, '收入', s.totalIncome, s.prevIncome, cs.primary),
-      const SizedBox(width: 10),
-      _kpiCard(cs, '结余', s.balance, s.prevBalance, cs.tertiary),
+    return Column(children: [
+      // Row 1: KPI values only
+      Row(children: [
+        _kpiValue(cs, '支出', s.totalExpense, cs.error),
+        const SizedBox(width: 10),
+        _kpiValue(cs, '收入', s.totalIncome, cs.primary),
+        const SizedBox(width: 10),
+        _kpiValue(cs, '结余', s.balance, cs.tertiary),
+      ]),
+      // Row 2: Full-width comparison
+      if (hasComp) ...[
+        const SizedBox(height: 10),
+        _ComparisonStrip(cs: cs, s: s),
+      ],
     ]);
   }
 
-  Widget _kpiCard(ColorScheme cs, String label, double current, double prev, Color color) {
-    final diff = current - prev;
-    final up = diff > 0;
-    final changePct = prev != 0 ? (diff / prev.abs()) * 100 : 0.0;
+  Widget _kpiValue(ColorScheme cs, String label, double current, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: BorderRadius.circular(10),
@@ -177,28 +182,63 @@ class _KpiComparisonRow extends StatelessWidget {
           Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: cs.onSurfaceVariant)),
           const SizedBox(height: 4),
           Text('¥${current.abs().toStringAsFixed(0)}',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color, fontFamily: 'monospace', height: 1.1)),
-          if (hasComp) ...[
-            const SizedBox(height: 4),
-            Divider(height: 1, color: cs.outline.withValues(alpha: 0.15)),
-            const SizedBox(height: 4),
-            Text('上月 ¥${prev.abs().toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontFamily: 'monospace')),
-            Row(children: [
-              Icon(up ? Icons.arrow_upward : Icons.arrow_downward, size: 12,
-                  color: up && label == '支出' ? cs.error : cs.primary),
-              const SizedBox(width: 2),
-              Flexible(
-                child: Text('${up ? "+" : ""}${diff.abs().toStringAsFixed(0)} (${changePct.toStringAsFixed(1)}%)',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600,
-                        color: up && label == '支出' ? cs.error : cs.primary, fontFamily: 'monospace'),
-                    overflow: TextOverflow.ellipsis),
-              ),
-            ]),
-          ],
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: color, fontFamily: 'monospace', height: 1.1)),
         ]),
       ),
     );
+  }
+}
+
+/// 全宽环比对比条
+class _ComparisonStrip extends StatelessWidget {
+  final ColorScheme cs;
+  final ReportSummary s;
+  const _ComparisonStrip({required this.cs, required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(children: [
+        _compLine(cs, '支出', s.prevExpense, s.totalExpense, cs.error),
+        const SizedBox(height: 6),
+        _compLine(cs, '收入', s.prevIncome, s.totalIncome, cs.primary),
+        const SizedBox(height: 6),
+        _compLine(cs, '结余', s.prevBalance, s.balance, cs.tertiary),
+      ]),
+    );
+  }
+
+  Widget _compLine(ColorScheme cs, String label, double prev, double current, Color color) {
+    final diff = current - prev;
+    final up = diff > 0;
+    final pct = prev != 0 ? (diff / prev.abs()) * 100 : 0.0;
+    return Row(children: [
+      SizedBox(width: 36, child: Text(label,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: cs.onSurface))),
+      const SizedBox(width: 8),
+      Text('上月 ¥${prev.abs().toStringAsFixed(0)}',
+          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontFamily: 'monospace')),
+      const SizedBox(width: 8),
+      Icon(Icons.arrow_forward, size: 12, color: cs.onSurfaceVariant),
+      const SizedBox(width: 8),
+      Text('¥${current.abs().toStringAsFixed(0)}',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurface, fontFamily: 'monospace')),
+      const Spacer(),
+      Icon(up ? Icons.arrow_upward : Icons.arrow_downward, size: 14,
+          color: up && label == '支出' ? cs.error : cs.primary),
+      const SizedBox(width: 2),
+      Text('${up ? "+" : ""}${diff.abs().toStringAsFixed(0)}',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+              color: up && label == '支出' ? cs.error : cs.primary, fontFamily: 'monospace')),
+      const SizedBox(width: 4),
+      Text('(${pct.toStringAsFixed(1)}%)',
+          style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+    ]);
   }
 }
 
