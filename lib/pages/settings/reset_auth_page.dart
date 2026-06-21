@@ -9,6 +9,7 @@ import '../../providers/sync_provider.dart';
 import '../../services/auth_service.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/device.util.dart';
+import '../../utils/http_client.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_text_form_field.dart';
@@ -199,9 +200,11 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
               serverUrl: serverUrl, username: username, password: password),
           deviceInfo);
       if (result.ok && result.data != null) {
+        final newToken = result.data!.accessToken;
         await AppConfigManager.instance.setServerUrl(serverUrl);
-        await AppConfigManager.instance
-            .setAccessToken(result.data!.accessToken);
+        await AppConfigManager.instance.setAccessToken(newToken);
+        // 刷新 HTTP 客户端使新 token 在后续同步中生效
+        await HttpClient.refresh(serverUrl: serverUrl, accessToken: newToken);
         if (mounted) {
           Navigator.of(context).pop();
         }
