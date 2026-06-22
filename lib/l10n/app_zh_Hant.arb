@@ -1410,5 +1410,444 @@
     "reportLabelVsPrevMonth": "支出較上月",
     "@reportLabelVsPrevMonth": {
         "description": ""
+    },
+    "reportExecutiveSummary": "執行摘要",
+    "@reportExecutiveSummary": {
+        "description": ""
+    },
+    "reportRecommendations": "建議與行動",
+    "@reportRecommendations": {
+        "description": ""
+    },
+    "narrativeExpenseDecrease": "本月支出 ¥{cur}，較上月減少 ¥{diff}（{pct}%），支出控制良好。",
+    "@narrativeExpenseDecrease": {
+        "description": "",
+        "placeholders": {
+            "cur": {
+                "type": "String"
+            },
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeExpenseIncrease": "本月支出 ¥{cur}，較上月增加 ¥{diff}（{pct}%），需關注增長原因。",
+    "@narrativeExpenseIncrease": {
+        "description": "",
+        "placeholders": {
+            "cur": {
+                "type": "String"
+            },
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeExpenseStable": "本月支出 ¥{cur}，較上月小幅變動 ¥{diff}（{pct}%），基本穩定。",
+    "@narrativeExpenseStable": {
+        "description": "",
+        "placeholders": {
+            "cur": {
+                "type": "String"
+            },
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeDriverIncrease": "其中 {cat} 增加最顯著（¥{diff}），是支出變化的主要驅動。",
+    "@narrativeDriverIncrease": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeDriverDecrease": "各分類支出普遍減少，其中 {cat} 降幅最大（¥{diff}）。",
+    "@narrativeDriverDecrease": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeNoPrevData": "新賬本首月，暫無環比對比數據。",
+    "@narrativeNoPrevData": {
+        "description": ""
+    },
+    "narrativeSavingsExcellent": "儲蓄率 {rate}%，財務狀況健康，繼續保持。",
+    "@narrativeSavingsExcellent": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeSavingsGood": "儲蓄率 {rate}%，處於合理區間。",
+    "@narrativeSavingsGood": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeSavingsFair": "儲蓄率 {rate}%，建議進一步控制支出以提高儲蓄。",
+    "@narrativeSavingsFair": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeSavingsPoor": "儲蓄率 {rate}%，收支壓力較大，請謹慎安排開支。",
+    "@narrativeSavingsPoor": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeConcernThreshold": "值得關注的是，{cat} 佔比 {pct}% 超過建議閾值 30%，建議合理控制此分類支出。",
+    "@narrativeConcernThreshold": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeConcernDeficit": "本月支出超過收入，建議全面審視消費計劃。",
+    "@narrativeConcernDeficit": {
+        "description": ""
+    },
+    "narrativeConcernGrowth": "本月 {cat} 支出較上月增長 {pct}%，建議回顧具體明細。",
+    "@narrativeConcernGrowth": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeNoConcern": "本月各項支出均在正常範圍內，繼續保持。",
+    "@narrativeNoConcern": {
+        "description": ""
+    },
+    "narrativeCategoryTop": "{cat} 支出 ¥{amt}，佔總支出的 {pct}%，較上月增加 ¥{diff}（{pctDiff}%），是本月支出增長的主要因素。",
+    "@narrativeCategoryTop": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            },
+            "pctDiff": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeCategoryTopDown": "{cat} 支出 ¥{amt}，佔總支出的 {pct}%，較上月減少 ¥{diff}（{pctDiff}%），是本月支出減少的主要因素。",
+    "@narrativeCategoryTopDown": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            },
+            "pctDiff": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeCategoryTopStable": "{cat} 支出 ¥{amt}，佔總支出的 {pct}%，是最大的支出分類。",
+    "@narrativeCategoryTopStable": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeIncomeTop": "本月主要收入來源為 {cat}（¥{amt}，佔比 {pct}%）。",
+    "@narrativeIncomeTop": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeIncomeChangeUp": "較上月增加 ¥{diff}（{pct}%）。",
+    "@narrativeIncomeChangeUp": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeIncomeChangeDown": "較上月減少 ¥{diff}（{pct}%）。",
+    "@narrativeIncomeChangeDown": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeIncomeChangeStable": "較上月基本持平。",
+    "@narrativeIncomeChangeStable": {
+        "description": ""
+    },
+    "narrativeDailyBelowAvg": "本月日均支出 ¥{avg}，低於年度月均 ¥{ytdAvg}，支出控制較好。",
+    "@narrativeDailyBelowAvg": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            },
+            "ytdAvg": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeDailyAboveAvg": "本月日均支出 ¥{avg}，高於年度月均 ¥{ytdAvg}，日常支出偏多。",
+    "@narrativeDailyAboveAvg": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            },
+            "ytdAvg": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeDailyNoYtd": "本月日均支出 ¥{avg}。",
+    "@narrativeDailyNoYtd": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeYtdAbove": "本月支出高於年度月均 ¥{avg}，請關注。",
+    "@narrativeYtdAbove": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeYtdBelow": "本月支出低於年度月均 ¥{avg}，趨勢向好。",
+    "@narrativeYtdBelow": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeYtdSavings": "累計儲蓄率 {rate}%，覆蓋 {n}/{total} 個月。",
+    "@narrativeYtdSavings": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            },
+            "n": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "narrativeTrendUp": "年初至今支出呈上升趨勢。",
+    "@narrativeTrendUp": {
+        "description": ""
+    },
+    "narrativeTrendDown": "年初至今支出呈下降趨勢。",
+    "@narrativeTrendDown": {
+        "description": ""
+    },
+    "narrativeTrendStable": "年初至今支出相對穩定。",
+    "@narrativeTrendStable": {
+        "description": ""
+    },
+    "narrativeTrendPeak": "其中 {mon} 月支出最高（¥{amt}）。",
+    "@narrativeTrendPeak": {
+        "description": "",
+        "placeholders": {
+            "amt": {
+                "type": "String"
+            },
+            "mon": {
+                "type": "String"
+            }
+        }
+    },
+    "narrativeTrendTrough": "{mon} 月支出最低（¥{amt}）。",
+    "@narrativeTrendTrough": {
+        "description": "",
+        "placeholders": {
+            "amt": {
+                "type": "String"
+            },
+            "mon": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendBudgetCap": "{cat} 佔比 {pct}% 持續偏高，建議設置每月預算上限。",
+    "@recommendBudgetCap": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendReviewGrowth": "{cat} 較上月增長 {pct}%，建議回顧具體支出明細。",
+    "@recommendReviewGrowth": {
+        "description": "",
+        "placeholders": {
+            "pct": {
+                "type": "String"
+            },
+            "cat": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendIncreaseSavings": "儲蓄率 {rate}% 偏低，建議將儲蓄目標設定在 30% 以上。",
+    "@recommendIncreaseSavings": {
+        "description": "",
+        "placeholders": {
+            "rate": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendMonitorIncome": "本月收入較上月減少 ¥{diff}，建議關注收入穩定性。",
+    "@recommendMonitorIncome": {
+        "description": "",
+        "placeholders": {
+            "diff": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendDailyBudget": "日均支出 ¥{avg} 偏高，建議設定每日預算上限。",
+    "@recommendDailyBudget": {
+        "description": "",
+        "placeholders": {
+            "avg": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendSimplifyCats": "支出覆蓋 {n} 個分類，其中部分佔比較低，考慮精簡非必要開支。",
+    "@recommendSimplifyCats": {
+        "description": "",
+        "placeholders": {
+            "n": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendKeepGood": "本月支出控制良好，請繼續保持。",
+    "@recommendKeepGood": {
+        "description": ""
+    },
+    "recommendNewCategory": "新增分類「{cat}」支出 ¥{amt}，請留意是否為持續性支出。",
+    "@recommendNewCategory": {
+        "description": "",
+        "placeholders": {
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            }
+        }
+    },
+    "recommendDisappearedCategory": "上月「{cat}」支出 ¥{amt} 本月已無，若為主動削減請繼續保持。",
+    "@recommendDisappearedCategory": {
+        "description": "",
+        "placeholders": {
+            "cat": {
+                "type": "String"
+            },
+            "amt": {
+                "type": "String"
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ import '../../models/vo/user_note_vo.dart';
 import '../../services/monthly_report_service.dart';
 import '../../utils/date_util.dart';
 import '../../utils/toast_util.dart';
+import '../../services/report_narrative_service.dart';
 import '../../widgets/common/common_app_bar.dart';
 
 class ReportDetailPage extends StatefulWidget {
@@ -155,6 +156,9 @@ class _Body extends StatelessWidget {
     final expDiffDisplay = expAbsDiff.abs();
     final expPct = s.prevExpense.abs() > 0 ? (expAbsDiff / s.prevExpense.abs()) * 100 : 0.0;
 
+    // 生成叙事文字
+    final narrative = ReportNarrativeService(L10nManager.l10n).generate(r);
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
@@ -163,6 +167,10 @@ class _Body extends StatelessWidget {
             expenseDown: expDown, expensePct: expPct,
             prevExpense: s.prevExpense.abs(), currentExpense: s.totalExpense.abs(),
             hasComp: hasComp, cs: cs),
+        const SizedBox(height: 16),
+
+        // ═══ EXECUTIVE SUMMARY ═══
+        _ExecutiveSummaryCard(summary: narrative.executiveSummary, cs: cs),
         const SizedBox(height: 20),
 
         // ═══ KPI COMPARISON CARDS ═══
@@ -173,6 +181,9 @@ class _Body extends StatelessWidget {
         if (r.categoryExpenses.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionCategories),
           const SizedBox(height: 8),
+          if (narrative.categoryNarrative != null)
+            _SectionNarrative(text: narrative.categoryNarrative!, cs: cs),
+          if (narrative.categoryNarrative != null) const SizedBox(height: 8),
           _DonutChart(data: r.categoryExpenses
               .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
           const SizedBox(height: 24),
@@ -182,6 +193,9 @@ class _Body extends StatelessWidget {
         if (r.categoryIncomes.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionIncome),
           const SizedBox(height: 8),
+          if (narrative.incomeNarrative != null)
+            _SectionNarrative(text: narrative.incomeNarrative!, cs: cs),
+          if (narrative.incomeNarrative != null) const SizedBox(height: 8),
           _DonutChart(data: r.categoryIncomes
               .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
           const SizedBox(height: 24),
@@ -199,6 +213,9 @@ class _Body extends StatelessWidget {
         if (r.dailyAmounts.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionDaily),
           const SizedBox(height: 8),
+          if (narrative.dailyNarrative != null)
+            _SectionNarrative(text: narrative.dailyNarrative!, cs: cs),
+          if (narrative.dailyNarrative != null) const SizedBox(height: 8),
           _DailyChart(dailyAmounts: r.dailyAmounts, cs: cs),
           const SizedBox(height: 24),
         ],
@@ -207,6 +224,9 @@ class _Body extends StatelessWidget {
         if (r.ytdSummary != null) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionYtd),
           const SizedBox(height: 8),
+          if (narrative.ytdNarrative != null)
+            _SectionNarrative(text: narrative.ytdNarrative!, cs: cs),
+          if (narrative.ytdNarrative != null) const SizedBox(height: 8),
           _YtdCard(cs: cs, s: s, ytd: r.ytdSummary!),
           const SizedBox(height: 24),
         ],
@@ -215,6 +235,9 @@ class _Body extends StatelessWidget {
         if (r.monthlyTrend.length >= 2) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionMonthlyTrend),
           const SizedBox(height: 8),
+          if (narrative.trendNarrative != null)
+            _SectionNarrative(text: narrative.trendNarrative!, cs: cs),
+          if (narrative.trendNarrative != null) const SizedBox(height: 8),
           _TrendChart(points: r.monthlyTrend, cs: cs),
           const SizedBox(height: 24),
         ],
@@ -223,6 +246,14 @@ class _Body extends StatelessWidget {
         _sectionTitle(cs, L10nManager.l10n.reportSectionMetrics),
         const SizedBox(height: 10),
         _KeyMetrics(s: s, r: r, cs: cs),
+
+        // ═══ RECOMMENDATIONS ═══
+        if (narrative.recommendations.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _sectionTitle(cs, L10nManager.l10n.reportRecommendations),
+          const SizedBox(height: 10),
+          _RecommendationsCard(recs: narrative.recommendations, cs: cs),
+        ],
 
         // ═══ FOOTER ═══
         const SizedBox(height: 24),
@@ -843,3 +874,98 @@ class _YtdCard extends StatelessWidget {
     ]);
   }
 }
+
+// ═══ EXECUTIVE SUMMARY ═══
+class _ExecutiveSummaryCard extends StatelessWidget {
+  final String summary;
+  final ColorScheme cs;
+  const _ExecutiveSummaryCard({required this.summary, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: 3, height: 48,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.primary, cs.primary.withValues(alpha: 0.3)],
+              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(summary,
+              style: TextStyle(fontSize: 13, color: cs.onSurface, height: 1.55)),
+        ),
+      ]),
+    );
+  }
+}
+
+/// 区块解读文字（用于图表上方）
+class _SectionNarrative extends StatelessWidget {
+  final String text;
+  final ColorScheme cs;
+  const _SectionNarrative({required this.text, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.lightbulb_outline, size: 14, color: cs.primary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(text,
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, height: 1.4)),
+        ),
+      ]),
+    );
+  }
+}
+
+/// 建议卡片
+class _RecommendationsCard extends StatelessWidget {
+  final List<String> recs;
+  final ColorScheme cs;
+  const _RecommendationsCard({required this.recs, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.15)),
+      ),
+      child: Column(children: recs.asMap().entries.map((e) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.check_circle_outline, size: 16, color: cs.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(e.value,
+                  style: TextStyle(fontSize: 12, color: cs.onSurface, height: 1.4)),
+            ),
+          ]),
+        );
+      }).toList()),
+    );
+  }
+}
+
