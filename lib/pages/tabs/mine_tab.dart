@@ -80,6 +80,12 @@ class _MineTabView extends StatelessWidget {
         onTap: () => Navigator.pushNamed(context, AppRoutes.projects,
             arguments: accountBook),
       ),
+      _GridFeatureItemData(
+        icon: Icons.repeat,
+        label: L10nManager.l10n.recurringConfig,
+        onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList),
+        isHighlighted: true,
+      ),
     ];
 
     final dataToolItems = [

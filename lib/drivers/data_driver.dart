@@ -30,6 +30,8 @@ import '../models/vo/fuel_record_vo.dart';
 import '../models/vo/fuel_statistics_vo.dart';
 import '../models/dto/fuel_record_filter_dto.dart';
 import '../models/vo/item_relation_vo.dart';
+import '../models/dto/recurring_config_filter_dto.dart';
+import '../models/vo/recurring_config_vo.dart';
 import '../models/vo/user_share_vo.dart';
 
 abstract class BookDataDriver {
@@ -548,4 +550,64 @@ abstract class BookDataDriver {
 
   /// 获取我被共享的配置
   Future<OperateResult<List<UserShareVO>>> listUserSharesByTarget(String userId);
+
+  // ============ 固定收支配置 ============
+
+  /// 创建固定收支配置
+  Future<OperateResult<String>> createRecurringConfig(
+    String userId, String bookId, {
+    required String type,
+    required double amount,
+    String? description,
+    required String categoryCode,
+    required String fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    required String frequencyType,
+    required String frequencyValue,
+    required String startDate,
+    required String endType,
+    String? endDate,
+    int? endCount,
+  });
+
+  /// 更新固定收支配置
+  Future<OperateResult<void>> updateRecurringConfig(
+    String userId,
+    String configId, {
+    String? type,
+    double? amount,
+    String? description,
+    String? categoryCode,
+    String? fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    String? frequencyType,
+    String? frequencyValue,
+    String? startDate,
+    String? endType,
+    String? endDate,
+    int? endCount,
+    bool? isActive,
+    int? generatedCount,
+    String? lastGeneratedAt,
+  });
+
+  /// 删除固定收支配置
+  Future<OperateResult<void>> deleteRecurringConfig(
+    String userId, String configId);
+
+  /// 获取固定收支配置列表
+  Future<OperateResult<List<RecurringConfigVO>>> listRecurringConfigsByBook(
+    String userId, String bookId, {
+    RecurringConfigFilterDTO? filter,
+  });
+
+  /// 批量获取配置+对应分类/商户/账户名称（用于UI展示）
+  Future<OperateResult<List<RecurringConfigVO>>> listRecurringConfigsWithNames(
+    String userId, String bookId, {
+    RecurringConfigFilterDTO? filter,
+  });
 }

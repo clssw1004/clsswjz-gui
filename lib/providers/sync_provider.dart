@@ -7,6 +7,7 @@ import '../events/event_bus.dart';
 import '../events/special/event_sync.dart';
 import '../events/special/event_book.dart';
 import '../events/special/event_activity_checkin.dart';
+import '../events/special/event_recurring_config.dart';
 import '../enums/operate_type.dart';
 
 class SyncProvider extends ChangeNotifier {
@@ -25,6 +26,7 @@ class SyncProvider extends ChangeNotifier {
       EventBus.instance.on<ActivityChangedEvent>(_handleActivityChanged),
       EventBus.instance.on<ActivityDefinitionChangedEvent>(_handleActivityDefinitionChanged),
       EventBus.instance.on<UserShareChangedEvent>(_handleUserShareChanged),
+      EventBus.instance.on<RecurringConfigChangedEvent>(_handleRecurringConfigChanged),
     ]);
   }
 
@@ -61,6 +63,12 @@ class SyncProvider extends ChangeNotifier {
 
   void _handleUserShareChanged(UserShareChangedEvent event) {
     syncData();
+  }
+
+  void _handleRecurringConfigChanged(RecurringConfigChangedEvent event) {
+    if (event.operateType == OperateType.create) {
+      syncData();
+    }
   }
 
   @override

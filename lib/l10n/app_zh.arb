@@ -2054,5 +2054,253 @@
                 "type": "String"
             }
         }
+    },
+    "recurringConfig": "固定收支",
+    "@recurringConfig": {
+        "description": "固定收支模块名称"
+    },
+    "recurringConfigList": "固定收支列表",
+    "@recurringConfigList": {
+        "description": "固定收支列表页标题"
+    },
+    "recurringConfigAdd": "新增固定收支",
+    "@recurringConfigAdd": {
+        "description": "新增固定收支配置"
+    },
+    "recurringConfigEdit": "编辑固定收支",
+    "@recurringConfigEdit": {
+        "description": "编辑固定收支配置"
+    },
+    "recurringConfigDetail": "固定收支详情",
+    "@recurringConfigDetail": {
+        "description": "固定收支配置详情页面标题"
+    },
+    "recurringConfigType": "类型",
+    "@recurringConfigType": {
+        "description": "收支类型"
+    },
+    "recurringConfigAmount": "金额",
+    "@recurringConfigAmount": {
+        "description": "金额"
+    },
+    "recurringConfigCategory": "分类",
+    "@recurringConfigCategory": {
+        "description": "分类"
+    },
+    "recurringConfigFund": "账户",
+    "@recurringConfigFund": {
+        "description": "账户"
+    },
+    "recurringConfigFrequency": "频率",
+    "@recurringConfigFrequency": {
+        "description": "频率"
+    },
+    "frequencyWeekly": "按周",
+    "@frequencyWeekly": {
+        "description": "按周频率"
+    },
+    "frequencyMonthly": "按月",
+    "@frequencyMonthly": {
+        "description": "按月频率"
+    },
+    "endCondition": "结束条件",
+    "@endCondition": {
+        "description": "结束条件"
+    },
+    "endInfinite": "无限",
+    "@endInfinite": {
+        "description": "无限持续"
+    },
+    "endByDate": "指定日期",
+    "@endByDate": {
+        "description": "指定结束日期"
+    },
+    "endByCount": "指定次数",
+    "@endByCount": {
+        "description": "指定结束次数"
+    },
+    "recurringConfigCopy": "从其他账本复制",
+    "@recurringConfigCopy": {
+        "description": "从其他账本复制配置"
+    },
+    "recurringConfigGenerateNow": "立即生成",
+    "@recurringConfigGenerateNow": {
+        "description": "立即生成账目"
+    },
+    "recurringConfigGeneratedRecords": "生成的账目",
+    "@recurringConfigGeneratedRecords": {
+        "description": "已生成的账目列表"
+    },
+    "recurringConfigNextGenerate": "下次生成",
+    "@recurringConfigNextGenerate": {
+        "description": "下次生成日期"
+    },
+    "recurringConfigDeactivateOrigin": "复制后停用源账本配置",
+    "@recurringConfigDeactivateOrigin": {
+        "description": "复制后停用源账本配置"
+    },
+    "recurringConfigCopySuccess": "成功复制{count}条配置",
+    "@recurringConfigCopySuccess": {
+        "description": "复制成功提示",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "emptyRecurringConfigs": "还没有固定收支配置",
+    "@emptyRecurringConfigs": {
+        "description": "空状态提示"
+    },
+    "generatedSource": "固定收支自动生成",
+    "@generatedSource": {
+        "description": "自动生成的账目来源标注"
+    },
+    "recurringConfigShop": "商户",
+    "@recurringConfigShop": {
+        "description": "商户"
+    },
+    "recurringConfigRemark": "备注（可选）",
+    "@recurringConfigRemark": {
+        "description": "备注"
+    },
+    "recurringConfigStartDate": "开始日期",
+    "@recurringConfigStartDate": {
+        "description": "开始日期"
+    },
+    "recurringConfigCountLabel": "生成次数",
+    "@recurringConfigCountLabel": {
+        "description": "生成次数输入标签"
+    },
+    "recurringConfigSaveSuccess": "保存成功",
+    "@recurringConfigSaveSuccess": {
+        "description": "保存成功提示"
+    },
+    "recurringConfigConfirmDelete": "确认删除",
+    "@recurringConfigConfirmDelete": {
+        "description": "确认删除对话框标题"
+    },
+    "recurringConfigDeleteConfirmMsg": "确定要删除此固定收支配置吗？",
+    "@recurringConfigDeleteConfirmMsg": {
+        "description": "删除确认消息"
+    },
+    "recurringConfigGenerateSuccess": "生成成功",
+    "@recurringConfigGenerateSuccess": {
+        "description": "立即生成成功提示"
+    },
+    "recurringConfigGenerateSkip": "已存在，跳过",
+    "@recurringConfigGenerateSkip": {
+        "description": "生成时已存在记录，跳过提示"
+    },
+    "recurringConfigNoRecords": "暂无生成记录",
+    "@recurringConfigNoRecords": {
+        "description": "暂无生成记录提示"
+    },
+    "recurringConfigEnabled": "已启用",
+    "@recurringConfigEnabled": {
+        "description": "已启用状态"
+    },
+    "recurringConfigDisabled": "已停用",
+    "@recurringConfigDisabled": {
+        "description": "已停用状态"
+    },
+    "recurringConfigAutoOn": "自动生成已开启",
+    "@recurringConfigAutoOn": {
+        "description": "自动生成已开启提示"
+    },
+    "recurringConfigAutoOff": "自动生成已关闭",
+    "@recurringConfigAutoOff": {
+        "description": "自动生成已关闭提示"
+    },
+    "recurringConfigBasicInfo": "基本信息",
+    "@recurringConfigBasicInfo": {
+        "description": "基本信息"
+    },
+    "recurringConfigGenerateStats": "生成统计",
+    "@recurringConfigGenerateStats": {
+        "description": "生成统计"
+    },
+    "recurringConfigGeneratedCount": "已生成{count}次",
+    "@recurringConfigGeneratedCount": {
+        "description": "已生成次数",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "recurringConfigLastGenerated": "上次生成",
+    "@recurringConfigLastGenerated": {
+        "description": "上次生成"
+    },
+    "recurringConfigCopySourceEmpty": "源账本没有固定收支配置",
+    "@recurringConfigCopySourceEmpty": {
+        "description": "复制时源账本无配置提示"
+    },
+    "recurringConfigCopySelect": "选择要复制的配置",
+    "@recurringConfigCopySelect": {
+        "description": "复制弹窗标题"
+    },
+    "recurringConfigCopyConfirm": "确认复制 ({count})",
+    "@recurringConfigCopyConfirm": {
+        "description": "复制确认按钮",
+        "placeholders": {
+            "count": {
+                "type": "String"
+            }
+        }
+    },
+    "recurringConfigCopyPartial": "成功复制{success}条，{fail}条跳过",
+    "@recurringConfigCopyPartial": {
+        "description": "部分复制成功提示",
+        "placeholders": {
+            "success": {
+                "type": "int"
+            },
+            "fail": {
+                "type": "int"
+            }
+        }
+    },
+    "recurringConfigAmtRequired": "请输入金额",
+    "@recurringConfigAmtRequired": {
+        "description": "金额必填验证"
+    },
+    "recurringConfigAmtInvalid": "金额必须大于0",
+    "@recurringConfigAmtInvalid": {
+        "description": "金额无效验证"
+    },
+    "recurringConfigCategoryRequired": "请选择分类",
+    "@recurringConfigCategoryRequired": {
+        "description": "分类必选验证"
+    },
+    "recurringConfigFundRequired": "请选择账户",
+    "@recurringConfigFundRequired": {
+        "description": "账户必选验证"
+    },
+    "recurringConfigFreqRequired": "请选择频率日期",
+    "@recurringConfigFreqRequired": {
+        "description": "频率必选验证"
+    },
+    "recurringConfigEndDate": "结束日期",
+    "@recurringConfigEndDate": {
+        "description": "结束日期"
+    },
+    "recurringConfigEndDateHint": "请选择",
+    "@recurringConfigEndDateHint": {
+        "description": "请选择"
+    },
+    "recurringConfigStatus": "状态",
+    "@recurringConfigStatus": {
+        "description": "状态"
+    },
+    "recurringConfigDay": "{d}号",
+    "@recurringConfigDay": {
+        "description": "日期选项",
+        "placeholders": {
+            "d": {
+                "type": "String"
+            }
+        }
     }
 }
