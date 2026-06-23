@@ -7,6 +7,7 @@ import '../../widgets/setting/user_info_card.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/sync_provider.dart';
 import '../../utils/date_util.dart';
+import '../../manager/app_config_manager.dart';
 import '../../theme/theme_spacing.dart';
 import '../fuel/fuel_record_list_page.dart';
 
@@ -33,6 +34,133 @@ class _GridFeatureItemData {
   });
 }
 
+/// 可折叠账本功能区块
+class _BookSection extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final List<_GridFeatureItemData> items;
+  const _BookSection({required this.icon, required this.title, required this.items});
+  @override
+  State<_BookSection> createState() => _BookSectionState();
+}
+
+class _BookSectionState extends State<_BookSection> with SingleTickerProviderStateMixin {
+  late bool _expanded;
+  late final AnimationController _ctrl;
+  late final Animation<double> _rotate;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = AppConfigManager.instance.bookSectionExpanded;
+    _ctrl = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
+    _rotate = Tween<double>(begin: 0, end: 0.5).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    if (_expanded) _ctrl.value = 0.5;
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() => _expanded = !_expanded);
+    if (_expanded) { _ctrl.forward(); } else { _ctrl.reverse(); }
+    AppConfigManager.instance.setBookSectionExpanded(_expanded);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: _toggle,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            child: Row(children: [
+              Icon(widget.icon, size: 18, color: cs.primary),
+              const SizedBox(width: 8),
+              Expanded(child: Text(widget.title, style: theme.textTheme.titleSmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
+              RotationTransition(
+                turns: _rotate,
+                child: Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: cs.onSurfaceVariant),
+              ),
+            ]),
+          ),
+        ),
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 250),
+          crossFadeState: _expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          firstChild: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buildGrid(),
+          ),
+          secondChild: const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGrid() {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withAlpha(80),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.outlineVariant.withAlpha(60), width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: _buildRows(theme, cs),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildRows(ThemeData theme, ColorScheme cs) {
+    final rows = <Widget>[];
+    const int cols = 3;
+    for (var i = 0; i < widget.items.length; i += cols) {
+      final end = (i + cols > widget.items.length) ? widget.items.length : i + cols;
+      final rowItems = widget.items.sublist(i, end);
+      rows.add(
+        Padding(
+          padding: EdgeInsets.only(top: i > 0 ? 4 : 0),
+          child: Row(
+            children: rowItems.map((item) => Expanded(
+              child: InkWell(
+                onTap: item.onTap,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(item.icon, size: 22, color: cs.primary),
+                      const SizedBox(height: 4),
+                      Text(item.label,
+                        style: TextStyle(fontSize: 11, color: cs.onSurface, fontWeight: FontWeight.w500),
+                        maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                    ],
+                  ),
+                ),
+              ),
+            )).toList(),
+          ),
+        ),
+      );
+    }
+    return rows;
+  }
+}
+
 class _MineTabView extends StatelessWidget {
   const _MineTabView();
 
@@ -45,47 +173,14 @@ class _MineTabView extends StatelessWidget {
     final bookProvider = context.read<BooksProvider>();
     final accountBook = bookProvider.selectedBook;
 
+    // 优先排序：固定收支 > 分类 > 商户 > 账户 > 标签 > 项目
     final bookFeatureItems = [
-      _GridFeatureItemData(
-        icon: Icons.category_outlined,
-        label: L10nManager.l10n.category,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.categories,
-            arguments: accountBook),
-        isHighlighted: true,
-      ),
-      _GridFeatureItemData(
-        icon: Icons.account_balance_wallet_outlined,
-        label: L10nManager.l10n.account,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.funds,
-            arguments: accountBook),
-        isHighlighted: true,
-      ),
-      _GridFeatureItemData(
-        icon: Icons.store_outlined,
-        label: L10nManager.l10n.merchant,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.merchants,
-            arguments: accountBook),
-        isHighlighted: true,
-      ),
-      _GridFeatureItemData(
-        icon: Icons.local_offer_outlined,
-        label: L10nManager.l10n.tag,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.tags,
-            arguments: accountBook),
-        isHighlighted: true,
-      ),
-      _GridFeatureItemData(
-        icon: Icons.folder_outlined,
-        label: L10nManager.l10n.project,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.projects,
-            arguments: accountBook),
-      ),
-      _GridFeatureItemData(
-        icon: Icons.repeat,
-        label: L10nManager.l10n.recurringConfig,
-        onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList),
-        isHighlighted: true,
-      ),
+      _GridFeatureItemData(icon: Icons.repeat, label: L10nManager.l10n.recurringConfig, onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList), isHighlighted: true),
+      _GridFeatureItemData(icon: Icons.category_outlined, label: L10nManager.l10n.category, onTap: () => Navigator.pushNamed(context, AppRoutes.categories, arguments: accountBook), isHighlighted: true),
+      _GridFeatureItemData(icon: Icons.store_outlined, label: L10nManager.l10n.merchant, onTap: () => Navigator.pushNamed(context, AppRoutes.merchants, arguments: accountBook), isHighlighted: true),
+      _GridFeatureItemData(icon: Icons.account_balance_wallet_outlined, label: L10nManager.l10n.account, onTap: () => Navigator.pushNamed(context, AppRoutes.funds, arguments: accountBook), isHighlighted: true),
+      _GridFeatureItemData(icon: Icons.local_offer_outlined, label: L10nManager.l10n.tag, onTap: () => Navigator.pushNamed(context, AppRoutes.tags, arguments: accountBook), isHighlighted: true),
+      _GridFeatureItemData(icon: Icons.folder_outlined, label: L10nManager.l10n.project, onTap: () => Navigator.pushNamed(context, AppRoutes.projects, arguments: accountBook)),
     ];
 
     final dataToolItems = [
@@ -123,21 +218,15 @@ class _MineTabView extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           _buildProfileSliver(context, userProvider, spacing, colorScheme),
-          // 账本功能
+          // 账本功能（可折叠展开）
           SliverToBoxAdapter(
             child: Padding(
               padding: spacing.contentPadding.copyWith(top: 16, bottom: 0),
-              child: _buildSectionHeader(
-                context,
+              child: _BookSection(
                 icon: Icons.book_outlined,
                 title: accountBook?.name ?? '未选择账本',
+                items: bookFeatureItems,
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: spacing.contentPadding.copyWith(top: 12, bottom: 0),
-              child: _buildCompactFeatureRow(context, items: bookFeatureItems),
             ),
           ),
           SliverToBoxAdapter(
