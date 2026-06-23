@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../database/database.dart';
+import '../../enums/account_type.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/recurring_config_vo.dart';
+import '../../models/vo/user_item_vo.dart';
+import '../../providers/books_provider.dart';
 import '../../providers/recurring_config_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/recurring_config_service.dart';
 import '../../theme/theme_spacing.dart';
+import '../../utils/color_util.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_loading_view.dart';
@@ -57,13 +62,21 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
     );
   }
 
+  Widget _detailRow(ColorScheme cs, IconData icon, String text) {
+    return Row(children: [
+      Icon(icon, size: 15, color: cs.onSurfaceVariant),
+      const SizedBox(width: 8),
+      Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant))),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final spacing = theme.spacing;
     final c = widget.config;
-    final ac = c.isIncome ? cs.tertiary : cs.error;
+    final ac = c.isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -138,6 +151,13 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
                       ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                // 账户/商户/备注信息
+                _detailRow(cs, Icons.account_balance_wallet_outlined, c.fundName ?? c.fundId),
+                if (c.shopName != null) const SizedBox(height: 6),
+                if (c.shopName != null) _detailRow(cs, Icons.store_outlined, c.shopName!),
+                if (c.description != null && c.description!.isNotEmpty) const SizedBox(height: 6),
+                if (c.description != null && c.description!.isNotEmpty) _detailRow(cs, Icons.description_outlined, c.description!),
               ],
             ),
           ),
@@ -152,19 +172,6 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
               _infoRow('频率', c.frequencyDesc),
               _infoRow('开始日期', c.startDate),
               _infoRow('结束方式', c.endConditionDesc),
-            ]),
-          ),
-          SizedBox(height: spacing.formGroupSpacing),
-
-          // ── 账户信息 ──
-          _sectionDivider(Icons.account_balance_wallet_outlined, '账户信息'),
-          const SizedBox(height: 12),
-          CommonCardContainer(
-            padding: spacing.contentPadding,
-            child: Column(children: [
-              if (c.fundName != null) _infoRow('账户', c.fundName!),
-              if (c.shopName != null) _infoRow('商户', c.shopName!),
-              if (c.description != null && c.description!.isNotEmpty) _infoRow('备注', c.description!),
             ]),
           ),
           SizedBox(height: spacing.formGroupSpacing),
@@ -218,38 +225,47 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
           else
             ..._generatedItems!.map((item) => Padding(
               padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-              child: CommonCardContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(children: [
-                  Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(
-                      color: (item.type == 'income' ? cs.tertiary : cs.error).withAlpha(20),
-                      borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  final book = context.read<BooksProvider>().selectedBook;
+                  if (book != null) {
+                    Navigator.pushNamed(context, AppRoutes.itemEdit, arguments: [book, UserItemVO.fromAccountItem(item: item)]);
+                  }
+                },
+                child: CommonCardContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(children: [
+                    Container(
+                      width: 36, height: 36,
+                      decoration: BoxDecoration(
+                        color: (item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE).withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        item.type == AccountItemType.income.code ? Icons.arrow_downward : Icons.arrow_upward,
+                        color: item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE,
+                        size: 18,
+                      ),
                     ),
-                    child: Icon(
-                      item.type == 'income' ? Icons.arrow_downward : Icons.arrow_upward,
-                      color: item.type == 'income' ? cs.tertiary : cs.error,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('¥${item.amount.toStringAsFixed(2)}', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    Text(item.accountDate, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                  ])),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: (item.type == 'income' ? cs.tertiary : cs.error).withAlpha(15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(item.type == 'income' ? '收入' : '支出', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
-                      color: item.type == 'income' ? cs.tertiary : cs.error)),
+                    const SizedBox(width: 12),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('¥${item.amount.toStringAsFixed(2)}', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      Text(item.accountDate, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    ])),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: (item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE).withAlpha(15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(item.type == AccountItemType.income.code ? '收入' : '支出', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
+                      color: item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE)),
                   ),
                 ]),
               ),
-            )),
+            ),
+          )),
         ],
       ),
     );
@@ -266,7 +282,7 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
       case 'generate':
         final r = await provider.generateNow(widget.config.id);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(r == 'generated' ? '生成成功' : r == 'skip' ? '已存在，跳过' : r)));
+          if (r == 'generated') { ToastUtil.showSuccess('生成成功'); } else if (r == 'skip') { ToastUtil.showInfo('已存在，跳过'); } else { ToastUtil.showError(r); }
           _loadGeneratedItems();
         }
       case 'delete':

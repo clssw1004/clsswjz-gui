@@ -54,30 +54,16 @@ class RecurringConfigService {
         return 'skip';
       }
 
-      // 2. 计算目标日期
-      String targetDate;
-      if (config.lastGeneratedAt != null) {
-        final lastDate = config.lastGeneratedAt!.substring(0, 10);
-        final parsedLast = DateTime.tryParse(lastDate);
-        if (parsedLast != null) {
-          targetDate = computeNextDate(config, fromDate: parsedLast);
-          if (targetDate.compareTo(today) > 0) return 'skip'; // 还没到时间
-        } else {
-          targetDate = today;
-        }
-      } else {
-        // 首次生成：使用 startDate
-        if (config.startDate.compareTo(today) > 0) return 'skip'; // 还没到开始日期
-        targetDate = _getFirstTargetDate(config, today);
-      }
-
-      // 3. 防重复检查：查询该配置该日期是否已生成过
+      // 2. 获取已有的生成日期集合
       final existingItems = await DaoManager.itemDao.findBySource(
         'recurring', [config.id]);
-      final datePrefix = targetDate.substring(0, 10);
-      final alreadyGenerated = existingItems.any((item) =>
-          item.accountDate.startsWith(datePrefix));
-      if (alreadyGenerated) return 'skip';
+      final existingDates = existingItems
+          .map((e) => e.accountDate.substring(0, 10))
+          .toSet();
+
+      // 3. 找第一个未生成的频率日期（从 起始日 ~ 今天）
+      final targetDate = _firstUnmatchedDate(config, today, existingDates);
+      if (targetDate == null || targetDate.compareTo(today) > 0) return 'skip';
 
       // 4. 生成账目
       final userId = AppConfigManager.instance.userId;
@@ -91,7 +77,7 @@ class RecurringConfigService {
         description: config.description,
         type: type,
         categoryCode: config.categoryCode,
-        accountDate: '$targetDate 00:00:00',
+        accountDate: '$targetDate 08:00:00',
         fundId: config.fundId,
         shopCode: config.shopCode,
         tagCode: config.tagCode,
@@ -116,7 +102,7 @@ class RecurringConfigService {
         who: userId,
         id: config.id,
         generatedCount: newCount,
-        lastGeneratedAt: '$targetDate 00:00:00',
+        lastGeneratedAt: '$targetDate 08:00:00',
         isActive: stillActive,
       ).execute();
 
@@ -126,30 +112,57 @@ class RecurringConfigService {
     }
   }
 
-  /// 计算首次生成的目标日期
-  static String _getFirstTargetDate(RecurringConfig config, String today) {
-    final parsedStart = DateTime.tryParse(config.startDate);
-    if (parsedStart == null) return today;
+  /// 从 [startDate] ~ [today] 中找第一个未生成的频率日期
+  static String? _firstUnmatchedDate(RecurringConfig config, String today, Set<String> generatedDates) {
+    final startDt = DateTime.tryParse(config.startDate);
+    if (startDt == null) return null;
+    final todayDt = DateTime.tryParse(today);
+    if (todayDt == null) return null;
 
-    if (config.frequencyType == 'monthly') {
-      final days = config.frequencyValue.split(',').map(int.parse).toList()..sort();
-      // 从 startDate 所在月开始，找第一个 >= startDate 的日期
-      return _findNextMonthlyDate(parsedStart, days, parsedStart);
-    } else {
-      // weekly: 从 startDate 开始找第一个匹配的星期
-      final weekDays = config.frequencyValue.split(',').map(int.parse).toSet();
-      var candidate = parsedStart;
-      for (var i = 0; i < 7; i++) {
-        if (weekDays.contains(candidate.weekday % 7)) {
-          return _formatDate(candidate);
-        }
-        candidate = candidate.add(Duration(days: 1));
+    // 从 startDate 开始，逐个频率日期检查
+    var cursor = startDt;
+    final maxIterations = 400; // 防止死循环
+    for (var i = 0; i < maxIterations; i++) {
+      if (cursor.isAfter(todayDt)) return null; // 超过今天，没有到期未生成的
+      final dateStr = _formatDate(cursor);
+      if (!generatedDates.contains(dateStr)) {
+        return dateStr; // 找到第一个未生成的日期
       }
-      return _formatDate(parsedStart);
+      // 移动到下一个频率日期
+      final next = _nextDateByFrequency(config, cursor);
+      if (next == null || !next.isAfter(cursor)) return null;
+      cursor = next;
     }
+    return null;
   }
 
-  /// 计算下次生成日期
+  /// 按频率计算 [from] 的下一个日期
+  static DateTime? _nextDateByFrequency(RecurringConfig config, DateTime from) {
+    if (config.frequencyType == 'monthly') {
+      final days = config.frequencyValue.split(',').map(int.parse).toList()..sort();
+      for (var m = 0; m < 3; m++) {
+        final month = from.month + m;
+        final year = from.year + ((month - 1) ~/ 12);
+        final actualMonth = ((month - 1) % 12) + 1;
+        final maxDay = DateTime(year, actualMonth + 1, 0).day;
+        for (final day in days) {
+          final actualDay = day > maxDay ? maxDay : day;
+          final candidate = DateTime(year, actualMonth, actualDay);
+          if (candidate.isAfter(from)) return candidate;
+        }
+      }
+      return DateTime(from.year, from.month + 1, 0);
+    } else if (config.frequencyType == 'weekly') {
+      final weekDays = config.frequencyValue.split(',').map(int.parse).toSet();
+      for (var i = 1; i <= 7; i++) {
+        final candidate = from.add(Duration(days: i));
+        if (weekDays.contains(candidate.weekday % 7)) return candidate;
+      }
+    }
+    return null;
+  }
+
+  /// 计算下次生成日期（用于显示，不用于生成逻辑）
   static String computeNextDate(RecurringConfig config, {DateTime? fromDate}) {
     final base = fromDate ?? DateTime.now();
     final today = DateTime.now();
@@ -192,14 +205,6 @@ class RecurringConfigService {
       }
     }
     return _formatDate(base.add(const Duration(days: 30)));
-  }
-
-  /// 防重复检查
-  static Future<bool> checkDuplicates(RecurringConfig config, String targetDate) async {
-    final existingItems = await DaoManager.itemDao.findBySource(
-      'recurring', [config.id]);
-    final datePrefix = targetDate.substring(0, 10);
-    return existingItems.any((item) => item.accountDate.startsWith(datePrefix));
   }
 
   /// 跨账本复制配置

@@ -11,6 +11,7 @@ import '../../models/vo/user_fund_vo.dart';
 import '../../providers/recurring_config_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/color_util.dart';
+import '../../utils/toast_util.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/book/animated_type_toggle.dart';
 import '../../widgets/book/calculator_panel.dart';
@@ -549,7 +550,7 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_frequencyValues.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.recurringConfigFreqRequired)));
+      ToastUtil.showWarning(L10nManager.l10n.recurringConfigFreqRequired);
       return;
     }
 
@@ -578,7 +579,7 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
     }
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.recurringConfigSaveSuccess)));
+      ToastUtil.showSuccess(L10nManager.l10n.recurringConfigSaveSuccess);
       Navigator.pop(context, true);
     }
   }

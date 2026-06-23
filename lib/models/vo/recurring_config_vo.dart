@@ -177,46 +177,66 @@ class RecurringConfigVO {
     return false;
   }
 
-  /// 下次生成日期（基于开始日期+频率的简单计算）
+  /// 下次生成日期
+  /// 规则：
+  ///   1. 最后生成日之后的下一个频率日期
+  /// 	 2. 从未来生成日期的起始日到今天之间的最后一次频率日期
+  ///   3. 上面两种情况取最近一个 >= 今天的日期
   String? get nextGenerateDateDesc {
     if (!isActive || isExpired) return null;
-    // 实际下次生成日期由Service计算，这里提供占位
+
+    // 从哪个日期开始计算下次生成
+    final DateTime baseDate;
     if (lastGeneratedAt != null) {
-      // 根据上次生成日期和频率计算
-      final lastDate = DateTime.tryParse(lastGeneratedAt!.substring(0, 10));
-      if (lastDate != null) return _computeNextFrom(lastDate);
+      final d = DateTime.tryParse(lastGeneratedAt!.substring(0, 10));
+      baseDate = d ?? DateTime.now();
+    } else {
+      // 从未生成：从 startDate 或今天，取较晚者
+      final sd = DateTime.tryParse(startDate);
+      baseDate = (sd != null && sd.isAfter(DateTime.now())) ? sd : DateTime.now();
     }
-    return startDate;
+
+    final today = DateTime.now();
+    final next = _nextOccurrence(baseDate);
+
+    // 如果算出来的日期 >= 今天，直接返回；否则从今天开始重新找
+    if (next != null && (next.isAfter(today) || _isSameDay(next, today))) {
+      return _fmt(next);
+    }
+    final fromToday = _nextOccurrence(today);
+    return fromToday != null ? _fmt(fromToday) : null;
   }
 
-  String _computeNextFrom(DateTime fromDate) {
+  /// 计算 [from] 之后第一个匹配的频率日期（不含 from 当天）
+  DateTime? _nextOccurrence(DateTime from) {
     if (frequencyType == 'monthly') {
-      final days = frequencyValue.split(',').map(int.parse).toList();
-      // 计算下个月从fromDate开始的最近日期
-      for (var m = 0; m < 2; m++) {
-        final month = fromDate.month + m;
-        final year = fromDate.year + (month > 12 ? 1 : 0);
-        final actualMonth = month > 12 ? month - 12 : month;
+      final days = frequencyValue.split(',').map(int.parse).toList()..sort();
+      for (var m = 0; m < 3; m++) {
+        final month = from.month + m;
+        final year = from.year + ((month - 1) ~/ 12);
+        final actualMonth = ((month - 1) % 12) + 1;
+        final maxDay = DateTime(year, actualMonth + 1, 0).day;
         for (final day in days) {
-          final maxDay = DateTime(year, actualMonth + 1, 0).day;
           final actualDay = day > maxDay ? maxDay : day;
           final candidate = DateTime(year, actualMonth, actualDay);
-          if (candidate.isAfter(fromDate)) {
-            return '${candidate.year}-${candidate.month.toString().padLeft(2, '0')}-${candidate.day.toString().padLeft(2, '0')}';
-          }
+          if (candidate.isAfter(from)) return candidate;
         }
       }
     } else if (frequencyType == 'weekly') {
       final weekDays = frequencyValue.split(',').map(int.parse).toSet();
       for (var i = 1; i <= 7; i++) {
-        final candidate = fromDate.add(Duration(days: i));
-        if (weekDays.contains(candidate.weekday % 7)) {
-          return '${candidate.year}-${candidate.month.toString().padLeft(2, '0')}-${candidate.day.toString().padLeft(2, '0')}';
-        }
+        final candidate = from.add(Duration(days: i));
+        if (weekDays.contains(candidate.weekday % 7)) return candidate;
       }
     }
-    return fromDate.toIso8601String().substring(0, 10);
+    return null;
   }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  String _fmt(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   RecurringConfigVO copyWith({
     String? id,

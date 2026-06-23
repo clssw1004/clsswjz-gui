@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../drivers/driver_factory.dart';
+import '../../utils/color_util.dart';
+import '../../utils/toast_util.dart';
 import '../../models/vo/recurring_config_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/books_provider.dart';
@@ -91,7 +93,7 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
   Widget _buildCard(RecurringConfigVO config, RecurringConfigProvider provider) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final amountColor = config.isIncome ? cs.tertiary : cs.error;
+    final amountColor = config.isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12),
@@ -227,8 +229,11 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
         }
       case 'generate':
         final r = await provider.generateNow(config.id);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(r == 'generated' ? '生成成功' : r == 'skip' ? '已存在，跳过' : r)));
+        if (context.mounted) {
+          if (r == 'generated') { ToastUtil.showSuccess('生成成功'); }
+          else if (r == 'skip') { ToastUtil.showInfo('已存在，跳过'); }
+          else { ToastUtil.showError(r); }
+        }
         final id = _currentBookId; if (id != null) provider.loadConfigs(id);
       case 'delete':
         if (await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
@@ -249,7 +254,7 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
     showModalBottomSheet(context: context, builder: (ctx) => CommonBottomSheet(
       title: L10nManager.l10n.recurringConfigCopy,
       child: books.isEmpty
-          ? Padding(padding: const EdgeInsets.all(16), child: Text(L10nManager.l10n.recurringConfigCopySourceEmpty))
+          ? const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: CommonEmptyView(message: '该账本暂无固定收支配置'))
           : Column(mainAxisSize: MainAxisSize.min, children: books.map((book) => ListTile(
               leading: Icon(book.icon != null ? Icons.book : Icons.book_outlined),
               title: Text(book.name),
@@ -262,7 +267,7 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
     final provider = context.read<RecurringConfigProvider>();
     final result = await DriverFactory.driver.listRecurringConfigsWithNames(AppConfigManager.instance.userId, sourceBook.id);
     if (!result.ok || result.data == null || result.data!.isEmpty) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.recurringConfigCopySourceEmpty)));
+      if (context.mounted) ToastUtil.showWarning(L10nManager.l10n.recurringConfigCopySourceEmpty);
       return;
     }
     final sourceConfigs = result.data!;
@@ -296,11 +301,11 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
               final cr = await provider.copyFromBook(sourceBook.id, target, selectedIds.toList(), deactivateOrigin: deactivateOrigin);
               if (context.mounted) {
                 await provider.loadConfigs(target);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
+                ToastUtil.showSuccess(
                   cr.failCount > 0
                       ? L10nManager.l10n.recurringConfigCopyPartial(cr.successCount, cr.failCount)
                       : L10nManager.l10n.recurringConfigCopySuccess(cr.successCount)
-                )));
+                );
               }
             },
             child: Text(L10nManager.l10n.recurringConfigCopyConfirm(selectedIds.length.toString())),
