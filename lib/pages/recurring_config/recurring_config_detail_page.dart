@@ -11,14 +11,10 @@ import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_loading_view.dart';
 
-/// 固定收支配置详情页
 class RecurringConfigDetailPage extends StatefulWidget {
   final RecurringConfigVO config;
-
   const RecurringConfigDetailPage({super.key, required this.config});
-
-  @override
-  State<RecurringConfigDetailPage> createState() => _RecurringConfigDetailPageState();
+  @override State<RecurringConfigDetailPage> createState() => _RecurringConfigDetailPageState();
 }
 
 class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
@@ -35,30 +31,47 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
     setState(() => _loadingItems = true);
     try {
       final items = await RecurringConfigService.getGeneratedItems(widget.config.id);
-      setState(() {
-        _generatedItems = items;
-        _loadingItems = false;
-      });
-    } catch (e) {
-      setState(() => _loadingItems = false);
-    }
+      if (mounted) setState(() { _generatedItems = items; _loadingItems = false; });
+    } catch (_) { if (mounted) setState(() => _loadingItems = false); }
+  }
+
+  Widget _sectionDivider(IconData icon, String title) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(children: [
+      Icon(icon, size: 16, color: cs.primary),
+      const SizedBox(width: 6),
+      Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: cs.primary)),
+      const SizedBox(width: 12), Expanded(child: Container(height: 1, color: cs.primary.withAlpha(20))),
+    ]);
+  }
+
+  Widget _infoRow(String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 72, child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
+        const SizedBox(width: 12),
+        Expanded(child: Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500))),
+      ]),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final cs = theme.colorScheme;
     final spacing = theme.spacing;
-    final config = widget.config;
-    final amountColor = config.isIncome ? colorScheme.tertiary : colorScheme.error;
+    final c = widget.config;
+    final ac = c.isIncome ? cs.tertiary : cs.error;
 
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.recurringConfigDetail),
         actions: [
           PopupMenuButton<String>(
-            onSelected: (v) => _handleAction(context, v),
-            itemBuilder: (context) => [
+            onSelected: (v) => _handleAction(v),
+            itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('编辑')),
               const PopupMenuItem(value: 'generate', child: Text('立即生成')),
               const PopupMenuItem(value: 'delete', child: Text('删除')),
@@ -69,206 +82,204 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
       body: ListView(
         padding: spacing.contentPadding,
         children: [
-          // 基本信息
-          _buildSectionTitle(context, '基本信息'),
-          CommonCardContainer(
-            padding: spacing.contentPadding,
+          // ── 顶部 Hero ──
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [ac.withAlpha(15), cs.surface],
+                begin: Alignment.topLeft, end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cs.outlineVariant.withAlpha(50)),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Icon(
-                      config.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                      color: amountColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      config.isIncome ? '收入' : '支出',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const Spacer(),
-                    Text(
-                      '¥${config.amount.toStringAsFixed(2)}',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: amountColor,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: ac.withAlpha(25),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(c.isIncome ? Icons.arrow_downward : Icons.arrow_upward, size: 14, color: ac),
+                          const SizedBox(width: 4),
+                          Text(c.isIncome ? '收入' : '支出', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: ac)),
+                        ],
                       ),
                     ),
+                    const Spacer(),
+                    Text(c.frequencyDesc, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),
-                SizedBox(height: spacing.listItemSpacing),
-                _buildInfoRow(context, '分类', config.categoryName ?? config.categoryCode),
-                _buildInfoRow(context, '账户', config.fundName ?? config.fundId),
-                if (config.shopName != null)
-                  _buildInfoRow(context, '商户', config.shopName!),
-                if (config.description != null && config.description!.isNotEmpty)
-                  _buildInfoRow(context, '备注', config.description!),
+                const SizedBox(height: 20),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text('¥', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: ac)),
+                    const SizedBox(width: 4),
+                    Text(c.amount.toStringAsFixed(2), style: TextStyle(fontSize: 42, fontWeight: FontWeight.w700, color: ac, height: 1.1)),
+                    const Spacer(),
+                    if (c.categoryName != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest.withAlpha(80),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(c.categoryName!, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 频率信息
-          _buildSectionTitle(context, L10nManager.l10n.recurringConfigFrequency),
+          // ── 频率 ──
+          _sectionDivider(Icons.repeat, L10nManager.l10n.recurringConfigFrequency),
+          const SizedBox(height: 12),
           CommonCardContainer(
             padding: spacing.contentPadding,
-            child: Column(
-              children: [
-                _buildInfoRow(context, '频率', config.frequencyDesc),
-                _buildInfoRow(context, '开始日期', config.startDate),
-                _buildInfoRow(context, '结束条件', config.endConditionDesc),
-              ],
-            ),
+            child: Column(children: [
+              _infoRow('频率', c.frequencyDesc),
+              _infoRow('开始日期', c.startDate),
+              _infoRow('结束方式', c.endConditionDesc),
+            ]),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 生成统计
-          _buildSectionTitle(context, '生成统计'),
+          // ── 账户信息 ──
+          _sectionDivider(Icons.account_balance_wallet_outlined, '账户信息'),
+          const SizedBox(height: 12),
           CommonCardContainer(
             padding: spacing.contentPadding,
-            child: Column(
-              children: [
-                _buildInfoRow(context, '已生成次数', '${config.generatedCount}次'),
-                if (config.lastGeneratedAt != null)
-                  _buildInfoRow(context, '上次生成', config.lastGeneratedAt!),
-                _buildInfoRow(context, '状态', config.isActive ? '启用' : '已停用'),
-              ],
-            ),
+            child: Column(children: [
+              if (c.fundName != null) _infoRow('账户', c.fundName!),
+              if (c.shopName != null) _infoRow('商户', c.shopName!),
+              if (c.description != null && c.description!.isNotEmpty) _infoRow('备注', c.description!),
+            ]),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 启用/停用
+          // ── 生成统计 ──
+          _sectionDivider(Icons.analytics_outlined, '生成统计'),
+          const SizedBox(height: 12),
           CommonCardContainer(
             padding: spacing.contentPadding,
+            child: Column(children: [
+              _infoRow('已生成', '${c.generatedCount}次'),
+              if (c.lastGeneratedAt != null) _infoRow('上次生成', c.lastGeneratedAt!.substring(0, 10)),
+              if (c.isActive)
+                _infoRow('下次生成', c.nextGenerateDateDesc ?? '待计算')
+              else
+                _infoRow('状态', L10nManager.l10n.recurringConfigDisabled),
+            ]),
+          ),
+          SizedBox(height: spacing.formGroupSpacing),
+
+          // ── 开关 ──
+          CommonCardContainer(
+            padding: EdgeInsets.zero,
             child: SwitchListTile(
-              title: Text(config.isActive ? '已启用' : '已停用'),
-              subtitle: Text(config.isActive ? '自动生成已开启' : '自动生成已关闭'),
-              value: config.isActive,
+              title: Text(c.isActive ? L10nManager.l10n.recurringConfigEnabled : L10nManager.l10n.recurringConfigDisabled,
+                style: TextStyle(fontWeight: FontWeight.w600, color: c.isActive ? cs.primary : cs.onSurfaceVariant)),
+              subtitle: Text(c.isActive ? L10nManager.l10n.recurringConfigAutoOn : L10nManager.l10n.recurringConfigAutoOff),
+              value: c.isActive,
               onChanged: (v) async {
-                final provider = context.read<RecurringConfigProvider>();
-                await provider.toggleActive(config.id, v);
-                if (context.mounted) {
-                  Navigator.pop(context, true);
-                }
+                await context.read<RecurringConfigProvider>().toggleActive(c.id, v);
+                if (context.mounted) Navigator.pop(context, true);
               },
             ),
           ),
-          SizedBox(height: spacing.formItemSpacing),
+          SizedBox(height: spacing.formGroupSpacing),
 
-          // 生成的账目列表
-          _buildSectionTitle(context, L10nManager.l10n.recurringConfigGeneratedRecords),
+          // ── 生成的账目 ──
+          _sectionDivider(Icons.receipt_outlined, L10nManager.l10n.recurringConfigGeneratedRecords),
+          const SizedBox(height: 12),
           if (_loadingItems)
             const CommonLoadingView()
           else if (_generatedItems == null || _generatedItems!.isEmpty)
             CommonCardContainer(
-              padding: spacing.contentPadding,
-              child: Center(
-                child: Text('暂无生成记录', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-              ),
+              padding: const EdgeInsets.all(32),
+              child: Center(child: Column(children: [
+                Icon(Icons.receipt_long_outlined, size: 40, color: cs.onSurfaceVariant.withAlpha(60)),
+                const SizedBox(height: 8),
+                Text(L10nManager.l10n.recurringConfigNoRecords, style: TextStyle(color: cs.onSurfaceVariant)),
+              ])),
             )
           else
-            ...List.generate(_generatedItems!.length, (i) {
-              final item = _generatedItems![i];
-              return CommonCardContainer(
-                padding: spacing.contentPadding,
-                margin: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                child: ListTile(
-                  leading: Icon(
-                    item.type == 'income' ? Icons.arrow_downward : Icons.arrow_upward,
-                    color: item.type == 'income' ? colorScheme.tertiary : colorScheme.error,
+            ..._generatedItems!.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+              child: CommonCardContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: (item.type == 'income' ? cs.tertiary : cs.error).withAlpha(20),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      item.type == 'income' ? Icons.arrow_downward : Icons.arrow_upward,
+                      color: item.type == 'income' ? cs.tertiary : cs.error,
+                      size: 18,
+                    ),
                   ),
-                  title: Text('¥${item.amount.toStringAsFixed(2)}'),
-                  subtitle: Text(item.accountDate),
-                  trailing: Text(
-                    item.type == 'income' ? '收入' : '支出',
-                    style: theme.textTheme.bodySmall,
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('¥${item.amount.toStringAsFixed(2)}', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(item.accountDate, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  ])),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: (item.type == 'income' ? cs.tertiary : cs.error).withAlpha(15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(item.type == 'income' ? '收入' : '支出', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
+                      color: item.type == 'income' ? cs.tertiary : cs.error)),
                   ),
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8, top: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.primary,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(BuildContext context, String label, String value) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                ]),
               ),
-            ),
-          ),
-          Expanded(
-            child: Text(value, style: theme.textTheme.bodyMedium),
-          ),
+            )),
         ],
       ),
     );
   }
 
-  void _handleAction(BuildContext context, String action) async {
+  void _handleAction(String action) async {
     final provider = context.read<RecurringConfigProvider>();
-
     switch (action) {
       case 'edit':
-        final result = await Navigator.pushNamed(
-          context,
-          AppRoutes.recurringConfigForm,
-          arguments: widget.config,
-        );
-        if (result == true && context.mounted) {
+        if (await Navigator.pushNamed(context, AppRoutes.recurringConfigForm,
+            arguments: {'config': widget.config, 'bookId': widget.config.accountBookId}) == true && mounted) {
           Navigator.pop(context, true);
         }
       case 'generate':
-        final result = await provider.generateNow(widget.config.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result == 'generated' ? '生成成功' : result == 'skip' ? '已存在，跳过' : result)),
-          );
+        final r = await provider.generateNow(widget.config.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(r == 'generated' ? '生成成功' : r == 'skip' ? '已存在，跳过' : r)));
           _loadGeneratedItems();
         }
       case 'delete':
-        final confirm = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('确认删除'),
-            content: const Text('确定要删除此固定收支配置吗？'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('删除')),
-            ],
-          ),
-        );
-        if (confirm == true) {
+        if (await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+          title: Text(L10nManager.l10n.recurringConfigConfirmDelete),
+          content: Text(L10nManager.l10n.recurringConfigDeleteConfirmMsg),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(L10nManager.l10n.cancel)),
+            TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(L10nManager.l10n.delete(''))),
+          ],
+        )) == true) {
           await provider.deleteConfig(widget.config.id);
-          if (context.mounted) {
-            Navigator.pop(context, true);
-          }
+          if (mounted) Navigator.pop(context, true);
         }
     }
   }

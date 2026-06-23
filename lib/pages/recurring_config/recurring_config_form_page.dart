@@ -13,6 +13,7 @@ import '../../theme/theme_spacing.dart';
 import '../../utils/color_util.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../widgets/book/animated_type_toggle.dart';
+import '../../widgets/book/calculator_panel.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_select_form_field.dart';
@@ -185,8 +186,8 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(icon: const Icon(Icons.receipt_outlined), text: '账目信息'),
             Tab(icon: const Icon(Icons.repeat), text: l10n.recurringConfigFrequency),
+            Tab(icon: const Icon(Icons.receipt_outlined), text: '账目信息'),
           ],
         ),
       ),
@@ -197,8 +198,8 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildTransactionTab(theme, cs, spacing, l10n),
                   _buildFrequencyTab(theme, cs, spacing, l10n),
+                  _buildTransactionTab(theme, cs, spacing, l10n),
                 ],
               ),
             ),
@@ -248,39 +249,52 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
 
   Widget _buildAmountSection(ThemeData theme, ColorScheme cs) {
     final amountColor = _getAmountColor();
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withAlpha(40),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text('¥', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: amountColor)),
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 160,
-                  child: TextField(
-                    controller: _amountCtrl,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
+    final amountText = _amountCtrl.text.isEmpty ? '0.00' : _amountCtrl.text;
+    return InkWell(
+      onTap: _showCalculator,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest.withAlpha(40),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text('¥', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: amountColor)),
+                  const SizedBox(width: 4),
+                  Text(amountText,
                     style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: amountColor, height: 1.1),
-                    decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                    onChanged: (v) => setState(() {}),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text('输入金额', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-        ],
+            const SizedBox(height: 8),
+            Text('点击输入金额', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCalculator() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CalculatorPanel(
+        initialValue: double.tryParse(_amountCtrl.text)?.abs(),
+        onConfirm: (value) {
+          setState(() {
+            _amountCtrl.text = value.abs().toStringAsFixed(2);
+          });
+        },
       ),
     );
   }
