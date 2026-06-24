@@ -18,6 +18,9 @@ import '../models/vo/attachment_vo.dart';
 import '../manager/app_config_manager.dart';
 import '../drivers/driver_factory.dart';
 import '../manager/service_manager.dart';
+import '../services/rule_engine.dart';
+import '../services/bookkeeping_rule_service.dart';
+import '../models/vo/bookkeeping_rule_vo.dart';
 
 /// 账目表单状态管理
 class ItemFormProvider extends ChangeNotifier {
@@ -79,6 +82,16 @@ class ItemFormProvider extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
+  /// 规则引擎是否已初始化
+  bool _ruleEngineInitialized = false;
+
+  /// 当前账本的激活规则列表
+  List<BookkeepingRuleVO> _activeRules = [];
+
+  /// 是否启用自动规则
+  bool _ruleEnabled = true;
+  bool get ruleEnabled => _ruleEnabled;
+
   ItemFormProvider(BookMetaVO bookMeta, UserItemVO? item)
       : _bookMeta = bookMeta,
         _item = item ??
@@ -100,6 +113,12 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    // Init rule engine once
+    if (!_ruleEngineInitialized) {
+      RuleEngine.init();
+      _ruleEngineInitialized = true;
+    }
+
     _loading = true;
     notifyListeners();
 
@@ -110,6 +129,7 @@ class ItemFormProvider extends ChangeNotifier {
       loadShops(),
       loadTags(),
       loadProjects(),
+      _loadActiveRules(),
     ]);
 
     _loading = false;
@@ -265,6 +285,37 @@ class ItemFormProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 加载当前账本的激活规则
+  Future<void> _loadActiveRules() async {
+    try {
+      final rules = await DaoManager.bookkeepingRuleDao.findByBookWithFilter(
+        _item.accountBookId,
+        isActive: true,
+      );
+      _activeRules = rules
+          .map((r) => BookkeepingRuleVO.fromBookkeepingRule(r))
+          .toList();
+      BookkeepingRuleService.sortByPriority(_activeRules);
+    } catch (_) {
+      _activeRules = [];
+    }
+  }
+
+  /// 应用规则引擎
+  void _applyRules(String changedField) {
+    if (!_ruleEnabled || _activeRules.isEmpty) return;
+
+    final engineModifiedFields = RuleEngine.evaluate(
+      changedField: changedField,
+      item: _item,
+      rules: _activeRules,
+    );
+
+    if (engineModifiedFields.isNotEmpty) {
+      notifyListeners();
+    }
+  }
+
   /// 保存账目
   Future<bool> create() async {
     final userId = AppConfigManager.instance.userId;
@@ -355,6 +406,7 @@ class ItemFormProvider extends ChangeNotifier {
       type: type.code,
       categoryCode: null,
     );
+    _applyRules('type');
     notifyListeners();
   }
 
@@ -367,6 +419,7 @@ class ItemFormProvider extends ChangeNotifier {
         _item.categoryCode == DebtType.borrow.operationCategory;
     final finalAmount = isNegative ? -amount.abs() : amount.abs();
     _item = _item.copyWith(amount: finalAmount);
+    _applyRules('amount');
     notifyListeners();
   }
 
@@ -382,6 +435,7 @@ class ItemFormProvider extends ChangeNotifier {
       categoryCode: code,
       categoryName: name,
     );
+    _applyRules('categoryCode');
     notifyListeners();
   }
 
@@ -391,6 +445,7 @@ class ItemFormProvider extends ChangeNotifier {
       fundId: id,
       fundName: name,
     );
+    _applyRules('fundId');
     notifyListeners();
   }
 
@@ -400,6 +455,7 @@ class ItemFormProvider extends ChangeNotifier {
       shopCode: code,
       shopName: name,
     );
+    _applyRules('shopCode');
     notifyListeners();
   }
 
@@ -409,6 +465,7 @@ class ItemFormProvider extends ChangeNotifier {
       tagCode: code,
       tagName: name,
     );
+    _applyRules('tagCode');
     notifyListeners();
   }
 
@@ -418,6 +475,7 @@ class ItemFormProvider extends ChangeNotifier {
       projectCode: code,
       projectName: name,
     );
+    _applyRules('projectCode');
     notifyListeners();
   }
 
