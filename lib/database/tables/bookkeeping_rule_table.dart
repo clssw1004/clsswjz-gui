@@ -66,10 +66,8 @@ class BookkeepingRuleTable extends BaseAccountBookTable {
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
       name: Value.absentIfNull(name),
-      isActive:
-          isActive != null ? Value(isActive) : const Value.absent(),
-      priority:
-          priority != null ? Value(priority) : const Value.absent(),
+      isActive: Value.absentIfNull(isActive),
+      priority: Value.absentIfNull(priority),
       conditionsJson: Value.absentIfNull(conditionsJson),
       actionsJson: Value.absentIfNull(actionsJson),
       createdBy: const Value.absent(),
