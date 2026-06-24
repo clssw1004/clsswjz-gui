@@ -5,7 +5,6 @@ import '../enums/item_view_mode.dart';
 import '../enums/storage_mode.dart';
 import '../models/dto/item_filter_dto.dart';
 import '../models/dto/ui_config_dto.dart';
-import '../models/dto/webrtc_config_dto.dart';
 import '../utils/digest_util.dart';
 import '../utils/http_client.dart';
 import '../utils/id_util.dart';
@@ -33,9 +32,9 @@ class AppConfigManager {
   static const String _accountItemListStyleKey = 'account_item_list_style';
   static const String _itemFilterKey = 'item_filter';
   static const String _uiConfigKey = 'ui_config';
-  static const String _webrtcConfigKey = 'webrtc_config';
   static const String _selectedVehicleIdKey = 'selected_vehicle_id';
   static const String _selectedVehiclePlateKey = 'selected_vehicle_plate';
+  static const String _bookSectionExpandedKey = 'book_section_expanded';
 
   static bool _isInit = false;
 
@@ -105,9 +104,6 @@ class AppConfigManager {
   late UiConfigDTO _uiConfig;
   UiConfigDTO get uiConfig => _uiConfig;
   
-  late WebRTCConfigDTO _webrtcConfig;
-  WebRTCConfigDTO get webrtcConfig => _webrtcConfig;
-
   /// 上次选中车辆ID
   String? _selectedVehicleId;
   String? get selectedVehicleId => _selectedVehicleId;
@@ -115,6 +111,10 @@ class AppConfigManager {
   /// 上次选中车辆车牌
   String? _selectedVehiclePlate;
   String? get selectedVehiclePlate => _selectedVehiclePlate;
+
+  /// 账本功能区块是否展开
+  late bool _bookSectionExpanded;
+  bool get bookSectionExpanded => _bookSectionExpanded;
 
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
@@ -191,15 +191,12 @@ class AppConfigManager {
         ? UiConfigDTO.fromJsonString(uiConfigString)
         : UiConfigDTO();
         
-    // 初始化WebRTC配置
-    final webrtcConfigString = CacheManager.instance.getString(_webrtcConfigKey);
-    _webrtcConfig = webrtcConfigString != null
-        ? WebRTCConfigDTO.fromJsonString(webrtcConfigString)
-        : WebRTCConfigDTO();
-
     // 初始化上次选中的车辆
     _selectedVehicleId = CacheManager.instance.getString(_selectedVehicleIdKey);
     _selectedVehiclePlate = CacheManager.instance.getString(_selectedVehiclePlateKey);
+
+    // 账本功能区块默认展开
+    _bookSectionExpanded = CacheManager.instance.getBool(_bookSectionExpandedKey) ?? true;
   }
 
   /// 初始化
@@ -363,11 +360,10 @@ class AppConfigManager {
     await CacheManager.instance.setString(_selectedVehiclePlateKey, plateNumber);
   }
 
-  /// 设置WebRTC配置
-  Future<void> setWebRTCConfig(WebRTCConfigDTO config) async {
-    _webrtcConfig = config;
-    await CacheManager.instance
-        .setString(_webrtcConfigKey, WebRTCConfigDTO.toJsonString(_webrtcConfig));
+  /// 设置账本功能区块展开状态
+  Future<void> setBookSectionExpanded(bool expanded) async {
+    _bookSectionExpanded = expanded;
+    await CacheManager.instance.setBool(_bookSectionExpandedKey, expanded);
   }
 
   /// 是否已经配置过后台服务

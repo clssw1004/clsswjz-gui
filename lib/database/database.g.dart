@@ -11396,6 +11396,1119 @@ class UserShareTableCompanion extends UpdateCompanion<UserShare> {
   }
 }
 
+class $RecurringConfigTableTable extends RecurringConfigTable
+    with TableInfo<$RecurringConfigTableTable, RecurringConfig> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecurringConfigTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountBookIdMeta =
+      const VerificationMeta('accountBookId');
+  @override
+  late final GeneratedColumn<String> accountBookId = GeneratedColumn<String>(
+      'account_book_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 16),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _categoryCodeMeta =
+      const VerificationMeta('categoryCode');
+  @override
+  late final GeneratedColumn<String> categoryCode = GeneratedColumn<String>(
+      'category_code', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 32),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _fundIdMeta = const VerificationMeta('fundId');
+  @override
+  late final GeneratedColumn<String> fundId = GeneratedColumn<String>(
+      'fund_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 64),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _shopCodeMeta =
+      const VerificationMeta('shopCode');
+  @override
+  late final GeneratedColumn<String> shopCode = GeneratedColumn<String>(
+      'shop_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _tagCodeMeta =
+      const VerificationMeta('tagCode');
+  @override
+  late final GeneratedColumn<String> tagCode = GeneratedColumn<String>(
+      'tag_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _projectCodeMeta =
+      const VerificationMeta('projectCode');
+  @override
+  late final GeneratedColumn<String> projectCode = GeneratedColumn<String>(
+      'project_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _frequencyTypeMeta =
+      const VerificationMeta('frequencyType');
+  @override
+  late final GeneratedColumn<String> frequencyType = GeneratedColumn<String>(
+      'frequency_type', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 16),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _frequencyValueMeta =
+      const VerificationMeta('frequencyValue');
+  @override
+  late final GeneratedColumn<String> frequencyValue = GeneratedColumn<String>(
+      'frequency_value', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 64),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _startDateMeta =
+      const VerificationMeta('startDate');
+  @override
+  late final GeneratedColumn<String> startDate = GeneratedColumn<String>(
+      'start_date', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 16),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _endTypeMeta =
+      const VerificationMeta('endType');
+  @override
+  late final GeneratedColumn<String> endType = GeneratedColumn<String>(
+      'end_type', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 16),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _endDateMeta =
+      const VerificationMeta('endDate');
+  @override
+  late final GeneratedColumn<String> endDate = GeneratedColumn<String>(
+      'end_date', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _endCountMeta =
+      const VerificationMeta('endCount');
+  @override
+  late final GeneratedColumn<int> endCount = GeneratedColumn<int>(
+      'end_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _generatedCountMeta =
+      const VerificationMeta('generatedCount');
+  @override
+  late final GeneratedColumn<int> generatedCount = GeneratedColumn<int>(
+      'generated_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _lastGeneratedAtMeta =
+      const VerificationMeta('lastGeneratedAt');
+  @override
+  late final GeneratedColumn<String> lastGeneratedAt = GeneratedColumn<String>(
+      'last_generated_at', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountBookId,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        type,
+        amount,
+        description,
+        categoryCode,
+        fundId,
+        shopCode,
+        tagCode,
+        projectCode,
+        frequencyType,
+        frequencyValue,
+        startDate,
+        endType,
+        endDate,
+        endCount,
+        generatedCount,
+        lastGeneratedAt,
+        isActive
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recurring_config_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<RecurringConfig> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_book_id')) {
+      context.handle(
+          _accountBookIdMeta,
+          accountBookId.isAcceptableOrUnknown(
+              data['account_book_id']!, _accountBookIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountBookIdMeta);
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('category_code')) {
+      context.handle(
+          _categoryCodeMeta,
+          categoryCode.isAcceptableOrUnknown(
+              data['category_code']!, _categoryCodeMeta));
+    } else if (isInserting) {
+      context.missing(_categoryCodeMeta);
+    }
+    if (data.containsKey('fund_id')) {
+      context.handle(_fundIdMeta,
+          fundId.isAcceptableOrUnknown(data['fund_id']!, _fundIdMeta));
+    } else if (isInserting) {
+      context.missing(_fundIdMeta);
+    }
+    if (data.containsKey('shop_code')) {
+      context.handle(_shopCodeMeta,
+          shopCode.isAcceptableOrUnknown(data['shop_code']!, _shopCodeMeta));
+    }
+    if (data.containsKey('tag_code')) {
+      context.handle(_tagCodeMeta,
+          tagCode.isAcceptableOrUnknown(data['tag_code']!, _tagCodeMeta));
+    }
+    if (data.containsKey('project_code')) {
+      context.handle(
+          _projectCodeMeta,
+          projectCode.isAcceptableOrUnknown(
+              data['project_code']!, _projectCodeMeta));
+    }
+    if (data.containsKey('frequency_type')) {
+      context.handle(
+          _frequencyTypeMeta,
+          frequencyType.isAcceptableOrUnknown(
+              data['frequency_type']!, _frequencyTypeMeta));
+    } else if (isInserting) {
+      context.missing(_frequencyTypeMeta);
+    }
+    if (data.containsKey('frequency_value')) {
+      context.handle(
+          _frequencyValueMeta,
+          frequencyValue.isAcceptableOrUnknown(
+              data['frequency_value']!, _frequencyValueMeta));
+    } else if (isInserting) {
+      context.missing(_frequencyValueMeta);
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(_startDateMeta,
+          startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_type')) {
+      context.handle(_endTypeMeta,
+          endType.isAcceptableOrUnknown(data['end_type']!, _endTypeMeta));
+    } else if (isInserting) {
+      context.missing(_endTypeMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(_endDateMeta,
+          endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta));
+    }
+    if (data.containsKey('end_count')) {
+      context.handle(_endCountMeta,
+          endCount.isAcceptableOrUnknown(data['end_count']!, _endCountMeta));
+    }
+    if (data.containsKey('generated_count')) {
+      context.handle(
+          _generatedCountMeta,
+          generatedCount.isAcceptableOrUnknown(
+              data['generated_count']!, _generatedCountMeta));
+    }
+    if (data.containsKey('last_generated_at')) {
+      context.handle(
+          _lastGeneratedAtMeta,
+          lastGeneratedAt.isAcceptableOrUnknown(
+              data['last_generated_at']!, _lastGeneratedAtMeta));
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RecurringConfig map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecurringConfig(
+      accountBookId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      categoryCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_code'])!,
+      fundId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fund_id'])!,
+      shopCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}shop_code']),
+      tagCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tag_code']),
+      projectCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_code']),
+      frequencyType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}frequency_type'])!,
+      frequencyValue: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}frequency_value'])!,
+      startDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}start_date'])!,
+      endType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}end_type'])!,
+      endDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}end_date']),
+      endCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}end_count']),
+      generatedCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}generated_count'])!,
+      lastGeneratedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_generated_at']),
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+    );
+  }
+
+  @override
+  $RecurringConfigTableTable createAlias(String alias) {
+    return $RecurringConfigTableTable(attachedDatabase, alias);
+  }
+}
+
+class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
+  final String accountBookId;
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 类型: INCOME / EXPENSE
+  final String type;
+
+  /// 金额
+  final double amount;
+
+  /// 备注
+  final String? description;
+
+  /// 分类code
+  final String categoryCode;
+
+  /// 账户ID
+  final String fundId;
+
+  /// 商户code
+  final String? shopCode;
+
+  /// 标签code
+  final String? tagCode;
+
+  /// 项目code
+  final String? projectCode;
+
+  /// 频率类型: weekly / monthly
+  final String frequencyType;
+
+  /// 频率值: weekly用"1,3,5"(星期), monthly用"1,15"(日期)
+  final String frequencyValue;
+
+  /// 开始日期 yyyy-MM-dd
+  final String startDate;
+
+  /// 结束条件类型: infinite / date / count
+  final String endType;
+
+  /// 结束日期(endType=date时)
+  final String? endDate;
+
+  /// 总次数(endType=count时)
+  final int? endCount;
+
+  /// 已生成次数
+  final int generatedCount;
+
+  /// 上次生成时间 yyyy-MM-dd HH:mm:ss
+  final String? lastGeneratedAt;
+
+  /// 启用状态
+  final bool isActive;
+  const RecurringConfig(
+      {required this.accountBookId,
+      required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.type,
+      required this.amount,
+      this.description,
+      required this.categoryCode,
+      required this.fundId,
+      this.shopCode,
+      this.tagCode,
+      this.projectCode,
+      required this.frequencyType,
+      required this.frequencyValue,
+      required this.startDate,
+      required this.endType,
+      this.endDate,
+      this.endCount,
+      required this.generatedCount,
+      this.lastGeneratedAt,
+      required this.isActive});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_book_id'] = Variable<String>(accountBookId);
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['category_code'] = Variable<String>(categoryCode);
+    map['fund_id'] = Variable<String>(fundId);
+    if (!nullToAbsent || shopCode != null) {
+      map['shop_code'] = Variable<String>(shopCode);
+    }
+    if (!nullToAbsent || tagCode != null) {
+      map['tag_code'] = Variable<String>(tagCode);
+    }
+    if (!nullToAbsent || projectCode != null) {
+      map['project_code'] = Variable<String>(projectCode);
+    }
+    map['frequency_type'] = Variable<String>(frequencyType);
+    map['frequency_value'] = Variable<String>(frequencyValue);
+    map['start_date'] = Variable<String>(startDate);
+    map['end_type'] = Variable<String>(endType);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<String>(endDate);
+    }
+    if (!nullToAbsent || endCount != null) {
+      map['end_count'] = Variable<int>(endCount);
+    }
+    map['generated_count'] = Variable<int>(generatedCount);
+    if (!nullToAbsent || lastGeneratedAt != null) {
+      map['last_generated_at'] = Variable<String>(lastGeneratedAt);
+    }
+    map['is_active'] = Variable<bool>(isActive);
+    return map;
+  }
+
+  RecurringConfigTableCompanion toCompanion(bool nullToAbsent) {
+    return RecurringConfigTableCompanion(
+      accountBookId: Value(accountBookId),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      type: Value(type),
+      amount: Value(amount),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      categoryCode: Value(categoryCode),
+      fundId: Value(fundId),
+      shopCode: shopCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shopCode),
+      tagCode: tagCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tagCode),
+      projectCode: projectCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectCode),
+      frequencyType: Value(frequencyType),
+      frequencyValue: Value(frequencyValue),
+      startDate: Value(startDate),
+      endType: Value(endType),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      endCount: endCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endCount),
+      generatedCount: Value(generatedCount),
+      lastGeneratedAt: lastGeneratedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastGeneratedAt),
+      isActive: Value(isActive),
+    );
+  }
+
+  factory RecurringConfig.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecurringConfig(
+      accountBookId: serializer.fromJson<String>(json['accountBookId']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      amount: serializer.fromJson<double>(json['amount']),
+      description: serializer.fromJson<String?>(json['description']),
+      categoryCode: serializer.fromJson<String>(json['categoryCode']),
+      fundId: serializer.fromJson<String>(json['fundId']),
+      shopCode: serializer.fromJson<String?>(json['shopCode']),
+      tagCode: serializer.fromJson<String?>(json['tagCode']),
+      projectCode: serializer.fromJson<String?>(json['projectCode']),
+      frequencyType: serializer.fromJson<String>(json['frequencyType']),
+      frequencyValue: serializer.fromJson<String>(json['frequencyValue']),
+      startDate: serializer.fromJson<String>(json['startDate']),
+      endType: serializer.fromJson<String>(json['endType']),
+      endDate: serializer.fromJson<String?>(json['endDate']),
+      endCount: serializer.fromJson<int?>(json['endCount']),
+      generatedCount: serializer.fromJson<int>(json['generatedCount']),
+      lastGeneratedAt: serializer.fromJson<String?>(json['lastGeneratedAt']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountBookId': serializer.toJson<String>(accountBookId),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'amount': serializer.toJson<double>(amount),
+      'description': serializer.toJson<String?>(description),
+      'categoryCode': serializer.toJson<String>(categoryCode),
+      'fundId': serializer.toJson<String>(fundId),
+      'shopCode': serializer.toJson<String?>(shopCode),
+      'tagCode': serializer.toJson<String?>(tagCode),
+      'projectCode': serializer.toJson<String?>(projectCode),
+      'frequencyType': serializer.toJson<String>(frequencyType),
+      'frequencyValue': serializer.toJson<String>(frequencyValue),
+      'startDate': serializer.toJson<String>(startDate),
+      'endType': serializer.toJson<String>(endType),
+      'endDate': serializer.toJson<String?>(endDate),
+      'endCount': serializer.toJson<int?>(endCount),
+      'generatedCount': serializer.toJson<int>(generatedCount),
+      'lastGeneratedAt': serializer.toJson<String?>(lastGeneratedAt),
+      'isActive': serializer.toJson<bool>(isActive),
+    };
+  }
+
+  RecurringConfig copyWith(
+          {String? accountBookId,
+          String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? type,
+          double? amount,
+          Value<String?> description = const Value.absent(),
+          String? categoryCode,
+          String? fundId,
+          Value<String?> shopCode = const Value.absent(),
+          Value<String?> tagCode = const Value.absent(),
+          Value<String?> projectCode = const Value.absent(),
+          String? frequencyType,
+          String? frequencyValue,
+          String? startDate,
+          String? endType,
+          Value<String?> endDate = const Value.absent(),
+          Value<int?> endCount = const Value.absent(),
+          int? generatedCount,
+          Value<String?> lastGeneratedAt = const Value.absent(),
+          bool? isActive}) =>
+      RecurringConfig(
+        accountBookId: accountBookId ?? this.accountBookId,
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        type: type ?? this.type,
+        amount: amount ?? this.amount,
+        description: description.present ? description.value : this.description,
+        categoryCode: categoryCode ?? this.categoryCode,
+        fundId: fundId ?? this.fundId,
+        shopCode: shopCode.present ? shopCode.value : this.shopCode,
+        tagCode: tagCode.present ? tagCode.value : this.tagCode,
+        projectCode: projectCode.present ? projectCode.value : this.projectCode,
+        frequencyType: frequencyType ?? this.frequencyType,
+        frequencyValue: frequencyValue ?? this.frequencyValue,
+        startDate: startDate ?? this.startDate,
+        endType: endType ?? this.endType,
+        endDate: endDate.present ? endDate.value : this.endDate,
+        endCount: endCount.present ? endCount.value : this.endCount,
+        generatedCount: generatedCount ?? this.generatedCount,
+        lastGeneratedAt: lastGeneratedAt.present
+            ? lastGeneratedAt.value
+            : this.lastGeneratedAt,
+        isActive: isActive ?? this.isActive,
+      );
+  RecurringConfig copyWithCompanion(RecurringConfigTableCompanion data) {
+    return RecurringConfig(
+      accountBookId: data.accountBookId.present
+          ? data.accountBookId.value
+          : this.accountBookId,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      description:
+          data.description.present ? data.description.value : this.description,
+      categoryCode: data.categoryCode.present
+          ? data.categoryCode.value
+          : this.categoryCode,
+      fundId: data.fundId.present ? data.fundId.value : this.fundId,
+      shopCode: data.shopCode.present ? data.shopCode.value : this.shopCode,
+      tagCode: data.tagCode.present ? data.tagCode.value : this.tagCode,
+      projectCode:
+          data.projectCode.present ? data.projectCode.value : this.projectCode,
+      frequencyType: data.frequencyType.present
+          ? data.frequencyType.value
+          : this.frequencyType,
+      frequencyValue: data.frequencyValue.present
+          ? data.frequencyValue.value
+          : this.frequencyValue,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endType: data.endType.present ? data.endType.value : this.endType,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      endCount: data.endCount.present ? data.endCount.value : this.endCount,
+      generatedCount: data.generatedCount.present
+          ? data.generatedCount.value
+          : this.generatedCount,
+      lastGeneratedAt: data.lastGeneratedAt.present
+          ? data.lastGeneratedAt.value
+          : this.lastGeneratedAt,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringConfig(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('description: $description, ')
+          ..write('categoryCode: $categoryCode, ')
+          ..write('fundId: $fundId, ')
+          ..write('shopCode: $shopCode, ')
+          ..write('tagCode: $tagCode, ')
+          ..write('projectCode: $projectCode, ')
+          ..write('frequencyType: $frequencyType, ')
+          ..write('frequencyValue: $frequencyValue, ')
+          ..write('startDate: $startDate, ')
+          ..write('endType: $endType, ')
+          ..write('endDate: $endDate, ')
+          ..write('endCount: $endCount, ')
+          ..write('generatedCount: $generatedCount, ')
+          ..write('lastGeneratedAt: $lastGeneratedAt, ')
+          ..write('isActive: $isActive')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        accountBookId,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        type,
+        amount,
+        description,
+        categoryCode,
+        fundId,
+        shopCode,
+        tagCode,
+        projectCode,
+        frequencyType,
+        frequencyValue,
+        startDate,
+        endType,
+        endDate,
+        endCount,
+        generatedCount,
+        lastGeneratedAt,
+        isActive
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecurringConfig &&
+          other.accountBookId == this.accountBookId &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.amount == this.amount &&
+          other.description == this.description &&
+          other.categoryCode == this.categoryCode &&
+          other.fundId == this.fundId &&
+          other.shopCode == this.shopCode &&
+          other.tagCode == this.tagCode &&
+          other.projectCode == this.projectCode &&
+          other.frequencyType == this.frequencyType &&
+          other.frequencyValue == this.frequencyValue &&
+          other.startDate == this.startDate &&
+          other.endType == this.endType &&
+          other.endDate == this.endDate &&
+          other.endCount == this.endCount &&
+          other.generatedCount == this.generatedCount &&
+          other.lastGeneratedAt == this.lastGeneratedAt &&
+          other.isActive == this.isActive);
+}
+
+class RecurringConfigTableCompanion extends UpdateCompanion<RecurringConfig> {
+  final Value<String> accountBookId;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> type;
+  final Value<double> amount;
+  final Value<String?> description;
+  final Value<String> categoryCode;
+  final Value<String> fundId;
+  final Value<String?> shopCode;
+  final Value<String?> tagCode;
+  final Value<String?> projectCode;
+  final Value<String> frequencyType;
+  final Value<String> frequencyValue;
+  final Value<String> startDate;
+  final Value<String> endType;
+  final Value<String?> endDate;
+  final Value<int?> endCount;
+  final Value<int> generatedCount;
+  final Value<String?> lastGeneratedAt;
+  final Value<bool> isActive;
+  final Value<int> rowid;
+  const RecurringConfigTableCompanion({
+    this.accountBookId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.description = const Value.absent(),
+    this.categoryCode = const Value.absent(),
+    this.fundId = const Value.absent(),
+    this.shopCode = const Value.absent(),
+    this.tagCode = const Value.absent(),
+    this.projectCode = const Value.absent(),
+    this.frequencyType = const Value.absent(),
+    this.frequencyValue = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endType = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.endCount = const Value.absent(),
+    this.generatedCount = const Value.absent(),
+    this.lastGeneratedAt = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecurringConfigTableCompanion.insert({
+    required String accountBookId,
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String type,
+    required double amount,
+    this.description = const Value.absent(),
+    required String categoryCode,
+    required String fundId,
+    this.shopCode = const Value.absent(),
+    this.tagCode = const Value.absent(),
+    this.projectCode = const Value.absent(),
+    required String frequencyType,
+    required String frequencyValue,
+    required String startDate,
+    required String endType,
+    this.endDate = const Value.absent(),
+    this.endCount = const Value.absent(),
+    this.generatedCount = const Value.absent(),
+    this.lastGeneratedAt = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : accountBookId = Value(accountBookId),
+        createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        type = Value(type),
+        amount = Value(amount),
+        categoryCode = Value(categoryCode),
+        fundId = Value(fundId),
+        frequencyType = Value(frequencyType),
+        frequencyValue = Value(frequencyValue),
+        startDate = Value(startDate),
+        endType = Value(endType);
+  static Insertable<RecurringConfig> custom({
+    Expression<String>? accountBookId,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<double>? amount,
+    Expression<String>? description,
+    Expression<String>? categoryCode,
+    Expression<String>? fundId,
+    Expression<String>? shopCode,
+    Expression<String>? tagCode,
+    Expression<String>? projectCode,
+    Expression<String>? frequencyType,
+    Expression<String>? frequencyValue,
+    Expression<String>? startDate,
+    Expression<String>? endType,
+    Expression<String>? endDate,
+    Expression<int>? endCount,
+    Expression<int>? generatedCount,
+    Expression<String>? lastGeneratedAt,
+    Expression<bool>? isActive,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountBookId != null) 'account_book_id': accountBookId,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (amount != null) 'amount': amount,
+      if (description != null) 'description': description,
+      if (categoryCode != null) 'category_code': categoryCode,
+      if (fundId != null) 'fund_id': fundId,
+      if (shopCode != null) 'shop_code': shopCode,
+      if (tagCode != null) 'tag_code': tagCode,
+      if (projectCode != null) 'project_code': projectCode,
+      if (frequencyType != null) 'frequency_type': frequencyType,
+      if (frequencyValue != null) 'frequency_value': frequencyValue,
+      if (startDate != null) 'start_date': startDate,
+      if (endType != null) 'end_type': endType,
+      if (endDate != null) 'end_date': endDate,
+      if (endCount != null) 'end_count': endCount,
+      if (generatedCount != null) 'generated_count': generatedCount,
+      if (lastGeneratedAt != null) 'last_generated_at': lastGeneratedAt,
+      if (isActive != null) 'is_active': isActive,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecurringConfigTableCompanion copyWith(
+      {Value<String>? accountBookId,
+      Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? type,
+      Value<double>? amount,
+      Value<String?>? description,
+      Value<String>? categoryCode,
+      Value<String>? fundId,
+      Value<String?>? shopCode,
+      Value<String?>? tagCode,
+      Value<String?>? projectCode,
+      Value<String>? frequencyType,
+      Value<String>? frequencyValue,
+      Value<String>? startDate,
+      Value<String>? endType,
+      Value<String?>? endDate,
+      Value<int?>? endCount,
+      Value<int>? generatedCount,
+      Value<String?>? lastGeneratedAt,
+      Value<bool>? isActive,
+      Value<int>? rowid}) {
+    return RecurringConfigTableCompanion(
+      accountBookId: accountBookId ?? this.accountBookId,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      categoryCode: categoryCode ?? this.categoryCode,
+      fundId: fundId ?? this.fundId,
+      shopCode: shopCode ?? this.shopCode,
+      tagCode: tagCode ?? this.tagCode,
+      projectCode: projectCode ?? this.projectCode,
+      frequencyType: frequencyType ?? this.frequencyType,
+      frequencyValue: frequencyValue ?? this.frequencyValue,
+      startDate: startDate ?? this.startDate,
+      endType: endType ?? this.endType,
+      endDate: endDate ?? this.endDate,
+      endCount: endCount ?? this.endCount,
+      generatedCount: generatedCount ?? this.generatedCount,
+      lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
+      isActive: isActive ?? this.isActive,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountBookId.present) {
+      map['account_book_id'] = Variable<String>(accountBookId.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (categoryCode.present) {
+      map['category_code'] = Variable<String>(categoryCode.value);
+    }
+    if (fundId.present) {
+      map['fund_id'] = Variable<String>(fundId.value);
+    }
+    if (shopCode.present) {
+      map['shop_code'] = Variable<String>(shopCode.value);
+    }
+    if (tagCode.present) {
+      map['tag_code'] = Variable<String>(tagCode.value);
+    }
+    if (projectCode.present) {
+      map['project_code'] = Variable<String>(projectCode.value);
+    }
+    if (frequencyType.present) {
+      map['frequency_type'] = Variable<String>(frequencyType.value);
+    }
+    if (frequencyValue.present) {
+      map['frequency_value'] = Variable<String>(frequencyValue.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<String>(startDate.value);
+    }
+    if (endType.present) {
+      map['end_type'] = Variable<String>(endType.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<String>(endDate.value);
+    }
+    if (endCount.present) {
+      map['end_count'] = Variable<int>(endCount.value);
+    }
+    if (generatedCount.present) {
+      map['generated_count'] = Variable<int>(generatedCount.value);
+    }
+    if (lastGeneratedAt.present) {
+      map['last_generated_at'] = Variable<String>(lastGeneratedAt.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringConfigTableCompanion(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('description: $description, ')
+          ..write('categoryCode: $categoryCode, ')
+          ..write('fundId: $fundId, ')
+          ..write('shopCode: $shopCode, ')
+          ..write('tagCode: $tagCode, ')
+          ..write('projectCode: $projectCode, ')
+          ..write('frequencyType: $frequencyType, ')
+          ..write('frequencyValue: $frequencyValue, ')
+          ..write('startDate: $startDate, ')
+          ..write('endType: $endType, ')
+          ..write('endDate: $endDate, ')
+          ..write('endCount: $endCount, ')
+          ..write('generatedCount: $generatedCount, ')
+          ..write('lastGeneratedAt: $lastGeneratedAt, ')
+          ..write('isActive: $isActive, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11432,6 +12545,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ItemRelationTableTable itemRelationTable =
       $ItemRelationTableTable(this);
   late final $UserShareTableTable userShareTable = $UserShareTableTable(this);
+  late final $RecurringConfigTableTable recurringConfigTable =
+      $RecurringConfigTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11455,7 +12570,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         vehicleTable,
         fuelRecordTable,
         itemRelationTable,
-        userShareTable
+        userShareTable,
+        recurringConfigTable
       ];
 }
 
@@ -16713,6 +17829,463 @@ typedef $$UserShareTableTableProcessedTableManager = ProcessedTableManager<
     (UserShare, BaseReferences<_$AppDatabase, $UserShareTableTable, UserShare>),
     UserShare,
     PrefetchHooks Function()>;
+typedef $$RecurringConfigTableTableCreateCompanionBuilder
+    = RecurringConfigTableCompanion Function({
+  required String accountBookId,
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String type,
+  required double amount,
+  Value<String?> description,
+  required String categoryCode,
+  required String fundId,
+  Value<String?> shopCode,
+  Value<String?> tagCode,
+  Value<String?> projectCode,
+  required String frequencyType,
+  required String frequencyValue,
+  required String startDate,
+  required String endType,
+  Value<String?> endDate,
+  Value<int?> endCount,
+  Value<int> generatedCount,
+  Value<String?> lastGeneratedAt,
+  Value<bool> isActive,
+  Value<int> rowid,
+});
+typedef $$RecurringConfigTableTableUpdateCompanionBuilder
+    = RecurringConfigTableCompanion Function({
+  Value<String> accountBookId,
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> type,
+  Value<double> amount,
+  Value<String?> description,
+  Value<String> categoryCode,
+  Value<String> fundId,
+  Value<String?> shopCode,
+  Value<String?> tagCode,
+  Value<String?> projectCode,
+  Value<String> frequencyType,
+  Value<String> frequencyValue,
+  Value<String> startDate,
+  Value<String> endType,
+  Value<String?> endDate,
+  Value<int?> endCount,
+  Value<int> generatedCount,
+  Value<String?> lastGeneratedAt,
+  Value<bool> isActive,
+  Value<int> rowid,
+});
+
+class $$RecurringConfigTableTableFilterComposer
+    extends Composer<_$AppDatabase, $RecurringConfigTableTable> {
+  $$RecurringConfigTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoryCode => $composableBuilder(
+      column: $table.categoryCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fundId => $composableBuilder(
+      column: $table.fundId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get shopCode => $composableBuilder(
+      column: $table.shopCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tagCode => $composableBuilder(
+      column: $table.tagCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get projectCode => $composableBuilder(
+      column: $table.projectCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get frequencyType => $composableBuilder(
+      column: $table.frequencyType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get frequencyValue => $composableBuilder(
+      column: $table.frequencyValue,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get endType => $composableBuilder(
+      column: $table.endType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get endCount => $composableBuilder(
+      column: $table.endCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get generatedCount => $composableBuilder(
+      column: $table.generatedCount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastGeneratedAt => $composableBuilder(
+      column: $table.lastGeneratedAt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+}
+
+class $$RecurringConfigTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $RecurringConfigTableTable> {
+  $$RecurringConfigTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryCode => $composableBuilder(
+      column: $table.categoryCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fundId => $composableBuilder(
+      column: $table.fundId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get shopCode => $composableBuilder(
+      column: $table.shopCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tagCode => $composableBuilder(
+      column: $table.tagCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get projectCode => $composableBuilder(
+      column: $table.projectCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get frequencyType => $composableBuilder(
+      column: $table.frequencyType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get frequencyValue => $composableBuilder(
+      column: $table.frequencyValue,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get endType => $composableBuilder(
+      column: $table.endType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get endDate => $composableBuilder(
+      column: $table.endDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get endCount => $composableBuilder(
+      column: $table.endCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get generatedCount => $composableBuilder(
+      column: $table.generatedCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastGeneratedAt => $composableBuilder(
+      column: $table.lastGeneratedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+}
+
+class $$RecurringConfigTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RecurringConfigTableTable> {
+  $$RecurringConfigTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryCode => $composableBuilder(
+      column: $table.categoryCode, builder: (column) => column);
+
+  GeneratedColumn<String> get fundId =>
+      $composableBuilder(column: $table.fundId, builder: (column) => column);
+
+  GeneratedColumn<String> get shopCode =>
+      $composableBuilder(column: $table.shopCode, builder: (column) => column);
+
+  GeneratedColumn<String> get tagCode =>
+      $composableBuilder(column: $table.tagCode, builder: (column) => column);
+
+  GeneratedColumn<String> get projectCode => $composableBuilder(
+      column: $table.projectCode, builder: (column) => column);
+
+  GeneratedColumn<String> get frequencyType => $composableBuilder(
+      column: $table.frequencyType, builder: (column) => column);
+
+  GeneratedColumn<String> get frequencyValue => $composableBuilder(
+      column: $table.frequencyValue, builder: (column) => column);
+
+  GeneratedColumn<String> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<String> get endType =>
+      $composableBuilder(column: $table.endType, builder: (column) => column);
+
+  GeneratedColumn<String> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<int> get endCount =>
+      $composableBuilder(column: $table.endCount, builder: (column) => column);
+
+  GeneratedColumn<int> get generatedCount => $composableBuilder(
+      column: $table.generatedCount, builder: (column) => column);
+
+  GeneratedColumn<String> get lastGeneratedAt => $composableBuilder(
+      column: $table.lastGeneratedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+}
+
+class $$RecurringConfigTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RecurringConfigTableTable,
+    RecurringConfig,
+    $$RecurringConfigTableTableFilterComposer,
+    $$RecurringConfigTableTableOrderingComposer,
+    $$RecurringConfigTableTableAnnotationComposer,
+    $$RecurringConfigTableTableCreateCompanionBuilder,
+    $$RecurringConfigTableTableUpdateCompanionBuilder,
+    (
+      RecurringConfig,
+      BaseReferences<_$AppDatabase, $RecurringConfigTableTable, RecurringConfig>
+    ),
+    RecurringConfig,
+    PrefetchHooks Function()> {
+  $$RecurringConfigTableTableTableManager(
+      _$AppDatabase db, $RecurringConfigTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RecurringConfigTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RecurringConfigTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RecurringConfigTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountBookId = const Value.absent(),
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String> categoryCode = const Value.absent(),
+            Value<String> fundId = const Value.absent(),
+            Value<String?> shopCode = const Value.absent(),
+            Value<String?> tagCode = const Value.absent(),
+            Value<String?> projectCode = const Value.absent(),
+            Value<String> frequencyType = const Value.absent(),
+            Value<String> frequencyValue = const Value.absent(),
+            Value<String> startDate = const Value.absent(),
+            Value<String> endType = const Value.absent(),
+            Value<String?> endDate = const Value.absent(),
+            Value<int?> endCount = const Value.absent(),
+            Value<int> generatedCount = const Value.absent(),
+            Value<String?> lastGeneratedAt = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RecurringConfigTableCompanion(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            type: type,
+            amount: amount,
+            description: description,
+            categoryCode: categoryCode,
+            fundId: fundId,
+            shopCode: shopCode,
+            tagCode: tagCode,
+            projectCode: projectCode,
+            frequencyType: frequencyType,
+            frequencyValue: frequencyValue,
+            startDate: startDate,
+            endType: endType,
+            endDate: endDate,
+            endCount: endCount,
+            generatedCount: generatedCount,
+            lastGeneratedAt: lastGeneratedAt,
+            isActive: isActive,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountBookId,
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String type,
+            required double amount,
+            Value<String?> description = const Value.absent(),
+            required String categoryCode,
+            required String fundId,
+            Value<String?> shopCode = const Value.absent(),
+            Value<String?> tagCode = const Value.absent(),
+            Value<String?> projectCode = const Value.absent(),
+            required String frequencyType,
+            required String frequencyValue,
+            required String startDate,
+            required String endType,
+            Value<String?> endDate = const Value.absent(),
+            Value<int?> endCount = const Value.absent(),
+            Value<int> generatedCount = const Value.absent(),
+            Value<String?> lastGeneratedAt = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RecurringConfigTableCompanion.insert(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            type: type,
+            amount: amount,
+            description: description,
+            categoryCode: categoryCode,
+            fundId: fundId,
+            shopCode: shopCode,
+            tagCode: tagCode,
+            projectCode: projectCode,
+            frequencyType: frequencyType,
+            frequencyValue: frequencyValue,
+            startDate: startDate,
+            endType: endType,
+            endDate: endDate,
+            endCount: endCount,
+            generatedCount: generatedCount,
+            lastGeneratedAt: lastGeneratedAt,
+            isActive: isActive,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$RecurringConfigTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $RecurringConfigTableTable,
+        RecurringConfig,
+        $$RecurringConfigTableTableFilterComposer,
+        $$RecurringConfigTableTableOrderingComposer,
+        $$RecurringConfigTableTableAnnotationComposer,
+        $$RecurringConfigTableTableCreateCompanionBuilder,
+        $$RecurringConfigTableTableUpdateCompanionBuilder,
+        (
+          RecurringConfig,
+          BaseReferences<_$AppDatabase, $RecurringConfigTableTable,
+              RecurringConfig>
+        ),
+        RecurringConfig,
+        PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16757,4 +18330,6 @@ class $AppDatabaseManager {
       $$ItemRelationTableTableTableManager(_db, _db.itemRelationTable);
   $$UserShareTableTableTableManager get userShareTable =>
       $$UserShareTableTableTableManager(_db, _db.userShareTable);
+  $$RecurringConfigTableTableTableManager get recurringConfigTable =>
+      $$RecurringConfigTableTableTableManager(_db, _db.recurringConfigTable);
 }

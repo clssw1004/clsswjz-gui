@@ -32,7 +32,10 @@ import '../../models/vo/fuel_statistics_vo.dart';
 import '../../models/dto/fuel_record_filter_dto.dart';
 import '../../models/vo/item_relation_vo.dart';
 import '../../models/vo/user_share_vo.dart';
+import '../../models/dto/recurring_config_filter_dto.dart';
+import '../../models/vo/recurring_config_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
+import 'log/builder/recurring_config.builder.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
@@ -1752,6 +1755,198 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '获取被共享列表失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  // ============ 固定收支配置 ============
+
+  @override
+  Future<OperateResult<String>> createRecurringConfig(
+    String userId, String bookId, {
+    required String type,
+    required double amount,
+    String? description,
+    required String categoryCode,
+    required String fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    required String frequencyType,
+    required String frequencyValue,
+    required String startDate,
+    required String endType,
+    String? endDate,
+    int? endCount,
+  }) async {
+    try {
+      final id = await RecurringConfigCULog.create(
+        who: userId,
+        bookId: bookId,
+        type: type,
+        amount: amount,
+        description: description,
+        categoryCode: categoryCode,
+        fundId: fundId,
+        shopCode: shopCode,
+        tagCode: tagCode,
+        projectCode: projectCode,
+        frequencyType: frequencyType,
+        frequencyValue: frequencyValue,
+        startDate: startDate,
+        endType: endType,
+        endDate: endDate,
+        endCount: endCount,
+      ).execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '创建固定收支配置失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateRecurringConfig(
+    String userId,
+    String configId, {
+    String? type,
+    double? amount,
+    String? description,
+    String? categoryCode,
+    String? fundId,
+    String? shopCode,
+    String? tagCode,
+    String? projectCode,
+    String? frequencyType,
+    String? frequencyValue,
+    String? startDate,
+    String? endType,
+    String? endDate,
+    int? endCount,
+    bool? isActive,
+    int? generatedCount,
+    String? lastGeneratedAt,
+  }) async {
+    try {
+      await RecurringConfigCULog.update(
+        who: userId,
+        id: configId,
+        type: type,
+        amount: amount,
+        description: description,
+        categoryCode: categoryCode,
+        fundId: fundId,
+        shopCode: shopCode,
+        tagCode: tagCode,
+        projectCode: projectCode,
+        frequencyType: frequencyType,
+        frequencyValue: frequencyValue,
+        startDate: startDate,
+        endType: endType,
+        endDate: endDate,
+        endCount: endCount,
+        isActive: isActive,
+        generatedCount: generatedCount,
+        lastGeneratedAt: lastGeneratedAt,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '更新固定收支配置失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteRecurringConfig(
+    String userId, String configId) async {
+    try {
+      await RecurringConfigCULog.delete(who: userId, id: configId).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '删除固定收支配置失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<RecurringConfigVO>>> listRecurringConfigsByBook(
+    String userId, String bookId, {
+    RecurringConfigFilterDTO? filter,
+  }) async {
+    try {
+      final configs = await DaoManager.recurringConfigDao.findByBookWithFilter(
+        bookId,
+        type: filter?.type,
+        isActive: filter?.isActive,
+        frequencyType: filter?.frequencyType,
+        keyword: filter?.keyword,
+      );
+      final vos = configs.map((c) => RecurringConfigVO.fromConfig(c)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询固定收支配置列表失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<RecurringConfigVO>>> listRecurringConfigsWithNames(
+    String userId, String bookId, {
+    RecurringConfigFilterDTO? filter,
+  }) async {
+    try {
+      final configs = await DaoManager.recurringConfigDao.findByBookWithFilter(
+        bookId,
+        type: filter?.type,
+        isActive: filter?.isActive,
+        frequencyType: filter?.frequencyType,
+        keyword: filter?.keyword,
+      );
+      final vos = <RecurringConfigVO>[];
+      for (final config in configs) {
+        String? categoryName;
+        String? fundName;
+        String? shopName;
+
+        try {
+          final category = await DaoManager.categoryDao.findByBookAndCode(
+            config.accountBookId, config.categoryCode);
+          categoryName = category?.name;
+        } catch (_) {}
+
+        try {
+          final fund = await DaoManager.fundDao.findById(config.fundId);
+          fundName = fund?.name;
+        } catch (_) {}
+
+        if (config.shopCode != null) {
+          try {
+            final shop = await DaoManager.shopDao.findByBookAndCode(
+              config.accountBookId, config.shopCode!);
+            shopName = shop?.name;
+          } catch (_) {}
+        }
+
+        vos.add(RecurringConfigVO.fromConfigWithNames(
+          config,
+          categoryName: categoryName,
+          fundName: fundName,
+          shopName: shopName,
+        ));
+      }
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询固定收支配置列表失败：$e',
         exception: e as Exception,
       );
     }

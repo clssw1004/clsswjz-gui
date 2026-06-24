@@ -18,6 +18,7 @@ import 'tables/vehicle_table.dart';
 import 'tables/fuel_record_table.dart';
 import 'tables/item_relation_table.dart';
 import 'tables/user_share_table.dart';
+import 'tables/recurring_config_table.dart';
 
 part 'database.g.dart';
 
@@ -42,13 +43,14 @@ part 'database.g.dart';
     FuelRecordTable,
     ItemRelationTable,
     UserShareTable,
+    RecurringConfigTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -121,6 +123,10 @@ class AppDatabase extends _$AppDatabase {
             } catch (_) {
               // 列已存在时忽略
             }
+          }
+          if (from < 14) {
+            // 版本13到版本14的迁移：新增固定收支配置表
+            await m.create(recurringConfigTable);
           }
         },
       );

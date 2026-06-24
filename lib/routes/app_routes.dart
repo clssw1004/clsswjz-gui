@@ -52,6 +52,10 @@ import '../pages/fuel/fuel_record_list_page.dart';
 import '../pages/fuel/fuel_record_form_page.dart';
 import '../pages/fuel/fuel_record_detail_page.dart';
 import '../pages/fuel/fuel_statistics_page.dart';
+import '../pages/recurring_config/recurring_config_list_page.dart';
+import '../pages/recurring_config/recurring_config_form_page.dart';
+import '../pages/recurring_config/recurring_config_detail_page.dart';
+import '../models/vo/recurring_config_vo.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -156,6 +160,15 @@ class AppRoutes {
 
   /// 油耗统计页面
   static const String fuelStatistics = '/fuel/statistics';
+
+  /// 固定收支配置列表页面
+  static const String recurringConfigList = '/recurring_config/list';
+
+  /// 固定收支配置表单页面
+  static const String recurringConfigForm = '/recurring_config/form';
+
+  /// 固定收支配置详情页面
+  static const String recurringConfigDetail = '/recurring_config/detail';
 
   /// 数据共享设置页面
   static const String shareSettings = '/share_settings';
@@ -363,6 +376,19 @@ class AppRoutes {
           vehicleId: map['vehicleId'],
           plateNumber: map['plateNumber'],
         );
+      }
+      case recurringConfigList:
+        return const RecurringConfigListPage();
+      case recurringConfigForm: {
+        final map = args as Map?;
+        final config = map?['config'] as RecurringConfigVO?;
+        final bookId = map?['bookId'] as String?;
+        if (bookId == null) return null;
+        return RecurringConfigFormPage(config: config, bookId: bookId);
+      }
+      case recurringConfigDetail: {
+        final config = args as RecurringConfigVO;
+        return RecurringConfigDetailPage(config: config);
       }
       case shareSettings:
         return const ShareSettingsPage();

@@ -1849,5 +1849,75 @@
                 "type": "String"
             }
         }
+    },
+    "recurringConfig": "自动记账",
+    "recurringConfigList": "自动记账列表",
+    "recurringConfigAdd": "新增自動記帳",
+    "recurringConfigEdit": "編輯自動記帳",
+    "recurringConfigDetail": "自动记账詳情",
+    "recurringConfigType": "類型",
+    "recurringConfigAmount": "金額",
+    "recurringConfigCategory": "分類",
+    "recurringConfigFund": "帳戶",
+    "recurringConfigFrequency": "頻率",
+    "frequencyWeekly": "按週",
+    "frequencyMonthly": "按月",
+    "endCondition": "結束條件",
+    "endInfinite": "無限",
+    "endByDate": "指定日期",
+    "endByCount": "指定次數",
+    "recurringConfigCopy": "從其他帳本複製",
+    "recurringConfigGenerateNow": "立即生成",
+    "recurringConfigGeneratedRecords": "生成的帳目",
+    "recurringConfigNextGenerate": "下次生成",
+    "recurringConfigDeactivateOrigin": "複製後停用源帳本配置",
+    "recurringConfigCopySuccess": "成功複製{count}條配置",
+    "@recurringConfigCopySuccess": {
+        "description": "複製成功提示",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "emptyRecurringConfigs": "還沒有自動記帳",
+    "generatedSource": "自动记账自動生成",
+    "recurringConfigShop": "商戶",
+    "recurringConfigRemark": "備註（可選）",
+    "recurringConfigStartDate": "開始日期",
+    "recurringConfigCountLabel": "生成次數",
+    "recurringConfigSaveSuccess": "保存成功",
+    "recurringConfigConfirmDelete": "確認刪除",
+    "recurringConfigDeleteConfirmMsg": "確定要刪除此自動記帳嗎？",
+    "recurringConfigGenerateSuccess": "生成成功",
+    "recurringConfigGenerateSkip": "已存在，跳過",
+    "recurringConfigNoRecords": "暫無生成記錄",
+    "recurringConfigEnabled": "已啟用",
+    "recurringConfigDisabled": "已停用",
+    "recurringConfigAutoOn": "自動生成已開啓",
+    "recurringConfigAutoOff": "自動生成已關閉",
+    "recurringConfigBasicInfo": "基本資訊",
+    "recurringConfigGenerateStats": "生成統計",
+    "recurringConfigGeneratedCount": "已生成{count}次",
+    "recurringConfigLastGenerated": "上次生成",
+    "recurringConfigCopySourceEmpty": "源帳本沒有自動記帳",
+    "recurringConfigCopySelect": "選擇要複製的配置",
+    "recurringConfigCopyConfirm": "確認複製 ({count})",
+    "recurringConfigCopyPartial": "成功複製{success}條，{fail}條跳過",
+    "recurringConfigAmtRequired": "請輸入金額",
+    "recurringConfigAmtInvalid": "金額必須大於0",
+    "recurringConfigCategoryRequired": "請選擇分類",
+    "recurringConfigFundRequired": "請選擇帳戶",
+    "recurringConfigFreqRequired": "請選擇頻率日期",
+    "recurringConfigEndDate": "結束日期",
+    "recurringConfigEndDateHint": "請選擇",
+    "recurringConfigStatus": "狀態",
+    "recurringConfigDay": "{d}號",
+    "@recurringConfigDay": {
+        "placeholders": {
+            "d": {
+                "type": "String"
+            }
+        }
     }
 }

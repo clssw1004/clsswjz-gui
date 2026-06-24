@@ -61,7 +61,10 @@ enum BusinessType {
   itemRelation('itemRelation'),
 
   /// 用户模块共享
-  userShare('userShare');
+  userShare('userShare'),
+
+  /// 固定收支配置
+  recurringConfig('recurringConfig');
 
   final String code;
   const BusinessType(this.code);
