@@ -53,6 +53,7 @@ lib/
 4. **状态管理**：Provider，Provider定义在 `lib/providers/`
 5. **Lint**：不得使用过时API（如 `withOpacity`），修改后检查 lint 问题
 6. **新模块 checklist**：新增模块接口必须对照 `docs/design/data_driver_guide.md` 逐条确认——update 用统一方法而非单字段专用方法、LogBuilder 的 `executeLog`/`fromLog` 必须覆盖 create/update/delete 三个 OperateType
+7. **技能流程**：遇到复杂任务或新需求时，必须先 invoke 相关 Skill tool 再动手——顺序：`superpowers:brainstorming`（梳理需求）→ `superpowers:writing-plans`（写计划）→ 执行 → `superpowers:verification-before-completion`（完成前验证）。简单修改变量名、改文案、查代码、小 bug 等无需走此流程
 
 ## 礼物卡模块
 
