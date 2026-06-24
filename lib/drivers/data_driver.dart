@@ -32,6 +32,7 @@ import '../models/dto/fuel_record_filter_dto.dart';
 import '../models/vo/item_relation_vo.dart';
 import '../models/dto/recurring_config_filter_dto.dart';
 import '../models/vo/recurring_config_vo.dart';
+import '../models/vo/bookkeeping_rule_vo.dart';
 import '../models/vo/user_share_vo.dart';
 
 abstract class BookDataDriver {
@@ -610,4 +611,39 @@ abstract class BookDataDriver {
     String userId, String bookId, {
     RecurringConfigFilterDTO? filter,
   });
+
+  // ============ 记账规则 ============
+
+  /// 创建记账规则
+  Future<OperateResult<String>> createBookkeepingRule(
+    String userId, String bookId, {
+    required String name,
+    required bool isActive,
+    required int priority,
+    required String conditionsJson,
+    required String actionsJson,
+  });
+
+  /// 更新记账规则
+  Future<OperateResult<void>> updateBookkeepingRule(
+    String userId,
+    String ruleId, {
+    String? name,
+    bool? isActive,
+    int? priority,
+    String? conditionsJson,
+    String? actionsJson,
+  });
+
+  /// 删除记账规则
+  Future<OperateResult<void>> deleteBookkeepingRule(
+    String userId, String ruleId);
+
+  /// 获取记账规则列表
+  Future<OperateResult<List<BookkeepingRuleVO>>> listBookkeepingRules(
+    String userId, String bookId);
+
+  /// 获取单个记账规则
+  Future<OperateResult<BookkeepingRuleVO>> getBookkeepingRule(
+    String userId, String ruleId);
 }

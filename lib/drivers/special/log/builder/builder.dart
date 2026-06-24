@@ -26,6 +26,7 @@ import 'fuel_record.builder.dart';
 import 'item_relation.builder.dart';
 import 'user_share.builder.dart';
 import 'recurring_config.builder.dart';
+import 'bookkeeping_rule.builder.dart';
 
 const NONE_BOOK = "NONE_BOOK";
 
@@ -226,6 +227,8 @@ abstract class LogBuilder<T, RunResult> {
         return UserShareCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.recurringConfig:
         return RecurringConfigCULog.fromLog(log) as LogBuilder<T, RunResult>;
+      case BusinessType.bookkeepingRule:
+        return BookkeepingRuleCULog.fromLog(log) as LogBuilder<T, RunResult>;
       default:
         throw UnimplementedError(
             'Unsupported business type: ${log.businessType}');
@@ -310,6 +313,8 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.userShareDao.delete(businessId!);
       case BusinessType.recurringConfig:
         return DaoManager.recurringConfigDao.delete(businessId!);
+      case BusinessType.bookkeepingRule:
+        return DaoManager.bookkeepingRuleDao.delete(businessId!);
       default:
         throw UnimplementedError('未实现的操作类型：$businessType');
     }
