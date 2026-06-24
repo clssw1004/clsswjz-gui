@@ -55,7 +55,10 @@ import '../pages/fuel/fuel_statistics_page.dart';
 import '../pages/recurring_config/recurring_config_list_page.dart';
 import '../pages/recurring_config/recurring_config_form_page.dart';
 import '../pages/recurring_config/recurring_config_detail_page.dart';
+import '../pages/bookkeeping_rule/bookkeeping_rule_list_page.dart';
+import '../pages/bookkeeping_rule/bookkeeping_rule_form_page.dart';
 import '../models/vo/recurring_config_vo.dart';
+import '../models/vo/bookkeeping_rule_vo.dart';
 
 /// 应用路由配置
 class AppRoutes {
@@ -169,6 +172,12 @@ class AppRoutes {
 
   /// 固定收支配置详情页面
   static const String recurringConfigDetail = '/recurring_config/detail';
+
+  /// 记账规则列表页面
+  static const String bookkeepingRuleList = '/bookkeeping_rule/list';
+
+  /// 记账规则表单页面
+  static const String bookkeepingRuleForm = '/bookkeeping_rule/form';
 
   /// 数据共享设置页面
   static const String shareSettings = '/share_settings';
@@ -389,6 +398,14 @@ class AppRoutes {
       case recurringConfigDetail: {
         final config = args as RecurringConfigVO;
         return RecurringConfigDetailPage(config: config);
+      }
+      case bookkeepingRuleList:
+        return const BookkeepingRuleListPage();
+      case bookkeepingRuleForm: {
+        final map = args as Map?;
+        final rule = map?['rule'] as BookkeepingRuleVO?;
+        final bookId = map?['bookId'] as String?;
+        return BookkeepingRuleFormPage(rule: rule, bookId: bookId);
       }
       case shareSettings:
         return const ShareSettingsPage();
