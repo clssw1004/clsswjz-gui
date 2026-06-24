@@ -64,7 +64,10 @@ enum BusinessType {
   userShare('userShare'),
 
   /// 固定收支配置
-  recurringConfig('recurringConfig');
+  recurringConfig('recurringConfig'),
+
+  /// 记账规则
+  bookkeepingRule('bookkeepingRule');
 
   final String code;
   const BusinessType(this.code);

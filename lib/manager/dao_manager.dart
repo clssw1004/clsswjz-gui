@@ -18,6 +18,7 @@ import '../database/dao/fuel_record_dao.dart';
 import '../database/dao/item_relation_dao.dart';
 import '../database/dao/user_share_dao.dart';
 import '../database/dao/recurring_config_dao.dart';
+import '../database/dao/bookkeeping_rule_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
@@ -41,6 +42,7 @@ class DaoManager {
   static late ItemRelationDao itemRelationDao;
   static late UserShareDao userShareDao;
   static late RecurringConfigDao recurringConfigDao;
+  static late BookkeepingRuleDao bookkeepingRuleDao;
 
   static void refreshDaos() {
     bookDao = BookDao(DatabaseManager.db);
@@ -63,5 +65,6 @@ class DaoManager {
     itemRelationDao = ItemRelationDao(DatabaseManager.db);
     userShareDao = UserShareDao(DatabaseManager.db);
     recurringConfigDao = RecurringConfigDao(DatabaseManager.db);
+    bookkeepingRuleDao = BookkeepingRuleDao(DatabaseManager.db);
   }
 }

@@ -19,6 +19,7 @@ import 'tables/fuel_record_table.dart';
 import 'tables/item_relation_table.dart';
 import 'tables/user_share_table.dart';
 import 'tables/recurring_config_table.dart';
+import 'tables/bookkeeping_rule_table.dart';
 
 part 'database.g.dart';
 
@@ -44,13 +45,14 @@ part 'database.g.dart';
     ItemRelationTable,
     UserShareTable,
     RecurringConfigTable,
+    BookkeepingRuleTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -127,6 +129,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 14) {
             // 版本13到版本14的迁移：新增固定收支配置表
             await m.create(recurringConfigTable);
+          }
+          if (from < 15) {
+            // 版本14到版本15的迁移：新增记账规则表
+            await m.create(bookkeepingRuleTable);
           }
         },
       );

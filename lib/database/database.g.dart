@@ -12509,6 +12509,579 @@ class RecurringConfigTableCompanion extends UpdateCompanion<RecurringConfig> {
   }
 }
 
+class $BookkeepingRuleTableTable extends BookkeepingRuleTable
+    with TableInfo<$BookkeepingRuleTableTable, BookkeepingRule> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookkeepingRuleTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountBookIdMeta =
+      const VerificationMeta('accountBookId');
+  @override
+  late final GeneratedColumn<String> accountBookId = GeneratedColumn<String>(
+      'account_book_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _priorityMeta =
+      const VerificationMeta('priority');
+  @override
+  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
+      'priority', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _conditionsJsonMeta =
+      const VerificationMeta('conditionsJson');
+  @override
+  late final GeneratedColumn<String> conditionsJson = GeneratedColumn<String>(
+      'conditions_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _actionsJsonMeta =
+      const VerificationMeta('actionsJson');
+  @override
+  late final GeneratedColumn<String> actionsJson = GeneratedColumn<String>(
+      'actions_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountBookId,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        name,
+        isActive,
+        priority,
+        conditionsJson,
+        actionsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bookkeeping_rule_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<BookkeepingRule> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_book_id')) {
+      context.handle(
+          _accountBookIdMeta,
+          accountBookId.isAcceptableOrUnknown(
+              data['account_book_id']!, _accountBookIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountBookIdMeta);
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta,
+          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
+    }
+    if (data.containsKey('conditions_json')) {
+      context.handle(
+          _conditionsJsonMeta,
+          conditionsJson.isAcceptableOrUnknown(
+              data['conditions_json']!, _conditionsJsonMeta));
+    } else if (isInserting) {
+      context.missing(_conditionsJsonMeta);
+    }
+    if (data.containsKey('actions_json')) {
+      context.handle(
+          _actionsJsonMeta,
+          actionsJson.isAcceptableOrUnknown(
+              data['actions_json']!, _actionsJsonMeta));
+    } else if (isInserting) {
+      context.missing(_actionsJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BookkeepingRule map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookkeepingRule(
+      accountBookId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}account_book_id'])!,
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      priority: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}priority'])!,
+      conditionsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}conditions_json'])!,
+      actionsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}actions_json'])!,
+    );
+  }
+
+  @override
+  $BookkeepingRuleTableTable createAlias(String alias) {
+    return $BookkeepingRuleTableTable(attachedDatabase, alias);
+  }
+}
+
+class BookkeepingRule extends DataClass implements Insertable<BookkeepingRule> {
+  final String accountBookId;
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+
+  /// 规则名称
+  final String name;
+
+  /// 启用开关
+  final bool isActive;
+
+  /// 优先级（数值越大约优先）
+  final int priority;
+
+  /// 树形递归条件 JSON
+  final String conditionsJson;
+
+  /// 扁平操作 JSON
+  final String actionsJson;
+  const BookkeepingRule(
+      {required this.accountBookId,
+      required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.name,
+      required this.isActive,
+      required this.priority,
+      required this.conditionsJson,
+      required this.actionsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_book_id'] = Variable<String>(accountBookId);
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['is_active'] = Variable<bool>(isActive);
+    map['priority'] = Variable<int>(priority);
+    map['conditions_json'] = Variable<String>(conditionsJson);
+    map['actions_json'] = Variable<String>(actionsJson);
+    return map;
+  }
+
+  BookkeepingRuleTableCompanion toCompanion(bool nullToAbsent) {
+    return BookkeepingRuleTableCompanion(
+      accountBookId: Value(accountBookId),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      name: Value(name),
+      isActive: Value(isActive),
+      priority: Value(priority),
+      conditionsJson: Value(conditionsJson),
+      actionsJson: Value(actionsJson),
+    );
+  }
+
+  factory BookkeepingRule.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookkeepingRule(
+      accountBookId: serializer.fromJson<String>(json['accountBookId']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      priority: serializer.fromJson<int>(json['priority']),
+      conditionsJson: serializer.fromJson<String>(json['conditionsJson']),
+      actionsJson: serializer.fromJson<String>(json['actionsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountBookId': serializer.toJson<String>(accountBookId),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'isActive': serializer.toJson<bool>(isActive),
+      'priority': serializer.toJson<int>(priority),
+      'conditionsJson': serializer.toJson<String>(conditionsJson),
+      'actionsJson': serializer.toJson<String>(actionsJson),
+    };
+  }
+
+  BookkeepingRule copyWith(
+          {String? accountBookId,
+          String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? name,
+          bool? isActive,
+          int? priority,
+          String? conditionsJson,
+          String? actionsJson}) =>
+      BookkeepingRule(
+        accountBookId: accountBookId ?? this.accountBookId,
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        name: name ?? this.name,
+        isActive: isActive ?? this.isActive,
+        priority: priority ?? this.priority,
+        conditionsJson: conditionsJson ?? this.conditionsJson,
+        actionsJson: actionsJson ?? this.actionsJson,
+      );
+  BookkeepingRule copyWithCompanion(BookkeepingRuleTableCompanion data) {
+    return BookkeepingRule(
+      accountBookId: data.accountBookId.present
+          ? data.accountBookId.value
+          : this.accountBookId,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      conditionsJson: data.conditionsJson.present
+          ? data.conditionsJson.value
+          : this.conditionsJson,
+      actionsJson:
+          data.actionsJson.present ? data.actionsJson.value : this.actionsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookkeepingRule(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('priority: $priority, ')
+          ..write('conditionsJson: $conditionsJson, ')
+          ..write('actionsJson: $actionsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      accountBookId,
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      name,
+      isActive,
+      priority,
+      conditionsJson,
+      actionsJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookkeepingRule &&
+          other.accountBookId == this.accountBookId &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.isActive == this.isActive &&
+          other.priority == this.priority &&
+          other.conditionsJson == this.conditionsJson &&
+          other.actionsJson == this.actionsJson);
+}
+
+class BookkeepingRuleTableCompanion extends UpdateCompanion<BookkeepingRule> {
+  final Value<String> accountBookId;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> name;
+  final Value<bool> isActive;
+  final Value<int> priority;
+  final Value<String> conditionsJson;
+  final Value<String> actionsJson;
+  final Value<int> rowid;
+  const BookkeepingRuleTableCompanion({
+    this.accountBookId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.conditionsJson = const Value.absent(),
+    this.actionsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookkeepingRuleTableCompanion.insert({
+    required String accountBookId,
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String name,
+    this.isActive = const Value.absent(),
+    this.priority = const Value.absent(),
+    required String conditionsJson,
+    required String actionsJson,
+    this.rowid = const Value.absent(),
+  })  : accountBookId = Value(accountBookId),
+        createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        name = Value(name),
+        conditionsJson = Value(conditionsJson),
+        actionsJson = Value(actionsJson);
+  static Insertable<BookkeepingRule> custom({
+    Expression<String>? accountBookId,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<bool>? isActive,
+    Expression<int>? priority,
+    Expression<String>? conditionsJson,
+    Expression<String>? actionsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountBookId != null) 'account_book_id': accountBookId,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (isActive != null) 'is_active': isActive,
+      if (priority != null) 'priority': priority,
+      if (conditionsJson != null) 'conditions_json': conditionsJson,
+      if (actionsJson != null) 'actions_json': actionsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookkeepingRuleTableCompanion copyWith(
+      {Value<String>? accountBookId,
+      Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? name,
+      Value<bool>? isActive,
+      Value<int>? priority,
+      Value<String>? conditionsJson,
+      Value<String>? actionsJson,
+      Value<int>? rowid}) {
+    return BookkeepingRuleTableCompanion(
+      accountBookId: accountBookId ?? this.accountBookId,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+      priority: priority ?? this.priority,
+      conditionsJson: conditionsJson ?? this.conditionsJson,
+      actionsJson: actionsJson ?? this.actionsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountBookId.present) {
+      map['account_book_id'] = Variable<String>(accountBookId.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<int>(priority.value);
+    }
+    if (conditionsJson.present) {
+      map['conditions_json'] = Variable<String>(conditionsJson.value);
+    }
+    if (actionsJson.present) {
+      map['actions_json'] = Variable<String>(actionsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookkeepingRuleTableCompanion(')
+          ..write('accountBookId: $accountBookId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('priority: $priority, ')
+          ..write('conditionsJson: $conditionsJson, ')
+          ..write('actionsJson: $actionsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12547,6 +13120,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserShareTableTable userShareTable = $UserShareTableTable(this);
   late final $RecurringConfigTableTable recurringConfigTable =
       $RecurringConfigTableTable(this);
+  late final $BookkeepingRuleTableTable bookkeepingRuleTable =
+      $BookkeepingRuleTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12571,7 +13146,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         fuelRecordTable,
         itemRelationTable,
         userShareTable,
-        recurringConfigTable
+        recurringConfigTable,
+        bookkeepingRuleTable
       ];
 }
 
@@ -18286,6 +18862,277 @@ typedef $$RecurringConfigTableTableProcessedTableManager
         ),
         RecurringConfig,
         PrefetchHooks Function()>;
+typedef $$BookkeepingRuleTableTableCreateCompanionBuilder
+    = BookkeepingRuleTableCompanion Function({
+  required String accountBookId,
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String name,
+  Value<bool> isActive,
+  Value<int> priority,
+  required String conditionsJson,
+  required String actionsJson,
+  Value<int> rowid,
+});
+typedef $$BookkeepingRuleTableTableUpdateCompanionBuilder
+    = BookkeepingRuleTableCompanion Function({
+  Value<String> accountBookId,
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> name,
+  Value<bool> isActive,
+  Value<int> priority,
+  Value<String> conditionsJson,
+  Value<String> actionsJson,
+  Value<int> rowid,
+});
+
+class $$BookkeepingRuleTableTableFilterComposer
+    extends Composer<_$AppDatabase, $BookkeepingRuleTableTable> {
+  $$BookkeepingRuleTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get conditionsJson => $composableBuilder(
+      column: $table.conditionsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get actionsJson => $composableBuilder(
+      column: $table.actionsJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$BookkeepingRuleTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $BookkeepingRuleTableTable> {
+  $$BookkeepingRuleTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get conditionsJson => $composableBuilder(
+      column: $table.conditionsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get actionsJson => $composableBuilder(
+      column: $table.actionsJson, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookkeepingRuleTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BookkeepingRuleTableTable> {
+  $$BookkeepingRuleTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountBookId => $composableBuilder(
+      column: $table.accountBookId, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<String> get conditionsJson => $composableBuilder(
+      column: $table.conditionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get actionsJson => $composableBuilder(
+      column: $table.actionsJson, builder: (column) => column);
+}
+
+class $$BookkeepingRuleTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $BookkeepingRuleTableTable,
+    BookkeepingRule,
+    $$BookkeepingRuleTableTableFilterComposer,
+    $$BookkeepingRuleTableTableOrderingComposer,
+    $$BookkeepingRuleTableTableAnnotationComposer,
+    $$BookkeepingRuleTableTableCreateCompanionBuilder,
+    $$BookkeepingRuleTableTableUpdateCompanionBuilder,
+    (
+      BookkeepingRule,
+      BaseReferences<_$AppDatabase, $BookkeepingRuleTableTable, BookkeepingRule>
+    ),
+    BookkeepingRule,
+    PrefetchHooks Function()> {
+  $$BookkeepingRuleTableTableTableManager(
+      _$AppDatabase db, $BookkeepingRuleTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookkeepingRuleTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookkeepingRuleTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookkeepingRuleTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountBookId = const Value.absent(),
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<int> priority = const Value.absent(),
+            Value<String> conditionsJson = const Value.absent(),
+            Value<String> actionsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookkeepingRuleTableCompanion(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            name: name,
+            isActive: isActive,
+            priority: priority,
+            conditionsJson: conditionsJson,
+            actionsJson: actionsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountBookId,
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String name,
+            Value<bool> isActive = const Value.absent(),
+            Value<int> priority = const Value.absent(),
+            required String conditionsJson,
+            required String actionsJson,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookkeepingRuleTableCompanion.insert(
+            accountBookId: accountBookId,
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            name: name,
+            isActive: isActive,
+            priority: priority,
+            conditionsJson: conditionsJson,
+            actionsJson: actionsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookkeepingRuleTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $BookkeepingRuleTableTable,
+        BookkeepingRule,
+        $$BookkeepingRuleTableTableFilterComposer,
+        $$BookkeepingRuleTableTableOrderingComposer,
+        $$BookkeepingRuleTableTableAnnotationComposer,
+        $$BookkeepingRuleTableTableCreateCompanionBuilder,
+        $$BookkeepingRuleTableTableUpdateCompanionBuilder,
+        (
+          BookkeepingRule,
+          BaseReferences<_$AppDatabase, $BookkeepingRuleTableTable,
+              BookkeepingRule>
+        ),
+        BookkeepingRule,
+        PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18332,4 +19179,6 @@ class $AppDatabaseManager {
       $$UserShareTableTableTableManager(_db, _db.userShareTable);
   $$RecurringConfigTableTableTableManager get recurringConfigTable =>
       $$RecurringConfigTableTableTableManager(_db, _db.recurringConfigTable);
+  $$BookkeepingRuleTableTableTableManager get bookkeepingRuleTable =>
+      $$BookkeepingRuleTableTableTableManager(_db, _db.bookkeepingRuleTable);
 }
