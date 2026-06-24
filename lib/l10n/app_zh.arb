@@ -2302,5 +2302,84 @@
                 "type": "String"
             }
         }
+    },
+    "bookkeepingRule": "记账规则",
+    "@bookkeepingRule": {
+        "description": "记账规则"
+    },
+    "bookkeepingRuleList": "记账规则列表",
+    "@bookkeepingRuleList": {
+        "description": "记账规则列表"
+    },
+    "bookkeepingRuleAdd": "新增规则",
+    "@bookkeepingRuleAdd": {
+        "description": "新增规则"
+    },
+    "bookkeepingRuleEdit": "编辑规则",
+    "@bookkeepingRuleEdit": {
+        "description": "编辑规则"
+    },
+    "bookkeepingRuleName": "规则名称",
+    "@bookkeepingRuleName": {
+        "description": "规则名称"
+    },
+    "bookkeepingRulePriority": "优先级",
+    "@bookkeepingRulePriority": {
+        "description": "优先级"
+    },
+    "bookkeepingRuleEnabled": "已启用",
+    "@bookkeepingRuleEnabled": {
+        "description": "已启用"
+    },
+    "bookkeepingRuleDisabled": "已停用",
+    "@bookkeepingRuleDisabled": {
+        "description": "已停用"
+    },
+    "bookkeepingRuleEmpty": "暂无记账规则",
+    "@bookkeepingRuleEmpty": {
+        "description": "暂无记账规则"
+    },
+    "bookkeepingRuleSaveSuccess": "保存成功",
+    "@bookkeepingRuleSaveSuccess": {
+        "description": "保存成功"
+    },
+    "bookkeepingRuleConfirmDelete": "确认删除",
+    "@bookkeepingRuleConfirmDelete": {
+        "description": "确认删除"
+    },
+    "bookkeepingRuleDeleteConfirmMsg": "确定要删除此规则吗？",
+    "@bookkeepingRuleDeleteConfirmMsg": {
+        "description": "确定要删除此规则吗？"
+    },
+    "bookkeepingRuleNameRequired": "请输入规则名称",
+    "@bookkeepingRuleNameRequired": {
+        "description": "请输入规则名称"
+    },
+    "bookkeepingRuleCondition": "条件",
+    "@bookkeepingRuleCondition": {
+        "description": "条件"
+    },
+    "bookkeepingRuleAction": "操作",
+    "@bookkeepingRuleAction": {
+        "description": "操作"
+    },
+    "bookkeepingRuleAddCondition": "添加条件",
+    "@bookkeepingRuleAddCondition": {
+        "description": "添加条件"
+    },
+    "bookkeepingRuleConditionGroup": "条件组",
+    "@bookkeepingRuleConditionGroup": {
+        "description": "条件组"
+    },
+    "bookkeepingRuleBasicInfo": "基本信息",
+    "@bookkeepingRuleBasicInfo": {
+        "description": "基本信息"
+    },
+    "bookkeepingRuleAddAction": "添加操作",
+    "@bookkeepingRuleAddAction": {
+        "description": "添加操作"
+    },
+    "@bookkeepingRuleBasicInfo": {
+        "description": "基本信息"
     }
 }

@@ -39,6 +39,25 @@
     "active",
     "activityDetail",
     "checkIn",
-    "activityStatistics"
+    "activityStatistics",
+    "bookkeepingRule",
+    "bookkeepingRuleList",
+    "bookkeepingRuleAdd",
+    "bookkeepingRuleEdit",
+    "bookkeepingRuleName",
+    "bookkeepingRulePriority",
+    "bookkeepingRuleEnabled",
+    "bookkeepingRuleDisabled",
+    "bookkeepingRuleEmpty",
+    "bookkeepingRuleSaveSuccess",
+    "bookkeepingRuleConfirmDelete",
+    "bookkeepingRuleDeleteConfirmMsg",
+    "bookkeepingRuleNameRequired",
+    "bookkeepingRuleCondition",
+    "bookkeepingRuleConditionGroup",
+    "bookkeepingRuleAction",
+    "bookkeepingRuleAddCondition",
+    "bookkeepingRuleAddAction",
+    "bookkeepingRuleBasicInfo"
   ]
 }

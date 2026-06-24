@@ -2145,5 +2145,81 @@
                 "type": "String"
             }
         }
+    },
+    "bookkeepingRule": "Bookkeeping Rule",
+    "@bookkeepingRule": {
+        "description": "Bookkeeping rule"
+    },
+    "bookkeepingRuleList": "Bookkeeping Rules",
+    "@bookkeepingRuleList": {
+        "description": "Bookkeeping rules list"
+    },
+    "bookkeepingRuleAdd": "Add Rule",
+    "@bookkeepingRuleAdd": {
+        "description": "Add rule"
+    },
+    "bookkeepingRuleEdit": "Edit Rule",
+    "@bookkeepingRuleEdit": {
+        "description": "Edit rule"
+    },
+    "bookkeepingRuleName": "Rule Name",
+    "@bookkeepingRuleName": {
+        "description": "Rule name"
+    },
+    "bookkeepingRulePriority": "Priority",
+    "@bookkeepingRulePriority": {
+        "description": "Priority"
+    },
+    "bookkeepingRuleEnabled": "Enabled",
+    "@bookkeepingRuleEnabled": {
+        "description": "Enabled"
+    },
+    "bookkeepingRuleDisabled": "Disabled",
+    "@bookkeepingRuleDisabled": {
+        "description": "Disabled"
+    },
+    "bookkeepingRuleEmpty": "No rules yet",
+    "@bookkeepingRuleEmpty": {
+        "description": "No rules yet"
+    },
+    "bookkeepingRuleSaveSuccess": "Saved successfully",
+    "@bookkeepingRuleSaveSuccess": {
+        "description": "Saved successfully"
+    },
+    "bookkeepingRuleConfirmDelete": "Confirm Delete",
+    "@bookkeepingRuleConfirmDelete": {
+        "description": "Confirm delete"
+    },
+    "bookkeepingRuleDeleteConfirmMsg": "Are you sure you want to delete this rule?",
+    "@bookkeepingRuleDeleteConfirmMsg": {
+        "description": "Confirm delete message"
+    },
+    "bookkeepingRuleNameRequired": "Please enter rule name",
+    "@bookkeepingRuleNameRequired": {
+        "description": "Please enter rule name"
+    },
+    "bookkeepingRuleCondition": "Conditions",
+    "@bookkeepingRuleCondition": {
+        "description": "Conditions"
+    },
+    "bookkeepingRuleConditionGroup": "Condition Group",
+    "@bookkeepingRuleConditionGroup": {
+        "description": "Condition group"
+    },
+    "bookkeepingRuleAction": "Actions",
+    "@bookkeepingRuleAction": {
+        "description": "Actions"
+    },
+    "bookkeepingRuleAddCondition": "Add Condition",
+    "@bookkeepingRuleAddCondition": {
+        "description": "Add condition"
+    },
+    "bookkeepingRuleAddAction": "Add Action",
+    "@bookkeepingRuleAddAction": {
+        "description": "Add action"
+    },
+    "bookkeepingRuleBasicInfo": "Basic Info",
+    "@bookkeepingRuleBasicInfo": {
+        "description": "Basic info"
     }
 }

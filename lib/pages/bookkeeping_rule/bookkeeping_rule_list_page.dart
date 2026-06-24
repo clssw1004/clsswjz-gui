@@ -8,6 +8,7 @@ import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
+import '../../manager/l10n_manager.dart';
 import '../../utils/toast_util.dart';
 
 /// 记账规则列表页
@@ -41,7 +42,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: const Text('记账规则'), // 先写死，后续国际化
+        title: Text(L10nManager.l10n.bookkeepingRuleList), // 先写死，后续国际化
       ),
       body: Consumer<BookkeepingRuleProvider>(
         builder: (context, provider, _) {
@@ -50,10 +51,10 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
             return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text(provider.error!, style: TextStyle(color: cs.error)),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: _loadData, child: const Text('重试')),
+              ElevatedButton(onPressed: _loadData, child: Text(L10nManager.l10n.retry)),
             ]));
           }
-          if (provider.rules.isEmpty) return CommonEmptyView(message: '暂无记账规则');
+          if (provider.rules.isEmpty) return CommonEmptyView(message: L10nManager.l10n.bookkeepingRuleEmpty);
 
           return RefreshIndicator(
             onRefresh: () async {

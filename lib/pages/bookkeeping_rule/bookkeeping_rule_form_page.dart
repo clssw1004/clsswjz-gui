@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../manager/l10n_manager.dart';
 import '../../models/rule/condition_model.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
 import '../../providers/bookkeeping_rule_provider.dart';
@@ -197,7 +198,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
 
   Future<void> _save() async {
     if (_nameCtrl.text.trim().isEmpty) {
-      ToastUtil.showWarning('请输入规则名称');
+      ToastUtil.showWarning(L10nManager.l10n.bookkeepingRuleNameRequired);
       return;
     }
 
@@ -212,7 +213,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       if (bookId == null) {
         if (mounted) {
           setState(() => _loading = false);
-          ToastUtil.showError('未选择账本');
+          ToastUtil.showError(L10nManager.l10n.selectAccountBook);
         }
         return;
       }
@@ -228,7 +229,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       if (result.ok) {
         Navigator.pop(context, true);
       } else {
-        ToastUtil.showError(result.message ?? '保存失败');
+        ToastUtil.showError(result.message?.toString() ?? '保存失败');
       }
     } else {
       // 编辑
@@ -244,7 +245,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       if (result.ok) {
         Navigator.pop(context, true);
       } else {
-        ToastUtil.showError(result.message ?? '保存失败');
+        ToastUtil.showError(result.message?.toString() ?? '保存失败');
       }
     }
 
@@ -300,7 +301,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(isEdit ? '编辑规则' : '新增规则'),
+        title: Text(isEdit ? L10nManager.l10n.bookkeepingRuleEdit : L10nManager.l10n.bookkeepingRuleAdd),
       ),
       body: SingleChildScrollView(
         padding: spacing.pagePadding,
@@ -321,15 +322,15 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _nameCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '规则名称',
+                    decoration: InputDecoration(
+                      labelText: L10nManager.l10n.bookkeepingRuleName,
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
                   ),
                   const SizedBox(height: 16),
                   SwitchListTile(
-                    title: const Text('启用'),
+                    title: Text(_isActive ? L10nManager.l10n.bookkeepingRuleEnabled : L10nManager.l10n.bookkeepingRuleDisabled),
                     value: _isActive,
                     onChanged: (v) => setState(() => _isActive = v),
                     contentPadding: EdgeInsets.zero,
@@ -337,8 +338,8 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _priorityCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '优先级',
+                    decoration: InputDecoration(
+                      labelText: L10nManager.l10n.bookkeepingRulePriority,
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
@@ -359,15 +360,15 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '条件',
+                        L10nManager.l10n.bookkeepingRuleCondition,
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       PopupMenuButton<String>(
                         icon: const Icon(Icons.add_circle_outline),
-                        tooltip: '添加条件',
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(value: 'leaf', child: Text('条件')),
+                        tooltip: L10nManager.l10n.bookkeepingRuleAddCondition,
+                        itemBuilder: (context) => [
+                          PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
                           PopupMenuItem(value: 'group', child: Text('条件组')),
                         ],
                         onSelected: (value) {
@@ -405,13 +406,13 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '操作',
+                        L10nManager.l10n.bookkeepingRuleAction,
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline),
-                        tooltip: '添加操作',
+                        tooltip: L10nManager.l10n.bookkeepingRuleAddAction,
                         onPressed: _addAction,
                       ),
                     ],
@@ -590,12 +591,12 @@ class _ConditionGroupEditor extends StatelessWidget {
           child: PopupMenuButton<String>(
             child: TextButton.icon(
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('添加条件'),
+              label: Text(L10nManager.l10n.bookkeepingRuleAddCondition),
               onPressed: null, // PopupMenuButton handles press
             ),
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'leaf', child: Text('条件')),
-              PopupMenuItem(value: 'group', child: Text('条件组')),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
+              PopupMenuItem(value: 'group', child: Text(L10nManager.l10n.bookkeepingRuleConditionGroup)),
             ],
             onSelected: (value) {
               if (value == 'leaf') {
