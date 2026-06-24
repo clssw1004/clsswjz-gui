@@ -334,6 +334,9 @@ void _setFieldValue(UserItemVO item, String field, dynamic value) {
     case 'type':
       item.type = value as String;
       break;
+    case 'amount':
+      item.amount = (value as num).toDouble();
+      break;
     case 'categoryCode':
       item.categoryCode = value as String?;
       break;
