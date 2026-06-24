@@ -2052,8 +2052,8 @@
             }
         }
     },
-    "recurringConfig": "Recurring",
-    "recurringConfigList": "Recurring Transactions",
+    "recurringConfig": "Auto Bookkeeping",
+    "recurringConfigList": "Auto Bookkeeping",
     "recurringConfigAdd": "Add Recurring",
     "recurringConfigEdit": "Edit Recurring",
     "recurringConfigDetail": "Recurring Detail",

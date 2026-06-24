@@ -184,7 +184,7 @@ class RecurringConfigProvider extends ChangeNotifier {
       if (configs.isEmpty) return '配置不存在';
       final config = configs.first;
       final today = DateTime.now().toIso8601String().substring(0, 10);
-      return await RecurringConfigService.generateForConfig(config, today);
+      return await RecurringConfigService.generateForConfig(config, today, scanFrom: DateTime.now());
     } catch (e) {
       return '生成失败：$e';
     }

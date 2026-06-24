@@ -46,27 +46,15 @@ class _BookSection extends StatefulWidget {
 
 class _BookSectionState extends State<_BookSection> with SingleTickerProviderStateMixin {
   late bool _expanded;
-  late final AnimationController _ctrl;
-  late final Animation<double> _rotate;
 
   @override
   void initState() {
     super.initState();
     _expanded = AppConfigManager.instance.bookSectionExpanded;
-    _ctrl = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    _rotate = Tween<double>(begin: 0, end: 0.5).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
-    if (_expanded) _ctrl.value = 0.5;
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
   }
 
   void _toggle() {
     setState(() => _expanded = !_expanded);
-    if (_expanded) { _ctrl.forward(); } else { _ctrl.reverse(); }
     AppConfigManager.instance.setBookSectionExpanded(_expanded);
   }
 
@@ -86,9 +74,11 @@ class _BookSectionState extends State<_BookSection> with SingleTickerProviderSta
               Icon(widget.icon, size: 18, color: cs.primary),
               const SizedBox(width: 8),
               Expanded(child: Text(widget.title, style: theme.textTheme.titleSmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
-              RotationTransition(
-                turns: _rotate,
-                child: Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: cs.onSurfaceVariant),
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                crossFadeState: _expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                firstChild: Icon(Icons.expand_less, size: 20, color: cs.primary),
+                secondChild: Icon(Icons.expand_more, size: 20, color: cs.onSurfaceVariant),
               ),
             ]),
           ),
@@ -173,14 +163,13 @@ class _MineTabView extends StatelessWidget {
     final bookProvider = context.read<BooksProvider>();
     final accountBook = bookProvider.selectedBook;
 
-    // 优先排序：固定收支 > 分类 > 商户 > 账户 > 标签 > 项目
     final bookFeatureItems = [
-      _GridFeatureItemData(icon: Icons.repeat, label: L10nManager.l10n.recurringConfig, onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList), isHighlighted: true),
       _GridFeatureItemData(icon: Icons.category_outlined, label: L10nManager.l10n.category, onTap: () => Navigator.pushNamed(context, AppRoutes.categories, arguments: accountBook), isHighlighted: true),
       _GridFeatureItemData(icon: Icons.store_outlined, label: L10nManager.l10n.merchant, onTap: () => Navigator.pushNamed(context, AppRoutes.merchants, arguments: accountBook), isHighlighted: true),
       _GridFeatureItemData(icon: Icons.account_balance_wallet_outlined, label: L10nManager.l10n.account, onTap: () => Navigator.pushNamed(context, AppRoutes.funds, arguments: accountBook), isHighlighted: true),
       _GridFeatureItemData(icon: Icons.local_offer_outlined, label: L10nManager.l10n.tag, onTap: () => Navigator.pushNamed(context, AppRoutes.tags, arguments: accountBook), isHighlighted: true),
       _GridFeatureItemData(icon: Icons.folder_outlined, label: L10nManager.l10n.project, onTap: () => Navigator.pushNamed(context, AppRoutes.projects, arguments: accountBook)),
+      _GridFeatureItemData(icon: Icons.repeat, label: L10nManager.l10n.recurringConfig, onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList), isHighlighted: true),
     ];
 
     final dataToolItems = [

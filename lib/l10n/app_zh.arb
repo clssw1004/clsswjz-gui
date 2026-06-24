@@ -2055,25 +2055,25 @@
             }
         }
     },
-    "recurringConfig": "固定收支",
+    "recurringConfig": "自动记账",
     "@recurringConfig": {
-        "description": "固定收支模块名称"
+        "description": "自动记账模块名称"
     },
-    "recurringConfigList": "固定收支列表",
+    "recurringConfigList": "自动记账列表",
     "@recurringConfigList": {
-        "description": "固定收支列表页标题"
+        "description": "自动记账列表页标题"
     },
-    "recurringConfigAdd": "新增固定收支",
+    "recurringConfigAdd": "新增自动记账",
     "@recurringConfigAdd": {
-        "description": "新增固定收支配置"
+        "description": "新增自动记账配置"
     },
-    "recurringConfigEdit": "编辑固定收支",
+    "recurringConfigEdit": "编辑自动记账",
     "@recurringConfigEdit": {
-        "description": "编辑固定收支配置"
+        "description": "编辑自动记账配置"
     },
-    "recurringConfigDetail": "固定收支详情",
+    "recurringConfigDetail": "自动记账详情",
     "@recurringConfigDetail": {
-        "description": "固定收支配置详情页面标题"
+        "description": "自动记账配置详情页面标题"
     },
     "recurringConfigType": "类型",
     "@recurringConfigType": {
@@ -2148,11 +2148,11 @@
             }
         }
     },
-    "emptyRecurringConfigs": "还没有固定收支配置",
+    "emptyRecurringConfigs": "还没有自动记账",
     "@emptyRecurringConfigs": {
         "description": "空状态提示"
     },
-    "generatedSource": "固定收支自动生成",
+    "generatedSource": "自动记账自动生成",
     "@generatedSource": {
         "description": "自动生成的账目来源标注"
     },
@@ -2180,7 +2180,7 @@
     "@recurringConfigConfirmDelete": {
         "description": "确认删除对话框标题"
     },
-    "recurringConfigDeleteConfirmMsg": "确定要删除此固定收支配置吗？",
+    "recurringConfigDeleteConfirmMsg": "确定要删除此自动记账吗？",
     "@recurringConfigDeleteConfirmMsg": {
         "description": "删除确认消息"
     },
@@ -2233,7 +2233,7 @@
     "@recurringConfigLastGenerated": {
         "description": "上次生成"
     },
-    "recurringConfigCopySourceEmpty": "源账本没有固定收支配置",
+    "recurringConfigCopySourceEmpty": "源账本没有自动记账",
     "@recurringConfigCopySourceEmpty": {
         "description": "复制时源账本无配置提示"
     },

@@ -42,8 +42,9 @@ class RecurringConfigService {
   }
 
   /// 生成单条配置的账目
+  /// [scanFrom] 扫描起点，auto 用 startDate（补所有遗漏），manual 用 today（只生成下一个）
   /// 返回 'generated' / 'skip' / 错误信息
-  static Future<String> generateForConfig(RecurringConfig config, String today) async {
+  static Future<String> generateForConfig(RecurringConfig config, String today, {DateTime? scanFrom}) async {
     try {
       // 1. 检查是否已过期
       if (!config.isActive) return 'skip';
@@ -61,9 +62,13 @@ class RecurringConfigService {
           .map((e) => e.accountDate.substring(0, 10))
           .toSet();
 
-      // 3. 找第一个未生成的频率日期（从 起始日 ~ 今天）
-      final targetDate = _firstUnmatchedDate(config, today, existingDates);
-      if (targetDate == null || targetDate.compareTo(today) > 0) return 'skip';
+      // 3. 找第一个未生成的频率日期
+      // 手动生成(scanFrom!=null)只找下一个，不限制必须在今天之前
+      final scanStart = scanFrom ?? DateTime.tryParse(config.startDate) ?? DateTime.now();
+      final targetDate = _firstUnmatchedDate(config, today, existingDates, scanStart: scanStart);
+      if (targetDate == null) return 'skip';
+      // 自动生成(scanFrom==null)只补遗漏，未来的跳过
+      if (scanFrom == null && targetDate.compareTo(today) > 0) return 'skip';
 
       // 4. 生成账目
       final userId = AppConfigManager.instance.userId;
@@ -112,25 +117,50 @@ class RecurringConfigService {
     }
   }
 
-  /// 从 [startDate] ~ [today] 中找第一个未生成的频率日期
-  static String? _firstUnmatchedDate(RecurringConfig config, String today, Set<String> generatedDates) {
-    final startDt = DateTime.tryParse(config.startDate);
+  /// 找第一个 >= [from] 的频率日期
+  static DateTime? _firstMatchOnOrAfter(RecurringConfig config, DateTime from) {
+    if (config.frequencyType == 'monthly') {
+      final days = config.frequencyValue.split(',').map(int.parse).toList()..sort();
+      for (var m = 0; m < 3; m++) {
+        final month = from.month + m;
+        final year = from.year + ((month - 1) ~/ 12);
+        final actualMonth = ((month - 1) % 12) + 1;
+        final maxDay = DateTime(year, actualMonth + 1, 0).day;
+        for (final day in days) {
+          final actualDay = day > maxDay ? maxDay : day;
+          final candidate = DateTime(year, actualMonth, actualDay);
+          if (!candidate.isBefore(from)) return candidate;
+        }
+      }
+    } else if (config.frequencyType == 'weekly') {
+      final weekDays = config.frequencyValue.split(',').map(int.parse).toSet();
+      for (var i = 0; i < 7; i++) {
+        final candidate = from.add(Duration(days: i));
+        if (weekDays.contains(candidate.weekday % 7)) return candidate;
+      }
+    }
+    return null;
+  }
+
+  /// 从 [scanStart]（默认 startDate）~ [today] 中找第一个未生成的频率日期
+  static String? _firstUnmatchedDate(RecurringConfig config, String today, Set<String> generatedDates, {DateTime? scanStart}) {
+    final startDt = scanStart ?? DateTime.tryParse(config.startDate);
     if (startDt == null) return null;
     final todayDt = DateTime.tryParse(today);
     if (todayDt == null) return null;
 
-    // 从 startDate 开始，逐个频率日期检查
-    var cursor = startDt;
-    final maxIterations = 400; // 防止死循环
+    // 从 scanStart 开始，找第一个 >= scanStart 的频率日期作为起点
+    final firstMatch = _firstMatchOnOrAfter(config, startDt);
+    if (firstMatch == null) return null;
+    DateTime cursor = firstMatch;
+    final maxIterations = 400;
     for (var i = 0; i < maxIterations; i++) {
-      if (cursor.isAfter(todayDt)) return null; // 超过今天，没有到期未生成的
       final dateStr = _formatDate(cursor);
       if (!generatedDates.contains(dateStr)) {
-        return dateStr; // 找到第一个未生成的日期
+        return dateStr;
       }
-      // 移动到下一个频率日期
       final next = _nextDateByFrequency(config, cursor);
-      if (next == null || !next.isAfter(cursor)) return null;
+      if (next == null) return null;
       cursor = next;
     }
     return null;
