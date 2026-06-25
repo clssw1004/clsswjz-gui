@@ -27,7 +27,6 @@ class ConditionGroupEditor extends StatelessWidget {
     this.shops = const [],
     this.tags = const [],
     this.projects = const [],
-    this.depth = 0,
   });
 
   static String typeLabel(String type) {
@@ -247,7 +246,6 @@ class ConditionGroupEditor extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -313,12 +311,10 @@ class ConditionGroupEditor extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
 
-// Remove unused _levelColors, _borderColor
 class ConditionValueSelector extends StatelessWidget {
   final String conditionType;
   final String field;
