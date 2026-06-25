@@ -669,6 +669,7 @@ class _ConditionGroupEditor extends StatelessWidget {
       children: [
         // AND / OR 选择器
         SegmentedButton<String>(
+          showSelectedIcon: false,
           segments: const [
             ButtonSegment(value: 'AND', label: Text('AND')),
             ButtonSegment(value: 'OR', label: Text('OR')),
@@ -1010,6 +1011,7 @@ class _ValueSelector extends StatelessWidget {
   Widget _buildTypeSelector() {
     final current = value?.toString() ?? 'EXPENSE';
     return SegmentedButton<String>(
+      showSelectedIcon: false,
       segments: const [
         ButtonSegment(value: 'EXPENSE', label: Text('支出')),
         ButtonSegment(value: 'INCOME', label: Text('收入')),
