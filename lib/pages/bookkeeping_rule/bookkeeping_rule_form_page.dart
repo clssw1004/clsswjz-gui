@@ -460,7 +460,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                       child: _ActionValueSelector(
                         field: action.field,
                         value: action.value,
-                        onChanged: (v) => action.value = v,
+                        onChanged: (v) => setState(() => action.value = v),
                         categories: _categories,
                         funds: _funds,
                         shops: _shops,
