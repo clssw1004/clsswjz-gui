@@ -124,7 +124,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(rule.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                            Text(rule.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 2),
                             Text(L10nManager.l10n.bookkeepingRuleLabelPriority(rule.priority), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                           ],
