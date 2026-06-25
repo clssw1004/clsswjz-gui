@@ -2273,5 +2273,123 @@
             "field": {"type": "String"},
             "value": {"type": "String"}
         }
+    },
+    "bookkeepingRuleLabelPriority": "Priority: {p}",
+    "@bookkeepingRuleLabelPriority": {
+        "description": "List priority label",
+        "placeholders": {
+            "p": {"type": "int"}
+        }
+    },
+    "bookkeepingRuleLabelConditionTitle": "Condition: ",
+    "@bookkeepingRuleLabelConditionTitle": {
+        "description": "Condition summary title"
+    },
+    "bookkeepingRuleLabelActionTitle": "Action: ",
+    "@bookkeepingRuleLabelActionTitle": {
+        "description": "Action summary title"
+    },
+    "bookkeepingRuleLabelFieldType": "Type",
+    "@bookkeepingRuleLabelFieldType": {
+        "description": "Field name: type"
+    },
+    "bookkeepingRuleLabelFieldCategory": "Category",
+    "@bookkeepingRuleLabelFieldCategory": {
+        "description": "Field name: category"
+    },
+    "bookkeepingRuleLabelFieldFund": "Account",
+    "@bookkeepingRuleLabelFieldFund": {
+        "description": "Field name: account"
+    },
+    "bookkeepingRuleLabelFieldShop": "Merchant",
+    "@bookkeepingRuleLabelFieldShop": {
+        "description": "Field name: merchant"
+    },
+    "bookkeepingRuleLabelFieldTag": "Tag",
+    "@bookkeepingRuleLabelFieldTag": {
+        "description": "Field name: tag"
+    },
+    "bookkeepingRuleLabelFieldProject": "Project",
+    "@bookkeepingRuleLabelFieldProject": {
+        "description": "Field name: project"
+    },
+    "bookkeepingRuleLabelFieldAmount": "Amount",
+    "@bookkeepingRuleLabelFieldAmount": {
+        "description": "Field name: amount"
+    },
+    "bookkeepingRuleLabelTypeEq": "equals",
+    "@bookkeepingRuleLabelTypeEq": {
+        "description": "Condition comparison: equals"
+    },
+    "bookkeepingRuleLabelTypeIn": "in",
+    "@bookkeepingRuleLabelTypeIn": {
+        "description": "Condition comparison: in"
+    },
+    "bookkeepingRuleLabelTypeRange": "amount range",
+    "@bookkeepingRuleLabelTypeRange": {
+        "description": "Condition comparison: amount range"
+    },
+    "bookkeepingRuleLabelSubItem": "items",
+    "@bookkeepingRuleLabelSubItem": {
+        "description": "Sub-condition count unit"
+    },
+    "bookkeepingRulePlaceholderConditionEmpty": "No conditions yet, add one",
+    "@bookkeepingRulePlaceholderConditionEmpty": {
+        "description": "Empty condition placeholder"
+    },
+    "bookkeepingRulePlaceholderActionEmpty": "No actions yet, add one",
+    "@bookkeepingRulePlaceholderActionEmpty": {
+        "description": "Empty action placeholder"
+    },
+    "bookkeepingRulePlaceholderSelect": "Please select",
+    "@bookkeepingRulePlaceholderSelect": {
+        "description": "Selection placeholder"
+    },
+    "bookkeepingRulePlaceholderMultiValue": "Separate values with commas",
+    "@bookkeepingRulePlaceholderMultiValue": {
+        "description": "Multi-value input hint"
+    },
+    "bookkeepingRuleLabelBasicInfo": "Basic Info",
+    "@bookkeepingRuleLabelBasicInfo": {
+        "description": "Basic info section"
+    },
+    "bookkeepingRuleLabelSave": "Save",
+    "@bookkeepingRuleLabelSave": {
+        "description": "Save button"
+    },
+    "bookkeepingRuleLabelField": "Field",
+    "@bookkeepingRuleLabelField": {
+        "description": "Field select label"
+    },
+    "bookkeepingRuleLabelValue": "Value",
+    "@bookkeepingRuleLabelValue": {
+        "description": "Value input label"
+    },
+    "bookkeepingRuleLabelEdit": "Edit",
+    "@bookkeepingRuleLabelEdit": {
+        "description": "Edit action"
+    },
+    "bookkeepingRuleLabelDelete": "Delete",
+    "@bookkeepingRuleLabelDelete": {
+        "description": "Delete action"
+    },
+    "bookkeepingRuleLabelConfirmDelete": "Are you sure you want to delete this rule?",
+    "@bookkeepingRuleLabelConfirmDelete": {
+        "description": "Delete confirmation message"
+    },
+    "bookkeepingRuleMessageSaveFailed": "Failed to save",
+    "@bookkeepingRuleMessageSaveFailed": {
+        "description": "Save failed error"
+    },
+    "bookkeepingRuleMessageOpFailed": "Operation failed",
+    "@bookkeepingRuleMessageOpFailed": {
+        "description": "Operation failed error"
+    },
+    "bookkeepingRuleMessageLoadFailed": "Failed to load: {e}",
+    "@bookkeepingRuleMessageLoadFailed": {
+        "description": "Load failed error",
+        "placeholders": {
+            "e": {"type": "String"}
+        }
     }
 }

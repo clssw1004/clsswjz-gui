@@ -125,7 +125,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                           children: [
                             Text(rule.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                             const SizedBox(height: 2),
-                            Text('优先级: ${rule.priority}', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                            Text(L10nManager.l10n.bookkeepingRuleLabelPriority(rule.priority), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                           ],
                         ),
                       ),
@@ -134,7 +134,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         onChanged: (v) async {
                           final result = await provider.updateRule(rule.id, isActive: v);
                           if (!result.ok && mounted) {
-                            ToastUtil.showError(result.message ?? '操作失败');
+                            ToastUtil.showError(result.message ?? L10nManager.l10n.bookkeepingRuleMessageOpFailed);
                           }
                         },
                       ),
@@ -187,62 +187,71 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
     );
   }
 
-  static const _fieldLabels = {
-    'type': '类型',
-    'categoryCode': '分类',
-    'fundId': '账户',
-    'shopCode': '商家',
-    'tagCode': '标签',
-    'projectCode': '项目',
-    'amount': '金额',
-  };
+  String _fieldLabelName(String field) {
+    final l10n = L10nManager.l10n;
+    return switch (field) {
+      'type' => l10n.bookkeepingRuleLabelFieldType,
+      'categoryCode' => l10n.bookkeepingRuleLabelFieldCategory,
+      'fundId' => l10n.bookkeepingRuleLabelFieldFund,
+      'shopCode' => l10n.bookkeepingRuleLabelFieldShop,
+      'tagCode' => l10n.bookkeepingRuleLabelFieldTag,
+      'projectCode' => l10n.bookkeepingRuleLabelFieldProject,
+      'amount' => l10n.bookkeepingRuleLabelFieldAmount,
+      _ => field,
+    };
+  }
 
-  static const _typeLabels = {
-    'field_equals': '等于',
-    'field_in': '属于',
-    'amount_range': '金额范围',
-  };
+  String _typeLabelName(String type) {
+    final l10n = L10nManager.l10n;
+    return switch (type) {
+      'field_equals' => l10n.bookkeepingRuleLabelTypeEq,
+      'field_in' => l10n.bookkeepingRuleLabelTypeIn,
+      'amount_range' => l10n.bookkeepingRuleLabelTypeRange,
+      _ => type,
+    };
+  }
 
   /// 生成条件摘要文本
   String _conditionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
+    final l10n = L10nManager.l10n;
     final parts = <String>[];
     for (final c in rule.conditions) {
       if (c.isLeaf) {
-        final fieldLabel = _fieldLabels[c.field] ?? c.field ?? '';
+        final fieldLabel = _fieldLabelName(c.field ?? '');
         if (c.type == 'amount_range') {
           if (c.value is Map) {
             final m = c.value as Map;
             final min = m['minAmount'];
             final max = m['maxAmount'];
-            if (min != null && max != null) parts.add('$fieldLabel ${min}~${max}');
-            else if (min != null) parts.add('$fieldLabel ≥$min');
-            else if (max != null) parts.add('$fieldLabel ≤$max');
+            if (min != null && max != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountBetween(min.toString(), max.toString())}');
+            else if (min != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountGte}$min');
+            else if (max != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountLte}$max');
             else parts.add(fieldLabel);
           }
         } else {
-          final op = _typeLabels[c.type] ?? c.type ?? '';
+          final op = _typeLabelName(c.type ?? '');
           final displayVal = provider.resolveValue(c.field ?? '', c.value);
           if (c.type == 'field_equals') {
-            parts.add('$fieldLabel${L10nManager.l10n.bookkeepingRuleNameFieldIs}$displayVal');
+            parts.add('$fieldLabel${l10n.bookkeepingRuleNameFieldIs}$displayVal');
           } else {
             parts.add('$fieldLabel$op$displayVal');
           }
         }
       } else {
         final op = c.logicOperator ?? 'AND';
-        parts.add('(${c.conditions?.length ?? 0} 项 $op)');
+        parts.add('(${c.conditions?.length ?? 0}${l10n.bookkeepingRuleLabelSubItem}$op)');
       }
     }
-    return '条件: ${parts.join(' ')}';
+    return '${l10n.bookkeepingRuleLabelConditionTitle}${parts.join(' ')}';
   }
 
   /// 生成操作摘要文本
   String _actionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
     final l10n = L10nManager.l10n;
     final parts = rule.actions.map((a) {
-      final fieldLabel = _fieldLabels[a.field] ?? a.field;
+      final fieldLabel = _fieldLabelName(a.field);
       return l10n.bookkeepingRuleNameSetField(fieldLabel, provider.resolveValue(a.field, a.value));
     });
-    return '操作: ${parts.join('，')}';
+    return '${l10n.bookkeepingRuleLabelActionTitle}${parts.join('，')}';
   }
 }

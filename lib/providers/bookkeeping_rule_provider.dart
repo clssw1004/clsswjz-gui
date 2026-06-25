@@ -73,7 +73,7 @@ class BookkeepingRuleProvider extends ChangeNotifier {
         _projectNames[s.code] = s.name;
       }
     } catch (e) {
-      _error = '加载失败：$e';
+      _error = L10nManager.l10n.bookkeepingRuleMessageLoadFailed(e.toString());
     }
 
     _loading = false;

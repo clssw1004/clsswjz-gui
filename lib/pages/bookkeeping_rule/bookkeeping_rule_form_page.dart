@@ -75,13 +75,17 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   List<AccountSymbol> _tags = [];
   List<AccountSymbol> _projects = [];
 
-  static const _actionFieldLabels = {
-    'categoryCode': '分类',
-    'fundId': '账户',
-    'shopCode': '商家',
-    'tagCode': '标签',
-    'projectCode': '项目',
-  };
+  /// 操作字段列表（用于 DropdownButtonFormField 的 items）
+  List<MapEntry<String, String>> _actionFieldValues() {
+    final l = L10nManager.l10n;
+    return [
+      MapEntry('categoryCode', l.bookkeepingRuleLabelFieldCategory),
+      MapEntry('fundId', l.bookkeepingRuleLabelFieldFund),
+      MapEntry('shopCode', l.bookkeepingRuleLabelFieldShop),
+      MapEntry('tagCode', l.bookkeepingRuleLabelFieldTag),
+      MapEntry('projectCode', l.bookkeepingRuleLabelFieldProject),
+    ];
+  }
 
   @override
   void initState() {
@@ -157,15 +161,19 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   // 自动命名
   // ============================================================
 
-  static const _fieldLabels = {
-    'type': '类型',
-    'categoryCode': '分类',
-    'fundId': '账户',
-    'shopCode': '商家',
-    'tagCode': '标签',
-    'projectCode': '项目',
-    'amount': '金额',
-  };
+  String _fieldLabelName(String field) {
+    final l = L10nManager.l10n;
+    return switch (field) {
+      'type' => l.bookkeepingRuleLabelFieldType,
+      'categoryCode' => l.bookkeepingRuleLabelFieldCategory,
+      'fundId' => l.bookkeepingRuleLabelFieldFund,
+      'shopCode' => l.bookkeepingRuleLabelFieldShop,
+      'tagCode' => l.bookkeepingRuleLabelFieldTag,
+      'projectCode' => l.bookkeepingRuleLabelFieldProject,
+      'amount' => l.bookkeepingRuleLabelFieldAmount,
+      _ => field,
+    };
+  }
 
   /// 解析字段值code为展示名称
   String _resolveName(String field, dynamic value) {
@@ -204,7 +212,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     // 操作摘要
     if (_actions.isNotEmpty) {
       final actionTexts = _actions.map((a) {
-        final fieldLabel = _fieldLabels[a.field] ?? a.field;
+        final fieldLabel = _fieldLabelName(a.field);
         final displayValue = _resolveName(a.field, a.value);
         return l10n.bookkeepingRuleNameSetField(fieldLabel, displayValue);
       });
@@ -218,7 +226,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     final l10n = L10nManager.l10n;
     final textParts = conds.map((c) {
       if (c.isLeaf) {
-        final fieldLabel = _fieldLabels[c.field] ?? c.field ?? '';
+        final fieldLabel = _fieldLabelName(c.field ?? '');
         if (c.type == 'amount_range' && c.value is Map) {
           final map = c.value as Map;
           final min = map['minAmount'];
@@ -342,7 +350,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       if (result.ok) {
         Navigator.pop(context, true);
       } else {
-        ToastUtil.showError(result.message?.toString() ?? '保存失败');
+        ToastUtil.showError(result.message?.toString() ?? L10nManager.l10n.bookkeepingRuleMessageSaveFailed);
       }
     }
     if (mounted) setState(() => _loading = false);
@@ -391,7 +399,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('保存'),
+                : Text(L10nManager.l10n.bookkeepingRuleLabelSave),
           ),
         ],
       ),
@@ -420,20 +428,20 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('基础信息',
+          Text(L10nManager.l10n.bookkeepingRuleLabelBasicInfo,
               style: theme.textTheme.titleSmall
                   ?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(
-              labelText: '规则名称',
+            decoration: InputDecoration(
+              labelText: L10nManager.l10n.bookkeepingRuleName,
               border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           SwitchListTile(
-            title: Text(_isActive ? '已启用' : '已停用'),
+            title: Text(_isActive ? L10nManager.l10n.bookkeepingRuleEnabled : L10nManager.l10n.bookkeepingRuleDisabled),
             value: _isActive,
             onChanged: (v) => setState(() => _isActive = v),
             contentPadding: EdgeInsets.zero,
@@ -441,10 +449,9 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           const SizedBox(height: 4),
           TextField(
             controller: _priorityCtrl,
-            decoration: const InputDecoration(
-              labelText: '优先级',
+            decoration: InputDecoration(
+              labelText: L10nManager.l10n.bookkeepingRulePriority,
               border: OutlineInputBorder(),
-              helperText: '数值越大优先级越高',
             ),
             keyboardType: TextInputType.number,
           ),
@@ -462,15 +469,15 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('条件',
+              Text(L10nManager.l10n.bookkeepingRuleCondition,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w600)),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.add_circle_outline),
-                tooltip: '添加',
+                tooltip: L10nManager.l10n.bookkeepingRuleAddCondition,
                 itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'leaf', child: Text('条件')),
-                  const PopupMenuItem(value: 'group', child: Text('条件组')),
+                  PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
+                  PopupMenuItem(value: 'group', child: Text(L10nManager.l10n.bookkeepingRuleConditionGroup)),
                 ],
                 onSelected: (value) {
                   setState(() {
@@ -511,12 +518,12 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('操作',
+              Text(L10nManager.l10n.bookkeepingRuleAction,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w600)),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
-                tooltip: '添加操作',
+                tooltip: L10nManager.l10n.bookkeepingRuleAddAction,
                 onPressed: _addAction,
               ),
             ],
@@ -526,7 +533,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text('暂无操作，请点击右上角添加',
+                child: Text(L10nManager.l10n.bookkeepingRulePlaceholderActionEmpty,
                     style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurface.withAlpha(128))),
               ),
@@ -540,38 +547,59 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _actionFieldLabels
-                                .containsKey(action.field)
-                            ? action.field
-                            : _actionFieldLabels.keys.first,
-                        decoration: const InputDecoration(
-                          labelText: '字段',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
+                      flex: 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: theme.colorScheme.primary.withAlpha(80),
+                              width: 3,
+                            ),
+                          ),
                         ),
-                        items: _actionFieldLabels.entries
-                            .map((e) => DropdownMenuItem(
-                                value: e.key, child: Text(e.value)))
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) setState(() => action.field = v);
-                        },
+                        child: DropdownButtonFormField<String>(
+                          initialValue: action.field,
+                          decoration: InputDecoration(
+                            labelText: L10nManager.l10n.bookkeepingRuleLabelField,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                            filled: true,
+                            fillColor: theme.colorScheme.primary.withAlpha(8),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 12),
+                          ),
+                          items: _actionFieldValues()
+                              .map((e) => DropdownMenuItem(
+                                  value: e.key, child: Text(e.value)))
+                              .toList(),
+                          onChanged: (v) {
+                            if (v != null) setState(() => action.field = v);
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _ActionValueSelector(
-                        field: action.field,
-                        value: action.value,
-                        onChanged: (v) => setState(() => action.value = v),
-                        categories: _categories,
-                        funds: _funds,
-                        shops: _shops,
-                        tags: _tags,
-                        projects: _projects,
+                      flex: 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: theme.colorScheme.secondary.withAlpha(80),
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                        child: _ActionValueSelector(
+                          field: action.field,
+                          value: action.value,
+                          onChanged: (v) => setState(() => action.value = v),
+                          categories: _categories,
+                          funds: _funds,
+                          shops: _shops,
+                          tags: _tags,
+                          projects: _projects,
+                        ),
                       ),
                     ),
                     IconButton(
@@ -617,21 +645,29 @@ class _ConditionGroupEditor extends StatelessWidget {
     this.projects = const [],
   });
 
-  static const _typeLabels = {
-    'field_equals': '等于',
-    'field_in': '属于',
-    'amount_range': '金额范围',
-  };
+  static String typeLabel(String type) {
+    final l = L10nManager.l10n;
+    return switch (type) {
+      'field_equals' => l.bookkeepingRuleLabelTypeEq,
+      'field_in' => l.bookkeepingRuleLabelTypeIn,
+      'amount_range' => l.bookkeepingRuleLabelTypeRange,
+      _ => type,
+    };
+  }
 
-  static const _fieldLabels = {
-    'type': '类型',
-    'categoryCode': '分类',
-    'fundId': '账户',
-    'shopCode': '商家',
-    'tagCode': '标签',
-    'projectCode': '项目',
-    'amount': '金额',
-  };
+  static String fieldLabel(String f) {
+    final l = L10nManager.l10n;
+    return switch (f) {
+      'type' => l.bookkeepingRuleLabelFieldType,
+      'categoryCode' => l.bookkeepingRuleLabelFieldCategory,
+      'fundId' => l.bookkeepingRuleLabelFieldFund,
+      'shopCode' => l.bookkeepingRuleLabelFieldShop,
+      'tagCode' => l.bookkeepingRuleLabelFieldTag,
+      'projectCode' => l.bookkeepingRuleLabelFieldProject,
+      'amount' => l.bookkeepingRuleLabelFieldAmount,
+      _ => f,
+    };
+  }
 
   static const _fieldComparisons = {
     'type': ['field_equals'],
@@ -653,7 +689,7 @@ class _ConditionGroupEditor extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            '暂无条件，请点击右上角添加',
+            L10nManager.l10n.bookkeepingRulePlaceholderConditionEmpty,
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: colorScheme.onSurface.withAlpha(128)),
           ),
@@ -693,12 +729,12 @@ class _ConditionGroupEditor extends StatelessWidget {
           child: PopupMenuButton<String>(
             child: TextButton.icon(
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('添加条件'),
+              label: Text(L10nManager.l10n.bookkeepingRuleAddCondition),
               onPressed: null,
             ),
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'leaf', child: Text('条件')),
-              const PopupMenuItem(value: 'group', child: Text('条件组')),
+              PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
+              PopupMenuItem(value: 'group', child: Text(L10nManager.l10n.bookkeepingRuleConditionGroup)),
             ],
             onSelected: (value) {
               if (value == 'leaf') {
@@ -738,9 +774,7 @@ class _ConditionGroupEditor extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: DropdownButtonFormField<String>(
-                  initialValue: _fieldLabels.containsKey(condition.field)
-                      ? condition.field!
-                      : _fieldLabels.keys.first,
+                  initialValue: condition.field ?? _fieldComparisons.keys.first,
                   decoration: const InputDecoration(
                     labelText: '字段',
                     border: OutlineInputBorder(),
@@ -748,9 +782,9 @@ class _ConditionGroupEditor extends StatelessWidget {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   ),
-                  items: _fieldLabels.entries
-                      .map((e) => DropdownMenuItem(
-                          value: e.key, child: Text(e.value)))
+                  items: _fieldComparisons.keys
+                      .map((k) => DropdownMenuItem(
+                          value: k, child: Text(fieldLabel(k))))
                       .toList(),
                   onChanged: (v) {
                     if (v != null) {
@@ -796,7 +830,7 @@ class _ConditionGroupEditor extends StatelessWidget {
                   items: availableComparisons
                       .map((key) => DropdownMenuItem(
                           value: key,
-                          child: Text(_typeLabels[key] ?? key,
+                          child: Text(typeLabel(key),
                               style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (v) {
@@ -844,7 +878,7 @@ class _ConditionGroupEditor extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('条件组',
+              Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
                   style: Theme.of(context)
                       .textTheme
                       .labelSmall
