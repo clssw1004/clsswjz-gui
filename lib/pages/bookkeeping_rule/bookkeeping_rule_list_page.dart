@@ -187,25 +187,62 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
     );
   }
 
+  static const _fieldLabels = {
+    'type': '类型',
+    'categoryCode': '分类',
+    'fundId': '账户',
+    'shopCode': '商家',
+    'tagCode': '标签',
+    'projectCode': '项目',
+    'amount': '金额',
+  };
+
+  static const _typeLabels = {
+    'field_equals': '等于',
+    'field_in': '属于',
+    'amount_range': '金额范围',
+  };
+
+  /// 根据名称解析值（仅用于展示，无引用数据时显示 raw code）
+  String _displayValue(String? field, dynamic value) {
+    if (value == null || value.toString().isEmpty) return '';
+    return value.toString();
+  }
+
   /// 生成条件摘要文本
   String _conditionSummary(BookkeepingRuleVO rule) {
     final parts = <String>[];
     for (final c in rule.conditions) {
       if (c.isLeaf) {
-        final op = c.type == 'field_in' ? '∈' : '=';
-        parts.add('${c.field} $op ${c.value}');
+        final fieldLabel = _fieldLabels[c.field] ?? c.field ?? '';
+        if (c.type == 'amount_range') {
+          if (c.value is Map) {
+            final m = c.value as Map;
+            final min = m['minAmount'];
+            final max = m['maxAmount'];
+            if (min != null && max != null) parts.add('$fieldLabel ${min}~${max}');
+            else if (min != null) parts.add('$fieldLabel ≥$min');
+            else if (max != null) parts.add('$fieldLabel ≤$max');
+            else parts.add(fieldLabel);
+          }
+        } else {
+          final op = _typeLabels[c.type] ?? c.type ?? '';
+          parts.add('$fieldLabel $op ${_displayValue(c.field, c.value)}');
+        }
       } else {
-        // 非叶子节点：显示逻辑运算符和子条件数量
         final op = c.logicOperator ?? 'AND';
         parts.add('(${c.conditions?.length ?? 0} 项 $op)');
       }
     }
-    return '条件: ${parts.join(' AND ')}';
+    return '条件: ${parts.join(' ')}';
   }
 
   /// 生成操作摘要文本
   String _actionSummary(BookkeepingRuleVO rule) {
-    final parts = rule.actions.map((a) => '设 ${a.field} = ${a.value}');
+    final parts = rule.actions.map((a) {
+      final fieldLabel = _fieldLabels[a.field] ?? a.field;
+      return '$fieldLabel = ${_displayValue(a.field, a.value)}';
+    });
     return '操作: ${parts.join(', ')}';
   }
 }
