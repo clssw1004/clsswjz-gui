@@ -15,19 +15,6 @@ class ConditionGroupEditor extends StatelessWidget {
   final List<AccountShop> shops;
   final List<AccountSymbol> tags;
   final List<AccountSymbol> projects;
-  final int depth;
-
-  static const _levelColors = [
-    0xFF6750A4, // primary
-    0xFF625B71, // secondary
-    0xFF7D5260, // tertiary
-    0xFF006D40, // green
-    0xFF0842A0, // blue
-  ];
-
-  Color _borderColor(int level) {
-    return Color(_levelColors[level % _levelColors.length]).withAlpha(120);
-  }
 
   const ConditionGroupEditor({
     super.key,
@@ -103,11 +90,15 @@ class ConditionGroupEditor extends StatelessWidget {
           SegmentedButton<String>(
             showSelectedIcon: false,
             segments: const [
-              ButtonSegment(value: 'AND', label: Text('AND')),
-              ButtonSegment(value: 'OR', label: Text('OR')),
+              ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 12))),
+              ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 12))),
             ],
             selected: {logicOperator},
             onSelectionChanged: (v) => onLogicOperatorChanged(v.first),
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
         const SizedBox(height: 8),
         // 条件列表
@@ -161,16 +152,12 @@ class ConditionGroupEditor extends StatelessWidget {
       condition.type = availableComparisons.first;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: _borderColor(depth), width: 3)),
-      ),
-      child: CommonCardContainer(
-        padding: const EdgeInsets.fromLTRB(9, 12, 4, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 第一行：字段 + 比较方式 + 删除
+    return CommonCardContainer(
+      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 第一行：字段 + 比较方式 + 删除
             Row(
               children: [
                 Expanded(
@@ -266,12 +253,8 @@ class ConditionGroupEditor extends StatelessWidget {
 
   Widget _buildGroupRow(
       BuildContext context, ConditionData condition, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: _borderColor(depth + 1), width: 3)),
-      ),
-      child: CommonCardContainer(
-        padding: const EdgeInsets.fromLTRB(9, 6, 4, 8),
+    return CommonCardContainer(
+      padding: const EdgeInsets.fromLTRB(12, 6, 4, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -315,7 +298,6 @@ class ConditionGroupEditor extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             ConditionGroupEditor(
-              depth: depth + 1,
               conditions: condition.children,
               logicOperator: condition.logicOperator ?? 'AND',
               onLogicOperatorChanged: (op) {
@@ -336,6 +318,7 @@ class ConditionGroupEditor extends StatelessWidget {
   }
 }
 
+// Remove unused _levelColors, _borderColor
 class ConditionValueSelector extends StatelessWidget {
   final String conditionType;
   final String field;
