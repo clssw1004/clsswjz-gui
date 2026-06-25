@@ -286,6 +286,18 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         title: Text(isEdit
             ? L10nManager.l10n.bookkeepingRuleEdit
             : L10nManager.l10n.bookkeepingRuleAdd),
+        actions: [
+          TextButton(
+            onPressed: _loading ? null : _save,
+            child: _loading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('保存'),
+          ),
+        ],
       ),
       body: _dataLoading
           ? const Center(child: CircularProgressIndicator())
@@ -299,8 +311,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   _buildConditionCard(theme),
                   const SizedBox(height: 16),
                   _buildActionsCard(theme, colorScheme),
-                  const SizedBox(height: 24),
-                  _buildSaveButton(),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -482,18 +492,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     );
   }
 
-  Widget _buildSaveButton() {
-    return FilledButton(
-      onPressed: _loading ? null : _save,
-      child: _loading
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Text('保存'),
-    );
-  }
 }
 
 // ============================================================
