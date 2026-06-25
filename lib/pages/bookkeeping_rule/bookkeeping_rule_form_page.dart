@@ -545,52 +545,55 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: theme.colorScheme.primary.withAlpha(80),
-                              width: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4, left: 4),
+                            child: _FieldLabelChip(
+                              label: L10nManager.l10n.bookkeepingRuleLabelField,
+                              color: colorScheme.primary,
                             ),
                           ),
-                        ),
-                        child: DropdownButtonFormField<String>(
-                          initialValue: action.field,
-                          decoration: InputDecoration(
-                            labelText: L10nManager.l10n.bookkeepingRuleLabelField,
-                            border: const OutlineInputBorder(),
-                            isDense: true,
-                            filled: true,
-                            fillColor: theme.colorScheme.primary.withAlpha(8),
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 12),
+                          DropdownButtonFormField<String>(
+                            initialValue: action.field,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              filled: true,
+                              fillColor: colorScheme.primary.withAlpha(8),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                            items: _actionFieldValues()
+                                .map((e) => DropdownMenuItem(
+                                    value: e.key, child: Text(e.value)))
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) setState(() => action.field = v);
+                            },
                           ),
-                          items: _actionFieldValues()
-                              .map((e) => DropdownMenuItem(
-                                  value: e.key, child: Text(e.value)))
-                              .toList(),
-                          onChanged: (v) {
-                            if (v != null) setState(() => action.field = v);
-                          },
-                        ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 4,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: theme.colorScheme.secondary.withAlpha(80),
-                              width: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4, left: 4),
+                            child: _FieldLabelChip(
+                              label: L10nManager.l10n.bookkeepingRuleLabelValue,
+                              color: colorScheme.secondary,
                             ),
                           ),
-                        ),
-                        child: _ActionValueSelector(
+                          _ActionValueSelector(
                           field: action.field,
                           value: action.value,
                           onChanged: (v) => setState(() => action.value = v),
@@ -600,8 +603,9 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                           tags: _tags,
                           projects: _projects,
                         ),
-                      ),
+                      ],
                     ),
+                  ),
                     IconButton(
                       icon: Icon(Icons.remove_circle_outline,
                           color: colorScheme.error),
@@ -1251,5 +1255,32 @@ class _ActionValueSelector extends StatelessWidget {
           onChanged: onChanged,
         );
     }
+  }
+}
+
+/// 字段/值标签小徽章
+class _FieldLabelChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _FieldLabelChip({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
   }
 }
