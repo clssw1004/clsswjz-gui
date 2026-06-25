@@ -15,6 +15,19 @@ class ConditionGroupEditor extends StatelessWidget {
   final List<AccountShop> shops;
   final List<AccountSymbol> tags;
   final List<AccountSymbol> projects;
+  final int depth;
+
+  static const _levelColors = [
+    0xFF6750A4, // primary
+    0xFF625B71, // secondary
+    0xFF7D5260, // tertiary
+    0xFF006D40, // green
+    0xFF0842A0, // blue
+  ];
+
+  Color _borderColor(int level) {
+    return Color(_levelColors[level % _levelColors.length]).withAlpha(120);
+  }
 
   const ConditionGroupEditor({
     super.key,
@@ -27,6 +40,7 @@ class ConditionGroupEditor extends StatelessWidget {
     this.shops = const [],
     this.tags = const [],
     this.projects = const [],
+    this.depth = 0,
   });
 
   static String typeLabel(String type) {
@@ -147,155 +161,175 @@ class ConditionGroupEditor extends StatelessWidget {
       condition.type = availableComparisons.first;
     }
 
-    return CommonCardContainer(
-      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 第一行：字段选择
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: DropdownButtonFormField<String>(
-                  initialValue: condition.field ?? _fieldComparisons.keys.first,
-                  decoration: const InputDecoration(
-                    labelText: '字段',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(color: _borderColor(depth), width: 3)),
+      ),
+      child: CommonCardContainer(
+        padding: const EdgeInsets.fromLTRB(9, 12, 4, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 第一行：字段 + 比较方式 + 删除
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: condition.field ?? _fieldComparisons.keys.first,
+                    decoration: const InputDecoration(
+                      labelText: '字段',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    ),
+                    items: _fieldComparisons.keys
+                        .map((k) => DropdownMenuItem(
+                            value: k, child: Text(fieldLabel(k), style: const TextStyle(fontSize: 13))))
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        condition.field = v;
+                        condition.type =
+                            (_fieldComparisons[v] ?? ['field_equals']).first;
+                        condition.value = '';
+                        onStateChanged();
+                      }
+                    },
                   ),
-                  items: _fieldComparisons.keys
-                      .map((k) => DropdownMenuItem(
-                          value: k, child: Text(fieldLabel(k))))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) {
-                      condition.field = v;
-                      condition.type =
-                          (_fieldComparisons[v] ?? ['field_equals']).first;
-                      condition.value = '';
-                      onStateChanged();
-                    }
-                  },
                 ),
-              ),
-              const SizedBox(width: 4),
-              IconButton(
-                icon: Icon(Icons.remove_circle_outline,
-                    color: theme.colorScheme.error, size: 20),
-                constraints:
-                    const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  conditions.removeAt(index);
-                  onStateChanged();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 第二行：比较方式 + 值选择器
-          Row(
-            children: [
-              SizedBox(
-                width: 90,
-                child: DropdownButtonFormField<String>(
-                  initialValue: availableComparisons.contains(condition.type)
-                      ? condition.type!
-                      : availableComparisons.first,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                const SizedBox(width: 6),
+                SizedBox(
+                  width: 90,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: availableComparisons.contains(condition.type)
+                        ? condition.type!
+                        : availableComparisons.first,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+                    ),
+                    items: availableComparisons
+                        .map((key) => DropdownMenuItem(
+                            value: key,
+                            child: Text(typeLabel(key),
+                                style: const TextStyle(fontSize: 12))))
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        condition.type = v;
+                        condition.value = '';
+                        onStateChanged();
+                      }
+                    },
                   ),
-                  items: availableComparisons
-                      .map((key) => DropdownMenuItem(
-                          value: key,
-                          child: Text(typeLabel(key),
-                              style: const TextStyle(fontSize: 13))))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) {
-                      condition.type = v;
-                      condition.value = '';
-                      onStateChanged();
-                    }
-                  },
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ConditionValueSelector(
-                  key: ValueKey(
-                      '${condition.type}_${condition.field}_$index'),
-                  conditionType: condition.type ?? 'field_equals',
-                  field: condition.field ?? '',
-                  value: condition.value,
-                  onChanged: (v) {
-                    condition.value = v;
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: Icon(Icons.remove_circle_outline,
+                      color: theme.colorScheme.error, size: 20),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    conditions.removeAt(index);
                     onStateChanged();
                   },
-                  categories: categories,
-                  funds: funds,
-                  shops: shops,
-                  tags: tags,
-                  projects: projects,
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 6),
+            // 第二行：值选择器（独占一行）
+            ConditionValueSelector(
+              key: ValueKey('${condition.type}_${condition.field}_$index'),
+              conditionType: condition.type ?? 'field_equals',
+              field: condition.field ?? '',
+              value: condition.value,
+              onChanged: (v) {
+                condition.value = v;
+                onStateChanged();
+              },
+              categories: categories,
+              funds: funds,
+              shops: shops,
+              tags: tags,
+              projects: projects,
+            ),
+          ],
       ),
     );
   }
 
   Widget _buildGroupRow(
       BuildContext context, ConditionData condition, int index) {
-    return CommonCardContainer(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.primary)),
-              IconButton(
-                icon: Icon(Icons.remove_circle_outline,
-                    color: Theme.of(context).colorScheme.error, size: 20),
-                constraints:
-                    const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  conditions.removeAt(index);
-                  onStateChanged();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ConditionGroupEditor(
-            conditions: condition.children,
-            logicOperator: condition.logicOperator ?? 'AND',
-            onLogicOperatorChanged: (op) {
-              condition.logicOperator = op;
-              onStateChanged();
-            },
-            onStateChanged: onStateChanged,
-            categories: categories,
-            funds: funds,
-            shops: shops,
-            tags: tags,
-            projects: projects,
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(color: _borderColor(depth + 1), width: 3)),
+      ),
+      child: CommonCardContainer(
+        padding: const EdgeInsets.fromLTRB(9, 6, 4, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+                const Spacer(),
+                if (condition.children.length >= 2)
+                  SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 11))),
+                      ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 11))),
+                    ],
+                    selected: {condition.logicOperator ?? 'AND'},
+                    onSelectionChanged: (v) {
+                      condition.logicOperator = v.first;
+                      onStateChanged();
+                    },
+                    style: ButtonStyle(
+                      visualDensity: VisualDensity.compact,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                IconButton(
+                  icon: Icon(Icons.remove_circle_outline,
+                      color: Theme.of(context).colorScheme.error, size: 18),
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    conditions.removeAt(index);
+                    onStateChanged();
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            ConditionGroupEditor(
+              depth: depth + 1,
+              conditions: condition.children,
+              logicOperator: condition.logicOperator ?? 'AND',
+              onLogicOperatorChanged: (op) {
+                condition.logicOperator = op;
+                onStateChanged();
+              },
+              onStateChanged: onStateChanged,
+              categories: categories,
+              funds: funds,
+              shops: shops,
+              tags: tags,
+              projects: projects,
+            ),
+          ],
+        ),
       ),
     );
   }
