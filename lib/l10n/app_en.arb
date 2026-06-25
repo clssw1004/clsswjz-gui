@@ -2241,5 +2241,37 @@
     "bookkeepingRuleAutoNameOr": "or",
     "@bookkeepingRuleAutoNameOr": {
         "description": "OR conjunction"
+    },
+    "bookkeepingRuleNameFieldIs": "is",
+    "@bookkeepingRuleNameFieldIs": {
+        "description": "Field equals semantic word"
+    },
+    "bookkeepingRuleNameFieldIn": "in",
+    "@bookkeepingRuleNameFieldIn": {
+        "description": "Field in semantic word"
+    },
+    "bookkeepingRuleNameAmountGte": "≥",
+    "@bookkeepingRuleNameAmountGte": {
+        "description": "Amount greater than or equal"
+    },
+    "bookkeepingRuleNameAmountLte": "≤",
+    "@bookkeepingRuleNameAmountLte": {
+        "description": "Amount less than or equal"
+    },
+    "bookkeepingRuleNameAmountBetween": "{min} ~ {max}",
+    "@bookkeepingRuleNameAmountBetween": {
+        "description": "Amount range",
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleNameSetField": "set {field} to {value}",
+    "@bookkeepingRuleNameSetField": {
+        "description": "Action: set field value",
+        "placeholders": {
+            "field": {"type": "String"},
+            "value": {"type": "String"}
+        }
     }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../drivers/driver_factory.dart';
 import '../enums/operate_type.dart';
+import '../manager/l10n_manager.dart';
+import '../enums/symbol_type.dart';
 import '../events/event_bus.dart';
 import '../events/special/event_bookkeeping_rule.dart';
 import '../manager/app_config_manager.dart';
@@ -13,26 +15,62 @@ class BookkeepingRuleProvider extends ChangeNotifier {
   bool _loading = false;
   String? _error;
 
+  // 引用数据（用于名称解析）
+  final Map<String, String> _categoryNames = {};
+  final Map<String, String> _fundNames = {};
+  final Map<String, String> _shopNames = {};
+  final Map<String, String> _tagNames = {};
+  final Map<String, String> _projectNames = {};
+
   List<BookkeepingRuleVO> get rules => _rules;
   bool get loading => _loading;
   String? get error => _error;
+  Map<String, String> get categoryNames => _categoryNames;
+  Map<String, String> get fundNames => _fundNames;
+  Map<String, String> get shopNames => _shopNames;
+  Map<String, String> get tagNames => _tagNames;
+  Map<String, String> get projectNames => _projectNames;
 
-  /// 加载当前账本的规则列表
+  /// 加载当前账本的规则列表及引用数据
   Future<void> loadRules(String bookId) async {
     _loading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final result = await DriverFactory.driver.listBookkeepingRules(
-        AppConfigManager.instance.userId,
-        bookId,
-      );
-      if (result.ok) {
+      final userId = AppConfigManager.instance.userId;
+      final rulesResult = await DriverFactory.driver.listBookkeepingRules(userId, bookId);
+      final catsResult = await DriverFactory.driver.listCategoriesByBook(userId, bookId);
+      final fundsResult = await DriverFactory.driver.listFundsByBook(userId, bookId);
+      final shopsResult = await DriverFactory.driver.listShopsByBook(userId, bookId);
+      final tagsResult = await DriverFactory.driver.listSymbolsByBook(userId, bookId, symbolType: SymbolType.tag);
+      final projectsResult = await DriverFactory.driver.listSymbolsByBook(userId, bookId, symbolType: SymbolType.project);
+
+      if (rulesResult.ok) {
         _rules.clear();
-        _rules.addAll(result.data ?? []);
+        _rules.addAll(rulesResult.data ?? []);
       } else {
-        _error = result.message;
+        _error = rulesResult.message;
+      }
+      _categoryNames.clear();
+      for (final c in (catsResult.data ?? [])) {
+        _categoryNames[c.code] = c.name;
+      }
+      _fundNames.clear();
+      for (final f in (fundsResult.data ?? [])) {
+        _fundNames[f.id] = f.name;
+      }
+      _shopNames.clear();
+      for (final s in (shopsResult.data ?? [])) {
+        _shopNames[s.code] = s.name;
+      }
+      _tagNames.clear();
+      for (final s in (tagsResult.data ?? [])) {
+        _tagNames[s.code] = s.name;
+      }
+      _projectNames.clear();
+      for (final s in (projectsResult.data ?? [])) {
+        _projectNames[s.code] = s.name;
       }
     } catch (e) {
       _error = '加载失败：$e';
@@ -40,6 +78,33 @@ class BookkeepingRuleProvider extends ChangeNotifier {
 
     _loading = false;
     notifyListeners();
+  }
+
+  /// 解析字段值code为展示名称
+  String resolveValue(String field, dynamic value) {
+    if (value == null || value.toString().isEmpty) return '';
+    final key = value.toString();
+    switch (field) {
+      case 'type':
+        return switch (key) {
+          'EXPENSE' => L10nManager.l10n.expense,
+          'INCOME' => L10nManager.l10n.income,
+          'TRANSFER' => L10nManager.l10n.transfer,
+          _ => key,
+        };
+      case 'categoryCode':
+        return _categoryNames[key] ?? key;
+      case 'fundId':
+        return _fundNames[key] ?? key;
+      case 'shopCode':
+        return _shopNames[key] ?? key;
+      case 'tagCode':
+        return _tagNames[key] ?? key;
+      case 'projectCode':
+        return _projectNames[key] ?? key;
+      default:
+        return key;
+    }
   }
 
   /// 创建规则

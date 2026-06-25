@@ -63,6 +63,12 @@
     "bookkeepingRuleAutoNameSeparator",
     "bookkeepingRuleAutoNameConnector",
     "bookkeepingRuleAutoNameAnd",
-    "bookkeepingRuleAutoNameOr"
+    "bookkeepingRuleAutoNameOr",
+    "bookkeepingRuleNameFieldIs",
+    "bookkeepingRuleNameFieldIn",
+    "bookkeepingRuleNameAmountGte",
+    "bookkeepingRuleNameAmountLte",
+    "bookkeepingRuleNameAmountBetween",
+    "bookkeepingRuleNameSetField"
   ]
 }

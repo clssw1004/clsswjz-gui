@@ -167,11 +167,28 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     'amount': '金额',
   };
 
-  static const _compLabels = {
-    'field_equals': '=',
-    'field_in': '∈',
-    'amount_range': '',
-  };
+  /// 解析字段值code为展示名称
+  String _resolveName(String field, dynamic value) {
+    if (value == null || value.toString().isEmpty) return '';
+    final key = value.toString();
+    switch (field) {
+      case 'type':
+        return switch (key) {
+          'EXPENSE' => L10nManager.l10n.expense,
+          'INCOME' => L10nManager.l10n.income,
+          'TRANSFER' => L10nManager.l10n.transfer,
+          _ => key,
+        };
+      case 'categoryCode':
+        return _categories.where((c) => c.code == key).firstOrNull?.name ?? key;
+      case 'fundId':
+        return _funds.where((f) => f.id == key).firstOrNull?.name ?? key;
+      case 'shopCode':
+        return _shops.where((s) => s.code == key).firstOrNull?.name ?? key;
+      default:
+        return key;
+    }
+  }
 
   /// 根据条件和操作自动生成规则名称
   String _generateRuleName() {
@@ -187,10 +204,11 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     // 操作摘要
     if (_actions.isNotEmpty) {
       final actionTexts = _actions.map((a) {
-        final fieldLabel = _actionFieldLabels[a.field] ?? a.field;
-        return '$fieldLabel=${a.value}';
+        final fieldLabel = _fieldLabels[a.field] ?? a.field;
+        final displayValue = _resolveName(a.field, a.value);
+        return l10n.bookkeepingRuleNameSetField(fieldLabel, displayValue);
       });
-      parts.add(actionTexts.join(', '));
+      parts.add(actionTexts.join('，'));
     }
 
     return parts.join(l10n.bookkeepingRuleAutoNameConnector);
@@ -201,23 +219,26 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     final textParts = conds.map((c) {
       if (c.isLeaf) {
         final fieldLabel = _fieldLabels[c.field] ?? c.field ?? '';
-        final compLabel = _compLabels[c.type] ?? '';
         if (c.type == 'amount_range' && c.value is Map) {
           final map = c.value as Map;
           final min = map['minAmount'];
           final max = map['maxAmount'];
-          if (min != null && max != null) return '$fieldLabel ${min}~${max}';
-          if (min != null) return '$fieldLabel ≥$min';
-          if (max != null) return '$fieldLabel ≤$max';
+          if (min != null && max != null) {
+            return '$fieldLabel${l10n.bookkeepingRuleNameAmountBetween(min.toString(), max.toString())}';
+          }
+          if (min != null) return '$fieldLabel${l10n.bookkeepingRuleNameAmountGte}$min';
+          if (max != null) return '$fieldLabel${l10n.bookkeepingRuleNameAmountLte}$max';
           return fieldLabel;
         }
+        final displayValue = _resolveName(c.field ?? '', c.value);
         if (c.type == 'field_in') {
           String vals;
-          if (c.value is List) vals = (c.value as List).join(', ');
-          else vals = c.value?.toString() ?? '';
-          return '$fieldLabel${compLabel}{$vals}';
+          if (c.value is List) {
+            vals = (c.value as List).map((v) => _resolveName(c.field ?? '', v)).join('、');
+          } else vals = displayValue;
+          return '$fieldLabel${l10n.bookkeepingRuleNameFieldIn}$vals';
         }
-        return '$fieldLabel$compLabel${c.value ?? ''}';
+        return '$fieldLabel${l10n.bookkeepingRuleNameFieldIs}$displayValue';
       }
       return c.children.isNotEmpty
           ? '(${_buildConditionSummary(c.children, c.logicOperator ?? 'AND')})'

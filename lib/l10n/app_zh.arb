@@ -2401,5 +2401,37 @@
     "bookkeepingRuleAutoNameOr": "或",
     "@bookkeepingRuleAutoNameOr": {
         "description": "OR 连接词"
+    },
+    "bookkeepingRuleNameFieldIs": "是",
+    "@bookkeepingRuleNameFieldIs": {
+        "description": "字段等于的语义描述词"
+    },
+    "bookkeepingRuleNameFieldIn": "属于",
+    "@bookkeepingRuleNameFieldIn": {
+        "description": "字段属于的语义描述词"
+    },
+    "bookkeepingRuleNameAmountGte": "大于等于",
+    "@bookkeepingRuleNameAmountGte": {
+        "description": "金额大于等于"
+    },
+    "bookkeepingRuleNameAmountLte": "小于等于",
+    "@bookkeepingRuleNameAmountLte": {
+        "description": "金额小于等于"
+    },
+    "bookkeepingRuleNameAmountBetween": "在{min}到{max}之间",
+    "@bookkeepingRuleNameAmountBetween": {
+        "description": "金额范围",
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleNameSetField": "设置{field}为{value}",
+    "@bookkeepingRuleNameSetField": {
+        "description": "操作：设置字段值",
+        "placeholders": {
+            "field": {"type": "String"},
+            "value": {"type": "String"}
+        }
     }
 }

@@ -151,7 +151,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            _conditionSummary(rule),
+                            _conditionSummary(rule, provider),
                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -170,7 +170,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            _actionSummary(rule),
+                            _actionSummary(rule, provider),
                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -203,14 +203,8 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
     'amount_range': '金额范围',
   };
 
-  /// 根据名称解析值（仅用于展示，无引用数据时显示 raw code）
-  String _displayValue(String? field, dynamic value) {
-    if (value == null || value.toString().isEmpty) return '';
-    return value.toString();
-  }
-
   /// 生成条件摘要文本
-  String _conditionSummary(BookkeepingRuleVO rule) {
+  String _conditionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
     final parts = <String>[];
     for (final c in rule.conditions) {
       if (c.isLeaf) {
@@ -227,7 +221,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
           }
         } else {
           final op = _typeLabels[c.type] ?? c.type ?? '';
-          parts.add('$fieldLabel $op ${_displayValue(c.field, c.value)}');
+          parts.add('$fieldLabel $op ${provider.resolveValue(c.field ?? '', c.value)}');
         }
       } else {
         final op = c.logicOperator ?? 'AND';
@@ -238,10 +232,10 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
   }
 
   /// 生成操作摘要文本
-  String _actionSummary(BookkeepingRuleVO rule) {
+  String _actionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
     final parts = rule.actions.map((a) {
       final fieldLabel = _fieldLabels[a.field] ?? a.field;
-      return '$fieldLabel = ${_displayValue(a.field, a.value)}';
+      return '$fieldLabel = ${provider.resolveValue(a.field, a.value)}';
     });
     return '操作: ${parts.join(', ')}';
   }
