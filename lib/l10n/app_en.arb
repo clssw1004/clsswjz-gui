@@ -2221,5 +2221,25 @@
     "bookkeepingRuleBasicInfo": "Basic Info",
     "@bookkeepingRuleBasicInfo": {
         "description": "Basic info"
+    },
+    "bookkeepingRuleAutoNamePrefix": "When",
+    "@bookkeepingRuleAutoNamePrefix": {
+        "description": "Auto-name prefix"
+    },
+    "bookkeepingRuleAutoNameSeparator": "",
+    "@bookkeepingRuleAutoNameSeparator": {
+        "description": "Separator between condition and action"
+    },
+    "bookkeepingRuleAutoNameConnector": " → ",
+    "@bookkeepingRuleAutoNameConnector": {
+        "description": "Connector between condition and action"
+    },
+    "bookkeepingRuleAutoNameAnd": "and",
+    "@bookkeepingRuleAutoNameAnd": {
+        "description": "AND conjunction"
+    },
+    "bookkeepingRuleAutoNameOr": "or",
+    "@bookkeepingRuleAutoNameOr": {
+        "description": "OR conjunction"
     }
 }

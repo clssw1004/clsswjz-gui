@@ -154,6 +154,81 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   }
 
   // ============================================================
+  // 自动命名
+  // ============================================================
+
+  static const _fieldLabels = {
+    'type': '类型',
+    'categoryCode': '分类',
+    'fundId': '账户',
+    'shopCode': '商家',
+    'tagCode': '标签',
+    'projectCode': '项目',
+    'amount': '金额',
+  };
+
+  static const _compLabels = {
+    'field_equals': '=',
+    'field_in': '∈',
+    'amount_range': '',
+  };
+
+  /// 根据条件和操作自动生成规则名称
+  String _generateRuleName() {
+    final l10n = L10nManager.l10n;
+    final parts = <String>[];
+
+    // 条件摘要
+    if (_conditions.isNotEmpty) {
+      final condText = _buildConditionSummary(_conditions, _rootLogicOperator);
+      parts.add('${l10n.bookkeepingRuleAutoNamePrefix}$condText${l10n.bookkeepingRuleAutoNameSeparator}');
+    }
+
+    // 操作摘要
+    if (_actions.isNotEmpty) {
+      final actionTexts = _actions.map((a) {
+        final fieldLabel = _actionFieldLabels[a.field] ?? a.field;
+        return '$fieldLabel=${a.value}';
+      });
+      parts.add(actionTexts.join(', '));
+    }
+
+    return parts.join(l10n.bookkeepingRuleAutoNameConnector);
+  }
+
+  String _buildConditionSummary(List<_ConditionData> conds, String logicOp) {
+    final l10n = L10nManager.l10n;
+    final textParts = conds.map((c) {
+      if (c.isLeaf) {
+        final fieldLabel = _fieldLabels[c.field] ?? c.field ?? '';
+        final compLabel = _compLabels[c.type] ?? '';
+        if (c.type == 'amount_range' && c.value is Map) {
+          final map = c.value as Map;
+          final min = map['minAmount'];
+          final max = map['maxAmount'];
+          if (min != null && max != null) return '$fieldLabel ${min}~${max}';
+          if (min != null) return '$fieldLabel ≥$min';
+          if (max != null) return '$fieldLabel ≤$max';
+          return fieldLabel;
+        }
+        if (c.type == 'field_in') {
+          String vals;
+          if (c.value is List) vals = (c.value as List).join(', ');
+          else vals = c.value?.toString() ?? '';
+          return '$fieldLabel${compLabel}{$vals}';
+        }
+        return '$fieldLabel$compLabel${c.value ?? ''}';
+      }
+      return c.children.isNotEmpty
+          ? '(${_buildConditionSummary(c.children, c.logicOperator ?? 'AND')})'
+          : '';
+    }).toList();
+
+    final conj = logicOp == 'OR' ? l10n.bookkeepingRuleAutoNameOr : l10n.bookkeepingRuleAutoNameAnd;
+    return textParts.join(' $conj ');
+  }
+
+  // ============================================================
   // JSON 序列化
   // ============================================================
 
@@ -202,9 +277,9 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   // ============================================================
 
   Future<void> _save() async {
+    // 自动命名：用户未填写名称时根据条件和操作生成
     if (_nameCtrl.text.trim().isEmpty) {
-      ToastUtil.showWarning(L10nManager.l10n.bookkeepingRuleNameRequired);
-      return;
+      _nameCtrl.text = _generateRuleName();
     }
     setState(() => _loading = true);
     final provider = context.read<BookkeepingRuleProvider>();

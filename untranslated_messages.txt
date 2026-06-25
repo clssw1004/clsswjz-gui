@@ -58,6 +58,11 @@
     "bookkeepingRuleAction",
     "bookkeepingRuleAddCondition",
     "bookkeepingRuleAddAction",
-    "bookkeepingRuleBasicInfo"
+    "bookkeepingRuleBasicInfo",
+    "bookkeepingRuleAutoNamePrefix",
+    "bookkeepingRuleAutoNameSeparator",
+    "bookkeepingRuleAutoNameConnector",
+    "bookkeepingRuleAutoNameAnd",
+    "bookkeepingRuleAutoNameOr"
   ]
 }

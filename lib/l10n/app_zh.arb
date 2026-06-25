@@ -2381,5 +2381,25 @@
     },
     "@bookkeepingRuleBasicInfo": {
         "description": "基本信息"
+    },
+    "bookkeepingRuleAutoNamePrefix": "当",
+    "@bookkeepingRuleAutoNamePrefix": {
+        "description": "自动命名前缀"
+    },
+    "bookkeepingRuleAutoNameSeparator": "时",
+    "@bookkeepingRuleAutoNameSeparator": {
+        "description": "条件与操作之间的分隔词"
+    },
+    "bookkeepingRuleAutoNameConnector": " → ",
+    "@bookkeepingRuleAutoNameConnector": {
+        "description": "条件与操作之间的箭头分隔符"
+    },
+    "bookkeepingRuleAutoNameAnd": "并",
+    "@bookkeepingRuleAutoNameAnd": {
+        "description": "AND 连接词"
+    },
+    "bookkeepingRuleAutoNameOr": "或",
+    "@bookkeepingRuleAutoNameOr": {
+        "description": "OR 连接词"
     }
 }
