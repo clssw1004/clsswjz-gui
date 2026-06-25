@@ -1,16 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../database/database.dart';
+import '../../drivers/driver_factory.dart';
+import '../../enums/symbol_type.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
-import '../../manager/dao_manager.dart';
 import '../../models/rule/condition_model.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
+import '../../models/vo/user_fund_vo.dart';
 import '../../providers/bookkeeping_rule_provider.dart';
 import '../../providers/books_provider.dart';
 import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
+import '../../widgets/common/common_select_form_field.dart';
+import '../../widgets/common/multi_select_sheet.dart';
+import '../../widgets/common/multi_select_dialog.dart';
 
 // ============================================================
 // 编辑器可变数据 Wrapper
@@ -61,11 +68,14 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   String _rootLogicOperator = 'AND';
   List<_ActionData> _actions = [];
   bool _loading = false;
+  bool _dataLoading = true;
 
-  // 引用数据加载状态
-  List<dynamic> _categories = [];
-  List<dynamic> _funds = [];
-  List<dynamic> _shops = [];
+  // 引用数据
+  List<AccountCategory> _categories = [];
+  List<UserFundVO> _funds = [];
+  List<AccountShop> _shops = [];
+  List<AccountSymbol> _tags = [];
+  List<AccountSymbol> _projects = [];
 
   static const _actionFieldLabels = {
     'categoryCode': '分类',
@@ -95,23 +105,28 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   }
 
   Future<void> _loadReferenceData() async {
-    final bookId = widget.bookId ??
-        (context.read<BooksProvider>().selectedBook?.id);
+    final bookId =
+        widget.bookId ?? context.read<BooksProvider>().selectedBook?.id;
     if (bookId == null) return;
+    final userId = AppConfigManager.instance.userId;
     try {
-      final cats = await DaoManager.categoryDao.listByBook(bookId);
-      final funds = await DaoManager.fundDao.listByBook(bookId);
-      final shops = await DaoManager.shopDao.listByBook(bookId);
-      // symbols (tags + projects) loaded on demand
+      final r1 = await DriverFactory.driver.listCategoriesByBook(userId, bookId);
+      final r2 = await DriverFactory.driver.listFundsByBook(userId, bookId);
+      final r3 = await DriverFactory.driver.listShopsByBook(userId, bookId);
+      final r4 = await DriverFactory.driver.listSymbolsByBook(userId, bookId, symbolType: SymbolType.tag);
+      final r5 = await DriverFactory.driver.listSymbolsByBook(userId, bookId, symbolType: SymbolType.project);
       if (mounted) {
         setState(() {
-          _categories = cats;
-          _funds = funds;
-          _shops = shops;
+          _categories = r1.data ?? [];
+          _funds = r2.data ?? [];
+          _shops = r3.data ?? [];
+          _tags = r4.data ?? [];
+          _projects = r5.data ?? [];
+          _dataLoading = false;
         });
       }
     } catch (_) {
-      // silent — form still usable with text input
+      if (mounted) setState(() => _dataLoading = false);
     }
   }
 
@@ -258,121 +273,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   }
 
   // ============================================================
-  // 字段值选择弹窗
-  // ============================================================
-
-  Future<void> _showFieldValuePicker({
-    required String field,
-    required String currentValue,
-    required ValueChanged<String> onChanged,
-  }) async {
-    List<String> options = [];
-    String title = '';
-
-    switch (field) {
-      case 'type':
-        title = '选择类型';
-        options = ['EXPENSE', 'INCOME', 'TRANSFER'];
-        final labels = {'EXPENSE': '支出', 'INCOME': '收入', 'TRANSFER': '转账'};
-        final result = await showDialog<String>(
-          context: context,
-          builder: (ctx) => SimpleDialog(
-            title: Text(title),
-            children: options
-                .map((o) => SimpleDialogOption(
-                      onPressed: () => Navigator.pop(ctx, o),
-                      child: Text(labels[o] ?? o),
-                    ))
-                .toList(),
-          ),
-        );
-        if (result != null) onChanged(result);
-        return;
-
-      case 'categoryCode':
-        title = '选择分类';
-        options = _categories
-            .map((c) => (c as dynamic).name?.toString() ?? '')
-            .where((n) => n.isNotEmpty)
-            .toList();
-        break;
-      case 'fundId':
-        title = '选择账户';
-        options = _funds
-            .map((f) => (f as dynamic).name?.toString() ?? '')
-            .where((n) => n.isNotEmpty)
-            .toList();
-        break;
-      case 'shopCode':
-        title = '选择商家';
-        options = _shops
-            .map((s) => (s as dynamic).name?.toString() ?? '')
-            .where((n) => n.isNotEmpty)
-            .toList();
-        break;
-      case 'tagCode':
-        title = '选择标签';
-        options = _loadSymbolNames('TAG');
-        break;
-      case 'projectCode':
-        title = '选择项目';
-        options = _loadSymbolNames('PROJECT');
-        break;
-      default:
-        return;
-    }
-
-    // Show a simple bottom sheet / dialog with options
-    if (!mounted) return;
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: Text(title),
-        children: [
-          ...options.map((o) => SimpleDialogOption(
-                onPressed: () => Navigator.pop(ctx, o),
-                child: Text(o),
-              )),
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, '__custom__'),
-            child: Text('其他...', style: TextStyle(color: Theme.of(ctx).colorScheme.primary)),
-          ),
-        ],
-      ),
-    );
-    if (result == '__custom__') {
-      // Let user type directly — handled by caller fallback
-      onChanged('');
-    } else if (result != null) {
-      onChanged(result);
-    }
-  }
-
-  Future<void> _showActionFieldPicker({
-    required String field,
-    required String currentValue,
-    required ValueChanged<String> onChanged,
-  }) async {
-    await _showFieldValuePicker(
-      field: field,
-      currentValue: currentValue,
-      onChanged: onChanged,
-    );
-  }
-
-  List<String> _loadSymbolNames(String symbolType) {
-    try {
-      final bookId = widget.bookId ??
-          (context.read<BooksProvider>().selectedBook?.id);
-      if (bookId == null) return [];
-      // Symbols are loaded on-demand — for now return empty to show text field
-      return [];
-    } catch (_) {
-      return [];
-    }
-  }
-
-  // ============================================================
   // 构建 UI
   // ============================================================
 
@@ -389,22 +289,24 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
             ? L10nManager.l10n.bookkeepingRuleEdit
             : L10nManager.l10n.bookkeepingRuleAdd),
       ),
-      body: SingleChildScrollView(
-        padding: spacing.pagePadding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildBasicInfoCard(theme),
-            const SizedBox(height: 16),
-            _buildConditionCard(theme),
-            const SizedBox(height: 16),
-            _buildActionsCard(theme, colorScheme),
-            const SizedBox(height: 24),
-            _buildSaveButton(),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
+      body: _dataLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: spacing.pagePadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildBasicInfoCard(theme),
+                  const SizedBox(height: 16),
+                  _buildConditionCard(theme),
+                  const SizedBox(height: 16),
+                  _buildActionsCard(theme, colorScheme),
+                  const SizedBox(height: 24),
+                  _buildSaveButton(),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
     );
   }
 
@@ -463,8 +365,8 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                 icon: const Icon(Icons.add_circle_outline),
                 tooltip: '添加',
                 itemBuilder: (context) => [
-                  PopupMenuItem(value: 'leaf', child: const Text('条件')),
-                  PopupMenuItem(value: 'group', child: const Text('条件组')),
+                  const PopupMenuItem(value: 'leaf', child: Text('条件')),
+                  const PopupMenuItem(value: 'group', child: Text('条件组')),
                 ],
                 onSelected: (value) {
                   setState(() {
@@ -488,7 +390,8 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
             categories: _categories,
             funds: _funds,
             shops: _shops,
-            onShowFieldPicker: _showFieldValuePicker,
+            tags: _tags,
+            projects: _projects,
           ),
         ],
       ),
@@ -520,8 +423,8 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text('暂无操作，请点击右上角添加',
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: colorScheme.onSurface.withAlpha(128))),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withAlpha(128))),
               ),
             )
           else
@@ -534,19 +437,20 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        initialValue: _actionFieldLabels.containsKey(action.field)
+                        initialValue: _actionFieldLabels
+                                .containsKey(action.field)
                             ? action.field
                             : _actionFieldLabels.keys.first,
                         decoration: const InputDecoration(
                           labelText: '字段',
                           border: OutlineInputBorder(),
                           isDense: true,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
                         ),
                         items: _actionFieldLabels.entries
-                            .map((e) =>
-                                DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .map((e) => DropdownMenuItem(
+                                value: e.key, child: Text(e.value)))
                             .toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => action.field = v);
@@ -555,11 +459,15 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _ActionValueField(
+                      child: _ActionValueSelector(
                         field: action.field,
                         value: action.value,
                         onChanged: (v) => action.value = v,
-                        onShowFieldPicker: _showActionFieldPicker,
+                        categories: _categories,
+                        funds: _funds,
+                        shops: _shops,
+                        tags: _tags,
+                        projects: _projects,
                       ),
                     ),
                     IconButton(
@@ -599,14 +507,11 @@ class _ConditionGroupEditor extends StatelessWidget {
   final String logicOperator;
   final ValueChanged<String> onLogicOperatorChanged;
   final VoidCallback onStateChanged;
-  final List<dynamic> categories;
-  final List<dynamic> funds;
-  final List<dynamic> shops;
-  final Future<void> Function({
-    required String field,
-    required String currentValue,
-    required ValueChanged<String> onChanged,
-  }) onShowFieldPicker;
+  final List<AccountCategory> categories;
+  final List<UserFundVO> funds;
+  final List<AccountShop> shops;
+  final List<AccountSymbol> tags;
+  final List<AccountSymbol> projects;
 
   const _ConditionGroupEditor({
     required this.conditions,
@@ -616,7 +521,8 @@ class _ConditionGroupEditor extends StatelessWidget {
     this.categories = const [],
     this.funds = const [],
     this.shops = const [],
-    required this.onShowFieldPicker,
+    this.tags = const [],
+    this.projects = const [],
   });
 
   static const _typeLabels = {
@@ -635,7 +541,6 @@ class _ConditionGroupEditor extends StatelessWidget {
     'amount': '金额',
   };
 
-  /// 各字段支持的比较方式
   static const _fieldComparisons = {
     'type': ['field_equals'],
     'categoryCode': ['field_equals', 'field_in'],
@@ -704,14 +609,13 @@ class _ConditionGroupEditor extends StatelessWidget {
             ],
             onSelected: (value) {
               if (value == 'leaf') {
-                conditions.add(
-                    _ConditionData(type: 'field_equals', field: 'categoryCode', value: ''));
+                conditions.add(_ConditionData(
+                    type: 'field_equals', field: 'categoryCode', value: ''));
               } else {
                 conditions.add(_ConditionData(
                     logicOperator: 'AND',
-                    children: [
-                      _ConditionData(type: 'field_equals', field: 'categoryCode', value: '')
-                    ]));
+                    children: [_ConditionData(
+                        type: 'field_equals', field: 'categoryCode', value: '')]));
               }
               onStateChanged();
             },
@@ -725,8 +629,8 @@ class _ConditionGroupEditor extends StatelessWidget {
     final theme = Theme.of(context);
     final availableComparisons =
         _fieldComparisons[condition.field] ?? ['field_equals'];
-    // 如果当前选中的比较方式不支持当前字段，重置为第一个支持的
-    if (condition.type != null && !availableComparisons.contains(condition.type)) {
+    if (condition.type != null &&
+        !availableComparisons.contains(condition.type)) {
       condition.type = availableComparisons.first;
     }
 
@@ -735,7 +639,7 @@ class _ConditionGroupEditor extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 第一行：字段选择（左侧）
+          // 第一行：字段选择
           Row(
             children: [
               Expanded(
@@ -758,7 +662,6 @@ class _ConditionGroupEditor extends StatelessWidget {
                   onChanged: (v) {
                     if (v != null) {
                       condition.field = v;
-                      // 重置比较方式为字段支持的第一个
                       condition.type =
                           (_fieldComparisons[v] ?? ['field_equals']).first;
                       condition.value = '';
@@ -768,11 +671,11 @@ class _ConditionGroupEditor extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              // 删除按钮（右上角）
               IconButton(
                 icon: Icon(Icons.remove_circle_outline,
                     color: theme.colorScheme.error, size: 20),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                constraints:
+                    const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   conditions.removeAt(index);
@@ -782,10 +685,9 @@ class _ConditionGroupEditor extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          // 第二行：比较方式（左侧） + 值选择器（右侧）
+          // 第二行：比较方式 + 值选择器
           Row(
             children: [
-              // 比较方式下拉（左侧，较窄）
               SizedBox(
                 width: 90,
                 child: DropdownButtonFormField<String>(
@@ -814,10 +716,10 @@ class _ConditionGroupEditor extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              // 值选择器（右侧，弹性）
               Expanded(
-                child: _ValueSelector(
-                  key: ValueKey('${condition.type}_${condition.field}_$index'),
+                child: _ConditionValueSelector(
+                  key: ValueKey(
+                      '${condition.type}_${condition.field}_$index'),
                   conditionType: condition.type ?? 'field_equals',
                   field: condition.field ?? '',
                   value: condition.value,
@@ -825,7 +727,11 @@ class _ConditionGroupEditor extends StatelessWidget {
                     condition.value = v;
                     onStateChanged();
                   },
-                  onShowFieldPicker: onShowFieldPicker,
+                  categories: categories,
+                  funds: funds,
+                  shops: shops,
+                  tags: tags,
+                  projects: projects,
                 ),
               ),
             ],
@@ -835,7 +741,8 @@ class _ConditionGroupEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupRow(BuildContext context, _ConditionData condition, int index) {
+  Widget _buildGroupRow(
+      BuildContext context, _ConditionData condition, int index) {
     return CommonCardContainer(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -852,7 +759,8 @@ class _ConditionGroupEditor extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.remove_circle_outline,
                     color: Theme.of(context).colorScheme.error, size: 20),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                constraints:
+                    const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   conditions.removeAt(index);
@@ -873,7 +781,8 @@ class _ConditionGroupEditor extends StatelessWidget {
             categories: categories,
             funds: funds,
             shops: shops,
-            onShowFieldPicker: onShowFieldPicker,
+            tags: tags,
+            projects: projects,
           ),
         ],
       ),
@@ -882,127 +791,116 @@ class _ConditionGroupEditor extends StatelessWidget {
 }
 
 // ============================================================
-// 操作值字段（根据字段类型展示选择器或输入框）
+// 条件值选择器 — 根据字段类型复用 CommonSelectFormField
 // ============================================================
 
-class _ActionValueField extends StatelessWidget {
-  final String field;
-  final String value;
-  final ValueChanged<String> onChanged;
-  final Future<void> Function({
-    required String field,
-    required String currentValue,
-    required ValueChanged<String> onChanged,
-  }) onShowFieldPicker;
-
-  const _ActionValueField({
-    required this.field,
-    required this.value,
-    required this.onChanged,
-    required this.onShowFieldPicker,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isReferenceField = [
-      'categoryCode', 'fundId', 'shopCode', 'tagCode', 'projectCode',
-    ].contains(field);
-
-    if (isReferenceField) {
-      final labels = {
-        'categoryCode': '分类',
-        'fundId': '账户',
-        'shopCode': '商家',
-        'tagCode': '标签',
-        'projectCode': '项目',
-      };
-      return InkWell(
-        onTap: () => onShowFieldPicker(
-          field: field,
-          currentValue: value,
-          onChanged: onChanged,
-        ),
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: labels[field] ?? '值',
-            border: const OutlineInputBorder(),
-            isDense: true,
-            suffixIcon: const Icon(Icons.arrow_drop_down, size: 20),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          ),
-          child: Text(
-            value.isNotEmpty ? value : '请选择',
-            style: TextStyle(
-              color: value.isNotEmpty
-                  ? null
-                  : Theme.of(context).colorScheme.onSurface.withAlpha(128),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return TextField(
-      decoration: const InputDecoration(
-        labelText: '值',
-        border: OutlineInputBorder(),
-        isDense: true,
-      ),
-      controller: TextEditingController(text: value),
-      onChanged: onChanged,
-    );
-  }
-}
-
-// ============================================================
-// 值选择器（根据字段和条件类型动态切换）
-// ============================================================
-
-class _ValueSelector extends StatelessWidget {
+class _ConditionValueSelector extends StatelessWidget {
   final String conditionType;
   final String field;
   final dynamic value;
   final ValueChanged<dynamic> onChanged;
-  final Future<void> Function({
-    required String field,
-    required String currentValue,
-    required ValueChanged<String> onChanged,
-  }) onShowFieldPicker;
+  final List<AccountCategory> categories;
+  final List<UserFundVO> funds;
+  final List<AccountShop> shops;
+  final List<AccountSymbol> tags;
+  final List<AccountSymbol> projects;
 
-  const _ValueSelector({
+  const _ConditionValueSelector({
     super.key,
     required this.conditionType,
     required this.field,
     required this.value,
     required this.onChanged,
-    required this.onShowFieldPicker,
+    required this.categories,
+    required this.funds,
+    required this.shops,
+    required this.tags,
+    required this.projects,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 金额范围 → 双输入（min / max）
+    // 金额范围 → 双输入
     if (conditionType == 'amount_range') {
       return _buildAmountRange();
     }
     // 属于 → 逗号分隔多值
     if (conditionType == 'field_in') {
-      return _buildMultiValueField();
+      return _buildMultiValueField(context);
     }
-    // 字段等于 → 根据字段类型展示选择器或输入框
-    return _buildValueByField(context);
+    // 等于 → 按字段类型使用选择组件或输入框
+    return _buildEqualsSelector();
   }
 
-  Widget _buildValueByField(BuildContext context) {
+  Widget _buildEqualsSelector() {
     switch (field) {
       case 'type':
         return _buildTypeSelector();
       case 'categoryCode':
+        return CommonSelectFormField<AccountCategory>(
+          items: categories,
+          displayField: (c) => c.name,
+          keyField: (c) => c.code,
+          value: categories.cast<AccountCategory?>().firstWhere(
+              (c) => c?.code == value?.toString(), orElse: () => null),
+          label: '分类',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountCategory) onChanged(v.code);
+          },
+        );
       case 'fundId':
+        return CommonSelectFormField<UserFundVO>(
+          items: funds,
+          displayField: (f) => f.name,
+          keyField: (f) => f.id,
+          value: funds.cast<UserFundVO?>().firstWhere(
+              (f) => f?.id == value?.toString(), orElse: () => null),
+          label: '账户',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is UserFundVO) onChanged(v.id);
+          },
+        );
       case 'shopCode':
+        return CommonSelectFormField<AccountShop>(
+          items: shops,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: shops.cast<AccountShop?>().firstWhere(
+              (s) => s?.code == value?.toString(), orElse: () => null),
+          label: '商家',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountShop) onChanged(v.code);
+          },
+        );
       case 'tagCode':
+        return CommonSelectFormField<AccountSymbol>(
+          items: tags,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: tags.cast<AccountSymbol?>().firstWhere(
+              (s) => s?.code == value?.toString(), orElse: () => null),
+          label: '标签',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountSymbol) onChanged(v.code);
+          },
+        );
       case 'projectCode':
-        return _buildSelectionField(context);
+        return CommonSelectFormField<AccountSymbol>(
+          items: projects,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: projects.cast<AccountSymbol?>().firstWhere(
+              (s) => s?.code == value?.toString(), orElse: () => null),
+          label: '项目',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountSymbol) onChanged(v.code);
+          },
+        );
       default:
         return _buildSingleValueField();
     }
@@ -1019,41 +917,6 @@ class _ValueSelector extends StatelessWidget {
       ],
       selected: {current},
       onSelectionChanged: (v) => onChanged(v.first),
-    );
-  }
-
-  Widget _buildSelectionField(BuildContext context) {
-    final labels = {
-      'categoryCode': '分类',
-      'fundId': '账户',
-      'shopCode': '商家',
-      'tagCode': '标签',
-      'projectCode': '项目',
-    };
-    return InkWell(
-      onTap: () => onShowFieldPicker(
-        field: field,
-        currentValue: value?.toString() ?? '',
-        onChanged: (v) => onChanged(v),
-      ),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: labels[field] ?? '值',
-          border: const OutlineInputBorder(),
-          isDense: true,
-          suffixIcon: const Icon(Icons.arrow_drop_down, size: 20),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        ),
-        child: Text(
-          value != null && value.toString().isNotEmpty ? value.toString() : '请选择',
-          style: TextStyle(
-            color: value != null && value.toString().isNotEmpty
-                ? null
-                : Theme.of(context).colorScheme.onSurface.withAlpha(128),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1104,23 +967,76 @@ class _ValueSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildMultiValueField() {
-    String initialText;
+  Widget _buildMultiValueField(BuildContext context) {
+    final List<String> currentIds;
     if (value is List) {
-      initialText = (value as List).join(', ');
+      currentIds = (value as List).map((e) => e.toString()).toList();
+    } else if (value is String && value.toString().isNotEmpty) {
+      currentIds = value.toString().split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
     } else {
-      initialText = value?.toString() ?? '';
+      currentIds = [];
     }
-    return TextFormField(
-      initialValue: initialText,
-      decoration: const InputDecoration(
-        hintText: '多个值用逗号分隔',
-        border: OutlineInputBorder(),
-        isDense: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+
+    final options = _buildMultiSelectOptions();
+    final selectedLabels = currentIds
+        .map((id) => options.where((o) => o.key == id).firstOrNull?.name ?? id)
+        .join(', ');
+
+    return InkWell(
+      onTap: () async {
+        final result = await MultiSelectSheet.show(
+          context,
+          title: '选择多个值',
+          options: options,
+          selectedIds: currentIds,
+        );
+        if (result != null) {
+          onChanged(result.join(', '));
+        }
+      },
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: '值',
+          border: OutlineInputBorder(),
+          isDense: true,
+          suffixIcon: Icon(Icons.arrow_drop_down, size: 20),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        ),
+        child: Text(
+          selectedLabels.isNotEmpty ? selectedLabels : '请选择',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: selectedLabels.isNotEmpty
+                ? null
+                : Theme.of(context).colorScheme.onSurface.withAlpha(128),
+          ),
+        ),
       ),
-      onChanged: (v) => onChanged(v),
     );
+  }
+
+  List<MultiSelectOption> _buildMultiSelectOptions() {
+    switch (field) {
+      case 'type':
+        return [
+          MultiSelectOption(key: 'EXPENSE', name: '支出'),
+          MultiSelectOption(key: 'INCOME', name: '收入'),
+          MultiSelectOption(key: 'TRANSFER', name: '转账'),
+        ];
+      case 'categoryCode':
+        return categories.map((c) => MultiSelectOption(key: c.code, name: c.name)).toList();
+      case 'fundId':
+        return funds.map((f) => MultiSelectOption(key: f.id, name: f.name)).toList();
+      case 'shopCode':
+        return shops.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+      case 'tagCode':
+        return tags.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+      case 'projectCode':
+        return projects.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+      default:
+        return [];
+    }
   }
 
   Widget _buildSingleValueField() {
@@ -1133,5 +1049,112 @@ class _ValueSelector extends StatelessWidget {
       ),
       onChanged: (v) => onChanged(v),
     );
+  }
+}
+
+// ============================================================
+// 操作值选择器 — 复用 CommonSelectFormField
+// ============================================================
+
+class _ActionValueSelector extends StatelessWidget {
+  final String field;
+  final String value;
+  final ValueChanged<String> onChanged;
+  final List<AccountCategory> categories;
+  final List<UserFundVO> funds;
+  final List<AccountShop> shops;
+  final List<AccountSymbol> tags;
+  final List<AccountSymbol> projects;
+
+  const _ActionValueSelector({
+    required this.field,
+    required this.value,
+    required this.onChanged,
+    required this.categories,
+    required this.funds,
+    required this.shops,
+    required this.tags,
+    required this.projects,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    switch (field) {
+      case 'categoryCode':
+        return CommonSelectFormField<AccountCategory>(
+          items: categories,
+          displayField: (c) => c.name,
+          keyField: (c) => c.code,
+          value: categories.cast<AccountCategory?>().firstWhere(
+              (c) => c?.code == value, orElse: () => null),
+          label: '分类',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountCategory) onChanged(v.code);
+          },
+        );
+      case 'fundId':
+        return CommonSelectFormField<UserFundVO>(
+          items: funds,
+          displayField: (f) => f.name,
+          keyField: (f) => f.id,
+          value: funds.cast<UserFundVO?>().firstWhere(
+              (f) => f?.id == value, orElse: () => null),
+          label: '账户',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is UserFundVO) onChanged(v.id);
+          },
+        );
+      case 'shopCode':
+        return CommonSelectFormField<AccountShop>(
+          items: shops,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: shops.cast<AccountShop?>().firstWhere(
+              (s) => s?.code == value, orElse: () => null),
+          label: '商家',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountShop) onChanged(v.code);
+          },
+        );
+      case 'tagCode':
+        return CommonSelectFormField<AccountSymbol>(
+          items: tags,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: tags.cast<AccountSymbol?>().firstWhere(
+              (s) => s?.code == value, orElse: () => null),
+          label: '标签',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountSymbol) onChanged(v.code);
+          },
+        );
+      case 'projectCode':
+        return CommonSelectFormField<AccountSymbol>(
+          items: projects,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          value: projects.cast<AccountSymbol?>().firstWhere(
+              (s) => s?.code == value, orElse: () => null),
+          label: '项目',
+          allowCreate: false,
+          onChanged: (v) {
+            if (v is AccountSymbol) onChanged(v.code);
+          },
+        );
+      default:
+        return TextField(
+          decoration: const InputDecoration(
+            labelText: '值',
+            border: OutlineInputBorder(),
+            isDense: true,
+          ),
+          controller: TextEditingController(text: value),
+          onChanged: onChanged,
+        );
+    }
   }
 }
