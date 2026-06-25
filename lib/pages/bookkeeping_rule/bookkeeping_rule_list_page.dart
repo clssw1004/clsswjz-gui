@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
 import '../../providers/bookkeeping_rule_provider.dart';
+import '../../manager/l10n_manager.dart';
 import '../../providers/books_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
-import '../../manager/l10n_manager.dart';
 import '../../utils/toast_util.dart';
 
 /// 记账规则列表页
@@ -221,7 +221,12 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
           }
         } else {
           final op = _typeLabels[c.type] ?? c.type ?? '';
-          parts.add('$fieldLabel $op ${provider.resolveValue(c.field ?? '', c.value)}');
+          final displayVal = provider.resolveValue(c.field ?? '', c.value);
+          if (c.type == 'field_equals') {
+            parts.add('$fieldLabel${L10nManager.l10n.bookkeepingRuleNameFieldIs}$displayVal');
+          } else {
+            parts.add('$fieldLabel$op$displayVal');
+          }
         }
       } else {
         final op = c.logicOperator ?? 'AND';
@@ -233,10 +238,11 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
 
   /// 生成操作摘要文本
   String _actionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
+    final l10n = L10nManager.l10n;
     final parts = rule.actions.map((a) {
       final fieldLabel = _fieldLabels[a.field] ?? a.field;
-      return '$fieldLabel = ${provider.resolveValue(a.field, a.value)}';
+      return l10n.bookkeepingRuleNameSetField(fieldLabel, provider.resolveValue(a.field, a.value));
     });
-    return '操作: ${parts.join(', ')}';
+    return '操作: ${parts.join('，')}';
   }
 }
