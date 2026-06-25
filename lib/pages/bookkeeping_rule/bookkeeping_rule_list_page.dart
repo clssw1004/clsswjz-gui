@@ -192,50 +192,6 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
     };
   }
 
-  String _typeLabelName(String type) {
-    final l10n = L10nManager.l10n;
-    return switch (type) {
-      'field_equals' => l10n.bookkeepingRuleLabelTypeEq,
-      'field_in' => l10n.bookkeepingRuleLabelTypeIn,
-      'amount_range' => l10n.bookkeepingRuleLabelTypeRange,
-      _ => type,
-    };
-  }
-
-  /// 生成条件摘要文本
-  String _conditionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
-    final l10n = L10nManager.l10n;
-    final parts = <String>[];
-    for (final c in rule.conditions) {
-      if (c.isLeaf) {
-        final fieldLabel = _fieldLabelName(c.field ?? '');
-        if (c.type == 'amount_range') {
-          if (c.value is Map) {
-            final m = c.value as Map;
-            final min = m['minAmount'];
-            final max = m['maxAmount'];
-            if (min != null && max != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountBetween(min.toString(), max.toString())}');
-            else if (min != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountGte}$min');
-            else if (max != null) parts.add('$fieldLabel${l10n.bookkeepingRuleNameAmountLte}$max');
-            else parts.add(fieldLabel);
-          }
-        } else {
-          final op = _typeLabelName(c.type ?? '');
-          final displayVal = provider.resolveValue(c.field ?? '', c.value);
-          if (c.type == 'field_equals') {
-            parts.add('$fieldLabel${l10n.bookkeepingRuleNameFieldIs}$displayVal');
-          } else {
-            parts.add('$fieldLabel$op$displayVal');
-          }
-        }
-      } else {
-        final op = c.logicOperator ?? 'AND';
-        parts.add('(${c.conditions?.length ?? 0}${l10n.bookkeepingRuleLabelSubItem}$op)');
-      }
-    }
-    return '${l10n.bookkeepingRuleLabelConditionTitle}${parts.join(' ')}';
-  }
-
   /// 条件摘要 RichText
   Widget _buildConditionRichText(BookkeepingRuleVO rule, BookkeepingRuleProvider provider, ColorScheme cs) {
     final spans = <InlineSpan>[];
