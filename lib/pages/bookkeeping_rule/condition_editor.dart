@@ -258,43 +258,62 @@ class ConditionGroupEditor extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Theme.of(context).colorScheme.primary)),
-                const Spacer(),
-                if (condition.children.length >= 2)
-                  SegmentedButton<String>(
-                    showSelectedIcon: false,
-                    segments: const [
-                      ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 11))),
-                      ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 11))),
-                    ],
-                    selected: {condition.logicOperator ?? 'AND'},
-                    onSelectionChanged: (v) {
-                      condition.logicOperator = v.first;
-                      onStateChanged();
-                    },
-                    style: ButtonStyle(
-                      visualDensity: VisualDensity.compact,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            Container(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // 条件组标签 + 左侧圆点标识
+                  Container(
+                    width: 6,
+                    height: 6,
+                    margin: const EdgeInsets.only(right: 6),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary.withAlpha(120),
                     ),
                   ),
-                IconButton(
-                  icon: Icon(Icons.remove_circle_outline,
-                      color: Theme.of(context).colorScheme.error, size: 18),
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    conditions.removeAt(index);
-                    onStateChanged();
-                  },
-                ),
-              ],
+                  Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+                  const Spacer(),
+                  if (condition.children.length >= 2)
+                    SizedBox(
+                      height: 28,
+                      child: SegmentedButton<String>(
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 11))),
+                          ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 11))),
+                        ],
+                        selected: {condition.logicOperator ?? 'AND'},
+                        onSelectionChanged: (v) {
+                          condition.logicOperator = v.first;
+                          onStateChanged();
+                        },
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 6)),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 2),
+                  IconButton(
+                    icon: Icon(Icons.remove_circle_outline,
+                        color: Theme.of(context).colorScheme.error, size: 16),
+                    constraints:
+                        const BoxConstraints(minWidth: 24, minHeight: 24),
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      conditions.removeAt(index);
+                      onStateChanged();
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 4),
             ConditionGroupEditor(
