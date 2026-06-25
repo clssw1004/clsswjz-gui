@@ -570,16 +570,17 @@ class _ConditionGroupEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // AND / OR 选择器
-        SegmentedButton<String>(
-          showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: 'AND', label: Text('AND')),
-            ButtonSegment(value: 'OR', label: Text('OR')),
-          ],
-          selected: {logicOperator},
-          onSelectionChanged: (v) => onLogicOperatorChanged(v.first),
-        ),
+        // AND / OR 选择器（≥2个条件时才显示）
+        if (conditions.length >= 2)
+          SegmentedButton<String>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: 'AND', label: Text('AND')),
+              ButtonSegment(value: 'OR', label: Text('OR')),
+            ],
+            selected: {logicOperator},
+            onSelectionChanged: (v) => onLogicOperatorChanged(v.first),
+          ),
         const SizedBox(height: 8),
         // 条件列表
         ...conditions.asMap().entries.map((entry) {
