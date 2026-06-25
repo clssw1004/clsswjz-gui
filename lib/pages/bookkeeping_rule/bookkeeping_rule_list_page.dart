@@ -144,19 +144,11 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                 ),
                 // ── 条件摘要 ──
                 if (rule.conditions.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 2, 16, 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.tertiary.withAlpha(15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border(
-                        left: BorderSide(color: cs.tertiary.withAlpha(100), width: 3),
-                      ),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
                     child: Row(
                       children: [
-                        Icon(Icons.filter_alt_outlined, size: 14, color: cs.tertiary),
+                        Icon(Icons.filter_alt_outlined, size: 16, color: cs.onSurfaceVariant),
                         const SizedBox(width: 6),
                         Expanded(
                           child: _buildConditionRichText(rule, provider, cs),
@@ -166,19 +158,11 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                   ),
                 // ── 操作摘要 ──
                 if (rule.actions.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withAlpha(15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border(
-                        left: BorderSide(color: cs.primary.withAlpha(100), width: 3),
-                      ),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                     child: Row(
                       children: [
-                        Icon(Icons.play_arrow_outlined, size: 14, color: cs.primary),
+                        Icon(Icons.play_arrow_outlined, size: 16, color: cs.onSurfaceVariant),
                         const SizedBox(width: 6),
                         Expanded(
                           child: _buildActionRichText(rule.actions, provider, cs),
