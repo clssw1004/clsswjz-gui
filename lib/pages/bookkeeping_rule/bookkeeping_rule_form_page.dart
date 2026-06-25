@@ -441,30 +441,11 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(L10nManager.l10n.bookkeepingRuleCondition,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w600)),
-              const Spacer(),
-              if (_conditions.length >= 2)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: SegmentedButton<String>(
-                    showSelectedIcon: false,
-                    segments: const [
-                      ButtonSegment(value: 'AND', label: Text('AND')),
-                      ButtonSegment(value: 'OR', label: Text('OR')),
-                    ],
-                    selected: {_rootLogicOperator},
-                    onSelectionChanged: (v) =>
-                        setState(() => _rootLogicOperator = v.first),
-                    style: const ButtonStyle(
-                      visualDensity: VisualDensity.compact,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.add_circle_outline),
                 tooltip: L10nManager.l10n.bookkeepingRuleAddCondition,
@@ -486,7 +467,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           ),
           const SizedBox(height: 8),
           ConditionGroupEditor(
-            showLogicSelector: false,
             conditions: _conditions,
             logicOperator: _rootLogicOperator,
             onLogicOperatorChanged: (v) =>

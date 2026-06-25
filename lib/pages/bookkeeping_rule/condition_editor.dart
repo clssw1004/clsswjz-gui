@@ -15,7 +15,6 @@ class ConditionGroupEditor extends StatelessWidget {
   final List<AccountShop> shops;
   final List<AccountSymbol> tags;
   final List<AccountSymbol> projects;
-  final bool showLogicSelector;
 
   const ConditionGroupEditor({
     super.key,
@@ -28,7 +27,6 @@ class ConditionGroupEditor extends StatelessWidget {
     this.shops = const [],
     this.tags = const [],
     this.projects = const [],
-    this.showLogicSelector = true,
   });
 
   static String typeLabel(String type) {
@@ -87,7 +85,7 @@ class ConditionGroupEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // AND / OR 选择器（≥2个条件时才显示）
-        if (showLogicSelector && conditions.length >= 2)
+        if (conditions.length >= 2)
           SegmentedButton<String>(
             showSelectedIcon: false,
             segments: const [
@@ -96,10 +94,6 @@ class ConditionGroupEditor extends StatelessWidget {
             ],
             selected: {logicOperator},
             onSelectionChanged: (v) => onLogicOperatorChanged(v.first),
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
           ),
         const SizedBox(height: 8),
         // 条件列表
