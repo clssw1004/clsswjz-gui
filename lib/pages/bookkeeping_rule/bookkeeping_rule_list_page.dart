@@ -159,12 +159,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         Icon(Icons.filter_alt_outlined, size: 14, color: cs.tertiary),
                         const SizedBox(width: 6),
                         Expanded(
-                          child: Text(
-                            _conditionSummary(rule, provider),
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          child: _buildConditionRichText(rule, provider, cs),
                         ),
                       ],
                     ),
@@ -255,6 +250,50 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
       }
     }
     return '${l10n.bookkeepingRuleLabelConditionTitle}${parts.join(' ')}';
+  }
+
+  /// 条件摘要 RichText
+  Widget _buildConditionRichText(BookkeepingRuleVO rule, BookkeepingRuleProvider provider, ColorScheme cs) {
+    final spans = <InlineSpan>[];
+    spans.add(TextSpan(
+      text: L10nManager.l10n.bookkeepingRuleLabelConditionTitle,
+      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+    ));
+    for (final c in rule.conditions) {
+      if (c.isLeaf) {
+        final fieldLabel = _fieldLabelName(c.field ?? '');
+        final displayVal = provider.resolveValue(c.field ?? '', c.value);
+        if (c.type == 'amount_range') {
+          if (c.value is Map) {
+            final m = c.value as Map;
+            final min = m['minAmount'];
+            final max = m['maxAmount'];
+            if (min != null && max != null) {
+              spans.add(TextSpan(text: '$fieldLabel${L10nManager.l10n.bookkeepingRuleNameAmountBetween(min.toString(), max.toString())}', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+            } else if (min != null) {
+              spans.add(TextSpan(text: fieldLabel, style: TextStyle(color: cs.primary, fontSize: 13, fontWeight: FontWeight.w600)));
+              spans.add(TextSpan(text: L10nManager.l10n.bookkeepingRuleNameAmountGte, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+              spans.add(TextSpan(text: '$min', style: TextStyle(color: cs.secondary, fontSize: 13, fontWeight: FontWeight.w600)));
+            } else if (max != null) {
+              spans.add(TextSpan(text: fieldLabel, style: TextStyle(color: cs.primary, fontSize: 13, fontWeight: FontWeight.w600)));
+              spans.add(TextSpan(text: L10nManager.l10n.bookkeepingRuleNameAmountLte, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+              spans.add(TextSpan(text: '$max', style: TextStyle(color: cs.secondary, fontSize: 13, fontWeight: FontWeight.w600)));
+            } else {
+              spans.add(TextSpan(text: fieldLabel, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+            }
+          }
+        } else {
+          spans.add(TextSpan(text: fieldLabel, style: TextStyle(color: cs.primary, fontSize: 13, fontWeight: FontWeight.w600)));
+          spans.add(TextSpan(text: L10nManager.l10n.bookkeepingRuleNameFieldIs, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+          spans.add(TextSpan(text: displayVal, style: TextStyle(color: cs.secondary, fontSize: 13, fontWeight: FontWeight.w600)));
+        }
+        spans.add(TextSpan(text: '  ', style: TextStyle(fontSize: 13)));
+      } else {
+        final op = c.logicOperator ?? 'AND';
+        spans.add(TextSpan(text: '(${c.conditions?.length ?? 0}${L10nManager.l10n.bookkeepingRuleLabelSubItem}$op)', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
+      }
+    }
+    return Text.rich(TextSpan(children: spans), maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 
   /// 操作摘要 RichText（字段名和值使用不同颜色）
