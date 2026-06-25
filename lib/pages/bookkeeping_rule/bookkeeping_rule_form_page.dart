@@ -16,8 +16,6 @@ import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_select_form_field.dart';
-import '../../widgets/common/multi_select_sheet.dart';
-import '../../widgets/common/multi_select_dialog.dart';
 
 // ============================================================
 // 编辑器可变数据 Wrapper
@@ -824,9 +822,9 @@ class _ConditionValueSelector extends StatelessWidget {
     if (conditionType == 'amount_range') {
       return _buildAmountRange();
     }
-    // 属于 → 逗号分隔多值
+    // 属于 → 多选组件
     if (conditionType == 'field_in') {
-      return _buildMultiValueField(context);
+      return _buildMultiSelect();
     }
     // 等于 → 按字段类型使用选择组件或输入框
     return _buildEqualsSelector();
@@ -837,69 +835,12 @@ class _ConditionValueSelector extends StatelessWidget {
       case 'type':
         return _buildTypeSelector();
       case 'categoryCode':
-        return CommonSelectFormField<AccountCategory>(
-          items: categories,
-          displayField: (c) => c.name,
-          keyField: (c) => c.code,
-          value: categories.cast<AccountCategory?>().firstWhere(
-              (c) => c?.code == value?.toString(), orElse: () => null),
-          label: '分类',
-          allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountCategory) onChanged(v.code);
-          },
-        );
       case 'fundId':
-        return CommonSelectFormField<UserFundVO>(
-          items: funds,
-          displayField: (f) => f.name,
-          keyField: (f) => f.id,
-          value: funds.cast<UserFundVO?>().firstWhere(
-              (f) => f?.id == value?.toString(), orElse: () => null),
-          label: '账户',
-          allowCreate: false,
-          onChanged: (v) {
-            if (v is UserFundVO) onChanged(v.id);
-          },
-        );
       case 'shopCode':
-        return CommonSelectFormField<AccountShop>(
-          items: shops,
-          displayField: (s) => s.name,
-          keyField: (s) => s.code,
-          value: shops.cast<AccountShop?>().firstWhere(
-              (s) => s?.code == value?.toString(), orElse: () => null),
-          label: '商家',
-          allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountShop) onChanged(v.code);
-          },
-        );
       case 'tagCode':
-        return CommonSelectFormField<AccountSymbol>(
-          items: tags,
-          displayField: (s) => s.name,
-          keyField: (s) => s.code,
-          value: tags.cast<AccountSymbol?>().firstWhere(
-              (s) => s?.code == value?.toString(), orElse: () => null),
-          label: '标签',
-          allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountSymbol) onChanged(v.code);
-          },
-        );
       case 'projectCode':
-        return CommonSelectFormField<AccountSymbol>(
-          items: projects,
-          displayField: (s) => s.name,
-          keyField: (s) => s.code,
-          value: projects.cast<AccountSymbol?>().firstWhere(
-              (s) => s?.code == value?.toString(), orElse: () => null),
-          label: '项目',
-          allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountSymbol) onChanged(v.code);
-          },
+        return _buildCommonSelectField(
+          key: ValueKey('eq_${field}_${value?.toString()}'),
         );
       default:
         return _buildSingleValueField();
@@ -967,7 +908,8 @@ class _ConditionValueSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildMultiValueField(BuildContext context) {
+  Widget _buildMultiSelect() {
+    // Parse current selection from stored comma-separated string
     final List<String> currentIds;
     if (value is List) {
       currentIds = (value as List).map((e) => e.toString()).toList();
@@ -976,66 +918,100 @@ class _ConditionValueSelector extends StatelessWidget {
     } else {
       currentIds = [];
     }
-
-    final options = _buildMultiSelectOptions();
-    final selectedLabels = currentIds
-        .map((id) => options.where((o) => o.key == id).firstOrNull?.name ?? id)
-        .join(', ');
-
-    return InkWell(
-      onTap: () async {
-        final result = await MultiSelectSheet.show(
-          context,
-          title: '选择多个值',
-          options: options,
-          selectedIds: currentIds,
-        );
-        if (result != null) {
-          onChanged(result.join(', '));
+    return _buildCommonSelectField(
+      key: ValueKey('multi_${field}_${currentIds.join(",")}'),
+      selectedIds: currentIds,
+      multiSelect: true,
+      onChanged: (ids) {
+        if (ids is List<String>) {
+          onChanged(ids.join(', '));
         }
       },
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: '值',
-          border: OutlineInputBorder(),
-          isDense: true,
-          suffixIcon: Icon(Icons.arrow_drop_down, size: 20),
-          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        ),
-        child: Text(
-          selectedLabels.isNotEmpty ? selectedLabels : '请选择',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: selectedLabels.isNotEmpty
-                ? null
-                : Theme.of(context).colorScheme.onSurface.withAlpha(128),
-          ),
-        ),
-      ),
     );
   }
 
-  List<MultiSelectOption> _buildMultiSelectOptions() {
+  Widget _buildCommonSelectField({
+    required Key key,
+    String? selectedId,
+    List<String>? selectedIds,
+    bool multiSelect = false,
+    ValueChanged<dynamic>? onChanged,
+  }) {
+    // 对于单选，计算当前选中的值用于匹配
+    final singleValue = selectedId ?? value?.toString();
     switch (field) {
-      case 'type':
-        return [
-          MultiSelectOption(key: 'EXPENSE', name: '支出'),
-          MultiSelectOption(key: 'INCOME', name: '收入'),
-          MultiSelectOption(key: 'TRANSFER', name: '转账'),
-        ];
       case 'categoryCode':
-        return categories.map((c) => MultiSelectOption(key: c.code, name: c.name)).toList();
+        return CommonSelectFormField<AccountCategory>(
+          key: key,
+          items: categories,
+          multiSelect: multiSelect,
+          value: multiSelect ? (selectedIds ?? <String>[]) : categories.where((c) => c.code == singleValue).firstOrNull,
+          displayField: (c) => c.name,
+          keyField: (c) => c.code,
+          label: '分类',
+          allowCreate: false,
+          onChanged: onChanged ?? (v) {
+            if (v is AccountCategory) { this.onChanged(v.code); }
+          },
+        );
       case 'fundId':
-        return funds.map((f) => MultiSelectOption(key: f.id, name: f.name)).toList();
+        return CommonSelectFormField<UserFundVO>(
+          key: key,
+          items: funds,
+          multiSelect: multiSelect,
+          value: multiSelect ? (selectedIds ?? <String>[]) : funds.where((f) => f.id == singleValue).firstOrNull,
+          displayField: (f) => f.name,
+          keyField: (f) => f.id,
+          label: '账户',
+          allowCreate: false,
+          onChanged: onChanged ?? (v) {
+            if (v is UserFundVO) { this.onChanged(v.id); }
+          },
+        );
       case 'shopCode':
-        return shops.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+        return CommonSelectFormField<AccountShop>(
+          key: key,
+          items: shops,
+          multiSelect: multiSelect,
+          value: multiSelect ? (selectedIds ?? <String>[]) : shops.where((s) => s.code == singleValue).firstOrNull,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          label: '商家',
+          allowCreate: false,
+          onChanged: onChanged ?? (v) {
+            if (v is AccountShop) { this.onChanged(v.code); }
+          },
+        );
       case 'tagCode':
-        return tags.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+        return CommonSelectFormField<AccountSymbol>(
+          key: key,
+          items: tags,
+          multiSelect: multiSelect,
+          value: multiSelect ? (selectedIds ?? <String>[]) : tags.where((s) => s.code == singleValue).firstOrNull,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          label: '标签',
+          allowCreate: false,
+          onChanged: onChanged ?? (v) {
+            if (v is AccountSymbol) { this.onChanged(v.code); }
+          },
+        );
       case 'projectCode':
-        return projects.map((s) => MultiSelectOption(key: s.code, name: s.name)).toList();
+        return CommonSelectFormField<AccountSymbol>(
+          key: key,
+          items: projects,
+          multiSelect: multiSelect,
+          value: multiSelect ? (selectedIds ?? <String>[]) : projects.where((s) => s.code == singleValue).firstOrNull,
+          displayField: (s) => s.name,
+          keyField: (s) => s.code,
+          label: '项目',
+          allowCreate: false,
+          onChanged: onChanged ?? (v) {
+            if (v is AccountSymbol) { this.onChanged(v.code); }
+          },
+        );
       default:
-        return [];
+        return _buildSingleValueField();
     }
   }
 
@@ -1082,68 +1058,58 @@ class _ActionValueSelector extends StatelessWidget {
     switch (field) {
       case 'categoryCode':
         return CommonSelectFormField<AccountCategory>(
+          key: ValueKey('act_cat_$value'),
           items: categories,
           displayField: (c) => c.name,
           keyField: (c) => c.code,
-          value: categories.cast<AccountCategory?>().firstWhere(
-              (c) => c?.code == value, orElse: () => null),
+          value: categories.where((c) => c.code == value).firstOrNull,
           label: '分类',
           allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountCategory) onChanged(v.code);
-          },
+          onChanged: (v) { if (v is AccountCategory) onChanged(v.code); },
         );
       case 'fundId':
         return CommonSelectFormField<UserFundVO>(
+          key: ValueKey('act_fund_$value'),
           items: funds,
           displayField: (f) => f.name,
           keyField: (f) => f.id,
-          value: funds.cast<UserFundVO?>().firstWhere(
-              (f) => f?.id == value, orElse: () => null),
+          value: funds.where((f) => f.id == value).firstOrNull,
           label: '账户',
           allowCreate: false,
-          onChanged: (v) {
-            if (v is UserFundVO) onChanged(v.id);
-          },
+          onChanged: (v) { if (v is UserFundVO) onChanged(v.id); },
         );
       case 'shopCode':
         return CommonSelectFormField<AccountShop>(
+          key: ValueKey('act_shop_$value'),
           items: shops,
           displayField: (s) => s.name,
           keyField: (s) => s.code,
-          value: shops.cast<AccountShop?>().firstWhere(
-              (s) => s?.code == value, orElse: () => null),
+          value: shops.where((s) => s.code == value).firstOrNull,
           label: '商家',
           allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountShop) onChanged(v.code);
-          },
+          onChanged: (v) { if (v is AccountShop) onChanged(v.code); },
         );
       case 'tagCode':
         return CommonSelectFormField<AccountSymbol>(
+          key: ValueKey('act_tag_$value'),
           items: tags,
           displayField: (s) => s.name,
           keyField: (s) => s.code,
-          value: tags.cast<AccountSymbol?>().firstWhere(
-              (s) => s?.code == value, orElse: () => null),
+          value: tags.where((s) => s.code == value).firstOrNull,
           label: '标签',
           allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountSymbol) onChanged(v.code);
-          },
+          onChanged: (v) { if (v is AccountSymbol) onChanged(v.code); },
         );
       case 'projectCode':
         return CommonSelectFormField<AccountSymbol>(
+          key: ValueKey('act_proj_$value'),
           items: projects,
           displayField: (s) => s.name,
           keyField: (s) => s.code,
-          value: projects.cast<AccountSymbol?>().firstWhere(
-              (s) => s?.code == value, orElse: () => null),
+          value: projects.where((s) => s.code == value).firstOrNull,
           label: '项目',
           allowCreate: false,
-          onChanged: (v) {
-            if (v is AccountSymbol) onChanged(v.code);
-          },
+          onChanged: (v) { if (v is AccountSymbol) onChanged(v.code); },
         );
       default:
         return TextField(
