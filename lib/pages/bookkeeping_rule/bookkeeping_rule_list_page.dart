@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/rule/action_model.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
 import '../../providers/bookkeeping_rule_provider.dart';
 import '../../manager/l10n_manager.dart';
@@ -185,7 +186,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
                         Icon(Icons.play_arrow_outlined, size: 14, color: cs.primary),
                         const SizedBox(width: 6),
                         Expanded(
-                          child: _buildActionRichText(rule, provider, theme, cs),
+                          child: _buildActionRichText(rule.actions, provider, cs),
                         ),
                       ],
                     ),
@@ -256,56 +257,31 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
     return '${l10n.bookkeepingRuleLabelConditionTitle}${parts.join(' ')}';
   }
 
-  /// 操作摘要文本（纯文本，用于条件判断）
-  String _actionSummary(BookkeepingRuleVO rule, BookkeepingRuleProvider provider) {
-    final l10n = L10nManager.l10n;
-    final parts = rule.actions.map((a) {
-      final fieldLabel = _fieldLabelName(a.field);
-      return l10n.bookkeepingRuleNameSetField(fieldLabel, provider.resolveValue(a.field, a.value));
-    });
-    return '${l10n.bookkeepingRuleLabelActionTitle}${parts.join('，')}';
-  }
-
   /// 操作摘要 RichText（字段名和值使用不同颜色）
-  Widget _buildActionRichText(BookkeepingRuleVO rule, BookkeepingRuleProvider provider, ThemeData theme, ColorScheme cs) {
-    final l10n = L10nManager.l10n;
+  Widget _buildActionRichText(List<ActionNode> actions, BookkeepingRuleProvider provider, ColorScheme cs) {
     final spans = <InlineSpan>[];
     spans.add(TextSpan(
-      text: l10n.bookkeepingRuleLabelActionTitle,
-      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+      text: L10nManager.l10n.bookkeepingRuleLabelActionTitle,
+      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
     ));
-    for (var i = 0; i < rule.actions.length; i++) {
-      final a = rule.actions[i];
+    for (var i = 0; i < actions.length; i++) {
+      final a = actions[i];
       final fieldLabel = _fieldLabelName(a.field);
       final valueText = provider.resolveValue(a.field, a.value);
       if (i > 0) {
-        spans.add(TextSpan(text: '，', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)));
+        spans.add(TextSpan(text: '，', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
       }
-      // "设置" prefix
-      spans.add(TextSpan(
-        text: l10n.bookkeepingRuleAutoNamePrefix == 'When' ? 'set ' : '设置',
-        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-      ));
-      // field name (primary color, bold)
+      spans.add(TextSpan(text: '设置', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
       spans.add(TextSpan(
         text: fieldLabel,
-        style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600),
+        style: TextStyle(color: cs.primary, fontSize: 13, fontWeight: FontWeight.w600),
       ));
-      // "为" / "to" middle
-      spans.add(TextSpan(
-        text: l10n.bookkeepingRuleAutoNamePrefix == 'When' ? ' to ' : '为',
-        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-      ));
-      // value (secondary color, bold)
+      spans.add(TextSpan(text: '为', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)));
       spans.add(TextSpan(
         text: valueText,
-        style: theme.textTheme.bodySmall?.copyWith(color: cs.secondary, fontWeight: FontWeight.w600),
+        style: TextStyle(color: cs.secondary, fontSize: 13, fontWeight: FontWeight.w600),
       ));
     }
-    return Text.rich(
-      TextSpan(children: spans),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
+    return Text.rich(TextSpan(children: spans), maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 }

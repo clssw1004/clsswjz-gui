@@ -15,7 +15,6 @@ import '../../theme/theme_spacing.dart';
 import '../../utils/toast_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_card_container.dart';
-import '../../widgets/common/common_select_form_field.dart';
 import 'editor_models.dart';
 import 'condition_editor.dart';
 import 'action_value_widgets.dart';
@@ -524,51 +523,28 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4, left: 4),
-                            child: FieldLabelChip(
-                              label: L10nManager.l10n.bookkeepingRuleLabelField,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                          DropdownButtonFormField<String>(
-                            initialValue: action.field,
-                            decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                              filled: true,
-                              fillColor: colorScheme.primary.withAlpha(8),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                            ),
-                            items: _actionFieldValues()
-                                .map((e) => DropdownMenuItem(
-                                    value: e.key, child: Text(e.value)))
-                                .toList(),
-                            onChanged: (v) {
-                              if (v != null) setState(() => action.field = v);
-                            },
-                          ),
-                        ],
+                      child: DropdownButtonFormField<String>(
+                        initialValue: action.field,
+                        decoration: InputDecoration(
+                          labelText: L10nManager.l10n.bookkeepingRuleLabelField,
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                        ),
+                        items: _actionFieldValues()
+                            .map((e) => DropdownMenuItem(
+                                value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => action.field = v);
+                        },
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4, left: 4),
-                            child: FieldLabelChip(
-                              label: L10nManager.l10n.bookkeepingRuleLabelValue,
-                              color: colorScheme.secondary,
-                            ),
-                          ),
-                          ActionValueSelector(
+                      child: ActionValueSelector(
                           field: action.field,
                           value: action.value,
                           onChanged: (v) => setState(() => action.value = v),

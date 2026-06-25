@@ -4,7 +4,6 @@ import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_select_form_field.dart';
-import '../../widgets/common/multi_select_sheet.dart';
 import 'editor_models.dart';
 class ConditionGroupEditor extends StatelessWidget {
   final List<ConditionData> conditions;
@@ -228,7 +227,7 @@ class ConditionGroupEditor extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _ConditionValueSelector(
+                child: ConditionValueSelector(
                   key: ValueKey(
                       '${condition.type}_${condition.field}_$index'),
                   conditionType: condition.type ?? 'field_equals',
@@ -281,7 +280,7 @@ class ConditionGroupEditor extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          _ConditionGroupEditor(
+          ConditionGroupEditor(
             conditions: condition.children,
             logicOperator: condition.logicOperator ?? 'AND',
             onLogicOperatorChanged: (op) {
