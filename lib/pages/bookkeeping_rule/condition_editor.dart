@@ -86,33 +86,36 @@ class ConditionGroupEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // AND / OR 选择器（≥2个条件时才显示）
-        if (showLogicSelector && conditions.length >= 2)
-          SegmentedButton<String>(
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 12))),
-              ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 12))),
-            ],
-            selected: {logicOperator},
-            onSelectionChanged: (v) => onLogicOperatorChanged(v.first),
-            style: ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-          ),
-        const SizedBox(height: 8),
-        // 条件列表
-        ...conditions.asMap().entries.map((entry) {
-          final idx = entry.key;
-          final condition = entry.value;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: condition.isLeaf
-                ? _buildLeafRow(context, condition, idx)
-                : _buildGroupRow(context, condition, idx),
-          );
-        }),
+        const SizedBox(height: 4),
+        // 条件列表（带 AND/OR 连接芯片）
+        ...() {
+          final items = <Widget>[];
+          for (var i = 0; i < conditions.length; i++) {
+            final condition = conditions[i];
+            items.add(
+              condition.isLeaf
+                  ? _buildLeafRow(context, condition, i)
+                  : _buildGroupRow(context, condition, i),
+            );
+            // 条件之间的 AND/OR 连接芯片
+            if (showLogicSelector && i < conditions.length - 1) {
+              items.add(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Center(
+                    child: _LogicChip(
+                      logic: logicOperator,
+                      onToggle: () => onLogicOperatorChanged(
+                        logicOperator == 'AND' ? 'OR' : 'AND',
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+          return items;
+        }(),
         // 内部添加条件按钮
         Padding(
           padding: const EdgeInsets.only(left: 24),
@@ -258,54 +261,34 @@ class ConditionGroupEditor extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.only(bottom: 2),
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 6),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // 条件组标签 + 左侧圆点标识
-                  Container(
-                    width: 6,
-                    height: 6,
-                    margin: const EdgeInsets.only(right: 6),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary.withAlpha(120),
-                    ),
-                  ),
+                  Icon(Icons.folder_outlined, size: 14,
+                      color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 4),
                   Text(L10nManager.l10n.bookkeepingRuleConditionGroup,
                       style: Theme.of(context)
                           .textTheme
                           .labelMedium
                           ?.copyWith(color: Theme.of(context).colorScheme.primary)),
-                  const Spacer(),
-                  if (condition.children.length >= 2)
-                    SizedBox(
-                      height: 28,
-                      child: SegmentedButton<String>(
-                        showSelectedIcon: false,
-                        segments: const [
-                          ButtonSegment(value: 'AND', label: Text('AND', style: TextStyle(fontSize: 11))),
-                          ButtonSegment(value: 'OR', label: Text('OR', style: TextStyle(fontSize: 11))),
-                        ],
-                        selected: {condition.logicOperator ?? 'AND'},
-                        onSelectionChanged: (v) {
-                          condition.logicOperator = v.first;
-                          onStateChanged();
-                        },
-                        style: ButtonStyle(
-                          visualDensity: VisualDensity.compact,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 6)),
-                        ),
-                      ),
+                  if (condition.children.length >= 2) ...[
+                    const SizedBox(width: 6),
+                    _LogicChip(
+                      logic: condition.logicOperator ?? 'AND',
+                      onToggle: () {
+                        condition.logicOperator =
+                            condition.logicOperator == 'AND' ? 'OR' : 'AND';
+                        onStateChanged();
+                      },
                     ),
-                  const SizedBox(width: 2),
+                  ],
+                  const Spacer(),
                   IconButton(
                     icon: Icon(Icons.remove_circle_outline,
                         color: Theme.of(context).colorScheme.error, size: 16),
-                    constraints:
-                        const BoxConstraints(minWidth: 24, minHeight: 24),
+                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
                     padding: EdgeInsets.zero,
                     onPressed: () {
                       conditions.removeAt(index);
@@ -333,6 +316,50 @@ class ConditionGroupEditor extends StatelessWidget {
             ),
           ],
         ),
+    );
+  }
+}
+
+/// 小巧的 AND/OR 切换标签（内联使用）
+class _LogicChip extends StatelessWidget {
+  final String logic;
+  final VoidCallback onToggle;
+
+  const _LogicChip({required this.logic, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isAnd = logic == 'AND';
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: isAnd ? cs.primary.withAlpha(25) : cs.tertiary.withAlpha(25),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isAnd ? cs.primary.withAlpha(80) : cs.tertiary.withAlpha(80),
+            width: 0.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              logic,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isAnd ? cs.primary : cs.tertiary,
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(Icons.swap_horiz_rounded, size: 10,
+                color: cs.onSurfaceVariant.withAlpha(100)),
+          ],
+        ),
+      ),
     );
   }
 }
