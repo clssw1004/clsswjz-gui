@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../manager/l10n_manager.dart';
+import '../../manager/dao_manager.dart';
 import '../../models/rule/condition_model.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
 import '../../providers/bookkeeping_rule_provider.dart';
@@ -17,21 +16,11 @@ import '../../widgets/common/common_card_container.dart';
 // 编辑器可变数据 Wrapper
 // ============================================================
 
-/// 编辑器内部可变条件数据
 class _ConditionData {
-  /// 条件类型：field_equals / field_in / amount_range（null 表示组节点）
   String? type;
-
-  /// 字段名（null 表示组节点）
   String? field;
-
-  /// 条件值（null 表示组节点）
   dynamic value;
-
-  /// 逻辑运算符：AND / OR（组节点用）
   String? logicOperator;
-
-  /// 子条件列表（组节点用，叶子节点为空列表）
   List<_ConditionData> children;
 
   _ConditionData({
@@ -42,18 +31,12 @@ class _ConditionData {
     List<_ConditionData>? children,
   }) : children = children ?? [];
 
-  /// 是否为叶子节点
   bool get isLeaf => children.isEmpty;
 }
 
-/// 编辑器内部可变操作数据
 class _ActionData {
-  /// 目标字段
   String field;
-
-  /// 设置的值
   String value;
-
   _ActionData({required this.field, required this.value});
 }
 
@@ -61,16 +44,10 @@ class _ActionData {
 // 规则表单页面
 // ============================================================
 
-/// 记账规则新增 / 编辑表单页面
 class BookkeepingRuleFormPage extends StatefulWidget {
-  /// 编辑模式传入已有规则，null 表示新建
   final BookkeepingRuleVO? rule;
-
-  /// 新建时所属账本 ID
   final String? bookId;
-
   const BookkeepingRuleFormPage({super.key, this.rule, this.bookId});
-
   @override
   State<BookkeepingRuleFormPage> createState() =>
       _BookkeepingRuleFormPageState();
@@ -80,11 +57,15 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   final _nameCtrl = TextEditingController();
   final _priorityCtrl = TextEditingController(text: '0');
   bool _isActive = true;
-
   List<_ConditionData> _conditions = [];
   String _rootLogicOperator = 'AND';
   List<_ActionData> _actions = [];
   bool _loading = false;
+
+  // 引用数据加载状态
+  List<dynamic> _categories = [];
+  List<dynamic> _funds = [];
+  List<dynamic> _shops = [];
 
   static const _actionFieldLabels = {
     'categoryCode': '分类',
@@ -110,13 +91,32 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
               ))
           .toList();
     }
+    _loadReferenceData();
   }
 
-  /// 解析已有条件树到编辑器数据
+  Future<void> _loadReferenceData() async {
+    final bookId = widget.bookId ??
+        (context.read<BooksProvider>().selectedBook?.id);
+    if (bookId == null) return;
+    try {
+      final cats = await DaoManager.categoryDao.listByBook(bookId);
+      final funds = await DaoManager.fundDao.listByBook(bookId);
+      final shops = await DaoManager.shopDao.listByBook(bookId);
+      // symbols (tags + projects) loaded on demand
+      if (mounted) {
+        setState(() {
+          _categories = cats;
+          _funds = funds;
+          _shops = shops;
+        });
+      }
+    } catch (_) {
+      // silent — form still usable with text input
+    }
+  }
+
   void _parseExistingConditions(List<ConditionNode> nodes) {
     if (nodes.isEmpty) return;
-    // 存储的 JSON 格式为 {"logicOperator":"AND","conditions":[...]}
-    // conditions getter 解析为 [rootNode{logicOperator, conditions:[...]}]
     if (nodes.length == 1 && !nodes.first.isLeaf) {
       _rootLogicOperator = nodes.first.logicOperator ?? 'AND';
       _conditions =
@@ -136,8 +136,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     }
     return _ConditionData(
       logicOperator: node.logicOperator ?? 'AND',
-      children:
-          node.conditions?.map(_parseConditionNode).toList() ?? [],
+      children: node.conditions?.map(_parseConditionNode).toList() ?? [],
     );
   }
 
@@ -145,7 +144,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
   // JSON 序列化
   // ============================================================
 
-  /// 序列化条件树为 JSON 字符串
   String _conditionsToJson() {
     return jsonEncode({
       'logicOperator': _rootLogicOperator,
@@ -153,17 +151,12 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     });
   }
 
-  /// 单个条件节点序列化
   Map<String, dynamic> _conditionToJson(_ConditionData c) {
     if (c.isLeaf) {
-      final map = <String, dynamic>{
-        'type': c.type,
-        'field': c.field,
-      };
+      final map = <String, dynamic>{'type': c.type, 'field': c.field};
       if (c.type == 'amount_range' && c.value is Map) {
         map['value'] = c.value;
       } else if (c.type == 'field_in' && c.value is String) {
-        // 逗号分隔字符串 → List<String>
         final parts = (c.value as String)
             .split(',')
             .map((s) => s.trim())
@@ -181,7 +174,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     };
   }
 
-  /// 序列化操作列表为 JSON 字符串
   String _actionsToJson() {
     return jsonEncode(
       _actions.map((a) => {
@@ -201,15 +193,12 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
       ToastUtil.showWarning(L10nManager.l10n.bookkeepingRuleNameRequired);
       return;
     }
-
     setState(() => _loading = true);
-
     final provider = context.read<BookkeepingRuleProvider>();
 
     if (widget.rule == null) {
-      // 新建
-      final bookId = widget.bookId ??
-          context.read<BooksProvider>().selectedBook?.id;
+      final bookId =
+          widget.bookId ?? context.read<BooksProvider>().selectedBook?.id;
       if (bookId == null) {
         if (mounted) {
           setState(() => _loading = false);
@@ -232,7 +221,6 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         ToastUtil.showError(result.message?.toString() ?? '保存失败');
       }
     } else {
-      // 编辑
       final result = await provider.updateRule(
         widget.rule!.id,
         name: _nameCtrl.text.trim(),
@@ -248,43 +236,140 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         ToastUtil.showError(result.message?.toString() ?? '保存失败');
       }
     }
-
-    if (mounted) {
-      setState(() => _loading = false);
-    }
+    if (mounted) setState(() => _loading = false);
   }
 
-  // ============================================================
-  // 辅助方法
-  // ============================================================
+  _ConditionData _createLeafCondition() =>
+      _ConditionData(type: 'field_equals', field: 'categoryCode', value: '');
 
-  _ConditionData _createLeafCondition() {
-    return _ConditionData(
-      type: 'field_equals',
-      field: 'categoryCode',
-      value: '',
-    );
-  }
+  _ConditionData _createGroupCondition() =>
+      _ConditionData(logicOperator: 'AND', children: [_createLeafCondition()]);
 
-  _ConditionData _createGroupCondition() {
-    return _ConditionData(logicOperator: 'AND');
-  }
+  void _addAction() =>
+      setState(() => _actions.add(_ActionData(field: 'categoryCode', value: '')));
 
-  void _addAction() {
-    setState(() {
-      _actions.add(_ActionData(field: 'categoryCode', value: ''));
-    });
-  }
-
-  void _removeAction(int index) {
-    setState(() => _actions.removeAt(index));
-  }
+  void _removeAction(int index) => setState(() => _actions.removeAt(index));
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _priorityCtrl.dispose();
     super.dispose();
+  }
+
+  // ============================================================
+  // 字段值选择弹窗
+  // ============================================================
+
+  Future<void> _showFieldValuePicker({
+    required String field,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+  }) async {
+    List<String> options = [];
+    String title = '';
+
+    switch (field) {
+      case 'type':
+        title = '选择类型';
+        options = ['EXPENSE', 'INCOME', 'TRANSFER'];
+        final labels = {'EXPENSE': '支出', 'INCOME': '收入', 'TRANSFER': '转账'};
+        final result = await showDialog<String>(
+          context: context,
+          builder: (ctx) => SimpleDialog(
+            title: Text(title),
+            children: options
+                .map((o) => SimpleDialogOption(
+                      onPressed: () => Navigator.pop(ctx, o),
+                      child: Text(labels[o] ?? o),
+                    ))
+                .toList(),
+          ),
+        );
+        if (result != null) onChanged(result);
+        return;
+
+      case 'categoryCode':
+        title = '选择分类';
+        options = _categories
+            .map((c) => (c as dynamic).name?.toString() ?? '')
+            .where((n) => n.isNotEmpty)
+            .toList();
+        break;
+      case 'fundId':
+        title = '选择账户';
+        options = _funds
+            .map((f) => (f as dynamic).name?.toString() ?? '')
+            .where((n) => n.isNotEmpty)
+            .toList();
+        break;
+      case 'shopCode':
+        title = '选择商家';
+        options = _shops
+            .map((s) => (s as dynamic).name?.toString() ?? '')
+            .where((n) => n.isNotEmpty)
+            .toList();
+        break;
+      case 'tagCode':
+        title = '选择标签';
+        options = _loadSymbolNames('TAG');
+        break;
+      case 'projectCode':
+        title = '选择项目';
+        options = _loadSymbolNames('PROJECT');
+        break;
+      default:
+        return;
+    }
+
+    // Show a simple bottom sheet / dialog with options
+    if (!mounted) return;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(title),
+        children: [
+          ...options.map((o) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(ctx, o),
+                child: Text(o),
+              )),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, '__custom__'),
+            child: Text('其他...', style: TextStyle(color: Theme.of(ctx).colorScheme.primary)),
+          ),
+        ],
+      ),
+    );
+    if (result == '__custom__') {
+      // Let user type directly — handled by caller fallback
+      onChanged('');
+    } else if (result != null) {
+      onChanged(result);
+    }
+  }
+
+  Future<void> _showActionFieldPicker({
+    required String field,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+  }) async {
+    await _showFieldValuePicker(
+      field: field,
+      currentValue: currentValue,
+      onChanged: onChanged,
+    );
+  }
+
+  List<String> _loadSymbolNames(String symbolType) {
+    try {
+      final bookId = widget.bookId ??
+          (context.read<BooksProvider>().selectedBook?.id);
+      if (bookId == null) return [];
+      // Symbols are loaded on-demand — for now return empty to show text field
+      return [];
+    } catch (_) {
+      return [];
+    }
   }
 
   // ============================================================
@@ -296,215 +381,211 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final spacing = theme.spacing;
-
     final isEdit = widget.rule != null;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(isEdit ? L10nManager.l10n.bookkeepingRuleEdit : L10nManager.l10n.bookkeepingRuleAdd),
+        title: Text(isEdit
+            ? L10nManager.l10n.bookkeepingRuleEdit
+            : L10nManager.l10n.bookkeepingRuleAdd),
       ),
       body: SingleChildScrollView(
         padding: spacing.pagePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ---- 基础信息卡片 ----
-            CommonCardContainer(
-              padding: spacing.formPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '基础信息',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _nameCtrl,
-                    decoration: InputDecoration(
-                      labelText: L10nManager.l10n.bookkeepingRuleName,
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    title: Text(_isActive ? L10nManager.l10n.bookkeepingRuleEnabled : L10nManager.l10n.bookkeepingRuleDisabled),
-                    value: _isActive,
-                    onChanged: (v) => setState(() => _isActive = v),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _priorityCtrl,
-                    decoration: InputDecoration(
-                      labelText: L10nManager.l10n.bookkeepingRulePriority,
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
-              ),
-            ),
+            _buildBasicInfoCard(theme),
             const SizedBox(height: 16),
-
-            // ---- 条件编辑卡片 ----
-            CommonCardContainer(
-              padding: spacing.formPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        L10nManager.l10n.bookkeepingRuleCondition,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      PopupMenuButton<String>(
-                        icon: const Icon(Icons.add_circle_outline),
-                        tooltip: L10nManager.l10n.bookkeepingRuleAddCondition,
-                        itemBuilder: (context) => [
-                          PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
-                          PopupMenuItem(value: 'group', child: Text('条件组')),
-                        ],
-                        onSelected: (value) {
-                          setState(() {
-                            if (value == 'leaf') {
-                              _conditions.add(_createLeafCondition());
-                            } else {
-                              _conditions.add(_createGroupCondition());
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _ConditionGroupEditor(
-                    conditions: _conditions,
-                    logicOperator: _rootLogicOperator,
-                    onLogicOperatorChanged: (v) =>
-                        setState(() => _rootLogicOperator = v),
-                    onStateChanged: () => setState(() {}),
-                  ),
-                ],
-              ),
-            ),
+            _buildConditionCard(theme),
             const SizedBox(height: 16),
-
-            // ---- 操作编辑卡片 ----
-            CommonCardContainer(
-              padding: spacing.formPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        L10nManager.l10n.bookkeepingRuleAction,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline),
-                        tooltip: L10nManager.l10n.bookkeepingRuleAddAction,
-                        onPressed: _addAction,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (_actions.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: Text(
-                          '暂无操作，请点击右上角添加',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withAlpha(128),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    ..._actions.asMap().entries.map((entry) {
-                      final idx = entry.key;
-                      final action = entry.value;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _actionFieldLabels
-                                        .containsKey(action.field)
-                                    ? action.field
-                                    : _actionFieldLabels.keys.first,
-                                decoration: const InputDecoration(
-                                  labelText: '字段',
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 12),
-                                ),
-                                items: _actionFieldLabels.entries
-                                    .map((e) => DropdownMenuItem(
-                                        value: e.key,
-                                        child: Text(e.value)))
-                                    .toList(),
-                                onChanged: (v) {
-                                  if (v != null) {
-                                    setState(() => action.field = v);
-                                  }
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  labelText: '值',
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                ),
-                                controller:
-                                    TextEditingController(text: action.value),
-                                onChanged: (v) => action.value = v,
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.remove_circle_outline,
-                                  color: colorScheme.error),
-                              onPressed: () => _removeAction(idx),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                ],
-              ),
-            ),
+            _buildActionsCard(theme, colorScheme),
             const SizedBox(height: 24),
-
-            // ---- 保存按钮 ----
-            FilledButton(
-              onPressed: _loading ? null : _save,
-              child: _loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('保存'),
-            ),
+            _buildSaveButton(),
             const SizedBox(height: 32),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBasicInfoCard(ThemeData theme) {
+    return CommonCardContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('基础信息',
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _nameCtrl,
+            decoration: const InputDecoration(
+              labelText: '规则名称',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SwitchListTile(
+            title: Text(_isActive ? '已启用' : '已停用'),
+            value: _isActive,
+            onChanged: (v) => setState(() => _isActive = v),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _priorityCtrl,
+            decoration: const InputDecoration(
+              labelText: '优先级',
+              border: OutlineInputBorder(),
+              helperText: '数值越大优先级越高',
+            ),
+            keyboardType: TextInputType.number,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConditionCard(ThemeData theme) {
+    return CommonCardContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('条件',
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600)),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.add_circle_outline),
+                tooltip: '添加',
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'leaf', child: const Text('条件')),
+                  PopupMenuItem(value: 'group', child: const Text('条件组')),
+                ],
+                onSelected: (value) {
+                  setState(() {
+                    if (value == 'leaf') {
+                      _conditions.add(_createLeafCondition());
+                    } else {
+                      _conditions.add(_createGroupCondition());
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _ConditionGroupEditor(
+            conditions: _conditions,
+            logicOperator: _rootLogicOperator,
+            onLogicOperatorChanged: (v) =>
+                setState(() => _rootLogicOperator = v),
+            onStateChanged: () => setState(() {}),
+            categories: _categories,
+            funds: _funds,
+            shops: _shops,
+            onShowFieldPicker: _showFieldValuePicker,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionsCard(ThemeData theme, ColorScheme colorScheme) {
+    return CommonCardContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('操作',
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600)),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline),
+                tooltip: '添加操作',
+                onPressed: _addAction,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (_actions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text('暂无操作，请点击右上角添加',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.onSurface.withAlpha(128))),
+              ),
+            )
+          else
+            ..._actions.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final action = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _actionFieldLabels.containsKey(action.field)
+                            ? action.field
+                            : _actionFieldLabels.keys.first,
+                        decoration: const InputDecoration(
+                          labelText: '字段',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                        items: _actionFieldLabels.entries
+                            .map((e) =>
+                                DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => action.field = v);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _ActionValueField(
+                        field: action.field,
+                        value: action.value,
+                        onChanged: (v) => action.value = v,
+                        onShowFieldPicker: _showActionFieldPicker,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline,
+                          color: colorScheme.error),
+                      onPressed: () => _removeAction(idx),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return FilledButton(
+      onPressed: _loading ? null : _save,
+      child: _loading
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Text('保存'),
     );
   }
 }
@@ -518,12 +599,24 @@ class _ConditionGroupEditor extends StatelessWidget {
   final String logicOperator;
   final ValueChanged<String> onLogicOperatorChanged;
   final VoidCallback onStateChanged;
+  final List<dynamic> categories;
+  final List<dynamic> funds;
+  final List<dynamic> shops;
+  final Future<void> Function({
+    required String field,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+  }) onShowFieldPicker;
 
   const _ConditionGroupEditor({
     required this.conditions,
     required this.logicOperator,
     required this.onLogicOperatorChanged,
     required this.onStateChanged,
+    this.categories = const [],
+    this.funds = const [],
+    this.shops = const [],
+    required this.onShowFieldPicker,
   });
 
   static const _typeLabels = {
@@ -542,6 +635,17 @@ class _ConditionGroupEditor extends StatelessWidget {
     'amount': '金额',
   };
 
+  /// 各字段支持的比较方式
+  static const _fieldComparisons = {
+    'type': ['field_equals'],
+    'categoryCode': ['field_equals', 'field_in'],
+    'fundId': ['field_equals', 'field_in'],
+    'shopCode': ['field_equals', 'field_in'],
+    'tagCode': ['field_equals', 'field_in'],
+    'projectCode': ['field_equals', 'field_in'],
+    'amount': ['field_equals', 'amount_range'],
+  };
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -553,9 +657,8 @@ class _ConditionGroupEditor extends StatelessWidget {
         child: Center(
           child: Text(
             '暂无条件，请点击右上角添加',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withAlpha(128),
-            ),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: colorScheme.onSurface.withAlpha(128)),
           ),
         ),
       );
@@ -579,36 +682,35 @@ class _ConditionGroupEditor extends StatelessWidget {
           final idx = entry.key;
           final condition = entry.value;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 8),
             child: condition.isLeaf
                 ? _buildLeafRow(context, condition, idx)
                 : _buildGroupRow(context, condition, idx),
           );
         }),
-        // 添加条件按钮
+        // 内部添加条件按钮
         Padding(
           padding: const EdgeInsets.only(left: 24),
           child: PopupMenuButton<String>(
             child: TextButton.icon(
               icon: const Icon(Icons.add, size: 18),
-              label: Text(L10nManager.l10n.bookkeepingRuleAddCondition),
-              onPressed: null, // PopupMenuButton handles press
+              label: const Text('添加条件'),
+              onPressed: null,
             ),
             itemBuilder: (context) => [
-              PopupMenuItem(value: 'leaf', child: Text(L10nManager.l10n.bookkeepingRuleCondition)),
-              PopupMenuItem(value: 'group', child: Text(L10nManager.l10n.bookkeepingRuleConditionGroup)),
+              const PopupMenuItem(value: 'leaf', child: Text('条件')),
+              const PopupMenuItem(value: 'group', child: Text('条件组')),
             ],
             onSelected: (value) {
               if (value == 'leaf') {
                 conditions.add(
-                  _ConditionData(
-                    type: 'field_equals',
-                    field: 'categoryCode',
-                    value: '',
-                  ),
-                );
+                    _ConditionData(type: 'field_equals', field: 'categoryCode', value: ''));
               } else {
-                conditions.add(_ConditionData(logicOperator: 'AND'));
+                conditions.add(_ConditionData(
+                    logicOperator: 'AND',
+                    children: [
+                      _ConditionData(type: 'field_equals', field: 'categoryCode', value: '')
+                    ]));
               }
               onStateChanged();
             },
@@ -620,100 +722,112 @@ class _ConditionGroupEditor extends StatelessWidget {
 
   Widget _buildLeafRow(BuildContext context, _ConditionData condition, int index) {
     final theme = Theme.of(context);
+    final availableComparisons =
+        _fieldComparisons[condition.field] ?? ['field_equals'];
+    // 如果当前选中的比较方式不支持当前字段，重置为第一个支持的
+    if (condition.type != null && !availableComparisons.contains(condition.type)) {
+      condition.type = availableComparisons.first;
+    }
 
     return CommonCardContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 条件类型下拉
-          SizedBox(
-            width: 100,
-            child: DropdownButtonFormField<String>(
-              initialValue: _typeLabels.containsKey(condition.type)
-                  ? condition.type!
-                  : 'field_equals',
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          // 第一行：字段选择（左侧）
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _fieldLabels.containsKey(condition.field)
+                      ? condition.field!
+                      : _fieldLabels.keys.first,
+                  decoration: const InputDecoration(
+                    labelText: '字段',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  ),
+                  items: _fieldLabels.entries
+                      .map((e) => DropdownMenuItem(
+                          value: e.key, child: Text(e.value)))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      condition.field = v;
+                      // 重置比较方式为字段支持的第一个
+                      condition.type =
+                          (_fieldComparisons[v] ?? ['field_equals']).first;
+                      condition.value = '';
+                      onStateChanged();
+                    }
+                  },
+                ),
               ),
-              items: _typeLabels.entries
-                  .map((e) => DropdownMenuItem(
-                      value: e.key,
-                      child: Text(e.value, style: const TextStyle(fontSize: 13))))
-                  .toList(),
-              onChanged: (v) {
-                if (v != null) {
-                  condition.type = v;
-                  // 切换类型时重置值
-                  if (v == 'amount_range') {
-                    condition.value = <String, dynamic>{
-                      'minAmount': null,
-                      'maxAmount': null,
-                    };
-                  } else if (v == 'field_in') {
-                    condition.value = '';
-                  } else {
-                    condition.value = '';
-                  }
+              const SizedBox(width: 4),
+              // 删除按钮（右上角）
+              IconButton(
+                icon: Icon(Icons.remove_circle_outline,
+                    color: theme.colorScheme.error, size: 20),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  conditions.removeAt(index);
                   onStateChanged();
-                }
-              },
-            ),
-          ),
-          const SizedBox(width: 6),
-          // 字段下拉
-          SizedBox(
-            width: 100,
-            child: DropdownButtonFormField<String>(
-              initialValue: _fieldLabels.containsKey(condition.field)
-                  ? condition.field!
-                  : _fieldLabels.keys.first,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                },
               ),
-              items: _fieldLabels.entries
-                  .map((e) => DropdownMenuItem(
-                      value: e.key,
-                      child: Text(e.value, style: const TextStyle(fontSize: 13))))
-                  .toList(),
-              onChanged: (v) {
-                if (v != null) {
-                  condition.field = v;
-                  onStateChanged();
-                }
-              },
-            ),
+            ],
           ),
-          const SizedBox(width: 6),
-          // 值选择器（根据字段+类型动态切换）
-          Expanded(
-            child: _ValueSelector(
-              key: ValueKey('${condition.type}_${condition.field}_$index'),
-              conditionType: condition.type ?? 'field_equals',
-              field: condition.field ?? '',
-              value: condition.value,
-              onChanged: (v) {
-                condition.value = v;
-                onStateChanged();
-              },
-            ),
-          ),
-          // 删除按钮
-          IconButton(
-            icon: Icon(Icons.remove_circle_outline,
-                color: theme.colorScheme.error, size: 20),
-            constraints: const BoxConstraints(),
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              conditions.removeAt(index);
-              onStateChanged();
-            },
+          const SizedBox(height: 8),
+          // 第二行：比较方式（左侧） + 值选择器（右侧）
+          Row(
+            children: [
+              // 比较方式下拉（左侧，较窄）
+              SizedBox(
+                width: 90,
+                child: DropdownButtonFormField<String>(
+                  initialValue: availableComparisons.contains(condition.type)
+                      ? condition.type!
+                      : availableComparisons.first,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  ),
+                  items: availableComparisons
+                      .map((key) => DropdownMenuItem(
+                          value: key,
+                          child: Text(_typeLabels[key] ?? key,
+                              style: const TextStyle(fontSize: 13))))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      condition.type = v;
+                      condition.value = '';
+                      onStateChanged();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 值选择器（右侧，弹性）
+              Expanded(
+                child: _ValueSelector(
+                  key: ValueKey('${condition.type}_${condition.field}_$index'),
+                  conditionType: condition.type ?? 'field_equals',
+                  field: condition.field ?? '',
+                  value: condition.value,
+                  onChanged: (v) {
+                    condition.value = v;
+                    onStateChanged();
+                  },
+                  onShowFieldPicker: onShowFieldPicker,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -722,25 +836,31 @@ class _ConditionGroupEditor extends StatelessWidget {
 
   Widget _buildGroupRow(BuildContext context, _ConditionData condition, int index) {
     return CommonCardContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 删除按钮
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              icon: Icon(Icons.remove_circle_outline,
-                  color: Theme.of(context).colorScheme.error, size: 20),
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                conditions.removeAt(index);
-                onStateChanged();
-              },
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('条件组',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+              IconButton(
+                icon: Icon(Icons.remove_circle_outline,
+                    color: Theme.of(context).colorScheme.error, size: 20),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  conditions.removeAt(index);
+                  onStateChanged();
+                },
+              ),
+            ],
           ),
-          // 递归渲染子条件组
+          const SizedBox(height: 4),
           _ConditionGroupEditor(
             conditions: condition.children,
             logicOperator: condition.logicOperator ?? 'AND',
@@ -749,9 +869,87 @@ class _ConditionGroupEditor extends StatelessWidget {
               onStateChanged();
             },
             onStateChanged: onStateChanged,
+            categories: categories,
+            funds: funds,
+            shops: shops,
+            onShowFieldPicker: onShowFieldPicker,
           ),
         ],
       ),
+    );
+  }
+}
+
+// ============================================================
+// 操作值字段（根据字段类型展示选择器或输入框）
+// ============================================================
+
+class _ActionValueField extends StatelessWidget {
+  final String field;
+  final String value;
+  final ValueChanged<String> onChanged;
+  final Future<void> Function({
+    required String field,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+  }) onShowFieldPicker;
+
+  const _ActionValueField({
+    required this.field,
+    required this.value,
+    required this.onChanged,
+    required this.onShowFieldPicker,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isReferenceField = [
+      'categoryCode', 'fundId', 'shopCode', 'tagCode', 'projectCode',
+    ].contains(field);
+
+    if (isReferenceField) {
+      final labels = {
+        'categoryCode': '分类',
+        'fundId': '账户',
+        'shopCode': '商家',
+        'tagCode': '标签',
+        'projectCode': '项目',
+      };
+      return InkWell(
+        onTap: () => onShowFieldPicker(
+          field: field,
+          currentValue: value,
+          onChanged: onChanged,
+        ),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: labels[field] ?? '值',
+            border: const OutlineInputBorder(),
+            isDense: true,
+            suffixIcon: const Icon(Icons.arrow_drop_down, size: 20),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          ),
+          child: Text(
+            value.isNotEmpty ? value : '请选择',
+            style: TextStyle(
+              color: value.isNotEmpty
+                  ? null
+                  : Theme.of(context).colorScheme.onSurface.withAlpha(128),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return TextField(
+      decoration: const InputDecoration(
+        labelText: '值',
+        border: OutlineInputBorder(),
+        isDense: true,
+      ),
+      controller: TextEditingController(text: value),
+      onChanged: onChanged,
     );
   }
 }
@@ -765,6 +963,11 @@ class _ValueSelector extends StatelessWidget {
   final String field;
   final dynamic value;
   final ValueChanged<dynamic> onChanged;
+  final Future<void> Function({
+    required String field,
+    required String currentValue,
+    required ValueChanged<String> onChanged,
+  }) onShowFieldPicker;
 
   const _ValueSelector({
     super.key,
@@ -772,27 +975,36 @@ class _ValueSelector extends StatelessWidget {
     required this.field,
     required this.value,
     required this.onChanged,
+    required this.onShowFieldPicker,
   });
 
   @override
   Widget build(BuildContext context) {
-    // 类型字段 + field_equals → SegmentedButton
-    if (field == 'type' && conditionType == 'field_equals') {
-      return _buildTypeSelector();
-    }
-
     // 金额范围 → 双输入（min / max）
     if (conditionType == 'amount_range') {
       return _buildAmountRange();
     }
-
     // 属于 → 逗号分隔多值
     if (conditionType == 'field_in') {
       return _buildMultiValueField();
     }
+    // 字段等于 → 根据字段类型展示选择器或输入框
+    return _buildValueByField(context);
+  }
 
-    // 默认：单值 TextField
-    return _buildSingleValueField();
+  Widget _buildValueByField(BuildContext context) {
+    switch (field) {
+      case 'type':
+        return _buildTypeSelector();
+      case 'categoryCode':
+      case 'fundId':
+      case 'shopCode':
+      case 'tagCode':
+      case 'projectCode':
+        return _buildSelectionField(context);
+      default:
+        return _buildSingleValueField();
+    }
   }
 
   Widget _buildTypeSelector() {
@@ -805,6 +1017,41 @@ class _ValueSelector extends StatelessWidget {
       ],
       selected: {current},
       onSelectionChanged: (v) => onChanged(v.first),
+    );
+  }
+
+  Widget _buildSelectionField(BuildContext context) {
+    final labels = {
+      'categoryCode': '分类',
+      'fundId': '账户',
+      'shopCode': '商家',
+      'tagCode': '标签',
+      'projectCode': '项目',
+    };
+    return InkWell(
+      onTap: () => onShowFieldPicker(
+        field: field,
+        currentValue: value?.toString() ?? '',
+        onChanged: (v) => onChanged(v),
+      ),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: labels[field] ?? '值',
+          border: const OutlineInputBorder(),
+          isDense: true,
+          suffixIcon: const Icon(Icons.arrow_drop_down, size: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        ),
+        child: Text(
+          value != null && value.toString().isNotEmpty ? value.toString() : '请选择',
+          style: TextStyle(
+            color: value != null && value.toString().isNotEmpty
+                ? null
+                : Theme.of(context).colorScheme.onSurface.withAlpha(128),
+          ),
+        ),
+      ),
     );
   }
 
@@ -856,7 +1103,6 @@ class _ValueSelector extends StatelessWidget {
   }
 
   Widget _buildMultiValueField() {
-    // 兼容 List<String>（来自 JSON 反序列化）和 String（来自编辑器）
     String initialText;
     if (value is List) {
       initialText = (value as List).join(', ');
