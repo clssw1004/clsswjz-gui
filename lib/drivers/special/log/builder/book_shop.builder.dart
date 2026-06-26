@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_shop_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
+import '../../../../utils/date_util.dart';
 import 'builder.dart';
 
 class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
@@ -47,11 +50,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     if (operateType == OperateType.batchDelete) {
       return jsonEncode({'ids': batchIds});
     }
-    if (operateType == OperateType.delete) {
-      return data!.toString();
-    } else {
-      return AccountShopTable.toJsonString(data as AccountShopTableCompanion);
-    }
+    return AccountShopTable.toJsonString(data as AccountShopTableCompanion);
   }
 
   static ShopCULog create(String who, String bookId,
@@ -108,10 +107,13 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     final ids = (decoded['ids'] as List).cast<String>();
     final dataList = (decoded['data'] as List).map((d) {
       final map = jsonDecode(d as String) as Map<String, dynamic>;
-      return AccountShopTable.toUpdateCompanion(
-        log.operatorId,
-        parentId: map['parentId'] as String?,
-        sortOrder: map['sortOrder'] as int?,
+      return AccountShopTableCompanion(
+        updatedBy: Value(log.operatorId),
+        updatedAt: Value(DateUtil.now()),
+        parentId: Value(map['parentId'] as String?),
+        sortOrder: Value.absentIfNull(map['sortOrder'] as int?),
+        createdBy: const Value.absent(),
+        createdAt: const Value.absent(),
       );
     }).toList();
     return ShopCULog()

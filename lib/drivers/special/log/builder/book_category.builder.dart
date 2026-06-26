@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_category_table.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
 import '../../../../manager/dao_manager.dart';
+import '../../../../utils/date_util.dart';
 import 'builder.dart';
 
 class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
@@ -47,12 +50,8 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     if (operateType == OperateType.batchDelete) {
       return jsonEncode({'ids': batchIds});
     }
-    if (operateType == OperateType.delete) {
-      return data!.toString();
-    } else {
-      return AccountCategoryTable.toJsonString(
-          data as AccountCategoryTableCompanion);
-    }
+    return AccountCategoryTable.toJsonString(
+        data as AccountCategoryTableCompanion);
   }
 
   static CategoryCULog create(String who, String bookId,
@@ -149,10 +148,13 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     final ids = (decoded['ids'] as List).cast<String>();
     final dataList = (decoded['data'] as List).map((d) {
       final map = jsonDecode(d as String) as Map<String, dynamic>;
-      return AccountCategoryTable.toUpdateCompanion(
-        log.operatorId,
-        parentId: map['parentId'] as String?,
-        sortOrder: map['sortOrder'] as int?,
+      return AccountCategoryTableCompanion(
+        updatedBy: Value(log.operatorId),
+        updatedAt: Value(DateUtil.now()),
+        parentId: Value(map['parentId'] as String?),
+        sortOrder: Value.absentIfNull(map['sortOrder'] as int?),
+        createdBy: const Value.absent(),
+        createdAt: const Value.absent(),
       );
     }).toList();
     return CategoryCULog()

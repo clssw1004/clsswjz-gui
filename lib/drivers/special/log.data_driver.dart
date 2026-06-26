@@ -511,7 +511,7 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<List<AccountShop>>> listShopsByBook(
       String userId, String bookId) async {
-    final shops = await DaoManager.shopDao.listByBook(bookId);
+    final shops = await DaoManager.shopDao.listAllByBook(bookId);
     return OperateResult.success(shops);
   }
 
@@ -524,10 +524,13 @@ class LogDataDriver implements BookDataDriver {
   }) async {
     try {
       final updates = List.generate(ids.length, (i) {
-        return AccountShopTable.toUpdateCompanion(
-          userId,
-          parentId: parentIds[i],
-          sortOrder: sortOrders[i],
+        return AccountShopTableCompanion(
+          updatedBy: Value(userId),
+          updatedAt: Value(DateUtil.now()),
+          parentId: Value(parentIds[i]),
+          sortOrder: Value(sortOrders[i]),
+          createdBy: const Value.absent(),
+          createdAt: const Value.absent(),
         );
       });
       await ShopCULog.updateBatch(userId, bookId,
