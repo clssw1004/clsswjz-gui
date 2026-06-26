@@ -513,7 +513,7 @@ class _ModernItemFormState extends State<ModernItemForm> {
               categoryType: item.type,
             );
             if (result.ok) {
-              await provider.loadCategories();
+              await provider.loadCategories(provider.bookMeta.id, item.type);
               return provider.categories
                   .cast<AccountCategory>()
                   .firstWhere((c) => c.name == value);
@@ -572,7 +572,7 @@ class _ModernItemFormState extends State<ModernItemForm> {
               name: value,
             );
             if (result.data != null) {
-              await provider.loadShops();
+              await provider.loadShops(provider.bookMeta.id);
               return provider.shops
                   .cast<AccountShop>()
                   .firstWhere((s) => s.name == value);
