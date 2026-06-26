@@ -117,6 +117,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     return ShopCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
+        .target(ids.first)
         .doUpdateBatch()
         .withBatchIds(ids)
         .withBatchData(dataList) as ShopCULog;
@@ -128,6 +129,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     return ShopCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
+        .target(ids.first)
         .doDeleteBatch()
         .withBatchIds(ids) as ShopCULog;
   }
@@ -139,6 +141,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     return ShopCULog()
         .who(userId)
         .inBook(bookId)
+        .target(ids.first)
         .doUpdateBatch()
         .withBatchIds(ids)
         .withBatchData(updates) as ShopCULog;
@@ -150,6 +153,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     return ShopCULog()
         .who(userId)
         .inBook(bookId)
+        .target(ids.first)
         .doDeleteBatch()
         .withBatchIds(ids) as ShopCULog;
   }

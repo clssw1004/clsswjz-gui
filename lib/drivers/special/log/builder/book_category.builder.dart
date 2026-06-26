@@ -95,6 +95,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     return CategoryCULog()
         .who(userId)
         .inBook(bookId)
+        .target(ids.first)
         .doUpdateBatch()
         .withBatchIds(ids)
         .withBatchData(updates) as CategoryCULog;
@@ -106,6 +107,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     return CategoryCULog()
         .who(userId)
         .inBook(bookId)
+        .target(ids.first)
         .doDeleteBatch()
         .withBatchIds(ids) as CategoryCULog;
   }
@@ -156,6 +158,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     return CategoryCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
+        .target(ids.first)
         .doUpdateBatch()
         .withBatchIds(ids)
         .withBatchData(dataList) as CategoryCULog;
@@ -167,6 +170,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
     return CategoryCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
+        .target(ids.first)
         .doDeleteBatch()
         .withBatchIds(ids) as CategoryCULog;
   }
