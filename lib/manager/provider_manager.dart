@@ -18,6 +18,7 @@ import '../providers/activity_provider.dart';
 import '../providers/item_relation_provider.dart';
 import '../providers/shared_module_provider.dart';
 import '../providers/recurring_config_provider.dart';
+import '../providers/bookkeeping_rule_provider.dart';
 import 'app_config_manager.dart';
 import 'sync_manager.dart';
 
@@ -64,6 +65,7 @@ class ProviderManager {
           ChangeNotifierProvider(create: (_) => ItemRelationProvider()),
           ChangeNotifierProvider(create: (_) => SharedModuleProvider()),
           ChangeNotifierProvider(create: (_) => RecurringConfigProvider()),
+          ChangeNotifierProvider(create: (_) => BookkeepingRuleProvider()),
         ],
         child: child,
       ),

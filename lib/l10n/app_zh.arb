@@ -2302,5 +2302,254 @@
                 "type": "String"
             }
         }
+    },
+    "bookkeepingRule": "记账规则",
+    "@bookkeepingRule": {
+        "description": "记账规则"
+    },
+    "bookkeepingRuleList": "记账规则列表",
+    "@bookkeepingRuleList": {
+        "description": "记账规则列表"
+    },
+    "bookkeepingRuleAdd": "新增规则",
+    "@bookkeepingRuleAdd": {
+        "description": "新增规则"
+    },
+    "bookkeepingRuleEdit": "编辑规则",
+    "@bookkeepingRuleEdit": {
+        "description": "编辑规则"
+    },
+    "bookkeepingRuleName": "规则名称",
+    "@bookkeepingRuleName": {
+        "description": "规则名称"
+    },
+    "bookkeepingRulePriority": "优先级",
+    "@bookkeepingRulePriority": {
+        "description": "优先级"
+    },
+    "bookkeepingRuleEnabled": "已启用",
+    "@bookkeepingRuleEnabled": {
+        "description": "已启用"
+    },
+    "bookkeepingRuleDisabled": "已停用",
+    "@bookkeepingRuleDisabled": {
+        "description": "已停用"
+    },
+    "bookkeepingRuleEmpty": "暂无记账规则",
+    "@bookkeepingRuleEmpty": {
+        "description": "暂无记账规则"
+    },
+    "bookkeepingRuleSaveSuccess": "保存成功",
+    "@bookkeepingRuleSaveSuccess": {
+        "description": "保存成功"
+    },
+    "bookkeepingRuleConfirmDelete": "确认删除",
+    "@bookkeepingRuleConfirmDelete": {
+        "description": "确认删除"
+    },
+    "bookkeepingRuleDeleteConfirmMsg": "确定要删除此规则吗？",
+    "@bookkeepingRuleDeleteConfirmMsg": {
+        "description": "确定要删除此规则吗？"
+    },
+    "bookkeepingRuleNameRequired": "请输入规则名称",
+    "@bookkeepingRuleNameRequired": {
+        "description": "请输入规则名称"
+    },
+    "bookkeepingRuleCondition": "条件",
+    "@bookkeepingRuleCondition": {
+        "description": "条件"
+    },
+    "bookkeepingRuleAction": "操作",
+    "@bookkeepingRuleAction": {
+        "description": "操作"
+    },
+    "bookkeepingRuleAddCondition": "添加条件",
+    "@bookkeepingRuleAddCondition": {
+        "description": "添加条件"
+    },
+    "bookkeepingRuleConditionGroup": "条件组",
+    "@bookkeepingRuleConditionGroup": {
+        "description": "条件组"
+    },
+    "bookkeepingRuleBasicInfo": "基本信息",
+    "@bookkeepingRuleBasicInfo": {
+        "description": "基本信息"
+    },
+    "bookkeepingRuleAddAction": "添加操作",
+    "@bookkeepingRuleAddAction": {
+        "description": "添加操作"
+    },
+    "@bookkeepingRuleBasicInfo": {
+        "description": "基本信息"
+    },
+    "bookkeepingRuleAutoNamePrefix": "当",
+    "@bookkeepingRuleAutoNamePrefix": {
+        "description": "自动命名前缀"
+    },
+    "bookkeepingRuleAutoNameSeparator": "时",
+    "@bookkeepingRuleAutoNameSeparator": {
+        "description": "条件与操作之间的分隔词"
+    },
+    "bookkeepingRuleAutoNameConnector": " → ",
+    "@bookkeepingRuleAutoNameConnector": {
+        "description": "条件与操作之间的箭头分隔符"
+    },
+    "bookkeepingRuleAutoNameAnd": "并",
+    "@bookkeepingRuleAutoNameAnd": {
+        "description": "AND 连接词"
+    },
+    "bookkeepingRuleAutoNameOr": "或",
+    "@bookkeepingRuleAutoNameOr": {
+        "description": "OR 连接词"
+    },
+    "bookkeepingRuleNameFieldIs": "是",
+    "@bookkeepingRuleNameFieldIs": {
+        "description": "字段等于的语义描述词"
+    },
+    "bookkeepingRuleNameFieldIn": "属于",
+    "@bookkeepingRuleNameFieldIn": {
+        "description": "字段属于的语义描述词"
+    },
+    "bookkeepingRuleNameAmountGte": "大于等于",
+    "@bookkeepingRuleNameAmountGte": {
+        "description": "金额大于等于"
+    },
+    "bookkeepingRuleNameAmountLte": "小于等于",
+    "@bookkeepingRuleNameAmountLte": {
+        "description": "金额小于等于"
+    },
+    "bookkeepingRuleNameAmountBetween": "在{min}到{max}之间",
+    "@bookkeepingRuleNameAmountBetween": {
+        "description": "金额范围",
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleNameSetField": "设置{field}为{value}",
+    "@bookkeepingRuleNameSetField": {
+        "description": "操作：设置字段值",
+        "placeholders": {
+            "field": {"type": "String"},
+            "value": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleLabelPriority": "优先级：{p}",
+    "@bookkeepingRuleLabelPriority": {
+        "description": "列表优先级标签",
+        "placeholders": {
+            "p": {"type": "int"}
+        }
+    },
+    "bookkeepingRuleLabelConditionTitle": "条件：",
+    "@bookkeepingRuleLabelConditionTitle": {
+        "description": "条件摘要标题"
+    },
+    "bookkeepingRuleLabelActionTitle": "操作：",
+    "@bookkeepingRuleLabelActionTitle": {
+        "description": "操作摘要标题"
+    },
+    "bookkeepingRuleLabelFieldType": "类型",
+    "@bookkeepingRuleLabelFieldType": {
+        "description": "字段名：类型"
+    },
+    "bookkeepingRuleLabelFieldCategory": "分类",
+    "@bookkeepingRuleLabelFieldCategory": {
+        "description": "字段名：分类"
+    },
+    "bookkeepingRuleLabelFieldFund": "账户",
+    "@bookkeepingRuleLabelFieldFund": {
+        "description": "字段名：账户"
+    },
+    "bookkeepingRuleLabelFieldShop": "商家",
+    "@bookkeepingRuleLabelFieldShop": {
+        "description": "字段名：商家"
+    },
+    "bookkeepingRuleLabelFieldTag": "标签",
+    "@bookkeepingRuleLabelFieldTag": {
+        "description": "字段名：标签"
+    },
+    "bookkeepingRuleLabelFieldProject": "项目",
+    "@bookkeepingRuleLabelFieldProject": {
+        "description": "字段名：项目"
+    },
+    "bookkeepingRuleLabelFieldAmount": "金额",
+    "@bookkeepingRuleLabelFieldAmount": {
+        "description": "字段名：金额"
+    },
+    "bookkeepingRuleLabelTypeEq": "等于",
+    "@bookkeepingRuleLabelTypeEq": {
+        "description": "条件比较：等于"
+    },
+    "bookkeepingRuleLabelTypeIn": "属于",
+    "@bookkeepingRuleLabelTypeIn": {
+        "description": "条件比较：属于"
+    },
+    "bookkeepingRuleLabelTypeRange": "金额范围",
+    "@bookkeepingRuleLabelTypeRange": {
+        "description": "条件比较：金额范围"
+    },
+    "bookkeepingRuleLabelSubItem": "项",
+    "@bookkeepingRuleLabelSubItem": {
+        "description": "子条件数量单位"
+    },
+    "bookkeepingRulePlaceholderConditionEmpty": "暂无条件，请点击右上角添加",
+    "@bookkeepingRulePlaceholderConditionEmpty": {
+        "description": "条件为空时的提示"
+    },
+    "bookkeepingRulePlaceholderActionEmpty": "暂无操作，请点击右上角添加",
+    "@bookkeepingRulePlaceholderActionEmpty": {
+        "description": "操作为空时的提示"
+    },
+    "bookkeepingRulePlaceholderSelect": "请选择",
+    "@bookkeepingRulePlaceholderSelect": {
+        "description": "选择占位符"
+    },
+    "bookkeepingRulePlaceholderMultiValue": "多个值用逗号分隔",
+    "@bookkeepingRulePlaceholderMultiValue": {
+        "description": "多值输入提示"
+    },
+    "bookkeepingRuleLabelBasicInfo": "基础信息",
+    "@bookkeepingRuleLabelBasicInfo": {
+        "description": "基础信息区块标题"
+    },
+    "bookkeepingRuleLabelSave": "保存",
+    "@bookkeepingRuleLabelSave": {
+        "description": "保存按钮"
+    },
+    "bookkeepingRuleLabelField": "字段",
+    "@bookkeepingRuleLabelField": {
+        "description": "字段选择标签"
+    },
+    "bookkeepingRuleLabelValue": "值",
+    "@bookkeepingRuleLabelValue": {
+        "description": "值输入标签"
+    },
+    "bookkeepingRuleLabelEdit": "编辑",
+    "@bookkeepingRuleLabelEdit": {
+        "description": "编辑"
+    },
+    "bookkeepingRuleLabelDelete": "删除",
+    "@bookkeepingRuleLabelDelete": {
+        "description": "删除操作"
+    },
+    "bookkeepingRuleLabelConfirmDelete": "确定要删除此规则吗？",
+    "@bookkeepingRuleLabelConfirmDelete": {
+        "description": "删除确认消息"
+    },
+    "bookkeepingRuleMessageSaveFailed": "保存失败",
+    "@bookkeepingRuleMessageSaveFailed": {
+        "description": "保存失败错误提示"
+    },
+    "bookkeepingRuleMessageOpFailed": "操作失败",
+    "@bookkeepingRuleMessageOpFailed": {
+        "description": "操作失败错误提示"
+    },
+    "bookkeepingRuleMessageLoadFailed": "加载失败：{e}",
+    "@bookkeepingRuleMessageLoadFailed": {
+        "description": "加载失败错误提示",
+        "placeholders": {
+            "e": {"type": "String"}
+        }
     }
 }

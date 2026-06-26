@@ -2145,5 +2145,251 @@
                 "type": "String"
             }
         }
+    },
+    "bookkeepingRule": "Bookkeeping Rule",
+    "@bookkeepingRule": {
+        "description": "Bookkeeping rule"
+    },
+    "bookkeepingRuleList": "Bookkeeping Rules",
+    "@bookkeepingRuleList": {
+        "description": "Bookkeeping rules list"
+    },
+    "bookkeepingRuleAdd": "Add Rule",
+    "@bookkeepingRuleAdd": {
+        "description": "Add rule"
+    },
+    "bookkeepingRuleEdit": "Edit Rule",
+    "@bookkeepingRuleEdit": {
+        "description": "Edit rule"
+    },
+    "bookkeepingRuleName": "Rule Name",
+    "@bookkeepingRuleName": {
+        "description": "Rule name"
+    },
+    "bookkeepingRulePriority": "Priority",
+    "@bookkeepingRulePriority": {
+        "description": "Priority"
+    },
+    "bookkeepingRuleEnabled": "Enabled",
+    "@bookkeepingRuleEnabled": {
+        "description": "Enabled"
+    },
+    "bookkeepingRuleDisabled": "Disabled",
+    "@bookkeepingRuleDisabled": {
+        "description": "Disabled"
+    },
+    "bookkeepingRuleEmpty": "No rules yet",
+    "@bookkeepingRuleEmpty": {
+        "description": "No rules yet"
+    },
+    "bookkeepingRuleSaveSuccess": "Saved successfully",
+    "@bookkeepingRuleSaveSuccess": {
+        "description": "Saved successfully"
+    },
+    "bookkeepingRuleConfirmDelete": "Confirm Delete",
+    "@bookkeepingRuleConfirmDelete": {
+        "description": "Confirm delete"
+    },
+    "bookkeepingRuleDeleteConfirmMsg": "Are you sure you want to delete this rule?",
+    "@bookkeepingRuleDeleteConfirmMsg": {
+        "description": "Confirm delete message"
+    },
+    "bookkeepingRuleNameRequired": "Please enter rule name",
+    "@bookkeepingRuleNameRequired": {
+        "description": "Please enter rule name"
+    },
+    "bookkeepingRuleCondition": "Conditions",
+    "@bookkeepingRuleCondition": {
+        "description": "Conditions"
+    },
+    "bookkeepingRuleConditionGroup": "Condition Group",
+    "@bookkeepingRuleConditionGroup": {
+        "description": "Condition group"
+    },
+    "bookkeepingRuleAction": "Actions",
+    "@bookkeepingRuleAction": {
+        "description": "Actions"
+    },
+    "bookkeepingRuleAddCondition": "Add Condition",
+    "@bookkeepingRuleAddCondition": {
+        "description": "Add condition"
+    },
+    "bookkeepingRuleAddAction": "Add Action",
+    "@bookkeepingRuleAddAction": {
+        "description": "Add action"
+    },
+    "bookkeepingRuleBasicInfo": "Basic Info",
+    "@bookkeepingRuleBasicInfo": {
+        "description": "Basic info"
+    },
+    "bookkeepingRuleAutoNamePrefix": "When",
+    "@bookkeepingRuleAutoNamePrefix": {
+        "description": "Auto-name prefix"
+    },
+    "bookkeepingRuleAutoNameSeparator": "",
+    "@bookkeepingRuleAutoNameSeparator": {
+        "description": "Separator between condition and action"
+    },
+    "bookkeepingRuleAutoNameConnector": " → ",
+    "@bookkeepingRuleAutoNameConnector": {
+        "description": "Connector between condition and action"
+    },
+    "bookkeepingRuleAutoNameAnd": "and",
+    "@bookkeepingRuleAutoNameAnd": {
+        "description": "AND conjunction"
+    },
+    "bookkeepingRuleAutoNameOr": "or",
+    "@bookkeepingRuleAutoNameOr": {
+        "description": "OR conjunction"
+    },
+    "bookkeepingRuleNameFieldIs": "is",
+    "@bookkeepingRuleNameFieldIs": {
+        "description": "Field equals semantic word"
+    },
+    "bookkeepingRuleNameFieldIn": "in",
+    "@bookkeepingRuleNameFieldIn": {
+        "description": "Field in semantic word"
+    },
+    "bookkeepingRuleNameAmountGte": "≥",
+    "@bookkeepingRuleNameAmountGte": {
+        "description": "Amount greater than or equal"
+    },
+    "bookkeepingRuleNameAmountLte": "≤",
+    "@bookkeepingRuleNameAmountLte": {
+        "description": "Amount less than or equal"
+    },
+    "bookkeepingRuleNameAmountBetween": "{min} ~ {max}",
+    "@bookkeepingRuleNameAmountBetween": {
+        "description": "Amount range",
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleNameSetField": "set {field} to {value}",
+    "@bookkeepingRuleNameSetField": {
+        "description": "Action: set field value",
+        "placeholders": {
+            "field": {"type": "String"},
+            "value": {"type": "String"}
+        }
+    },
+    "bookkeepingRuleLabelPriority": "Priority: {p}",
+    "@bookkeepingRuleLabelPriority": {
+        "description": "List priority label",
+        "placeholders": {
+            "p": {"type": "int"}
+        }
+    },
+    "bookkeepingRuleLabelConditionTitle": "Condition: ",
+    "@bookkeepingRuleLabelConditionTitle": {
+        "description": "Condition summary title"
+    },
+    "bookkeepingRuleLabelActionTitle": "Action: ",
+    "@bookkeepingRuleLabelActionTitle": {
+        "description": "Action summary title"
+    },
+    "bookkeepingRuleLabelFieldType": "Type",
+    "@bookkeepingRuleLabelFieldType": {
+        "description": "Field name: type"
+    },
+    "bookkeepingRuleLabelFieldCategory": "Category",
+    "@bookkeepingRuleLabelFieldCategory": {
+        "description": "Field name: category"
+    },
+    "bookkeepingRuleLabelFieldFund": "Account",
+    "@bookkeepingRuleLabelFieldFund": {
+        "description": "Field name: account"
+    },
+    "bookkeepingRuleLabelFieldShop": "Merchant",
+    "@bookkeepingRuleLabelFieldShop": {
+        "description": "Field name: merchant"
+    },
+    "bookkeepingRuleLabelFieldTag": "Tag",
+    "@bookkeepingRuleLabelFieldTag": {
+        "description": "Field name: tag"
+    },
+    "bookkeepingRuleLabelFieldProject": "Project",
+    "@bookkeepingRuleLabelFieldProject": {
+        "description": "Field name: project"
+    },
+    "bookkeepingRuleLabelFieldAmount": "Amount",
+    "@bookkeepingRuleLabelFieldAmount": {
+        "description": "Field name: amount"
+    },
+    "bookkeepingRuleLabelTypeEq": "equals",
+    "@bookkeepingRuleLabelTypeEq": {
+        "description": "Condition comparison: equals"
+    },
+    "bookkeepingRuleLabelTypeIn": "in",
+    "@bookkeepingRuleLabelTypeIn": {
+        "description": "Condition comparison: in"
+    },
+    "bookkeepingRuleLabelTypeRange": "amount range",
+    "@bookkeepingRuleLabelTypeRange": {
+        "description": "Condition comparison: amount range"
+    },
+    "bookkeepingRuleLabelSubItem": "items",
+    "@bookkeepingRuleLabelSubItem": {
+        "description": "Sub-condition count unit"
+    },
+    "bookkeepingRulePlaceholderConditionEmpty": "No conditions yet, add one",
+    "@bookkeepingRulePlaceholderConditionEmpty": {
+        "description": "Empty condition placeholder"
+    },
+    "bookkeepingRulePlaceholderActionEmpty": "No actions yet, add one",
+    "@bookkeepingRulePlaceholderActionEmpty": {
+        "description": "Empty action placeholder"
+    },
+    "bookkeepingRulePlaceholderSelect": "Please select",
+    "@bookkeepingRulePlaceholderSelect": {
+        "description": "Selection placeholder"
+    },
+    "bookkeepingRulePlaceholderMultiValue": "Separate values with commas",
+    "@bookkeepingRulePlaceholderMultiValue": {
+        "description": "Multi-value input hint"
+    },
+    "bookkeepingRuleLabelBasicInfo": "Basic Info",
+    "@bookkeepingRuleLabelBasicInfo": {
+        "description": "Basic info section"
+    },
+    "bookkeepingRuleLabelSave": "Save",
+    "@bookkeepingRuleLabelSave": {
+        "description": "Save button"
+    },
+    "bookkeepingRuleLabelField": "Field",
+    "@bookkeepingRuleLabelField": {
+        "description": "Field select label"
+    },
+    "bookkeepingRuleLabelValue": "Value",
+    "@bookkeepingRuleLabelValue": {
+        "description": "Value input label"
+    },
+    "bookkeepingRuleLabelEdit": "Edit",
+    "@bookkeepingRuleLabelEdit": {
+        "description": "Edit action"
+    },
+    "bookkeepingRuleLabelDelete": "Delete",
+    "@bookkeepingRuleLabelDelete": {
+        "description": "Delete action"
+    },
+    "bookkeepingRuleLabelConfirmDelete": "Are you sure you want to delete this rule?",
+    "@bookkeepingRuleLabelConfirmDelete": {
+        "description": "Delete confirmation message"
+    },
+    "bookkeepingRuleMessageSaveFailed": "Failed to save",
+    "@bookkeepingRuleMessageSaveFailed": {
+        "description": "Save failed error"
+    },
+    "bookkeepingRuleMessageOpFailed": "Operation failed",
+    "@bookkeepingRuleMessageOpFailed": {
+        "description": "Operation failed error"
+    },
+    "bookkeepingRuleMessageLoadFailed": "Failed to load: {e}",
+    "@bookkeepingRuleMessageLoadFailed": {
+        "description": "Load failed error",
+        "placeholders": {
+            "e": {"type": "String"}
+        }
     }
 }

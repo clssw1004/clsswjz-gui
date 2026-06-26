@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../manager/l10n_manager.dart';
 import '../../theme/theme_radius.dart';
 import 'common_badge.dart';
+import 'multi_select_sheet.dart';
+import 'multi_select_dialog.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -16,8 +18,11 @@ enum DisplayMode {
   expand,
 }
 
-/// 通用选择表单组件
+/// 通用选择表单组件（支持单选/多选）
 class CommonSelectFormField<T> extends FormField<dynamic> {
+  /// 是否多选模式
+  final bool multiSelect;
+
   CommonSelectFormField({
     super.key,
     required List<T> items,
@@ -38,9 +43,33 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
     bool? required,
     super.validator,
     Color? badgeColor,
+    this.multiSelect = false,
   }) : super(
-          initialValue: value,
+          initialValue: multiSelect
+              ? (value is List ? List<String>.from(value) : <String>[])
+              : value,
           builder: (state) {
+            if (multiSelect) {
+              return _MultiSelectFieldWidget<T>(
+                items: items,
+                value: (state.value is List
+                    ? List<String>.from(state.value)
+                    : <String>[]),
+                displayField: displayField,
+                keyField: keyField,
+                icon: icon,
+                label: label,
+                hint: hint,
+                searchable: searchable,
+                allowCreate: allowCreate,
+                errorText: state.errorText,
+                onChanged: (selected) {
+                  state.didChange(selected);
+                  if (onChanged != null) onChanged(selected);
+                },
+                onCreateItem: onCreateItem,
+              );
+            }
             return _CommonSelectFormFieldWidget<T>(
               items: items,
               value: value,
@@ -118,7 +147,6 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
 
 class _CommonSelectFormFieldWidgetState<T>
     extends State<_CommonSelectFormFieldWidget<T>> {
-  /// 是否正在打开选择面板（用于 chevron 动画）
   bool _isOpening = false;
 
   T? get _selectedItem {
@@ -138,25 +166,17 @@ class _CommonSelectFormFieldWidgetState<T>
     }
   }
 
-  // ── 底部弹出选择面板 ──
-
   Future<void> _showSelectionSheet({bool isAddMode = false}) async {
-    // 触发 chevron 动画
     setState(() => _isOpening = true);
     HapticFeedback.mediumImpact();
-
     final result = await _buildSelectionSheet(isAddMode: isAddMode);
-
-    // 恢复 chevron 动画
     setState(() => _isOpening = false);
-
     if (result != null && mounted) {
       _handleItemChanged(result);
     }
   }
 
   Future<T?> _buildSelectionSheet({bool isAddMode = false}) async {
-    // 本地搜索状态，每次打开重新创建
     final localController = TextEditingController();
     String localSearch = '';
     bool loading = false;
@@ -215,7 +235,6 @@ class _CommonSelectFormFieldWidgetState<T>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── 拖拽手柄 ──
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 2),
                     child: Container(
@@ -227,8 +246,6 @@ class _CommonSelectFormFieldWidgetState<T>
                       ),
                     ),
                   ),
-
-                  // ── 标题 ──
                   if (!showSearch)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
@@ -248,8 +265,6 @@ class _CommonSelectFormFieldWidgetState<T>
                         ],
                       ),
                     ),
-
-                  // ── 搜索框 ──
                   if (showSearch)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -291,12 +306,8 @@ class _CommonSelectFormFieldWidgetState<T>
                             setLocalState(() => localSearch = v),
                       ),
                     ),
-
-                  // ── 分割线 ──
                   if (itemCount > 0)
                     Divider(height: 1, color: localColor.outline.withAlpha(20)),
-
-                  // ── 列表 ──
                   Expanded(
                     child: itemCount == 0
                         ? Center(
@@ -326,7 +337,6 @@ class _CommonSelectFormFieldWidgetState<T>
                             padding: const EdgeInsets.only(top: 4, bottom: 16),
                             controller: PrimaryScrollController.maybeOf(ctx),
                             children: [
-                              // 选项列表
                               ...filtered.map((item) {
                                 final isSelected = widget.value != null &&
                                     widget.keyField(item) == widget.value;
@@ -340,7 +350,6 @@ class _CommonSelectFormFieldWidgetState<T>
                                   },
                                 );
                               }),
-                              // 创建新选项
                               if (showCreate)
                                 _SheetCreateTile<T>(
                                   searchText: localSearch,
@@ -370,7 +379,6 @@ class _CommonSelectFormFieldWidgetState<T>
     );
   }
 
-  /// 构建图标
   Widget? _buildIcon(IconData? icon) {
     if (icon == null) return null;
     return Icon(
@@ -379,8 +387,6 @@ class _CommonSelectFormFieldWidgetState<T>
       size: 24,
     );
   }
-
-  // ── 图标+文本模式 ──
 
   Widget _buildIconTextMode() {
     final theme = Theme.of(context);
@@ -442,8 +448,6 @@ class _CommonSelectFormFieldWidgetState<T>
     );
   }
 
-  // ── 徽章模式 ──
-
   Widget _buildBadgeMode() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -475,8 +479,6 @@ class _CommonSelectFormFieldWidgetState<T>
       ],
     );
   }
-
-  // ── 展开模式 ──
 
   Widget _buildMoreButton(double buttonWidth, ThemeData theme) {
     return SizedBox(
@@ -699,7 +701,129 @@ class _CommonSelectFormFieldWidgetState<T>
   }
 }
 
-// ── 选择面板中的选项项 ──
+// ============================================================
+// 多选模式实现
+// ============================================================
+
+class _MultiSelectFieldWidget<T> extends StatelessWidget {
+  final List<T> items;
+  final List<String> value;
+  final String Function(T item) displayField;
+  final dynamic Function(T item) keyField;
+  final IconData? icon;
+  final String? label;
+  final String? hint;
+  final bool searchable;
+  final bool allowCreate;
+  final String? errorText;
+  final ValueChanged<List<String>>? onChanged;
+  final Future<T?> Function(String value)? onCreateItem;
+
+  const _MultiSelectFieldWidget({
+    required this.items,
+    required this.value,
+    required this.displayField,
+    required this.keyField,
+    this.icon,
+    this.label,
+    this.hint,
+    required this.searchable,
+    required this.allowCreate,
+    this.errorText,
+    this.onChanged,
+    this.onCreateItem,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
+
+    // Build display text: show selected items' names
+    final selectedNames = value
+        .map((id) {
+          try {
+            final item = items.firstWhere((i) => keyField(i) == id);
+            return displayField(item);
+          } catch (_) {
+            return id;
+          }
+        })
+        .join(', ');
+
+    // Build MultiSelectSheet options
+    final options = items
+        .map((item) => MultiSelectOption(
+              key: keyField(item).toString(),
+              name: displayField(item),
+            ))
+        .toList();
+
+    return InkWell(
+      onTap: () async {
+        HapticFeedback.mediumImpact();
+        final result = await MultiSelectSheet.show(
+          context,
+          title: label ?? '',
+          options: options,
+          selectedIds: value,
+        );
+        if (result != null && onChanged != null) {
+          onChanged!(result);
+        }
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          errorText: errorText,
+          hintText: hint ?? (selectedNames.isEmpty ? '请选择' : null),
+          filled: true,
+          fillColor: colorScheme.surfaceContainerHighest.withAlpha(30),
+          prefixIcon: icon != null
+              ? Icon(icon, color: colorScheme.onSurfaceVariant, size: 24)
+              : null,
+          suffixIcon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(60)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(60)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(
+              color: colorScheme.primary.withAlpha(120),
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: Text(
+          selectedNames.isNotEmpty ? selectedNames : '请选择',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: selectedNames.isNotEmpty
+                ? null
+                : colorScheme.onSurface.withAlpha(128),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// 选择面板组件
+// ============================================================
 
 class _SheetItemTile<T> extends StatelessWidget {
   final T item;
@@ -761,8 +885,6 @@ class _SheetItemTile<T> extends StatelessWidget {
     );
   }
 }
-
-// ── 新建选项项 ──
 
 class _SheetCreateTile<T> extends StatelessWidget {
   final String searchText;

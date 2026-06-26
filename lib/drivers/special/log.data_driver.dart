@@ -34,8 +34,10 @@ import '../../models/vo/item_relation_vo.dart';
 import '../../models/vo/user_share_vo.dart';
 import '../../models/dto/recurring_config_filter_dto.dart';
 import '../../models/vo/recurring_config_vo.dart';
+import '../../models/vo/bookkeeping_rule_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import 'log/builder/recurring_config.builder.dart';
+import 'log/builder/bookkeeping_rule.builder.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
@@ -1947,6 +1949,113 @@ class LogDataDriver implements BookDataDriver {
     } catch (e) {
       return OperateResult.failWithMessage(
         message: '查询固定收支配置列表失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  // ============ 记账规则 ============
+
+  @override
+  Future<OperateResult<String>> createBookkeepingRule(
+    String userId, String bookId, {
+    required String name,
+    required bool isActive,
+    required int priority,
+    required String conditionsJson,
+    required String actionsJson,
+  }) async {
+    try {
+      final id = await BookkeepingRuleCULog.create(
+        who: userId,
+        bookId: bookId,
+        name: name,
+        isActive: isActive,
+        priority: priority,
+        conditionsJson: conditionsJson,
+        actionsJson: actionsJson,
+      ).execute();
+      return OperateResult.success(id);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '创建记账规则失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updateBookkeepingRule(
+    String userId,
+    String ruleId, {
+    String? name,
+    bool? isActive,
+    int? priority,
+    String? conditionsJson,
+    String? actionsJson,
+  }) async {
+    try {
+      await BookkeepingRuleCULog.update(
+        who: userId,
+        id: ruleId,
+        name: name,
+        isActive: isActive,
+        priority: priority,
+        conditionsJson: conditionsJson,
+        actionsJson: actionsJson,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '更新记账规则失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteBookkeepingRule(
+    String userId, String ruleId) async {
+    try {
+      await BookkeepingRuleCULog.delete(who: userId, id: ruleId).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '删除记账规则失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<List<BookkeepingRuleVO>>> listBookkeepingRules(
+    String userId, String bookId) async {
+    try {
+      final rules = await DaoManager.bookkeepingRuleDao.findByBookWithFilter(
+        bookId,
+      );
+      final vos = rules.map((r) => BookkeepingRuleVO.fromBookkeepingRule(r)).toList();
+      return OperateResult.success(vos);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '查询记账规则列表失败：$e',
+        exception: e as Exception,
+      );
+    }
+  }
+
+  @override
+  Future<OperateResult<BookkeepingRuleVO>> getBookkeepingRule(
+    String userId, String ruleId) async {
+    try {
+      final rule = await DaoManager.bookkeepingRuleDao.findById(ruleId);
+      if (rule == null) {
+        return OperateResult.failWithMessage(message: '记账规则不存在');
+      }
+      return OperateResult.success(BookkeepingRuleVO.fromBookkeepingRule(rule));
+    } catch (e) {
+      return OperateResult.failWithMessage(
+        message: '获取记账规则详情失败：$e',
         exception: e as Exception,
       );
     }
