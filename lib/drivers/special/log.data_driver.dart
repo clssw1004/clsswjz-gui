@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:clsswjz_gui/enums/gift_card.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
+import 'package:drift/drift.dart';
 
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
@@ -55,7 +56,6 @@ import '../vo_transfer.dart';
 import 'log/builder/attachment.builder.dart';
 import 'log/builder/book.builder.dart';
 import 'log/builder/book_category.builder.dart';
-import '../../database/tables/account_category_table.dart';
 import '../../database/tables/account_shop_table.dart';
 import 'log/builder/book_debt.build.dart';
 import 'log/builder/book_note.build.dart';
