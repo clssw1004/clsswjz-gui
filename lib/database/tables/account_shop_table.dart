@@ -10,17 +10,23 @@ import 'base_table.dart';
 class AccountShopTable extends DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
+  TextColumn get parentId => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   /// 创建更新伴生对象
   static AccountShopTableCompanion toUpdateCompanion(
     String who, {
     String? name,
+    String? parentId,
+    int? sortOrder,
     String? lastAccountItemAt,
   }) {
     return AccountShopTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
       name: Value.absentIfNull(name),
+      parentId: Value.absentIfNull(parentId),
+      sortOrder: Value.absentIfNull(sortOrder),
       lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -32,12 +38,16 @@ class AccountShopTable extends DateBaseAccountBookTable {
     String who,
     String accountBookId, {
     required String name,
+    String? parentId,
+    int sortOrder = 0,
   }) =>
       AccountShopTableCompanion(
         id: Value(IdUtil.genId()),
         name: Value(name),
         code: Value(IdUtil.genNanoId8()),
         accountBookId: Value(accountBookId),
+        parentId: Value.absentIfNull(parentId),
+        sortOrder: Value(sortOrder),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
@@ -54,6 +64,8 @@ class AccountShopTable extends DateBaseAccountBookTable {
     MapUtil.setIfPresent(map, 'updatedBy', companion.updatedBy);
     MapUtil.setIfPresent(map, 'name', companion.name);
     MapUtil.setIfPresent(map, 'code', companion.code);
+    MapUtil.setIfPresent(map, 'parentId', companion.parentId);
+    MapUtil.setIfPresent(map, 'sortOrder', companion.sortOrder);
     MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     return jsonEncode(map);
