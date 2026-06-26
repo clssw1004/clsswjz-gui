@@ -37,6 +37,7 @@ class BookkeepingRuleCULog extends LogBuilder<BookkeepingRuleTableCompanion, Str
   static BookkeepingRuleCULog fromCreateLog(LogSync log) {
     return BookkeepingRuleCULog()
         .who(log.operatorId)
+        .inBook(log.parentId)
         .target(log.businessId)
         .doCreate()
         .withData(_parseCompanion(jsonDecode(log.operateData))) as BookkeepingRuleCULog;
@@ -47,6 +48,7 @@ class BookkeepingRuleCULog extends LogBuilder<BookkeepingRuleTableCompanion, Str
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return BookkeepingRuleCULog()
         .who(log.operatorId)
+        .inBook(log.parentId)
         .target(log.businessId)
         .doUpdate()
         .withData(BookkeepingRuleTable.toUpdateCompanion(
