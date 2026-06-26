@@ -26,6 +26,12 @@ import 'sync_manager.dart';
 
 /// Provider 管理器
 class ProviderManager {
+  static CategoryProvider? _categoryProvider;
+  static ShopProvider? _shopProvider;
+
+  static CategoryProvider get categoryProvider => _categoryProvider!;
+  static ShopProvider get shopProvider => _shopProvider!;
+
   /// 初始化所有 Provider
   static Widget init({required Widget child}) {
     return RestartWidget(
@@ -68,8 +74,14 @@ class ProviderManager {
           ChangeNotifierProvider(create: (_) => SharedModuleProvider()),
           ChangeNotifierProvider(create: (_) => RecurringConfigProvider()),
           ChangeNotifierProvider(create: (_) => BookkeepingRuleProvider()),
-          ChangeNotifierProvider(create: (_) => CategoryProvider()),
-          ChangeNotifierProvider(create: (_) => ShopProvider()),
+          ChangeNotifierProvider(create: (_) {
+            _categoryProvider = CategoryProvider();
+            return _categoryProvider!;
+          }),
+          ChangeNotifierProvider(create: (_) {
+            _shopProvider = ShopProvider();
+            return _shopProvider!;
+          }),
         ],
         child: child,
       ),
