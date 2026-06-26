@@ -189,34 +189,15 @@ class _MerchantsPageState extends State<MerchantsPage> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          node.data.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                fontWeight: node.isRoot
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          '#${node.data.code}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: colorScheme.onSurfaceVariant
-                                    .withValues(alpha: 0.6),
-                              ),
-                        ),
-                      ],
+                    child: Text(
+                      node.data.name,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: node.isRoot
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   _MerchantActions(
