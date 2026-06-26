@@ -54,7 +54,8 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
     }
   }
 
-  static ShopCULog create(String who, String bookId, {required String name}) {
+  static ShopCULog create(String who, String bookId,
+      {required String name, String? parentId, int sortOrder = 0}) {
     return ShopCULog()
         .who(who)
         .inBook(bookId)
@@ -63,11 +64,13 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
           who,
           bookId,
           name: name,
+          parentId: parentId,
+          sortOrder: sortOrder,
         )) as ShopCULog;
   }
 
   static ShopCULog update(String userId, String bookId, String shopId,
-      {String? name, String? lastAccountItemAt}) {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) {
     return ShopCULog()
         .who(userId)
         .inBook(bookId)
@@ -76,6 +79,8 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
         .withData(AccountShopTable.toUpdateCompanion(
           userId,
           name: name,
+          parentId: parentId,
+          sortOrder: sortOrder,
           lastAccountItemAt: lastAccountItemAt,
         )) as ShopCULog;
   }
@@ -92,7 +97,10 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   static ShopCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return ShopCULog.update(log.operatorId, log.parentId, log.businessId,
-        name: data['name']);
+        name: data['name'],
+        parentId: data['parentId'] as String?,
+        sortOrder: data['sortOrder'] as int?,
+        lastAccountItemAt: data['lastAccountItemAt']);
   }
 
   static ShopCULog fromBatchUpdateLog(LogSync log) {

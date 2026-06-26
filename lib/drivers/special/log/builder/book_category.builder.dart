@@ -56,7 +56,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   }
 
   static CategoryCULog create(String who, String bookId,
-      {required String name, required String categoryType, String? code}) {
+      {required String name, required String categoryType, String? code, String? parentId, int sortOrder = 0}) {
     return CategoryCULog()
         .who(who)
         .inBook(bookId)
@@ -67,11 +67,13 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
           name: name,
           categoryType: categoryType,
           code: code,
+          parentId: parentId,
+          sortOrder: sortOrder,
         )) as CategoryCULog;
   }
 
   static CategoryCULog update(String userId, String bookId, String categoryId,
-      {String? name, String? lastAccountItemAt}) {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) {
     return CategoryCULog()
         .who(userId)
         .inBook(bookId)
@@ -80,6 +82,8 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         .withData(AccountCategoryTable.toUpdateCompanion(
           userId,
           name: name,
+          parentId: parentId,
+          sortOrder: sortOrder,
           lastAccountItemAt: lastAccountItemAt,
         )) as CategoryCULog;
   }
@@ -132,7 +136,10 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   static CategoryCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
     return CategoryCULog.update(log.operatorId, log.parentId, log.businessId,
-        name: data['name'], lastAccountItemAt: data['lastAccountItemAt']);
+        name: data['name'],
+        parentId: data['parentId'] as String?,
+        sortOrder: data['sortOrder'] as int?,
+        lastAccountItemAt: data['lastAccountItemAt']);
   }
 
   static CategoryCULog fromBatchUpdateLog(LogSync log) {
