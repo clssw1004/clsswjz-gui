@@ -29,8 +29,10 @@ class ProviderManager {
   static CategoryProvider? _categoryProvider;
   static ShopProvider? _shopProvider;
 
-  static CategoryProvider get categoryProvider => _categoryProvider!;
-  static ShopProvider get shopProvider => _shopProvider!;
+  static CategoryProvider get categoryProvider =>
+      _categoryProvider ??= CategoryProvider();
+  static ShopProvider get shopProvider =>
+      _shopProvider ??= ShopProvider();
 
   /// 初始化所有 Provider
   static Widget init({required Widget child}) {
