@@ -89,39 +89,72 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => Navigator.pushNamed(context, AppRoutes.bookkeepingRuleForm, arguments: {'rule': rule}).then((_) {
-            final bookId = _currentBookId;
-            if (bookId != null) provider.loadRules(bookId);
-          }),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: cs.outlineVariant.withAlpha(60)),
+      child: Dismissible(
+        key: ValueKey('rule_${rule.id}'),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (_) async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text(L10nManager.l10n.bookkeepingRuleConfirmDelete),
+              content: Text(L10nManager.l10n.bookkeepingRuleLabelConfirmDelete),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(L10nManager.l10n.cancel)),
+                TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(L10nManager.l10n.bookkeepingRuleLabelDelete)),
+              ],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── 头部：名称 + 优先级 + 启用开关 ──
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
-                  child: Row(
-                    children: [
-                      // 优先级指示条
-                      Container(
-                        width: 4, height: 32,
-                        decoration: BoxDecoration(
-                          color: rule.isActive ? cs.primary : cs.outlineVariant,
-                          borderRadius: BorderRadius.circular(2),
+          );
+          if (confirm == true) {
+            final bookId = _currentBookId;
+            final result = await provider.deleteRule(rule.id, bookId: bookId);
+            if (!result.ok && context.mounted) {
+              ToastUtil.showError(result.message ?? L10nManager.l10n.bookkeepingRuleMessageOpFailed);
+            }
+          }
+          return false; // We handle deletion ourselves via provider
+        },
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          decoration: BoxDecoration(
+            color: cs.error,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(Icons.delete_outline, color: cs.onError, size: 24),
+        ),
+        child: Material(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.bookkeepingRuleForm, arguments: {'rule': rule}).then((_) {
+              final bookId = _currentBookId;
+              if (bookId != null) provider.loadRules(bookId);
+            }),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: cs.outlineVariant.withAlpha(60)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── 头部：名称 + 优先级 + 启用开关 ──
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
+                    child: Row(
+                      children: [
+                        // 优先级指示条
+                        Container(
+                          width: 4, height: 32,
+                          decoration: BoxDecoration(
+                            color: rule.isActive ? cs.primary : cs.outlineVariant,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(rule.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -174,6 +207,7 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
