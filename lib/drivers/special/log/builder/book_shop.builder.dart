@@ -20,13 +20,33 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.shopDao.update(businessId!, data!);
+    } else if (operateType == OperateType.batchUpdate) {
+      for (int i = 0; i < batchData!.length; i++) {
+        await DaoManager.shopDao.update(
+            batchIds![i], batchData![i] as AccountShopTableCompanion);
+      }
+    } else if (operateType == OperateType.batchDelete) {
+      for (final id in batchIds!) {
+        await DaoManager.shopDao.delete(id);
+      }
     }
     return businessId!;
   }
 
   @override
   String data2Json() {
-    if (data == null) return '';
+    if (data == null && (batchData == null || batchIds == null)) return '';
+    if (operateType == OperateType.batchUpdate) {
+      return jsonEncode({
+        'ids': batchIds,
+        'data': (batchData as List<AccountShopTableCompanion>)
+            .map((c) => AccountShopTable.toJsonString(c))
+            .toList(),
+      });
+    }
+    if (operateType == OperateType.batchDelete) {
+      return jsonEncode({'ids': batchIds});
+    }
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
@@ -75,9 +95,68 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
         name: data['name']);
   }
 
+  static ShopCULog fromBatchUpdateLog(LogSync log) {
+    final decoded = jsonDecode(log.operateData) as Map<String, dynamic>;
+    final ids = (decoded['ids'] as List).cast<String>();
+    final dataList = (decoded['data'] as List).map((d) {
+      final map = jsonDecode(d as String) as Map<String, dynamic>;
+      return AccountShopTable.toUpdateCompanion(
+        log.operatorId,
+        parentId: map['parentId'] as String?,
+        sortOrder: map['sortOrder'] as int?,
+      );
+    }).toList();
+    return ShopCULog()
+        .who(log.operatorId)
+        .inBook(log.parentId)
+        .doUpdateBatch()
+        .withBatchIds(ids)
+        .withBatchData(dataList) as ShopCULog;
+  }
+
+  static ShopCULog fromBatchDeleteLog(LogSync log) {
+    final decoded = jsonDecode(log.operateData) as Map<String, dynamic>;
+    final ids = (decoded['ids'] as List).cast<String>();
+    return ShopCULog()
+        .who(log.operatorId)
+        .inBook(log.parentId)
+        .doDeleteBatch()
+        .withBatchIds(ids) as ShopCULog;
+  }
+
+  /// 批量更新（拖拽排序/改父级）
+  static ShopCULog updateBatch(String userId, String bookId,
+      {required List<String> ids,
+      required List<AccountShopTableCompanion> updates}) {
+    return ShopCULog()
+        .who(userId)
+        .inBook(bookId)
+        .doUpdateBatch()
+        .withBatchIds(ids)
+        .withBatchData(updates) as ShopCULog;
+  }
+
+  /// 批量删除（级联删除子树）
+  static ShopCULog deleteBatch(String userId, String bookId,
+      {required List<String> ids}) {
+    return ShopCULog()
+        .who(userId)
+        .inBook(bookId)
+        .doDeleteBatch()
+        .withBatchIds(ids) as ShopCULog;
+  }
+
   static ShopCULog fromLog(LogSync log) {
-    return (OperateType.fromCode(log.operateType) == OperateType.create
-        ? ShopCULog.fromCreateLog(log)
-        : ShopCULog.fromUpdateLog(log));
+    final operateType = OperateType.fromCode(log.operateType);
+    switch (operateType) {
+      case OperateType.create:
+        return ShopCULog.fromCreateLog(log);
+      case OperateType.batchUpdate:
+        return ShopCULog.fromBatchUpdateLog(log);
+      case OperateType.batchDelete:
+        return ShopCULog.fromBatchDeleteLog(log);
+      default:
+        return ShopCULog.fromUpdateLog(log);
+    }
   }
 }
