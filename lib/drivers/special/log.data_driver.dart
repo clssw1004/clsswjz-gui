@@ -8,6 +8,7 @@ import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../database/database.dart';
+import '../../utils/date_util.dart';
 import '../../enums/account_type.dart';
 import '../../enums/business_type.dart';
 import '../../enums/debt_clear_state.dart';
@@ -428,10 +429,13 @@ class LogDataDriver implements BookDataDriver {
   }) async {
     try {
       final updates = List.generate(ids.length, (i) {
-        return AccountCategoryTable.toUpdateCompanion(
-          userId,
-          parentId: parentIds[i],
-          sortOrder: sortOrders[i],
+        return AccountCategoryTableCompanion(
+          updatedBy: Value(userId),
+          updatedAt: Value(DateUtil.now()),
+          parentId: Value(parentIds[i]),
+          sortOrder: Value(sortOrders[i]),
+          createdBy: const Value.absent(),
+          createdAt: const Value.absent(),
         );
       });
       await CategoryCULog.updateBatch(userId, bookId,

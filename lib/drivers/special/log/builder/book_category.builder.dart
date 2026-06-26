@@ -101,7 +101,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         .withBatchData(updates) as CategoryCULog;
   }
 
-  /// 批量删除（级联删除子树）
+  /// 批量删除（调用方需先展开所有子孙节点ID）
   static CategoryCULog deleteBatch(String userId, String bookId,
       {required List<String> ids}) {
     return CategoryCULog()

@@ -147,7 +147,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
         .withBatchData(updates) as ShopCULog;
   }
 
-  /// 批量删除（级联删除子树）
+  /// 批量删除（调用方需先展开所有子孙节点ID）
   static ShopCULog deleteBatch(String userId, String bookId,
       {required List<String> ids}) {
     return ShopCULog()
