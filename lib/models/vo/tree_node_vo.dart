@@ -60,19 +60,28 @@ class TreeBuilder {
     }).toList();
   }
 
-  /// Flatten tree to list (DFS pre-order)
-  static List<TreeNode<T>> flatten<T>(List<TreeNode<T>> roots) {
+  /// Flatten tree to list (DFS pre-order).
+  /// If [isExpanded] provided, only include children of expanded nodes.
+  static List<TreeNode<T>> flatten<T>(
+    List<TreeNode<T>> roots, {
+    bool Function(TreeNode<T> node)? isExpanded,
+  }) {
     final result = <TreeNode<T>>[];
     for (final root in roots) {
-      _flattenNode(root, result);
+      _flattenNode(root, result, isExpanded: isExpanded);
     }
     return result;
   }
 
-  static void _flattenNode<T>(TreeNode<T> node, List<TreeNode<T>> result) {
+  static void _flattenNode<T>(
+    TreeNode<T> node,
+    List<TreeNode<T>> result, {
+    bool Function(TreeNode<T> node)? isExpanded,
+  }) {
     result.add(node);
+    if (isExpanded != null && !isExpanded(node)) return;
     for (final child in node.children) {
-      _flattenNode(child, result);
+      _flattenNode(child, result, isExpanded: isExpanded);
     }
   }
 

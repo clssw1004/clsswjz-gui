@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/tree_node_vo.dart';
 import '../../theme/theme_radius.dart';
 import 'common_badge.dart';
 import 'multi_select_sheet.dart';
@@ -23,6 +24,9 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
   /// 是否多选模式
   final bool multiSelect;
 
+  /// 树形数据源（传入后在"更多"面板中展示层级缩进列表）
+  final List<TreeNode<T>>? treeRoots;
+
   CommonSelectFormField({
     super.key,
     required List<T> items,
@@ -44,6 +48,7 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
     super.validator,
     Color? badgeColor,
     this.multiSelect = false,
+    this.treeRoots,
   }) : super(
           initialValue: multiSelect
               ? (value is List ? List<String>.from(value) : <String>[])
@@ -94,6 +99,7 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
               onCreateItem: onCreateItem,
               onchangeArgs: onchangeArgs ?? (item) => item,
               badgeColor: badgeColor,
+              treeRoots: treeRoots,
             );
           },
         );
@@ -118,6 +124,7 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
   final Future<T?> Function(String value)? onCreateItem;
   final dynamic Function(T item) onchangeArgs;
   final Color? badgeColor;
+  final List<TreeNode<T>>? treeRoots;
 
   const _CommonSelectFormFieldWidget({
     required this.items,
@@ -138,6 +145,7 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
     this.onChanged,
     this.onCreateItem,
     this.badgeColor,
+    this.treeRoots,
   });
 
   @override
@@ -337,19 +345,43 @@ class _CommonSelectFormFieldWidgetState<T>
                             padding: const EdgeInsets.only(top: 4, bottom: 16),
                             controller: PrimaryScrollController.maybeOf(ctx),
                             children: [
-                              ...filtered.map((item) {
-                                final isSelected = widget.value != null &&
-                                    widget.keyField(item) == widget.value;
-                                return _SheetItemTile<T>(
-                                  item: item,
-                                  isSelected: isSelected,
-                                  displayField: widget.displayField,
-                                  onTap: () {
-                                    localController.dispose();
-                                    Navigator.of(ctx).pop(item);
-                                  },
-                                );
-                              }),
+                              // 树形列表（当 treeRoots 传入时）
+                              if (widget.treeRoots != null)
+                                ...TreeBuilder.flatten(widget.treeRoots!).map((node) {
+                                  final isSelected = widget.value != null &&
+                                      widget.keyField(node.data) == widget.value;
+                                  return Padding(
+                                    padding: EdgeInsets.only(left: node.level * 24.0),
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 1),
+                                      child: _SheetItemTile<T>(
+                                        item: node.data,
+                                        isSelected: isSelected,
+                                        displayField: widget.displayField,
+                                        onTap: () {
+                                          localController.dispose();
+                                          Navigator.of(ctx).pop(node.data);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                })
+                              // 扁平列表
+                              else
+                                ...filtered.map((item) {
+                                  final isSelected = widget.value != null &&
+                                      widget.keyField(item) == widget.value;
+                                  return _SheetItemTile<T>(
+                                    item: item,
+                                    isSelected: isSelected,
+                                    displayField: widget.displayField,
+                                    onTap: () {
+                                      localController.dispose();
+                                      Navigator.of(ctx).pop(item);
+                                    },
+                                  );
+                                }),
                               if (showCreate)
                                 _SheetCreateTile<T>(
                                   searchText: localSearch,

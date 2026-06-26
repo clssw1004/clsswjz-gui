@@ -6,6 +6,7 @@ import '../../models/dto/item_filter_dto.dart';
 import '../../models/vo/tree_node_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/shop_provider.dart';
+import '../../theme/theme_radius.dart';
 import '../../routes/app_routes.dart';
 
 class MerchantsPage extends StatefulWidget {
@@ -38,20 +39,17 @@ class _MerchantsPageState extends State<MerchantsPage> {
           appBar: AppBar(
             title: Text(L10nManager.l10n.merchant),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('子类',
-                        style: Theme.of(context).textTheme.labelSmall),
-                    Switch(
-                      value: _provider.includeChildren,
-                      onChanged: (v) => _provider.includeChildren = v,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('包含子类',
+                      style: Theme.of(context).textTheme.labelSmall),
+                  Switch(
+                    value: _provider.includeChildren,
+                    onChanged: (v) => _provider.includeChildren = v,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ],
               ),
             ],
           ),
@@ -93,26 +91,22 @@ class _MerchantsPageState extends State<MerchantsPage> {
   }
 
   Widget _buildTreeView() {
-    final flattened = TreeBuilder.flatten(_provider.tree);
-    final lastAncestors = _computeLastAncestors(flattened);
+    final flattened = TreeBuilder.flatten(
+      _provider.tree,
+      isExpanded: (n) => _provider.expandedIds.contains(n.data.id),
+    );
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 80, top: 4),
       itemCount: flattened.length,
       itemBuilder: (context, index) {
         final node = flattened[index];
-        final isLast = index == flattened.length - 1 ||
-            (index + 1 < flattened.length &&
-                flattened[index + 1].level <= node.level);
-        final ancestorLast = lastAncestors[index];
-
-        return _buildTreeTile(node, isLast, ancestorLast);
+        return _buildTreeTile(node);
       },
     );
   }
 
-  Widget _buildTreeTile(
-      TreeNode<AccountShop> node, bool isLast, List<bool> ancestorIsLast) {
+  Widget _buildTreeTile(TreeNode<AccountShop> node) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasChildren = node.children.isNotEmpty;
     final isExpanded = _provider.expandedIds.contains(node.data.id);
@@ -120,115 +114,119 @@ class _MerchantsPageState extends State<MerchantsPage> {
       colorScheme.primary,
       colorScheme.tertiary,
       colorScheme.secondary,
-      colorScheme.primary.withValues(alpha: 0.6),
-      colorScheme.tertiary.withValues(alpha: 0.6),
     ];
     final accent = levelColors[node.level % levelColors.length];
-    final bgOpacity = 1.0 - node.level * 0.06;
 
     return Padding(
       padding: EdgeInsets.only(left: node.level * 24.0),
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        alignment: Alignment.topCenter,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 1.5),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerLow
-                .withValues(alpha: bgOpacity.clamp(0.7, 1.0)),
-            borderRadius: BorderRadius.circular(10),
-            border: Border(
-              left: BorderSide(color: accent, width: 3),
+      child: Dismissible(
+        key: ValueKey(node.data.id),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (_) async {
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('删除确认'),
+              content: Text('删除「${node.data.name}」及其所有子商户？'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
+                FilledButton(
+                  style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('删除'),
+                ),
+              ],
             ),
+          );
+          if (confirmed == true) {
+            await _provider.delete(node.data.id);
+          }
+          return false;
+        },
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 24),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.error,
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () {
-              final filter = ItemFilterDTO(
-                shopCodes: _provider.expandCodes(node.data.code),
-              );
-              Navigator.of(context).pushNamed(
-                AppRoutes.items,
-                arguments: [widget.accountBook, filter, node.data.name],
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                children: [
-                  if (hasChildren)
-                    SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: AnimatedRotation(
+          child: Icon(Icons.delete_outline, color: colorScheme.onError),
+        ),
+        child: InkWell(
+          onTap: () {
+            final filter = ItemFilterDTO(
+              shopCodes: _provider.expandCodes(node.data.code),
+            );
+            Navigator.of(context).pushNamed(
+              AppRoutes.items,
+              arguments: [widget.accountBook, filter, node.data.name],
+            );
+          },
+          onLongPress: () => _showMoveDialog(node),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Row(
+              children: [
+                if (hasChildren)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: GestureDetector(
+                      onTap: () => _provider.toggleExpand(node.data.id),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: AnimatedRotation(
                           turns: isExpanded ? 0.25 : 0,
                           duration: const Duration(milliseconds: 180),
                           child: Icon(Icons.chevron_right,
-                              size: 20,
-                              color: colorScheme.onSurfaceVariant),
+                              size: 20, color: colorScheme.primary),
                         ),
-                        onPressed: () =>
-                            _provider.toggleExpand(node.data.id),
                       ),
-                    )
-                  else
-                    const SizedBox(width: 36),
-                  const SizedBox(width: 4),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: node.isRoot
-                          ? accent
-                          : accent.withValues(alpha: 0.6),
                     ),
+                  )
+                else
+                  const SizedBox(width: 36),
+                const SizedBox(width: 8),
+                Container(
+                  width: 6, height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: accent,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      node.data.name,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: node.isRoot
-                                ? FontWeight.w600
-                                : FontWeight.w400,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    node.data.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: node.isRoot ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  _MerchantActions(
-                    onAddChild: () => _showAddDialog(node.data.id),
-                    onEdit: () => _showEditDialog(node.data),
-                    onDelete: () => _confirmDelete(node.data),
+                ),
+                GestureDetector(
+                  onTap: () => _showEditDialog(node.data),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(Icons.edit_outlined,
+                        size: 18, color: colorScheme.onSurfaceVariant),
                   ),
-                ],
-              ),
+                ),
+                GestureDetector(
+                  onTap: () => _showAddDialog(node.data.id),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(Icons.add_circle_outline,
+                        size: 20, color: colorScheme.primary),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
-  }
-
-  List<List<bool>> _computeLastAncestors(List<TreeNode<AccountShop>> nodes) {
-    final result = <List<bool>>[];
-    final ancestors = <_LevelLast>{};
-    for (int i = 0; i < nodes.length; i++) {
-      final node = nodes[i];
-      ancestors.removeWhere((a) => a.level >= node.level);
-      final isLast = i == nodes.length - 1 ||
-          (i + 1 < nodes.length && nodes[i + 1].level <= node.level);
-      ancestors.add(_LevelLast(level: node.level, isLast: isLast));
-      result.add(ancestors
-          .where((a) => a.level < node.level)
-          .map((a) => a.isLast)
-          .toList());
-    }
-    return result;
   }
 
   void _showAddDialog(String? parentId) {
@@ -271,85 +269,122 @@ class _MerchantsPageState extends State<MerchantsPage> {
     );
   }
 
-  void _confirmDelete(AccountShop shop) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('删除确认'),
-        content: Text('删除「${shop.name}」及其所有子商户？\n此操作不可恢复。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error),
-            onPressed: () async {
-              final result = await _provider.delete(shop.id);
-              if (result.ok && ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LevelLast {
-  final int level;
-  final bool isLast;
-  const _LevelLast({required this.level, required this.isLast});
-}
-
-/// 商户操作按钮组
-class _MerchantActions extends StatelessWidget {
-  final VoidCallback onAddChild;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const _MerchantActions({
-    required this.onAddChild,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  void _showMoveDialog(TreeNode<AccountShop> node) {
+    final excludeIds = TreeBuilder.getDescendantIds(
+      _provider.tree, node.data.id, idGetter: (c) => c.id,
+    ).toSet();
+    final allNodes = TreeBuilder.flatten(_provider.tree);
+    final filtered = allNodes.where((n) => !excludeIds.contains(n.data.id)).toList();
     final colorScheme = Theme.of(context).colorScheme;
-    return PopupMenuButton<String>(
-      padding: EdgeInsets.zero,
-      icon: Icon(Icons.more_horiz, size: 20, color: colorScheme.onSurfaceVariant),
-      onSelected: (v) {
-        switch (v) {
-          case 'add': onAddChild();
-          case 'edit': onEdit();
-          case 'delete': onDelete();
-        }
+    final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
+    final screenH = MediaQuery.of(context).size.height;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
+      ),
+      builder: (ctx) {
+        final localColor = Theme.of(ctx).colorScheme;
+        return Container(
+          constraints: BoxConstraints(maxHeight: screenH * 0.75, minHeight: 300),
+          decoration: BoxDecoration(
+            color: localColor.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 2),
+                child: Container(
+                  width: 36, height: 4,
+                  decoration: BoxDecoration(
+                    color: localColor.onSurfaceVariant.withAlpha(50),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.drive_file_move_outlined, size: 18, color: localColor.primary),
+                    const SizedBox(width: 8),
+                    Text('移动「${node.data.name}」到',
+                        style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+              Divider(height: 1, color: localColor.outline.withAlpha(20)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  leading: Container(
+                    width: 8, height: 8,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.transparent),
+                  ),
+                  title: const Text('根目录', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text('取消父子关系'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    final r = await _provider.batchUpdatePositions(
+                      ids: [node.data.id], parentIds: [null], sortOrders: [0],
+                    );
+                    if (r.ok && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('移动成功')));
+                    }
+                  },
+                ),
+              ),
+              Divider(height: 1, color: localColor.outline.withAlpha(20)),
+              Expanded(
+                child: filtered.isEmpty
+                    ? const Center(child: Text('无其他可选商户'))
+                    : ListView(
+                        padding: const EdgeInsets.only(top: 4, bottom: 16),
+                        children: filtered.map((n) => Padding(
+                          padding: EdgeInsets.only(left: n.level * 24.0),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            child: ListTile(
+                              dense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                              leading: Container(
+                                width: 8, height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: localColor.outline.withAlpha(40),
+                                ),
+                              ),
+                              title: Text(n.data.name, style: Theme.of(ctx).textTheme.bodyMedium),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              onTap: () async {
+                                Navigator.pop(ctx);
+                                final r = await _provider.batchUpdatePositions(
+                                  ids: [node.data.id], parentIds: [n.data.id], sortOrders: [0],
+                                );
+                                if (r.ok && mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('移动成功')));
+                                }
+                              },
+                            ),
+                          ),
+                        )).toList(),
+                      ),
+              ),
+            ],
+          ),
+        );
       },
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: 'add', child: ListTile(
-          leading: Icon(Icons.add_circle_outline, size: 20),
-          title: Text('添加子商户'),
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-        )),
-        const PopupMenuItem(value: 'edit', child: ListTile(
-          leading: Icon(Icons.edit_outlined, size: 20),
-          title: Text('编辑'),
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-        )),
-        const PopupMenuItem(value: 'delete', child: ListTile(
-          leading: Icon(Icons.delete_outline, size: 20, color: Colors.red),
-          title: Text('删除', style: TextStyle(color: Colors.red)),
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-        )),
-      ],
     );
   }
+
 }
 
 /// 统一风格的操作对话框

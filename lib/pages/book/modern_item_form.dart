@@ -10,6 +10,7 @@ import '../../enums/business_type.dart';
 import '../../enums/symbol_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/tree_node_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
@@ -24,6 +25,7 @@ import '../../widgets/common/common_attachment_field.dart';
 import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/tree_select_form_field.dart';
 
 /// 新版账目表单组件
 /// add 和 edit 页面共享此组件，通过 autoSave 区分行为
@@ -491,11 +493,12 @@ class _ModernItemFormState extends State<ModernItemForm> {
           primary: colorScheme.primary,
         ),
         const SizedBox(height: 16),
+        // === 分类（常用铺开展示，更多展示树形） ===
         CommonSelectFormField<AccountCategory>(
           items: provider.categories
+              .cast<AccountCategory>()
               .where((c) => c.categoryType == item.type)
-              .toList()
-              .cast<AccountCategory>(),
+              .toList(),
           value: item.categoryCode,
           displayMode: DisplayMode.expand,
           displayField: (e) => e.name,
@@ -505,6 +508,14 @@ class _ModernItemFormState extends State<ModernItemForm> {
           required: true,
           expandCount: 8,
           expandRows: 3,
+          treeRoots: TreeBuilder.buildTree(
+            provider.categories
+                .cast<AccountCategory>()
+                .where((c) => c.categoryType == item.type)
+                .toList(),
+            getId: (AccountCategory c) => c.id,
+            getParentId: (AccountCategory c) => c.parentId,
+          ),
           onCreateItem: (value) async {
             final result = await DriverFactory.driver.createCategory(
               AppConfigManager.instance.userId,
@@ -523,15 +534,11 @@ class _ModernItemFormState extends State<ModernItemForm> {
           onChanged: (value) {
             final category = value as AccountCategory?;
             if (widget.autoSave) {
-              provider.updateCategoryAndSave(
-                  category?.code, category?.name);
+              provider.updateCategoryAndSave(category?.code, category?.name);
             } else {
-              provider.updateCategory(
-                  category?.code, category?.name);
+              provider.updateCategory(category?.code, category?.name);
             }
           },
-          validator: (v) =>
-              v == null ? L10nManager.l10n.required : null,
         ),
         const SizedBox(height: 16),
         CommonSelectFormField<UserFundVO>(
@@ -556,35 +563,22 @@ class _ModernItemFormState extends State<ModernItemForm> {
               v == null ? L10nManager.l10n.required : null,
         ),
         const SizedBox(height: 16),
-        CommonSelectFormField<AccountShop>(
-          items: provider.shops.cast<AccountShop>(),
-          value:
-              item.shopCode == 'NO_SHOP' ? null : item.shopCode,
-          displayMode: DisplayMode.iconText,
-          displayField: (e) => e.name,
-          keyField: (e) => e.code,
-          icon: Icons.store_outlined,
+        // === 商户（树形） ===
+        TreeSelectFormField<AccountShop>(
+          roots: TreeBuilder.buildTree(provider.shops.cast<AccountShop>(),
+              getId: (c) => c.id, getParentId: (c) => c.parentId),
+          value: item.shopCode != null && item.shopCode != 'NO_SHOP'
+              ? provider.shops.cast<AccountShop>().where(
+                  (c) => c.code == item.shopCode).firstOrNull
+              : null,
+          displayField: (c) => c.name,
+          idField: (c) => c.code,
           label: L10nManager.l10n.merchant,
-          onCreateItem: (value) async {
-            final result = await DriverFactory.driver.createShop(
-              AppConfigManager.instance.userId,
-              provider.bookMeta.id,
-              name: value,
-            );
-            if (result.data != null) {
-              await provider.loadShops(provider.bookMeta.id);
-              return provider.shops
-                  .cast<AccountShop>()
-                  .firstWhere((s) => s.name == value);
-            }
-            return null;
-          },
           onChanged: (value) {
-            final shop = value as AccountShop?;
             if (widget.autoSave) {
-              provider.updateShopAndSave(shop?.code, shop?.name);
+              provider.updateShopAndSave(value?.code, value?.name);
             } else {
-              provider.updateShop(shop?.code, shop?.name);
+              provider.updateShop(value?.code, value?.name);
             }
           },
         ),
