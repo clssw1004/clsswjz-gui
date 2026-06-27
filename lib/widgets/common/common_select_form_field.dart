@@ -351,7 +351,7 @@ class _CommonSelectFormFieldWidgetState<T>
                                   final isSelected = widget.value != null &&
                                       widget.keyField(node.data) == widget.value;
                                   return Padding(
-                                    padding: EdgeInsets.only(left: node.level * 24.0),
+                                    padding: EdgeInsets.only(left: node.level * 20.0),
                                     child: Container(
                                       margin: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 1),
