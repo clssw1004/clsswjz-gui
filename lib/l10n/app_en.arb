@@ -2391,5 +2391,89 @@
         "placeholders": {
             "e": {"type": "String"}
         }
+    },
+    "treeEmptyCategory": "No categories",
+    "@treeEmptyCategory": {
+        "description": "Empty category management page"
+    },
+    "treeEmptyShop": "No merchants",
+    "@treeEmptyShop": {
+        "description": "Empty merchant management page"
+    },
+    "treeIncludeChildren": "Include subcategories",
+    "@treeIncludeChildren": {
+        "description": "Filter includes children toggle"
+    },
+    "treeAddChildCategory": "Add subcategory",
+    "@treeAddChildCategory": {
+        "description": "Add subcategory button"
+    },
+    "treeAddChildShop": "Add sub-merchant",
+    "@treeAddChildShop": {
+        "description": "Add sub-merchant button"
+    },
+    "treeEditName": "Edit name",
+    "@treeEditName": {
+        "description": "Edit name dialog title"
+    },
+    "treeDeleteTitle": "Delete confirmation",
+    "@treeDeleteTitle": {
+        "description": "Delete confirmation dialog title"
+    },
+    "treeDeleteMessageCategory": "Delete \"{name}\" and all its subcategories? This cannot be undone.",
+    "@treeDeleteMessageCategory": {
+        "description": "Category delete confirmation message",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeDeleteMessageShop": "Delete \"{name}\" and all its sub-merchants? This cannot be undone.",
+    "@treeDeleteMessageShop": {
+        "description": "Merchant delete confirmation message",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeMove": "Move",
+    "@treeMove": {
+        "description": "Move node action"
+    },
+    "treeMoveSuccess": "Moved successfully",
+    "@treeMoveSuccess": {
+        "description": "Move success toast"
+    },
+    "treeMoveTo": "Move \"{name}\" to",
+    "@treeMoveTo": {
+        "description": "Move dialog title",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeRootDir": "Root (remove parent)",
+    "@treeRootDir": {
+        "description": "Move to root option"
+    },
+    "treeSelectTargetCategory": "Or select target category",
+    "@treeSelectTargetCategory": {
+        "description": "Select target category title"
+    },
+    "treeSelectTargetShop": "Or select target merchant",
+    "@treeSelectTargetShop": {
+        "description": "Select target merchant title"
+    },
+    "treeNoOptions": "No options available",
+    "@treeNoOptions": {
+        "description": "Tree selector no options"
+    },
+    "treeSelectedCount": "{count} selected",
+    "@treeSelectedCount": {
+        "description": "Multi-select count",
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "treeMultiSelectHint": "(multi-select)",
+    "@treeMultiSelectHint": {
+        "description": "Multi-select hint text"
     }
 }

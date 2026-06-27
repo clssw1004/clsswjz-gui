@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../database/database.dart';
 import '../../manager/l10n_manager.dart';
+import '../../models/vo/tree_node_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_card_container.dart';
 import '../../widgets/common/common_select_form_field.dart';
+import '../../widgets/common/tree_select_form_field.dart';
 import 'editor_models.dart';
 class ConditionGroupEditor extends StatelessWidget {
   final List<ConditionData> conditions;
@@ -513,15 +515,15 @@ class ConditionValueSelector extends StatelessWidget {
     final singleValue = selectedId ?? value?.toString();
     switch (field) {
       case 'categoryCode':
-        return CommonSelectFormField<AccountCategory>(
+        return TreeSelectFormField<AccountCategory>(
           key: key,
-          items: categories,
-          multiSelect: multiSelect,
+          roots: TreeBuilder.buildTree(categories,
+              getId: (c) => c.id, getParentId: (c) => c.parentId),
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (c) => c.name,
-          keyField: (c) => c.code,
+          idField: (c) => c.code,
           label: '分类',
-          allowCreate: false,
+          multiSelect: multiSelect,
           onChanged: onChanged ?? (v) {
             if (v is AccountCategory) { this.onChanged(v.code); }
           },
@@ -541,15 +543,15 @@ class ConditionValueSelector extends StatelessWidget {
           },
         );
       case 'shopCode':
-        return CommonSelectFormField<AccountShop>(
+        return TreeSelectFormField<AccountShop>(
           key: key,
-          items: shops,
-          multiSelect: multiSelect,
+          roots: TreeBuilder.buildTree(shops,
+              getId: (c) => c.id, getParentId: (c) => c.parentId),
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (s) => s.name,
-          keyField: (s) => s.code,
+          idField: (s) => s.code,
           label: '商家',
-          allowCreate: false,
+          multiSelect: multiSelect,
           onChanged: onChanged ?? (v) {
             if (v is AccountShop) { this.onChanged(v.code); }
           },

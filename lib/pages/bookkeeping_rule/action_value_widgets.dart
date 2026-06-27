@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../database/database.dart';
+import '../../models/vo/tree_node_vo.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../widgets/common/common_select_form_field.dart';
+import '../../widgets/common/tree_select_form_field.dart';
 class ActionValueSelector extends StatelessWidget {
   final String field;
   final String value;
@@ -49,15 +51,17 @@ class ActionValueSelector extends StatelessWidget {
           onChanged: (v) { if (v is UserFundVO) onChanged(v.id); },
         );
       case 'shopCode':
-        return CommonSelectFormField<AccountShop>(
+        return TreeSelectFormField<AccountShop>(
           key: ValueKey('act_shop_$value'),
-          items: shops,
-          displayField: (s) => s.name,
-          keyField: (s) => s.code,
+          roots: TreeBuilder.buildTree(shops,
+              getId: (c) => c.id, getParentId: (c) => c.parentId),
           value: value,
+          displayField: (s) => s.name,
+          idField: (s) => s.code,
           label: '商家',
-          allowCreate: false,
-          onChanged: (v) { if (v is AccountShop) onChanged(v.code); },
+          onChanged: (v) {
+            if (v is AccountShop) onChanged(v.code);
+          },
         );
       case 'tagCode':
         return CommonSelectFormField<AccountSymbol>(

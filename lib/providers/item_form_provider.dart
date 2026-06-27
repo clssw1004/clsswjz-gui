@@ -124,9 +124,9 @@ class ItemFormProvider extends ChangeNotifier {
 
     await Future.wait([
       loadBooks(),
-      loadCategories(),
+      loadCategories(item.accountBookId, item.type),
       loadFunds(),
-      loadShops(),
+      loadShops(item.accountBookId),
       loadTags(),
       loadProjects(),
       _loadActiveRules(),
@@ -216,11 +216,16 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 加载分类
-  Future<void> loadCategories() async {
-    final result = await DriverFactory.driver.listCategoriesByBook(
-        AppConfigManager.instance.userId, item.accountBookId);
-    _categories = result.data ?? [];
-    notifyListeners();
+  Future<void> loadCategories(String bookId, String type) async {
+    final result = await DriverFactory.driver.listAllCategoriesByBook(
+      AppConfigManager.instance.userId,
+      bookId,
+      categoryType: type,
+    );
+    if (result.ok) {
+      _categories = result.data ?? [];
+      notifyListeners();
+    }
   }
 
   /// 加载账户
@@ -232,11 +237,15 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 加载商户
-  Future<void> loadShops() async {
-    final result = await DriverFactory.driver
-        .listShopsByBook(AppConfigManager.instance.userId, item.accountBookId);
-    _shops = result.data ?? [];
-    notifyListeners();
+  Future<void> loadShops(String bookId) async {
+    final result = await DriverFactory.driver.listAllShopsByBook(
+      AppConfigManager.instance.userId,
+      bookId,
+    );
+    if (result.ok) {
+      _shops = result.data ?? [];
+      notifyListeners();
+    }
   }
 
   /// 加载标签和项目

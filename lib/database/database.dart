@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -133,6 +133,17 @@ class AppDatabase extends _$AppDatabase {
           if (from < 15) {
             // 版本14到版本15的迁移：新增记账规则表
             await m.create(bookkeepingRuleTable);
+          }
+          if (from < 16) {
+            // 版本15到版本16的迁移：分类/商户表新增树形字段
+            try {
+              await m.addColumn(accountCategoryTable, accountCategoryTable.parentId);
+              await m.addColumn(accountCategoryTable, accountCategoryTable.sortOrder);
+              await m.addColumn(accountShopTable, accountShopTable.parentId);
+              await m.addColumn(accountShopTable, accountShopTable.sortOrder);
+            } catch (_) {
+              // 列已存在时忽略
+            }
           }
         },
       );

@@ -142,7 +142,7 @@ abstract class BookDataDriver {
   /// 分类相关
   /// 创建分类
   Future<OperateResult<String>> createCategory(String userId, String bookId,
-      {required String name, required String categoryType});
+      {required String name, required String categoryType, String? parentId});
 
   /// 删除分类
   Future<OperateResult<void>> deleteCategory(
@@ -151,17 +151,36 @@ abstract class BookDataDriver {
   /// 更新分类
   Future<OperateResult<void>> updateCategory(
       String userId, String bookId, String categoryId,
-      {String? name, String? lastAccountItemAt});
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt});
 
   /// 获取账本分类列表
   Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(
       String userId, String bookId,
       {String? categoryType});
 
+  /// 批量更新分类（拖拽操作）
+  Future<OperateResult<void>> updateCategories(
+    String userId, String bookId, {
+    required List<String> ids,
+    required List<String?> parentIds,
+    required List<int> sortOrders,
+  });
+
+  /// 批量删除分类（级联）
+  Future<OperateResult<void>> deleteCategories(
+    String userId, String bookId,
+    List<String> ids,
+  );
+
+  /// 获取账本全量分类列表（用于构建树）
+  Future<OperateResult<List<AccountCategory>>> listAllCategoriesByBook(
+      String userId, String bookId,
+      {String? categoryType});
+
   /// 商家相关
   /// 创建商家
   Future<OperateResult<String>> createShop(String userId, String bookId,
-      {required String name});
+      {required String name, String? parentId});
 
   /// 删除商家
   Future<OperateResult<void>> deleteShop(
@@ -170,10 +189,28 @@ abstract class BookDataDriver {
   /// 更新商家
   Future<OperateResult<void>> updateShop(
       String userId, String bookId, String shopId,
-      {String? name, String? lastAccountItemAt});
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt});
 
   /// 获取账本商家列表
   Future<OperateResult<List<AccountShop>>> listShopsByBook(
+      String userId, String bookId);
+
+  /// 批量更新商户（拖拽操作）
+  Future<OperateResult<void>> updateShops(
+    String userId, String bookId, {
+    required List<String> ids,
+    required List<String?> parentIds,
+    required List<int> sortOrders,
+  });
+
+  /// 批量删除商户（级联）
+  Future<OperateResult<void>> deleteShops(
+    String userId, String bookId,
+    List<String> ids,
+  );
+
+  /// 获取账本全量商户列表（用于构建树）
+  Future<OperateResult<List<AccountShop>>> listAllShopsByBook(
       String userId, String bookId);
 
   /// 其它账本标识

@@ -1972,6 +1972,20 @@ class $AccountCategoryTableTable extends AccountCategoryTable
   late final GeneratedColumn<String> categoryType = GeneratedColumn<String>(
       'category_type', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _parentIdMeta =
+      const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+      'parent_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns => [
         lastAccountItemAt,
@@ -1983,7 +1997,9 @@ class $AccountCategoryTableTable extends AccountCategoryTable
         id,
         name,
         code,
-        categoryType
+        categoryType,
+        parentId,
+        sortOrder
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2058,6 +2074,14 @@ class $AccountCategoryTableTable extends AccountCategoryTable
     } else if (isInserting) {
       context.missing(_categoryTypeMeta);
     }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta,
+          parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
     return context;
   }
 
@@ -2091,6 +2115,10 @@ class $AccountCategoryTableTable extends AccountCategoryTable
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
       categoryType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}category_type'])!,
+      parentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
   }
 
@@ -2111,6 +2139,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
   final String name;
   final String code;
   final String categoryType;
+  final String? parentId;
+  final int sortOrder;
   const AccountCategory(
       {this.lastAccountItemAt,
       required this.accountBookId,
@@ -2121,7 +2151,9 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       required this.id,
       required this.name,
       required this.code,
-      required this.categoryType});
+      required this.categoryType,
+      this.parentId,
+      required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2137,6 +2169,10 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
     map['name'] = Variable<String>(name);
     map['code'] = Variable<String>(code);
     map['category_type'] = Variable<String>(categoryType);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
 
@@ -2154,6 +2190,10 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       name: Value(name),
       code: Value(code),
       categoryType: Value(categoryType),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+      sortOrder: Value(sortOrder),
     );
   }
 
@@ -2172,6 +2212,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       name: serializer.fromJson<String>(json['name']),
       code: serializer.fromJson<String>(json['code']),
       categoryType: serializer.fromJson<String>(json['categoryType']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
   @override
@@ -2188,6 +2230,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       'name': serializer.toJson<String>(name),
       'code': serializer.toJson<String>(code),
       'categoryType': serializer.toJson<String>(categoryType),
+      'parentId': serializer.toJson<String?>(parentId),
+      'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
 
@@ -2201,7 +2245,9 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           String? id,
           String? name,
           String? code,
-          String? categoryType}) =>
+          String? categoryType,
+          Value<String?> parentId = const Value.absent(),
+          int? sortOrder}) =>
       AccountCategory(
         lastAccountItemAt: lastAccountItemAt.present
             ? lastAccountItemAt.value
@@ -2215,6 +2261,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
         name: name ?? this.name,
         code: code ?? this.code,
         categoryType: categoryType ?? this.categoryType,
+        parentId: parentId.present ? parentId.value : this.parentId,
+        sortOrder: sortOrder ?? this.sortOrder,
       );
   AccountCategory copyWithCompanion(AccountCategoryTableCompanion data) {
     return AccountCategory(
@@ -2234,6 +2282,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       categoryType: data.categoryType.present
           ? data.categoryType.value
           : this.categoryType,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
 
@@ -2249,14 +2299,27 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('code: $code, ')
-          ..write('categoryType: $categoryType')
+          ..write('categoryType: $categoryType, ')
+          ..write('parentId: $parentId, ')
+          ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
-      updatedBy, createdAt, updatedAt, id, name, code, categoryType);
+  int get hashCode => Object.hash(
+      lastAccountItemAt,
+      accountBookId,
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      name,
+      code,
+      categoryType,
+      parentId,
+      sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2270,7 +2333,9 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           other.id == this.id &&
           other.name == this.name &&
           other.code == this.code &&
-          other.categoryType == this.categoryType);
+          other.categoryType == this.categoryType &&
+          other.parentId == this.parentId &&
+          other.sortOrder == this.sortOrder);
 }
 
 class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
@@ -2284,6 +2349,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   final Value<String> name;
   final Value<String> code;
   final Value<String> categoryType;
+  final Value<String?> parentId;
+  final Value<int> sortOrder;
   final Value<int> rowid;
   const AccountCategoryTableCompanion({
     this.lastAccountItemAt = const Value.absent(),
@@ -2296,6 +2363,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     this.name = const Value.absent(),
     this.code = const Value.absent(),
     this.categoryType = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountCategoryTableCompanion.insert({
@@ -2309,6 +2378,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     required String name,
     required String code,
     required String categoryType,
+    this.parentId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -2330,6 +2401,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     Expression<String>? name,
     Expression<String>? code,
     Expression<String>? categoryType,
+    Expression<String>? parentId,
+    Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2343,6 +2416,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       if (name != null) 'name': name,
       if (code != null) 'code': code,
       if (categoryType != null) 'category_type': categoryType,
+      if (parentId != null) 'parent_id': parentId,
+      if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2358,6 +2433,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       Value<String>? name,
       Value<String>? code,
       Value<String>? categoryType,
+      Value<String?>? parentId,
+      Value<int>? sortOrder,
       Value<int>? rowid}) {
     return AccountCategoryTableCompanion(
       lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
@@ -2370,6 +2447,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       name: name ?? this.name,
       code: code ?? this.code,
       categoryType: categoryType ?? this.categoryType,
+      parentId: parentId ?? this.parentId,
+      sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2407,6 +2486,12 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     if (categoryType.present) {
       map['category_type'] = Variable<String>(categoryType.value);
     }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2426,6 +2511,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
           ..write('name: $name, ')
           ..write('code: $code, ')
           ..write('categoryType: $categoryType, ')
+          ..write('parentId: $parentId, ')
+          ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3103,6 +3190,20 @@ class $AccountShopTableTable extends AccountShopTable
   late final GeneratedColumn<String> code = GeneratedColumn<String>(
       'code', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _parentIdMeta =
+      const VerificationMeta('parentId');
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+      'parent_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns => [
         lastAccountItemAt,
@@ -3113,7 +3214,9 @@ class $AccountShopTableTable extends AccountShopTable
         updatedAt,
         id,
         name,
-        code
+        code,
+        parentId,
+        sortOrder
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3180,6 +3283,14 @@ class $AccountShopTableTable extends AccountShopTable
     } else if (isInserting) {
       context.missing(_codeMeta);
     }
+    if (data.containsKey('parent_id')) {
+      context.handle(_parentIdMeta,
+          parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
     return context;
   }
 
@@ -3207,6 +3318,10 @@ class $AccountShopTableTable extends AccountShopTable
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       code: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}code'])!,
+      parentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
   }
 
@@ -3226,6 +3341,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   final String id;
   final String name;
   final String code;
+  final String? parentId;
+  final int sortOrder;
   const AccountShop(
       {this.lastAccountItemAt,
       required this.accountBookId,
@@ -3235,7 +3352,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       required this.updatedAt,
       required this.id,
       required this.name,
-      required this.code});
+      required this.code,
+      this.parentId,
+      required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3250,6 +3369,10 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['code'] = Variable<String>(code);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
 
@@ -3266,6 +3389,10 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       id: Value(id),
       name: Value(name),
       code: Value(code),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+      sortOrder: Value(sortOrder),
     );
   }
 
@@ -3283,6 +3410,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       code: serializer.fromJson<String>(json['code']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
   @override
@@ -3298,6 +3427,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'code': serializer.toJson<String>(code),
+      'parentId': serializer.toJson<String?>(parentId),
+      'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
 
@@ -3310,7 +3441,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           int? updatedAt,
           String? id,
           String? name,
-          String? code}) =>
+          String? code,
+          Value<String?> parentId = const Value.absent(),
+          int? sortOrder}) =>
       AccountShop(
         lastAccountItemAt: lastAccountItemAt.present
             ? lastAccountItemAt.value
@@ -3323,6 +3456,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
         id: id ?? this.id,
         name: name ?? this.name,
         code: code ?? this.code,
+        parentId: parentId.present ? parentId.value : this.parentId,
+        sortOrder: sortOrder ?? this.sortOrder,
       );
   AccountShop copyWithCompanion(AccountShopTableCompanion data) {
     return AccountShop(
@@ -3339,6 +3474,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       code: data.code.present ? data.code.value : this.code,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
 
@@ -3353,14 +3490,16 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           ..write('updatedAt: $updatedAt, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('code: $code')
+          ..write('code: $code, ')
+          ..write('parentId: $parentId, ')
+          ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
-      updatedBy, createdAt, updatedAt, id, name, code);
+      updatedBy, createdAt, updatedAt, id, name, code, parentId, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3373,7 +3512,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           other.updatedAt == this.updatedAt &&
           other.id == this.id &&
           other.name == this.name &&
-          other.code == this.code);
+          other.code == this.code &&
+          other.parentId == this.parentId &&
+          other.sortOrder == this.sortOrder);
 }
 
 class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
@@ -3386,6 +3527,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> code;
+  final Value<String?> parentId;
+  final Value<int> sortOrder;
   final Value<int> rowid;
   const AccountShopTableCompanion({
     this.lastAccountItemAt = const Value.absent(),
@@ -3397,6 +3540,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.code = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountShopTableCompanion.insert({
@@ -3409,6 +3554,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     required String id,
     required String name,
     required String code,
+    this.parentId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -3428,6 +3575,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? code,
+    Expression<String>? parentId,
+    Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3440,6 +3589,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (code != null) 'code': code,
+      if (parentId != null) 'parent_id': parentId,
+      if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3454,6 +3605,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       Value<String>? id,
       Value<String>? name,
       Value<String>? code,
+      Value<String?>? parentId,
+      Value<int>? sortOrder,
       Value<int>? rowid}) {
     return AccountShopTableCompanion(
       lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
@@ -3465,6 +3618,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       id: id ?? this.id,
       name: name ?? this.name,
       code: code ?? this.code,
+      parentId: parentId ?? this.parentId,
+      sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3499,6 +3654,12 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     if (code.present) {
       map['code'] = Variable<String>(code.value);
     }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3517,6 +3678,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('code: $code, ')
+          ..write('parentId: $parentId, ')
+          ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14041,6 +14204,8 @@ typedef $$AccountCategoryTableTableCreateCompanionBuilder
   required String name,
   required String code,
   required String categoryType,
+  Value<String?> parentId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 typedef $$AccountCategoryTableTableUpdateCompanionBuilder
@@ -14055,6 +14220,8 @@ typedef $$AccountCategoryTableTableUpdateCompanionBuilder
   Value<String> name,
   Value<String> code,
   Value<String> categoryType,
+  Value<String?> parentId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 
@@ -14097,6 +14264,12 @@ class $$AccountCategoryTableTableFilterComposer
 
   ColumnFilters<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountCategoryTableTableOrderingComposer
@@ -14140,6 +14313,12 @@ class $$AccountCategoryTableTableOrderingComposer
   ColumnOrderings<String> get categoryType => $composableBuilder(
       column: $table.categoryType,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountCategoryTableTableAnnotationComposer
@@ -14180,6 +14359,12 @@ class $$AccountCategoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get categoryType => $composableBuilder(
       column: $table.categoryType, builder: (column) => column);
+
+  GeneratedColumn<String> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
 }
 
 class $$AccountCategoryTableTableTableManager extends RootTableManager<
@@ -14221,6 +14406,8 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String> code = const Value.absent(),
             Value<String> categoryType = const Value.absent(),
+            Value<String?> parentId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion(
@@ -14234,6 +14421,8 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             name: name,
             code: code,
             categoryType: categoryType,
+            parentId: parentId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14247,6 +14436,8 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             required String name,
             required String code,
             required String categoryType,
+            Value<String?> parentId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion.insert(
@@ -14260,6 +14451,8 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             name: name,
             code: code,
             categoryType: categoryType,
+            parentId: parentId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -14579,6 +14772,8 @@ typedef $$AccountShopTableTableCreateCompanionBuilder
   required String id,
   required String name,
   required String code,
+  Value<String?> parentId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 typedef $$AccountShopTableTableUpdateCompanionBuilder
@@ -14592,6 +14787,8 @@ typedef $$AccountShopTableTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> name,
   Value<String> code,
+  Value<String?> parentId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 
@@ -14631,6 +14828,12 @@ class $$AccountShopTableTableFilterComposer
 
   ColumnFilters<String> get code => $composableBuilder(
       column: $table.code, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountShopTableTableOrderingComposer
@@ -14670,6 +14873,12 @@ class $$AccountShopTableTableOrderingComposer
 
   ColumnOrderings<String> get code => $composableBuilder(
       column: $table.code, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentId => $composableBuilder(
+      column: $table.parentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountShopTableTableAnnotationComposer
@@ -14707,6 +14916,12 @@ class $$AccountShopTableTableAnnotationComposer
 
   GeneratedColumn<String> get code =>
       $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get parentId =>
+      $composableBuilder(column: $table.parentId, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
 }
 
 class $$AccountShopTableTableTableManager extends RootTableManager<
@@ -14745,6 +14960,8 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> code = const Value.absent(),
+            Value<String?> parentId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion(
@@ -14757,6 +14974,8 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             id: id,
             name: name,
             code: code,
+            parentId: parentId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14769,6 +14988,8 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             required String id,
             required String name,
             required String code,
+            Value<String?> parentId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion.insert(
@@ -14781,6 +15002,8 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             id: id,
             name: name,
             code: code,
+            parentId: parentId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

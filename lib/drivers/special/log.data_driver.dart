@@ -4,10 +4,12 @@ import 'dart:math';
 
 import 'package:clsswjz_gui/enums/gift_card.dart';
 import 'package:clsswjz_gui/models/dto/note_filter_dto.dart';
+import 'package:drift/drift.dart';
 
 import '../../constants/constant.dart';
 import '../../constants/default_book_values.constant.dart';
 import '../../database/database.dart';
+import '../../utils/date_util.dart';
 import '../../enums/account_type.dart';
 import '../../enums/business_type.dart';
 import '../../enums/debt_clear_state.dart';
@@ -54,6 +56,7 @@ import '../vo_transfer.dart';
 import 'log/builder/attachment.builder.dart';
 import 'log/builder/book.builder.dart';
 import 'log/builder/book_category.builder.dart';
+import '../../database/tables/account_shop_table.dart';
 import 'log/builder/book_debt.build.dart';
 import 'log/builder/book_note.build.dart';
 import 'log/builder/builder.dart';
@@ -369,14 +372,20 @@ class LogDataDriver implements BookDataDriver {
   Future<OperateResult<String>> createCategory(String who, String bookId,
       {required String name,
       required String categoryType,
-      String? code}) async {
+      String? code,
+      String? parentId}) async {
     final category =
         await DaoManager.categoryDao.findByBookAndName(bookId, name);
     if (category != null) {
       return OperateResult.success(category.id);
     }
+    final maxSortOrder = await DaoManager.categoryDao.getMaxSortOrder(parentId, bookId);
     final id = await CategoryCULog.create(who, bookId,
-            name: name, categoryType: categoryType, code: code)
+            name: name,
+            categoryType: categoryType,
+            code: code,
+            parentId: parentId,
+            sortOrder: maxSortOrder + 1)
         .execute();
     return OperateResult.success(id);
   }
@@ -392,9 +401,12 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateCategory(
       String who, String bookId, String categoryId,
-      {String? name, String? lastAccountItemAt}) async {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) async {
     await CategoryCULog.update(who, bookId, categoryId,
-            name: name, lastAccountItemAt: lastAccountItemAt)
+            name: name,
+            parentId: parentId,
+            sortOrder: sortOrder,
+            lastAccountItemAt: lastAccountItemAt)
         .execute();
     return OperateResult.success(null);
   }
@@ -408,15 +420,69 @@ class LogDataDriver implements BookDataDriver {
     return OperateResult.success(categories);
   }
 
+  @override
+  Future<OperateResult<void>> updateCategories(
+    String userId, String bookId, {
+    required List<String> ids,
+    required List<String?> parentIds,
+    required List<int> sortOrders,
+  }) async {
+    try {
+      final updates = List.generate(ids.length, (i) {
+        return AccountCategoryTableCompanion(
+          updatedBy: Value(userId),
+          updatedAt: Value(DateUtil.now()),
+          parentId: Value(parentIds[i]),
+          sortOrder: Value(sortOrders[i]),
+          createdBy: const Value.absent(),
+          createdAt: const Value.absent(),
+        );
+      });
+      await CategoryCULog.updateBatch(userId, bookId,
+              ids: ids, updates: updates)
+          .execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '批量更新分类失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteCategories(
+      String userId, String bookId, List<String> ids) async {
+    try {
+      await CategoryCULog.deleteBatch(userId, bookId, ids: ids).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '批量删除分类失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<AccountCategory>>> listAllCategoriesByBook(
+      String userId, String bookId,
+      {String? categoryType}) async {
+    final categories = await DaoManager.categoryDao
+        .listAllByBook(bookId, categoryType: categoryType);
+    return OperateResult.success(categories);
+  }
+
   // 创建商家
   @override
   Future<OperateResult<String>> createShop(String who, String bookId,
-      {required String name}) async {
+      {required String name, String? parentId}) async {
     final shop = await DaoManager.shopDao.findByBookAndName(bookId, name);
     if (shop != null) {
       return OperateResult.success(shop.id);
     }
-    final id = await ShopCULog.create(who, bookId, name: name).execute();
+    final maxSortOrder = await DaoManager.shopDao.getMaxSortOrder(parentId, bookId);
+    final id = await ShopCULog.create(who, bookId,
+            name: name,
+            parentId: parentId,
+            sortOrder: maxSortOrder + 1)
+        .execute();
     return OperateResult.success(id);
   }
 
@@ -432,9 +498,12 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateShop(
       String who, String bookId, String shopId,
-      {String? name, String? lastAccountItemAt}) async {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) async {
     await ShopCULog.update(who, bookId, shopId,
-            name: name, lastAccountItemAt: lastAccountItemAt)
+            name: name,
+            parentId: parentId,
+            sortOrder: sortOrder,
+            lastAccountItemAt: lastAccountItemAt)
         .execute();
     return OperateResult.success(null);
   }
@@ -442,7 +511,54 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<List<AccountShop>>> listShopsByBook(
       String userId, String bookId) async {
-    final shops = await DaoManager.shopDao.listByBook(bookId);
+    final shops = await DaoManager.shopDao.listAllByBook(bookId);
+    return OperateResult.success(shops);
+  }
+
+  @override
+  Future<OperateResult<void>> updateShops(
+    String userId, String bookId, {
+    required List<String> ids,
+    required List<String?> parentIds,
+    required List<int> sortOrders,
+  }) async {
+    try {
+      final updates = List.generate(ids.length, (i) {
+        return AccountShopTableCompanion(
+          updatedBy: Value(userId),
+          updatedAt: Value(DateUtil.now()),
+          parentId: Value(parentIds[i]),
+          sortOrder: Value(sortOrders[i]),
+          createdBy: const Value.absent(),
+          createdAt: const Value.absent(),
+        );
+      });
+      await ShopCULog.updateBatch(userId, bookId,
+              ids: ids, updates: updates)
+          .execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '批量更新商户失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deleteShops(
+      String userId, String bookId, List<String> ids) async {
+    try {
+      await ShopCULog.deleteBatch(userId, bookId, ids: ids).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '批量删除商户失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<AccountShop>>> listAllShopsByBook(
+      String userId, String bookId) async {
+    final shops = await DaoManager.shopDao.listAllByBook(bookId);
     return OperateResult.success(shops);
   }
 

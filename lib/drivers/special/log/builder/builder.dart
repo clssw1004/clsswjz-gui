@@ -67,6 +67,13 @@ abstract class LogBuilder<T, RunResult> {
 
   T? _data;
   T? get data => _data;
+
+  List<String>? _batchIds;
+  List<String>? get batchIds => _batchIds;
+
+  List? _batchData;
+  List? get batchData => _batchData;
+
   LogBuilder()
       : _id = IdUtil.genId(),
         _operatedAt = DateUtil.now();
@@ -131,6 +138,26 @@ abstract class LogBuilder<T, RunResult> {
 
   LogBuilder doDelete() {
     _operateType = OperateType.delete;
+    return this;
+  }
+
+  LogBuilder doUpdateBatch() {
+    _operateType = OperateType.batchUpdate;
+    return this;
+  }
+
+  LogBuilder doDeleteBatch() {
+    _operateType = OperateType.batchDelete;
+    return this;
+  }
+
+  LogBuilder withBatchIds(List<String> batchIds) {
+    _batchIds = batchIds;
+    return this;
+  }
+
+  LogBuilder withBatchData(List batchData) {
+    _batchData = batchData;
     return this;
   }
 

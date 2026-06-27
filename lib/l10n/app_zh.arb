@@ -2551,5 +2551,89 @@
         "placeholders": {
             "e": {"type": "String"}
         }
+    },
+    "treeEmptyCategory": "暂无分类",
+    "@treeEmptyCategory": {
+        "description": "分类管理页面为空"
+    },
+    "treeEmptyShop": "暂无商户",
+    "@treeEmptyShop": {
+        "description": "商户管理页面为空"
+    },
+    "treeIncludeChildren": "包含子类",
+    "@treeIncludeChildren": {
+        "description": "筛选包含子分类开关"
+    },
+    "treeAddChildCategory": "添加子分类",
+    "@treeAddChildCategory": {
+        "description": "添加子分类按钮"
+    },
+    "treeAddChildShop": "添加子商户",
+    "@treeAddChildShop": {
+        "description": "添加子商户按钮"
+    },
+    "treeEditName": "编辑名称",
+    "@treeEditName": {
+        "description": "编辑名称弹窗标题"
+    },
+    "treeDeleteTitle": "删除确认",
+    "@treeDeleteTitle": {
+        "description": "删除确认弹窗标题"
+    },
+    "treeDeleteMessageCategory": "删除「{name}」及其所有子分类？此操作不可恢复。",
+    "@treeDeleteMessageCategory": {
+        "description": "删除分类确认消息",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeDeleteMessageShop": "删除「{name}」及其所有子商户？此操作不可恢复。",
+    "@treeDeleteMessageShop": {
+        "description": "删除商户确认消息",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeMove": "移动",
+    "@treeMove": {
+        "description": "移动节点操作"
+    },
+    "treeMoveSuccess": "移动成功",
+    "@treeMoveSuccess": {
+        "description": "移动成功提示"
+    },
+    "treeMoveTo": "移动「{name}」到",
+    "@treeMoveTo": {
+        "description": "移动弹窗标题",
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "treeRootDir": "根目录（取消父子关系）",
+    "@treeRootDir": {
+        "description": "移动到根目录选项"
+    },
+    "treeSelectTargetCategory": "或选择目标分类",
+    "@treeSelectTargetCategory": {
+        "description": "选择目标分类标题"
+    },
+    "treeSelectTargetShop": "或选择目标商户",
+    "@treeSelectTargetShop": {
+        "description": "选择目标商户标题"
+    },
+    "treeNoOptions": "无可选项",
+    "@treeNoOptions": {
+        "description": "树形选择器无可用选项"
+    },
+    "treeSelectedCount": "已选 {count} 项",
+    "@treeSelectedCount": {
+        "description": "多选已选数量",
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "treeMultiSelectHint": "（可多选）",
+    "@treeMultiSelectHint": {
+        "description": "多选提示文字"
     }
 }

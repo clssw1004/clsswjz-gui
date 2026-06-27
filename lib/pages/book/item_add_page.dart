@@ -19,8 +19,10 @@ import '../../enums/business_type.dart';
 import '../../manager/app_config_manager.dart';
 import '../../utils/attachment.util.dart';
 import '../../widgets/book/amount_input.dart';
+import '../../models/vo/tree_node_vo.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/tree_select_form_field.dart';
 import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_attachment_field.dart';
 import '../../utils/color_util.dart';
@@ -281,12 +283,12 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           ),
           SizedBox(height: spacing.formGroupSpacing),
 
-          // === 分类 ===
+          // === 分类（常用铺开展示，更多展示树形） ===
           CommonSelectFormField<AccountCategory>(
             items: provider.categories
-                .where((category) => category.categoryType == item.type)
-                .toList()
-                .cast<AccountCategory>(),
+                .cast<AccountCategory>()
+                .where((c) => c.categoryType == item.type)
+                .toList(),
             value: item.categoryCode,
             displayMode: DisplayMode.expand,
             displayField: (item) => item.name,
@@ -296,6 +298,14 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             required: true,
             expandCount: 8,
             expandRows: 3,
+            treeRoots: TreeBuilder.buildTree(
+              provider.categories
+                  .cast<AccountCategory>()
+                  .where((c) => c.categoryType == item.type)
+                  .toList(),
+              getId: (AccountCategory c) => c.id,
+              getParentId: (AccountCategory c) => c.parentId,
+            ),
             onCreateItem: (value) async {
               final result = await DriverFactory.driver.createCategory(
                 AppConfigManager.instance.userId,
@@ -304,10 +314,10 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 categoryType: item.type,
               );
               if (result.ok) {
-                await provider.loadCategories();
+                await provider.loadCategories(provider.bookMeta.id, item.type);
                 return provider.categories
                     .cast<AccountCategory>()
-                    .firstWhere((category) => category.name == value);
+                    .firstWhere((c) => c.name == value);
               }
               return null;
             },
@@ -318,10 +328,6 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               } else {
                 provider.updateCategory(null, null);
               }
-            },
-            validator: (value) {
-              if (value == null) return L10nManager.l10n.required;
-              return null;
             },
           ),
           SizedBox(height: spacing.formGroupSpacing),
@@ -351,32 +357,20 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             },
           ),
           SizedBox(height: spacing.formItemSpacing),
-          CommonSelectFormField<AccountShop>(
-            items: provider.shops.cast<AccountShop>(),
-            value: item.shopCode == 'NO_SHOP' ? null : item.shopCode,
-            displayMode: DisplayMode.iconText,
-            displayField: (item) => item.name,
-            keyField: (item) => item.code,
-            icon: Icons.store_outlined,
+          // === 商户（树形） ===
+          TreeSelectFormField<AccountShop>(
+            roots: TreeBuilder.buildTree(provider.shops.cast<AccountShop>(),
+                getId: (c) => c.id, getParentId: (c) => c.parentId),
+            value: item.shopCode != null && item.shopCode != 'NO_SHOP'
+                ? provider.shops.cast<AccountShop>().where(
+                    (c) => c.code == item.shopCode).firstOrNull
+                : null,
+            displayField: (c) => c.name,
+            idField: (c) => c.code,
             label: L10nManager.l10n.merchant,
-            onCreateItem: (value) async {
-              final result = await DriverFactory.driver.createShop(
-                AppConfigManager.instance.userId,
-                provider.bookMeta.id,
-                name: value,
-              );
-              if (result.data != null) {
-                await provider.loadShops();
-                return provider.shops
-                    .cast<AccountShop>()
-                    .firstWhere((shop) => shop.name == value);
-              }
-              return null;
-            },
             onChanged: (value) {
-              final shop = value as AccountShop?;
-              if (shop != null) {
-                provider.updateShop(shop.code, shop.name);
+              if (value != null) {
+                provider.updateShop(value.code, value.name);
               } else {
                 provider.updateShop(null, null);
               }

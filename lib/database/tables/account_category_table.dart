@@ -11,6 +11,8 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
   TextColumn get name => text().named('name')();
   TextColumn get code => text().named('code')();
   TextColumn get categoryType => text().named('category_type')();
+  TextColumn get parentId => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override
   List<Set<Column<Object>>>? get uniqueKeys => [
@@ -21,12 +23,16 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
   static AccountCategoryTableCompanion toUpdateCompanion(
     String who, {
     String? name,
+    String? parentId,
+    int? sortOrder,
     String? lastAccountItemAt,
   }) {
     return AccountCategoryTableCompanion(
       updatedBy: Value(who),
       updatedAt: Value(DateUtil.now()),
       name: Value.absentIfNull(name),
+      parentId: Value.absentIfNull(parentId),
+      sortOrder: Value.absentIfNull(sortOrder),
       lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -40,6 +46,8 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
     required String name,
     required String categoryType,
     String? code,
+    String? parentId,
+    int sortOrder = 0,
   }) =>
       AccountCategoryTableCompanion(
         id: Value(IdUtil.genId()),
@@ -47,6 +55,8 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
         code: Value(code ?? IdUtil.genNanoId8()),
         accountBookId: Value(accountBookId),
         categoryType: Value(categoryType),
+        parentId: Value.absentIfNull(parentId),
+        sortOrder: Value(sortOrder),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
@@ -65,6 +75,8 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
     MapUtil.setIfPresent(map, 'code', companion.code);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'categoryType', companion.categoryType);
+    MapUtil.setIfPresent(map, 'parentId', companion.parentId);
+    MapUtil.setIfPresent(map, 'sortOrder', companion.sortOrder);
     MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     return jsonEncode(map);
   }

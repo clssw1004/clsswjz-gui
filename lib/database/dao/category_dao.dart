@@ -50,6 +50,55 @@ class CategoryDao extends BaseBookDao<AccountCategoryTable, AccountCategory> {
     return categories.isNotEmpty;
   }
 
+  /// 一次性加载账本下全量分类（含排序），用于构建树
+  Future<List<AccountCategory>> listAllByBook(String accountBookId,
+      {String? categoryType}) {
+    final query = db.select(db.accountCategoryTable)
+      ..where((t) => t.accountBookId.equals(accountBookId));
+    if (categoryType != null) {
+      query.where((t) => t.categoryType.equals(categoryType));
+    }
+    query.orderBy([
+      (t) => OrderingTerm.asc(t.sortOrder),
+      (t) => OrderingTerm.desc(t.createdAt),
+    ]);
+    return query.get();
+  }
+
+  /// 查直接子节点
+  Future<List<AccountCategory>> findChildren(String parentId) {
+    return (db.select(db.accountCategoryTable)
+          ..where((t) => t.parentId.equals(parentId))
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.sortOrder),
+          ]))
+        .get();
+  }
+
+  /// 查某父节点下最大 sortOrder
+  Future<int> getMaxSortOrder(String? parentId, String bookId) async {
+    final query = db.select(db.accountCategoryTable)
+      ..where((t) => t.accountBookId.equals(bookId));
+    if (parentId != null) {
+      query.where((t) => t.parentId.equals(parentId));
+    } else {
+      query.where((t) => t.parentId.isNull());
+    }
+    final orders = await query.map((row) => row.sortOrder).get();
+    return orders.isEmpty ? 0 : orders.reduce((a, b) => a > b ? a : b);
+  }
+
+  /// 获取所有子孙节点 IDs（递归）
+  Future<List<String>> getAllDescendantIds(String parentId) async {
+    final result = <String>[];
+    final children = await findChildren(parentId);
+    for (final child in children) {
+      result.add(child.id);
+      result.addAll(await getAllDescendantIds(child.id));
+    }
+    return result;
+  }
+
   @override
   TableInfo<AccountCategoryTable, AccountCategory> get table =>
       db.accountCategoryTable;
