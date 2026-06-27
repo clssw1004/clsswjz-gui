@@ -97,7 +97,8 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
       return L10nManager.l10n.treeSelectedCount(ids.length);
     }
     if (widget.value == null) return widget.hint ?? L10nManager.l10n.pleaseSelect('');
-    return widget.displayField(widget.value as T);
+    if (widget.value is T) return widget.displayField(widget.value as T);
+    return widget.hint ?? widget.value.toString();
   }
 
   Color _dotColor(ColorScheme cs, int level) =>
@@ -278,9 +279,11 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
               padding: const EdgeInsets.only(top: 4, bottom: 16),
               children: List.generate(filtered.length, (i) {
                 final node = filtered[i];
+                final selectedId = widget.value is T
+                    ? widget.idField(widget.value as T)
+                    : widget.value?.toString();
                 final isSelected = widget.value != null &&
-                    widget.idField(node.data) ==
-                        widget.idField(widget.value as T);
+                    widget.idField(node.data) == selectedId;
                 return _buildSingleItem(
                   ctx, node, isSelected, ancestorLast[i], isLastList[i],
                 );
