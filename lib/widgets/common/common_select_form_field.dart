@@ -6,6 +6,9 @@ import '../../theme/theme_radius.dart';
 import 'common_badge.dart';
 import 'multi_select_sheet.dart';
 import 'multi_select_dialog.dart';
+import 'selection_trigger.dart';
+import 'selection_sheet_shell.dart';
+import 'tree_select/tree_select_sheet.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -155,8 +158,6 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
 
 class _CommonSelectFormFieldWidgetState<T>
     extends State<_CommonSelectFormFieldWidget<T>> {
-  bool _isOpening = false;
-
   T? get _selectedItem {
     if (widget.value == null) return null;
     try {
@@ -175,10 +176,35 @@ class _CommonSelectFormFieldWidgetState<T>
   }
 
   Future<void> _showSelectionSheet({bool isAddMode = false}) async {
-    setState(() => _isOpening = true);
+    // 树形数据 → 直接使用 TreeSelectSheet
+    if (widget.treeRoots != null) {
+      HapticFeedback.mediumImpact();
+      final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
+      final result = await showModalBottomSheet<T>(
+        context: context,
+        isScrollControlled: true,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(radius * 1.5),
+          ),
+        ),
+        builder: (ctx) => TreeSelectSheet<T>(
+          filtered: widget.treeRoots!,
+          displayField: widget.displayField,
+          idField: (item) => widget.keyField(item).toString(),
+          multiSelect: false,
+          label: widget.label,
+          initialValue: widget.value,
+        ),
+      );
+      if (result != null && mounted) _handleItemChanged(result);
+      return;
+    }
+
+    // 扁平数据 → 原有流程
     HapticFeedback.mediumImpact();
     final result = await _buildSelectionSheet(isAddMode: isAddMode);
-    setState(() => _isOpening = false);
     if (result != null && mounted) {
       _handleItemChanged(result);
     }
@@ -191,7 +217,6 @@ class _CommonSelectFormFieldWidgetState<T>
 
     final theme = Theme.of(context);
     final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-    final screenH = MediaQuery.of(context).size.height;
 
     return showModalBottomSheet<T>(
       context: context,
@@ -230,92 +255,55 @@ class _CommonSelectFormFieldWidgetState<T>
             final itemCount =
                 filtered.length + (showCreate ? 1 : 0) + (widget.items.isEmpty && localSearch.isEmpty ? 1 : 0);
 
-            return Container(
-              constraints: BoxConstraints(
-                maxHeight: screenH * 0.68,
-                minHeight: 200,
-              ),
-              decoration: BoxDecoration(
-                color: localColor.surface,
-                borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(localRadius * 1.5)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+            return SelectionSheetShell(
+              headerIcon: showSearch ? null : widget.icon,
+              headerTitle: showSearch ? null : (widget.label ?? ''),
+              maxHeightRatio: 0.68,
+              minHeight: 200,
+              children: [
+                if (showSearch)
                   Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 2),
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: localColor.onSurfaceVariant.withAlpha(50),
-                        borderRadius: BorderRadius.circular(2),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: TextField(
+                      controller: localController,
+                      autofocus: widget.items.isEmpty || isAddMode,
+                      style: localTheme.textTheme.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: widget.items.isEmpty || isAddMode
+                            ? L10nManager.l10n.addNew(widget.label ?? '')
+                            : L10nManager.l10n.search,
+                        prefixIcon: Icon(
+                          widget.items.isEmpty || isAddMode
+                              ? Icons.add_circle_outline
+                              : Icons.search,
+                          color: localColor.primary,
+                          size: 22,
+                        ),
+                        suffixIcon: localSearch.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.close_rounded, size: 20),
+                                onPressed: () {
+                                  localController.clear();
+                                  setLocalState(() => localSearch = '');
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: localColor.surfaceContainerHighest
+                            .withAlpha(40),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(localRadius),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
+                      onChanged: (v) =>
+                          setLocalState(() => localSearch = v),
                     ),
                   ),
-                  if (!showSearch)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-                      child: Row(
-                        children: [
-                          if (widget.icon != null) ...[
-                            Icon(widget.icon,
-                                size: 18, color: localColor.primary),
-                            const SizedBox(width: 8),
-                          ],
-                          Text(
-                            widget.label ?? '',
-                            style: localTheme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (showSearch)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      child: TextField(
-                        controller: localController,
-                        autofocus: widget.items.isEmpty || isAddMode,
-                        style: localTheme.textTheme.bodyLarge,
-                        decoration: InputDecoration(
-                          hintText: widget.items.isEmpty || isAddMode
-                              ? L10nManager.l10n.addNew(widget.label ?? '')
-                              : L10nManager.l10n.search,
-                          prefixIcon: Icon(
-                            widget.items.isEmpty || isAddMode
-                                ? Icons.add_circle_outline
-                                : Icons.search,
-                            color: localColor.primary,
-                            size: 22,
-                          ),
-                          suffixIcon: localSearch.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.close_rounded, size: 20),
-                                  onPressed: () {
-                                    localController.clear();
-                                    setLocalState(() => localSearch = '');
-                                  },
-                                )
-                              : null,
-                          filled: true,
-                          fillColor: localColor.surfaceContainerHighest
-                              .withAlpha(40),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(localRadius),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                        onChanged: (v) =>
-                            setLocalState(() => localSearch = v),
-                      ),
-                    ),
-                  if (itemCount > 0)
-                    Divider(height: 1, color: localColor.outline.withAlpha(20)),
+                if (itemCount > 0)
+                  Divider(height: 1, color: localColor.outline.withAlpha(20)),
                   Expanded(
                     child: itemCount == 0
                         ? Center(
@@ -345,67 +333,19 @@ class _CommonSelectFormFieldWidgetState<T>
                             padding: const EdgeInsets.only(top: 4, bottom: 16),
                             controller: PrimaryScrollController.maybeOf(ctx),
                             children: [
-                              // 树形列表（当 treeRoots 传入时）
-                              if (widget.treeRoots != null)
-                                ...TreeBuilder.flatten(widget.treeRoots!).map((node) {
-                                  final isSelected = widget.value != null &&
-                                      widget.keyField(node.data) == widget.value;
-                                  final lvColors = <int, Color>{
-                                    0: localColor.primary,
-                                    1: localColor.tertiary,
-                                    2: localColor.secondary,
-                                    3: localColor.primary.withValues(alpha: 0.55),
-                                    4: localColor.tertiary.withValues(alpha: 0.55),
-                                  };
-                                  final dc = lvColors[node.level.clamp(0, 4)] ?? localColor.primary;
-                                  return Padding(
-                                    padding: EdgeInsets.only(left: node.level * 16.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        localController.dispose();
-                                        Navigator.of(ctx).pop(node.data);
-                                      },
-                                      child: Container(
-                                        height: 44,
-                                        padding: const EdgeInsets.only(left: 12),
-                                        decoration: BoxDecoration(
-                                          border: Border(left: BorderSide(
-                                            color: dc.withValues(alpha: isSelected ? 1.0 : 0.3),
-                                            width: 3)),
-                                        ),
-                                        child: Row(children: [
-                                          Container(width: 6, height: 6, decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: dc.withValues(alpha: isSelected ? 1.0 : 0.5))),
-                                          const SizedBox(width: 10),
-                                          Expanded(child: Text(widget.displayField(node.data),
-                                            style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                              color: isSelected ? dc : null),
-                                            maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                          if (isSelected)
-                                            Padding(padding: const EdgeInsets.only(right: 12),
-                                              child: Icon(Icons.check_circle_rounded, color: dc, size: 20)),
-                                        ]),
-                                      ),
-                                    ),
-                                  );
-                                })
-                              // 扁平列表
-                              else
-                                ...filtered.map((item) {
-                                  final isSelected = widget.value != null &&
-                                      widget.keyField(item) == widget.value;
-                                  return _SheetItemTile<T>(
-                                    item: item,
-                                    isSelected: isSelected,
-                                    displayField: widget.displayField,
-                                    onTap: () {
-                                      localController.dispose();
-                                      Navigator.of(ctx).pop(item);
-                                    },
-                                  );
-                                }),
+                              ...filtered.map((item) {
+                                final isSelected = widget.value != null &&
+                                    widget.keyField(item) == widget.value;
+                                return _SheetItemTile<T>(
+                                  item: item,
+                                  isSelected: isSelected,
+                                  displayField: widget.displayField,
+                                  onTap: () {
+                                    localController.dispose();
+                                    Navigator.of(ctx).pop(item);
+                                  },
+                                );
+                              }),
                               if (showCreate)
                                 _SheetCreateTile<T>(
                                   searchText: localSearch,
@@ -426,8 +366,7 @@ class _CommonSelectFormFieldWidgetState<T>
                             ],
                           ),
                   ),
-                ],
-              ),
+              ],
             );
           },
         );
@@ -435,72 +374,16 @@ class _CommonSelectFormFieldWidgetState<T>
     );
   }
 
-  Widget? _buildIcon(IconData? icon) {
-    if (icon == null) return null;
-    return Icon(
-      icon,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-      size: 24,
-    );
-  }
-
   Widget _buildIconTextMode() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-
-    return TextFormField(
-      readOnly: true,
+    return SelectionTrigger(
+      label: widget.required ? '${widget.label} *' : widget.label,
+      hint: widget.hint ?? (widget.required ? null : L10nManager.l10n.optional),
+      errorText: widget.errorText,
+      displayText:
+          _selectedItem != null ? widget.displayField(_selectedItem as T) : '',
+      prefixIcon: widget.icon,
+      prefixIconSize: 24,
       onTap: () => _showSelectionSheet(),
-      decoration: InputDecoration(
-        labelText: widget.required ? '${widget.label} *' : widget.label,
-        hintText:
-            widget.hint ?? (widget.required ? null : L10nManager.l10n.optional),
-        hintStyle: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withAlpha(60),
-        ),
-        errorText: widget.errorText,
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withAlpha(30),
-        prefixIcon: _buildIcon(widget.icon),
-        suffixIcon: AnimatedRotation(
-          turns: _isOpening ? 0.5 : 0.0,
-          duration: const Duration(milliseconds: 200),
-          child: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(color: colorScheme.outline.withAlpha(60)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(color: colorScheme.outline.withAlpha(60)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(
-            color: colorScheme.primary.withAlpha(120),
-            width: 1.5,
-          ),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius),
-          borderSide: BorderSide(
-            color: colorScheme.outline.withAlpha(30),
-          ),
-        ),
-      ),
-      controller: TextEditingController(
-        text:
-            _selectedItem != null ? widget.displayField(_selectedItem as T) : '',
-      ),
-      style: theme.textTheme.bodyLarge,
     );
   }
 
@@ -1012,3 +895,4 @@ class _SheetCreateTile<T> extends StatelessWidget {
     );
   }
 }
+
