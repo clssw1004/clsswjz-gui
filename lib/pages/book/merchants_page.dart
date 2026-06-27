@@ -275,7 +275,6 @@ class _MerchantsPageState extends State<MerchantsPage> {
     ).toSet();
     final allNodes = TreeBuilder.flatten(_provider.tree);
     final filtered = allNodes.where((n) => !excludeIds.contains(n.data.id)).toList();
-    final colorScheme = Theme.of(context).colorScheme;
     final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
     final screenH = MediaQuery.of(context).size.height;
 
@@ -348,22 +347,17 @@ class _MerchantsPageState extends State<MerchantsPage> {
                     ? Center(child: Text(L10nManager.l10n.treeNoOptions))
                     : ListView(
                         padding: const EdgeInsets.only(top: 4, bottom: 16),
-                        children: filtered.map((n) => Padding(
-                          padding: EdgeInsets.only(left: n.level * 24.0),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            child: ListTile(
-                              dense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                              leading: Container(
-                                width: 8, height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: localColor.outline.withAlpha(40),
-                                ),
-                              ),
-                              title: Text(n.data.name, style: Theme.of(ctx).textTheme.bodyMedium),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        children: List.generate(filtered.length, (i) {
+                          final n = filtered[i];
+                          final lvColors = <int, Color>{
+                            0: localColor.primary, 1: localColor.tertiary,
+                            2: localColor.secondary, 3: localColor.primary.withValues(alpha: 0.55),
+                            4: localColor.tertiary.withValues(alpha: 0.55),
+                          };
+                          final dc = lvColors[n.level.clamp(0, 4)] ?? localColor.primary;
+                          return Padding(
+                            padding: EdgeInsets.only(left: n.level * 16.0),
+                            child: InkWell(
                               onTap: () async {
                                 Navigator.pop(ctx);
                                 final r = await _provider.batchUpdatePositions(
@@ -373,9 +367,22 @@ class _MerchantsPageState extends State<MerchantsPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
                                 }
                               },
+                              child: Container(
+                                height: 44,
+                                padding: const EdgeInsets.only(left: 12),
+                                decoration: BoxDecoration(
+                                  border: Border(left: BorderSide(color: dc.withValues(alpha: 0.3), width: 3)),
+                                ),
+                                child: Row(children: [
+                                  Container(width: 6, height: 6, decoration: BoxDecoration(
+                                      shape: BoxShape.circle, color: dc.withValues(alpha: 0.5))),
+                                  const SizedBox(width: 10),
+                                  Text(n.data.name, style: Theme.of(ctx).textTheme.bodyMedium),
+                                ]),
+                              ),
                             ),
-                          ),
-                        )).toList(),
+                          );
+                        }),
                       ),
               ),
             ],

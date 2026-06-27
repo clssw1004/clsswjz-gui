@@ -350,19 +350,43 @@ class _CommonSelectFormFieldWidgetState<T>
                                 ...TreeBuilder.flatten(widget.treeRoots!).map((node) {
                                   final isSelected = widget.value != null &&
                                       widget.keyField(node.data) == widget.value;
+                                  final lvColors = <int, Color>{
+                                    0: localColor.primary,
+                                    1: localColor.tertiary,
+                                    2: localColor.secondary,
+                                    3: localColor.primary.withValues(alpha: 0.55),
+                                    4: localColor.tertiary.withValues(alpha: 0.55),
+                                  };
+                                  final dc = lvColors[node.level.clamp(0, 4)] ?? localColor.primary;
                                   return Padding(
-                                    padding: EdgeInsets.only(left: node.level * 20.0),
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 1),
-                                      child: _SheetItemTile<T>(
-                                        item: node.data,
-                                        isSelected: isSelected,
-                                        displayField: widget.displayField,
-                                        onTap: () {
-                                          localController.dispose();
-                                          Navigator.of(ctx).pop(node.data);
-                                        },
+                                    padding: EdgeInsets.only(left: node.level * 16.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        localController.dispose();
+                                        Navigator.of(ctx).pop(node.data);
+                                      },
+                                      child: Container(
+                                        height: 44,
+                                        padding: const EdgeInsets.only(left: 12),
+                                        decoration: BoxDecoration(
+                                          border: Border(left: BorderSide(
+                                            color: dc.withValues(alpha: isSelected ? 1.0 : 0.3),
+                                            width: 3)),
+                                        ),
+                                        child: Row(children: [
+                                          Container(width: 6, height: 6, decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: dc.withValues(alpha: isSelected ? 1.0 : 0.5))),
+                                          const SizedBox(width: 10),
+                                          Expanded(child: Text(widget.displayField(node.data),
+                                            style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                              color: isSelected ? dc : null),
+                                            maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                          if (isSelected)
+                                            Padding(padding: const EdgeInsets.only(right: 12),
+                                              child: Icon(Icons.check_circle_rounded, color: dc, size: 20)),
+                                        ]),
                                       ),
                                     ),
                                   );

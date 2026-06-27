@@ -79,7 +79,6 @@ class _TreeSelectWidget<T> extends StatefulWidget {
 class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
   Set<String> _tempSelected = {};
 
-  static const _indentStep = 20.0;
   static final _dotColors = <int, Color Function(ColorScheme)>{
     0: (c) => c.primary,
     1: (c) => c.tertiary,
@@ -288,9 +287,7 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
                     : widget.value?.toString();
                 final isSelected = widget.value != null &&
                     widget.idField(node.data) == selectedId;
-                return _buildSingleItem(
-                  ctx, node, isSelected, ancestorLast[i], isLastList[i],
-                );
+                return _buildSingleItem(ctx, node, isSelected, [], false);
               }),
             ),
           ),
@@ -301,40 +298,37 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
   // ─── Single item ───────────────────────────────────────────────
 
   Widget _buildSingleItem(
-    BuildContext ctx,
-    TreeNode<T> node,
-    bool isSelected,
-    List<bool> ancestorLast,
-    bool isLast,
+    BuildContext ctx, TreeNode<T> node, bool isSelected, List<bool> ancestorLast, bool isLast,
   ) {
     final cs = Theme.of(ctx).colorScheme;
     final dotColor = _dotColor(cs, node.level);
-    final levelIndent = node.level * _indentStep;
 
-    return GestureDetector(
-      onTap: () => Navigator.of(ctx).pop(node.data),
-      child: SizedBox(
-        height: 40,
-        child: Row(children: [
-          SizedBox(width: levelIndent + 20, child: CustomPaint(
-            painter: _TreeBranchPainter(level: node.level, isLast: isLast,
-                ancestorIsLast: ancestorLast, color: cs.outlineVariant),
-          )),
-          if (isSelected)
-            Container(width: 3, height: 20, margin: const EdgeInsets.only(right: 6),
-              decoration: BoxDecoration(color: dotColor, borderRadius: BorderRadius.circular(2))),
-          Container(width: 5, height: 5, decoration: BoxDecoration(
-              shape: BoxShape.circle, color: dotColor.withValues(alpha: isSelected ? 1.0 : 0.6))),
-          const SizedBox(width: 8),
-          Expanded(child: Text(widget.displayField(node.data),
-            style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? dotColor : null), maxLines: 1, overflow: TextOverflow.ellipsis)),
-          const SizedBox(width: 8),
-          if (isSelected)
-            Padding(padding: const EdgeInsets.only(right: 12),
-              child: Icon(Icons.check_circle_rounded, color: dotColor, size: 20)),
-        ]),
+    return Padding(
+      padding: EdgeInsets.only(left: node.level * 16.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Navigator.of(ctx).pop(node.data),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.only(left: 12),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: dotColor.withValues(alpha: isSelected ? 1.0 : 0.3), width: 3)),
+            ),
+            child: Row(children: [
+              Container(width: 6, height: 6, decoration: BoxDecoration(
+                  shape: BoxShape.circle, color: dotColor.withValues(alpha: isSelected ? 1.0 : 0.5))),
+              const SizedBox(width: 10),
+              Expanded(child: Text(widget.displayField(node.data),
+                style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? dotColor : null), maxLines: 1, overflow: TextOverflow.ellipsis)),
+              if (isSelected)
+                Padding(padding: const EdgeInsets.only(right: 12),
+                  child: Icon(Icons.check_circle_rounded, color: dotColor, size: 20)),
+            ]),
+          ),
+        ),
       ),
     );
   }
@@ -342,41 +336,41 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
   // ─── Multi item ────────────────────────────────────────────────
 
   Widget _buildMultiItem(
-    BuildContext ctx,
-    TreeNode<T> node,
-    String id,
-    bool checked,
-    List<bool> ancestorLast,
-    bool isLast,
-    void Function(VoidCallback) setLocalState,
+    BuildContext ctx, TreeNode<T> node, String id, bool checked,
+    List<bool> ancestorLast, bool isLast, void Function(VoidCallback) setLocalState,
   ) {
     final cs = Theme.of(ctx).colorScheme;
     final dotColor = _dotColor(cs, node.level);
-    final levelIndent = node.level * _indentStep;
 
-    return GestureDetector(
-      onTap: () => setLocalState(() {
-        if (checked) { _tempSelected.remove(id); }
-        else { _tempSelected.add(id); }
-      }),
-      child: SizedBox(
-        height: 40,
-        child: Row(children: [
-          SizedBox(width: levelIndent + 20, child: CustomPaint(
-            painter: _TreeBranchPainter(level: node.level, isLast: isLast,
-                ancestorIsLast: ancestorLast, color: cs.outlineVariant),
-          )),
-          Padding(padding: const EdgeInsets.only(right: 6),
-            child: Icon(checked ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                size: 20, color: checked ? dotColor : cs.outline)),
-          Container(width: 5, height: 5, decoration: BoxDecoration(
-              shape: BoxShape.circle, color: dotColor.withValues(alpha: checked ? 1.0 : 0.6))),
-          const SizedBox(width: 8),
-          Expanded(child: Text(widget.displayField(node.data),
-            style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-              fontWeight: checked ? FontWeight.w600 : FontWeight.w400,
-              color: checked ? dotColor : null), maxLines: 1, overflow: TextOverflow.ellipsis)),
-        ]),
+    return Padding(
+      padding: EdgeInsets.only(left: node.level * 16.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => setLocalState(() {
+            if (checked) { _tempSelected.remove(id); }
+            else { _tempSelected.add(id); }
+          }),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.only(left: 12),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: checked ? dotColor : Colors.transparent, width: 3)),
+            ),
+            child: Row(children: [
+              Icon(checked ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                  size: 20, color: checked ? dotColor : cs.outline),
+              const SizedBox(width: 6),
+              Container(width: 6, height: 6, decoration: BoxDecoration(
+                  shape: BoxShape.circle, color: dotColor.withValues(alpha: checked ? 1.0 : 0.5))),
+              const SizedBox(width: 10),
+              Expanded(child: Text(widget.displayField(node.data),
+                style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                  fontWeight: checked ? FontWeight.w600 : FontWeight.w400,
+                  color: checked ? dotColor : null), maxLines: 1, overflow: TextOverflow.ellipsis)),
+            ]),
+          ),
+        ),
       ),
     );
   }
@@ -507,60 +501,10 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// 树状连线绘制器
-// ═══════════════════════════════════════════════════════════════════
-
-class _TreeBranchPainter extends CustomPainter {
-  final int level;
-  final bool isLast;
-  final List<bool> ancestorIsLast;
-  final Color color;
-
-  const _TreeBranchPainter({
-    required this.level,
-    required this.isLast,
-    required this.ancestorIsLast,
-    required this.color,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (level == 0) return;
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-
-    const segW = 20.0;
-    final midY = size.height / 2;
-
-    for (int i = 0; i < level; i++) {
-      final x = i * segW + segW / 2;
-      if (i < level - 1) {
-        // 祖先层竖线
-        if (ancestorIsLast.length > i && !ancestorIsLast[i]) {
-          canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-        }
-      } else {
-        // 当前层：竖线 + 横线弯头
-        canvas.drawLine(Offset(x, 0), Offset(x, midY), paint);
-        canvas.drawLine(Offset(x, midY), Offset(x + segW / 2, midY), paint);
-        if (!isLast) {
-          canvas.drawLine(Offset(x, midY), Offset(x, size.height), paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _TreeBranchPainter old) =>
-      level != old.level || isLast != old.isLast || color != old.color;
-}
-
 /// 辅助记录层级及是否为末位
 class _LevelLast {
   final int level;
   final bool isLast;
   const _LevelLast({required this.level, required this.isLast});
 }
+
