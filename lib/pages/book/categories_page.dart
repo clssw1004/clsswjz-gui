@@ -52,7 +52,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('包含子类',
+                  Text(L10nManager.l10n.treeIncludeChildren,
                       style: Theme.of(context).textTheme.labelSmall),
                   Switch(
                     value: _provider.includeChildren,
@@ -117,7 +117,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           Icon(Icons.category_outlined,
               size: 64, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
-          Text('暂无分类',
+          Text(L10nManager.l10n.treeEmptyCategory,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   )),
@@ -125,7 +125,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           FilledButton.tonalIcon(
             onPressed: () => _showAddDialog(null),
             icon: const Icon(Icons.add, size: 18),
-            label: const Text('添加分类'),
+            label: Text(L10nManager.l10n.treeAddChildCategory),
           ),
         ],
       ),
@@ -173,14 +173,14 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('删除确认'),
-              content: Text('删除「${node.data.name}」及其所有子分类？'),
+              title: Text(L10nManager.l10n.treeDeleteTitle),
+              content: Text(L10nManager.l10n.treeDeleteMessageCategory(node.data.name)),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(L10nManager.l10n.cancel)),
                 FilledButton(
                   style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('删除'),
+                  child: Text(L10nManager.l10n.delete(node.data.name)),
                 ),
               ],
             ),
@@ -286,7 +286,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
     showDialog(
       context: context,
       builder: (ctx) => _TreeDialog(
-        title: parentId == null ? '添加分类' : '添加子分类',
+        title: parentId == null ? L10nManager.l10n.addNew('分类') : L10nManager.l10n.treeAddChildCategory,
         controller: controller,
         hint: '输入分类名称',
         onConfirm: () async {
@@ -306,7 +306,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
     showDialog(
       context: context,
       builder: (ctx) => _TreeDialog(
-        title: '编辑名称',
+        title: L10nManager.l10n.treeEditName,
         controller: controller,
         hint: '输入新名称',
         onConfirm: () async {
@@ -371,7 +371,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
                   children: [
                     Icon(Icons.drive_file_move_outlined, size: 18, color: localColor.primary),
                     const SizedBox(width: 8),
-                    Text('移动「${node.data.name}」到',
+                    Text(L10nManager.l10n.treeMoveTo(node.data.name),
                         style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                   ],
                 ),
@@ -387,8 +387,8 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
                     width: 8, height: 8,
                     decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.transparent),
                   ),
-                  title: const Text('根目录', style: TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text('取消父子关系'),
+                  title: Text(L10nManager.l10n.treeRootDir, style: const TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: const Text(''),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -396,7 +396,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
                       ids: [node.data.id], parentIds: [null], sortOrders: [0],
                     );
                     if (r.ok && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('移动成功')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
                     }
                   },
                 ),
@@ -405,7 +405,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
               // 树形列表
               Expanded(
                 child: filtered.isEmpty
-                    ? const Center(child: Text('无其他可选分类'))
+                    ? Center(child: Text(L10nManager.l10n.treeNoOptions))
                     : ListView(
                         padding: const EdgeInsets.only(top: 4, bottom: 16),
                         children: filtered.map((n) => Padding(
@@ -433,7 +433,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
                                   ids: [node.data.id], parentIds: [n.data.id], sortOrders: [0],
                                 );
                                 if (r.ok && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('移动成功')));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
                                 }
                               },
                             ),
@@ -480,13 +480,13 @@ class _TreeDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(L10nManager.l10n.cancel),
         ),
         FilledButton(
           onPressed: () async {
             if (await onConfirm() && context.mounted) Navigator.pop(context);
           },
-          child: const Text('确定'),
+          child: Text(L10nManager.l10n.confirm),
         ),
       ],
     );

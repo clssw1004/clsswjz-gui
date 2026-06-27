@@ -97,6 +97,24 @@
     "bookkeepingRuleLabelConfirmDelete",
     "bookkeepingRuleMessageSaveFailed",
     "bookkeepingRuleMessageOpFailed",
-    "bookkeepingRuleMessageLoadFailed"
+    "bookkeepingRuleMessageLoadFailed",
+    "treeEmptyCategory",
+    "treeEmptyShop",
+    "treeIncludeChildren",
+    "treeAddChildCategory",
+    "treeAddChildShop",
+    "treeEditName",
+    "treeDeleteTitle",
+    "treeDeleteMessageCategory",
+    "treeDeleteMessageShop",
+    "treeMove",
+    "treeMoveSuccess",
+    "treeMoveTo",
+    "treeRootDir",
+    "treeSelectTargetCategory",
+    "treeSelectTargetShop",
+    "treeNoOptions",
+    "treeSelectedCount",
+    "treeMultiSelectHint"
   ]
 }
