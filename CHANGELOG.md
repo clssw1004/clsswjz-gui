@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.10] - 2026-06-28
+
+### Features
+- Bookkeeping rules: condition editor (field/comparator/value dynamic linking) + action value picker, AND/OR nested groups, semantic summaries, auto-generated rule name
+- Category/merchant tree management: hierarchical display, expand/collapse, batch CRUD
+- TreeSelectFormField: search, expand/collapse, cascade multi-select, check animation
+- CommonSelectFormField category "More" panel uses new tree component
+- Recurring (auto bookkeeping) module
+- Report narrative layer: executive summary, section insights, recommendations
+
+### Improvements
+- TreeSelectFormField redesigned with level-colored bookmark tabs + 26px indentation
+- CommonSelectFormField and TreeSelectFormField share SelectionTrigger/SelectionSheetShell components
+- Toast redesign, list/detail UI redesign, tab order adjusted
+
+### Fixes
+- Fixed double indentation and expand arrow overlap in tree items
+- Fixed action value callback missing setState
+- Fixed rule name overflow, duplicate AND/OR in nested groups
+- Fixed category/shop Provider lazy init null pointer
+
 ## [1.1.9] - 2026-06-21
 
 ### Features
