@@ -64,7 +64,6 @@ class ShopProvider extends ChangeNotifier {
   }
 
   List<String> expandCodes(String code) {
-    if (!_includeChildren) return [code];
     return TreeBuilder.getDescendantIds(
       _tree,
       code,

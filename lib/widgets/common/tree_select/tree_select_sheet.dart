@@ -95,6 +95,8 @@ class TreeSelectSheet<T> extends StatefulWidget {
   final dynamic initialValue;
   final bool allowCreate;
   final Future<T?> Function(String value)? onCreateItem;
+  final void Function(T data)? onNodeTap;
+  final bool noShell;
 
   const TreeSelectSheet({
     super.key,
@@ -106,6 +108,8 @@ class TreeSelectSheet<T> extends StatefulWidget {
     this.initialValue,
     this.allowCreate = false,
     this.onCreateItem,
+    this.onNodeTap,
+    this.noShell = false,
   });
 
   @override
@@ -198,6 +202,12 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   }
 
   void _onTapNode(TreeNode<T> node) {
+    // 自定义回调 → 委托外部
+    if (widget.onNodeTap != null) {
+      widget.onNodeTap!(node.data);
+      return;
+    }
+
     final id = widget.idField(node.data);
 
     // 点击行 → 选中（单选 pop，多选 toggle）
@@ -247,6 +257,45 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       return _selectedIds.contains(id);
     }
     return id == _currentSingleId;
+  }
+
+  Widget _buildEmptyOrCreate(ColorScheme cs) {
+    if (_searchQuery.isNotEmpty && widget.allowCreate) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 4, 12, 16),
+        children: [
+          _TreeCreateTile<T>(
+            searchText: _searchQuery,
+            label: widget.label ?? '',
+            loading: _createLoading,
+            onCreate: () async {
+              if (widget.onCreateItem == null) return;
+              setState(() => _createLoading = true);
+              final result = await widget.onCreateItem!(_searchQuery);
+              setState(() => _createLoading = false);
+              if (result != null && mounted) {
+                Navigator.of(context).pop(result);
+              }
+            },
+          ),
+        ],
+      );
+    }
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.inbox_outlined, size: 40,
+              color: cs.onSurfaceVariant.withAlpha(60)),
+          const SizedBox(height: 8),
+          Text(
+            _searchQuery.isNotEmpty ? L10nManager.l10n.noData : L10nManager.l10n.treeNoOptions,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant.withAlpha(100),
+                )),
+        ],
+      ),
+    );
   }
 
   ListView _buildListView(ColorScheme cs, List<TreeNode<T>> visible) {
@@ -304,6 +353,15 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
     final cs = Theme.of(context).colorScheme;
     final visible = _visibleNodes;
 
+    if (widget.noShell) {
+      // 无外壳模式：仅返回内容，外壳由外部提供
+      return Expanded(
+        child: visible.isEmpty
+            ? _buildEmptyOrCreate(cs)
+            : _buildListView(cs, visible),
+      );
+    }
+
     return _TreeSheetLayout(
       label: widget.label,
       multiSelect: widget.multiSelect,
@@ -319,31 +377,7 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
           : null,
       child: Expanded(
         child: visible.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.inbox_outlined,
-                            size: 40,
-                            color: cs.onSurfaceVariant.withAlpha(60)),
-                        const SizedBox(height: 8),
-                        Text(
-                          _searchQuery.isNotEmpty
-                              ? L10nManager.l10n.noData
-                              : L10nManager.l10n.treeNoOptions,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: cs.onSurfaceVariant.withAlpha(100),
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+              ? _buildEmptyOrCreate(cs)
               : _buildListView(cs, visible),
       ),
     );
@@ -517,7 +551,7 @@ class _TreeSheetLayoutState extends State<_TreeSheetLayout>
   }
 }
 
-/// 树形搜索新建项
+/// 树形搜索新建项 — 整行可点击创建
 class _TreeCreateTile<T> extends StatelessWidget {
   final String searchText;
   final String label;
@@ -538,52 +572,47 @@ class _TreeCreateTile<T> extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: loading ? null : onCreate,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withAlpha(15),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.primary.withAlpha(6),
             ),
-            child: loading
-                ? Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: loading
+                      ? SizedBox(
+                          width: 18, height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.primary,
+                          ),
+                        )
+                      : Icon(Icons.add_rounded, size: 22, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    L10nManager.l10n.addNew(searchText),
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.primary,
+                      fontWeight: FontWeight.w500,
                     ),
-                  )
-                : Icon(Icons.add_rounded, size: 20, color: colorScheme.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              L10nManager.l10n.addNew(searchText),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          if (!loading)
-            TextButton(
-              onPressed: onCreate,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                foregroundColor: colorScheme.primary,
-              ),
-              child: Text(
-                L10nManager.l10n.create,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../enums/business_type.dart';
@@ -435,6 +436,8 @@ class ItemFormProvider extends ChangeNotifier {
     );
     _applyRules('type');
     notifyListeners();
+    // 切换类型后重载对应分类
+    unawaited(loadCategories(_item.accountBookId, type.code));
   }
 
   /// 更新金额

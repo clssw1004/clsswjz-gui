@@ -197,6 +197,8 @@ class _CommonSelectFormFieldWidgetState<T>
           multiSelect: false,
           label: widget.label,
           initialValue: widget.value,
+          allowCreate: widget.allowCreate,
+          onCreateItem: widget.onCreateItem,
         ),
       );
       if (result != null && mounted) _handleItemChanged(result);
@@ -854,53 +856,48 @@ class _SheetCreateTile<T> extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: loading ? null : onCreate,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withAlpha(15),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.primary.withAlpha(6),
             ),
-            child: loading
-                ? Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: loading
+                      ? SizedBox(
+                          width: 18, height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.primary,
+                          ),
+                        )
+                      : Icon(Icons.add_rounded, size: 22, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    L10nManager.l10n.addNew(searchText),
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.primary,
+                      fontWeight: FontWeight.w500,
                     ),
-                  )
-                : Icon(Icons.add_rounded, size: 20, color: colorScheme.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              L10nManager.l10n.addNew(searchText),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          if (!loading)
-            TextButton(
-              onPressed: onCreate,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                foregroundColor: colorScheme.primary,
-              ),
-              child: Text(
-                L10nManager.l10n.create,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
