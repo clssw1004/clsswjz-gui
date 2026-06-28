@@ -2262,23 +2262,33 @@
     "@bookkeepingRuleNameAmountBetween": {
         "description": "Amount range",
         "placeholders": {
-            "min": {"type": "String"},
-            "max": {"type": "String"}
+            "min": {
+                "type": "String"
+            },
+            "max": {
+                "type": "String"
+            }
         }
     },
     "bookkeepingRuleNameSetField": "set {field} to {value}",
     "@bookkeepingRuleNameSetField": {
         "description": "Action: set field value",
         "placeholders": {
-            "field": {"type": "String"},
-            "value": {"type": "String"}
+            "field": {
+                "type": "String"
+            },
+            "value": {
+                "type": "String"
+            }
         }
     },
     "bookkeepingRuleLabelPriority": "Priority: {p}",
     "@bookkeepingRuleLabelPriority": {
         "description": "List priority label",
         "placeholders": {
-            "p": {"type": "int"}
+            "p": {
+                "type": "int"
+            }
         }
     },
     "bookkeepingRuleLabelConditionTitle": "Condition: ",
@@ -2389,7 +2399,9 @@
     "@bookkeepingRuleMessageLoadFailed": {
         "description": "Load failed error",
         "placeholders": {
-            "e": {"type": "String"}
+            "e": {
+                "type": "String"
+            }
         }
     },
     "treeEmptyCategory": "No categories",
@@ -2424,14 +2436,18 @@
     "@treeDeleteMessageCategory": {
         "description": "Category delete confirmation message",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeDeleteMessageShop": "Delete \"{name}\" and all its sub-merchants? This cannot be undone.",
     "@treeDeleteMessageShop": {
         "description": "Merchant delete confirmation message",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeMove": "Move",
@@ -2446,7 +2462,9 @@
     "@treeMoveTo": {
         "description": "Move dialog title",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeRootDir": "Root (remove parent)",
@@ -2469,11 +2487,83 @@
     "@treeSelectedCount": {
         "description": "Multi-select count",
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "treeMultiSelectHint": "(multi-select)",
     "@treeMultiSelectHint": {
         "description": "Multi-select hint text"
+    },
+    "reportIncrease": "up",
+    "reportDecrease": "down",
+    "@reportIncrease": {
+        "description": ""
+    },
+    "@reportDecrease": {
+        "description": ""
+    },
+    "reportSectionLargeTxns": "Large Transactions",
+    "narrativeLargeTxnsNone": "No large transactions this month.",
+    "narrativeLargeTxnsHas": "{n} large transactions totaling ¥{total} ({pct}% of expenses).",
+    "narrativeLargeTxnsUp": "Up from {prev} last month.",
+    "narrativeLargeTxnsDown": "Down from {prev} last month.",
+    "narrativeLargeTxnsSame": "Same as last month ({prev}).",
+    "@reportSectionLargeTxns": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsNone": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsHas": {
+        "description": "",
+        "placeholders": {
+            "n": {
+                "type": "int"
+            },
+            "total": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            },
+            "prev": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsUp": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsDown": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsSame": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
     }
 }
