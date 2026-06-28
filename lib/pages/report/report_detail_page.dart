@@ -159,6 +159,12 @@ class _Body extends StatelessWidget {
     // 生成叙事文字
     final narrative = ReportNarrativeService(L10nManager.l10n).generate(r);
 
+    // 收集所有分类名称用于文本高亮
+    final highlightTerms = {
+      ...r.categoryExpenses.map((c) => c.categoryName),
+      ...r.categoryIncomes.map((c) => c.categoryName),
+    }.where((n) => n.isNotEmpty).toSet();
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
@@ -170,7 +176,9 @@ class _Body extends StatelessWidget {
         const SizedBox(height: 16),
 
         // ═══ EXECUTIVE SUMMARY ═══
-        _ExecutiveSummaryCard(summary: narrative.executiveSummary, cs: cs),
+        _ExecutiveSummaryCard(
+            summary: narrative.executiveSummary, cs: cs,
+            highlightTerms: highlightTerms),
         const SizedBox(height: 20),
 
         // ═══ KPI COMPARISON CARDS ═══
@@ -182,7 +190,7 @@ class _Body extends StatelessWidget {
           _sectionTitle(cs, L10nManager.l10n.reportSectionCategories),
           const SizedBox(height: 8),
           if (narrative.categoryNarrative != null)
-            _SectionNarrative(text: narrative.categoryNarrative!, cs: cs),
+            _SectionNarrative(text: narrative.categoryNarrative!, cs: cs, highlightTerms: highlightTerms),
           if (narrative.categoryNarrative != null) const SizedBox(height: 8),
           _DonutChart(data: r.categoryExpenses
               .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
@@ -194,7 +202,7 @@ class _Body extends StatelessWidget {
           _sectionTitle(cs, L10nManager.l10n.reportSectionIncome),
           const SizedBox(height: 8),
           if (narrative.incomeNarrative != null)
-            _SectionNarrative(text: narrative.incomeNarrative!, cs: cs),
+            _SectionNarrative(text: narrative.incomeNarrative!, cs: cs, highlightTerms: highlightTerms),
           if (narrative.incomeNarrative != null) const SizedBox(height: 8),
           _DonutChart(data: r.categoryIncomes
               .map((c) => _ChartData(c.categoryName, c.amount)).toList()),
@@ -209,12 +217,23 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 24),
         ],
 
+        // ═══ LARGE TRANSACTIONS ═══
+        if (r.largeTransactions.isNotEmpty) ...[
+          _sectionTitle(cs, L10nManager.l10n.reportSectionLargeTxns),
+          const SizedBox(height: 8),
+          if (narrative.largeTxnNarrative != null)
+            _SectionNarrative(text: narrative.largeTxnNarrative!, cs: cs, highlightTerms: highlightTerms),
+          if (narrative.largeTxnNarrative != null) const SizedBox(height: 8),
+          _LargeTxnsList(txns: r.largeTransactions, cs: cs),
+          const SizedBox(height: 24),
+        ],
+
         // ═══ DAILY CHART ═══
         if (r.dailyAmounts.isNotEmpty) ...[
           _sectionTitle(cs, L10nManager.l10n.reportSectionDaily),
           const SizedBox(height: 8),
           if (narrative.dailyNarrative != null)
-            _SectionNarrative(text: narrative.dailyNarrative!, cs: cs),
+            _SectionNarrative(text: narrative.dailyNarrative!, cs: cs, highlightTerms: highlightTerms),
           if (narrative.dailyNarrative != null) const SizedBox(height: 8),
           _DailyChart(dailyAmounts: r.dailyAmounts, cs: cs),
           const SizedBox(height: 24),
@@ -225,7 +244,7 @@ class _Body extends StatelessWidget {
           _sectionTitle(cs, L10nManager.l10n.reportSectionYtd),
           const SizedBox(height: 8),
           if (narrative.ytdNarrative != null)
-            _SectionNarrative(text: narrative.ytdNarrative!, cs: cs),
+            _SectionNarrative(text: narrative.ytdNarrative!, cs: cs, highlightTerms: highlightTerms),
           if (narrative.ytdNarrative != null) const SizedBox(height: 8),
           _YtdCard(cs: cs, s: s, ytd: r.ytdSummary!),
           const SizedBox(height: 24),
@@ -236,7 +255,7 @@ class _Body extends StatelessWidget {
           _sectionTitle(cs, L10nManager.l10n.reportSectionMonthlyTrend),
           const SizedBox(height: 8),
           if (narrative.trendNarrative != null)
-            _SectionNarrative(text: narrative.trendNarrative!, cs: cs),
+            _SectionNarrative(text: narrative.trendNarrative!, cs: cs, highlightTerms: highlightTerms),
           if (narrative.trendNarrative != null) const SizedBox(height: 8),
           _TrendChart(points: r.monthlyTrend, cs: cs),
           const SizedBox(height: 24),
@@ -252,7 +271,7 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 24),
           _sectionTitle(cs, L10nManager.l10n.reportRecommendations),
           const SizedBox(height: 10),
-          _RecommendationsCard(recs: narrative.recommendations, cs: cs),
+          _RecommendationsCard(recs: narrative.recommendations, cs: cs, highlightTerms: highlightTerms),
         ],
 
         // ═══ FOOTER ═══
@@ -290,8 +309,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cc = ColorUtil.EXPENSE;
-    final arrow = expenseDown ? Icons.arrow_downward : Icons.arrow_upward;
+    final cc = cs.primary;
     final monthLabel = '${period.year}.${period.month.toString().padLeft(2, '0')}';
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -316,9 +334,10 @@ class _Header extends StatelessWidget {
             const SizedBox(width: 10),
             Text(L10nManager.l10n.reportLabelVsPrevMonth,
                 style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+            const SizedBox(width: 6),
+            Text(expenseDown ? L10nManager.l10n.reportDecrease : L10nManager.l10n.reportIncrease,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: cc)),
             const Spacer(),
-            Icon(arrow, size: 16, color: cc),
-            const SizedBox(width: 3),
             Text('¥${expenseDiffDisplay.toStringAsFixed(0)}',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: cc, fontFamily: 'monospace')),
             const SizedBox(width: 5),
@@ -879,7 +898,12 @@ class _YtdCard extends StatelessWidget {
 class _ExecutiveSummaryCard extends StatelessWidget {
   final String summary;
   final ColorScheme cs;
-  const _ExecutiveSummaryCard({required this.summary, required this.cs});
+  final Set<String> highlightTerms;
+  const _ExecutiveSummaryCard({
+    required this.summary,
+    required this.cs,
+    this.highlightTerms = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -903,8 +927,9 @@ class _ExecutiveSummaryCard extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(summary,
-              style: TextStyle(fontSize: 13, color: cs.onSurface, height: 1.55)),
+          child: _NarrativeText(text: summary,
+              style: TextStyle(fontSize: 13, color: cs.onSurface, height: 1.55),
+              cs: cs, highlightTerms: highlightTerms),
         ),
       ]),
     );
@@ -915,7 +940,12 @@ class _ExecutiveSummaryCard extends StatelessWidget {
 class _SectionNarrative extends StatelessWidget {
   final String text;
   final ColorScheme cs;
-  const _SectionNarrative({required this.text, required this.cs});
+  final Set<String>? highlightTerms;
+  const _SectionNarrative({
+    required this.text,
+    required this.cs,
+    this.highlightTerms,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -929,8 +959,9 @@ class _SectionNarrative extends StatelessWidget {
         Icon(Icons.lightbulb_outline, size: 14, color: cs.primary),
         const SizedBox(width: 6),
         Expanded(
-          child: Text(text,
-              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, height: 1.4)),
+          child: _NarrativeText(text: text,
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, height: 1.4),
+              cs: cs, highlightTerms: highlightTerms),
         ),
       ]),
     );
@@ -941,7 +972,12 @@ class _SectionNarrative extends StatelessWidget {
 class _RecommendationsCard extends StatelessWidget {
   final List<String> recs;
   final ColorScheme cs;
-  const _RecommendationsCard({required this.recs, required this.cs});
+  final Set<String>? highlightTerms;
+  const _RecommendationsCard({
+    required this.recs,
+    required this.cs,
+    this.highlightTerms,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -959,8 +995,9 @@ class _RecommendationsCard extends StatelessWidget {
             Icon(Icons.check_circle_outline, size: 16, color: cs.primary),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(e.value,
-                  style: TextStyle(fontSize: 12, color: cs.onSurface, height: 1.4)),
+              child: _NarrativeText(text: e.value,
+                  style: TextStyle(fontSize: 12, color: cs.onSurface, height: 1.4),
+                  cs: cs, highlightTerms: highlightTerms),
             ),
           ]),
         );
@@ -969,3 +1006,143 @@ class _RecommendationsCard extends StatelessWidget {
   }
 }
 
+/// 大额支出列表
+class _LargeTxnsList extends StatelessWidget {
+  final List<LargeTransaction> txns;
+  final ColorScheme cs;
+  const _LargeTxnsList({required this.txns, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(children: txns.take(5).map((t) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: ColorUtil.EXPENSE.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.receipt_long, size: 16, color: ColorUtil.EXPENSE),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(t.categoryName,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: cs.onSurface)),
+                if (t.description != null && t.description!.isNotEmpty)
+                  Text(t.description!, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Text('¥${t.amount.toStringAsFixed(0)}',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+                      color: ColorUtil.EXPENSE, fontFamily: 'monospace')),
+              Text(t.date.substring(5),
+                  style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
+            ]),
+          ]),
+        );
+      }).toList()),
+    );
+  }
+}
+
+/// 叙事文本：自动高亮金额和百分比
+class _NarrativeText extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final ColorScheme cs;
+  final Set<String>? highlightTerms;
+
+  const _NarrativeText({
+    required this.text,
+    required this.style,
+    required this.cs,
+    this.highlightTerms,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final allReg = RegExp(r'(¥[\d,]+\.?\d*|\d+\.?\d*%)');
+
+    final spans = <TextSpan>[];
+    int lastEnd = 0;
+
+    for (final match in allReg.allMatches(text)) {
+      if (match.start > lastEnd) {
+        spans.addAll(_buildTextSpans(text.substring(lastEnd, match.start)));
+      }
+      final matched = match.group(0)!;
+      final isAmount = matched.startsWith('¥');
+      spans.add(TextSpan(
+        text: matched,
+        style: style.copyWith(
+          fontWeight: FontWeight.w700,
+          color: isAmount ? ColorUtil.EXPENSE : ColorUtil.INCOME,
+          fontFamily: 'monospace',
+        ),
+      ));
+      lastEnd = match.end;
+    }
+
+    if (lastEnd < text.length) {
+      spans.addAll(_buildTextSpans(text.substring(lastEnd)));
+    }
+
+    return RichText(
+      text: TextSpan(children: spans),
+    );
+  }
+
+  /// 解析普通文本段，高亮分类名称
+  List<TextSpan> _buildTextSpans(String segment) {
+    if (highlightTerms == null || highlightTerms!.isEmpty) {
+      return [TextSpan(text: segment, style: style)];
+    }
+
+    // 按长度降序排序（避免短词先匹配导致长词被部分覆盖）
+    final terms = highlightTerms!.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
+
+    final spans = <TextSpan>[];
+    int cur = 0;
+    while (cur < segment.length) {
+      int? bestIdx;
+      int bestLen = 0;
+      for (final term in terms) {
+        final idx = segment.indexOf(term, cur);
+        if (idx >= 0 && (bestIdx == null || idx < bestIdx)) {
+          bestIdx = idx;
+          bestLen = term.length;
+        }
+      }
+      if (bestIdx == null || bestIdx >= segment.length) {
+        spans.add(TextSpan(text: segment.substring(cur), style: style));
+        break;
+      }
+      if (bestIdx > cur) {
+        spans.add(TextSpan(text: segment.substring(cur, bestIdx), style: style));
+      }
+      spans.add(TextSpan(
+        text: segment.substring(bestIdx, bestIdx + bestLen),
+        style: style.copyWith(
+          fontWeight: FontWeight.w700,
+          color: cs.primary,
+        ),
+      ));
+      cur = bestIdx + bestLen;
+    }
+    return spans;
+  }
+}

@@ -116,6 +116,7 @@ class MonthlyReportService {
       _queryDailyStats(bookId, period.start, period.end, AccountItemType.income.code),
       _querySummary(bookId, ytdStart, ytdEnd),
       _queryMonthlyTrend(bookId, year, month),
+      _queryExpenseItems(bookId, prevPeriod.start, prevPeriod.end),
     ]);
 
     final summary = results[0] as _SummaryResult;
@@ -129,6 +130,7 @@ class MonthlyReportService {
     final dailyIncomeStats = results[8] as List<_DailyStatResult>;
     final ytdSummaryResult = results[9] as _SummaryResult;
     final monthlyTrendData = results[10] as List<MonthlyTrendPoint>;
+    final prevExpenseItems = results[11] as List<_ExpenseItemResult>;
 
     // 如果目标月没有数据，返回null
     if (summary.income == 0 && summary.expense == 0) return null;
@@ -316,6 +318,14 @@ class MonthlyReportService {
     }
     final dailyIncomes = List.generate(daysInMonth, (i) => dailyIncomeMap[i + 1] ?? 0.0);
 
+    // ── 上月大笔支出 ──
+    final prevThreshold = prevSummary.expense.abs() * 0.05;
+    final prevLargeCount = prevExpenseItems.where(
+        (e) => e.amount.abs() >= prevThreshold).length;
+    final prevLargeTotal = prevExpenseItems
+        .where((e) => e.amount.abs() >= prevThreshold)
+        .fold<double>(0, (s, e) => s + e.amount.abs());
+
     // ── 年度累计 ──
     final ytdMonths = month; // 当前月是第 month 个月
     final ytd = YtdSummary(
@@ -341,6 +351,8 @@ class MonthlyReportService {
       trends: trends,
       savingsRate: savingsRate,
       itemCount: summary.count,
+      prevLargeTxnCount: prevLargeCount,
+      prevLargeTxnTotal: prevLargeTotal,
       ytdSummary: ytd,
       monthlyTrend: monthlyTrendData,
     );

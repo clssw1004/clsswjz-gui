@@ -2379,9 +2379,6 @@
     "@bookkeepingRuleAddAction": {
         "description": "添加操作"
     },
-    "@bookkeepingRuleBasicInfo": {
-        "description": "基本信息"
-    },
     "bookkeepingRuleAutoNamePrefix": "当",
     "@bookkeepingRuleAutoNamePrefix": {
         "description": "自动命名前缀"
@@ -2422,23 +2419,33 @@
     "@bookkeepingRuleNameAmountBetween": {
         "description": "金额范围",
         "placeholders": {
-            "min": {"type": "String"},
-            "max": {"type": "String"}
+            "min": {
+                "type": "String"
+            },
+            "max": {
+                "type": "String"
+            }
         }
     },
     "bookkeepingRuleNameSetField": "设置{field}为{value}",
     "@bookkeepingRuleNameSetField": {
         "description": "操作：设置字段值",
         "placeholders": {
-            "field": {"type": "String"},
-            "value": {"type": "String"}
+            "field": {
+                "type": "String"
+            },
+            "value": {
+                "type": "String"
+            }
         }
     },
     "bookkeepingRuleLabelPriority": "优先级：{p}",
     "@bookkeepingRuleLabelPriority": {
         "description": "列表优先级标签",
         "placeholders": {
-            "p": {"type": "int"}
+            "p": {
+                "type": "int"
+            }
         }
     },
     "bookkeepingRuleLabelConditionTitle": "条件：",
@@ -2549,7 +2556,9 @@
     "@bookkeepingRuleMessageLoadFailed": {
         "description": "加载失败错误提示",
         "placeholders": {
-            "e": {"type": "String"}
+            "e": {
+                "type": "String"
+            }
         }
     },
     "treeEmptyCategory": "暂无分类",
@@ -2584,14 +2593,18 @@
     "@treeDeleteMessageCategory": {
         "description": "删除分类确认消息",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeDeleteMessageShop": "删除「{name}」及其所有子商户？此操作不可恢复。",
     "@treeDeleteMessageShop": {
         "description": "删除商户确认消息",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeMove": "移动",
@@ -2606,7 +2619,9 @@
     "@treeMoveTo": {
         "description": "移动弹窗标题",
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "treeRootDir": "根目录（取消父子关系）",
@@ -2629,11 +2644,83 @@
     "@treeSelectedCount": {
         "description": "多选已选数量",
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "treeMultiSelectHint": "（可多选）",
     "@treeMultiSelectHint": {
         "description": "多选提示文字"
+    },
+    "reportIncrease": "增加",
+    "reportDecrease": "减少",
+    "@reportIncrease": {
+        "description": ""
+    },
+    "@reportDecrease": {
+        "description": ""
+    },
+    "reportSectionLargeTxns": "大额支出",
+    "narrativeLargeTxnsNone": "本月无大额支出。",
+    "narrativeLargeTxnsHas": "本月共 {n} 笔大额支出，合计 ¥{total}（占 {pct}%）。",
+    "narrativeLargeTxnsUp": "较上月增加（上月 {prev} 笔）。",
+    "narrativeLargeTxnsDown": "较上月减少（上月 {prev} 笔）。",
+    "narrativeLargeTxnsSame": "与上月持平（{prev} 笔）。",
+    "@reportSectionLargeTxns": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsNone": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsHas": {
+        "description": "",
+        "placeholders": {
+            "n": {
+                "type": "int"
+            },
+            "total": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            },
+            "prev": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsUp": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsDown": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsSame": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
     }
 }

@@ -42,6 +42,12 @@ class MonthlyReportVO {
   /// 支出笔数
   final int itemCount;
 
+  /// 上月大笔支出笔数
+  final int prevLargeTxnCount;
+
+  /// 上月大笔支出总额
+  final double prevLargeTxnTotal;
+
   /// 年度累计数据
   final YtdSummary? ytdSummary;
 
@@ -62,6 +68,8 @@ class MonthlyReportVO {
     required this.trends,
     this.savingsRate = 0,
     this.itemCount = 0,
+    this.prevLargeTxnCount = 0,
+    this.prevLargeTxnTotal = 0,
     this.ytdSummary,
     this.monthlyTrend = const [],
   });
@@ -102,6 +110,8 @@ class MonthlyReportVO {
       trends: ReportTrends.fromJson(json['trends'] as Map<String, dynamic>),
       savingsRate: (json['savingsRate'] as num?)?.toDouble() ?? 0,
       itemCount: json['itemCount'] as int? ?? 0,
+      prevLargeTxnCount: json['prevLargeTxnCount'] as int? ?? 0,
+      prevLargeTxnTotal: (json['prevLargeTxnTotal'] as num?)?.toDouble() ?? 0,
       ytdSummary: json['ytdSummary'] != null
           ? YtdSummary.fromJson(json['ytdSummary'] as Map<String, dynamic>)
           : null,
@@ -130,6 +140,8 @@ class MonthlyReportVO {
         'trends': trends.toJson(),
         'savingsRate': savingsRate,
         'itemCount': itemCount,
+        'prevLargeTxnCount': prevLargeTxnCount,
+        'prevLargeTxnTotal': prevLargeTxnTotal,
         'ytdSummary': ytdSummary?.toJson(),
         'monthlyTrend': monthlyTrend.map((e) => e.toJson()).toList(),
       };

@@ -21,6 +21,9 @@ class ReportNarrative {
   /// 趋势解读
   final String? trendNarrative;
 
+  /// 大额支出解读
+  final String? largeTxnNarrative;
+
   /// 建议列表（2-4条）
   final List<String> recommendations;
 
@@ -31,6 +34,7 @@ class ReportNarrative {
     this.dailyNarrative,
     this.ytdNarrative,
     this.trendNarrative,
+    this.largeTxnNarrative,
     this.recommendations = const [],
   });
 }
@@ -70,7 +74,10 @@ class ReportNarrativeService {
     // ── 6. 趋势解读 ──
     final trendNar = _buildTrendNarrative(r);
 
-    // ── 7. 建议 ──
+    // ── 7. 大额支出解读 ──
+    final largeNar = _buildLargeTxnNarrative(r, curExpense);
+
+    // ── 8. 建议 ──
     final recs = _buildRecommendations(r, curExpense, prevExpense,
         curIncome, prevIncome, expDiff, hasComp);
 
@@ -81,6 +88,7 @@ class ReportNarrativeService {
       dailyNarrative: dailyNar,
       ytdNarrative: ytdNar,
       trendNarrative: trendNar,
+      largeTxnNarrative: largeNar,
       recommendations: recs,
     );
   }
@@ -147,8 +155,10 @@ class ReportNarrativeService {
     if (warnings.isNotEmpty) {
       final w = warnings.first;
       if (w.type == 'overThreshold' && w.exceededAmount != null) {
+        // 计算超出的百分比
+        final exceededPct = (w.exceededAmount! / curExpense * 100).toStringAsFixed(1);
         buf.write(l10n.narrativeConcernThreshold(
-            w.exceededAmount!.toStringAsFixed(0), w.categoryName));
+            exceededPct, w.categoryName));
       } else if (w.type == 'abnormalGrowth' && w.diffPercent != null) {
         buf.write(l10n.narrativeConcernGrowth(
             w.diffPercent!.toStringAsFixed(1), w.categoryName));
@@ -176,18 +186,19 @@ class ReportNarrativeService {
     if (hasComp && top.prevAmount > 0) {
       if (diff.abs() > 5) {
         if (diff > 0) {
-          return l10n.narrativeCategoryTop(top.categoryName,
-              top.amount.toStringAsFixed(0), pct.toStringAsFixed(1),
-              diff.toStringAsFixed(0), pctDiff.toStringAsFixed(1));
+          return l10n.narrativeCategoryTop(
+              diff.toStringAsFixed(0), pct.toStringAsFixed(1), top.categoryName,
+              top.amount.toStringAsFixed(0), pctDiff.toStringAsFixed(1));
         } else {
-          return l10n.narrativeCategoryTopDown(top.categoryName,
-              top.amount.toStringAsFixed(0), pct.toStringAsFixed(1),
-              diff.abs().toStringAsFixed(0), pctDiff.abs().toStringAsFixed(1));
+          return l10n.narrativeCategoryTopDown(
+              diff.abs().toStringAsFixed(0), pct.toStringAsFixed(1), top.categoryName,
+              top.amount.toStringAsFixed(0), pctDiff.abs().toStringAsFixed(1));
         }
       }
     }
-    return l10n.narrativeCategoryTopStable(top.categoryName,
-        top.amount.toStringAsFixed(0), pct.toStringAsFixed(1));
+    return l10n.narrativeCategoryTopStable(
+        pct.toStringAsFixed(1), top.categoryName,
+        top.amount.toStringAsFixed(0));
   }
 
   // ═══ 收入解读 ═══
@@ -196,8 +207,9 @@ class ReportNarrativeService {
     if (r.categoryIncomes.isEmpty) return null;
     final top = r.categoryIncomes.first;
     final pct = curIncome > 0 ? (top.amount / curIncome * 100) : 0.0;
-    final result = l10n.narrativeIncomeTop(top.categoryName,
-        top.amount.toStringAsFixed(0), pct.toStringAsFixed(1));
+    final result = l10n.narrativeIncomeTop(
+        pct.toStringAsFixed(1), top.categoryName,
+        top.amount.toStringAsFixed(0));
 
     final incomeDiff = curIncome - prevIncome;
     if (hasComp && prevIncome > 0) {
@@ -276,9 +288,34 @@ class ReportNarrativeService {
     final peak = r.monthlyTrend.reduce(
         (a, b) => a.expense > b.expense ? a : b);
     buf.write(l10n.narrativeTrendPeak(
-        '${peak.month}月', peak.expense.toStringAsFixed(0)));
+        peak.expense.toStringAsFixed(0), '${peak.month}月'));
 
     return buf.toString();
+  }
+
+  // ═══ 大额支出解读 ═══
+
+  String? _buildLargeTxnNarrative(MonthlyReportVO r, double curExpense) {
+    if (r.largeTransactions.isEmpty) {
+      return l10n.narrativeLargeTxnsNone;
+    }
+    final total = r.largeTransactions.fold<double>(
+        0, (s, t) => s + t.amount);
+    final pct = curExpense > 0 ? (total / curExpense * 100) : 0.0;
+    final diff = r.largeTransactions.length - r.prevLargeTxnCount;
+    final l10nText = l10n.narrativeLargeTxnsHas(
+        r.largeTransactions.length, total.toStringAsFixed(0),
+        pct.toStringAsFixed(1), r.prevLargeTxnCount);
+
+    if (r.prevLargeTxnCount > 0) {
+      if (diff > 0) {
+        return '$l10nText${l10n.narrativeLargeTxnsUp(r.prevLargeTxnCount, r.largeTransactions.length)}';
+      } else if (diff < 0) {
+        return '$l10nText${l10n.narrativeLargeTxnsDown(r.prevLargeTxnCount, r.largeTransactions.length)}';
+      }
+      return '$l10nText${l10n.narrativeLargeTxnsSame(r.prevLargeTxnCount, r.largeTransactions.length)}';
+    }
+    return l10nText;
   }
 
   // ═══ 建议列表 ═══
@@ -291,8 +328,9 @@ class ReportNarrativeService {
     // 1. 超阈值分类 → 预算建议
     for (final a in r.alerts) {
       if (a.type == 'overThreshold' && a.exceededAmount != null) {
+        final pct = (a.exceededAmount! / curExpense * 100).toStringAsFixed(1);
         recs.add(l10n.recommendBudgetCap(
-            a.categoryName, a.exceededAmount!.toStringAsFixed(0)));
+            pct, a.categoryName));
       }
     }
 
@@ -300,7 +338,7 @@ class ReportNarrativeService {
     for (final a in r.alerts) {
       if (a.type == 'abnormalGrowth' && a.diffPercent != null) {
         recs.add(l10n.recommendReviewGrowth(
-            a.categoryName, a.diffPercent!.toStringAsFixed(1)));
+            a.diffPercent!.toStringAsFixed(1), a.categoryName));
       }
     }
 

@@ -1919,5 +1919,75 @@
                 "type": "String"
             }
         }
+    },
+    "reportIncrease": "增加",
+    "reportDecrease": "減少",
+    "@reportIncrease": {
+        "description": ""
+    },
+    "@reportDecrease": {
+        "description": ""
+    },
+    "reportSectionLargeTxns": "大額支出",
+    "narrativeLargeTxnsNone": "本月無大額支出。",
+    "narrativeLargeTxnsHas": "本月共 {n} 筆大額支出，合計 ¥{total}（佔 {pct}%）。",
+    "narrativeLargeTxnsUp": "較上月增加（上月 {prev} 筆）。",
+    "narrativeLargeTxnsDown": "較上月減少（上月 {prev} 筆）。",
+    "narrativeLargeTxnsSame": "與上月持平（{prev} 筆）。",
+    "@reportSectionLargeTxns": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsNone": {
+        "description": ""
+    },
+    "@narrativeLargeTxnsHas": {
+        "description": "",
+        "placeholders": {
+            "n": {
+                "type": "int"
+            },
+            "total": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "String"
+            },
+            "prev": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsUp": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsDown": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "@narrativeLargeTxnsSame": {
+        "description": "",
+        "placeholders": {
+            "prev": {
+                "type": "int"
+            },
+            "n": {
+                "type": "int"
+            }
+        }
     }
 }
