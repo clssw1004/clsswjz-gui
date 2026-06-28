@@ -9,6 +9,7 @@ import 'multi_select_dialog.dart';
 import 'selection_trigger.dart';
 import 'selection_sheet_shell.dart';
 import 'tree_select/tree_select_sheet.dart';
+import 'tree_select/tree_select_connector.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -783,42 +784,51 @@ class _SheetItemTile<T> extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final name = displayField(item);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary.withAlpha(10) : null,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-          leading: Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelected ? colorScheme.primary : colorScheme.outline.withAlpha(40),
-            ),
-          ),
-          title: Text(
-            name,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : null,
-              color: isSelected ? colorScheme.primary : null,
-            ),
-          ),
-          trailing: isSelected
-              ? Icon(
-                  Icons.check_circle_rounded,
-                  color: colorScheme.primary,
-                  size: 22,
-                )
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.primary.withAlpha(25)
+            : Colors.transparent,
+        border: isSelected
+            ? Border(left: BorderSide(color: colorScheme.primary, width: 3))
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           onTap: onTap,
+          child: SizedBox(
+            height: 44,
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                LevelTab(level: 0, color: colorScheme.primary, isSelected: isSelected),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? colorScheme.primary : null,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
         ),
       ),
     );
