@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.11] - 2026-06-28
+
+### Features
+- Large transaction analysis: monthly large txn count/totals, month-over-month comparison, narrative section with txn list
+
+### Improvements
+- Report narrative styling: primary-colored category names, bold-red amounts, bold-green percentages
+- Unified tree select search-create entry across all paths via TreeSelectSheet
+
+### Fixes
+- Category/shop sort order fixes: sortOrder defaults to 1, sorted by recent usage, null-safety in fromCreateLog
+
 ## [1.1.10] - 2026-06-28
 
 ### Features
