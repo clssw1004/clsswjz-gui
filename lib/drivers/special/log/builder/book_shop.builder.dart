@@ -85,12 +85,13 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog fromCreateLog(LogSync log) {
+    final data = jsonDecode(log.operateData) as Map<String, dynamic>;
+    data.putIfAbsent('sortOrder', () => 0);
     return ShopCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountShop.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as ShopCULog;
+        .withData(AccountShop.fromJson(data).toCompanion(true)) as ShopCULog;
   }
 
   static ShopCULog fromUpdateLog(LogSync log) {
