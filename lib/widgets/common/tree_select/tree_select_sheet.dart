@@ -93,6 +93,8 @@ class TreeSelectSheet<T> extends StatefulWidget {
   final bool multiSelect;
   final String? label;
   final dynamic initialValue;
+  final bool allowCreate;
+  final Future<T?> Function(String value)? onCreateItem;
 
   const TreeSelectSheet({
     super.key,
@@ -102,6 +104,8 @@ class TreeSelectSheet<T> extends StatefulWidget {
     required this.multiSelect,
     this.label,
     this.initialValue,
+    this.allowCreate = false,
+    this.onCreateItem,
   });
 
   @override
@@ -112,6 +116,7 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   final Set<String> _expandedIds = {};
   final Set<String> _selectedIds = {};
   String _searchQuery = '';
+  bool _createLoading = false;
 
   String? _currentSingleId;
 
@@ -244,6 +249,56 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
     return id == _currentSingleId;
   }
 
+  ListView _buildListView(ColorScheme cs, List<TreeNode<T>> visible) {
+    // 搜索：是否有完全匹配项
+    final hasExactMatch = _searchQuery.isNotEmpty &&
+        TreeBuilder.flatten(widget.filtered).any(
+            (n) => widget.displayField(n.data).toLowerCase() == _searchQuery.toLowerCase());
+    final showCreate = _searchQuery.isNotEmpty &&
+        widget.allowCreate && !hasExactMatch && !_createLoading;
+
+    final items = <Widget>[
+      for (int i = 0; i < visible.length; i++)
+        TreeSelectItem<T>(
+          key: ValueKey(widget.idField(visible[i].data)),
+          level: visible[i].level,
+          id: widget.idField(visible[i].data),
+          isChecked: _isChecked(widget.idField(visible[i].data)),
+          isMulti: widget.multiSelect,
+          displayText: widget.displayField(visible[i].data),
+          branchColor: branchColor(cs, visible[i].level),
+          hasChildren: visible[i].children.isNotEmpty,
+          isExpanded: _expandedIds.contains(widget.idField(visible[i].data)),
+          onTap: () => _onTapNode(visible[i]),
+          onToggleExpand: visible[i].children.isNotEmpty
+              ? () => _onToggleExpand(visible[i])
+              : null,
+        ),
+      if (showCreate)
+        _TreeCreateTile<T>(
+          searchText: _searchQuery,
+          label: widget.label ?? '',
+          loading: _createLoading,
+          onCreate: () async {
+            if (widget.onCreateItem == null) return;
+            setState(() => _createLoading = true);
+            final result = await widget.onCreateItem!(_searchQuery);
+            setState(() => _createLoading = false);
+            if (result != null && mounted) {
+              Navigator.of(context).pop(result);
+            }
+          },
+        ),
+    ];
+
+    return ListView(
+      padding: widget.multiSelect
+          ? const EdgeInsets.fromLTRB(16, 4, 12, 80)
+          : const EdgeInsets.fromLTRB(16, 4, 12, 16),
+      children: items,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -289,30 +344,7 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
                     ),
                   ),
                 )
-              : ListView(
-                  padding: widget.multiSelect
-                      ? const EdgeInsets.fromLTRB(16, 4, 12, 80)
-                      : const EdgeInsets.fromLTRB(16, 4, 12, 16),
-                  children: List.generate(visible.length, (i) {
-                    final node = visible[i];
-                    final id = widget.idField(node.data);
-                    return TreeSelectItem<T>(
-                      key: ValueKey(id),
-                      level: node.level,
-                      id: id,
-                      isChecked: _isChecked(id),
-                      isMulti: widget.multiSelect,
-                      displayText: widget.displayField(node.data),
-                      branchColor: branchColor(cs, node.level),
-                      hasChildren: node.children.isNotEmpty,
-                      isExpanded: _expandedIds.contains(id),
-                      onTap: () => _onTapNode(node),
-                      onToggleExpand: node.children.isNotEmpty
-                          ? () => _onToggleExpand(node)
-                          : null,
-                    );
-                  }),
-                ),
+              : _buildListView(cs, visible),
       ),
     );
   }
@@ -479,6 +511,78 @@ class _TreeSheetLayoutState extends State<_TreeSheetLayout>
           Divider(height: 1, color: cs.outline.withAlpha(20)),
           widget.child,
           if (widget.bottomBar != null) widget.bottomBar!,
+        ],
+      ),
+    );
+  }
+}
+
+/// 树形搜索新建项
+class _TreeCreateTile<T> extends StatelessWidget {
+  final String searchText;
+  final String label;
+  final bool loading;
+  final VoidCallback onCreate;
+
+  const _TreeCreateTile({
+    required this.searchText,
+    required this.label,
+    required this.loading,
+    required this.onCreate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withAlpha(15),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colorScheme.primary,
+                    ),
+                  )
+                : Icon(Icons.add_rounded, size: 20, color: colorScheme.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              L10nManager.l10n.addNew(searchText),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (!loading)
+            TextButton(
+              onPressed: onCreate,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                foregroundColor: colorScheme.primary,
+              ),
+              child: Text(
+                L10nManager.l10n.create,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
         ],
       ),
     );

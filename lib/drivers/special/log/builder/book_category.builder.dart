@@ -55,7 +55,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   }
 
   static CategoryCULog create(String who, String bookId,
-      {required String name, required String categoryType, String? code, String? parentId, int sortOrder = 0}) {
+      {required String name, required String categoryType, String? code, String? parentId, int sortOrder = 1}) {
     return CategoryCULog()
         .who(who)
         .inBook(bookId)
@@ -127,7 +127,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
 
   static CategoryCULog fromCreateLog(LogSync log) {
     final data = jsonDecode(log.operateData) as Map<String, dynamic>;
-    data.putIfAbsent('sortOrder', () => 0);
+    data.putIfAbsent('sortOrder', () => 1);
     return CategoryCULog()
         .who(log.operatorId)
         .inBook(log.parentId)

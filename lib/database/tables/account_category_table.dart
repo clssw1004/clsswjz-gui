@@ -47,7 +47,7 @@ class AccountCategoryTable extends  DateBaseAccountBookTable {
     required String categoryType,
     String? code,
     String? parentId,
-    int sortOrder = 0,
+    int sortOrder = 1,
   }) =>
       AccountCategoryTableCompanion(
         id: Value(IdUtil.genId()),

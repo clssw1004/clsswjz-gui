@@ -54,7 +54,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog create(String who, String bookId,
-      {required String name, String? parentId, int sortOrder = 0}) {
+      {required String name, String? parentId, int sortOrder = 1}) {
     return ShopCULog()
         .who(who)
         .inBook(bookId)
@@ -86,7 +86,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
 
   static ShopCULog fromCreateLog(LogSync log) {
     final data = jsonDecode(log.operateData) as Map<String, dynamic>;
-    data.putIfAbsent('sortOrder', () => 0);
+    data.putIfAbsent('sortOrder', () => 1);
     return ShopCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
