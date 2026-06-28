@@ -10,6 +10,7 @@ import '../../providers/category_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_radius.dart';
 import '../../theme/theme_spacing.dart';
+import '../../widgets/common/tree_select/tree_select_sheet.dart';
 
 class AccountCategoriesPage extends StatefulWidget {
   const AccountCategoriesPage({super.key, required this.accountBook});
@@ -48,20 +49,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
         return Scaffold(
           appBar: AppBar(
             title: Text(L10nManager.l10n.category),
-            actions: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(L10nManager.l10n.treeIncludeChildren,
-                      style: Theme.of(context).textTheme.labelSmall),
-                  Switch(
-                    value: _provider.includeChildren,
-                    onChanged: (v) => _provider.includeChildren = v,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ],
-              ),
-            ],
+            actions: const [],
           ),
           body: Column(
             children: [
@@ -140,7 +128,7 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.only(bottom: 80, top: 4),
+      padding: const EdgeInsets.only(bottom: 100, top: 4),
       itemCount: flattened.length,
       itemBuilder: (context, index) {
         final node = flattened[index];
@@ -202,39 +190,28 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
         ),
         child: InkWell(
           onTap: () {
-            final filter = ItemFilterDTO(
-              categoryCodes: _provider.expandCodes(node.data.code),
-              types: [_provider.selectedType],
-            );
-            Navigator.of(context).pushNamed(
-              AppRoutes.items,
-              arguments: [widget.accountBook, filter, node.data.name],
-            );
+            if (node.children.isNotEmpty) {
+              _provider.toggleExpand(node.data.id);
+            }
           },
-          onLongPress: () => _showMoveDialog(node),
+          onLongPress: () => _showEditDialog(node.data),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: Row(
               children: [
-                // 展开指示
+                // 展开指示（仅视觉）
                 if (hasChildren)
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: GestureDetector(
-                      onTap: () => _provider.toggleExpand(node.data.id),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        child: AnimatedRotation(
-                          turns: isExpanded ? 0.25 : 0,
-                          duration: const Duration(milliseconds: 180),
-                          child: Icon(Icons.chevron_right,
-                              size: 20, color: colorScheme.primary),
-                        ),
-                      ),
+                    child: AnimatedRotation(
+                      turns: isExpanded ? 0.25 : 0,
+                      duration: const Duration(milliseconds: 180),
+                      child: Icon(Icons.chevron_right,
+                          size: 20, color: colorScheme.primary),
                     ),
                   )
                 else
-                  const SizedBox(width: 36),
+                  const SizedBox(width: 28),
                 // 层级色标
                 Container(
                   width: 6, height: 6,
@@ -255,7 +232,34 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // 编辑按钮
+                // 查看账目
+                GestureDetector(
+                  onTap: () {
+                    final filter = ItemFilterDTO(
+                      categoryCodes: _provider.expandCodes(node.data.code),
+                      types: [_provider.selectedType],
+                    );
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.items,
+                      arguments: [widget.accountBook, filter, node.data.name],
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(Icons.receipt_long_outlined,
+                        size: 20, color: colorScheme.onSurfaceVariant),
+                  ),
+                ),
+                // 移动
+                GestureDetector(
+                  onTap: () => _showMoveDialog(node),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(Icons.drive_file_move_outlined,
+                        size: 18, color: colorScheme.onSurfaceVariant),
+                  ),
+                ),
+                // 编辑
                 GestureDetector(
                   onTap: () => _showEditDialog(node.data),
                   child: Padding(
@@ -321,20 +325,23 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
     );
   }
 
-  void _showMoveDialog(TreeNode<AccountCategory> node) {
+  Future<void> _showMoveDialog(TreeNode<AccountCategory> node) async {
     final excludeIds = TreeBuilder.getDescendantIds(
       _provider.tree,
       node.data.id,
       idGetter: (c) => c.id,
     ).toSet();
-    final allNodes = TreeBuilder.flatten(_provider.tree);
-    final filtered = allNodes
-        .where((n) => !excludeIds.contains(n.data.id))
-        .toList();
-    final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
-    final screenH = MediaQuery.of(context).size.height;
+    // 重新建树（排除自身及子孙）
+    List<TreeNode<AccountCategory>> filterTree(List<TreeNode<AccountCategory>> nodes) {
+      return nodes
+          .where((n) => !excludeIds.contains(n.data.id))
+          .map((n) => n.copyWith(children: filterTree(n.children)))
+          .toList();
+    }
+    final filteredRoots = filterTree(_provider.tree);
 
-    showModalBottomSheet(
+    final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       elevation: 0,
@@ -342,11 +349,11 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
       ),
       builder: (ctx) {
-        final localColor = Theme.of(ctx).colorScheme;
+        final cs = Theme.of(ctx).colorScheme;
         return Container(
-          constraints: BoxConstraints(maxHeight: screenH * 0.75, minHeight: 300),
+          height: MediaQuery.of(ctx).size.height * 0.75,
           decoration: BoxDecoration(
-            color: localColor.surface,
+            color: cs.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
           ),
           child: Column(
@@ -355,95 +362,53 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
               // 拖拽条
               Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 2),
-                child: Container(
-                  width: 36, height: 4,
+                child: Container(width: 36, height: 4,
                   decoration: BoxDecoration(
-                    color: localColor.onSurfaceVariant.withAlpha(50),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+                    color: cs.onSurfaceVariant.withAlpha(50),
+                    borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              // 标题
+              // 标题 + 根目录按钮
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.drive_file_move_outlined, size: 18, color: localColor.primary),
-                    const SizedBox(width: 8),
-                    Text(L10nManager.l10n.treeMoveTo(node.data.name),
-                        style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-              Divider(height: 1, color: localColor.outline.withAlpha(20)),
-              // 根节点
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  leading: Container(
-                    width: 8, height: 8,
-                    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.transparent),
+                padding: const EdgeInsets.fromLTRB(20, 8, 8, 4),
+                child: Row(children: [
+                  Icon(Icons.drive_file_move_outlined, size: 18, color: cs.primary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(
+                    L10nManager.l10n.treeMoveTo(node.data.name),
+                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))),
+                  TextButton.icon(
+                    icon: const Icon(Icons.folder_open_outlined, size: 18),
+                    label: Text(L10nManager.l10n.treeRootDir),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final r = await _provider.batchUpdatePositions(
+                        ids: [node.data.id], parentIds: [null], sortOrders: [0]);
+                      if (r.ok && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
+                      }
+                    },
                   ),
-                  title: Text(L10nManager.l10n.treeRootDir, style: const TextStyle(fontWeight: FontWeight.w500)),
-                  subtitle: const Text(''),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  onTap: () async {
-                    Navigator.pop(ctx);
-                    final r = await _provider.batchUpdatePositions(
-                      ids: [node.data.id], parentIds: [null], sortOrders: [0],
-                    );
-                    if (r.ok && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
-                    }
-                  },
-                ),
+                ]),
               ),
-              Divider(height: 1, color: localColor.outline.withAlpha(20)),
-              // 树形列表
-              Expanded(
-                child: filtered.isEmpty
-                    ? Center(child: Text(L10nManager.l10n.treeNoOptions))
-                    : ListView(
-                        padding: const EdgeInsets.only(top: 4, bottom: 16),
-                        children: List.generate(filtered.length, (i) {
-                          final n = filtered[i];
-                          final lvColors = <int, Color>{
-                            0: localColor.primary, 1: localColor.tertiary,
-                            2: localColor.secondary, 3: localColor.primary.withValues(alpha: 0.55),
-                            4: localColor.tertiary.withValues(alpha: 0.55),
-                          };
-                          final dc = lvColors[n.level.clamp(0, 4)] ?? localColor.primary;
-                          return Padding(
-                            padding: EdgeInsets.only(left: n.level * 16.0),
-                            child: InkWell(
-                              onTap: () async {
-                                Navigator.pop(ctx);
-                                final r = await _provider.batchUpdatePositions(
-                                  ids: [node.data.id], parentIds: [n.data.id], sortOrders: [0],
-                                );
-                                if (r.ok && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
-                                }
-                              },
-                              child: Container(
-                                height: 44,
-                                padding: const EdgeInsets.only(left: 12),
-                                decoration: BoxDecoration(
-                                  border: Border(left: BorderSide(color: dc.withValues(alpha: 0.3), width: 3)),
-                                ),
-                                child: Row(children: [
-                                  Container(width: 6, height: 6, decoration: BoxDecoration(
-                                      shape: BoxShape.circle, color: dc.withValues(alpha: 0.5))),
-                                  const SizedBox(width: 10),
-                                  Text(n.data.name, style: Theme.of(ctx).textTheme.bodyMedium),
-                                ]),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
+              Divider(height: 1, color: cs.outline.withAlpha(20)),
+              // TreeSelectSheet (无外壳模式)
+              TreeSelectSheet<AccountCategory>(
+                filtered: filteredRoots,
+                displayField: (c) => c.name,
+                idField: (c) => c.id,
+                multiSelect: false,
+                noShell: true,
+                onNodeTap: (data) async {
+                  Navigator.pop(ctx);
+                  final r = await _provider.batchUpdatePositions(
+                    ids: [node.data.id], parentIds: [data.id], sortOrders: [0]);
+                  if (r.ok && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
+                  }
+                },
               ),
             ],
           ),

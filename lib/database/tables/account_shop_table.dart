@@ -39,7 +39,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
     String accountBookId, {
     required String name,
     String? parentId,
-    int sortOrder = 0,
+    int sortOrder = 1,
   }) =>
       AccountShopTableCompanion(
         id: Value(IdUtil.genId()),

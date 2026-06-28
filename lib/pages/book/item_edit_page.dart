@@ -382,6 +382,21 @@ class _AccountItemFormState extends State<_AccountItemForm> {
             displayField: (c) => c.name,
             idField: (c) => c.code,
             label: L10nManager.l10n.merchant,
+            allowCreate: true,
+            onCreateItem: (value) async {
+              final result = await DriverFactory.driver.createShop(
+                AppConfigManager.instance.userId,
+                provider.item.accountBookId,
+                name: value,
+              );
+              if (result.ok && result.data != null) {
+                await provider.loadShops(provider.item.accountBookId);
+                return provider.shops.cast<AccountShop>().firstWhere(
+                  (s) => s.name == value,
+                );
+              }
+              return null;
+            },
             onChanged: (value) async {
               if (value != null) {
                 await provider.updateShopAndSave(value.code, value.name);

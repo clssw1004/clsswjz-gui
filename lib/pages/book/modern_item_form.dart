@@ -574,6 +574,21 @@ class _ModernItemFormState extends State<ModernItemForm> {
           displayField: (c) => c.name,
           idField: (c) => c.code,
           label: L10nManager.l10n.merchant,
+          allowCreate: true,
+          onCreateItem: (value) async {
+            final result = await DriverFactory.driver.createShop(
+              AppConfigManager.instance.userId,
+              widget.provider.item.accountBookId,
+              name: value,
+            );
+            if (result.ok && result.data != null) {
+              await widget.provider.loadShops(widget.provider.item.accountBookId);
+              return widget.provider.shops.cast<AccountShop>().firstWhere(
+                (s) => s.name == value,
+              );
+            }
+            return null;
+          },
           onChanged: (value) {
             if (widget.autoSave) {
               provider.updateShopAndSave(value?.code, value?.name);

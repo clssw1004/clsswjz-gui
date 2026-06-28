@@ -10,6 +10,8 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
   final bool multiSelect;
   final bool showSearch;
   final bool cascadeSelect;
+  final bool allowCreate;
+  final Future<T?> Function(String value)? onCreateItem;
 
   TreeSelectFormField({
     super.key,
@@ -23,6 +25,8 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
     this.multiSelect = false,
     this.showSearch = true,
     this.cascadeSelect = true,
+    this.allowCreate = false,
+    this.onCreateItem,
     ValueChanged<dynamic>? onChanged,
     super.validator,
   }) : super(
@@ -46,6 +50,8 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
               multiSelect: multiSelect,
               showSearch: showSearch,
               cascadeSelect: cascadeSelect,
+              allowCreate: allowCreate,
+              onCreateItem: onCreateItem,
               onChanged: (v) {
                 state.didChange(v);
                 if (onChanged != null) onChanged(v);
@@ -67,6 +73,8 @@ class _TreeSelectWidget<T> extends StatefulWidget {
   final bool multiSelect;
   final bool showSearch;
   final bool cascadeSelect;
+  final bool allowCreate;
+  final Future<T?> Function(String value)? onCreateItem;
   final ValueChanged<dynamic>? onChanged;
 
   const _TreeSelectWidget({
@@ -81,6 +89,8 @@ class _TreeSelectWidget<T> extends StatefulWidget {
     this.multiSelect = false,
     this.showSearch = true,
     this.cascadeSelect = true,
+    this.allowCreate = false,
+    this.onCreateItem,
     this.onChanged,
   });
 
@@ -143,6 +153,8 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           multiSelect: true,
           label: widget.label,
           initialValue: widget.value,
+          allowCreate: widget.allowCreate,
+          onCreateItem: widget.onCreateItem,
         ),
       );
       if (result != null && mounted) {
@@ -167,6 +179,8 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           multiSelect: false,
           label: widget.label,
           initialValue: widget.value,
+          allowCreate: widget.allowCreate,
+          onCreateItem: widget.onCreateItem,
         ),
       );
       if (result != null && mounted) {

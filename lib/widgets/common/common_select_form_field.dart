@@ -9,6 +9,7 @@ import 'multi_select_dialog.dart';
 import 'selection_trigger.dart';
 import 'selection_sheet_shell.dart';
 import 'tree_select/tree_select_sheet.dart';
+import 'tree_select/tree_select_connector.dart';
 
 /// 展示模式
 enum DisplayMode {
@@ -196,6 +197,8 @@ class _CommonSelectFormFieldWidgetState<T>
           multiSelect: false,
           label: widget.label,
           initialValue: widget.value,
+          allowCreate: widget.allowCreate,
+          onCreateItem: widget.onCreateItem,
         ),
       );
       if (result != null && mounted) _handleItemChanged(result);
@@ -783,42 +786,51 @@ class _SheetItemTile<T> extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final name = displayField(item);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary.withAlpha(10) : null,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-          leading: Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelected ? colorScheme.primary : colorScheme.outline.withAlpha(40),
-            ),
-          ),
-          title: Text(
-            name,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : null,
-              color: isSelected ? colorScheme.primary : null,
-            ),
-          ),
-          trailing: isSelected
-              ? Icon(
-                  Icons.check_circle_rounded,
-                  color: colorScheme.primary,
-                  size: 22,
-                )
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.primary.withAlpha(25)
+            : Colors.transparent,
+        border: isSelected
+            ? Border(left: BorderSide(color: colorScheme.primary, width: 3))
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           onTap: onTap,
+          child: SizedBox(
+            height: 44,
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                LevelTab(level: 0, color: colorScheme.primary, isSelected: isSelected),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? colorScheme.primary : null,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -844,53 +856,48 @@ class _SheetCreateTile<T> extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: loading ? null : onCreate,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withAlpha(15),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.primary.withAlpha(6),
             ),
-            child: loading
-                ? Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: loading
+                      ? SizedBox(
+                          width: 18, height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.primary,
+                          ),
+                        )
+                      : Icon(Icons.add_rounded, size: 22, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    L10nManager.l10n.addNew(searchText),
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.primary,
+                      fontWeight: FontWeight.w500,
                     ),
-                  )
-                : Icon(Icons.add_rounded, size: 20, color: colorScheme.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              L10nManager.l10n.addNew(searchText),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          if (!loading)
-            TextButton(
-              onPressed: onCreate,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                foregroundColor: colorScheme.primary,
-              ),
-              child: Text(
-                L10nManager.l10n.create,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
