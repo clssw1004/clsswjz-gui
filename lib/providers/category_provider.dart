@@ -129,12 +129,13 @@ class CategoryProvider extends ChangeNotifier {
     return result;
   }
 
-  Future<OperateResult<void>> update(String id, {String? name}) async {
+  Future<OperateResult<void>> update(String id, {String? name, bool? isBookkeepingSelectable}) async {
     final result = await DriverFactory.driver.updateCategory(
       AppConfigManager.instance.userId,
       _currentBookId!,
       id,
       name: name,
+      isBookkeepingSelectable: isBookkeepingSelectable,
     );
     if (result.ok) {
       await loadTree(_currentBookId!);

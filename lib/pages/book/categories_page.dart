@@ -329,21 +329,55 @@ class _AccountCategoriesPageState extends State<AccountCategoriesPage> {
   }
 
   void _showEditDialog(AccountCategory category) {
-    final controller = TextEditingController(text: category.name);
+    final nameCtrl = TextEditingController(text: category.name);
+    bool selectable = category.isBookkeepingSelectable;
     showDialog(
       context: context,
-      builder: (ctx) => _TreeDialog(
-        title: L10nManager.l10n.treeEditName,
-        controller: controller,
-        hint: '输入新名称',
-        onConfirm: () async {
-          if (controller.text.trim().isEmpty) return false;
-          final result = await _provider.update(
-            category.id,
-            name: controller.text.trim(),
-          );
-          return result.ok;
-        },
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocalState) => AlertDialog(
+          title: Text(L10nManager.l10n.treeEditName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(hintText: '输入新名称'),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('记账时可选', style: Theme.of(context).textTheme.bodyMedium),
+                  ),
+                  Switch(
+                    value: selectable,
+                    onChanged: (v) => setLocalState(() => selectable = v),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(L10nManager.l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (nameCtrl.text.trim().isEmpty) return;
+                final result = await _provider.update(
+                  category.id,
+                  name: nameCtrl.text.trim(),
+                  isBookkeepingSelectable: selectable,
+                );
+                if (result.ok && ctx.mounted) Navigator.pop(ctx);
+              },
+              child: Text(L10nManager.l10n.confirm),
+            ),
+          ],
+        ),
       ),
     );
   }
