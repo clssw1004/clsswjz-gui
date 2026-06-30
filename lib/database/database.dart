@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,6 +141,15 @@ class AppDatabase extends _$AppDatabase {
               await m.addColumn(accountCategoryTable, accountCategoryTable.sortOrder);
               await m.addColumn(accountShopTable, accountShopTable.parentId);
               await m.addColumn(accountShopTable, accountShopTable.sortOrder);
+            } catch (_) {
+              // 列已存在时忽略
+            }
+          }
+          if (from < 17) {
+            // 版本16到版本17的迁移：分类/商户表新增isBookkeepingSelectable列
+            try {
+              await m.addColumn(accountCategoryTable, accountCategoryTable.isBookkeepingSelectable);
+              await m.addColumn(accountShopTable, accountShopTable.isBookkeepingSelectable);
             } catch (_) {
               // 列已存在时忽略
             }
