@@ -138,7 +138,19 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
     return filterNodes(widget.roots);
   }
 
+  bool Function(T data)? get _effectiveSelectableCheck {
+    if (widget.isSelectableCheck != null) return widget.isSelectableCheck;
+    return (data) {
+      try {
+        return (data as dynamic).isBookkeepingSelectable ?? true;
+      } catch (_) {
+        return true;
+      }
+    };
+  }
+
   Future<void> _showPicker() async {
+    final check = _effectiveSelectableCheck;
     if (widget.multiSelect) {
       final result = await showModalBottomSheet<List<String>>(
         context: context,
@@ -160,6 +172,7 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           initialValue: widget.value,
           allowCreate: widget.allowCreate,
           onCreateItem: widget.onCreateItem,
+          isSelectableCheck: check,
         ),
       );
       if (result != null && mounted) {
@@ -186,6 +199,7 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           initialValue: widget.value,
           allowCreate: widget.allowCreate,
           onCreateItem: widget.onCreateItem,
+          isSelectableCheck: check,
         ),
       );
       if (result != null && mounted) {

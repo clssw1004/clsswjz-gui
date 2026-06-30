@@ -199,6 +199,13 @@ class _CommonSelectFormFieldWidgetState<T>
           initialValue: widget.value,
           allowCreate: widget.allowCreate,
           onCreateItem: widget.onCreateItem,
+          isSelectableCheck: (data) {
+            try {
+              return (data as dynamic).isBookkeepingSelectable ?? true;
+            } catch (_) {
+              return true;
+            }
+          },
         ),
       );
       if (result != null && mounted) _handleItemChanged(result);
