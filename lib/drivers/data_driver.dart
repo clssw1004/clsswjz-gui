@@ -142,7 +142,7 @@ abstract class BookDataDriver {
   /// 分类相关
   /// 创建分类
   Future<OperateResult<String>> createCategory(String userId, String bookId,
-      {required String name, required String categoryType, String? parentId});
+      {required String name, required String categoryType, String? parentId, bool isBookkeepingSelectable = true});
 
   /// 删除分类
   Future<OperateResult<void>> deleteCategory(
@@ -151,7 +151,7 @@ abstract class BookDataDriver {
   /// 更新分类
   Future<OperateResult<void>> updateCategory(
       String userId, String bookId, String categoryId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt});
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable});
 
   /// 获取账本分类列表
   Future<OperateResult<List<AccountCategory>>> listCategoriesByBook(
@@ -180,7 +180,7 @@ abstract class BookDataDriver {
   /// 商家相关
   /// 创建商家
   Future<OperateResult<String>> createShop(String userId, String bookId,
-      {required String name, String? parentId});
+      {required String name, String? parentId, bool isBookkeepingSelectable = true});
 
   /// 删除商家
   Future<OperateResult<void>> deleteShop(
@@ -189,7 +189,7 @@ abstract class BookDataDriver {
   /// 更新商家
   Future<OperateResult<void>> updateShop(
       String userId, String bookId, String shopId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt});
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable});
 
   /// 获取账本商家列表
   Future<OperateResult<List<AccountShop>>> listShopsByBook(

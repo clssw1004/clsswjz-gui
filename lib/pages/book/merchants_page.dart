@@ -38,12 +38,26 @@ class _MerchantsPageState extends State<MerchantsPage> {
       builder: (context, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(L10nManager.l10n.merchant),
-            actions: const [],
+            title: Text(_provider.isBatchMode
+                ? '已选择 ${_provider.batchSelectedIds.length} 项'
+                : L10nManager.l10n.merchant),
+            actions: _provider.isBatchMode
+                ? [
+                    TextButton(
+                      onPressed: () => _provider.exitBatchMode(),
+                      child: Text(L10nManager.l10n.cancel),
+                    ),
+                  ]
+                : const [],
           ),
           body: _provider.tree.isEmpty
               ? _buildEmptyState(colorScheme)
-              : _buildTreeView(),
+              : Column(
+                  children: [
+                    Expanded(child: _buildTreeView()),
+                    _buildBatchPanel(),
+                  ],
+                ),
           floatingActionButton: FloatingActionButton.small(
             heroTag: 'add_shop',
             onPressed: () => _showAddDialog(null),
@@ -147,7 +161,10 @@ class _MerchantsPageState extends State<MerchantsPage> {
               _provider.toggleExpand(node.data.id);
             }
           },
-          onLongPress: () => _showEditDialog(node.data),
+          onLongPress: () {
+            _provider.enterBatchMode();
+            _provider.toggleBatchSelect(node.data.id);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: Row(
@@ -164,6 +181,14 @@ class _MerchantsPageState extends State<MerchantsPage> {
                   )
                 else
                   const SizedBox(width: 28),
+                if (_provider.isBatchMode)
+                  Checkbox(
+                    value: _provider.batchSelectedIds.contains(node.data.id),
+                    onChanged: (_) => _provider.toggleBatchSelect(node.data.id),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    activeColor: accent,
+                  ),
                 const SizedBox(width: 8),
                 Container(
                   width: 6, height: 6,
@@ -183,50 +208,52 @@ class _MerchantsPageState extends State<MerchantsPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // 查看账目
-                GestureDetector(
-                  onTap: () {
-                    final filter = ItemFilterDTO(
-                      shopCodes: _provider.expandCodes(node.data.code),
-                    );
-                    Navigator.of(context).pushNamed(
-                      AppRoutes.items,
-                      arguments: [widget.accountBook, filter, node.data.name],
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.receipt_long_outlined,
-                        size: 20, color: colorScheme.onSurfaceVariant),
+                if (!_provider.isBatchMode) ...[
+                  // 查看账目
+                  GestureDetector(
+                    onTap: () {
+                      final filter = ItemFilterDTO(
+                        shopCodes: _provider.expandCodes(node.data.code),
+                      );
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.items,
+                        arguments: [widget.accountBook, filter, node.data.name],
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(Icons.receipt_long_outlined,
+                          size: 20, color: colorScheme.onSurfaceVariant),
+                    ),
                   ),
-                ),
-                // 移动
-                GestureDetector(
-                  onTap: () => _showMoveDialog(node),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.drive_file_move_outlined,
-                        size: 18, color: colorScheme.onSurfaceVariant),
+                  // 移动
+                  GestureDetector(
+                    onTap: () => _showMoveDialog(node),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(Icons.drive_file_move_outlined,
+                          size: 18, color: colorScheme.onSurfaceVariant),
+                    ),
                   ),
-                ),
-                // 编辑
-                GestureDetector(
-                  onTap: () => _showEditDialog(node.data),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.edit_outlined,
-                        size: 18, color: colorScheme.onSurfaceVariant),
+                  // 编辑
+                  GestureDetector(
+                    onTap: () => _showEditDialog(node.data),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(Icons.edit_outlined,
+                          size: 18, color: colorScheme.onSurfaceVariant),
+                    ),
                   ),
-                ),
-                // 添加子商户
-                GestureDetector(
-                  onTap: () => _showAddDialog(node.data.id),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.add_circle_outline,
-                        size: 20, color: colorScheme.primary),
+                  // 添加子商户
+                  GestureDetector(
+                    onTap: () => _showAddDialog(node.data.id),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(Icons.add_circle_outline,
+                          size: 20, color: colorScheme.primary),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -256,21 +283,55 @@ class _MerchantsPageState extends State<MerchantsPage> {
   }
 
   void _showEditDialog(AccountShop shop) {
-    final controller = TextEditingController(text: shop.name);
+    final nameCtrl = TextEditingController(text: shop.name);
+    bool selectable = shop.isBookkeepingSelectable;
     showDialog(
       context: context,
-      builder: (ctx) => _MerchantDialog(
-        title: L10nManager.l10n.treeEditName,
-        controller: controller,
-        hint: '输入新名称',
-        onConfirm: () async {
-          if (controller.text.trim().isEmpty) return false;
-          final result = await _provider.update(
-            shop.id,
-            name: controller.text.trim(),
-          );
-          return result.ok;
-        },
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocalState) => AlertDialog(
+          title: Text(L10nManager.l10n.treeEditName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(hintText: '输入新名称'),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('记账时可选', style: Theme.of(context).textTheme.bodyMedium),
+                  ),
+                  Switch(
+                    value: selectable,
+                    onChanged: (v) => setLocalState(() => selectable = v),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(L10nManager.l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (nameCtrl.text.trim().isEmpty) return;
+                final result = await _provider.update(
+                  shop.id,
+                  name: nameCtrl.text.trim(),
+                  isBookkeepingSelectable: selectable,
+                );
+                if (result.ok && ctx.mounted) Navigator.pop(ctx);
+              },
+              child: Text(L10nManager.l10n.confirm),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -360,6 +421,119 @@ class _MerchantsPageState extends State<MerchantsPage> {
       },
     );
   }
+
+  Widget _buildBatchPanel() {
+    if (!_provider.isBatchMode || _provider.batchSelectedIds.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        border: Border(top: BorderSide(color: cs.outline.withAlpha(20))),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Text(
+              '已选择 ${_provider.batchSelectedIds.length} 项',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const Spacer(),
+            FilledButton.icon(
+              icon: const Icon(Icons.drive_file_move_outlined, size: 18),
+              label: const Text('移动到...'),
+              onPressed: () => _showBatchMoveDialog(),
+            ),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: () => _provider.exitBatchMode(),
+              child: const Text('取消'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBatchMoveDialog() async {
+    if (_provider.batchSelectedIds.isEmpty) return;
+    final radius = Theme.of(context).extension<ThemeRadius>()?.radius ?? 12;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
+      ),
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return Container(
+          height: MediaQuery.of(ctx).size.height * 0.75,
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 2),
+                child: Container(width: 36, height: 4,
+                  decoration: BoxDecoration(
+                    color: cs.onSurfaceVariant.withAlpha(50),
+                    borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 8, 4),
+                child: Row(children: [
+                  Icon(Icons.drive_file_move_outlined, size: 18, color: cs.primary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(
+                    '移动到...',
+                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))),
+                  TextButton.icon(
+                    icon: const Icon(Icons.folder_open_outlined, size: 18),
+                    label: Text(L10nManager.l10n.treeRootDir),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      await _provider.batchMove(null);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
+                      }
+                    },
+                  ),
+                ]),
+              ),
+              Divider(height: 1, color: cs.outline.withAlpha(20)),
+              TreeSelectSheet<AccountShop>(
+                filtered: _getMoveTree(),
+                displayField: (c) => c.name,
+                idField: (c) => c.id,
+                multiSelect: false,
+                noShell: true,
+                onNodeTap: (data) async {
+                  Navigator.pop(ctx);
+                  await _provider.batchMove(data.id);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(L10nManager.l10n.treeMoveSuccess)));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  List<TreeNode<AccountShop>> _getMoveTree() => _provider.tree;
 
 }
 

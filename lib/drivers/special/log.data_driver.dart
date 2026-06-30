@@ -373,7 +373,8 @@ class LogDataDriver implements BookDataDriver {
       {required String name,
       required String categoryType,
       String? code,
-      String? parentId}) async {
+      String? parentId,
+      bool isBookkeepingSelectable = true}) async {
     final category =
         await DaoManager.categoryDao.findByBookAndName(bookId, name);
     if (category != null) {
@@ -385,7 +386,8 @@ class LogDataDriver implements BookDataDriver {
             categoryType: categoryType,
             code: code,
             parentId: parentId,
-            sortOrder: maxSortOrder + 1)
+            sortOrder: maxSortOrder + 1,
+            isBookkeepingSelectable: isBookkeepingSelectable)
         .execute();
     return OperateResult.success(id);
   }
@@ -401,12 +403,13 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateCategory(
       String who, String bookId, String categoryId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) async {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) async {
     await CategoryCULog.update(who, bookId, categoryId,
             name: name,
             parentId: parentId,
             sortOrder: sortOrder,
-            lastAccountItemAt: lastAccountItemAt)
+            lastAccountItemAt: lastAccountItemAt,
+            isBookkeepingSelectable: isBookkeepingSelectable)
         .execute();
     return OperateResult.success(null);
   }
@@ -472,7 +475,7 @@ class LogDataDriver implements BookDataDriver {
   // 创建商家
   @override
   Future<OperateResult<String>> createShop(String who, String bookId,
-      {required String name, String? parentId}) async {
+      {required String name, String? parentId, bool isBookkeepingSelectable = true}) async {
     final shop = await DaoManager.shopDao.findByBookAndName(bookId, name);
     if (shop != null) {
       return OperateResult.success(shop.id);
@@ -481,7 +484,8 @@ class LogDataDriver implements BookDataDriver {
     final id = await ShopCULog.create(who, bookId,
             name: name,
             parentId: parentId,
-            sortOrder: maxSortOrder + 1)
+            sortOrder: maxSortOrder + 1,
+            isBookkeepingSelectable: isBookkeepingSelectable)
         .execute();
     return OperateResult.success(id);
   }
@@ -498,12 +502,13 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateShop(
       String who, String bookId, String shopId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) async {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) async {
     await ShopCULog.update(who, bookId, shopId,
             name: name,
             parentId: parentId,
             sortOrder: sortOrder,
-            lastAccountItemAt: lastAccountItemAt)
+            lastAccountItemAt: lastAccountItemAt,
+            isBookkeepingSelectable: isBookkeepingSelectable)
         .execute();
     return OperateResult.success(null);
   }

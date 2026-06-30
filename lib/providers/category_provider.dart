@@ -34,7 +34,36 @@ class CategoryProvider extends ChangeNotifier {
   final Set<String> _expandedIds = {};
   Set<String> get expandedIds => _expandedIds;
 
-  void toggleExpand(String id) {
+  final Set<String> _batchSelectedIds = {};
+  Set<String> get batchSelectedIds => Set.unmodifiable(_batchSelectedIds);
+
+  bool _isBatchMode = false;
+  bool get isBatchMode => _isBatchMode;
+
+  void enterBatchMode() {
+    _isBatchMode = true;
+    notifyListeners();
+  }
+
+  void exitBatchMode() {
+    _isBatchMode = false;
+    _batchSelectedIds.clear();
+    notifyListeners();
+  }
+
+  void toggleBatchSelect(String id) {
+    if (_batchSelectedIds.contains(id)) {
+      _batchSelectedIds.remove(id);
+    } else {
+      _batchSelectedIds.add(id);
+    }
+    if (_batchSelectedIds.isEmpty) {
+      _isBatchMode = false;
+    }
+    notifyListeners();
+  }
+
+    void toggleExpand(String id) {
     if (_expandedIds.contains(id)) {
       _expandedIds.remove(id);
     } else {
@@ -100,12 +129,13 @@ class CategoryProvider extends ChangeNotifier {
     return result;
   }
 
-  Future<OperateResult<void>> update(String id, {String? name}) async {
+  Future<OperateResult<void>> update(String id, {String? name, bool? isBookkeepingSelectable}) async {
     final result = await DriverFactory.driver.updateCategory(
       AppConfigManager.instance.userId,
       _currentBookId!,
       id,
       name: name,
+      isBookkeepingSelectable: isBookkeepingSelectable,
     );
     if (result.ok) {
       await loadTree(_currentBookId!);
@@ -147,4 +177,14 @@ class CategoryProvider extends ChangeNotifier {
     }
     return result;
   }
+
+    Future<void> batchMove(String? targetParentId) async {
+    if (_batchSelectedIds.isEmpty) return;
+    final ids = _batchSelectedIds.toList();
+    final parentIds = ids.map((_) => targetParentId).toList();
+    final sortOrders = List.generate(ids.length, (_) => 0);
+    await batchUpdatePositions(ids: ids, parentIds: parentIds, sortOrders: sortOrders);
+    exitBatchMode();
+  }
 }
+

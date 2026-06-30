@@ -55,7 +55,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   }
 
   static CategoryCULog create(String who, String bookId,
-      {required String name, required String categoryType, String? code, String? parentId, int sortOrder = 1}) {
+      {required String name, required String categoryType, String? code, String? parentId, int sortOrder = 1, bool isBookkeepingSelectable = true}) {
     return CategoryCULog()
         .who(who)
         .inBook(bookId)
@@ -68,11 +68,12 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
           code: code,
           parentId: parentId,
           sortOrder: sortOrder,
+          isBookkeepingSelectable: isBookkeepingSelectable,
         )) as CategoryCULog;
   }
 
   static CategoryCULog update(String userId, String bookId, String categoryId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) {
     return CategoryCULog()
         .who(userId)
         .inBook(bookId)
@@ -84,6 +85,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
           parentId: parentId,
           sortOrder: sortOrder,
           lastAccountItemAt: lastAccountItemAt,
+          isBookkeepingSelectable: isBookkeepingSelectable,
         )) as CategoryCULog;
   }
 
@@ -128,6 +130,7 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
   static CategoryCULog fromCreateLog(LogSync log) {
     final data = jsonDecode(log.operateData) as Map<String, dynamic>;
     data.putIfAbsent('sortOrder', () => 1);
+    data.putIfAbsent('isBookkeepingSelectable', () => true);
     return CategoryCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
@@ -141,7 +144,8 @@ class CategoryCULog extends LogBuilder<AccountCategoryTableCompanion, String> {
         name: data['name'],
         parentId: data['parentId'] as String?,
         sortOrder: data['sortOrder'] as int?,
-        lastAccountItemAt: data['lastAccountItemAt']);
+        lastAccountItemAt: data['lastAccountItemAt'],
+        isBookkeepingSelectable: data['isBookkeepingSelectable'] as bool?);
   }
 
   static CategoryCULog fromBatchUpdateLog(LogSync log) {

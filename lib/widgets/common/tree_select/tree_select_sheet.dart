@@ -97,6 +97,7 @@ class TreeSelectSheet<T> extends StatefulWidget {
   final Future<T?> Function(String value)? onCreateItem;
   final void Function(T data)? onNodeTap;
   final bool noShell;
+  final bool Function(T data)? isSelectableCheck;
 
   const TreeSelectSheet({
     super.key,
@@ -110,6 +111,7 @@ class TreeSelectSheet<T> extends StatefulWidget {
     this.onCreateItem,
     this.onNodeTap,
     this.noShell = false,
+    this.isSelectableCheck,
   });
 
   @override
@@ -205,6 +207,12 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
     // 自定义回调 → 委托外部
     if (widget.onNodeTap != null) {
       widget.onNodeTap!(node.data);
+      return;
+    }
+
+    // 不可选节点 → 仅展开
+    if (widget.isSelectableCheck != null && !widget.isSelectableCheck!(node.data)) {
+      if (node.children.isNotEmpty) _onToggleExpand(node);
       return;
     }
 
@@ -318,6 +326,9 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
           branchColor: branchColor(cs, visible[i].level),
           hasChildren: visible[i].children.isNotEmpty,
           isExpanded: _expandedIds.contains(widget.idField(visible[i].data)),
+          selectable: widget.isSelectableCheck != null
+              ? widget.isSelectableCheck!(visible[i].data)
+              : true,
           onTap: () => _onTapNode(visible[i]),
           onToggleExpand: visible[i].children.isNotEmpty
               ? () => _onToggleExpand(visible[i])

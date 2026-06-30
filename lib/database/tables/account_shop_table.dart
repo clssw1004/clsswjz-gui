@@ -12,6 +12,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
   TextColumn get code => text().named('code')();
   TextColumn get parentId => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  BoolColumn get isBookkeepingSelectable => boolean().withDefault(const Constant(true))();
 
   /// 创建更新伴生对象
   static AccountShopTableCompanion toUpdateCompanion(
@@ -20,6 +21,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
     String? parentId,
     int? sortOrder,
     String? lastAccountItemAt,
+    bool? isBookkeepingSelectable,
   }) {
     return AccountShopTableCompanion(
       updatedBy: Value(who),
@@ -28,6 +30,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
       parentId: Value.absentIfNull(parentId),
       sortOrder: Value.absentIfNull(sortOrder),
       lastAccountItemAt: Value.absentIfNull(lastAccountItemAt),
+      isBookkeepingSelectable: Value.absentIfNull(isBookkeepingSelectable),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
     );
@@ -40,6 +43,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
     required String name,
     String? parentId,
     int sortOrder = 1,
+    bool isBookkeepingSelectable = true,
   }) =>
       AccountShopTableCompanion(
         id: Value(IdUtil.genId()),
@@ -48,6 +52,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
         accountBookId: Value(accountBookId),
         parentId: Value.absentIfNull(parentId),
         sortOrder: Value(sortOrder),
+        isBookkeepingSelectable: Value(isBookkeepingSelectable),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
         updatedBy: Value(who),
@@ -66,6 +71,7 @@ class AccountShopTable extends DateBaseAccountBookTable {
     MapUtil.setIfPresent(map, 'code', companion.code);
     MapUtil.setIfPresent(map, 'parentId', companion.parentId);
     MapUtil.setIfPresent(map, 'sortOrder', companion.sortOrder);
+    MapUtil.setIfPresent(map, 'isBookkeepingSelectable', companion.isBookkeepingSelectable);
     MapUtil.setIfPresent(map, 'lastAccountItemAt', companion.lastAccountItemAt);
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     return jsonEncode(map);

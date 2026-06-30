@@ -1986,6 +1986,16 @@ class $AccountCategoryTableTable extends AccountCategoryTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _isBookkeepingSelectableMeta =
+      const VerificationMeta('isBookkeepingSelectable');
+  @override
+  late final GeneratedColumn<bool> isBookkeepingSelectable =
+      GeneratedColumn<bool>('is_bookkeeping_selectable', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("is_bookkeeping_selectable" IN (0, 1))'),
+          defaultValue: const Constant(true));
   @override
   List<GeneratedColumn> get $columns => [
         lastAccountItemAt,
@@ -1999,7 +2009,8 @@ class $AccountCategoryTableTable extends AccountCategoryTable
         code,
         categoryType,
         parentId,
-        sortOrder
+        sortOrder,
+        isBookkeepingSelectable
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2082,6 +2093,13 @@ class $AccountCategoryTableTable extends AccountCategoryTable
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
     }
+    if (data.containsKey('is_bookkeeping_selectable')) {
+      context.handle(
+          _isBookkeepingSelectableMeta,
+          isBookkeepingSelectable.isAcceptableOrUnknown(
+              data['is_bookkeeping_selectable']!,
+              _isBookkeepingSelectableMeta));
+    }
     return context;
   }
 
@@ -2119,6 +2137,9 @@ class $AccountCategoryTableTable extends AccountCategoryTable
           .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      isBookkeepingSelectable: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}is_bookkeeping_selectable'])!,
     );
   }
 
@@ -2141,6 +2162,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
   final String categoryType;
   final String? parentId;
   final int sortOrder;
+  final bool isBookkeepingSelectable;
   const AccountCategory(
       {this.lastAccountItemAt,
       required this.accountBookId,
@@ -2153,7 +2175,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       required this.code,
       required this.categoryType,
       this.parentId,
-      required this.sortOrder});
+      required this.sortOrder,
+      required this.isBookkeepingSelectable});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2173,6 +2196,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       map['parent_id'] = Variable<String>(parentId);
     }
     map['sort_order'] = Variable<int>(sortOrder);
+    map['is_bookkeeping_selectable'] = Variable<bool>(isBookkeepingSelectable);
     return map;
   }
 
@@ -2194,6 +2218,7 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           ? const Value.absent()
           : Value(parentId),
       sortOrder: Value(sortOrder),
+      isBookkeepingSelectable: Value(isBookkeepingSelectable),
     );
   }
 
@@ -2214,6 +2239,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       categoryType: serializer.fromJson<String>(json['categoryType']),
       parentId: serializer.fromJson<String?>(json['parentId']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      isBookkeepingSelectable:
+          serializer.fromJson<bool>(json['isBookkeepingSelectable']),
     );
   }
   @override
@@ -2232,6 +2259,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       'categoryType': serializer.toJson<String>(categoryType),
       'parentId': serializer.toJson<String?>(parentId),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'isBookkeepingSelectable':
+          serializer.toJson<bool>(isBookkeepingSelectable),
     };
   }
 
@@ -2247,7 +2276,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           String? code,
           String? categoryType,
           Value<String?> parentId = const Value.absent(),
-          int? sortOrder}) =>
+          int? sortOrder,
+          bool? isBookkeepingSelectable}) =>
       AccountCategory(
         lastAccountItemAt: lastAccountItemAt.present
             ? lastAccountItemAt.value
@@ -2263,6 +2293,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
         categoryType: categoryType ?? this.categoryType,
         parentId: parentId.present ? parentId.value : this.parentId,
         sortOrder: sortOrder ?? this.sortOrder,
+        isBookkeepingSelectable:
+            isBookkeepingSelectable ?? this.isBookkeepingSelectable,
       );
   AccountCategory copyWithCompanion(AccountCategoryTableCompanion data) {
     return AccountCategory(
@@ -2284,6 +2316,9 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           : this.categoryType,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      isBookkeepingSelectable: data.isBookkeepingSelectable.present
+          ? data.isBookkeepingSelectable.value
+          : this.isBookkeepingSelectable,
     );
   }
 
@@ -2301,7 +2336,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           ..write('code: $code, ')
           ..write('categoryType: $categoryType, ')
           ..write('parentId: $parentId, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isBookkeepingSelectable: $isBookkeepingSelectable')
           ..write(')'))
         .toString();
   }
@@ -2319,7 +2355,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
       code,
       categoryType,
       parentId,
-      sortOrder);
+      sortOrder,
+      isBookkeepingSelectable);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2335,7 +2372,8 @@ class AccountCategory extends DataClass implements Insertable<AccountCategory> {
           other.code == this.code &&
           other.categoryType == this.categoryType &&
           other.parentId == this.parentId &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.isBookkeepingSelectable == this.isBookkeepingSelectable);
 }
 
 class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
@@ -2351,6 +2389,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
   final Value<String> categoryType;
   final Value<String?> parentId;
   final Value<int> sortOrder;
+  final Value<bool> isBookkeepingSelectable;
   final Value<int> rowid;
   const AccountCategoryTableCompanion({
     this.lastAccountItemAt = const Value.absent(),
@@ -2365,6 +2404,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     this.categoryType = const Value.absent(),
     this.parentId = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.isBookkeepingSelectable = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountCategoryTableCompanion.insert({
@@ -2380,6 +2420,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     required String categoryType,
     this.parentId = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.isBookkeepingSelectable = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -2403,6 +2444,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     Expression<String>? categoryType,
     Expression<String>? parentId,
     Expression<int>? sortOrder,
+    Expression<bool>? isBookkeepingSelectable,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2418,6 +2460,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       if (categoryType != null) 'category_type': categoryType,
       if (parentId != null) 'parent_id': parentId,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (isBookkeepingSelectable != null)
+        'is_bookkeeping_selectable': isBookkeepingSelectable,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2435,6 +2479,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       Value<String>? categoryType,
       Value<String?>? parentId,
       Value<int>? sortOrder,
+      Value<bool>? isBookkeepingSelectable,
       Value<int>? rowid}) {
     return AccountCategoryTableCompanion(
       lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
@@ -2449,6 +2494,8 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
       categoryType: categoryType ?? this.categoryType,
       parentId: parentId ?? this.parentId,
       sortOrder: sortOrder ?? this.sortOrder,
+      isBookkeepingSelectable:
+          isBookkeepingSelectable ?? this.isBookkeepingSelectable,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2492,6 +2539,10 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (isBookkeepingSelectable.present) {
+      map['is_bookkeeping_selectable'] =
+          Variable<bool>(isBookkeepingSelectable.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2513,6 +2564,7 @@ class AccountCategoryTableCompanion extends UpdateCompanion<AccountCategory> {
           ..write('categoryType: $categoryType, ')
           ..write('parentId: $parentId, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('isBookkeepingSelectable: $isBookkeepingSelectable, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3204,6 +3256,16 @@ class $AccountShopTableTable extends AccountShopTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _isBookkeepingSelectableMeta =
+      const VerificationMeta('isBookkeepingSelectable');
+  @override
+  late final GeneratedColumn<bool> isBookkeepingSelectable =
+      GeneratedColumn<bool>('is_bookkeeping_selectable', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("is_bookkeeping_selectable" IN (0, 1))'),
+          defaultValue: const Constant(true));
   @override
   List<GeneratedColumn> get $columns => [
         lastAccountItemAt,
@@ -3216,7 +3278,8 @@ class $AccountShopTableTable extends AccountShopTable
         name,
         code,
         parentId,
-        sortOrder
+        sortOrder,
+        isBookkeepingSelectable
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3291,6 +3354,13 @@ class $AccountShopTableTable extends AccountShopTable
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
     }
+    if (data.containsKey('is_bookkeeping_selectable')) {
+      context.handle(
+          _isBookkeepingSelectableMeta,
+          isBookkeepingSelectable.isAcceptableOrUnknown(
+              data['is_bookkeeping_selectable']!,
+              _isBookkeepingSelectableMeta));
+    }
     return context;
   }
 
@@ -3322,6 +3392,9 @@ class $AccountShopTableTable extends AccountShopTable
           .read(DriftSqlType.string, data['${effectivePrefix}parent_id']),
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      isBookkeepingSelectable: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}is_bookkeeping_selectable'])!,
     );
   }
 
@@ -3343,6 +3416,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
   final String code;
   final String? parentId;
   final int sortOrder;
+  final bool isBookkeepingSelectable;
   const AccountShop(
       {this.lastAccountItemAt,
       required this.accountBookId,
@@ -3354,7 +3428,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       required this.name,
       required this.code,
       this.parentId,
-      required this.sortOrder});
+      required this.sortOrder,
+      required this.isBookkeepingSelectable});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3373,6 +3448,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       map['parent_id'] = Variable<String>(parentId);
     }
     map['sort_order'] = Variable<int>(sortOrder);
+    map['is_bookkeeping_selectable'] = Variable<bool>(isBookkeepingSelectable);
     return map;
   }
 
@@ -3393,6 +3469,7 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           ? const Value.absent()
           : Value(parentId),
       sortOrder: Value(sortOrder),
+      isBookkeepingSelectable: Value(isBookkeepingSelectable),
     );
   }
 
@@ -3412,6 +3489,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       code: serializer.fromJson<String>(json['code']),
       parentId: serializer.fromJson<String?>(json['parentId']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      isBookkeepingSelectable:
+          serializer.fromJson<bool>(json['isBookkeepingSelectable']),
     );
   }
   @override
@@ -3429,6 +3508,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       'code': serializer.toJson<String>(code),
       'parentId': serializer.toJson<String?>(parentId),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'isBookkeepingSelectable':
+          serializer.toJson<bool>(isBookkeepingSelectable),
     };
   }
 
@@ -3443,7 +3524,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           String? name,
           String? code,
           Value<String?> parentId = const Value.absent(),
-          int? sortOrder}) =>
+          int? sortOrder,
+          bool? isBookkeepingSelectable}) =>
       AccountShop(
         lastAccountItemAt: lastAccountItemAt.present
             ? lastAccountItemAt.value
@@ -3458,6 +3540,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
         code: code ?? this.code,
         parentId: parentId.present ? parentId.value : this.parentId,
         sortOrder: sortOrder ?? this.sortOrder,
+        isBookkeepingSelectable:
+            isBookkeepingSelectable ?? this.isBookkeepingSelectable,
       );
   AccountShop copyWithCompanion(AccountShopTableCompanion data) {
     return AccountShop(
@@ -3476,6 +3560,9 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
       code: data.code.present ? data.code.value : this.code,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      isBookkeepingSelectable: data.isBookkeepingSelectable.present
+          ? data.isBookkeepingSelectable.value
+          : this.isBookkeepingSelectable,
     );
   }
 
@@ -3492,14 +3579,26 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           ..write('name: $name, ')
           ..write('code: $code, ')
           ..write('parentId: $parentId, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isBookkeepingSelectable: $isBookkeepingSelectable')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(lastAccountItemAt, accountBookId, createdBy,
-      updatedBy, createdAt, updatedAt, id, name, code, parentId, sortOrder);
+  int get hashCode => Object.hash(
+      lastAccountItemAt,
+      accountBookId,
+      createdBy,
+      updatedBy,
+      createdAt,
+      updatedAt,
+      id,
+      name,
+      code,
+      parentId,
+      sortOrder,
+      isBookkeepingSelectable);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3514,7 +3613,8 @@ class AccountShop extends DataClass implements Insertable<AccountShop> {
           other.name == this.name &&
           other.code == this.code &&
           other.parentId == this.parentId &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.isBookkeepingSelectable == this.isBookkeepingSelectable);
 }
 
 class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
@@ -3529,6 +3629,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
   final Value<String> code;
   final Value<String?> parentId;
   final Value<int> sortOrder;
+  final Value<bool> isBookkeepingSelectable;
   final Value<int> rowid;
   const AccountShopTableCompanion({
     this.lastAccountItemAt = const Value.absent(),
@@ -3542,6 +3643,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     this.code = const Value.absent(),
     this.parentId = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.isBookkeepingSelectable = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountShopTableCompanion.insert({
@@ -3556,6 +3658,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     required String code,
     this.parentId = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.isBookkeepingSelectable = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : accountBookId = Value(accountBookId),
         createdBy = Value(createdBy),
@@ -3577,6 +3680,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     Expression<String>? code,
     Expression<String>? parentId,
     Expression<int>? sortOrder,
+    Expression<bool>? isBookkeepingSelectable,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3591,6 +3695,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       if (code != null) 'code': code,
       if (parentId != null) 'parent_id': parentId,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (isBookkeepingSelectable != null)
+        'is_bookkeeping_selectable': isBookkeepingSelectable,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3607,6 +3713,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       Value<String>? code,
       Value<String?>? parentId,
       Value<int>? sortOrder,
+      Value<bool>? isBookkeepingSelectable,
       Value<int>? rowid}) {
     return AccountShopTableCompanion(
       lastAccountItemAt: lastAccountItemAt ?? this.lastAccountItemAt,
@@ -3620,6 +3727,8 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
       code: code ?? this.code,
       parentId: parentId ?? this.parentId,
       sortOrder: sortOrder ?? this.sortOrder,
+      isBookkeepingSelectable:
+          isBookkeepingSelectable ?? this.isBookkeepingSelectable,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3660,6 +3769,10 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (isBookkeepingSelectable.present) {
+      map['is_bookkeeping_selectable'] =
+          Variable<bool>(isBookkeepingSelectable.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3680,6 +3793,7 @@ class AccountShopTableCompanion extends UpdateCompanion<AccountShop> {
           ..write('code: $code, ')
           ..write('parentId: $parentId, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('isBookkeepingSelectable: $isBookkeepingSelectable, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14206,6 +14320,7 @@ typedef $$AccountCategoryTableTableCreateCompanionBuilder
   required String categoryType,
   Value<String?> parentId,
   Value<int> sortOrder,
+  Value<bool> isBookkeepingSelectable,
   Value<int> rowid,
 });
 typedef $$AccountCategoryTableTableUpdateCompanionBuilder
@@ -14222,6 +14337,7 @@ typedef $$AccountCategoryTableTableUpdateCompanionBuilder
   Value<String> categoryType,
   Value<String?> parentId,
   Value<int> sortOrder,
+  Value<bool> isBookkeepingSelectable,
   Value<int> rowid,
 });
 
@@ -14270,6 +14386,10 @@ class $$AccountCategoryTableTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountCategoryTableTableOrderingComposer
@@ -14319,6 +14439,10 @@ class $$AccountCategoryTableTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountCategoryTableTableAnnotationComposer
@@ -14365,6 +14489,9 @@ class $$AccountCategoryTableTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable, builder: (column) => column);
 }
 
 class $$AccountCategoryTableTableTableManager extends RootTableManager<
@@ -14408,6 +14535,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             Value<String> categoryType = const Value.absent(),
             Value<String?> parentId = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<bool> isBookkeepingSelectable = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion(
@@ -14423,6 +14551,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             categoryType: categoryType,
             parentId: parentId,
             sortOrder: sortOrder,
+            isBookkeepingSelectable: isBookkeepingSelectable,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14438,6 +14567,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             required String categoryType,
             Value<String?> parentId = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<bool> isBookkeepingSelectable = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountCategoryTableCompanion.insert(
@@ -14453,6 +14583,7 @@ class $$AccountCategoryTableTableTableManager extends RootTableManager<
             categoryType: categoryType,
             parentId: parentId,
             sortOrder: sortOrder,
+            isBookkeepingSelectable: isBookkeepingSelectable,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -14774,6 +14905,7 @@ typedef $$AccountShopTableTableCreateCompanionBuilder
   required String code,
   Value<String?> parentId,
   Value<int> sortOrder,
+  Value<bool> isBookkeepingSelectable,
   Value<int> rowid,
 });
 typedef $$AccountShopTableTableUpdateCompanionBuilder
@@ -14789,6 +14921,7 @@ typedef $$AccountShopTableTableUpdateCompanionBuilder
   Value<String> code,
   Value<String?> parentId,
   Value<int> sortOrder,
+  Value<bool> isBookkeepingSelectable,
   Value<int> rowid,
 });
 
@@ -14834,6 +14967,10 @@ class $$AccountShopTableTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountShopTableTableOrderingComposer
@@ -14879,6 +15016,10 @@ class $$AccountShopTableTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountShopTableTableAnnotationComposer
@@ -14922,6 +15063,9 @@ class $$AccountShopTableTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isBookkeepingSelectable => $composableBuilder(
+      column: $table.isBookkeepingSelectable, builder: (column) => column);
 }
 
 class $$AccountShopTableTableTableManager extends RootTableManager<
@@ -14962,6 +15106,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             Value<String> code = const Value.absent(),
             Value<String?> parentId = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<bool> isBookkeepingSelectable = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion(
@@ -14976,6 +15121,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             code: code,
             parentId: parentId,
             sortOrder: sortOrder,
+            isBookkeepingSelectable: isBookkeepingSelectable,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14990,6 +15136,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             required String code,
             Value<String?> parentId = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<bool> isBookkeepingSelectable = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountShopTableCompanion.insert(
@@ -15004,6 +15151,7 @@ class $$AccountShopTableTableTableManager extends RootTableManager<
             code: code,
             parentId: parentId,
             sortOrder: sortOrder,
+            isBookkeepingSelectable: isBookkeepingSelectable,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

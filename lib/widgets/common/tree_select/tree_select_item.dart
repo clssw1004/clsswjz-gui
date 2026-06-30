@@ -15,6 +15,7 @@ class TreeSelectItem<T> extends StatefulWidget {
   final Color branchColor;
   final bool hasChildren;
   final bool isExpanded;
+  final bool selectable;
   final VoidCallback onTap;
   final VoidCallback? onToggleExpand;
 
@@ -28,6 +29,7 @@ class TreeSelectItem<T> extends StatefulWidget {
     required this.branchColor,
     required this.hasChildren,
     required this.isExpanded,
+    this.selectable = true,
     required this.onTap,
     this.onToggleExpand,
   });
@@ -82,6 +84,8 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final cs = theme.colorScheme;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       color: widget.isChecked
@@ -90,19 +94,26 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _handleTap,
+          onTap: widget.selectable ? _handleTap : null,
           child: SizedBox(
             height: 44,
             child: Row(
               children: [
-                // 层级缩进 + 渐变箭头
+                // 层级缩进
                 SizedBox(width: widget.level * 26.0),
                 LevelTab(
                   level: widget.level,
-                  color: theme.colorScheme.primary,
+                  color: widget.branchColor,
                   isSelected: widget.isChecked,
                 ),
                 const SizedBox(width: 10),
+                // 锁定图标（仅不可选节点）
+                if (!widget.selectable)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Icon(Icons.lock_outline,
+                        size: 16, color: cs.onSurfaceVariant.withAlpha(120)),
+                  ),
                 // 文本
                 Expanded(
                   child: Text(
@@ -116,7 +127,7 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // 右侧固定图标区（48px），箭头固定最右，勾勾在其左
+                // 右侧固定图标区（48px）
                 SizedBox(
                   width: 48,
                   child: Stack(
