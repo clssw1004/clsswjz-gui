@@ -58,6 +58,7 @@ class ActionValueSelector extends StatelessWidget {
           value: value,
           displayField: (s) => s.name,
           idField: (s) => s.code,
+          isSelectableCheck: (data) => true,
           label: '商家',
           onChanged: (v) {
             if (v is AccountShop) onChanged(v.code);

@@ -522,6 +522,7 @@ class ConditionValueSelector extends StatelessWidget {
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (c) => c.name,
           idField: (c) => c.code,
+          isSelectableCheck: (data) => true,
           label: '分类',
           multiSelect: multiSelect,
           onChanged: onChanged ?? (v) {
@@ -550,6 +551,7 @@ class ConditionValueSelector extends StatelessWidget {
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (s) => s.name,
           idField: (s) => s.code,
+          isSelectableCheck: (data) => true,
           label: '商家',
           multiSelect: multiSelect,
           onChanged: onChanged ?? (v) {
