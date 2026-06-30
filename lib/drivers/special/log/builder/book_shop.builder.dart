@@ -54,7 +54,7 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
   }
 
   static ShopCULog create(String who, String bookId,
-      {required String name, String? parentId, int sortOrder = 1}) {
+      {required String name, String? parentId, int sortOrder = 1, bool isBookkeepingSelectable = true}) {
     return ShopCULog()
         .who(who)
         .inBook(bookId)
@@ -65,11 +65,12 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
           name: name,
           parentId: parentId,
           sortOrder: sortOrder,
+          isBookkeepingSelectable: isBookkeepingSelectable,
         )) as ShopCULog;
   }
 
   static ShopCULog update(String userId, String bookId, String shopId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt}) {
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) {
     return ShopCULog()
         .who(userId)
         .inBook(bookId)
@@ -81,12 +82,14 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
           parentId: parentId,
           sortOrder: sortOrder,
           lastAccountItemAt: lastAccountItemAt,
+          isBookkeepingSelectable: isBookkeepingSelectable,
         )) as ShopCULog;
   }
 
   static ShopCULog fromCreateLog(LogSync log) {
     final data = jsonDecode(log.operateData) as Map<String, dynamic>;
     data.putIfAbsent('sortOrder', () => 1);
+    data.putIfAbsent('isBookkeepingSelectable', () => true);
     return ShopCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
@@ -100,7 +103,8 @@ class ShopCULog extends LogBuilder<AccountShopTableCompanion, String> {
         name: data['name'],
         parentId: data['parentId'] as String?,
         sortOrder: data['sortOrder'] as int?,
-        lastAccountItemAt: data['lastAccountItemAt']);
+        lastAccountItemAt: data['lastAccountItemAt'],
+        isBookkeepingSelectable: data['isBookkeepingSelectable'] as bool?);
   }
 
   static ShopCULog fromBatchUpdateLog(LogSync log) {
