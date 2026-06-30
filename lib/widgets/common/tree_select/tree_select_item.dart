@@ -84,7 +84,7 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final opacity = widget.selectable ? 1.0 : 0.4;
+    final cs = theme.colorScheme;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
@@ -97,78 +97,82 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
           onTap: widget.selectable ? _handleTap : null,
           child: SizedBox(
             height: 44,
-            child: Opacity(
-              opacity: opacity,
-              child: Row(
-                children: [
-                  // 层级缩进
-                  SizedBox(width: widget.level * 26.0),
-                  LevelTab(
-                    level: widget.level,
-                    color: widget.branchColor,
-                    isSelected: widget.isChecked,
+            child: Row(
+              children: [
+                // 层级缩进
+                SizedBox(width: widget.level * 26.0),
+                LevelTab(
+                  level: widget.level,
+                  color: widget.branchColor,
+                  isSelected: widget.isChecked,
+                ),
+                const SizedBox(width: 10),
+                // 锁定图标（仅不可选节点）
+                if (!widget.selectable)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Icon(Icons.lock_outline,
+                        size: 16, color: cs.onSurfaceVariant.withAlpha(120)),
                   ),
-                  const SizedBox(width: 10),
-                  // 文本
-                  Expanded(
-                    child: Text(
-                      widget.displayText,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight:
-                            widget.isChecked ? FontWeight.w600 : FontWeight.w400,
-                        color: widget.isChecked ? widget.branchColor : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                // 文本
+                Expanded(
+                  child: Text(
+                    widget.displayText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight:
+                          widget.isChecked ? FontWeight.w600 : FontWeight.w400,
+                      color: widget.isChecked ? widget.branchColor : null,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  // 右侧固定图标区（48px）
-                  SizedBox(
-                    width: 48,
-                    child: Stack(
-                      alignment: Alignment.centerRight,
-                      children: [
-                        if (widget.hasChildren)
-                          Positioned(
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                widget.onToggleExpand?.call();
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: AnimatedRotation(
-                                turns: widget.isExpanded ? 0.5 : 0.0,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                                child: Icon(
-                                  Icons.arrow_drop_down_rounded,
-                                  size: 24,
-                                  color: theme.colorScheme
-                                      .onSurfaceVariant
-                                      .withAlpha(100),
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (widget.isChecked)
-                          Positioned(
-                            right: 28,
-                            child: ScaleTransition(
-                              scale: _checkScale,
+                ),
+                // 右侧固定图标区（48px）
+                SizedBox(
+                  width: 48,
+                  child: Stack(
+                    alignment: Alignment.centerRight,
+                    children: [
+                      if (widget.hasChildren)
+                        Positioned(
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              widget.onToggleExpand?.call();
+                            },
+                            behavior: HitTestBehavior.opaque,
+                            child: AnimatedRotation(
+                              turns: widget.isExpanded ? 0.5 : 0.0,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeInOut,
                               child: Icon(
-                                Icons.check_circle_rounded,
-                                color: theme.colorScheme.primary,
-                                size: 20,
+                                Icons.arrow_drop_down_rounded,
+                                size: 24,
+                                color: theme.colorScheme
+                                    .onSurfaceVariant
+                                    .withAlpha(100),
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      if (widget.isChecked)
+                        Positioned(
+                          right: 28,
+                          child: ScaleTransition(
+                            scale: _checkScale,
+                            child: Icon(
+                              Icons.check_circle_rounded,
+                              color: theme.colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+              ],
             ),
           ),
         ),
