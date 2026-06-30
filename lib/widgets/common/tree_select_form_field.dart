@@ -12,6 +12,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
   final bool cascadeSelect;
   final bool allowCreate;
   final Future<T?> Function(String value)? onCreateItem;
+  final bool Function(T data)? isSelectableCheck;
 
   TreeSelectFormField({
     super.key,
@@ -27,6 +28,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
     this.cascadeSelect = true,
     this.allowCreate = false,
     this.onCreateItem,
+    this.isSelectableCheck,
     ValueChanged<dynamic>? onChanged,
     super.validator,
   }) : super(
@@ -52,6 +54,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
               cascadeSelect: cascadeSelect,
               allowCreate: allowCreate,
               onCreateItem: onCreateItem,
+              isSelectableCheck: isSelectableCheck,
               onChanged: (v) {
                 state.didChange(v);
                 if (onChanged != null) onChanged(v);
@@ -75,6 +78,7 @@ class _TreeSelectWidget<T> extends StatefulWidget {
   final bool cascadeSelect;
   final bool allowCreate;
   final Future<T?> Function(String value)? onCreateItem;
+  final bool Function(T data)? isSelectableCheck;
   final ValueChanged<dynamic>? onChanged;
 
   const _TreeSelectWidget({
@@ -91,6 +95,7 @@ class _TreeSelectWidget<T> extends StatefulWidget {
     this.cascadeSelect = true,
     this.allowCreate = false,
     this.onCreateItem,
+    this.isSelectableCheck,
     this.onChanged,
   });
 

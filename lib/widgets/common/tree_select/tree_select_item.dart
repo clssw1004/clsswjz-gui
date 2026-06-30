@@ -15,6 +15,7 @@ class TreeSelectItem<T> extends StatefulWidget {
   final Color branchColor;
   final bool hasChildren;
   final bool isExpanded;
+  final bool selectable;
   final VoidCallback onTap;
   final VoidCallback? onToggleExpand;
 
@@ -28,6 +29,7 @@ class TreeSelectItem<T> extends StatefulWidget {
     required this.branchColor,
     required this.hasChildren,
     required this.isExpanded,
+    this.selectable = true,
     required this.onTap,
     this.onToggleExpand,
   });
@@ -82,6 +84,8 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final opacity = widget.selectable ? 1.0 : 0.4;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       color: widget.isChecked
@@ -90,78 +94,81 @@ class _TreeSelectItemState<T> extends State<TreeSelectItem<T>>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _handleTap,
+          onTap: widget.selectable ? _handleTap : null,
           child: SizedBox(
             height: 44,
-            child: Row(
-              children: [
-                // 层级缩进 + 渐变箭头
-                SizedBox(width: widget.level * 26.0),
-                LevelTab(
-                  level: widget.level,
-                  color: theme.colorScheme.primary,
-                  isSelected: widget.isChecked,
-                ),
-                const SizedBox(width: 10),
-                // 文本
-                Expanded(
-                  child: Text(
-                    widget.displayText,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight:
-                          widget.isChecked ? FontWeight.w600 : FontWeight.w400,
-                      color: widget.isChecked ? widget.branchColor : null,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            child: Opacity(
+              opacity: opacity,
+              child: Row(
+                children: [
+                  // 层级缩进
+                  SizedBox(width: widget.level * 26.0),
+                  LevelTab(
+                    level: widget.level,
+                    color: widget.branchColor,
+                    isSelected: widget.isChecked,
                   ),
-                ),
-                // 右侧固定图标区（48px），箭头固定最右，勾勾在其左
-                SizedBox(
-                  width: 48,
-                  child: Stack(
-                    alignment: Alignment.centerRight,
-                    children: [
-                      if (widget.hasChildren)
-                        Positioned(
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              widget.onToggleExpand?.call();
-                            },
-                            behavior: HitTestBehavior.opaque,
-                            child: AnimatedRotation(
-                              turns: widget.isExpanded ? 0.5 : 0.0,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeInOut,
-                              child: Icon(
-                                Icons.arrow_drop_down_rounded,
-                                size: 24,
-                                color: theme.colorScheme
-                                    .onSurfaceVariant
-                                    .withAlpha(100),
+                  const SizedBox(width: 10),
+                  // 文本
+                  Expanded(
+                    child: Text(
+                      widget.displayText,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight:
+                            widget.isChecked ? FontWeight.w600 : FontWeight.w400,
+                        color: widget.isChecked ? widget.branchColor : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // 右侧固定图标区（48px）
+                  SizedBox(
+                    width: 48,
+                    child: Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        if (widget.hasChildren)
+                          Positioned(
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                widget.onToggleExpand?.call();
+                              },
+                              behavior: HitTestBehavior.opaque,
+                              child: AnimatedRotation(
+                                turns: widget.isExpanded ? 0.5 : 0.0,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                child: Icon(
+                                  Icons.arrow_drop_down_rounded,
+                                  size: 24,
+                                  color: theme.colorScheme
+                                      .onSurfaceVariant
+                                      .withAlpha(100),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      if (widget.isChecked)
-                        Positioned(
-                          right: 28,
-                          child: ScaleTransition(
-                            scale: _checkScale,
-                            child: Icon(
-                              Icons.check_circle_rounded,
-                              color: theme.colorScheme.primary,
-                              size: 20,
+                        if (widget.isChecked)
+                          Positioned(
+                            right: 28,
+                            child: ScaleTransition(
+                              scale: _checkScale,
+                              child: Icon(
+                                Icons.check_circle_rounded,
+                                color: theme.colorScheme.primary,
+                                size: 20,
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-              ],
+                  const SizedBox(width: 8),
+                ],
+              ),
             ),
           ),
         ),
