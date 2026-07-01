@@ -116,7 +116,7 @@ class _BookSectionState extends State<_BookSection> with SingleTickerProviderSta
 
   List<Widget> _buildRows(ThemeData theme, ColorScheme cs) {
     final rows = <Widget>[];
-    const int cols = 3;
+    const int cols = 4;
     for (var i = 0; i < widget.items.length; i += cols) {
       final end = (i + cols > widget.items.length) ? widget.items.length : i + cols;
       final rowItems = widget.items.sublist(i, end);
@@ -124,25 +124,32 @@ class _BookSectionState extends State<_BookSection> with SingleTickerProviderSta
         Padding(
           padding: EdgeInsets.only(top: i > 0 ? 4 : 0),
           child: Row(
-            children: rowItems.map((item) => Expanded(
-              child: InkWell(
-                onTap: item.onTap,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(item.icon, size: 22, color: cs.primary),
-                      const SizedBox(height: 4),
-                      Text(item.label,
-                        style: TextStyle(fontSize: 11, color: cs.onSurface, fontWeight: FontWeight.w500),
-                        maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
-                    ],
+            children: List.generate(cols, (colIndex) {
+              if (colIndex < rowItems.length) {
+                final item = rowItems[colIndex];
+                return Expanded(
+                  child: InkWell(
+                    onTap: item.onTap,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(item.icon, size: 24, color: cs.primary),
+                          const SizedBox(height: 4),
+                          Text(item.label,
+                            style: TextStyle(fontSize: 11, color: cs.onSurface, fontWeight: FontWeight.w500),
+                            maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            )).toList(),
+                );
+              }
+              return const Expanded(child: SizedBox.shrink());
+            }),
           ),
         ),
       );
@@ -539,6 +546,7 @@ class _MineTabView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(item.icon, size: 24, color: colorScheme.primary),
                   const SizedBox(height: 4),
