@@ -23,9 +23,10 @@ import '../../widgets/book/animated_type_toggle.dart';
 import '../../widgets/book/calculator_panel.dart';
 import '../../widgets/common/common_attachment_field.dart';
 import '../../widgets/common/common_badge.dart';
-import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/multi_select_dialog.dart';
+import '../../widgets/common/multi_select_sheet.dart';
 import '../../widgets/common/tree_select_form_field.dart';
 
 /// 新版账目表单组件
@@ -622,16 +623,18 @@ class _ModernItemFormState extends State<ModernItemForm> {
             runSpacing: 8,
             alignment: WrapAlignment.start,
             children: [
-              CommonSelectFormField<AccountSymbol>(
-                items: provider.tags.cast<AccountSymbol>(),
-                value: item.tags.map((t) => t.code).toList(),
-                multiSelect: true,
-                label: L10nManager.l10n.tag,
-                displayField: (e) => e.name,
-                keyField: (e) => e.code,
-                icon: Icons.local_offer_outlined,
-                hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.tag),
-                onCreateItem: (value) async {
+              _TagBadge(
+                colorScheme: colorScheme,
+                tags: item.tags,
+                allTags: provider.tags.cast<AccountSymbol>(),
+                onChanged: (selectedTags) {
+                  if (widget.autoSave) {
+                    provider.updateTagsAndSave(selectedTags);
+                  } else {
+                    provider.updateTags(selectedTags);
+                  }
+                },
+                onCreate: (value) async {
                   final result = await DriverFactory.driver.createSymbol(
                     AppConfigManager.instance.userId,
                     provider.bookMeta.id,
@@ -646,16 +649,7 @@ class _ModernItemFormState extends State<ModernItemForm> {
                   }
                   return null;
                 },
-                onChanged: (selected) {
-                  final selectedTags = provider.tags.cast<AccountSymbol>()
-                      .where((t) => (selected as List).contains(t.code))
-                      .toList();
-                  if (widget.autoSave) {
-                    provider.updateTagsAndSave(selectedTags);
-                  } else {
-                    provider.updateTags(selectedTags);
-                  }
-                },
+                bookId: provider.bookMeta.id,
               ),
               CommonSelectFormField<AccountSymbol>(
                 items: provider.projects.cast<AccountSymbol>(),
@@ -914,6 +908,58 @@ class _BookPickerSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 标签多选徽标组件 — 0/1/多选三种显示状态
+class _TagBadge extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final List<AccountSymbol> tags;
+  final List<AccountSymbol> allTags;
+  final ValueChanged<List<AccountSymbol>> onChanged;
+  final Future<AccountSymbol?> Function(String value) onCreate;
+  final String bookId;
+
+  const _TagBadge({
+    required this.colorScheme,
+    required this.tags,
+    required this.allTags,
+    required this.onChanged,
+    required this.onCreate,
+    required this.bookId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final displayText = tags.isEmpty
+        ? L10nManager.l10n.tag
+        : tags.length == 1
+            ? tags.first.name
+            : '${tags.length}';
+    return CommonBadge(
+      icon: Icons.local_offer_outlined,
+      text: displayText,
+      selected: tags.length > 1,
+      borderColor: colorScheme.outline.withAlpha(51),
+      onTap: () async {
+        final options = allTags
+            .map((t) => MultiSelectOption(key: t.code, name: t.name))
+            .toList();
+        final selectedIds = tags.map((t) => t.code).toList();
+        final result = await MultiSelectSheet.show(
+          context,
+          title: L10nManager.l10n.tag,
+          options: options,
+          selectedIds: selectedIds,
+        );
+        if (result != null && context.mounted) {
+          final selectedTags = allTags
+              .where((t) => result.contains(t.code))
+              .toList();
+          onChanged(selectedTags);
+        }
+      },
     );
   }
 }
