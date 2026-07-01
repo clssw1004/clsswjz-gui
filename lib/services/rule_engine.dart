@@ -1,3 +1,4 @@
+import '../database/database.dart';
 import '../enums/symbol_type.dart';
 import '../models/rule/condition_model.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';

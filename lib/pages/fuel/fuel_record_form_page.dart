@@ -7,6 +7,7 @@ import '../../database/database.dart';
 import '../../drivers/driver_factory.dart';
 import '../../enums/account_type.dart';
 import '../../enums/operate_type.dart';
+import '../../enums/symbol_type.dart';
 import '../../events/event_bus.dart';
 import '../../events/special/event_book.dart';
 import '../../manager/app_config_manager.dart';
@@ -1127,7 +1128,11 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
         if (lastItem != null) {
           preFilledItem.categoryCode = lastItem.categoryCode;
           preFilledItem.shopCode = lastItem.shopCode;
-          preFilledItem.tags = List.from(lastItem.tags);
+          if (lastItem.tagCode != null) {
+            final tag = await DaoManager.symbolDao
+                .findByBookAndCode(preFilledItem.accountBookId, SymbolType.tag.code, lastItem.tagCode!);
+            if (tag != null) preFilledItem.addTag(tag);
+          }
           preFilledItem.projectCode = lastItem.projectCode;
         }
         break;

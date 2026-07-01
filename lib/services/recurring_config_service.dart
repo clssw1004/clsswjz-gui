@@ -85,7 +85,7 @@ class RecurringConfigService {
         accountDate: '$targetDate 08:00:00',
         fundId: config.fundId,
         shopCode: config.shopCode,
-        tagCode: config.tagCode,
+        tagCodes: config.tagCode != null ? [config.tagCode!] : null,
         projectCode: config.projectCode,
         source: 'recurring',
         sourceId: config.id,

@@ -25,6 +25,7 @@ import '../../widgets/common/common_attachment_field.dart';
 import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/multi_select_dialog.dart';
 import '../../widgets/common/multi_select_sheet.dart';
 import '../../widgets/common/tree_select_form_field.dart';
 

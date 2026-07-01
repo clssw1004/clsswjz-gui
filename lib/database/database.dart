@@ -161,10 +161,12 @@ class AppDatabase extends _$AppDatabase {
           if (from < 18) {
             // 版本17到版本18的迁移：新增 item_rel_field 表，迁移 tag_code 数据
             await m.create(itemRelFieldTable);
-            final items = await db.select(db.accountItemTable).get();
+            // ignore: invalid_use_of_protected_member
+            final items = await select(accountItemTable).get();
             for (final item in items) {
               if (item.tagCode != null) {
-                await db.into(db.itemRelFieldTable).insert(ItemRelFieldTableCompanion(
+                // ignore: invalid_use_of_protected_member
+                await into(itemRelFieldTable).insert(ItemRelFieldTableCompanion(
                   id: Value(IdUtil.genId()),
                   itemId: Value(item.id),
                   fieldCode: const Value('TAG'),

@@ -63,7 +63,7 @@ class VOTransfer {
         .toSet()
         .toList();
     final tagSymbols = CollectionUtil.toMap(
-      await DaoManager.symbolDao.findByCodes(allTagCodes),
+      await DaoManager.symbolDao.findByTypeAndCodes(SymbolType.tag.code, allTagCodes),
       (s) => s.code,
     );
 
