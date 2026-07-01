@@ -52,13 +52,26 @@ class VOTransfer {
     final shops = CollectionUtil.toMap(
         await DaoManager.shopDao.findByCodes(shopCodes), (s) => s.code);
 
+    // 批量加载 item_rel_field（取 TAG 类型）
+    final relFieldMap = await DaoManager.itemRelFieldDao.findByItemIds(
+      items.map((i) => i.id).toList(),
+      fieldCode: 'TAG',
+    );
+    // 收集所有 tag code → 查 symbol 拿 name
+    final allTagCodes = relFieldMap.values
+        .expand((fields) => fields.map((f) => f.fieldValue))
+        .toSet()
+        .toList();
+    final tagSymbols = CollectionUtil.toMap(
+      await DaoManager.symbolDao.findByCodes(allTagCodes),
+      (s) => s.code,
+    );
+
     final symbolMap = CollectionUtil.groupBy(
         await DaoManager.symbolDao
-            .findByTypes([SymbolType.tag.code, SymbolType.project.code]),
+            .findByTypes([SymbolType.project.code]),
         (s) => s.symbolType);
 
-    final tags = CollectionUtil.toMap(
-        symbolMap[SymbolType.tag.code] ?? [], (s) => s.code);
     final projects = CollectionUtil.toMap(
         symbolMap[SymbolType.project.code] ?? [], (s) => s.code);
 
@@ -74,7 +87,11 @@ class VOTransfer {
 
       final shop = shops[item.shopCode];
 
-      final tag = tags[item.tagCode];
+      final itemRelFields = relFieldMap[item.id] ?? [];
+      final itemTags = itemRelFields
+          .map((f) => tagSymbols[f.fieldValue])
+          .whereType<AccountSymbol>()
+          .toList();
 
       final project = projects[item.projectCode];
 
@@ -87,7 +104,7 @@ class VOTransfer {
         categoryName: category?.name,
         fundName: fund?.name,
         shopName: shop?.name,
-        tagName: tag?.name,
+        tags: itemTags,
         projectName: project?.name,
         createdByName: createdByUser?.nickname,
         updatedByName: updatedByUser?.nickname,
