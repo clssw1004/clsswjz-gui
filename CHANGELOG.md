@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.12] - 2026-07-01
+
+### Features
+- Tag multi-select: ItemRelField table, backward-compatible with single-tag logs, rule engine adaptation, multi-select chip UI in list/form/filter
+
+### Enhancements
+- Category/shop `is_bookkeeping_selectable` toggle: edit dialog switch to control availability in bookkeeping form
+- Category/shop batch move: provider batch state + tree selector + UI flow
+- Mine tab grid changed to 4 columns with alignment
+- Non-selectable items show lock icon only (no grey/italic)
+
 ## [1.1.11] - 2026-06-28
 
 ### Features
