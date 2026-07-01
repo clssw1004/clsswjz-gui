@@ -160,12 +160,14 @@ class ItemTileAdvance extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (item.tags.isNotEmpty) ...[
-                                const SizedBox(width: 8),
-                                for (var i = 0; i < item.tags.length && i < 3; i++)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              // 标签展示（最多3个）
+                              ...() {
+                                if (item.tags.isEmpty) return <Widget>[const SizedBox.shrink()];
+                                final chips = <Widget>[const SizedBox(width: 8)];
+                                for (var i = 0; i < item.tags.length && i < 3; i++) {
+                                  chips.add(Container(
                                     margin: const EdgeInsets.only(right: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: colorScheme.primary.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(4),
@@ -179,9 +181,10 @@ class ItemTileAdvance extends StatelessWidget {
                                         height: 1.2,
                                       ),
                                     ),
-                                  ),
-                                if (item.tags.length > 3)
-                                  Container(
+                                  ));
+                                }
+                                if (item.tags.length > 3) {
+                                  chips.add(Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: colorScheme.primary.withValues(alpha: 0.12),
@@ -196,8 +199,11 @@ class ItemTileAdvance extends StatelessWidget {
                                         height: 1.2,
                                       ),
                                     ),
-                                  ),
-                              ],
+                                  ));
+                                }
+                                return chips;
+                              }(),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),

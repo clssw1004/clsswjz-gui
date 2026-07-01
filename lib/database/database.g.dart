@@ -13359,6 +13359,393 @@ class BookkeepingRuleTableCompanion extends UpdateCompanion<BookkeepingRule> {
   }
 }
 
+class $ItemRelFieldTableTable extends ItemRelFieldTable
+    with TableInfo<$ItemRelFieldTableTable, ItemRelField> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ItemRelFieldTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fieldCodeMeta =
+      const VerificationMeta('fieldCode');
+  @override
+  late final GeneratedColumn<String> fieldCode = GeneratedColumn<String>(
+      'field_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fieldValueMeta =
+      const VerificationMeta('fieldValue');
+  @override
+  late final GeneratedColumn<String> fieldValue = GeneratedColumn<String>(
+      'field_value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [createdAt, updatedAt, id, itemId, fieldCode, fieldValue, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'item_rel_field_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ItemRelField> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('field_code')) {
+      context.handle(_fieldCodeMeta,
+          fieldCode.isAcceptableOrUnknown(data['field_code']!, _fieldCodeMeta));
+    } else if (isInserting) {
+      context.missing(_fieldCodeMeta);
+    }
+    if (data.containsKey('field_value')) {
+      context.handle(
+          _fieldValueMeta,
+          fieldValue.isAcceptableOrUnknown(
+              data['field_value']!, _fieldValueMeta));
+    } else if (isInserting) {
+      context.missing(_fieldValueMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {itemId, fieldCode, fieldValue};
+  @override
+  ItemRelField map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ItemRelField(
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      fieldCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}field_code'])!,
+      fieldValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}field_value'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order']),
+    );
+  }
+
+  @override
+  $ItemRelFieldTableTable createAlias(String alias) {
+    return $ItemRelFieldTableTable(attachedDatabase, alias);
+  }
+}
+
+class ItemRelField extends DataClass implements Insertable<ItemRelField> {
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+  final String itemId;
+  final String fieldCode;
+  final String fieldValue;
+  final int? sortOrder;
+  const ItemRelField(
+      {required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.itemId,
+      required this.fieldCode,
+      required this.fieldValue,
+      this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    map['field_code'] = Variable<String>(fieldCode);
+    map['field_value'] = Variable<String>(fieldValue);
+    if (!nullToAbsent || sortOrder != null) {
+      map['sort_order'] = Variable<int>(sortOrder);
+    }
+    return map;
+  }
+
+  ItemRelFieldTableCompanion toCompanion(bool nullToAbsent) {
+    return ItemRelFieldTableCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      itemId: Value(itemId),
+      fieldCode: Value(fieldCode),
+      fieldValue: Value(fieldValue),
+      sortOrder: sortOrder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortOrder),
+    );
+  }
+
+  factory ItemRelField.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ItemRelField(
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      fieldCode: serializer.fromJson<String>(json['fieldCode']),
+      fieldValue: serializer.fromJson<String>(json['fieldValue']),
+      sortOrder: serializer.fromJson<int?>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'fieldCode': serializer.toJson<String>(fieldCode),
+      'fieldValue': serializer.toJson<String>(fieldValue),
+      'sortOrder': serializer.toJson<int?>(sortOrder),
+    };
+  }
+
+  ItemRelField copyWith(
+          {int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? itemId,
+          String? fieldCode,
+          String? fieldValue,
+          Value<int?> sortOrder = const Value.absent()}) =>
+      ItemRelField(
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        fieldCode: fieldCode ?? this.fieldCode,
+        fieldValue: fieldValue ?? this.fieldValue,
+        sortOrder: sortOrder.present ? sortOrder.value : this.sortOrder,
+      );
+  ItemRelField copyWithCompanion(ItemRelFieldTableCompanion data) {
+    return ItemRelField(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      fieldCode: data.fieldCode.present ? data.fieldCode.value : this.fieldCode,
+      fieldValue:
+          data.fieldValue.present ? data.fieldValue.value : this.fieldValue,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemRelField(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('fieldCode: $fieldCode, ')
+          ..write('fieldValue: $fieldValue, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      createdAt, updatedAt, id, itemId, fieldCode, fieldValue, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ItemRelField &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.fieldCode == this.fieldCode &&
+          other.fieldValue == this.fieldValue &&
+          other.sortOrder == this.sortOrder);
+}
+
+class ItemRelFieldTableCompanion extends UpdateCompanion<ItemRelField> {
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String> fieldCode;
+  final Value<String> fieldValue;
+  final Value<int?> sortOrder;
+  final Value<int> rowid;
+  const ItemRelFieldTableCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.fieldCode = const Value.absent(),
+    this.fieldValue = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ItemRelFieldTableCompanion.insert({
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String itemId,
+    required String fieldCode,
+    required String fieldValue,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        itemId = Value(itemId),
+        fieldCode = Value(fieldCode),
+        fieldValue = Value(fieldValue);
+  static Insertable<ItemRelField> custom({
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? fieldCode,
+    Expression<String>? fieldValue,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (fieldCode != null) 'field_code': fieldCode,
+      if (fieldValue != null) 'field_value': fieldValue,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ItemRelFieldTableCompanion copyWith(
+      {Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? itemId,
+      Value<String>? fieldCode,
+      Value<String>? fieldValue,
+      Value<int?>? sortOrder,
+      Value<int>? rowid}) {
+    return ItemRelFieldTableCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      fieldCode: fieldCode ?? this.fieldCode,
+      fieldValue: fieldValue ?? this.fieldValue,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (fieldCode.present) {
+      map['field_code'] = Variable<String>(fieldCode.value);
+    }
+    if (fieldValue.present) {
+      map['field_value'] = Variable<String>(fieldValue.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ItemRelFieldTableCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('fieldCode: $fieldCode, ')
+          ..write('fieldValue: $fieldValue, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -13399,6 +13786,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RecurringConfigTableTable(this);
   late final $BookkeepingRuleTableTable bookkeepingRuleTable =
       $BookkeepingRuleTableTable(this);
+  late final $ItemRelFieldTableTable itemRelFieldTable =
+      $ItemRelFieldTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13424,7 +13813,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         itemRelationTable,
         userShareTable,
         recurringConfigTable,
-        bookkeepingRuleTable
+        bookkeepingRuleTable,
+        itemRelFieldTable
       ];
 }
 
@@ -19504,6 +19894,211 @@ typedef $$BookkeepingRuleTableTableProcessedTableManager
         ),
         BookkeepingRule,
         PrefetchHooks Function()>;
+typedef $$ItemRelFieldTableTableCreateCompanionBuilder
+    = ItemRelFieldTableCompanion Function({
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String itemId,
+  required String fieldCode,
+  required String fieldValue,
+  Value<int?> sortOrder,
+  Value<int> rowid,
+});
+typedef $$ItemRelFieldTableTableUpdateCompanionBuilder
+    = ItemRelFieldTableCompanion Function({
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> itemId,
+  Value<String> fieldCode,
+  Value<String> fieldValue,
+  Value<int?> sortOrder,
+  Value<int> rowid,
+});
+
+class $$ItemRelFieldTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ItemRelFieldTableTable> {
+  $$ItemRelFieldTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldCode => $composableBuilder(
+      column: $table.fieldCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldValue => $composableBuilder(
+      column: $table.fieldValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$ItemRelFieldTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ItemRelFieldTableTable> {
+  $$ItemRelFieldTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldCode => $composableBuilder(
+      column: $table.fieldCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldValue => $composableBuilder(
+      column: $table.fieldValue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ItemRelFieldTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ItemRelFieldTableTable> {
+  $$ItemRelFieldTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldCode =>
+      $composableBuilder(column: $table.fieldCode, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldValue => $composableBuilder(
+      column: $table.fieldValue, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$ItemRelFieldTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ItemRelFieldTableTable,
+    ItemRelField,
+    $$ItemRelFieldTableTableFilterComposer,
+    $$ItemRelFieldTableTableOrderingComposer,
+    $$ItemRelFieldTableTableAnnotationComposer,
+    $$ItemRelFieldTableTableCreateCompanionBuilder,
+    $$ItemRelFieldTableTableUpdateCompanionBuilder,
+    (
+      ItemRelField,
+      BaseReferences<_$AppDatabase, $ItemRelFieldTableTable, ItemRelField>
+    ),
+    ItemRelField,
+    PrefetchHooks Function()> {
+  $$ItemRelFieldTableTableTableManager(
+      _$AppDatabase db, $ItemRelFieldTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ItemRelFieldTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ItemRelFieldTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ItemRelFieldTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String> fieldCode = const Value.absent(),
+            Value<String> fieldValue = const Value.absent(),
+            Value<int?> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemRelFieldTableCompanion(
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            itemId: itemId,
+            fieldCode: fieldCode,
+            fieldValue: fieldValue,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String itemId,
+            required String fieldCode,
+            required String fieldValue,
+            Value<int?> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ItemRelFieldTableCompanion.insert(
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            itemId: itemId,
+            fieldCode: fieldCode,
+            fieldValue: fieldValue,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ItemRelFieldTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ItemRelFieldTableTable,
+    ItemRelField,
+    $$ItemRelFieldTableTableFilterComposer,
+    $$ItemRelFieldTableTableOrderingComposer,
+    $$ItemRelFieldTableTableAnnotationComposer,
+    $$ItemRelFieldTableTableCreateCompanionBuilder,
+    $$ItemRelFieldTableTableUpdateCompanionBuilder,
+    (
+      ItemRelField,
+      BaseReferences<_$AppDatabase, $ItemRelFieldTableTable, ItemRelField>
+    ),
+    ItemRelField,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -19552,4 +20147,6 @@ class $AppDatabaseManager {
       $$RecurringConfigTableTableTableManager(_db, _db.recurringConfigTable);
   $$BookkeepingRuleTableTableTableManager get bookkeepingRuleTable =>
       $$BookkeepingRuleTableTableTableManager(_db, _db.bookkeepingRuleTable);
+  $$ItemRelFieldTableTableTableManager get itemRelFieldTable =>
+      $$ItemRelFieldTableTableTableManager(_db, _db.itemRelFieldTable);
 }
