@@ -1,3 +1,4 @@
+import '../enums/symbol_type.dart';
 import '../models/rule/condition_model.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';
 import '../models/vo/user_item_vo.dart';
@@ -320,7 +321,8 @@ dynamic _getFieldValue(UserItemVO item, String field) {
     case 'shopCode':
       return item.shopCode;
     case 'tagCode':
-      return item.tagCode;
+    case 'tagCodes':
+      return item.firstTagCode;
     case 'projectCode':
       return item.projectCode;
     default:
@@ -347,7 +349,24 @@ void _setFieldValue(UserItemVO item, String field, dynamic value) {
       item.shopCode = value as String?;
       break;
     case 'tagCode':
-      item.tagCode = value as String?;
+    case 'tagCodes':
+      // 规则引擎仅保持向后兼容，写入单标签
+      if (value != null) {
+        item.tags = [AccountSymbol(
+          code: value as String,
+          name: '',
+          symbolType: SymbolType.tag.code,
+          accountBookId: item.accountBookId,
+          id: '',
+          lastAccountItemAt: null,
+          createdAt: 0,
+          createdBy: '',
+          updatedAt: 0,
+          updatedBy: '',
+        )];
+      } else {
+        item.tags = [];
+      }
       break;
     case 'projectCode':
       item.projectCode = value as String?;
