@@ -936,7 +936,7 @@ class _TagBadge extends StatelessWidget {
         ? L10nManager.l10n.tag
         : tags.length == 1
             ? tags.first.name
-            : '${tags.length}';
+            : L10nManager.l10n.treeSelectedCount(tags.length);
     return CommonBadge(
       icon: Icons.local_offer_outlined,
       text: displayText,
