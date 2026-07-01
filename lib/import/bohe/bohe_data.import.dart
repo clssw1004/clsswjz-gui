@@ -129,7 +129,7 @@ class BoheDataImport extends ImportInterface {
             categoryCode: category?.code,
             fundId: fund?.id,
             shopCode: shop?.code,
-            tagCode: tag?.code,
+            tagCodes: tag?.code != null ? [tag!.code] : null,
             projectCode: project?.code);
       }
     });

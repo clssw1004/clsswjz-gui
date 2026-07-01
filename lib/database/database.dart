@@ -20,6 +20,9 @@ import 'tables/item_relation_table.dart';
 import 'tables/user_share_table.dart';
 import 'tables/recurring_config_table.dart';
 import 'tables/bookkeeping_rule_table.dart';
+import 'tables/item_rel_field_table.dart';
+import '../utils/id_util.dart';
+import '../utils/date_util.dart';
 
 part 'database.g.dart';
 
@@ -46,13 +49,14 @@ part 'database.g.dart';
     UserShareTable,
     RecurringConfigTable,
     BookkeepingRuleTable,
+    ItemRelFieldTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -152,6 +156,25 @@ class AppDatabase extends _$AppDatabase {
               await m.addColumn(accountShopTable, accountShopTable.isBookkeepingSelectable);
             } catch (_) {
               // 列已存在时忽略
+            }
+          }
+          if (from < 18) {
+            // 版本17到版本18的迁移：新增 item_rel_field 表，迁移 tag_code 数据
+            await m.create(itemRelFieldTable);
+            // ignore: invalid_use_of_protected_member
+            final items = await select(accountItemTable).get();
+            for (final item in items) {
+              if (item.tagCode != null) {
+                // ignore: invalid_use_of_protected_member
+                await into(itemRelFieldTable).insert(ItemRelFieldTableCompanion(
+                  id: Value(IdUtil.genId()),
+                  itemId: Value(item.id),
+                  fieldCode: const Value('TAG'),
+                  fieldValue: Value(item.tagCode!),
+                  createdAt: Value(DateUtil.now()),
+                  updatedAt: Value(DateUtil.now()),
+                ));
+              }
             }
           }
         },

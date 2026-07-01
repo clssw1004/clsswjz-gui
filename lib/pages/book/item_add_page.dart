@@ -20,11 +20,13 @@ import '../../manager/app_config_manager.dart';
 import '../../utils/attachment.util.dart';
 import '../../widgets/book/amount_input.dart';
 import '../../models/vo/tree_node_vo.dart';
+import '../../widgets/common/common_attachment_field.dart';
+import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
+import '../../widgets/common/multi_select_dialog.dart';
+import '../../widgets/common/multi_select_sheet.dart';
 import '../../widgets/common/tree_select_form_field.dart';
-import '../../widgets/common/common_badge.dart';
-import '../../widgets/common/common_attachment_field.dart';
 import '../../utils/color_util.dart';
 
 class ItemAddPage extends StatelessWidget {
@@ -399,16 +401,14 @@ class _AccountItemFormState extends State<_AccountItemForm> {
               runSpacing: 8,
               alignment: WrapAlignment.start,
               children: [
-                CommonSelectFormField<AccountSymbol>(
-                  items: provider.tags.cast<AccountSymbol>(),
-                  value: item.tagCode,
-                  label: L10nManager.l10n.tag,
-                  displayMode: DisplayMode.badge,
-                  displayField: (item) => item.name,
-                  keyField: (item) => item.code,
-                  icon: Icons.local_offer_outlined,
-                  hint: L10nManager.l10n.tag,
-                  onCreateItem: (value) async {
+                _TagBadge(
+                  colorScheme: colorScheme,
+                  tags: item.tags,
+                  allTags: provider.tags.cast<AccountSymbol>(),
+                  onChanged: (selectedTags) {
+                    provider.updateTags(selectedTags);
+                  },
+                  onCreate: (value) async {
                     final result = await DriverFactory.driver.createSymbol(
                       AppConfigManager.instance.userId,
                       provider.bookMeta.id,
@@ -419,18 +419,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                       await provider.loadTags();
                       return provider.tags
                           .cast<AccountSymbol>()
-                          .firstWhere((tag) => tag.name == value);
+                          .firstWhere((t) => t.name == value);
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    final tag = value as AccountSymbol?;
-                    if (tag != null) {
-                      provider.updateTag(tag.code, tag.name);
-                    } else {
-                      provider.updateTag(null, null);
-                    }
-                  },
+                  bookId: provider.bookMeta.id,
                 ),
                 CommonSelectFormField<AccountSymbol>(
                   items: provider.projects.cast<AccountSymbol>(),
@@ -719,6 +712,58 @@ class _OldBookPickerSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 标签多选徽标组件 — 0/1/多选三种显示状态
+class _TagBadge extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final List<AccountSymbol> tags;
+  final List<AccountSymbol> allTags;
+  final ValueChanged<List<AccountSymbol>> onChanged;
+  final Future<AccountSymbol?> Function(String value) onCreate;
+  final String bookId;
+
+  const _TagBadge({
+    required this.colorScheme,
+    required this.tags,
+    required this.allTags,
+    required this.onChanged,
+    required this.onCreate,
+    required this.bookId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final displayText = tags.isEmpty
+        ? L10nManager.l10n.tag
+        : tags.length == 1
+            ? tags.first.name
+            : L10nManager.l10n.treeSelectedCount(tags.length);
+    return CommonBadge(
+      icon: Icons.local_offer_outlined,
+      text: displayText,
+      selected: tags.length > 1,
+      borderColor: colorScheme.outline.withAlpha(51),
+      onTap: () async {
+        final options = allTags
+            .map((t) => MultiSelectOption(key: t.code, name: t.name))
+            .toList();
+        final selectedIds = tags.map((t) => t.code).toList();
+        final result = await MultiSelectSheet.show(
+          context,
+          title: L10nManager.l10n.tag,
+          options: options,
+          selectedIds: selectedIds,
+        );
+        if (result != null && context.mounted) {
+          final selectedTags = allTags
+              .where((t) => result.contains(t.code))
+              .toList();
+          onChanged(selectedTags);
+        }
+      },
     );
   }
 }

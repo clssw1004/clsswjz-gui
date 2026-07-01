@@ -143,22 +143,47 @@ class ItemTileTimeline extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (item.tagName != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: colorScheme.primary.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                item.tagName!,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: colorScheme.primary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
+                          if (item.tags.isNotEmpty)
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                              for (var i = 0; i < item.tags.length && i < 3; i++)
+                                Padding(
+                                  padding: EdgeInsets.only(right: i < 2 && i < item.tags.length - 1 ? 4 : 0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      i < 3 ? item.tags[i].name : '+${item.tags.length - 3}',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.primary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
+                              if (item.tags.length > 3)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '+${item.tags.length - 3}',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.primary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ]),
                           if (item.projectName != null)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

@@ -41,8 +41,14 @@ class UserItemVO {
   /// 商家代码
   String? shopCode;
 
-  /// 标签代码
-  String? tagCode;
+  /// 标签列表
+  List<AccountSymbol> tags = [];
+
+  /// 获取第一个标签代码（向后兼容）
+  String? get firstTagCode => tags.isNotEmpty ? tags.first.code : null;
+
+  /// 获取第一个标签名称（向后兼容）
+  String? get firstTagName => tags.isNotEmpty ? tags.first.name : null;
 
   /// 项目代码
   String? projectCode;
@@ -67,9 +73,6 @@ class UserItemVO {
 
   /// 商户名称
   String? shopName;
-
-  /// 标签名称
-  String? tagName;
 
   /// 项目名称
   String? projectName;
@@ -102,7 +105,7 @@ class UserItemVO {
     required this.accountBookId,
     this.fundId,
     this.shopCode,
-    this.tagCode,
+    this.tags = const [],
     this.projectCode,
     required this.createdBy,
     required this.updatedBy,
@@ -111,7 +114,6 @@ class UserItemVO {
     this.categoryName,
     this.fundName,
     this.shopName,
-    this.tagName,
     this.projectName,
     this.createdByName,
     this.updatedByName,
@@ -127,7 +129,7 @@ class UserItemVO {
     String? categoryName,
     String? fundName,
     String? shopName,
-    String? tagName,
+    List<AccountSymbol>? tags,
     String? projectName,
     String? createdByName,
     String? updatedByName,
@@ -142,7 +144,6 @@ class UserItemVO {
       accountBookId: item.accountBookId,
       fundId: item.fundId,
       shopCode: item.shopCode,
-      tagCode: item.tagCode,
       projectCode: item.projectCode,
       createdBy: item.createdBy,
       updatedBy: item.updatedBy,
@@ -150,8 +151,8 @@ class UserItemVO {
       updatedAt: item.updatedAt,
       categoryName: categoryName,
       fundName: fundName,
+      tags: tags ?? [],
       shopName: shopName,
-      tagName: tagName,
       projectName: projectName,
       createdByName: createdByName,
       updatedByName: updatedByName,
@@ -173,7 +174,7 @@ class UserItemVO {
       accountBookId: vo.accountBookId,
       fundId: vo.fundId,
       shopCode: vo.shopCode,
-      tagCode: vo.tagCode,
+      tagCode: vo.firstTagCode,
       projectCode: vo.projectCode,
       createdBy: vo.createdBy,
       updatedBy: vo.updatedBy,
@@ -197,9 +198,12 @@ class UserItemVO {
     shopCode = shop.code;
   }
 
-  void setTag(AccountSymbol tag) {
-    tagName = tag.name;
-    tagCode = tag.code;
+  void addTag(AccountSymbol tag) {
+    tags = [...tags, tag];
+  }
+
+  void removeTag(String tagCode) {
+    tags = tags.where((t) => t.code != tagCode).toList();
   }
 
   void setProject(AccountSymbol project) {
@@ -232,8 +236,7 @@ class UserItemVO {
     String? fundName,
     String? shopCode,
     String? shopName,
-    String? tagCode,
-    String? tagName,
+    List<AccountSymbol>? tags,
     String? projectCode,
     String? projectName,
     String? createdBy,
@@ -258,8 +261,7 @@ class UserItemVO {
       fundName: fundName ?? this.fundName,
       shopCode: shopCode ?? this.shopCode,
       shopName: shopName ?? this.shopName,
-      tagCode: tagCode ?? this.tagCode,
-      tagName: tagName ?? this.tagName,
+      tags: tags ?? this.tags,
       projectCode: projectCode ?? this.projectCode,
       projectName: projectName ?? this.projectName,
       createdBy: createdBy ?? this.createdBy,

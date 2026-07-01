@@ -107,7 +107,7 @@ abstract class BookDataDriver {
       required String accountDate,
       String? fundId,
       String? shopCode,
-      String? tagCode,
+      List<String>? tagCodes,
       String? projectCode,
       String? source,
       String? sourceId,
@@ -129,7 +129,7 @@ abstract class BookDataDriver {
     String? accountDate,
     String? fundId,
     String? shopCode,
-    String? tagCode,
+    List<String>? tagCodes,
     String? projectCode,
     List<AttachmentVO>? attachments,
   });

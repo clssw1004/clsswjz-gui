@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../manager/dao_manager.dart';
 import '../../models/dto/item_filter_dto.dart';
 import '../database.dart';
 import '../tables/account_item_table.dart';
@@ -69,7 +70,14 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
 
       // 标签筛选
       if (filter.tagCodes?.isNotEmpty == true) {
-        query = query..where((t) => t.tagCode.isIn(filter.tagCodes!));
+        final relFields = await DaoManager.itemRelFieldDao
+            .findByFieldCodeAndValues('TAG', filter.tagCodes!);
+        final matchingIds = relFields.map((f) => f.itemId).toSet().toList();
+        if (matchingIds.isEmpty) {
+          query = query..where((t) => t.id.equals('__no_match__'));
+        } else {
+          query = query..where((t) => t.id.isIn(matchingIds));
+        }
       }
       // 来源筛选
       if (filter.source != null) {
@@ -131,6 +139,12 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
               tbl.name.contains(kw))).get())
             .map((s) => s.code)
             .toList();
+        // 从 item_rel_field 反查匹配标签的 item_id
+        final tagItemIds = tagCodes.isNotEmpty
+            ? await DaoManager.itemRelFieldDao
+                .findByFieldCodeAndValues('TAG', tagCodes)
+                .then((rows) => rows.map((f) => f.itemId).toList())
+            : <String>[];
 
         query = query..where((t) {
           final conds = <Expression<bool>>[
@@ -154,8 +168,8 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
           if (projectCodes.isNotEmpty) {
             conds.add(t.projectCode.isIn(projectCodes));
           }
-          if (tagCodes.isNotEmpty) {
-            conds.add(t.tagCode.isIn(tagCodes));
+          if (tagItemIds.isNotEmpty) {
+            conds.add(t.id.isIn(tagItemIds));
           }
           return conds.reduce((a, b) => a | b);
         });

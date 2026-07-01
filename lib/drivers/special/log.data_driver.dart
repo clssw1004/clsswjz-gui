@@ -261,7 +261,7 @@ class LogDataDriver implements BookDataDriver {
       required String accountDate,
       String? fundId,
       String? shopCode,
-      String? tagCode,
+      List<String>? tagCodes,
       String? projectCode,
       String? source,
       String? sourceId,
@@ -274,7 +274,7 @@ class LogDataDriver implements BookDataDriver {
             accountDate: accountDate,
             fundId: fundId,
             shopCode: shopCode,
-            tagCode: tagCode,
+            tagCodes: tagCodes,
             projectCode: projectCode,
             source: source,
             sourceId: sourceId)
@@ -300,11 +300,13 @@ class LogDataDriver implements BookDataDriver {
         updateShop(who, bookId, shop.id, lastAccountItemAt: accountDate);
       }
     }
-    if (tagCode != null) {
-      final tag = await DaoManager.symbolDao
-          .findByBookAndCode(bookId, SymbolType.tag.code, tagCode);
-      if (tag != null) {
-        updateSymbol(who, bookId, tag.id, lastAccountItemAt: accountDate);
+    if (tagCodes != null && tagCodes.isNotEmpty) {
+      for (final code in tagCodes) {
+        final tag = await DaoManager.symbolDao
+            .findByBookAndCode(bookId, SymbolType.tag.code, code);
+        if (tag != null) {
+          updateSymbol(who, bookId, tag.id, lastAccountItemAt: accountDate);
+        }
       }
     }
     if (projectCode != null) {
@@ -341,7 +343,7 @@ class LogDataDriver implements BookDataDriver {
       String? accountDate,
       String? fundId,
       String? shopCode,
-      String? tagCode,
+      List<String>? tagCodes,
       String? projectCode,
       List<AttachmentVO>? attachments}) async {
     await ItemCULog.update(who, bookId, itemId,
@@ -352,7 +354,7 @@ class LogDataDriver implements BookDataDriver {
             accountDate: accountDate,
             fundId: fundId,
             shopCode: shopCode,
-            tagCode: tagCode,
+            tagCodes: tagCodes,
             projectCode: projectCode)
         .execute();
     await updateAttachments(who, BusinessType.item, itemId, attachments ?? []);

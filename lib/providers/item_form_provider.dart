@@ -187,9 +187,9 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 更新标签并保存
-  Future<void> updateTagAndSave(String? code, String? name) async {
-    updateTag(code, name);
-    await partUpdate(tagCode: code);
+  Future<void> updateTagsAndSave(List<AccountSymbol> tags) async {
+    updateTags(tags);
+    await partUpdate(tagCodes: tags.map((t) => t.code).toList());
   }
 
   /// 更新项目并保存
@@ -358,7 +358,7 @@ class ItemFormProvider extends ChangeNotifier {
       categoryCode: _item.categoryCode,
       fundId: _item.fundId,
       shopCode: _item.shopCode,
-      tagCode: _item.tagCode,
+      tagCodes: _item.tags.map((t) => t.code).toList(),
       projectCode: _item.projectCode,
       accountDate: _item.accountDate,
       files: _attachments
@@ -385,7 +385,7 @@ class ItemFormProvider extends ChangeNotifier {
     String? categoryCode,
     String? fundId,
     String? shopCode,
-    String? tagCode,
+    List<String>? tagCodes,
     String? projectCode,
     String? accountDate,
     List<AttachmentVO>? attachments,
@@ -407,7 +407,7 @@ class ItemFormProvider extends ChangeNotifier {
         categoryCode: categoryCode,
         fundId: fundId,
         shopCode: shopCode,
-        tagCode: tagCode,
+        tagCodes: tagCodes,
         projectCode: projectCode,
         attachments: attachments,
       );
@@ -490,12 +490,9 @@ class ItemFormProvider extends ChangeNotifier {
   }
 
   /// 更新标签
-  void updateTag(String? code, String? name) {
-    _item = _item.copyWith(
-      tagCode: code,
-      tagName: name,
-    );
-    _applyRules('tagCode');
+  void updateTags(List<AccountSymbol> tags) {
+    _item.tags = tags;
+    _applyRules('tagCodes');
     notifyListeners();
   }
 

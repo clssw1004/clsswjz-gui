@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../../database/database.dart';
 import '../../../../database/tables/account_item_table.dart';
+import '../../../../database/tables/item_rel_field_table.dart';
 import '../../../../enums/account_type.dart';
 import '../../../../enums/business_type.dart';
 import '../../../../enums/operate_type.dart';
@@ -10,6 +11,8 @@ import '../../../../models/vo/attachment_vo.dart';
 import 'builder.dart';
 
 class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
+  List<String>? _tagCodes;
+
   ItemCULog() : super() {
     doWith(BusinessType.item);
   }
@@ -19,9 +22,32 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
     if (operateType == OperateType.create) {
       await DaoManager.itemDao.insert(data!);
       target(data!.id.value);
+      if (_tagCodes != null) {
+        for (final code in _tagCodes!) {
+          await DaoManager.itemRelFieldDao.insert(
+            ItemRelFieldTable.toCreateCompanion(
+              itemId: data!.id.value,
+              fieldCode: 'TAG',
+              fieldValue: code,
+            ),
+          );
+        }
+      }
       return data!.id.value;
     } else if (operateType == OperateType.update) {
       await DaoManager.itemDao.update(businessId!, data!);
+      await DaoManager.itemRelFieldDao.deleteByItemAndCode(businessId!, 'TAG');
+      if (_tagCodes != null) {
+        for (final code in _tagCodes!) {
+          await DaoManager.itemRelFieldDao.insert(
+            ItemRelFieldTable.toCreateCompanion(
+              itemId: businessId!,
+              fieldCode: 'TAG',
+              fieldValue: code,
+            ),
+          );
+        }
+      }
     }
     return businessId!;
   }
@@ -32,24 +58,31 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
     if (operateType == OperateType.delete) {
       return data!.toString();
     } else {
-      return AccountItemTable.toJsonString(data as AccountItemTableCompanion);
+      final json =
+          AccountItemTable.toJsonString(data as AccountItemTableCompanion);
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      map.remove('tagCode');
+      if (_tagCodes != null && _tagCodes!.isNotEmpty) {
+        map['tagCodes'] = _tagCodes;
+      }
+      return jsonEncode(map);
     }
   }
 
   static ItemCULog create(String who, String bookId,
-      {required amount,
+      {required double amount,
       String? description,
       required AccountItemType type,
       String? categoryCode,
       required String accountDate,
       String? fundId,
       String? shopCode,
-      String? tagCode,
+      List<String>? tagCodes,
       String? projectCode,
       String? source,
       String? sourceId,
       List<AttachmentVO>? attachments}) {
-    return ItemCULog().who(who).inBook(bookId).doCreate().withData(
+    final builder = ItemCULog().who(who).inBook(bookId).doCreate().withData(
         AccountItemTable.toCreateCompanion(who, bookId,
             amount: amount,
             description: description,
@@ -58,10 +91,11 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
             accountDate: accountDate,
             fundId: fundId,
             shopCode: shopCode,
-            tagCode: tagCode,
             projectCode: projectCode,
             source: source,
             sourceId: sourceId)) as ItemCULog;
+    builder._tagCodes = tagCodes;
+    return builder;
   }
 
   static ItemCULog update(String userId, String bookId, String itemId,
@@ -72,9 +106,9 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       String? accountDate,
       String? fundId,
       String? shopCode,
-      String? tagCode,
+      List<String>? tagCodes,
       String? projectCode}) {
-    return ItemCULog()
+    final builder = ItemCULog()
         .who(userId)
         .inBook(bookId)
         .target(itemId)
@@ -87,22 +121,41 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
             accountDate: accountDate,
             fundId: fundId,
             shopCode: shopCode,
-            tagCode: tagCode,
             projectCode: projectCode)) as ItemCULog;
+    builder._tagCodes = tagCodes;
+    return builder;
   }
 
   static ItemCULog fromCreateLog(LogSync log) {
-    return ItemCULog()
+    Map<String, dynamic> data = jsonDecode(log.operateData);
+    List<String>? tagCodes;
+    if (data.containsKey('tagCodes')) {
+      tagCodes = (data['tagCodes'] as List).cast<String>();
+    } else if (data.containsKey('tagCode') && data['tagCode'] != null) {
+      tagCodes = [data['tagCode'] as String];
+    }
+    data.remove('tagCode');
+    data.remove('tagCodes');
+    final builder = ItemCULog()
         .who(log.operatorId)
         .inBook(log.parentId)
         .doCreate()
-        .withData(AccountItem.fromJson(jsonDecode(log.operateData))
-            .toCompanion(true)) as ItemCULog;
+        .withData(AccountItem.fromJson(data).toCompanion(true)) as ItemCULog;
+    builder._tagCodes = tagCodes;
+    return builder;
   }
 
   static ItemCULog fromUpdateLog(LogSync log) {
     Map<String, dynamic> data = jsonDecode(log.operateData);
-    return ItemCULog.update(
+    List<String>? tagCodes;
+    if (data.containsKey('tagCodes')) {
+      tagCodes = (data['tagCodes'] as List).cast<String>();
+    } else if (data.containsKey('tagCode') && data['tagCode'] != null) {
+      tagCodes = [data['tagCode'] as String];
+    }
+    data.remove('tagCode');
+    data.remove('tagCodes');
+    final builder = ItemCULog.update(
       log.operatorId,
       log.parentId,
       log.businessId,
@@ -114,9 +167,10 @@ class ItemCULog extends LogBuilder<AccountItemTableCompanion, String> {
       accountDate: data['accountDate'],
       fundId: data['fundId'],
       shopCode: data['shopCode'],
-      tagCode: data['tagCode'],
       projectCode: data['projectCode'],
     );
+    builder._tagCodes = tagCodes;
+    return builder;
   }
 
   static ItemCULog fromLog(LogSync log) {

@@ -34,7 +34,6 @@ class AccountItemTable extends BaseAccountBookTable {
     String? accountBookId,
     String? fundId,
     String? shopCode,
-    String? tagCode,
     String? projectCode,
   }) {
     return AccountItemTableCompanion(
@@ -48,7 +47,6 @@ class AccountItemTable extends BaseAccountBookTable {
       accountBookId: Value.absentIfNull(accountBookId),
       fundId: Value.absentIfNull(fundId),
       shopCode: Value.absentIfNull(shopCode),
-      tagCode: Value.absentIfNull(tagCode),
       projectCode: Value.absentIfNull(projectCode),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
@@ -65,7 +63,6 @@ class AccountItemTable extends BaseAccountBookTable {
     required String accountDate,
     String? fundId,
     String? shopCode,
-    String? tagCode,
     String? projectCode,
     String? source,
     String? sourceId,
@@ -80,7 +77,6 @@ class AccountItemTable extends BaseAccountBookTable {
         accountDate: Value(accountDate),
         fundId: Value.absentIfNull(fundId),
         shopCode: Value.absentIfNull(shopCode),
-        tagCode: Value.absentIfNull(tagCode),
         projectCode: Value.absentIfNull(projectCode),
         createdBy: Value(who),
         createdAt: Value(DateUtil.now()),
@@ -105,7 +101,6 @@ class AccountItemTable extends BaseAccountBookTable {
     MapUtil.setIfPresent(map, 'accountBookId', companion.accountBookId);
     MapUtil.setIfPresent(map, 'fundId', companion.fundId);
     MapUtil.setIfPresent(map, 'shopCode', companion.shopCode);
-    MapUtil.setIfPresent(map, 'tagCode', companion.tagCode);
     MapUtil.setIfPresent(map, 'projectCode', companion.projectCode);
     MapUtil.setIfPresent(map, 'source', companion.source);
     MapUtil.setIfPresent(map, 'sourceId', companion.sourceId);
