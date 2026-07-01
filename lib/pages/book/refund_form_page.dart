@@ -109,7 +109,7 @@ class _RefundFormPageState extends State<RefundFormPage> {
           accountDate: accountDate, // 使用表单中选择的日期和时间
           fundId: _selectedFundId, // 使用表单中选择的账户
           shopCode: widget.originalItem.shopCode, // 使用原始账目的商家
-          tagCode: widget.originalItem.tagCode, // 使用原始账目的标签
+          tagCodes: widget.originalItem.tags.map((t) => t.code).toList(), // 使用原始账目的标签
           projectCode: widget.originalItem.projectCode, // 使用原始账目的项目
           source: BusinessType.item.code, // 来源类型为账目
           sourceId: widget.originalItem.id, // 来源ID为原始账目ID

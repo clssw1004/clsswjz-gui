@@ -1127,7 +1127,7 @@ class _ItemSearchSheetState extends State<_ItemSearchSheet> {
         if (lastItem != null) {
           preFilledItem.categoryCode = lastItem.categoryCode;
           preFilledItem.shopCode = lastItem.shopCode;
-          preFilledItem.tagCode = lastItem.tagCode;
+          preFilledItem.tags = List.from(lastItem.tags);
           preFilledItem.projectCode = lastItem.projectCode;
         }
         break;
