@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import '../../utils/id_util.dart';
 import '../../utils/map_util.dart';
 import '../../utils/date_util.dart';
+import '../database.dart';
 import 'base_table.dart';
 
 @DataClassName('ItemRelField')
