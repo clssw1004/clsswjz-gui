@@ -23,10 +23,9 @@ import '../../widgets/book/animated_type_toggle.dart';
 import '../../widgets/book/calculator_panel.dart';
 import '../../widgets/common/common_attachment_field.dart';
 import '../../widgets/common/common_badge.dart';
+import '../../widgets/common/common_badge.dart';
 import '../../widgets/common/common_select_form_field.dart';
 import '../../widgets/common/common_text_form_field.dart';
-import '../../widgets/common/multi_select_dialog.dart';
-import '../../widgets/common/multi_select_sheet.dart';
 import '../../widgets/common/tree_select_form_field.dart';
 
 /// 新版账目表单组件
@@ -623,45 +622,38 @@ class _ModernItemFormState extends State<ModernItemForm> {
             runSpacing: 8,
             alignment: WrapAlignment.start,
             children: [
-              ...item.tags.map((tag) => Chip(
-                avatar: Icon(Icons.local_offer_outlined, size: 16),
-                label: Text(tag.name),
-                onDeleted: () {
-                  final newTags = List<AccountSymbol>.from(item.tags)
-                    ..removeWhere((t) => t.code == tag.code);
-                  if (widget.autoSave) {
-                    provider.updateTagsAndSave(newTags);
-                  } else {
-                    provider.updateTags(newTags);
-                  }
-                },
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-              )),
-              ActionChip(
-                avatar: Icon(Icons.add, size: 16),
-                label: Text(L10nManager.l10n.tag),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-                onPressed: () async {
-                  final options = provider.tags.cast<AccountSymbol>().map((t) =>
-                    MultiSelectOption(key: t.code, name: t.name)).toList();
-                  final selectedIds = item.tags.map((t) => t.code).toList();
-                  final result = await MultiSelectSheet.show(
-                    context,
-                    title: L10nManager.l10n.tag,
-                    options: options,
-                    selectedIds: selectedIds,
+              CommonSelectFormField<AccountSymbol>(
+                items: provider.tags.cast<AccountSymbol>(),
+                value: item.tags.map((t) => t.code).toList(),
+                multiSelect: true,
+                label: L10nManager.l10n.tag,
+                displayField: (e) => e.name,
+                keyField: (e) => e.code,
+                icon: Icons.local_offer_outlined,
+                hint: L10nManager.l10n.pleaseSelect(L10nManager.l10n.tag),
+                onCreateItem: (value) async {
+                  final result = await DriverFactory.driver.createSymbol(
+                    AppConfigManager.instance.userId,
+                    provider.bookMeta.id,
+                    name: value,
+                    symbolType: SymbolType.tag,
                   );
-                  if (result != null && context.mounted) {
-                    final selectedTags = provider.tags.cast<AccountSymbol>()
-                        .where((t) => result.contains(t.code))
-                        .toList();
-                    if (widget.autoSave) {
-                      provider.updateTagsAndSave(selectedTags);
-                    } else {
-                      provider.updateTags(selectedTags);
-                    }
+                  if (result.data != null) {
+                    await provider.loadTags();
+                    return provider.tags
+                        .cast<AccountSymbol>()
+                        .firstWhere((t) => t.name == value);
+                  }
+                  return null;
+                },
+                onChanged: (selected) {
+                  final selectedTags = provider.tags.cast<AccountSymbol>()
+                      .where((t) => (selected as List).contains(t.code))
+                      .toList();
+                  if (widget.autoSave) {
+                    provider.updateTagsAndSave(selectedTags);
+                  } else {
+                    provider.updateTags(selectedTags);
                   }
                 },
               ),
