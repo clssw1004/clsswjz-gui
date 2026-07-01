@@ -160,26 +160,44 @@ class ItemTileAdvance extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (item.tagName != null) ...[
+                              if (item.tags.isNotEmpty) ...[
                                 const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    item.tagName!,
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: colorScheme.primary,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
+                                for (var i = 0; i < item.tags.length && i < 3; i++)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    margin: const EdgeInsets.only(right: 4),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      item.tags[i].name,
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.primary,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2,
+                                      ),
                                     ),
                                   ),
-                                ),
+                                if (item.tags.length > 3)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '+${item.tags.length - 3}',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.primary,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ),
                               ],
-                            ],
                           ),
                         ),
                         const SizedBox(width: 12),
