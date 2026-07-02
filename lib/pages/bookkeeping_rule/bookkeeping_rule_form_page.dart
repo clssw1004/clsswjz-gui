@@ -74,6 +74,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           .map((a) => ActionData(
                 field: a.field,
                 value: a.value?.toString() ?? '',
+                append: a.append,
               ))
           .toList();
     }
@@ -271,6 +272,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         'type': 'set_value',
         'field': a.field,
         'value': a.value,
+        if (a.field == 'tagCode') 'append': a.append,
       }).toList(),
     );
   }
@@ -518,48 +520,87 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
               final action = entry.value;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: action.field,
-                        decoration: InputDecoration(
-                          labelText: L10nManager.l10n.bookkeepingRuleLabelField,
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: DropdownButtonFormField<String>(
+                            initialValue: action.field,
+                            decoration: InputDecoration(
+                              labelText: L10nManager.l10n.bookkeepingRuleLabelField,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                            items: _actionFieldValues()
+                                .map((e) => DropdownMenuItem(
+                                    value: e.key, child: Text(e.value)))
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) setState(() => action.field = v);
+                            },
+                          ),
                         ),
-                        items: _actionFieldValues()
-                            .map((e) => DropdownMenuItem(
-                                value: e.key, child: Text(e.value)))
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) setState(() => action.field = v);
-                        },
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 3,
+                          child: ActionValueSelector(
+                            field: action.field,
+                            value: action.value,
+                            onChanged: (v) => setState(() => action.value = v),
+                            categories: _categories,
+                            funds: _funds,
+                            shops: _shops,
+                            tags: _tags,
+                            projects: _projects,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline,
+                              color: colorScheme.error),
+                          onPressed: () => _removeAction(idx),
+                        ),
+                      ],
+                    ),
+                    if (action.field == 'tagCode')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, left: 4),
+                        child: Row(
+                          children: [
+                            Text(
+                              L10nManager.l10n.bookkeepingRuleActionMode,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ToggleButtons(
+                              isSelected: [!action.append, action.append],
+                              onPressed: (i) =>
+                                  setState(() => action.append = i == 1),
+                              textStyle: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  child: Text(L10nManager.l10n.bookkeepingRuleActionReplace),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  child: Text(L10nManager.l10n.bookkeepingRuleActionAppend),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 4,
-                      child: ActionValueSelector(
-                        field: action.field,
-                        value: action.value,
-                        onChanged: (v) => setState(() => action.value = v),
-                        categories: _categories,
-                        funds: _funds,
-                        shops: _shops,
-                        tags: _tags,
-                        projects: _projects,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.remove_circle_outline,
-                          color: colorScheme.error),
-                      onPressed: () => _removeAction(idx),
-                    ),
                   ],
                 ),
               );

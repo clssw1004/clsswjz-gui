@@ -167,16 +167,34 @@ class ActionRegistry {
 class SetValueAction implements ActionExecutor {
   final String field;
   final String value;
+  final bool append;
 
   SetValueAction(Map<String, dynamic> data)
       : field = data['field'] as String,
-        value = data['value']?.toString() ?? '';
+        value = data['value']?.toString() ?? '',
+        append = data['append'] == true;
 
   @override
   String get type => 'set_value';
 
   @override
   List<String> apply(UserItemVO item, Map<String, dynamic> _) {
+    if (append && (field == 'tagCode' || field == 'tagCodes')) {
+      // 追加模式：在已有标签列表末尾添加，不覆盖
+      final existingCodes = item.tags.map((t) => t.code).toSet();
+      if (!existingCodes.contains(value) && value.isNotEmpty) {
+        item.tags = [...item.tags, AccountSymbol(
+          code: value,
+          name: '',
+          symbolType: SymbolType.tag.code,
+          accountBookId: item.accountBookId,
+          id: '', lastAccountItemAt: null,
+          createdAt: 0, createdBy: '',
+          updatedAt: 0, updatedBy: '',
+        )];
+      }
+      return ['tagCodes'];
+    }
     _setFieldValue(item, field, value);
     return [field];
   }
@@ -283,7 +301,7 @@ class RuleEngine {
       for (final action in rule.actions) {
         final executor = ActionRegistry.create(
           action.type,
-          {'field': action.field, 'value': action.value},
+          {'field': action.field, 'value': action.value, 'append': action.append},
         );
         if (executor == null) continue;
         final modified = executor.apply(item, {});

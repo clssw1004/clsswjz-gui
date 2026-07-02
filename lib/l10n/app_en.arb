@@ -2210,6 +2210,18 @@
     "@bookkeepingRuleAction": {
         "description": "Actions"
     },
+    "bookkeepingRuleActionAppend": "Append",
+    "@bookkeepingRuleActionAppend": {
+        "description": "Tag action mode-append"
+    },
+    "bookkeepingRuleActionReplace": "Replace",
+    "@bookkeepingRuleActionReplace": {
+        "description": "Tag action mode-replace"
+    },
+    "bookkeepingRuleActionMode": "Mode:",
+    "@bookkeepingRuleActionMode": {
+        "description": "Tag action mode switch label"
+    },
     "bookkeepingRuleAddCondition": "Add Condition",
     "@bookkeepingRuleAddCondition": {
         "description": "Add condition"
