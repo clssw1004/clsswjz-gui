@@ -559,19 +559,26 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                     ),
                     if (action.field == 'tagCode')
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                        padding: const EdgeInsets.only(right: 4),
+                        child: ToggleButtons(
+                          isSelected: [!action.append, action.append],
+                          onPressed: (i) =>
+                              setState(() => action.append = i == 1),
+                          constraints: const BoxConstraints(
+                            minWidth: 44, minHeight: 32,
+                          ),
+                          textStyle: theme.textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                           children: [
-                            Text(action.append ? L10nManager.l10n.bookkeepingRuleActionAppend : L10nManager.l10n.bookkeepingRuleActionReplace,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                    color: colorScheme.onSurfaceVariant)),
-                            Switch(
-                              value: action.append,
-                              onChanged: (v) =>
-                                  setState(() => action.append = v),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(L10nManager.l10n.bookkeepingRuleActionReplace),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(L10nManager.l10n.bookkeepingRuleActionAppend),
                             ),
                           ],
                         ),
