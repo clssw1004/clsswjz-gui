@@ -517,6 +517,7 @@ class _ModernItemFormState extends State<ModernItemForm> {
                 .toList(),
             getId: (AccountCategory c) => c.id,
             getParentId: (AccountCategory c) => c.parentId,
+            getLastUsedAt: (c) => c.lastAccountItemAt,
           ),
           onCreateItem: (value) async {
             final result = await DriverFactory.driver.createCategory(
@@ -568,7 +569,8 @@ class _ModernItemFormState extends State<ModernItemForm> {
         // === 商户（树形） ===
         TreeSelectFormField<AccountShop>(
           roots: TreeBuilder.buildTree(provider.shops.cast<AccountShop>(),
-              getId: (c) => c.id, getParentId: (c) => c.parentId),
+              getId: (c) => c.id, getParentId: (c) => c.parentId,
+              getLastUsedAt: (c) => c.lastAccountItemAt),
           value: item.shopCode != null && item.shopCode != 'NO_SHOP'
               ? provider.shops.cast<AccountShop>().where(
                   (c) => c.code == item.shopCode).firstOrNull

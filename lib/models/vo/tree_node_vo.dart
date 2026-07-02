@@ -28,20 +28,24 @@ class TreeNode<T> {
 /// Tree building utility
 class TreeBuilder {
   /// Build tree from flat list with parent-child relationship
-  /// [items] flat list sorted by sortOrder asc
-  /// [getId] function to get item's ID
-  /// [getParentId] function to get item's parentId
+  /// [getLastUsedAt] optional, enables recent-use sorting — propagates
+  /// descendant timestamps up so recently-used branches float to top.
   static List<TreeNode<T>> buildTree<T>(
     List<T> items, {
     required String Function(T) getId,
     required String? Function(T) getParentId,
+    Comparable? Function(T)? getLastUsedAt,
   }) {
     final childrenMap = <String?, List<T>>{};
     for (final item in items) {
       final pid = getParentId(item);
       childrenMap.putIfAbsent(pid, () => []).add(item);
     }
-    return _buildNodes<T>(null, childrenMap, 0, getId);
+    final result = _buildNodes<T>(null, childrenMap, 0, getId);
+    if (getLastUsedAt != null) {
+      sortByRecentUse(result, getLastUsedAt);
+    }
+    return result;
   }
 
   static List<TreeNode<T>> _buildNodes<T>(
@@ -133,5 +137,61 @@ class TreeBuilder {
       result.addAll(_collectAllIds(child, idGetter));
     }
     return result;
+  }
+
+  /// Sort tree by recent use — propagate descendant timestamps up so
+  /// recently-used branches appear first. Nulls sort last.
+  static void sortByRecentUse<T>(
+    List<TreeNode<T>> nodes,
+    Comparable? Function(T) getTime,
+  ) {
+    final effective = <TreeNode<T>, Comparable?>{};
+
+    Comparable? _compute(TreeNode<T> node) {
+      Comparable? best = getTime(node.data);
+      for (final child in node.children) {
+        final childBest = _compute(child);
+        if (childBest != null &&
+            (best == null || childBest.compareTo(best) > 0)) {
+          best = childBest;
+        }
+      }
+      effective[node] = best;
+      return best;
+    }
+
+    void _sortLevel(TreeNode<T> node) {
+      node.children.sort((a, b) {
+        final aT = effective[a];
+        final bT = effective[b];
+        if (aT == null && bT == null) return 0;
+        if (aT == null) return 1;
+        if (bT == null) return -1;
+        return bT.compareTo(aT);
+      });
+      for (final child in node.children) {
+        _sortLevel(child);
+      }
+    }
+
+    // Pass 1: compute effective time bottom-up
+    for (final node in nodes) {
+      _compute(node);
+    }
+
+    // Pass 2: sort children at each level
+    for (final node in nodes) {
+      _sortLevel(node);
+    }
+
+    // Sort roots
+    nodes.sort((a, b) {
+      final aT = effective[a];
+      final bT = effective[b];
+      if (aT == null && bT == null) return 0;
+      if (aT == null) return 1;
+      if (bT == null) return -1;
+      return bT.compareTo(aT);
+    });
   }
 }

@@ -123,8 +123,52 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   final Set<String> _selectedIds = {};
   String _searchQuery = '';
   bool _createLoading = false;
+  bool _recentMode = false;
+  List<TreeNode<T>>? _cachedRecentNodes;
 
   String? _currentSingleId;
+
+  // duck-typing 获取最近使用时间
+  Comparable? _lastUsedTime(T data) {
+    try {
+      return (data as dynamic).lastAccountItemAt as Comparable?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // 检查树中是否存在时间数据
+  bool _subtreeHasTime(TreeNode<T> node) {
+    if (_lastUsedTime(node.data) != null) return true;
+    for (final child in node.children) {
+      if (_subtreeHasTime(child)) return true;
+    }
+    return false;
+  }
+
+  bool get _hasRecentData =>
+      widget.filtered.any((n) => _subtreeHasTime(n));
+
+  // 最近使用列表：flat + sort + top20，缓存
+  List<TreeNode<T>> get _recentNodes {
+    if (_cachedRecentNodes == null) {
+      final all = TreeBuilder.flatten(widget.filtered);
+      // 不可选节点不展示在最近使用中
+      if (widget.isSelectableCheck != null) {
+        all.removeWhere((n) => !widget.isSelectableCheck!(n.data));
+      }
+      all.sort((a, b) {
+        final aT = _lastUsedTime(a.data);
+        final bT = _lastUsedTime(b.data);
+        if (aT == null && bT == null) return 0;
+        if (aT == null) return 1;
+        if (bT == null) return -1;
+        return bT.compareTo(aT);
+      });
+      _cachedRecentNodes = all.take(20).toList();
+    }
+    return _cachedRecentNodes!;
+  }
 
   @override
   void initState() {
@@ -158,6 +202,16 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   }
 
   List<TreeNode<T>> get _visibleNodes {
+    if (_recentMode) {
+      var nodes = _recentNodes;
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        nodes = nodes.where((n) =>
+            widget.displayField(n.data).toLowerCase().contains(query)).toList();
+      }
+      return nodes;
+    }
+
     List<TreeNode<T>> collectVisible(List<TreeNode<T>> nodes) {
       final result = <TreeNode<T>>[];
       for (final node in nodes) {
@@ -315,25 +369,6 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
         widget.allowCreate && !hasExactMatch && !_createLoading;
 
     final items = <Widget>[
-      for (int i = 0; i < visible.length; i++)
-        TreeSelectItem<T>(
-          key: ValueKey(widget.idField(visible[i].data)),
-          level: visible[i].level,
-          id: widget.idField(visible[i].data),
-          isChecked: _isChecked(widget.idField(visible[i].data)),
-          isMulti: widget.multiSelect,
-          displayText: widget.displayField(visible[i].data),
-          branchColor: branchColor(cs, visible[i].level),
-          hasChildren: visible[i].children.isNotEmpty,
-          isExpanded: _expandedIds.contains(widget.idField(visible[i].data)),
-          selectable: widget.isSelectableCheck != null
-              ? widget.isSelectableCheck!(visible[i].data)
-              : true,
-          onTap: () => _onTapNode(visible[i]),
-          onToggleExpand: visible[i].children.isNotEmpty
-              ? () => _onToggleExpand(visible[i])
-              : null,
-        ),
       if (showCreate)
         _TreeCreateTile<T>(
           searchText: _searchQuery,
@@ -348,6 +383,25 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
               Navigator.of(context).pop(result);
             }
           },
+        ),
+      for (int i = 0; i < visible.length; i++)
+        TreeSelectItem<T>(
+          key: ValueKey(widget.idField(visible[i].data)),
+          level: _recentMode ? 0 : visible[i].level,
+          id: widget.idField(visible[i].data),
+          isChecked: _isChecked(widget.idField(visible[i].data)),
+          isMulti: widget.multiSelect,
+          displayText: widget.displayField(visible[i].data),
+          branchColor: branchColor(cs, _recentMode ? 0 : visible[i].level),
+          hasChildren: _recentMode ? false : visible[i].children.isNotEmpty,
+          isExpanded: _recentMode ? false : _expandedIds.contains(widget.idField(visible[i].data)),
+          selectable: widget.isSelectableCheck != null
+              ? widget.isSelectableCheck!(visible[i].data)
+              : true,
+          onTap: () => _onTapNode(visible[i]),
+          onToggleExpand: _recentMode || visible[i].children.isEmpty
+              ? null
+              : () => _onToggleExpand(visible[i]),
         ),
     ];
 
@@ -378,6 +432,12 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       multiSelect: widget.multiSelect,
       searchQuery: _searchQuery,
       onSearchChanged: (v) => setState(() => _searchQuery = v),
+      recentMode: _recentMode,
+      onToggleView: (recent) => setState(() {
+        _recentMode = recent;
+        _cachedRecentNodes = null;
+      }),
+      showViewToggle: _hasRecentData,
       bottomBar: widget.multiSelect
           ? _MultiBottomBar(
               selectedCount: _selectedIds.length,
@@ -403,6 +463,9 @@ class _TreeSheetLayout extends StatefulWidget {
   final ValueChanged<String> onSearchChanged;
   final Widget child;
   final Widget? bottomBar;
+  final bool recentMode;
+  final ValueChanged<bool> onToggleView;
+  final bool showViewToggle;
 
   const _TreeSheetLayout({
     required this.label,
@@ -411,46 +474,54 @@ class _TreeSheetLayout extends StatefulWidget {
     required this.onSearchChanged,
     required this.child,
     this.bottomBar,
+    this.recentMode = false,
+    required this.onToggleView,
+    this.showViewToggle = false,
   });
 
   @override
   State<_TreeSheetLayout> createState() => _TreeSheetLayoutState();
 }
 
-class _TreeSheetLayoutState extends State<_TreeSheetLayout>
-    with SingleTickerProviderStateMixin {
+class _TreeSheetLayoutState extends State<_TreeSheetLayout> {
   late final TextEditingController _searchCtrl;
-  late final AnimationController _animCtrl;
-  bool _searchOpen = false;
 
   @override
   void initState() {
     super.initState();
     _searchCtrl = TextEditingController();
-    _animCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
   }
 
   @override
   void dispose() {
     _searchCtrl.dispose();
-    _animCtrl.dispose();
     super.dispose();
   }
 
-  void _toggleSearch() {
-    setState(() {
-      _searchOpen = !_searchOpen;
-      if (_searchOpen) {
-        _animCtrl.forward();
-      } else {
-        _animCtrl.reverse();
-        _searchCtrl.clear();
-        widget.onSearchChanged('');
-      }
-    });
+  Widget _buildViewChip(BuildContext context, String label, bool selected, VoidCallback onTap) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? cs.primary.withAlpha(20) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? cs.primary.withAlpha(80) : cs.outlineVariant.withAlpha(80),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? cs.primary : cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -485,7 +556,7 @@ class _TreeSheetLayoutState extends State<_TreeSheetLayout>
               ),
             ),
           ),
-          // 标题行（含搜索按钮）
+          // 标题行
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 10, 8, 4),
             child: Row(
@@ -510,47 +581,57 @@ class _TreeSheetLayoutState extends State<_TreeSheetLayout>
                       ),
                     ),
                   ),
-                // 搜索展开按钮
-                IconButton(
-                  icon: Icon(
-                    _searchOpen ? Icons.close_rounded : Icons.search_rounded,
-                    size: 22,
-                  ),
-                  color: cs.onSurfaceVariant,
-                  onPressed: _toggleSearch,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: L10nManager.l10n.search,
-                ),
               ],
             ),
           ),
-          // 搜索输入框（展开动画）
-          if (_searchOpen)
-            SizeTransition(
-              sizeFactor: _animCtrl,
-              axisAlignment: 1.0,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                child: TextField(
-                  controller: _searchCtrl,
-                  autofocus: true,
-                  style: theme.textTheme.bodyMedium,
-                  decoration: InputDecoration(
-                    hintText: L10nManager.l10n.search,
-                    isDense: true,
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest.withAlpha(60),
-                    prefixIcon: Icon(Icons.search_rounded,
-                        size: 20, color: cs.primary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(22),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                  ),
-                  onChanged: widget.onSearchChanged,
+          // 搜索输入框（常驻）
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: TextField(
+              controller: _searchCtrl,
+              style: theme.textTheme.bodyMedium,
+              decoration: InputDecoration(
+                hintText: L10nManager.l10n.search,
+                hintStyle: TextStyle(color: cs.onSurfaceVariant.withAlpha(100)),
+                isDense: true,
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withAlpha(60),
+                prefixIcon: Icon(Icons.search_rounded,
+                    size: 20, color: cs.onSurfaceVariant),
+                suffixIcon: _searchCtrl.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.close_rounded, size: 18,
+                            color: cs.onSurfaceVariant),
+                        onPressed: () {
+                          _searchCtrl.clear();
+                          widget.onSearchChanged('');
+                        },
+                        visualDensity: VisualDensity.compact,
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 10),
+              ),
+              onChanged: (v) {
+                widget.onSearchChanged(v);
+                setState(() {});
+              },
+            ),
+          ),
+          // 视图切换
+          if (widget.showViewToggle)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
+              child: Row(
+                children: [
+                  _buildViewChip(context, L10nManager.l10n.treeView, !widget.recentMode, () => widget.onToggleView(false)),
+                  const SizedBox(width: 8),
+                  _buildViewChip(context, L10nManager.l10n.recentUse, widget.recentMode, () => widget.onToggleView(true)),
+                ],
               ),
             ),
           Divider(height: 1, color: cs.outline.withAlpha(20)),

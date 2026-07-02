@@ -518,7 +518,8 @@ class ConditionValueSelector extends StatelessWidget {
         return TreeSelectFormField<AccountCategory>(
           key: key,
           roots: TreeBuilder.buildTree(categories,
-              getId: (c) => c.id, getParentId: (c) => c.parentId),
+              getId: (c) => c.id, getParentId: (c) => c.parentId,
+              getLastUsedAt: (c) => c.lastAccountItemAt),
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (c) => c.name,
           idField: (c) => c.code,
@@ -547,7 +548,8 @@ class ConditionValueSelector extends StatelessWidget {
         return TreeSelectFormField<AccountShop>(
           key: key,
           roots: TreeBuilder.buildTree(shops,
-              getId: (c) => c.id, getParentId: (c) => c.parentId),
+              getId: (c) => c.id, getParentId: (c) => c.parentId,
+              getLastUsedAt: (c) => c.lastAccountItemAt),
           value: multiSelect ? (selectedIds ?? <String>[]) : singleValue,
           displayField: (s) => s.name,
           idField: (s) => s.code,
