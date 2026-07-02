@@ -301,7 +301,7 @@ class RuleEngine {
       for (final action in rule.actions) {
         final executor = ActionRegistry.create(
           action.type,
-          {'field': action.field, 'value': action.value},
+          {'field': action.field, 'value': action.value, 'append': action.append},
         );
         if (executor == null) continue;
         final modified = executor.apply(item, {});

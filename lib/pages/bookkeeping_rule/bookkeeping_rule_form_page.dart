@@ -524,7 +524,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 3,
+                      flex: 2,
                       child: DropdownButtonFormField<String>(
                         initialValue: action.field,
                         decoration: InputDecoration(
@@ -532,7 +532,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                           border: const OutlineInputBorder(),
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
+                              horizontal: 8, vertical: 12),
                         ),
                         items: _actionFieldValues()
                             .map((e) => DropdownMenuItem(
@@ -543,9 +543,9 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
-                      flex: 4,
+                      flex: 3,
                       child: ActionValueSelector(
                         field: action.field,
                         value: action.value,
@@ -565,7 +565,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                           onPressed: (i) =>
                               setState(() => action.append = i == 1),
                           constraints: const BoxConstraints(
-                            minWidth: 44, minHeight: 32,
+                            minWidth: 36, minHeight: 28,
                           ),
                           textStyle: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.w600,
