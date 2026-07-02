@@ -340,6 +340,17 @@ class ItemFormProvider extends ChangeNotifier {
     );
 
     if (engineModifiedFields.isNotEmpty) {
+      // 规则引擎写入的标签只有 code 没有 name，用已加载列表解析真实名称
+      if (engineModifiedFields.contains('tagCode') ||
+          engineModifiedFields.contains('tagCodes')) {
+        final resolved = _item.tags.map((t) {
+          final match = _tags.cast<AccountSymbol>().where(
+            (a) => a.code == t.code,
+          ).firstOrNull;
+          return match ?? t;
+        }).toList();
+        _item.tags = resolved;
+      }
       notifyListeners();
     }
   }
