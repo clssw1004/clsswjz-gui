@@ -21,6 +21,7 @@ import '../drivers/driver_factory.dart';
 import '../manager/service_manager.dart';
 import '../services/rule_engine.dart';
 import '../services/bookkeeping_rule_service.dart';
+import '../services/smart_sort_service.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';
 
 /// 账目表单状态管理
@@ -43,6 +44,13 @@ class ItemFormProvider extends ChangeNotifier {
   /// 错误信息
   String? _error;
   String? get error => _error;
+
+  /// 智能评分缓存 (keyed by 分类/商户 id)
+  Map<String, double> _smartCategoryScores = {};
+  Map<String, double> _smartShopScores = {};
+  Map<String, double> get smartCategoryScores => _smartCategoryScores;
+  Map<String, double> get smartShopScores => _smartShopScores;
+  List<AccountItem>? _cachedRecentItems;
 
   /// 分类列表
   List<dynamic> _categories = [];
@@ -135,6 +143,43 @@ class ItemFormProvider extends ChangeNotifier {
 
     _loading = false;
     notifyListeners();
+
+    // 后台加载智能评分（不阻塞 UI）
+    _loadSmartScores();
+  }
+
+  /// 加载智能评分
+  Future<void> _loadSmartScores() async {
+    try {
+      _cachedRecentItems = await SmartSortService.loadRecentItems(
+        _item.accountBookId,
+      );
+      _refreshScores();
+    } catch (_) {
+      // 评分失败不影响正常功能
+    }
+  }
+
+  /// 从缓存数据重新计算评分（金额/时间变化时调用，不重复查库）
+  void _refreshScores() {
+    final items = _cachedRecentItems;
+    if (items == null) return;
+    final now = DateTime.now();
+    final amount = _item.amount;
+
+    _smartCategoryScores = SmartSortService.computeCategoryScores(
+      recentItems: items,
+      categories: _categories.cast<AccountCategory>(),
+      currentAmount: amount,
+      currentTime: now,
+    );
+    _smartShopScores = SmartSortService.computeShopScores(
+      recentItems: items,
+      shops: _shops.cast<AccountShop>(),
+      currentAmount: amount,
+      currentTime: now,
+    );
+    notifyListeners();
   }
 
   /// 加载账本列表
@@ -225,6 +270,7 @@ class ItemFormProvider extends ChangeNotifier {
     );
     if (result.ok) {
       _categories = result.data ?? [];
+      _refreshScores();
       notifyListeners();
     }
   }
@@ -449,6 +495,7 @@ class ItemFormProvider extends ChangeNotifier {
     final finalAmount = isNegative ? -amount.abs() : amount.abs();
     _item = _item.copyWith(amount: finalAmount);
     _applyRules('amount');
+    _refreshScores();
     notifyListeners();
   }
 

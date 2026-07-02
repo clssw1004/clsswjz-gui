@@ -31,6 +31,9 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
   /// 树形数据源（传入后在"更多"面板中展示层级缩进列表）
   final List<TreeNode<T>>? treeRoots;
 
+  /// 智能评分数据
+  final Map<String, double>? scores;
+
   CommonSelectFormField({
     super.key,
     required List<T> items,
@@ -53,6 +56,7 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
     Color? badgeColor,
     this.multiSelect = false,
     this.treeRoots,
+    this.scores,
   }) : super(
           initialValue: multiSelect
               ? (value is List ? List<String>.from(value) : <String>[])
@@ -104,6 +108,7 @@ class CommonSelectFormField<T> extends FormField<dynamic> {
               onchangeArgs: onchangeArgs ?? (item) => item,
               badgeColor: badgeColor,
               treeRoots: treeRoots,
+              scores: scores,
             );
           },
         );
@@ -129,6 +134,7 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
   final dynamic Function(T item) onchangeArgs;
   final Color? badgeColor;
   final List<TreeNode<T>>? treeRoots;
+  final Map<String, double>? scores;
 
   const _CommonSelectFormFieldWidget({
     required this.items,
@@ -150,6 +156,7 @@ class _CommonSelectFormFieldWidget<T> extends StatefulWidget {
     this.onCreateItem,
     this.badgeColor,
     this.treeRoots,
+    this.scores,
   });
 
   @override
@@ -206,6 +213,7 @@ class _CommonSelectFormFieldWidgetState<T>
               return true;
             }
           },
+          scores: widget.scores,
         ),
       );
       if (result != null && mounted) _handleItemChanged(result);

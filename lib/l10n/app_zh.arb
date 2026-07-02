@@ -2742,5 +2742,9 @@
     "recentUse": "最近使用",
     "@recentUse": {
         "description": "最近使用视图切换文本"
+    },
+    "smartSort": "智能推荐",
+    "@smartSort": {
+        "description": "智能推荐视图切换文本"
     }
 }
