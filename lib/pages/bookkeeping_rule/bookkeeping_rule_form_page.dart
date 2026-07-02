@@ -520,74 +520,87 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
               final action = entry.value;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: DropdownButtonFormField<String>(
-                        initialValue: action.field,
-                        decoration: InputDecoration(
-                          labelText: L10nManager.l10n.bookkeepingRuleLabelField,
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: DropdownButtonFormField<String>(
+                            initialValue: action.field,
+                            decoration: InputDecoration(
+                              labelText: L10nManager.l10n.bookkeepingRuleLabelField,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                            items: _actionFieldValues()
+                                .map((e) => DropdownMenuItem(
+                                    value: e.key, child: Text(e.value)))
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) setState(() => action.field = v);
+                            },
+                          ),
                         ),
-                        items: _actionFieldValues()
-                            .map((e) => DropdownMenuItem(
-                                value: e.key, child: Text(e.value)))
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) setState(() => action.field = v);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      flex: 3,
-                      child: ActionValueSelector(
-                        field: action.field,
-                        value: action.value,
-                        onChanged: (v) => setState(() => action.value = v),
-                        categories: _categories,
-                        funds: _funds,
-                        shops: _shops,
-                        tags: _tags,
-                        projects: _projects,
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 3,
+                          child: ActionValueSelector(
+                            field: action.field,
+                            value: action.value,
+                            onChanged: (v) => setState(() => action.value = v),
+                            categories: _categories,
+                            funds: _funds,
+                            shops: _shops,
+                            tags: _tags,
+                            projects: _projects,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline,
+                              color: colorScheme.error),
+                          onPressed: () => _removeAction(idx),
+                        ),
+                      ],
                     ),
                     if (action.field == 'tagCode')
                       Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: ToggleButtons(
-                          isSelected: [!action.append, action.append],
-                          onPressed: (i) =>
-                              setState(() => action.append = i == 1),
-                          constraints: const BoxConstraints(
-                            minWidth: 36, minHeight: 28,
-                          ),
-                          textStyle: theme.textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
+                        padding: const EdgeInsets.only(top: 4, left: 4),
+                        child: Row(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(L10nManager.l10n.bookkeepingRuleActionReplace),
+                            Text(
+                              L10nManager.l10n.bookkeepingRuleActionMode,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(L10nManager.l10n.bookkeepingRuleActionAppend),
+                            const SizedBox(width: 8),
+                            ToggleButtons(
+                              isSelected: [!action.append, action.append],
+                              onPressed: (i) =>
+                                  setState(() => action.append = i == 1),
+                              textStyle: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  child: Text(L10nManager.l10n.bookkeepingRuleActionReplace),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  child: Text(L10nManager.l10n.bookkeepingRuleActionAppend),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                    IconButton(
-                      icon: Icon(Icons.remove_circle_outline,
-                          color: colorScheme.error),
-                      onPressed: () => _removeAction(idx),
-                    ),
                   ],
                 ),
               );

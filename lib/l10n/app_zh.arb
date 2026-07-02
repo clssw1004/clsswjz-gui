@@ -2371,6 +2371,10 @@
     "@bookkeepingRuleActionReplace": {
         "description": "标签动作模式-覆盖"
     },
+    "bookkeepingRuleActionMode": "模式：",
+    "@bookkeepingRuleActionMode": {
+        "description": "标签动作模式切换标签"
+    },
     "bookkeepingRuleAddCondition": "添加条件",
     "@bookkeepingRuleAddCondition": {
         "description": "添加条件"

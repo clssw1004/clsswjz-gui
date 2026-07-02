@@ -2218,6 +2218,10 @@
     "@bookkeepingRuleActionReplace": {
         "description": "Tag action mode-replace"
     },
+    "bookkeepingRuleActionMode": "Mode:",
+    "@bookkeepingRuleActionMode": {
+        "description": "Tag action mode switch label"
+    },
     "bookkeepingRuleAddCondition": "Add Condition",
     "@bookkeepingRuleAddCondition": {
         "description": "Add condition"
