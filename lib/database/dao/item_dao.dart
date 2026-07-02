@@ -197,6 +197,17 @@ class ItemDao extends BaseBookDao<AccountItemTable, AccountItem> {
         .get();
   }
 
+  /// 查询指定日期之后的账目（用于智能评分），按 accountDate 降序
+  Future<List<AccountItem>> listRecentByDate(
+      String bookId, String startDate) async {
+    return (db.select(table)
+      ..where((t) =>
+          t.accountBookId.equals(bookId) &
+          t.accountDate.isBiggerOrEqualValue(startDate))
+      ..orderBy([(t) => OrderingTerm.desc(t.accountDate)]))
+        .get();
+  }
+
   @override
   TableInfo<AccountItemTable, AccountItem> get table => db.accountItemTable;
 }

@@ -301,6 +301,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
 
           // === 分类（常用铺开展示，更多展示树形） ===
           CommonSelectFormField<AccountCategory>(
+            scores: provider.smartCategoryScores,
             items: provider.categories
                 .cast<AccountCategory>()
                 .where((c) => c.categoryType == item.type)
@@ -376,6 +377,7 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
           // === 商户（树形） ===
           TreeSelectFormField<AccountShop>(
+            scores: provider.smartShopScores,
             roots: TreeBuilder.buildTree(provider.shops.cast<AccountShop>(),
                 getId: (c) => c.id, getParentId: (c) => c.parentId,
                 getLastUsedAt: (c) => c.lastAccountItemAt),

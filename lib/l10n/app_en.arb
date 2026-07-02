@@ -2585,5 +2585,9 @@
     "recentUse": "Recent",
     "@recentUse": {
         "description": "Recent use view toggle label"
+    },
+    "smartSort": "Smart",
+    "@smartSort": {
+        "description": "Smart sort view toggle label"
     }
 }

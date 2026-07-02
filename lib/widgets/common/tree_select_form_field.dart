@@ -13,6 +13,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
   final bool allowCreate;
   final Future<T?> Function(String value)? onCreateItem;
   final bool Function(T data)? isSelectableCheck;
+  final Map<String, double>? scores;
 
   TreeSelectFormField({
     super.key,
@@ -29,6 +30,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
     this.allowCreate = false,
     this.onCreateItem,
     this.isSelectableCheck,
+    this.scores,
     ValueChanged<dynamic>? onChanged,
     super.validator,
   }) : super(
@@ -55,6 +57,7 @@ class TreeSelectFormField<T> extends FormField<dynamic> {
               allowCreate: allowCreate,
               onCreateItem: onCreateItem,
               isSelectableCheck: isSelectableCheck,
+              scores: scores,
               onChanged: (v) {
                 state.didChange(v);
                 if (onChanged != null) onChanged(v);
@@ -79,6 +82,7 @@ class _TreeSelectWidget<T> extends StatefulWidget {
   final bool allowCreate;
   final Future<T?> Function(String value)? onCreateItem;
   final bool Function(T data)? isSelectableCheck;
+  final Map<String, double>? scores;
   final ValueChanged<dynamic>? onChanged;
 
   const _TreeSelectWidget({
@@ -96,6 +100,7 @@ class _TreeSelectWidget<T> extends StatefulWidget {
     this.allowCreate = false,
     this.onCreateItem,
     this.isSelectableCheck,
+    this.scores,
     this.onChanged,
   });
 
@@ -173,6 +178,7 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           allowCreate: widget.allowCreate,
           onCreateItem: widget.onCreateItem,
           isSelectableCheck: check,
+          scores: widget.scores,
         ),
       );
       if (result != null && mounted) {
@@ -200,6 +206,7 @@ class _TreeSelectWidgetState<T> extends State<_TreeSelectWidget<T>> {
           allowCreate: widget.allowCreate,
           onCreateItem: widget.onCreateItem,
           isSelectableCheck: check,
+          scores: widget.scores,
         ),
       );
       if (result != null && mounted) {

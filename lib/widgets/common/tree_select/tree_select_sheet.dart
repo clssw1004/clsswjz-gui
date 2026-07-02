@@ -5,67 +5,12 @@ import '../../../models/vo/tree_node_vo.dart';
 import '../../../theme/theme_radius.dart';
 import 'tree_select_item.dart';
 
-/// 多选底部按钮栏
-class _MultiBottomBar extends StatelessWidget {
-  final int selectedCount;
-  final VoidCallback onCancel;
-  final VoidCallback onConfirm;
+part 'tree_select_multi_bar.dart';
+part 'tree_select_create_tile.dart';
+part 'tree_select_layout.dart';
 
-  const _MultiBottomBar({
-    required this.selectedCount,
-    required this.onCancel,
-    required this.onConfirm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        border: Border(top: BorderSide(color: cs.outline.withAlpha(20))),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                onPressed: onCancel,
-                child: Text(L10nManager.l10n.cancel),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: FilledButton(
-                onPressed: onConfirm,
-                style: FilledButton.styleFrom(
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      (Theme.of(context)
-                              .extension<ThemeRadius>()
-                              ?.radius ??
-                          12) *
-                          1.8,
-                    ),
-                  ),
-                ),
-                child: Text(
-                  L10nManager.l10n.treeSelectedCount(selectedCount),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+/// 视图模式
+enum _ViewMode { tree, recent, recommend }
 
 /// 层级颜色映射（用于分支线 + 选中色条）
 Color branchColor(ColorScheme cs, int level) {
@@ -98,6 +43,7 @@ class TreeSelectSheet<T> extends StatefulWidget {
   final void Function(T data)? onNodeTap;
   final bool noShell;
   final bool Function(T data)? isSelectableCheck;
+  final Map<String, double>? scores;
 
   const TreeSelectSheet({
     super.key,
@@ -112,6 +58,7 @@ class TreeSelectSheet<T> extends StatefulWidget {
     this.onNodeTap,
     this.noShell = false,
     this.isSelectableCheck,
+    this.scores,
   });
 
   @override
@@ -123,8 +70,9 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   final Set<String> _selectedIds = {};
   String _searchQuery = '';
   bool _createLoading = false;
-  bool _recentMode = false;
+  _ViewMode _viewMode = _ViewMode.tree;
   List<TreeNode<T>>? _cachedRecentNodes;
+  List<TreeNode<T>>? _cachedRecommendNodes;
 
   String? _currentSingleId;
 
@@ -149,11 +97,14 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   bool get _hasRecentData =>
       widget.filtered.any((n) => _subtreeHasTime(n));
 
+  bool get _hasScoreData =>
+      widget.scores != null && widget.scores!.isNotEmpty;
+
   // 最近使用列表：flat + sort + top20，缓存
   List<TreeNode<T>> get _recentNodes {
     if (_cachedRecentNodes == null) {
       final all = TreeBuilder.flatten(widget.filtered);
-      // 不可选节点不展示在最近使用中
+      // 不可选节点不展示
       if (widget.isSelectableCheck != null) {
         all.removeWhere((n) => !widget.isSelectableCheck!(n.data));
       }
@@ -168,6 +119,30 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       _cachedRecentNodes = all.take(20).toList();
     }
     return _cachedRecentNodes!;
+  }
+
+  // 推荐列表：按智能评分排序，top20
+  List<TreeNode<T>> get _recommendNodes {
+    if (_cachedRecommendNodes == null) {
+      final scores = widget.scores;
+      if (scores == null || scores.isEmpty) return [];
+      final all = TreeBuilder.flatten(widget.filtered);
+      // 不可选节点不展示
+      if (widget.isSelectableCheck != null) {
+        all.removeWhere((n) => !widget.isSelectableCheck!(n.data));
+      }
+      final scored = all.where((n) {
+        final s = scores[widget.idField(n.data)];
+        return s != null && s > 0;
+      }).toList();
+      scored.sort((a, b) {
+        final sa = scores[widget.idField(a.data)] ?? 0;
+        final sb = scores[widget.idField(b.data)] ?? 0;
+        return sb.compareTo(sa);
+      });
+      _cachedRecommendNodes = scored.take(20).toList();
+    }
+    return _cachedRecommendNodes!;
   }
 
   @override
@@ -188,6 +163,11 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       }
     }
 
+    // 有评分数据时默认智能推荐视图
+    if (_hasScoreData) {
+      _viewMode = _ViewMode.recommend;
+    }
+
     // 默认全部展开
     _expandAll(widget.filtered);
   }
@@ -202,16 +182,41 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   }
 
   List<TreeNode<T>> get _visibleNodes {
-    if (_recentMode) {
-      var nodes = _recentNodes;
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        nodes = nodes.where((n) =>
-            widget.displayField(n.data).toLowerCase().contains(query)).toList();
+    // 搜索时统一全量搜索（不限当前视图）
+    if (_searchQuery.isNotEmpty) {
+      final all = TreeBuilder.flatten(widget.filtered);
+      final query = _searchQuery.toLowerCase();
+      if (_viewMode == _ViewMode.tree) {
+        // 树形模式保留祖先节点
+        final keepIds = <String>{};
+        for (final node in all) {
+          if (widget.displayField(node.data)
+              .toLowerCase().contains(query)) {
+            keepIds.add(widget.idField(node.data));
+          }
+        }
+        final nodesToKeep = <TreeNode<T>>[];
+        for (final node in all) {
+          if (_nodeOrDescendantMatches(node, keepIds)) {
+            nodesToKeep.add(node);
+          }
+        }
+        return nodesToKeep;
       }
-      return nodes;
+      // 扁平模式直接返回匹配项
+      return all.where((n) =>
+          widget.displayField(n.data).toLowerCase().contains(query)).toList();
     }
 
+    if (_viewMode == _ViewMode.recent) {
+      return _recentNodes;
+    }
+
+    if (_viewMode == _ViewMode.recommend) {
+      return _recommendNodes;
+    }
+
+    // tree mode
     List<TreeNode<T>> collectVisible(List<TreeNode<T>> nodes) {
       final result = <TreeNode<T>>[];
       for (final node in nodes) {
@@ -224,28 +229,7 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       return result;
     }
 
-    var nodes = collectVisible(widget.filtered);
-
-    if (_searchQuery.isNotEmpty) {
-      final query = _searchQuery.toLowerCase();
-      // 收集所有匹配节点和它们的祖先节点ID
-      final keepIds = <String>{};
-      for (final node in nodes) {
-        if (widget.displayField(node.data).toLowerCase().contains(query)) {
-          keepIds.add(widget.idField(node.data));
-        }
-      }
-      // 也保留哪些后代有匹配的节点（祖先节点）
-      final nodesToKeep = <TreeNode<T>>[];
-      for (final node in nodes) {
-        if (_nodeOrDescendantMatches(node, keepIds)) {
-          nodesToKeep.add(node);
-        }
-      }
-      nodes = nodesToKeep;
-    }
-
-    return nodes;
+    return collectVisible(widget.filtered);
   }
 
   bool _nodeOrDescendantMatches(
@@ -361,6 +345,8 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
   }
 
   ListView _buildListView(ColorScheme cs, List<TreeNode<T>> visible) {
+    final isFlat = _viewMode != _ViewMode.tree;
+
     // 搜索：是否有完全匹配项
     final hasExactMatch = _searchQuery.isNotEmpty &&
         TreeBuilder.flatten(widget.filtered).any(
@@ -387,19 +373,19 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       for (int i = 0; i < visible.length; i++)
         TreeSelectItem<T>(
           key: ValueKey(widget.idField(visible[i].data)),
-          level: _recentMode ? 0 : visible[i].level,
+          level: isFlat ? 0 : visible[i].level,
           id: widget.idField(visible[i].data),
           isChecked: _isChecked(widget.idField(visible[i].data)),
           isMulti: widget.multiSelect,
           displayText: widget.displayField(visible[i].data),
-          branchColor: branchColor(cs, _recentMode ? 0 : visible[i].level),
-          hasChildren: _recentMode ? false : visible[i].children.isNotEmpty,
-          isExpanded: _recentMode ? false : _expandedIds.contains(widget.idField(visible[i].data)),
+          branchColor: branchColor(cs, isFlat ? 0 : visible[i].level),
+          hasChildren: isFlat ? false : visible[i].children.isNotEmpty,
+          isExpanded: isFlat ? false : _expandedIds.contains(widget.idField(visible[i].data)),
           selectable: widget.isSelectableCheck != null
               ? widget.isSelectableCheck!(visible[i].data)
               : true,
           onTap: () => _onTapNode(visible[i]),
-          onToggleExpand: _recentMode || visible[i].children.isEmpty
+          onToggleExpand: isFlat || visible[i].children.isEmpty
               ? null
               : () => _onToggleExpand(visible[i]),
         ),
@@ -432,12 +418,14 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
       multiSelect: widget.multiSelect,
       searchQuery: _searchQuery,
       onSearchChanged: (v) => setState(() => _searchQuery = v),
-      recentMode: _recentMode,
-      onToggleView: (recent) => setState(() {
-        _recentMode = recent;
+      viewMode: _viewMode,
+      onViewModeChanged: (mode) => setState(() {
+        _viewMode = mode;
         _cachedRecentNodes = null;
+        _cachedRecommendNodes = null;
       }),
-      showViewToggle: _hasRecentData,
+      showViewToggle: _hasRecentData || _hasScoreData,
+      showScoreToggle: _hasScoreData,
       bottomBar: widget.multiSelect
           ? _MultiBottomBar(
               selectedCount: _selectedIds.length,
@@ -450,261 +438,6 @@ class _TreeSelectSheetState<T> extends State<TreeSelectSheet<T>> {
         child: visible.isEmpty
               ? _buildEmptyOrCreate(cs)
               : _buildListView(cs, visible),
-      ),
-    );
-  }
-}
-
-/// 树形选择 BottomSheet 布局 — 搜索集成在标题栏
-class _TreeSheetLayout extends StatefulWidget {
-  final String? label;
-  final bool multiSelect;
-  final String searchQuery;
-  final ValueChanged<String> onSearchChanged;
-  final Widget child;
-  final Widget? bottomBar;
-  final bool recentMode;
-  final ValueChanged<bool> onToggleView;
-  final bool showViewToggle;
-
-  const _TreeSheetLayout({
-    required this.label,
-    required this.multiSelect,
-    required this.searchQuery,
-    required this.onSearchChanged,
-    required this.child,
-    this.bottomBar,
-    this.recentMode = false,
-    required this.onToggleView,
-    this.showViewToggle = false,
-  });
-
-  @override
-  State<_TreeSheetLayout> createState() => _TreeSheetLayoutState();
-}
-
-class _TreeSheetLayoutState extends State<_TreeSheetLayout> {
-  late final TextEditingController _searchCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchCtrl = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
-  }
-
-  Widget _buildViewChip(BuildContext context, String label, bool selected, VoidCallback onTap) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? cs.primary.withAlpha(20) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? cs.primary.withAlpha(80) : cs.outlineVariant.withAlpha(80),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? cs.primary : cs.onSurfaceVariant,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 12;
-    final screenH = MediaQuery.of(context).size.height;
-
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: screenH * 0.8,
-        minHeight: 300,
-      ),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(radius * 1.5)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 拖拽手柄
-          Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 2),
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurfaceVariant.withAlpha(50),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          // 标题行
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 8, 4),
-            child: Row(
-              children: [
-                Icon(Icons.account_tree_outlined,
-                    size: 18, color: cs.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.label ?? L10nManager.l10n.pleaseSelect(''),
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                if (widget.multiSelect)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: Text(
-                      L10nManager.l10n.treeMultiSelectHint,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // 搜索输入框（常驻）
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: TextField(
-              controller: _searchCtrl,
-              style: theme.textTheme.bodyMedium,
-              decoration: InputDecoration(
-                hintText: L10nManager.l10n.search,
-                hintStyle: TextStyle(color: cs.onSurfaceVariant.withAlpha(100)),
-                isDense: true,
-                filled: true,
-                fillColor: cs.surfaceContainerHighest.withAlpha(60),
-                prefixIcon: Icon(Icons.search_rounded,
-                    size: 20, color: cs.onSurfaceVariant),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.close_rounded, size: 18,
-                            color: cs.onSurfaceVariant),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          widget.onSearchChanged('');
-                        },
-                        visualDensity: VisualDensity.compact,
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(22),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
-              ),
-              onChanged: (v) {
-                widget.onSearchChanged(v);
-                setState(() {});
-              },
-            ),
-          ),
-          // 视图切换
-          if (widget.showViewToggle)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
-              child: Row(
-                children: [
-                  _buildViewChip(context, L10nManager.l10n.treeView, !widget.recentMode, () => widget.onToggleView(false)),
-                  const SizedBox(width: 8),
-                  _buildViewChip(context, L10nManager.l10n.recentUse, widget.recentMode, () => widget.onToggleView(true)),
-                ],
-              ),
-            ),
-          Divider(height: 1, color: cs.outline.withAlpha(20)),
-          widget.child,
-          if (widget.bottomBar != null) widget.bottomBar!,
-        ],
-      ),
-    );
-  }
-}
-
-/// 树形搜索新建项 — 整行可点击创建
-class _TreeCreateTile<T> extends StatelessWidget {
-  final String searchText;
-  final String label;
-  final bool loading;
-  final VoidCallback onCreate;
-
-  const _TreeCreateTile({
-    required this.searchText,
-    required this.label,
-    required this.loading,
-    required this.onCreate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: loading ? null : onCreate,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: colorScheme.primary.withAlpha(6),
-            ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 24,
-                  child: loading
-                      ? SizedBox(
-                          width: 18, height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colorScheme.primary,
-                          ),
-                        )
-                      : Icon(Icons.add_rounded, size: 22, color: colorScheme.primary),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    L10nManager.l10n.addNew(searchText),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
