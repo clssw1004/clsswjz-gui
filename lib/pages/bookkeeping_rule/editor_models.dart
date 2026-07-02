@@ -21,5 +21,6 @@ class ConditionData {
 class ActionData {
   String field;
   String value;
-  ActionData({required this.field, required this.value});
+  bool append; // 标签追加模式
+  ActionData({required this.field, required this.value, this.append = false});
 }

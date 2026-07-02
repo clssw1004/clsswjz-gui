@@ -74,6 +74,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           .map((a) => ActionData(
                 field: a.field,
                 value: a.value?.toString() ?? '',
+                append: a.append,
               ))
           .toList();
     }
@@ -271,6 +272,7 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
         'type': 'set_value',
         'field': a.field,
         'value': a.value,
+        if (a.field == 'tagCode') 'append': a.append,
       }).toList(),
     );
   }
@@ -555,6 +557,25 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
                         projects: _projects,
                       ),
                     ),
+                    if (action.field == 'tagCode')
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(action.append ? L10nManager.l10n.bookkeepingRuleActionAppend : L10nManager.l10n.bookkeepingRuleActionReplace,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant)),
+                            Switch(
+                              value: action.append,
+                              onChanged: (v) =>
+                                  setState(() => action.append = v),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ],
+                        ),
+                      ),
                     IconButton(
                       icon: Icon(Icons.remove_circle_outline,
                           color: colorScheme.error),

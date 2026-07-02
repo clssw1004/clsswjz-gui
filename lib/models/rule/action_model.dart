@@ -9,10 +9,14 @@ class ActionNode {
   /// 动作值
   final dynamic value;
 
+  /// 标签追加模式（仅 tagCode/tagCodes 字段有效）
+  final bool append;
+
   const ActionNode({
     required this.type,
     required this.field,
     this.value,
+    this.append = false,
   });
 
   factory ActionNode.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,7 @@ class ActionNode {
       type: json['type'] as String,
       field: json['field'] as String,
       value: json['value'],
+      append: json['append'] == true,
     );
   }
 
@@ -28,6 +33,7 @@ class ActionNode {
       'type': type,
       'field': field,
       'value': value,
+      if (field == 'tagCode') 'append': append,
     };
   }
 }
