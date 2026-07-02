@@ -225,15 +225,6 @@ class ItemFormProvider extends ChangeNotifier {
     );
     if (result.ok) {
       _categories = result.data ?? [];
-      // 按最近使用排序（最近使用的排前面，未使用的排最后）
-      _categories.sort((a, b) {
-        final aTime = a.lastAccountItemAt;
-        final bTime = b.lastAccountItemAt;
-        if (aTime == null && bTime == null) return 0;
-        if (aTime == null) return 1;
-        if (bTime == null) return -1;
-        return bTime.compareTo(aTime);
-      });
       notifyListeners();
     }
   }
@@ -254,15 +245,6 @@ class ItemFormProvider extends ChangeNotifier {
     );
     if (result.ok) {
       _shops = result.data ?? [];
-      // 按最近使用排序
-      _shops.sort((a, b) {
-        final aTime = a.lastAccountItemAt;
-        final bTime = b.lastAccountItemAt;
-        if (aTime == null && bTime == null) return 0;
-        if (aTime == null) return 1;
-        if (bTime == null) return -1;
-        return bTime.compareTo(aTime);
-      });
       notifyListeners();
     }
   }

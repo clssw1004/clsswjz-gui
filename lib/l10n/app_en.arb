@@ -2565,5 +2565,13 @@
                 "type": "int"
             }
         }
+    },
+    "treeView": "All",
+    "@treeView": {
+        "description": "Tree view toggle label"
+    },
+    "recentUse": "Recent",
+    "@recentUse": {
+        "description": "Recent use view toggle label"
     }
 }

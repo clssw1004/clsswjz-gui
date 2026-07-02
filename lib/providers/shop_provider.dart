@@ -71,14 +71,6 @@ class ShopProvider extends ChangeNotifier {
     );
     if (result.ok && result.data != null) {
       _rawList = result.data!;
-      _rawList.sort((a, b) {
-        final aT = a.lastAccountItemAt;
-        final bT = b.lastAccountItemAt;
-        if (aT == null && bT == null) return 0;
-        if (aT == null) return 1;
-        if (bT == null) return -1;
-        return bT.compareTo(aT);
-      });
       rebuildTree();
     }
   }
@@ -88,6 +80,7 @@ class ShopProvider extends ChangeNotifier {
       _rawList,
       getId: (c) => c.id,
       getParentId: (c) => c.parentId,
+      getLastUsedAt: (c) => c.lastAccountItemAt,
     );
     notifyListeners();
   }

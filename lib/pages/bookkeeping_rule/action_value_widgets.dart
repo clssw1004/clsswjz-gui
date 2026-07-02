@@ -54,7 +54,8 @@ class ActionValueSelector extends StatelessWidget {
         return TreeSelectFormField<AccountShop>(
           key: ValueKey('act_shop_$value'),
           roots: TreeBuilder.buildTree(shops,
-              getId: (c) => c.id, getParentId: (c) => c.parentId),
+              getId: (c) => c.id, getParentId: (c) => c.parentId,
+              getLastUsedAt: (c) => c.lastAccountItemAt),
           value: value,
           displayField: (s) => s.name,
           idField: (s) => s.code,

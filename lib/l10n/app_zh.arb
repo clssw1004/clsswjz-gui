@@ -2722,5 +2722,13 @@
                 "type": "int"
             }
         }
+    },
+    "treeView": "全部",
+    "@treeView": {
+        "description": "树形视图切换文本"
+    },
+    "recentUse": "最近使用",
+    "@recentUse": {
+        "description": "最近使用视图切换文本"
     }
 }
