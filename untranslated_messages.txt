@@ -118,6 +118,9 @@
     "treeSelectTargetShop",
     "treeNoOptions",
     "treeSelectedCount",
-    "treeMultiSelectHint"
+    "treeMultiSelectHint",
+    "treeView",
+    "recentUse",
+    "smartSort"
   ]
 }

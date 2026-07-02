@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.13] - 2026-07-02
+
+### Features
+- Rule tag action supports append/replace mode: ToggleButtons switch, two-row action layout
+- Tree select: recent-use sort, always-visible search bar, recent view toggle
+- Smart recommend view + tree select sheet refactor
+
+### Fixes
+- Resolve tag names after rule engine sets tags
+- Pass append flag to executor, fix layout overflow
+- Persist rule-applied tag changes on edit page
+
 ## [1.1.12] - 2026-07-01
 
 ### Features
