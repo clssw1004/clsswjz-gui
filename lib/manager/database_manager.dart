@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:drift/native.dart';
 import '../constants/constant.dart';
 import '../database/database.dart';
@@ -15,25 +16,24 @@ class DatabaseManager {
 
   static Future<void> init() async {
     if (_isInit) return;
-    
-    // 添加调试信息
-    print('DatabaseManager: Starting database initialization');
-    final exists = await DatabaseDebug.checkDatabaseExists();
-    print('DatabaseManager: Database exists before init: $exists');
-    
+
     final configDbName = AppConfigManager.instance.databaseName;
     final file = await getDatabaseFile(configDbName);
+
+    if (kDebugMode) {
+      await DatabaseDebug.checkDatabaseExists(file: file);
+    }
+
     _db = AppDatabase(NativeDatabase(file));
-    
-    // 检查数据库版本
-    await DatabaseDebug.checkDatabaseVersion();
-    
+
+    if (kDebugMode) {
+      await DatabaseDebug.checkDatabaseVersion(file: file);
+    }
+
     _instance ??= DatabaseManager._();
     // 初始化DAO管理器
     DaoManager.refreshDaos();
     _isInit = true;
-    
-    print('DatabaseManager: Database initialization completed');
   }
 
   static Future<void> clearDatabase() async {
