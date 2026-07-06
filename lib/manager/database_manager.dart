@@ -27,7 +27,7 @@ class DatabaseManager {
     _db = AppDatabase(NativeDatabase(file));
 
     if (kDebugMode) {
-      await DatabaseDebug.checkDatabaseVersion(file: file);
+      await DatabaseDebug.checkDatabaseVersion(_db);
     }
 
     _instance ??= DatabaseManager._();
