@@ -6,7 +6,7 @@ import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/user_book_vo.dart';
 import '../../providers/item_list_provider.dart';
 import '../../manager/l10n_manager.dart';
-import '../../theme/theme_radius.dart';
+import '../../theme/theme_spacing.dart';
 
 import '../../utils/color_util.dart';
 
@@ -81,117 +81,146 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     }
   }
 
-  /// 构建日期单元格装饰
-  BoxDecoration? _buildCellDecoration(DateTime day, ThemeData theme) {
-    final key = DateTime(day.year, day.month, day.day);
-    final hasItems = _monthItems?.any(
-        (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10));
-    if (hasItems != true) return null;
-
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
-    return BoxDecoration(
-      color: theme.colorScheme.primary.withAlpha(10),
-      border: Border.all(
-        color: theme.colorScheme.primary.withAlpha(38),
-        width: 1,
-      ),
-      borderRadius: BorderRadius.circular(radius),
-    );
+  /// 获取某天账目
+  List<UserItemVO> _itemsForDay(DateTime day) {
+    final key = DateTime(day.year, day.month, day.day)
+        .toIso8601String()
+        .substring(0, 10);
+    return _monthItems
+            ?.where((e) => e.accountDateOnly == key)
+            .toList() ??
+        [];
   }
 
-  /// 构建日期单元格标记
-  Widget? _buildCellMarker(DateTime day, ThemeData theme,
-      {bool isSelected = false}) {
-    final key = DateTime(day.year, day.month, day.day);
-    final items = _monthItems
-        ?.where(
-            (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10))
-        .toList();
-    if (items?.isEmpty ?? true) return null;
+  /// 构建日期单元格
+  Widget _buildDateCell(DateTime day, ThemeData theme,
+      {bool isSelected = false, bool isToday = false}) {
+    final colorScheme = theme.colorScheme;
+    final items = _itemsForDay(day);
+    final hasIncome = items.any((e) => e.amount > 0);
+    final hasExpense = items.any((e) => e.amount <= 0);
 
-    // 计算当天总收支
-    double income = 0;
-    double expense = 0;
-    for (var item in items!) {
-      if (item.amount > 0) {
-        income += item.amount;
-      } else {
-        expense += item.amount.abs();
-      }
-    }
-
-    // 当天项数标记
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '${items.length}',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: isSelected
-                ? theme.colorScheme.onPrimary.withValues(alpha: 0.7)
-                : theme.colorScheme.primary.withValues(alpha: 0.65),
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            height: 1.0,
+    // 选择态：实心圆
+    if (isSelected) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: colorScheme.primary,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        if (income > 0 || expense > 0) ...[
-          const SizedBox(height: 1),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (income > 0)
-                Container(
-                  width: 5,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: ColorUtil.INCOME,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              if (income > 0 && expense > 0) const SizedBox(width: 2),
-              if (expense > 0)
-                Container(
-                  width: 5,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: ColorUtil.EXPENSE,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
+      );
+    }
+
+    // 今天：空心圆
+    if (isToday) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.5),
+            width: 1.5,
           ),
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.primary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 普通日期
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${day.day}',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          // 小圆点标记：有收支时显示
+          if (items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (hasIncome)
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: ColorUtil.INCOME,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  if (hasIncome && hasExpense) const SizedBox(width: 2),
+                  if (hasExpense)
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: ColorUtil.EXPENSE,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
+              ),
+            ),
         ],
-      ],
+      ),
     );
   }
 
   /// 构建选中日期的账目列表
   Widget _buildSelectedDayItems(ThemeData theme) {
-    final key =
-        DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
-    final items = _monthItems
-        ?.where(
-            (e) => e.accountDateOnly == key.toIso8601String().substring(0, 10))
-        .toList();
-    if (items?.isEmpty ?? true) {
+    final spacing = theme.spacing;
+    final items = _itemsForDay(_selectedDate);
+
+    if (items.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32),
+        padding: EdgeInsets.symmetric(
+          vertical: 32,
+          horizontal: 16,
+        ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.event_busy_outlined,
-                size: 48,
-                color: theme.colorScheme.outline.withAlpha(128),
+                size: 40,
+                color: theme.colorScheme.outline.withValues(alpha: 0.5),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 L10nManager.l10n.noAccountItems,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.outline.withAlpha(128),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -203,7 +232,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     // 计算当天总收支
     double income = 0;
     double expense = 0;
-    for (var item in items!) {
+    for (var item in items) {
       if (item.amount > 0) {
         income += item.amount;
       } else {
@@ -216,52 +245,29 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
 
     return Column(
       children: [
-        // 顶部日期摘要条
+        // 日期摘要条
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: EdgeInsets.fromLTRB(spacing.listItemMargin.horizontal, 12,
+              spacing.listItemMargin.horizontal, 4),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 13,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      dateFormat.format(key),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              Text(
+                dateFormat.format(_selectedDate),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  '${items.length}笔',
-                  style: theme.textTheme.labelMedium?.copyWith(
+                  '${items.length}',
+                  style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -269,56 +275,36 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
               ),
               const Spacer(),
               if (income > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ColorUtil.INCOME.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '+${income.toStringAsFixed(2)}',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: ColorUtil.INCOME,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
+                Text(
+                  '+${income.toStringAsFixed(2)}',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: ColorUtil.INCOME,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              if (income > 0 && expense > 0) const SizedBox(width: 6),
+              if (income > 0 && expense > 0) const SizedBox(width: 8),
               if (expense > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: ColorUtil.EXPENSE.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '-${expense.toStringAsFixed(2)}',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: ColorUtil.EXPENSE,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
+                Text(
+                  '-${expense.toStringAsFixed(2)}',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: ColorUtil.EXPENSE,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
             ],
           ),
         ),
+        const Divider(height: 1),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing.listItemMargin.horizontal,
+          ),
           itemCount: items.length,
           separatorBuilder: (context, index) => const Divider(
             height: 1,
-            indent: 16,
-            endIndent: 16,
+            indent: 48,
           ),
           itemBuilder: (context, index) {
             final item = items[index];
@@ -328,34 +314,22 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
             return InkWell(
               onTap: () => widget.onItemTap?.call(item),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 颜色圆点
                     Container(
-                      width: 36,
-                      height: 36,
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(top: 4),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            color.withValues(alpha: 0.2),
-                            color.withValues(alpha: 0.08),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Icon(
-                        isIncome ? Icons.arrow_upward : Icons.arrow_downward,
                         color: color,
-                        size: 18,
+                        shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 12),
+                    // 中间内容
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,48 +347,24 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                '${isIncome ? '+' : ''}${item.amount.toStringAsFixed(2)}',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  color: color,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(Icons.schedule_outlined, size: 12, color: theme.colorScheme.onSurfaceVariant.withAlpha(128)),
-                              const SizedBox(width: 4),
-                              Text(
-                                item.accountTimeOnly,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withAlpha(128),
-                                  fontSize: 12,
-                                ),
-                              ),
                               if (item.description?.isNotEmpty == true) ...[
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Container(
                                   width: 3,
                                   height: 3,
                                   decoration: BoxDecoration(
                                     color: theme.colorScheme.onSurfaceVariant
-                                        .withAlpha(128),
+                                        .withValues(alpha: 0.4),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
+                                const SizedBox(width: 6),
+                                Flexible(
                                   child: Text(
                                     item.description!,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant
-                                          .withAlpha(128),
+                                          .withValues(alpha: 0.6),
                                       fontSize: 12,
                                     ),
                                     maxLines: 1,
@@ -424,7 +374,66 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                               ],
                             ],
                           ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.schedule_outlined,
+                                  size: 11,
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.5)),
+                              const SizedBox(width: 3),
+                              Text(
+                                item.accountTimeOnly,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.5),
+                                  fontSize: 11,
+                                ),
+                              ),
+                              // 标签
+                              if (item.tags.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                ...() {
+                                  final tagWidgets = <Widget>[];
+                                  for (var i = 0;
+                                      i < item.tags.length && i < 2;
+                                      i++) {
+                                    tagWidgets.add(_buildTagChip(
+                                        item.tags[i].name, theme));
+                                    if (i < item.tags.length - 1 &&
+                                        i < 1) {
+                                      tagWidgets.add(
+                                          const SizedBox(width: 4));
+                                    }
+                                  }
+                                  if (item.tags.length > 2) {
+                                    tagWidgets.add(const SizedBox(width: 4));
+                                    tagWidgets.add(Text(
+                                      '+${item.tags.length - 2}',
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                        color: theme.colorScheme.primary,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ));
+                                  }
+                                  return tagWidgets;
+                                }(),
+                              ],
+                            ],
+                          ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // 金额
+                    Text(
+                      '${isIncome ? '+' : ''}${item.amount.toStringAsFixed(2)}',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
                   ],
@@ -437,73 +446,20 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
     );
   }
 
-  /// 构建日期单元格
-  Widget _buildDateCell(DateTime day, ThemeData theme,
-      {bool isSelected = false, bool isToday = false}) {
-    final hasItems = _buildCellDecoration(day, theme) != null;
-    final colorScheme = theme.colorScheme;
-
+  Widget _buildTagChip(String label, ThemeData theme) {
     return Container(
-      margin: EdgeInsets.zero,
-      width: 40,
-      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isSelected
-              ? [
-                  colorScheme.primary,
-                  colorScheme.primary.withAlpha(230),
-                ]
-              : isToday
-                  ? [
-                      colorScheme.primary.withAlpha(38),
-                      colorScheme.primary.withAlpha(13),
-                    ]
-                  : [
-                      Colors.transparent,
-                      Colors.transparent,
-                    ],
-        ),
-        border: isToday
-            ? Border.all(
-                color: colorScheme.primary.withAlpha(77),
-                width: 1.5,
-              )
-            : null,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: colorScheme.primary.withAlpha(64),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
+        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(5),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${day.day}',
-            style: theme.textTheme.bodyMedium!.copyWith(
-              color: isSelected
-                  ? colorScheme.onPrimary
-                  : isToday
-                      ? colorScheme.primary
-                      : null,
-              fontSize: 15,
-              height: 1.1,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (hasItems)
-            _buildCellMarker(day, theme, isSelected: isSelected) ??
-                const SizedBox.shrink(),
-        ],
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.primary,
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -512,30 +468,42 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final radius = theme.extension<ThemeRadius>()?.radius ?? 8.0;
+    final spacing = theme.spacing;
 
     if (_loading && (_monthItems == null || _monthItems!.isEmpty)) {
-      return Center(child: Text(L10nManager.l10n.loading));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 12),
+            Text(L10nManager.l10n.loading),
+          ],
+        ),
+      );
     }
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.only(
+        top: 8,
+        bottom: spacing.listItemMargin.vertical,
+      ),
       child: Column(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+            margin: spacing.listItemMargin,
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(radius * 2),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                color: colorScheme.outline.withValues(alpha: 0.15),
               ),
             ),
             child: Column(
               children: [
                 SizedBox(
-                  height: 392,
+                  height: 380,
                   child: SfCalendar(
                     view: CalendarView.month,
                     showNavigationArrow: true,
@@ -544,19 +512,15 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                     initialSelectedDate: _selectedDate,
                     minDate: DateTime.utc(2010, 1, 1),
                     maxDate: DateTime.now(),
-                    selectionDecoration: BoxDecoration(
+                    selectionDecoration: const BoxDecoration(
                       color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(radius),
-                      border: Border.all(
-                        color: colorScheme.primary.withAlpha(77),
-                        width: 1.5,
-                      ),
                     ),
                     monthViewSettings: MonthViewSettings(
                       numberOfWeeksInView: 6,
                       showAgenda: false,
                       showTrailingAndLeadingDates: false,
-                      appointmentDisplayMode: MonthAppointmentDisplayMode.none,
+                      appointmentDisplayMode:
+                          MonthAppointmentDisplayMode.none,
                     ),
                     headerStyle: CalendarHeaderStyle(
                       textAlign: TextAlign.center,
@@ -567,20 +531,24 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                     ),
                     viewHeaderStyle: ViewHeaderStyle(
                       dayTextStyle: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withAlpha(179),
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.55),
                             fontWeight: FontWeight.w500,
                           ) ??
                           const TextStyle(fontSize: 11),
                     ),
                     monthCellBuilder: (context, details) {
-                      final DateTime day = DateTime(details.date.year, details.date.month, details.date.day);
+                      final DateTime day = DateTime(
+                          details.date.year, details.date.month,
+                          details.date.day);
                       // 仅显示当前月份日期
-                      if (day.month != _selectedDate.month || day.year != _selectedDate.year) {
+                      if (day.month != _selectedDate.month ||
+                          day.year != _selectedDate.year) {
                         return const SizedBox.shrink();
                       }
                       final bool isToday = _isSameDate(day, DateTime.now());
-                      final bool isSelected = _isSameDate(day, _selectedDate);
-                      // 直接复用已有单元格渲染（包含标记）
+                      final bool isSelected =
+                          _isSameDate(day, _selectedDate);
                       return _buildDateCell(
                         day,
                         theme,
@@ -595,20 +563,23 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (!mounted) return;
                         setState(() {
-                          _selectedDate = DateTime(date.year, date.month, date.day);
+                          _selectedDate = DateTime(
+                              date.year, date.month, date.day);
                         });
                       });
                     },
                     onViewChanged: (details) {
-                      // 当月份切换时，加载对应月份数据
                       final visible = details.visibleDates;
                       if (visible.isEmpty) return;
                       final mid = visible[visible.length ~/ 2];
-                      final monthAnchor = DateTime(mid.year, mid.month, 1);
-                      final currentAnchor = DateTime(_selectedDate.year, _selectedDate.month, 1);
+                      final monthAnchor =
+                          DateTime(mid.year, mid.month, 1);
+                      final currentAnchor = DateTime(_selectedDate.year,
+                          _selectedDate.month, 1);
                       if (monthAnchor != currentAnchor) {
                         if (!mounted) return;
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((_) {
                           if (!mounted) return;
                           setState(() {
                             _selectedDate = monthAnchor;
@@ -619,7 +590,8 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                     },
                     todayHighlightColor: colorScheme.primary,
                     backgroundColor: Colors.transparent,
-                    cellBorderColor: colorScheme.outline.withAlpha(32),
+                    cellBorderColor:
+                        colorScheme.outline.withValues(alpha: 0.08),
                   ),
                 ),
                 // 选中日期账目列表

@@ -174,16 +174,14 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
 
         if (item is UserItemVO) {
           final isFirst = index == 0 || itemsWithHeaders[index - 1] is String;
-          return InkWell(
+          return ItemTileTimeline(
+            item: item,
+            currencySymbol: widget.accountBook.currencySymbol.symbol,
+            index: index,
+            isFirst: isFirst,
             onTap: widget.onItemTap == null
                 ? null
                 : () => widget.onItemTap!(item),
-            child: ItemTileTimeline(
-              item: item,
-              currencySymbol: widget.accountBook.currencySymbol.symbol,
-              index: index,
-              isFirst: isFirst,
-            ),
           );
         }
 
@@ -196,73 +194,34 @@ class _ItemListTimelineState extends State<ItemListTimeline> {
   Widget _buildDateHeader(String date, ThemeData theme) {
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: theme.spacing.listItemMargin.horizontal / 2,
         top: theme.spacing.listItemSpacing * 2,
         bottom: theme.spacing.listItemSpacing,
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              margin: const EdgeInsets.only(left: 16, right: 8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.outlineVariant.withAlpha(0),
-                    colorScheme.outlineVariant.withAlpha(128),
-                  ],
-                ),
-              ),
-            ),
-          ),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.listItemSpacing * 1.5,
-              vertical: theme.spacing.listItemSpacing / 2,
-            ),
-            decoration: BoxDecoration(
-              color: colorScheme.primaryContainer.withAlpha(26),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.primary.withAlpha(51),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 14,
-                  color: colorScheme.primary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  date,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
+            height: 1,
+            width: 12,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            date,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.3,
             ),
           ),
           Expanded(
             child: Container(
               height: 1,
-              margin: const EdgeInsets.only(left: 8, right: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.outlineVariant.withAlpha(128),
-                    colorScheme.outlineVariant.withAlpha(0),
-                  ],
-                ),
-              ),
+              margin: const EdgeInsets.only(left: 8),
+              color: colorScheme.outlineVariant.withValues(alpha: 0.25),
             ),
           ),
         ],
