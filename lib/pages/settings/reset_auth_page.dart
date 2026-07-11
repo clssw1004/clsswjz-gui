@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../enums/self_host_form_type.dart';
 import '../../manager/app_config_manager.dart';
+import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
+import '../../manager/service_manager.dart';
 import '../../models/self_host_form_data.dart';
 import '../../providers/sync_provider.dart';
 import '../../services/auth_service.dart';
@@ -36,6 +38,9 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   final _serverController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  // ignore: prefer_final_fields — 待用户映射表完成后启用
+  bool _migrateData = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -100,7 +105,11 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        L10nManager.l10n.resetAuthConfirmation,
+                        _migrateData
+                            ? L10nManager.l10n
+                                .migrateServerConfirmation(_serverController.text)
+                            : L10nManager.l10n
+                                .resetAuthConfirmation(_serverController.text),
                         style: theme.textTheme.bodyLarge?.copyWith(
                           height: 1.5,
                           color: colorScheme.onErrorContainer,
@@ -150,12 +159,13 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
 
     final serverUrl = _serverController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    await AppConfigManager.instance.setServerUrl(serverUrl);
     try {
       final deviceInfo = await DeviceUtil.getDeviceInfo(context);
       final authService = AuthService(serverUrl);
@@ -165,15 +175,31 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
               serverUrl: serverUrl, username: username, password: password),
           deviceInfo);
       if (result.ok && result.data != null) {
-        await AppConfigManager.storgeSelfhostMode(
-          serverUrl: serverUrl,
-          userId: result.data!.userId,
-          accessToken: result.data!.accessToken,
-          clearData: true,
-        );
-        if (!mounted) return;
-        final syncProvider = Provider.of<SyncProvider>(context, listen: false);
-        await syncProvider.syncData();
+        if (_migrateData) {
+          // 迁移模式：保存配置但不清理数据，先推送所有本地日志到新服务器
+          await AppConfigManager.storgeSelfhostMode(
+            serverUrl: serverUrl,
+            userId: result.data!.userId,
+            accessToken: result.data!.accessToken,
+            clearData: false,
+          );
+          if (!mounted) return;
+          final allLogs = await DaoManager.logSyncDao.listAllLogs();
+          await ServiceManager.syncService.pushLogsToServer(allLogs);
+          final syncProvider = Provider.of<SyncProvider>(context, listen: false);
+          await syncProvider.syncData();
+        } else {
+          // 重置模式：清理本地数据后从新服务器重新同步
+          await AppConfigManager.storgeSelfhostMode(
+            serverUrl: serverUrl,
+            userId: result.data!.userId,
+            accessToken: result.data!.accessToken,
+            clearData: true,
+          );
+          if (!mounted) return;
+          final syncProvider = Provider.of<SyncProvider>(context, listen: false);
+          await syncProvider.syncData();
+        }
         await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
           RestartWidget.restartApp(context);
@@ -181,7 +207,9 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
       } else {
         ToastUtil.showError(L10nManager.l10n.loginFailed);
       }
-    } finally {}
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _handleRefreshCredentials() async {
@@ -315,22 +343,40 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
                     return null;
                   },
                 ),
-                if (syncProvider.syncing) ...[
+                if (_isLoading || syncProvider.syncing) ...[
                   const SizedBox(height: 14),
-                  ProgressIndicatorBar(
-                    value: syncProvider.progress,
-                    label: syncProvider.currentStep ??
-                        L10nManager.l10n.syncing,
-                    height: 24,
+                  Consumer<SyncProvider>(
+                    builder: (context, sp, _) => ProgressIndicatorBar(
+                      value: sp.syncing ? sp.progress : null,
+                      label: sp.syncing && sp.currentStep != null
+                          ? sp.currentStep!
+                          : L10nManager.l10n.syncing,
+                      height: 24,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 14),
                 const Divider(),
                 const SizedBox(height: 14),
+                /* TODO: 数据迁移功能暂隐藏 — 不同服务器可能存在同名用户 ID 冲突，
+                 * 导致 push 的日志中 operatorId 与新服务器用户不匹配，需设计用户映射表后再启用。
+                 */
+                // CheckboxListTile(
+                //   value: _migrateData,
+                //   onChanged: (_isLoading || syncProvider.syncing)
+                //       ? null
+                //       : (v) => setState(() => _migrateData = v ?? false),
+                //   title: Text(L10nManager.l10n.featureDataSync),
+                //   subtitle: Text('${L10nManager.l10n.syncData} → ${L10nManager.l10n.serverConfig}'),
+                //   controlAffinity: ListTileControlAffinity.leading,
+                //   dense: true,
+                //   contentPadding: EdgeInsets.zero,
+                // ),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.tonal(
-                    onPressed: syncProvider.syncing
+                    onPressed: (_isLoading || syncProvider.syncing)
                         ? null
                         : _handleRefreshCredentials,
                     child: Text(L10nManager.l10n.reconnect),
@@ -341,15 +387,16 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed:
-                        syncProvider.syncing ? null : _showConfirmDialog,
+                        (_isLoading || syncProvider.syncing) ? null : _showConfirmDialog,
                     child: syncProvider.syncing
                         ? const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
+                        : Text(_migrateData
+                            ? "${L10nManager.l10n.syncData} → ${L10nManager.l10n.serverConfig}"
+                            : "${L10nManager.l10n.reset}${L10nManager.l10n.accessToken}&${L10nManager.l10n.syncData}"),
                   ),
                 ),
               ],

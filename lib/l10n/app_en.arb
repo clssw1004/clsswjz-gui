@@ -659,9 +659,25 @@
     "@accessToken": {
         "description": "Access token label"
     },
-    "resetAuthConfirmation": "This operation will clear local data and re-sync. Are you sure to continue?",
+    "resetAuthConfirmation": "Local data will be cleared and re-synced from {serverUrl}. Proceed?",
     "@resetAuthConfirmation": {
-        "description": "Confirmation prompt when resetting authentication"
+        "description": "Confirmation prompt when resetting authentication",
+        "placeholders": {
+            "serverUrl": {
+                "type": "String",
+                "example": "https://example.com"
+            }
+        }
+    },
+    "migrateServerConfirmation": "Migrate all local data to {serverUrl}. Confirm and proceed?",
+    "@migrateServerConfirmation": {
+        "description": "Confirmation prompt when migrating data to new server",
+        "placeholders": {
+            "serverUrl": {
+                "type": "String",
+                "example": "https://example.com"
+            }
+        }
     },
     "warning": "Warning",
     "@warning": {

@@ -21,24 +21,58 @@ class SyncResultDTO {
   }
 }
 
-class SyncResponseDTO {
+/// Push 响应 DTO
+class SyncPushResponse {
   final List<SyncResultDTO> results;
+  final int syncTimeStamp;
+  final int totalChanges;
+  final String commitId;
 
+  SyncPushResponse({
+    this.results = const [],
+    required this.syncTimeStamp,
+    this.totalChanges = 0,
+    this.commitId = '',
+  });
+
+  factory SyncPushResponse.fromJson(Map<String, dynamic> json) {
+    return SyncPushResponse(
+      results: (json['results'] as List<dynamic>?)
+              ?.map((e) => SyncResultDTO.fromJson(e))
+              .toList() ??
+          [],
+      syncTimeStamp: json['syncTimeStamp'],
+      totalChanges: json['totalChanges'] ?? 0,
+      commitId: json['commitId'] ?? '',
+    );
+  }
+}
+
+/// Pull 响应 DTO（分页）
+class SyncPullResponse {
   final List<LogSync> changes;
-
+  final int total;
+  final int page;
+  final int pageSize;
   final int syncTimeStamp;
 
-  SyncResponseDTO({
-    this.results = const [],
+  SyncPullResponse({
     this.changes = const [],
+    this.total = 0,
+    this.page = 0,
+    this.pageSize = 0,
     required this.syncTimeStamp,
   });
 
-  factory SyncResponseDTO.fromJson(Map<String, dynamic> json) {
-    print(json);
-    return SyncResponseDTO(
-      results: (json['results'] as List<dynamic>).map((e) => SyncResultDTO.fromJson(e)).toList(),
-      changes: (json['changes'] as List<dynamic>).map((e) => LogSync.fromJson(e)).toList(),
+  factory SyncPullResponse.fromJson(Map<String, dynamic> json) {
+    return SyncPullResponse(
+      changes: (json['changes'] as List<dynamic>?)
+              ?.map((e) => LogSync.fromJson(e))
+              .toList() ??
+          [],
+      total: json['total'] ?? 0,
+      page: json['page'] ?? 0,
+      pageSize: json['pageSize'] ?? 0,
       syncTimeStamp: json['syncTimeStamp'],
     );
   }

@@ -168,3 +168,5 @@ skills-lock.json
 
 # Generated l10n (regenerate from lib/l10n/*.arb)
 lib/generated/l10n/
+
+.codegraph/

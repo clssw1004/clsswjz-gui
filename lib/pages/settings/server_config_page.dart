@@ -70,7 +70,6 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
         await AppConfigManager.instance.makeStorageInit();
         debugPrint('[_initSelfhost] storage inited, restartApp (mounted=$mounted)');
         if (mounted) {
-          // 完整重启应用，重新初始化所有 Provider 和服务
           RestartWidget.restartApp(context);
           debugPrint('[_initSelfhost] restartApp called');
         } else {
