@@ -170,7 +170,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     buildDefaultDragHandles: false,
                     itemCount: _itemTabOrder.length,
-                    onReorderItem: _onItemTabReorder,
+                    onReorder: _onItemTabReorder,
                     proxyDecorator: (child, index, animation) => Material(
                       elevation: 2,
                       borderRadius: BorderRadius.circular(12),

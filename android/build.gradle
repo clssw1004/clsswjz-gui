@@ -4,6 +4,8 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        // 南京大学镜像——Flutter 引擎 Java 库
+        maven { url 'https://mirror.nju.edu.cn/flutter/download.flutter.io' }
         google()
         mavenCentral()
     }

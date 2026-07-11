@@ -385,8 +385,16 @@ class _MineTabView extends StatelessWidget {
                           style: theme.textTheme.bodySmall,
                           key: const ValueKey('syncing'),
                         )
-                      : Text(
-                          syncProvider.lastSyncTime != null
+                      : syncProvider.backgroundSyncing
+                          ? Text(
+                              '后台同步中 ${(syncProvider.backgroundProgress * 100).toInt()}%',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              key: const ValueKey('background'),
+                            )
+                          : Text(
+                              syncProvider.lastSyncTime != null
                               ? L10nManager.l10n.lastSyncTime(
                                   DateUtil.format(syncProvider.lastSyncTime!))
                               : L10nManager.l10n.notSynced,
@@ -400,7 +408,7 @@ class _MineTabView extends StatelessWidget {
               const SizedBox(width: 4),
               _buildMiniButton(
                 context,
-                onPressed: syncProvider.syncing
+                onPressed: syncProvider.syncing || syncProvider.backgroundSyncing
                     ? null
                     : () async {
                         await syncProvider.syncData();
@@ -438,7 +446,7 @@ class _MineTabView extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(2),
                 child: LinearProgressIndicator(
-                  value: syncProvider.progress,
+                  value: syncProvider.syncing ? syncProvider.progress : syncProvider.backgroundProgress,
                   minHeight: 2,
                   backgroundColor: colorScheme.surfaceContainerHighest,
                   valueColor:
@@ -447,7 +455,7 @@ class _MineTabView extends StatelessWidget {
               ),
             ),
             secondChild: const SizedBox.shrink(),
-            crossFadeState: syncProvider.syncing
+            crossFadeState: syncProvider.syncing || syncProvider.backgroundSyncing
                 ? CrossFadeState.showFirst
                 : CrossFadeState.showSecond,
             duration: const Duration(milliseconds: 200),

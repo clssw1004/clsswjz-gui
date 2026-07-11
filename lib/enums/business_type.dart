@@ -112,3 +112,57 @@ enum AccountBookOperateType {
     );
   }
 }
+
+/// 数据同步优先级
+enum SyncPriority {
+  /// 关键 - 用户、账本等基础数据，必须优先同步
+  critical,
+
+  /// 高 - 账目依赖数据，同步完即可进入APP
+  high,
+
+  /// 中 - 核心业务数据（数据量大）
+  normal,
+
+  /// 低 - 扩展模块数据
+  low,
+}
+
+/// BusinessType 到同步优先级的映射
+extension BusinessTypeSyncPriority on BusinessType {
+  SyncPriority get syncPriority {
+    switch (this) {
+      // P0: 身份与权限 - 条目极少，APP 进入的最低要求
+      case BusinessType.user:
+      case BusinessType.book:
+      case BusinessType.bookMember:
+        return SyncPriority.critical;
+      // P1: 配置级数据 - 条目很少，基本功能依赖
+      case BusinessType.fund:
+      case BusinessType.bookkeepingRule:
+      case BusinessType.recurringConfig:
+        return SyncPriority.high;
+      // P2: 核心业务数据 - 数据量大，但缺少时不影响 APP 基础展示
+      case BusinessType.category:
+      case BusinessType.shop:
+      case BusinessType.symbol:
+      case BusinessType.item:
+      case BusinessType.itemRelation:
+        return SyncPriority.normal;
+      // P3: 扩展模块 - 独立模块数据，可在后台静默同步
+      case BusinessType.root:
+      case BusinessType.refund:
+      case BusinessType.funBook:
+      case BusinessType.note:
+      case BusinessType.debt:
+      case BusinessType.giftCard:
+      case BusinessType.activity:
+      case BusinessType.activityDefinition:
+      case BusinessType.vehicle:
+      case BusinessType.fuelRecord:
+      case BusinessType.attachment:
+      case BusinessType.userShare:
+        return SyncPriority.low;
+    }
+  }
+}

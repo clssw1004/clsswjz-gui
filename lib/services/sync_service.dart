@@ -5,6 +5,8 @@ import '../drivers/special/log/builder/builder.dart';
 import '../enums/business_type.dart';
 import '../enums/operate_type.dart';
 import '../enums/sync_state.dart';
+import '../events/event_bus.dart';
+import '../events/special/event_sync.dart';
 import '../manager/app_config_manager.dart';
 import '../manager/dao_manager.dart';
 import '../manager/database_manager.dart';
@@ -12,6 +14,7 @@ import '../manager/l10n_manager.dart';
 import '../manager/service_manager.dart';
 import '../models/sync.dart';
 import '../utils/attachment.util.dart';
+import '../utils/collection_util.dart';
 import '../utils/date_util.dart';
 import '../utils/http_client.dart';
 import 'base_service.dart';
@@ -38,8 +41,34 @@ class SyncService extends BaseService {
 
   SyncService();
 
+  /// 后台同步进度回调（由 SyncProvider 设置，供 _startBackgroundSync 使用）
+  Function(double percent, String message)? _backgroundProgressCallback;
+
+  /// 设置后台同步进度回调
+  void setBackgroundProgressCallback(
+      Function(double percent, String message)? callback) {
+    _backgroundProgressCallback = callback;
+  }
+
+  /// 前端同步用：P0+P1 类型码（编译期确定，只需计算一次）
+  static final List<String> _priorityTypes = BusinessType.values
+      .where((t) =>
+          t.syncPriority == SyncPriority.critical ||
+          t.syncPriority == SyncPriority.high)
+      .map((t) => t.code)
+      .toList();
+
+  /// 后台同步用：P2+P3 类型码（编译期确定，只需计算一次）
+  static final List<String> _backgroundTypes = BusinessType.values
+      .where((t) =>
+          t.syncPriority == SyncPriority.normal ||
+          t.syncPriority == SyncPriority.low)
+      .map((t) => t.code)
+      .toList();
+
   Future<void> syncChanges(
-      {Function(double percent, String message)? onProgress}) async {
+      {Function(double percent, String message)? onProgress,
+      bool priorityOnly = false}) async {
     try {
       final isServerOk = await _checkServerHealth(onProgress: onProgress);
       if (!isServerOk) {
@@ -57,13 +86,18 @@ class SyncService extends BaseService {
       final syncResult = await _syncClientChanges<SyncResponseDTO>(
           logs: clientChanges,
           syncTimeStamp: lastSyncTime,
+          businessTypes: priorityOnly ? _priorityTypes : null,
           onProgress: onProgress);
-      // 同步服务器变更到本地
+      // 同步服务器变更到本地（支持按优先级分批）
       await _syncServerChanges(
           changes: syncResult.changes,
           syncTimestamp: syncResult.syncTimeStamp,
-          onProgress: onProgress);
-      AppConfigManager.instance.setLastSyncTime(syncResult.syncTimeStamp);
+          onProgress: onProgress,
+          priorityOnly: priorityOnly);
+      // 优先级同步不立即更新 lastSyncTime，由后台同步完成后更新
+      if (!priorityOnly) {
+        AppConfigManager.instance.setLastSyncTime(syncResult.syncTimeStamp);
+      }
       await _processOnProgress(onProgress, progressComplete, l10n.syncComplete);
     } catch (e, stackTrace) {
       debugPrint('Sync error: $e');
@@ -172,6 +206,7 @@ class SyncService extends BaseService {
   Future<SyncResponseDTO> _syncClientChanges<T>(
       {required List<LogSync> logs,
       required int? syncTimeStamp,
+      List<String>? businessTypes,
       Function(double percent, String message)? onProgress}) async {
     final l10n = L10nManager.l10n;
     // 同步附件
@@ -181,12 +216,16 @@ class SyncService extends BaseService {
         onProgress: onProgress);
     await _processOnProgress(onProgress, progressSyncLocalChanges,
         l10n.syncingLocalChanges(logs.length));
+    final requestData = <String, dynamic>{
+      'logs': logs.map((e) => e.toJson()).toList(),
+      'syncTimeStamp': syncTimeStamp,
+    };
+    if (businessTypes != null && businessTypes.isNotEmpty) {
+      requestData['businessTypes'] = businessTypes;
+    }
     final response = await HttpClient.instance.post<SyncResponseDTO>(
       path: '/api/sync/changes',
-      data: {
-        'logs': logs.map((e) => e.toJson()).toList(),
-        'syncTimeStamp': syncTimeStamp,
-      },
+      data: requestData,
       transform: (data) => SyncResponseDTO.fromJson(data['data']),
     );
     if (response.ok) {
@@ -233,43 +272,300 @@ class SyncService extends BaseService {
         l10n.localChangeStatusSyncComplete);
   }
 
+  /// 按优先级分组服务端变更
+  Map<SyncPriority, List<LogSync>> _groupByPriority(List<LogSync> changes) {
+    return CollectionUtil.groupBy(changes, (c) =>
+        BusinessType.fromCode(c.businessType)?.syncPriority ?? SyncPriority.low);
+  }
+
+  /// 批量应用变更（支持批量事务模式）
+  /// [batchTransaction] 为 true 时所有变更在同一个事务中执行（用于数据量小且需保证完整性的 P0+P1），
+  /// 为 false 时每条变更独立事务并逐条汇报进度（用于数据量大且需隔离的 P2+P3）
+  Future<void> _applyChanges({
+    required List<LogSync> changes,
+    required Function(double percent, String message)? onProgress,
+    required String Function(int processed, int total) getProgressDetail,
+    required double progressStart,
+    required double progressEnd,
+    bool batchTransaction = false,
+  }) async {
+    if (changes.isEmpty) return;
+
+    final total = changes.length;
+
+    // 批量 ID 存在性检查（一次查询代替逐条查询）
+    final allIds = changes.map((e) => e.id).toList();
+    final existingIds = await DaoManager.logSyncDao.existIdsSet(allIds);
+
+    final filtered = changes
+        .where((c) => !existingIds.contains(c.id) && c.businessType.isNotEmpty)
+        .toList();
+
+    if (filtered.isEmpty) {
+      await _processOnProgress(
+          onProgress, progressEnd, getProgressDetail(total, total));
+      return;
+    }
+
+    if (batchTransaction) {
+      // 分批批量事务：每批最多 100 条，分批提交
+      // 适用于 P0+P1 基础数据——既要保证效率，又避免大事务阻塞 UI
+      const batchSize = 100;
+      for (var start = 0; start < filtered.length; start += batchSize) {
+        final end = (start + batchSize > filtered.length)
+            ? filtered.length
+            : start + batchSize;
+        final batch = filtered.sublist(start, end);
+        await DatabaseManager.db.transaction(() async {
+          for (final change in batch) {
+            final log = LogBuilder.fromLog(change);
+            await log.executeWithoutRecord();
+            await DaoManager.logSyncDao.insert(change);
+          }
+        });
+        // 每批交让渡一次事件循环，保证 UI 响应
+        await Future.delayed(const Duration(milliseconds: 5));
+        final processedPercent =
+            (((end) * 100) / total).floor();
+        final progress = progressStart +
+            (processedPercent / 100.0) * (progressEnd - progressStart);
+        await _processOnProgress(onProgress, progress,
+            getProgressDetail(end, total));
+      }
+      await _processOnProgress(
+          onProgress, progressEnd, getProgressDetail(total, total));
+    } else {
+      // 默认 100 条一批事务，若批量失败则降级该批为逐条事务
+      const batchSize = 100;
+      int lastPercentStep = -1;
+      for (var start = 0; start < filtered.length; start += batchSize) {
+        final end = (start + batchSize > filtered.length)
+            ? filtered.length
+            : start + batchSize;
+        final batch = filtered.sublist(start, end);
+        try {
+          await DatabaseManager.db.transaction(() async {
+            for (final change in batch) {
+              final log = LogBuilder.fromLog(change);
+              await log.executeWithoutRecord();
+              await DaoManager.logSyncDao.insert(change);
+            }
+          });
+        } catch (e) {
+          // 批量失败，降级为该批逐条事务
+          debugPrint('Batch failed (${batch.length} items), fallback to per-record: $e');
+          for (final change in batch) {
+            try {
+              await DatabaseManager.db.transaction(() async {
+                final log = LogBuilder.fromLog(change);
+                await log.executeWithoutRecord();
+                await DaoManager.logSyncDao.insert(change);
+              });
+            } catch (e2) {
+              debugPrint('Per-record fallback failed: ${change.id} - $e2');
+            }
+          }
+        }
+        await Future.delayed(const Duration(milliseconds: 5));
+        final processedPercent = (((end) * 100) / total).floor();
+        if (processedPercent > lastPercentStep) {
+          lastPercentStep = processedPercent;
+          final progress = progressStart +
+              (processedPercent / 100.0) * (progressEnd - progressStart);
+          await _processOnProgress(onProgress, progress,
+              getProgressDetail(end, total));
+        }
+      }
+    }
+  }
+
+  /// 在后台静默同步剩余数据
+  /// 委托给 _applyChanges，消除重复的批处理/降级逻辑
+  Future<void> _applyChangesSilent(
+    List<LogSync> changes, {
+    Function(double percent, String message)? onProgress,
+  }) async {
+    await _applyChanges(
+      changes: changes,
+      onProgress: onProgress,
+      getProgressDetail: (_, __) => '',
+      progressStart: 0.0,
+      progressEnd: 1.0,
+      batchTransaction: false,
+    );
+  }
+
+  bool _backgroundSyncRunning = false;
+  int _backgroundSyncGeneration = 0;
+
+  /// 重置后台同步状态，在 app_init.dart 中调用以处理热重载/重启后状态残留
+  void resetBackgroundSyncState() {
+    _backgroundSyncRunning = false;
+    _backgroundProgressCallback = null;
+    _backgroundSyncGeneration++;
+  }
+
+  /// 后台同步 P2+P3 数据
+  /// 发起独立的 API 请求，通过 businessTypes 参数让服务端过滤返回
+  /// 若服务端不支持过滤，返回全量数据时由 existIdsSet 去重跳过已处理记录
+  void _startBackgroundSync(List<LogSync> fallbackChanges, int syncTimestamp) {
+    if (_backgroundSyncRunning) return;
+    _backgroundSyncRunning = true;
+    final generation = _backgroundSyncGeneration;
+    // 延迟启动，确保 APP 导航完成、UI 稳定后再开始大量数据写入
+    Future.delayed(const Duration(seconds: 3), () async {
+      // 如果 generation 变了，说明 app 已重启/重初始化，放弃旧会话的后台同步
+      if (generation != _backgroundSyncGeneration) {
+        debugPrint('Background sync cancelled: generation changed');
+        _backgroundSyncRunning = false;
+        return;
+      }
+      try {
+        List<LogSync> changes;
+        int finalSyncTimestamp = syncTimestamp;
+
+        // 尝试通过 API 分类型请求后台数据
+        final response = await HttpClient.instance.post<SyncResponseDTO>(
+          path: '/api/sync/changes',
+          data: {
+            'logs': <Map<String, dynamic>>[],
+            'syncTimeStamp': null, // 首次全量，仅筛选类型
+            'businessTypes': _backgroundTypes,
+          },
+          transform: (data) => SyncResponseDTO.fromJson(data['data']),
+        );
+
+        if (response.ok && response.data != null) {
+          changes = response.data!.changes;
+          finalSyncTimestamp = response.data!.syncTimeStamp;
+          debugPrint(
+              'Background sync API returned: ${changes.length} changes');
+        } else {
+          // API 请求失败，回退到本地已返回的数据
+          changes = fallbackChanges;
+          debugPrint(
+              'Background sync API failed, using fallback: ${changes.length} changes');
+        }
+
+        if (changes.isNotEmpty) {
+          debugPrint(
+              'Background sync started: ${changes.length} changes remaining');
+          // 用 try-catch 包装回调，防止 SyncProvider 被 dispose 后调用 notifyListeners 崩溃
+          final safeCallback = _backgroundProgressCallback;
+          await _applyChangesSilent(changes,
+            onProgress: safeCallback != null
+                ? (percent, msg) {
+                    try {
+                      safeCallback(percent, msg);
+                    } catch (_) {
+                      // SyncProvider 已销毁，停止回调
+                    }
+                  }
+                : null,
+          );
+          // 下载后台数据中的附件文件
+          await _downloadFiles(
+              serverChanges: changes,
+              syncTimestamp: finalSyncTimestamp,
+              onProgress: null);
+        } else {
+          debugPrint('Background sync: no changes to process');
+        }
+        // 无论有无数据，都更新 lastSyncTime 并通知完成
+        AppConfigManager.instance.setLastSyncTime(finalSyncTimestamp);
+        EventBus.instance.emit(const SyncCompletedEvent());
+        debugPrint('Background sync completed');
+      } catch (e, stackTrace) {
+        debugPrint('Background sync error: $e\n$stackTrace');
+      } finally {
+        if (generation == _backgroundSyncGeneration) {
+          _backgroundSyncRunning = false;
+          _backgroundProgressCallback = null;
+        }
+      }
+    });
+  }
+
   /// 同步服务端变更
   Future<void> _syncServerChanges(
       {required List<LogSync> changes,
       required int syncTimestamp,
-      Function(double percent, String message)? onProgress}) async {
+      Function(double percent, String message)? onProgress,
+      bool priorityOnly = false}) async {
+    if (changes.isEmpty) {
+      await _processOnProgress(
+          onProgress, progressDownloadAttachments, L10nManager.l10n.serverChangeSyncComplete);
+      return;
+    }
+
     final l10n = L10nManager.l10n;
     await _processOnProgress(onProgress, progressSyncServerChanges,
         l10n.syncingServerChanges(changes.length));
-    // 仅当处理量每增加1%时再刷新一次进度，避免过于频繁的UI重建
-    final int total = changes.length;
-    int lastPercentStep = -1;
-    for (var i = 0; i < total; i++) {
-      final change = changes[i];
-      bool exist = await DaoManager.logSyncDao.existById(change.id);
-      if (!exist && change.businessType.isNotEmpty) {
-        await DatabaseManager.db.transaction(() async {
-          final log = LogBuilder.fromLog(change);
-          await log.executeWithoutRecord();
-          await DaoManager.logSyncDao.insert(change);
-        });
-      }
-      final processedPercent = (((i + 1) * 100) / total).floor();
-      if (processedPercent > lastPercentStep) {
-        lastPercentStep = processedPercent;
-        final progress = progressSyncServerChanges +
-            (processedPercent / 100.0) *
-                (progressDownloadAttachments - progressSyncServerChanges);
-        await _processOnProgress(onProgress, progress,
-            l10n.syncingServerChangesProgress(i + 1, total));
-      }
+
+    // 按优先级分组
+    final grouped = _groupByPriority(changes);
+    final priorityChanges = [
+      ...grouped[SyncPriority.critical]!,
+      ...grouped[SyncPriority.high]!,
+    ];
+    final backgroundChanges = [
+      ...grouped[SyncPriority.normal]!,
+      ...grouped[SyncPriority.low]!,
+    ];
+
+    if (priorityOnly) {
+      // 首次启动：仅同步 P0+P1，剩余数据后台处理
+      debugPrint(
+          'Priority sync: ${priorityChanges.length} priority changes, '
+          '${backgroundChanges.length} background changes');
+
+      // 同步优先级数据（批量事务，保证整体完整性）
+      await _applyChanges(
+        changes: priorityChanges,
+        onProgress: onProgress,
+        getProgressDetail: (processed, total) =>
+            l10n.syncingServerChangesProgress(processed, total),
+        progressStart: progressSyncServerChanges,
+        progressEnd: progressDownloadAttachments,
+        batchTransaction: true,
+      );
+
+      // 后台启动剩余数据同步
+      _startBackgroundSync(backgroundChanges, syncTimestamp);
+
+      await _processOnProgress(onProgress, progressServerSyncComplete,
+          l10n.serverChangeSyncComplete);
+    } else {
+      // 完整同步：优先处理优先级数据（批量事务），再处理后台数据（逐条事务）
+      await _applyChanges(
+        changes: priorityChanges,
+        onProgress: onProgress,
+        getProgressDetail: (processed, total) =>
+            l10n.syncingServerChangesProgress(processed, total),
+        progressStart: progressSyncServerChanges,
+        progressEnd: progressSyncServerChanges +
+            (priorityChanges.length / changes.length) * 0.3,
+        batchTransaction: true,
+      );
+      await _applyChanges(
+        changes: backgroundChanges,
+        onProgress: onProgress,
+        getProgressDetail: (processed, total) =>
+            l10n.syncingServerChangesProgress(
+                priorityChanges.length + processed, changes.length),
+        progressStart: progressSyncServerChanges +
+            (priorityChanges.length / changes.length) * 0.3,
+        progressEnd: progressDownloadAttachments,
+        batchTransaction: false,
+      );
+
+      await _downloadFiles(
+          serverChanges: changes,
+          syncTimestamp: syncTimestamp,
+          onProgress: onProgress);
+      await _processOnProgress(
+          onProgress, progressServerSyncComplete, l10n.serverChangeSyncComplete);
     }
-    await _downloadFiles(
-        serverChanges: changes,
-        syncTimestamp: syncTimestamp,
-        onProgress: onProgress);
-    await _processOnProgress(
-        onProgress, progressServerSyncComplete, l10n.serverChangeSyncComplete);
   }
 
   /// 处理进度

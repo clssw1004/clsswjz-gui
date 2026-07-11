@@ -41,18 +41,23 @@ class _RestartWidgetState extends State<RestartWidget> {
   }
 
   Future<void> restartApp() async {
+    debugPrint('[RestartWidget] restart start, set initializing=true');
     setState(() {
       _isInitializing = true;
     });
 
     try {
+      debugPrint('[RestartWidget] calling initFunction...');
       await widget.initFunction();
+      debugPrint('[RestartWidget] initFunction done');
     } finally {
+      debugPrint('[RestartWidget] finally mounted=$mounted');
       if (mounted) {
         setState(() {
           _isInitializing = false;
           key = UniqueKey();
         });
+        debugPrint('[RestartWidget] setState done, should show app now');
       }
     }
   }

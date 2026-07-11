@@ -28,7 +28,7 @@ abstract class BaseDao<T extends StringIdTable, D> {
   }
 
   Future<D?> findById(String id) {
-    return (db.select(table)..where((t) => t.id.equals(id))).getSingle();
+    return (db.select(table)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   Future<List<D>> findByIds(List<String> ids) {

@@ -1,8 +1,10 @@
 
 import 'enums/storage_mode.dart';
+import 'main.dart' show resetNavigatorKey;
 import 'manager/app_config_manager.dart';
 import 'manager/database_manager.dart';
 import 'manager/service_manager.dart';
+import 'manager/sync_manager.dart';
 import 'manager/user_config_manager.dart';
 import 'utils/http_client.dart';
 import 'package:flutter/foundation.dart';
@@ -15,25 +17,30 @@ Future<void> initApp({
   String? userPhone,
 }) async {
   if (AppConfigManager.isAppInit()) {
-    // 添加迁移测试（仅在调试模式下）
-    if (kDebugMode) {
-
-      
-    }
-    
+    // 重置导航键，确保 MaterialApp 重建时 Navigator 重新读取 initialRoute
+    resetNavigatorKey();
+    // 重置同步管理器，允许新的 SyncProvider 初始化时触发同步
+    SyncManager().reset();
     bool needSync = AppConfigManager.instance.storageType == StorageMode.selfHost;
+    debugPrint('[initApp] start, needSync=$needSync');
     if (needSync) {
-      //  初始化HTTP客户端
       await HttpClient.refresh(
         serverUrl: AppConfigManager.instance.serverUrl,
         accessToken: AppConfigManager.instance.accessToken,
       );
+      debugPrint('[initApp] httpClient refreshed');
     }
-    // 初始化数据库管理器
     await DatabaseManager.init();
-    // 初始化服务管理器
+    debugPrint('[initApp] db init done');
     await ServiceManager.init(syncInit: needSync);
-    // 初始化用户配置管理器
+    // 重置后台同步状态，避免重启/热重载后旧状态残留
+    ServiceManager.resetBackgroundSyncState();
+    debugPrint('[initApp] service init done');
+    debugPrint('[initApp] refreshing user config...');
     await UserConfigManager.refresh(AppConfigManager.instance.userId);
+    debugPrint('[initApp] user config done');
+  } else {
+    debugPrint('[initApp] app not init, skip');
   }
+  debugPrint('[initApp] complete');
 }

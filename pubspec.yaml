@@ -32,7 +32,6 @@ dependencies:
   device_info_plus: ^12.4.0
   csv: ^8.0.0
   flutter_slidable: ^4.0.0
-  cupertino_icons: ^1.0.9
   syncfusion_flutter_charts: ^33.1.44
   syncfusion_flutter_calendar: ^33.1.44
   package_info_plus: ^9.0.1
