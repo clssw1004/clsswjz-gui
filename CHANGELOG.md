@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.14] - 2026-07-12
+
+### Features
+
+- Paginated sync pull/push: migrate data option on reset auth page
+- Sync API supports businessTypes filter for priority sync
+- Sync priority optimization with batch transaction support
+
+### Enhancements
+
+- Timeline/calendar view redesign: fix overflow, simplify layout
+
+### Fixes
+
+- Dashboard income/expense stats affected by sibling pages
+- DatabaseDebug release mode guard with dead code cleanup
+- Reuse existing AppDatabase to avoid drift multi-db warning
+
 ## [1.1.13] - 2026-07-02
 
 ### Features
