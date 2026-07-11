@@ -64,7 +64,7 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
         );
         if (!mounted) return;
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
-        await syncProvider.syncData();
+        await syncProvider.syncPriorityData();
         await AppConfigManager.instance.makeStorageInit();
         if (mounted) {
           RestartWidget.restartApp(context);

@@ -29,6 +29,7 @@ class SyncProvider extends ChangeNotifier {
       EventBus.instance.on<UserShareChangedEvent>(_handleUserShareChanged),
       EventBus.instance.on<RecurringConfigChangedEvent>(_handleRecurringConfigChanged),
       EventBus.instance.on<BookkeepingRuleChangedEvent>(_handleBookkeepingRuleChanged),
+      EventBus.instance.on<SyncCompletedEvent>(_handleSyncCompleted),
     ]);
   }
 
@@ -77,6 +78,12 @@ class SyncProvider extends ChangeNotifier {
     syncData();
   }
 
+  void _handleSyncCompleted(SyncCompletedEvent event) {
+    _backgroundSyncing = false;
+    _backgroundProgress = 0.0;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     for (var subscription in _subscriptions) {
@@ -89,8 +96,14 @@ class SyncProvider extends ChangeNotifier {
   bool _syncing = false;
   bool get syncing => _syncing;
 
+  bool _backgroundSyncing = false;
+  bool get backgroundSyncing => _backgroundSyncing;
+
   double _progress = 0.0;
   double get progress => _progress;
+
+  double _backgroundProgress = 0.0;
+  double get backgroundProgress => _backgroundProgress;
 
   String? _currentStep;
   String? get currentStep => _currentStep;
@@ -113,6 +126,38 @@ class SyncProvider extends ChangeNotifier {
         },
       );
       EventBus.instance.emit(const SyncCompletedEvent());
+      notifyListeners();
+    } finally {
+      _syncing = false;
+      _progress = 0.0;
+      _currentStep = null;
+      notifyListeners();
+    }
+  }
+
+  /// 仅同步优先数据（P0+P1），用于首次安装场景
+  /// 同步完基础数据后即可进入 APP，其余数据在后台继续同步
+  Future<void> syncPriorityData() async {
+    if (_syncing) return;
+
+    _syncing = true;
+    _progress = 0.0;
+    _currentStep = null;
+    _backgroundSyncing = false;
+    _backgroundProgress = 0.0;
+    notifyListeners();
+    try {
+      await ServiceManager.syncService.syncChanges(
+        priorityOnly: true,
+        onProgress: (progress, step) {
+          _progress = progress.toDouble() / 100;
+          _currentStep = step;
+          notifyListeners();
+        },
+      );
+      // 后台同步由 SyncService 的 _startBackgroundSync 负责发 SyncCompletedEvent
+      // 此处不发送，以免各 Provider 过早刷新导致数据不完整
+      _backgroundSyncing = true;
       notifyListeners();
     } finally {
       _syncing = false;

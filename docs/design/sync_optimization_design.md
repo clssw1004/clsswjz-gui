@@ -22,14 +22,14 @@
 | 层级 | 业务类型 | 说明 | 预估数据量 |
 |------|----------|------|-----------|
 | **P0（Critical）** | `user`, `book`, `bookMember` | APP 运行最低要求：用户身份、账本、成员关系 | 极少（≤几十条） |
-| **P1（High）** | `fund`, `category`, `shop`, `symbol`, `bookkeepingRule`, `recurringConfig` | 账目依赖数据：账户、分类、商家、标签、规则 | 较少（~几百条） |
-| **P2（Normal）** | `item`, `itemRelation` | 核心业务数据：账目条目（数据量最大） | 大量（数万条） |
+| **P1（High）** | `fund`, `bookkeepingRule`, `recurringConfig` | 配置级数据：账户、记账规则、固定收支配置 | 极少（≤几十条） |
+| **P2（Normal）** | `category`, `shop`, `symbol`, `item`, `itemRelation` | 核心业务数据：分类、商家、标签、账目条目（数据量最大） | 大量（数万条） |
 | **P3（Low）** | `note`, `debt`, `giftCard`, `vehicle`, `fuelRecord`, `attachment`, `activity`, `activityDefinition`, `userShare` | 扩展模块数据 | 中等 |
 
 ### 2.2 设计原则
 
-- **P0+P1 构成「最小可运行数据集」**：同步完这批数据后，APP 可以正常展示基础页面，不会因缺少依赖而报错
-- **P2 是数据量最大的部分**：账目条目可能在数万条以上，是同步最慢的部分，但在缺少时只是账目列表为空，不影响其他功能模块
+- **P0+P1 构成「最小可运行数据集」**：同步完这批数据后，APP 可以进入主页、看到账本列表、切换账户等基础操作。仅 `user` `book` `bookMember` `fund` `bookkeepingRule` `recurringConfig`，总共几十条记录，几乎瞬间完成
+- **P2 是数据量最大的部分**：分类、商家、标签、账目条目等核心业务数据，数量可达数万条。P0+P1 同步完即可先进 APP，P2 数据在后台同步；缺少时账目列表为空（或显示 ID），不影响其他功能模块
 - **P3 是独立扩展模块**：各模块之间没有强依赖关系，完全可以在后台静默同步
 
 ## 三、方案设计
@@ -62,7 +62,67 @@ POST /api/sync/changes（上传本地变更 + 获取服务端变更）
                 （服务端基于 syncTimeStamp 仅返回新变更）
 ```
 
-### 3.2 SyncService 改造
+### 3.2 后端 API 配合改造
+
+仅靠客户端过滤不够——首次同步时服务端仍然把所有 35000 条数据打包在一个 HTTP 响应里返回，网络传输和 JSON 序列化本身就是瓶颈。需要服务端支持按 `businessTypes` 过滤返回。
+
+#### 3.2.1 接口变更
+
+`POST /api/sync/changes` 请求体新增可选字段 `businessTypes`：
+
+```json
+// 首次安装 — 仅请求优先数据
+{
+  "logs": [],
+  "syncTimeStamp": null,
+  "businessTypes": ["user", "book", "bookMember", "fund", "bookkeepingRule", "recurringConfig"]
+}
+
+// 后台同步 — 请求剩余数据
+{
+  "logs": [],
+  "syncTimeStamp": null,
+  "businessTypes": ["category", "shop", "symbol", "item", "itemRelation", "note", "debt", "giftCard", "vehicle", "fuelRecord", "attachment", "activity", "activityDefinition", "userShare"]
+}
+
+// 日常同步 — 不传 businessTypes，返回全量（保持向后兼容）
+{
+  "logs": [...],
+  "syncTimeStamp": 1699000000000
+}
+```
+
+服务端处理逻辑：
+- `businessTypes` 为空或不传 → 返回全量，行为不变
+- `businessTypes` 有值 → 返回的 `changes` 仅包含匹配类型的 LogSync 记录
+- `syncTimeStamp` 语义不变：记录本次同步的时间戳，下次同步仅返回此时间之后的变更
+- **关键**：`syncTimeStamp` 应按服务端当前最大时间戳返回，不受 `businessTypes` 过滤影响。否则后台同步用上一次的 timestamp 会遗漏数据
+
+#### 3.2.2 首次同步流程（客户端+服务端配合）
+
+```
+客户端                               服务端
+  │                                    │
+  │── POST /api/sync/changes ─────────→│
+  │   {logs:[], syncTS:null,           │
+  │    businessTypes:[P0+P1]}          │
+  │                                    │── 查询所有类型的最新 timestamp = T
+  │←── {changes:[P0+P1], syncTS:T} ──│── 过滤返回 P0+P1
+  │                                    │
+  │ 处理 P0+P1，进入 APP               │
+  │                                    │
+  │── POST /api/sync/changes ─────────→│  (后台异步发起)
+  │   {logs:[], syncTS:null,           │
+  │    businessTypes:[P2+P3]}          │
+  │                                    │── 查询所有类型的最新 timestamp = T
+  │←── {changes:[P2+P3], syncTS:T} ──│── 过滤返回 P2+P3
+  │                                    │
+  │ 处理 P2+P3，更新 lastSyncTime = T  │
+```
+
+两次请求的 `syncTimeStamp` 都是 `null`（首次同步），但 `syncTS` 返回值都是服务端同一个时间点 T。日常同步时客户端带 `syncTS: T`，服务端只返回 T 之后的变更。
+
+### 3.3 SyncService 改造
 
 #### 3.2.1 优先级分组
 
