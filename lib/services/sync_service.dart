@@ -14,7 +14,6 @@ import '../manager/l10n_manager.dart';
 import '../manager/service_manager.dart';
 import '../models/sync.dart';
 import '../utils/attachment.util.dart';
-import '../utils/collection_util.dart';
 import '../utils/date_util.dart';
 import '../utils/http_client.dart';
 import 'base_service.dart';
@@ -66,14 +65,14 @@ class SyncService extends BaseService {
       .map((t) => t.code)
       .toList();
 
-  Future<void> syncChanges(
-      {Function(double percent, String message)? onProgress,
-      bool priorityOnly = false}) async {
+  Future<void> syncChanges({
+    Function(double percent, String message)? onProgress,
+    bool priorityOnly = false,
+  }) async {
     try {
       final isServerOk = await _checkServerHealth(onProgress: onProgress);
-      if (!isServerOk) {
-        return;
-      }
+      if (!isServerOk) return;
+
       final l10n = L10nManager.l10n;
       int? lastSyncTime = AppConfigManager.instance.lastSyncTime;
       final lastSyncTimeStr =
@@ -82,22 +81,44 @@ class SyncService extends BaseService {
           onProgress, progressStart, l10n.syncStarting(lastSyncTimeStr));
       List<LogSync> clientChanges =
           await _listChangeLogs(onProgress: onProgress);
-      // 同步本地变更到服务器
-      final syncResult = await _syncClientChanges<SyncResponseDTO>(
-          logs: clientChanges,
-          syncTimeStamp: lastSyncTime,
-          businessTypes: priorityOnly ? _priorityTypes : null,
-          onProgress: onProgress);
-      // 同步服务器变更到本地（支持按优先级分批）
-      await _syncServerChanges(
-          changes: syncResult.changes,
-          syncTimestamp: syncResult.syncTimeStamp,
+
+      // 阶段 1：Push - 上传本地变更到服务端
+      final pushResult = await _pushClientChanges(
+        logs: clientChanges,
+        syncTimeStamp: lastSyncTime,
+        onProgress: onProgress,
+      );
+
+      // 阶段 2：Pull - 分页拉取服务端变更
+      if (priorityOnly) {
+        // 首次启动：只拉 P0+P1，不更新 lastSyncTime
+        await _pullServerChanges(
+          syncTimeStamp: lastSyncTime ?? 0,
+          businessTypes: _priorityTypes,
+          commitId: pushResult.commitId,
           onProgress: onProgress,
-          priorityOnly: priorityOnly);
-      // 优先级同步不立即更新 lastSyncTime，由后台同步完成后更新
-      if (!priorityOnly) {
-        AppConfigManager.instance.setLastSyncTime(syncResult.syncTimeStamp);
+          progressStart: progressSyncServerChanges,
+          progressEnd: progressDownloadAttachments,
+          downloadAttachments: false,
+        );
+        // 后台启动剩余数据同步
+        _startBackgroundSync(lastSyncTime ?? 0, pushResult.commitId);
+      } else {
+        // 完整/日常同步
+        int finalSyncTimeStamp = pushResult.syncTimeStamp;
+        if (pushResult.totalChanges > 0) {
+          finalSyncTimeStamp = await _pullServerChanges(
+            syncTimeStamp: lastSyncTime ?? 0,
+            commitId: pushResult.commitId,
+            onProgress: onProgress,
+            progressStart: progressSyncServerChanges,
+            progressEnd: progressDownloadAttachments,
+            downloadAttachments: true,
+          );
+        }
+        AppConfigManager.instance.setLastSyncTime(finalSyncTimeStamp);
       }
+
       await _processOnProgress(onProgress, progressComplete, l10n.syncComplete);
     } catch (e, stackTrace) {
       debugPrint('Sync error: $e');
@@ -171,81 +192,143 @@ class SyncService extends BaseService {
     }
   }
 
-  Future<void> _downloadFiles(
-      {List<LogSync>? serverChanges,
-      int? syncTimestamp,
-      Function(double percent, String message)? onProgress}) async {
+  /// Push 本地变更到服务端
+  Future<SyncPushResponse> _pushClientChanges({
+    required List<LogSync> logs,
+    required int? syncTimeStamp,
+    Function(double percent, String message)? onProgress,
+  }) async {
     final l10n = L10nManager.l10n;
-    final attachmentIds = serverChanges
-        ?.where((e) =>
-            BusinessType.fromCode(e.businessType) == BusinessType.attachment &&
-            OperateType.fromCode(e.operateType) == OperateType.create)
-        .map((e) => e.businessId)
-        .toList();
-    if (attachmentIds == null || attachmentIds.isEmpty) return;
-    await _processOnProgress(onProgress, progressDownloadAttachments,
-        l10n.downloadingAttachments(attachmentIds.length));
-    for (var i = 0; i < attachmentIds.length; i++) {
-      final attachmentId = attachmentIds[i];
-      final filePath = await AttachmentUtil.getAttachmentPath(attachmentId);
-      final exists = await File(filePath).exists();
-      if (!exists) {
-        await HttpClient.instance.downloadFile(
-          fileId: attachmentId,
-          savePath: filePath,
-        );
-      }
-      await _processOnProgress(onProgress, progressDownloadAttachments,
-          l10n.downloadingAttachmentsProgress(i + 1, attachmentIds.length));
-    }
-    await _processOnProgress(
-        onProgress, progressDownloadComplete, l10n.attachmentDownloadComplete);
-  }
-
-  /// 同步本地变更到服务端
-  Future<SyncResponseDTO> _syncClientChanges<T>(
-      {required List<LogSync> logs,
-      required int? syncTimeStamp,
-      List<String>? businessTypes,
-      Function(double percent, String message)? onProgress}) async {
-    final l10n = L10nManager.l10n;
-    // 同步附件
+    // 上传附件
     await _uploadFiles(
         localChanges: logs,
         syncTimestamp: syncTimeStamp,
         onProgress: onProgress);
     await _processOnProgress(onProgress, progressSyncLocalChanges,
         l10n.syncingLocalChanges(logs.length));
+    // POST /api/sync/push
     final requestData = <String, dynamic>{
       'logs': logs.map((e) => e.toJson()).toList(),
       'syncTimeStamp': syncTimeStamp,
     };
-    if (businessTypes != null && businessTypes.isNotEmpty) {
-      requestData['businessTypes'] = businessTypes;
-    }
-    final response = await HttpClient.instance.post<SyncResponseDTO>(
-      path: '/api/sync/changes',
+    final response = await HttpClient.instance.post<SyncPushResponse>(
+      path: '/api/sync/push',
       data: requestData,
-      transform: (data) => SyncResponseDTO.fromJson(data['data']),
+      transform: (data) => SyncPushResponse.fromJson(data['data']),
     );
     if (response.ok) {
       final result = response.data!;
-      final resultLogs = result.results;
-      if (resultLogs.isNotEmpty) {
+      if (result.results.isNotEmpty) {
         int success =
-            resultLogs.where((e) => e.syncState == SyncState.synced).length;
+            result.results.where((e) => e.syncState == SyncState.synced).length;
         int failed =
-            resultLogs.where((e) => e.syncState == SyncState.failed).length;
+            result.results.where((e) => e.syncState == SyncState.failed).length;
         await _processOnProgress(onProgress, progressLocalSyncComplete,
-            l10n.localChangeSyncComplete(resultLogs.length, success, failed));
+            l10n.localChangeSyncComplete(result.results.length, success, failed));
         await _syncLogState(
-            results: resultLogs,
+            results: result.results,
             syncTimestamp: result.syncTimeStamp,
             onProgress: onProgress);
       }
       return result;
     }
     throw Exception(response.message);
+  }
+
+  /// 分页拉取服务端变更
+  /// [downloadAttachments] 为 true 时同步完成后下载附件文件
+  /// 返回最后页的 syncTimeStamp
+  Future<int> _pullServerChanges({
+    required int syncTimeStamp,
+    List<String>? businessTypes,
+    String? commitId,
+    Function(double percent, String message)? onProgress,
+    required double progressStart,
+    required double progressEnd,
+    bool downloadAttachments = false,
+  }) async {
+    const pageSize = 1000;
+    int page = 1;
+    int totalChanges = 0;
+    int finalSyncTimeStamp = 0;
+    // 收集所有附件 ID（仅 downloadAttachments=true 时）
+    final List<String> allAttachmentIds = [];
+
+    do {
+      final requestData = <String, dynamic>{
+        'syncTimeStamp': syncTimeStamp,
+        'page': page,
+        'pageSize': pageSize,
+      };
+      if (businessTypes != null && businessTypes.isNotEmpty) {
+        requestData['businessTypes'] = businessTypes;
+      }
+      if (commitId != null && commitId.isNotEmpty) {
+        requestData['commitId'] = commitId;
+      }
+
+      final response = await HttpClient.instance.post<SyncPullResponse>(
+        path: '/api/sync/pull',
+        data: requestData,
+        transform: (data) => SyncPullResponse.fromJson(data['data']),
+      );
+      if (!response.ok) throw Exception(response.message);
+
+      final pullResult = response.data!;
+      finalSyncTimeStamp = pullResult.syncTimeStamp;
+      totalChanges = pullResult.total;
+
+      if (pullResult.changes.isNotEmpty) {
+        final l10n = L10nManager.l10n;
+        await _applyChanges(
+          changes: pullResult.changes,
+          onProgress: onProgress,
+          getProgressDetail: (processed, total) =>
+              l10n.syncingServerChangesProgress(processed, total),
+          progressStart: progressStart,
+          progressEnd: progressEnd,
+          batchTransaction: false,
+        );
+        // 收集附件 ID 以便后续下载
+        if (downloadAttachments) {
+          for (final change in pullResult.changes) {
+            if (BusinessType.fromCode(change.businessType) ==
+                    BusinessType.attachment &&
+                OperateType.fromCode(change.operateType) ==
+                    OperateType.create) {
+              allAttachmentIds.add(change.businessId);
+            }
+          }
+        }
+      }
+
+      page++;
+      // 用当前页返回的 total 判断是否继续（total 可能在页间微变）
+    } while ((page - 1) * pageSize < totalChanges);
+
+    // 下载附件文件
+    if (downloadAttachments && allAttachmentIds.isNotEmpty) {
+      final l10n = L10nManager.l10n;
+      await _processOnProgress(onProgress, progressDownloadAttachments,
+          l10n.downloadingAttachments(allAttachmentIds.length));
+      for (var i = 0; i < allAttachmentIds.length; i++) {
+        final filePath =
+            await AttachmentUtil.getAttachmentPath(allAttachmentIds[i]);
+        final exists = await File(filePath).exists();
+        if (!exists) {
+          await HttpClient.instance.downloadFile(
+            fileId: allAttachmentIds[i],
+            savePath: filePath,
+          );
+        }
+        await _processOnProgress(onProgress, progressDownloadAttachments,
+            l10n.downloadingAttachmentsProgress(i + 1, allAttachmentIds.length));
+      }
+      await _processOnProgress(
+          onProgress, progressDownloadComplete, l10n.attachmentDownloadComplete);
+    }
+
+    return finalSyncTimeStamp;
   }
 
   Future<void> _syncLogState(
@@ -270,12 +353,6 @@ class SyncService extends BaseService {
     }
     await _processOnProgress(onProgress, progressLocalStatusComplete,
         l10n.localChangeStatusSyncComplete);
-  }
-
-  /// 按优先级分组服务端变更
-  Map<SyncPriority, List<LogSync>> _groupByPriority(List<LogSync> changes) {
-    return CollectionUtil.groupBy(changes, (c) =>
-        BusinessType.fromCode(c.businessType)?.syncPriority ?? SyncPriority.low);
   }
 
   /// 批量应用变更（支持批量事务模式）
@@ -379,22 +456,6 @@ class SyncService extends BaseService {
     }
   }
 
-  /// 在后台静默同步剩余数据
-  /// 委托给 _applyChanges，消除重复的批处理/降级逻辑
-  Future<void> _applyChangesSilent(
-    List<LogSync> changes, {
-    Function(double percent, String message)? onProgress,
-  }) async {
-    await _applyChanges(
-      changes: changes,
-      onProgress: onProgress,
-      getProgressDetail: (_, __) => '',
-      progressStart: 0.0,
-      progressEnd: 1.0,
-      batchTransaction: false,
-    );
-  }
-
   bool _backgroundSyncRunning = false;
   int _backgroundSyncGeneration = 0;
 
@@ -406,9 +467,8 @@ class SyncService extends BaseService {
   }
 
   /// 后台同步 P2+P3 数据
-  /// 发起独立的 API 请求，通过 businessTypes 参数让服务端过滤返回
-  /// 若服务端不支持过滤，返回全量数据时由 existIdsSet 去重跳过已处理记录
-  void _startBackgroundSync(List<LogSync> fallbackChanges, int syncTimestamp) {
+  /// 分页拉取服务端变更，通过 businessTypes 参数让服务端按优先级类型过滤返回
+  void _startBackgroundSync(int syncTimeStamp, String commitId) {
     if (_backgroundSyncRunning) return;
     _backgroundSyncRunning = true;
     final generation = _backgroundSyncGeneration;
@@ -421,58 +481,26 @@ class SyncService extends BaseService {
         return;
       }
       try {
-        List<LogSync> changes;
-        int finalSyncTimestamp = syncTimestamp;
-
-        // 尝试通过 API 分类型请求后台数据
-        final response = await HttpClient.instance.post<SyncResponseDTO>(
-          path: '/api/sync/changes',
-          data: {
-            'logs': <Map<String, dynamic>>[],
-            'syncTimeStamp': null, // 首次全量，仅筛选类型
-            'businessTypes': _backgroundTypes,
-          },
-          transform: (data) => SyncResponseDTO.fromJson(data['data']),
-        );
-
-        if (response.ok && response.data != null) {
-          changes = response.data!.changes;
-          finalSyncTimestamp = response.data!.syncTimeStamp;
-          debugPrint(
-              'Background sync API returned: ${changes.length} changes');
-        } else {
-          // API 请求失败，回退到本地已返回的数据
-          changes = fallbackChanges;
-          debugPrint(
-              'Background sync API failed, using fallback: ${changes.length} changes');
-        }
-
-        if (changes.isNotEmpty) {
-          debugPrint(
-              'Background sync started: ${changes.length} changes remaining');
-          // 用 try-catch 包装回调，防止 SyncProvider 被 dispose 后调用 notifyListeners 崩溃
-          final safeCallback = _backgroundProgressCallback;
-          await _applyChangesSilent(changes,
-            onProgress: safeCallback != null
-                ? (percent, msg) {
-                    try {
-                      safeCallback(percent, msg);
-                    } catch (_) {
-                      // SyncProvider 已销毁，停止回调
-                    }
+        // 用 try-catch 包装回调，防止 SyncProvider 被 dispose 后调用 notifyListeners 崩溃
+        final safeCallback = _backgroundProgressCallback;
+        final finalSyncTimeStamp = await _pullServerChanges(
+          syncTimeStamp: syncTimeStamp,
+          businessTypes: _backgroundTypes,
+          commitId: commitId,
+          onProgress: safeCallback != null
+              ? (percent, msg) {
+                  try {
+                    safeCallback(percent, msg);
+                  } catch (_) {
+                    // SyncProvider 已销毁，停止回调
                   }
-                : null,
-          );
-          // 下载后台数据中的附件文件
-          await _downloadFiles(
-              serverChanges: changes,
-              syncTimestamp: finalSyncTimestamp,
-              onProgress: null);
-        } else {
-          debugPrint('Background sync: no changes to process');
-        }
+                }
+              : (_, __) {},
+          progressStart: 0.0,
+          progressEnd: 1.0,
+        );
         // 无论有无数据，都更新 lastSyncTime 并通知完成
-        AppConfigManager.instance.setLastSyncTime(finalSyncTimestamp);
+        AppConfigManager.instance.setLastSyncTime(finalSyncTimeStamp);
         EventBus.instance.emit(const SyncCompletedEvent());
         debugPrint('Background sync completed');
       } catch (e, stackTrace) {
@@ -484,88 +512,6 @@ class SyncService extends BaseService {
         }
       }
     });
-  }
-
-  /// 同步服务端变更
-  Future<void> _syncServerChanges(
-      {required List<LogSync> changes,
-      required int syncTimestamp,
-      Function(double percent, String message)? onProgress,
-      bool priorityOnly = false}) async {
-    if (changes.isEmpty) {
-      await _processOnProgress(
-          onProgress, progressDownloadAttachments, L10nManager.l10n.serverChangeSyncComplete);
-      return;
-    }
-
-    final l10n = L10nManager.l10n;
-    await _processOnProgress(onProgress, progressSyncServerChanges,
-        l10n.syncingServerChanges(changes.length));
-
-    // 按优先级分组
-    final grouped = _groupByPriority(changes);
-    final priorityChanges = [
-      ...grouped[SyncPriority.critical]!,
-      ...grouped[SyncPriority.high]!,
-    ];
-    final backgroundChanges = [
-      ...grouped[SyncPriority.normal]!,
-      ...grouped[SyncPriority.low]!,
-    ];
-
-    if (priorityOnly) {
-      // 首次启动：仅同步 P0+P1，剩余数据后台处理
-      debugPrint(
-          'Priority sync: ${priorityChanges.length} priority changes, '
-          '${backgroundChanges.length} background changes');
-
-      // 同步优先级数据（批量事务，保证整体完整性）
-      await _applyChanges(
-        changes: priorityChanges,
-        onProgress: onProgress,
-        getProgressDetail: (processed, total) =>
-            l10n.syncingServerChangesProgress(processed, total),
-        progressStart: progressSyncServerChanges,
-        progressEnd: progressDownloadAttachments,
-        batchTransaction: true,
-      );
-
-      // 后台启动剩余数据同步
-      _startBackgroundSync(backgroundChanges, syncTimestamp);
-
-      await _processOnProgress(onProgress, progressServerSyncComplete,
-          l10n.serverChangeSyncComplete);
-    } else {
-      // 完整同步：优先处理优先级数据（批量事务），再处理后台数据（逐条事务）
-      await _applyChanges(
-        changes: priorityChanges,
-        onProgress: onProgress,
-        getProgressDetail: (processed, total) =>
-            l10n.syncingServerChangesProgress(processed, total),
-        progressStart: progressSyncServerChanges,
-        progressEnd: progressSyncServerChanges +
-            (priorityChanges.length / changes.length) * 0.3,
-        batchTransaction: true,
-      );
-      await _applyChanges(
-        changes: backgroundChanges,
-        onProgress: onProgress,
-        getProgressDetail: (processed, total) =>
-            l10n.syncingServerChangesProgress(
-                priorityChanges.length + processed, changes.length),
-        progressStart: progressSyncServerChanges +
-            (priorityChanges.length / changes.length) * 0.3,
-        progressEnd: progressDownloadAttachments,
-        batchTransaction: false,
-      );
-
-      await _downloadFiles(
-          serverChanges: changes,
-          syncTimestamp: syncTimestamp,
-          onProgress: onProgress);
-      await _processOnProgress(
-          onProgress, progressServerSyncComplete, l10n.serverChangeSyncComplete);
-    }
   }
 
   /// 处理进度
