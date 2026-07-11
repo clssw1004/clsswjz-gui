@@ -110,7 +110,7 @@ class DebtListProvider extends ChangeNotifier {
       debt.id,
     );
     if (result.ok) {
-      _debts.remove(debt);
+      _debts.removeWhere((d) => d.id == debt.id);
       notifyListeners();
     }
     return result.ok;

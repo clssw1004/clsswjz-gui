@@ -104,8 +104,19 @@ const accountBookIcons = [
 ];
 
 /// 默认账本图标
-///
-///
 String defaultIcon() {
   return accountBookIcons.first.codePoint.toString();
+}
+
+/// 根据图标码点字符串获取 IconData
+///
+/// 从预定义的 [accountBookIcons] 中查找，避免动态创建 [IconData]。
+IconData getIconByCode(String? iconCode) {
+  if (iconCode == null || iconCode.isEmpty) {
+    return accountBookIcons.first;
+  }
+  return accountBookIcons.firstWhere(
+    (icon) => icon.codePoint.toString() == iconCode,
+    orElse: () => accountBookIcons.first,
+  );
 }

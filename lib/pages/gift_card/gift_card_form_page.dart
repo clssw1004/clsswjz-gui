@@ -198,7 +198,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
                         height: 48,
                         child: Icon(
                           _icon != null
-                              ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons')
+                              ? getGiftCardIconByCode(_icon)
                               : Icons.card_giftcard,
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -206,7 +206,7 @@ class _GiftCardFormPageState extends State<GiftCardFormPage> {
                     )
                   : Icon(
                       _icon != null
-                          ? IconData(int.parse(_icon!), fontFamily: 'MaterialIcons')
+                          ? getGiftCardIconByCode(_icon)
                           : Icons.card_giftcard,
                       color: Theme.of(context).colorScheme.primary,
                     ),

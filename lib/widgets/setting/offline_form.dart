@@ -45,17 +45,20 @@ class _OfflineFormState extends State<OfflineForm> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _bookNameController = TextEditingController();
-  String _bookIcon = Icons.book_outlined.codePoint.toString();
+  late IconData _bookIcon = accountBookIcons.first;
 
   /// 选择图标
   Future<void> _selectIcon() async {
     await CommonIconPicker.show(
       context: context,
       icons: accountBookIcons,
-      selectedIconCode: _bookIcon,
+      selectedIconCode: _bookIcon.codePoint.toString(),
       onIconSelected: (iconCode) {
         setState(() {
-          _bookIcon = iconCode;
+          _bookIcon = accountBookIcons.firstWhere(
+            (icon) => icon.codePoint.toString() == iconCode,
+            orElse: () => accountBookIcons.first,
+          );
         });
       },
     );
@@ -70,7 +73,7 @@ class _OfflineFormState extends State<OfflineForm> {
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
       bookName: _bookNameController.text.trim(),
-      bookIcon: _bookIcon,
+      bookIcon: _bookIcon.codePoint.toString(),
     );
 
     widget.onSubmit?.call(data);
@@ -155,7 +158,7 @@ class _OfflineFormState extends State<OfflineForm> {
                 width: 48,
                 height: 48,
                 child: Icon(
-                  IconData(int.parse(_bookIcon), fontFamily: 'MaterialIcons'),
+                  _bookIcon,
                   color: colorScheme.primary,
                 ),
               ),

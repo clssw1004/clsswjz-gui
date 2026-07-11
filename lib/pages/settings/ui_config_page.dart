@@ -170,7 +170,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     buildDefaultDragHandles: false,
                     itemCount: _itemTabOrder.length,
-                    onReorder: _onItemTabReorder,
+                    onReorderItem: _onItemTabReorder,
                     proxyDecorator: (child, index, animation) => Material(
                       elevation: 2,
                       borderRadius: BorderRadius.circular(12),
@@ -721,7 +721,6 @@ class _UiConfigPageState extends State<UiConfigPage> {
   /// 记账页组件拖拽排序
   void _onItemTabReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) newIndex--;
       final item = _itemTabOrder.removeAt(oldIndex);
       _itemTabOrder.insert(newIndex, item);
     });

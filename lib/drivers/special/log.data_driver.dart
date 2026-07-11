@@ -56,7 +56,6 @@ import '../vo_transfer.dart';
 import 'log/builder/attachment.builder.dart';
 import 'log/builder/book.builder.dart';
 import 'log/builder/book_category.builder.dart';
-import '../../database/tables/account_shop_table.dart';
 import 'log/builder/book_debt.build.dart';
 import 'log/builder/book_note.build.dart';
 import 'log/builder/builder.dart';

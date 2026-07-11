@@ -187,8 +187,7 @@ class _BookFormPageState extends State<BookFormPage> {
               ),
               child: Icon(
                 _icon != null
-                    ? IconData(int.parse(_icon!),
-                        fontFamily: 'MaterialIcons')
+                    ? getIconByCode(_icon)
                     : Icons.book_outlined,
                 size: 32,
                 color: colorScheme.onSecondaryContainer,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../constants/account_book_icons.dart';
 import '../common/shared_badge.dart';
 
 /// 账本选择组件
@@ -367,8 +368,5 @@ class _BookSelectorSheetState extends State<_BookSelectorSheet> {
 
 /// 获取账本图标
 IconData _getBookIcon(String? icon) {
-  if (icon == null || icon.isEmpty) {
-    return Icons.book;
-  }
-  return IconData(int.parse(icon), fontFamily: 'MaterialIcons');
+  return getIconByCode(icon);
 }

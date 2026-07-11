@@ -142,3 +142,19 @@ const giftCardIcons = [
   Icons.bluetooth,
   Icons.nfc,
 ];
+
+/// 默认礼物卡图标
+IconData defaultGiftCardIcon() => giftCardIcons.first;
+
+/// 根据图标码点字符串获取 IconData
+///
+/// 从预定义的 [giftCardIcons] 中查找，避免动态创建 [IconData]。
+IconData getGiftCardIconByCode(String? iconCode) {
+  if (iconCode == null || iconCode.isEmpty) {
+    return giftCardIcons.first;
+  }
+  return giftCardIcons.firstWhere(
+    (icon) => icon.codePoint.toString() == iconCode,
+    orElse: () => giftCardIcons.first,
+  );
+}

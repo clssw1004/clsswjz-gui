@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/user_book_vo.dart';
+import '../../constants/account_book_icons.dart';
 import '../../providers/books_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/toast_util.dart';
@@ -182,8 +183,7 @@ class _BookCard extends StatelessWidget {
   });
 
   IconData _getIcon(String? icon) {
-    if (icon == null || icon.isEmpty) return Icons.book_outlined;
-    return IconData(int.parse(icon), fontFamily: 'MaterialIcons');
+    return getIconByCode(icon);
   }
 
   @override
