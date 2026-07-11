@@ -302,6 +302,7 @@ class SyncService extends BaseService {
         totalPages > 0 ? (progressEnd - progressStart) / totalPages : 0.0;
 
     // 2. 逐页拉取，每页各自占用一段进度区间
+    int cumulativeProcessed = 0;
     for (int page = 1; page <= totalPages; page++) {
       final SyncPullResponse pullResult;
       if (page == 1) {
@@ -334,12 +335,14 @@ class SyncService extends BaseService {
         await _applyChanges(
           changes: pullResult.changes,
           onProgress: onProgress,
-          getProgressDetail: (processed, total) =>
-              l10n.syncingServerChangesProgress(processed, total),
+          getProgressDetail: (processed, _) =>
+              l10n.syncingServerChangesProgress(
+                  cumulativeProcessed + processed, totalChanges),
           progressStart: progressStart + (page - 1) * rangePerPage,
           progressEnd: progressStart + page * rangePerPage,
           batchTransaction: false,
         );
+        cumulativeProcessed += pullResult.changes.length;
         if (downloadAttachments) {
           for (final change in pullResult.changes) {
             if (BusinessType.fromCode(change.businessType) ==
