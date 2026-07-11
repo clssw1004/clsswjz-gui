@@ -269,35 +269,65 @@ class SyncService extends BaseService {
     bool downloadAttachments = false,
   }) async {
     const pageSize = 1000;
-    int page = 1;
-    int totalChanges = 0;
     int finalSyncTimeStamp = 0;
     // 收集所有附件 ID（仅 downloadAttachments=true 时）
     final List<String> allAttachmentIds = [];
 
-    do {
-      final requestData = <String, dynamic>{
-        'syncTimeStamp': syncTimeStamp,
-        'page': page,
-        'pageSize': pageSize,
-      };
-      if (businessTypes != null && businessTypes.isNotEmpty) {
-        requestData['businessTypes'] = businessTypes;
-      }
-      if (commitId != null && commitId.isNotEmpty) {
-        requestData['commitId'] = commitId;
+    // 1. 先拉第一页获取总条数
+    final firstData = <String, dynamic>{
+      'syncTimeStamp': syncTimeStamp,
+      'page': 1,
+      'pageSize': pageSize,
+    };
+    if (businessTypes != null && businessTypes.isNotEmpty) {
+      firstData['businessTypes'] = businessTypes;
+    }
+    if (commitId != null && commitId.isNotEmpty) {
+      firstData['commitId'] = commitId;
+    }
+
+    final firstResp = await HttpClient.instance.post<SyncPullResponse>(
+      path: '/api/sync/pull',
+      data: firstData,
+      transform: (data) => SyncPullResponse.fromJson(data['data']),
+    );
+    if (!firstResp.ok) throw Exception(firstResp.message);
+    final firstResult = firstResp.data!;
+
+    finalSyncTimeStamp = firstResult.syncTimeStamp;
+    final int totalChanges = firstResult.total;
+    final int totalPages =
+        totalChanges > 0 ? (totalChanges + pageSize - 1) ~/ pageSize : 1;
+    final double rangePerPage =
+        totalPages > 0 ? (progressEnd - progressStart) / totalPages : 0.0;
+
+    // 2. 逐页拉取，每页各自占用一段进度区间
+    for (int page = 1; page <= totalPages; page++) {
+      final SyncPullResponse pullResult;
+      if (page == 1) {
+        pullResult = firstResult;
+      } else {
+        final pageData = <String, dynamic>{
+          'syncTimeStamp': syncTimeStamp,
+          'page': page,
+          'pageSize': pageSize,
+        };
+        if (businessTypes != null && businessTypes.isNotEmpty) {
+          pageData['businessTypes'] = businessTypes;
+        }
+        if (commitId != null && commitId.isNotEmpty) {
+          pageData['commitId'] = commitId;
+        }
+        final resp = await HttpClient.instance.post<SyncPullResponse>(
+          path: '/api/sync/pull',
+          data: pageData,
+          transform: (data) => SyncPullResponse.fromJson(data['data']),
+        );
+        if (!resp.ok) throw Exception(resp.message);
+        pullResult = resp.data!;
       }
 
-      final response = await HttpClient.instance.post<SyncPullResponse>(
-        path: '/api/sync/pull',
-        data: requestData,
-        transform: (data) => SyncPullResponse.fromJson(data['data']),
-      );
-      if (!response.ok) throw Exception(response.message);
-
-      final pullResult = response.data!;
       finalSyncTimeStamp = pullResult.syncTimeStamp;
-      totalChanges = pullResult.total;
 
       if (pullResult.changes.isNotEmpty) {
         final l10n = L10nManager.l10n;
@@ -306,11 +336,10 @@ class SyncService extends BaseService {
           onProgress: onProgress,
           getProgressDetail: (processed, total) =>
               l10n.syncingServerChangesProgress(processed, total),
-          progressStart: progressStart,
-          progressEnd: progressEnd,
+          progressStart: progressStart + (page - 1) * rangePerPage,
+          progressEnd: progressStart + page * rangePerPage,
           batchTransaction: false,
         );
-        // 收集附件 ID 以便后续下载
         if (downloadAttachments) {
           for (final change in pullResult.changes) {
             if (BusinessType.fromCode(change.businessType) ==
@@ -322,12 +351,9 @@ class SyncService extends BaseService {
           }
         }
       }
+    }
 
-      page++;
-      // 用当前页返回的 total 判断是否继续（total 可能在页间微变）
-    } while ((page - 1) * pageSize < totalChanges);
-
-    // 下载附件文件
+    // 3. 下载附件文件
     if (downloadAttachments && allAttachmentIds.isNotEmpty) {
       final l10n = L10nManager.l10n;
       await _processOnProgress(onProgress, progressDownloadAttachments,
