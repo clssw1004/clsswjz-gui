@@ -38,6 +38,7 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
   final _serverController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  // ignore: prefer_final_fields — 待用户映射表完成后启用
   bool _migrateData = false;
   bool _isLoading = false;
 
@@ -357,17 +358,20 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
                 const SizedBox(height: 14),
                 const Divider(),
                 const SizedBox(height: 14),
-                CheckboxListTile(
-                  value: _migrateData,
-                  onChanged: (_isLoading || syncProvider.syncing)
-                      ? null
-                      : (v) => setState(() => _migrateData = v ?? false),
-                  title: Text(L10nManager.l10n.featureDataSync),
-                  subtitle: Text('${L10nManager.l10n.syncData} → ${L10nManager.l10n.serverConfig}'),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
+                /* TODO: 数据迁移功能暂隐藏 — 不同服务器可能存在同名用户 ID 冲突，
+                 * 导致 push 的日志中 operatorId 与新服务器用户不匹配，需设计用户映射表后再启用。
+                 */
+                // CheckboxListTile(
+                //   value: _migrateData,
+                //   onChanged: (_isLoading || syncProvider.syncing)
+                //       ? null
+                //       : (v) => setState(() => _migrateData = v ?? false),
+                //   title: Text(L10nManager.l10n.featureDataSync),
+                //   subtitle: Text('${L10nManager.l10n.syncData} → ${L10nManager.l10n.serverConfig}'),
+                //   controlAffinity: ListTileControlAffinity.leading,
+                //   dense: true,
+                //   contentPadding: EdgeInsets.zero,
+                // ),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
