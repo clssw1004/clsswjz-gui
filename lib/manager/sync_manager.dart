@@ -23,6 +23,12 @@ class SyncManager {
     _syncOnAppLaunch();
   }
 
+  /// 重置状态，在 app 重启时调用以允许新的 SyncProvider 初始化
+  void reset() {
+    _isInitialized = false;
+    _syncProvider = null;
+  }
+
   /// 应用启动时同步
   Future<void> _syncOnAppLaunch() async {
     try {

@@ -64,13 +64,25 @@ class _ServerConfigPageState extends State<ServerConfigPage> {
         );
         if (!mounted) return;
         final syncProvider = Provider.of<SyncProvider>(context, listen: false);
+        debugPrint('[_initSelfhost] starting priority sync');
         await syncProvider.syncPriorityData();
+        debugPrint('[_initSelfhost] priority sync done, makeStorageInit');
         await AppConfigManager.instance.makeStorageInit();
+        debugPrint('[_initSelfhost] storage inited, restartApp (mounted=$mounted)');
         if (mounted) {
+          // 完整重启应用，重新初始化所有 Provider 和服务
           RestartWidget.restartApp(context);
+          debugPrint('[_initSelfhost] restartApp called');
+        } else {
+          debugPrint('[_initSelfhost] not mounted, skipping restart');
         }
       } else {
         ToastUtil.showError(L10nManager.l10n.loginFailed);
+      }
+    } catch (e, stack) {
+      debugPrint('[_initSelfhost] error: $e\n$stack');
+      if (mounted) {
+        ToastUtil.showError('初始化失败: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

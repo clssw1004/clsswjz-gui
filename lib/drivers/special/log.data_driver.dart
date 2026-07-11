@@ -290,13 +290,13 @@ class LogDataDriver implements BookDataDriver {
           await DaoManager.categoryDao.findByBookAndCode(bookId, categoryCode);
       if (category != null) {
         updateCategory(who, bookId, category.id,
-            lastAccountItemAt: accountDate);
+            lastAccountItemAt: accountDate, recordLog: false);
       }
     }
     if (shopCode != null) {
       final shop = await DaoManager.shopDao.findByBookAndCode(bookId, shopCode);
       if (shop != null) {
-        updateShop(who, bookId, shop.id, lastAccountItemAt: accountDate);
+        updateShop(who, bookId, shop.id, lastAccountItemAt: accountDate, recordLog: false);
       }
     }
     if (tagCodes != null && tagCodes.isNotEmpty) {
@@ -304,7 +304,7 @@ class LogDataDriver implements BookDataDriver {
         final tag = await DaoManager.symbolDao
             .findByBookAndCode(bookId, SymbolType.tag.code, code);
         if (tag != null) {
-          updateSymbol(who, bookId, tag.id, lastAccountItemAt: accountDate);
+          updateSymbol(who, bookId, tag.id, lastAccountItemAt: accountDate, recordLog: false);
         }
       }
     }
@@ -312,13 +312,13 @@ class LogDataDriver implements BookDataDriver {
       final project = await DaoManager.symbolDao
           .findByBookAndCode(bookId, SymbolType.project.code, projectCode);
       if (project != null) {
-        updateSymbol(who, bookId, project.id, lastAccountItemAt: accountDate);
+        updateSymbol(who, bookId, project.id, lastAccountItemAt: accountDate, recordLog: false);
       }
     }
     if (fundId != null) {
       final fund = await DaoManager.fundDao.findById(fundId);
       if (fund != null) {
-        updateFund(who, bookId, fund.id, lastAccountItemAt: accountDate);
+        updateFund(who, bookId, fund.id, lastAccountItemAt: accountDate, recordLog: false);
       }
     }
     return OperateResult.success(id);
@@ -404,14 +404,18 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateCategory(
       String who, String bookId, String categoryId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) async {
-    await CategoryCULog.update(who, bookId, categoryId,
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable, bool recordLog = true}) async {
+    final builder = CategoryCULog.update(who, bookId, categoryId,
             name: name,
             parentId: parentId,
             sortOrder: sortOrder,
             lastAccountItemAt: lastAccountItemAt,
-            isBookkeepingSelectable: isBookkeepingSelectable)
-        .execute();
+            isBookkeepingSelectable: isBookkeepingSelectable);
+    if (recordLog) {
+      await builder.execute();
+    } else {
+      await builder.executeWithoutRecord();
+    }
     return OperateResult.success(null);
   }
 
@@ -503,14 +507,18 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateShop(
       String who, String bookId, String shopId,
-      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable}) async {
-    await ShopCULog.update(who, bookId, shopId,
+      {String? name, String? parentId, int? sortOrder, String? lastAccountItemAt, bool? isBookkeepingSelectable, bool recordLog = true}) async {
+    final builder = ShopCULog.update(who, bookId, shopId,
             name: name,
             parentId: parentId,
             sortOrder: sortOrder,
             lastAccountItemAt: lastAccountItemAt,
-            isBookkeepingSelectable: isBookkeepingSelectable)
-        .execute();
+            isBookkeepingSelectable: isBookkeepingSelectable);
+    if (recordLog) {
+      await builder.execute();
+    } else {
+      await builder.executeWithoutRecord();
+    }
     return OperateResult.success(null);
   }
 
@@ -592,10 +600,14 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<void>> updateSymbol(
       String who, String bookId, String tagId,
-      {String? name, String? lastAccountItemAt}) async {
-    await SymbolCULog.update(who, bookId, tagId,
-            name: name, lastAccountItemAt: lastAccountItemAt)
-        .execute();
+      {String? name, String? lastAccountItemAt, bool recordLog = true}) async {
+    final builder = SymbolCULog.update(who, bookId, tagId,
+            name: name, lastAccountItemAt: lastAccountItemAt);
+    if (recordLog) {
+      await builder.execute();
+    } else {
+      await builder.executeWithoutRecord();
+    }
     return OperateResult.success(null);
   }
 
@@ -646,14 +658,19 @@ class LogDataDriver implements BookDataDriver {
     double? fundBalance,
     String? fundRemark,
     String? lastAccountItemAt,
+    bool recordLog = true,
   }) async {
-    await FundCULog.update(who, bookId, fundId,
+    final builder = FundCULog.update(who, bookId, fundId,
             name: name,
             fundType: fundType,
             fundBalance: fundBalance,
             fundRemark: fundRemark,
-            lastAccountItemAt: lastAccountItemAt)
-        .execute();
+            lastAccountItemAt: lastAccountItemAt);
+    if (recordLog) {
+      await builder.execute();
+    } else {
+      await builder.executeWithoutRecord();
+    }
     return OperateResult.success(null);
   }
 

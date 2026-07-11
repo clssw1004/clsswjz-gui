@@ -12,7 +12,12 @@ import 'manager/provider_manager.dart';
 import 'providers/theme_provider.dart';
 import 'routes/app_routes.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+/// 重置导航键，在 app 重启时调用以避免 GlobalKey 复用导致 initialRoute 失效
+void resetNavigatorKey() {
+  navigatorKey = GlobalKey<NavigatorState>();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

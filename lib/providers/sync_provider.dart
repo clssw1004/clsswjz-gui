@@ -147,6 +147,12 @@ class SyncProvider extends ChangeNotifier {
     _backgroundProgress = 0.0;
     notifyListeners();
     try {
+      // 设置后台进度回调，后台同步会通过它更新进度
+      ServiceManager.syncService.setBackgroundProgressCallback(
+          (progress, step) {
+        _backgroundProgress = progress.toDouble() / 100;
+        notifyListeners();
+      });
       await ServiceManager.syncService.syncChanges(
         priorityOnly: true,
         onProgress: (progress, step) {

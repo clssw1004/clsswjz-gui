@@ -57,4 +57,9 @@ class ServiceManager extends BaseService {
 
   /// 获取健康检查服务
   static HealthService get currentServer => _currentHealthService;
+
+  /// 重置后台同步状态（热重载/重启时调用）
+  static void resetBackgroundSyncState() {
+    _syncService.resetBackgroundSyncState();
+  }
 }
