@@ -665,9 +665,25 @@
     "@accessToken": {
         "description": "同步凭证标签"
     },
-    "resetAuthConfirmation": "该操作将清空本地数据并重新同步，确认继续？",
+    "resetAuthConfirmation": "将清空本地数据并从 {serverUrl} 重新拉取，确认继续？",
     "@resetAuthConfirmation": {
-        "description": "重置认证时的确认提示"
+        "description": "重置认证时的确认提示",
+        "placeholders": {
+            "serverUrl": {
+                "type": "String",
+                "example": "https://example.com"
+            }
+        }
+    },
+    "migrateServerConfirmation": "将本地数据完整迁移至 {serverUrl}，确认执行？",
+    "@migrateServerConfirmation": {
+        "description": "迁移数据到新服务器时的确认提示",
+        "placeholders": {
+            "serverUrl": {
+                "type": "String",
+                "example": "https://example.com"
+            }
+        }
     },
     "warning": "警告",
     "@warning": {

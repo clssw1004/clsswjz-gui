@@ -235,6 +235,27 @@ class SyncService extends BaseService {
     throw Exception(response.message);
   }
 
+  /// 将指定日志批量推送到服务端（分页上传，每批 2000 条）
+  /// 用于迁移数据到新服务器场景
+  Future<void> pushLogsToServer(List<LogSync> logs) async {
+    if (logs.isEmpty) return;
+    const batchSize = 2000;
+    for (var start = 0; start < logs.length; start += batchSize) {
+      final end = start + batchSize > logs.length ? logs.length : start + batchSize;
+      final batch = logs.sublist(start, end);
+      final response = await HttpClient.instance.post<SyncPushResponse>(
+        path: '/api/sync/push',
+        data: {
+          'logs': batch.map((e) => e.toJson()).toList(),
+          'syncTimeStamp': null,
+        },
+        transform: (data) => SyncPushResponse.fromJson(data['data']),
+      );
+      if (!response.ok) throw Exception(response.message);
+      debugPrint('Pushed batch ${start ~/ batchSize + 1}/${(logs.length + batchSize - 1) ~/ batchSize}: ${batch.length} logs');
+    }
+  }
+
   /// 分页拉取服务端变更
   /// [downloadAttachments] 为 true 时同步完成后下载附件文件
   /// 返回最后页的 syncTimeStamp
