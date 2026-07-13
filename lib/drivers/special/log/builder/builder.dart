@@ -28,7 +28,7 @@ import 'user_share.builder.dart';
 import 'recurring_config.builder.dart';
 import 'bookkeeping_rule.builder.dart';
 
-const NONE_BOOK = "NONE_BOOK";
+const String noneBook = 'NONE_BOOK';
 
 abstract class LogBuilder<T, RunResult> {
   String? _id;
@@ -89,7 +89,7 @@ abstract class LogBuilder<T, RunResult> {
   }
 
   LogBuilder withOutBook() {
-    _parentId = NONE_BOOK;
+    _parentId = noneBook;
     return this;
   }
 
@@ -266,7 +266,7 @@ abstract class LogBuilder<T, RunResult> {
     return _data.toString();
   }
 
-  static copyWithCreated<T>(
+  static T copyWithCreated<T>(
       T Function({
         required Value<String> id,
         required Value<int> createdAt,
@@ -286,7 +286,7 @@ abstract class LogBuilder<T, RunResult> {
     );
   }
 
-  static copyWithUpdate<T>(
+  static T copyWithUpdate<T>(
       T Function({
         required Value<int> updatedAt,
         required Value<String> updatedBy,

@@ -49,7 +49,7 @@ class CategoryPieChart extends StatelessWidget {
     final theme = Theme.of(context);
     final percentage = total > 0 ? (item.amount.abs() / total) * 100 : 0.0;
     final isIncome = context.read<StatisticsProvider>().selectedTab == AccountItemType.income.code;
-    final color = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+    final color = isIncome ? ColorUtil.income : ColorUtil.expense;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -107,7 +107,7 @@ class CategoryPieChart extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     final isIncome = context.read<StatisticsProvider>().selectedTab == AccountItemType.income.code;
-    final baseColor = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+    final baseColor = isIncome ? ColorUtil.income : ColorUtil.expense;
 
     final colors = _generateColorPalette(
       count: items.length,

@@ -392,9 +392,9 @@ class _KpiComparisonRow extends StatelessWidget {
     return Column(children: [
       // Row 1: KPI values only
       Row(children: [
-        _kpiValue(cs, L10nManager.l10n.reportLabelExpense, s.totalExpense, ColorUtil.EXPENSE),
+        _kpiValue(cs, L10nManager.l10n.reportLabelExpense, s.totalExpense, ColorUtil.expense),
         const SizedBox(width: 10),
-        _kpiValue(cs, L10nManager.l10n.reportLabelIncome, s.totalIncome, ColorUtil.INCOME),
+        _kpiValue(cs, L10nManager.l10n.reportLabelIncome, s.totalIncome, ColorUtil.income),
         const SizedBox(width: 10),
         _kpiValue(cs, L10nManager.l10n.reportLabelBalance, s.balance, cs.tertiary),
       ]),
@@ -615,7 +615,7 @@ class _CategoryComparison extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: thisRatio,
                     backgroundColor: Colors.transparent,
-                    color: ColorUtil.EXPENSE,
+                    color: ColorUtil.expense,
                     minHeight: 8,
                   ),
                 ),
@@ -698,7 +698,7 @@ class _DailyChart extends StatelessWidget {
               dataSource: data,
               xValueMapper: (d, _) => d.x,
               yValueMapper: (d, _) => d.y,
-              pointColorMapper: (d, _) => d.y > 0 ? ColorUtil.EXPENSE.withValues(alpha: 0.6) : Colors.transparent,
+              pointColorMapper: (d, _) => d.y > 0 ? ColorUtil.expense.withValues(alpha: 0.6) : Colors.transparent,
               width: 0.6,
               spacing: 0.15,
               borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
@@ -759,7 +759,7 @@ class _TrendChart extends StatelessWidget {
               xValueMapper: (p, _) => '${p.month}月',
               yValueMapper: (p, _) => p.income,
               name: L10nManager.l10n.reportLabelIncome,
-              color: ColorUtil.INCOME,
+              color: ColorUtil.income,
               width: 2.5,
               markerSettings: MarkerSettings(
                 isVisible: true,
@@ -769,7 +769,7 @@ class _TrendChart extends StatelessWidget {
               dataLabelSettings: DataLabelSettings(
                 isVisible: true,
                 labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.INCOME),
+                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.income),
               ),
               animationDuration: 600,
             ),
@@ -778,7 +778,7 @@ class _TrendChart extends StatelessWidget {
               xValueMapper: (p, _) => '${p.month}月',
               yValueMapper: (p, _) => p.expense,
               name: L10nManager.l10n.reportLabelExpense,
-              color: ColorUtil.EXPENSE,
+              color: ColorUtil.expense,
               width: 2.5,
               markerSettings: MarkerSettings(
                 isVisible: true,
@@ -788,7 +788,7 @@ class _TrendChart extends StatelessWidget {
               dataLabelSettings: DataLabelSettings(
                 isVisible: true,
                 labelAlignment: ChartDataLabelAlignment.bottom,
-                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.EXPENSE),
+                textStyle: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: ColorUtil.expense),
               ),
               animationDuration: 600,
             ),
@@ -1028,10 +1028,10 @@ class _LargeTxnsList extends StatelessWidget {
             Container(
               width: 36, height: 36,
               decoration: BoxDecoration(
-                color: ColorUtil.EXPENSE.withValues(alpha: 0.1),
+                color: ColorUtil.expense.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.receipt_long, size: 16, color: ColorUtil.EXPENSE),
+              child: Icon(Icons.receipt_long, size: 16, color: ColorUtil.expense),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -1047,7 +1047,7 @@ class _LargeTxnsList extends StatelessWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text('¥${t.amount.toStringAsFixed(0)}',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                      color: ColorUtil.EXPENSE, fontFamily: 'monospace')),
+                      color: ColorUtil.expense, fontFamily: 'monospace')),
               Text(t.date.substring(5),
                   style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
             ]),
@@ -1089,7 +1089,7 @@ class _NarrativeText extends StatelessWidget {
         text: matched,
         style: style.copyWith(
           fontWeight: FontWeight.w700,
-          color: isAmount ? ColorUtil.EXPENSE : ColorUtil.INCOME,
+          color: isAmount ? ColorUtil.expense : ColorUtil.income,
           fontFamily: 'monospace',
         ),
       ));

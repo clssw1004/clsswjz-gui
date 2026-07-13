@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class OperateResult<T> {
   final bool ok;
   final T? data;
@@ -20,14 +22,14 @@ class OperateResult<T> {
 
   static OperateResult<T> fail<T>({Exception? exception}) {
     if (exception != null) {
-      print(exception.toString());
+      debugPrint(exception.toString());
     }
     return OperateResult(ok: false, message: exception!.toString(), exception: exception);
   }
 
   static OperateResult<T> failWithMessage<T>({String? message, Exception? exception}) {
     if (exception != null) {
-      print(exception.toString());
+      debugPrint(exception.toString());
     }
     return OperateResult(ok: false, message: message, exception: exception);
   }

@@ -111,13 +111,13 @@ class ItemsContainer extends StatelessWidget {
                           Icon(
                             Icons.arrow_circle_down_outlined,
                             size: 14,
-                            color: ColorUtil.EXPENSE,
+                            color: ColorUtil.expense,
                           ),
                           const SizedBox(width: 2),
                           Text(
                             expense.toStringAsFixed(2),
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: ColorUtil.EXPENSE,
+                              color: ColorUtil.expense,
                               fontWeight: FontWeight.w500,
                               fontSize: 13,
                             ),
@@ -138,13 +138,13 @@ class ItemsContainer extends StatelessWidget {
                           Icon(
                             Icons.arrow_circle_up_outlined,
                             size: 14,
-                            color: ColorUtil.INCOME,
+                            color: ColorUtil.income,
                           ),
                           const SizedBox(width: 2),
                           Text(
                             income.toStringAsFixed(2),
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: ColorUtil.INCOME,
+                              color: ColorUtil.income,
                               fontWeight: FontWeight.w500,
                               fontSize: 13,
                             ),

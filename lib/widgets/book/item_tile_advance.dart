@@ -102,7 +102,7 @@ class ItemTileAdvance extends StatelessWidget {
               padding: EdgeInsets.zero,
               onPressed: (_) async {
                 final confirmed = await _showDeleteConfirmDialog(context);
-                if (!confirmed) {
+                if (!confirmed && context.mounted) {
                   Slidable.of(context)?.close();
                 }
               },

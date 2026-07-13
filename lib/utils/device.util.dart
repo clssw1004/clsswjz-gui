@@ -23,53 +23,55 @@ class DeviceUtil {
   /// 获取设备信息
   static Future<DeviceInfo> getDeviceInfo(BuildContext context) async {
     final deviceInfo = DeviceInfoPlugin();
+    final platform = Theme.of(context).platform;
+    final platformName = platform.name;
     try {
-      if (Theme.of(context).platform == TargetPlatform.android) {
+      if (platform == TargetPlatform.android) {
         final androidInfo = await deviceInfo.androidInfo;
         return DeviceInfo(
           clientId: androidInfo.id,
           clientName: '${androidInfo.brand} ${androidInfo.model}',
-          clientType: Theme.of(context).platform.name,
+          clientType: platformName,
         );
-      } else if (Theme.of(context).platform == TargetPlatform.iOS) {
+      } else if (platform == TargetPlatform.iOS) {
         final iosInfo = await deviceInfo.iosInfo;
         return DeviceInfo(
           clientId: iosInfo.identifierForVendor ?? 'unknown',
           clientName: '${iosInfo.name} ${iosInfo.model}',
-          clientType: Theme.of(context).platform.name,
+          clientType: platformName,
         );
-      } else if (Theme.of(context).platform == TargetPlatform.windows) {
+      } else if (platform == TargetPlatform.windows) {
         final windowsInfo = await deviceInfo.windowsInfo;
         return DeviceInfo(
           clientId: windowsInfo.deviceId,
           clientName: '${windowsInfo.computerName} (Windows)',
-          clientType: Theme.of(context).platform.name,
+          clientType: platformName,
         );
-      } else if (Theme.of(context).platform == TargetPlatform.macOS) {
+      } else if (platform == TargetPlatform.macOS) {
         final macOsInfo = await deviceInfo.macOsInfo;
         return DeviceInfo(
           clientId: macOsInfo.systemGUID ?? 'unknown',
           clientName: '${macOsInfo.computerName} (macOS)',
-          clientType: Theme.of(context).platform.name,
+          clientType: platformName,
         );
-      } else if (Theme.of(context).platform == TargetPlatform.linux) {
+      } else if (platform == TargetPlatform.linux) {
         final linuxInfo = await deviceInfo.linuxInfo;
         return DeviceInfo(
           clientId: linuxInfo.machineId ?? 'unknown',
           clientName: '${linuxInfo.name} (Linux)',
-          clientType: Theme.of(context).platform.name,
+          clientType: platformName,
         );
       }
       return DeviceInfo(
         clientId: 'unknown',
         clientName: 'Unknown Device',
-        clientType: Theme.of(context).platform.name,
+        clientType: platformName,
       );
     } catch (e) {
       return DeviceInfo(
         clientId: 'unknown',
         clientName: 'Unknown Device',
-        clientType: Theme.of(context).platform.name,
+        clientType: platformName,
       );
     }
   }

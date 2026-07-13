@@ -121,7 +121,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: !_showIncome
-                            ? ColorUtil.EXPENSE
+                            ? ColorUtil.expense
                             : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
@@ -130,7 +130,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       L10nManager.l10n.expense,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: !_showIncome
-                            ? ColorUtil.EXPENSE
+                            ? ColorUtil.expense
                             : theme.colorScheme.onSurfaceVariant,
                         fontWeight: !_showIncome
                             ? FontWeight.w600
@@ -159,7 +159,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _showIncome
-                            ? ColorUtil.INCOME
+                            ? ColorUtil.income
                             : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
@@ -168,7 +168,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
                       L10nManager.l10n.income,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: _showIncome
-                            ? ColorUtil.INCOME
+                            ? ColorUtil.income
                             : theme.colorScheme.onSurfaceVariant,
                         fontWeight: _showIncome
                             ? FontWeight.w600
@@ -306,7 +306,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
             xValueMapper: (DailyChartData data, _) => data.date,
             yValueMapper: (DailyChartData data, _) => data.income,
             name: '收入',
-            color: ColorUtil.INCOME.withAlpha(220),
+            color: ColorUtil.income.withAlpha(220),
             width: _calculateColumnWidth(), // 动态计算柱子宽度，避免月初天数少时柱子过粗
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(3),
@@ -322,8 +322,8 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                ColorUtil.INCOME.withAlpha(180),
-                ColorUtil.INCOME.withAlpha(220),
+                ColorUtil.income.withAlpha(180),
+                ColorUtil.income.withAlpha(220),
               ],
             ),
           )
@@ -334,7 +334,7 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
             xValueMapper: (DailyChartData data, _) => data.date,
             yValueMapper: (DailyChartData data, _) => data.expense,
             name: '支出',
-            color: ColorUtil.EXPENSE.withAlpha(220),
+            color: ColorUtil.expense.withAlpha(220),
             width: _calculateColumnWidth(), // 动态计算柱子宽度，避免月初天数少时柱子过粗
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(3),
@@ -350,8 +350,8 @@ class _DailyStatisticBarState extends State<DailyStatisticBar> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                ColorUtil.EXPENSE.withAlpha(180),
-                ColorUtil.EXPENSE.withAlpha(220),
+                ColorUtil.expense.withAlpha(180),
+                ColorUtil.expense.withAlpha(220),
               ],
             ),
           ),

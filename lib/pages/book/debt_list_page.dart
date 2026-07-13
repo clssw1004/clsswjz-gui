@@ -90,6 +90,7 @@ class _DebtListPageState extends State<DebtListPage> {
                               debt,
                             ],
                           ).then((updated) {
+                            if (!context.mounted) return;
                             if (updated == true) {
                               context.read<DebtListProvider>().loadDebts();
                             }
@@ -122,6 +123,7 @@ class _DebtListPageState extends State<DebtListPage> {
             '/debt/add',
             arguments: [widget.bookMeta],
           ).then((added) {
+            if (!context.mounted) return;
             if (added == true) {
               context.read<DebtListProvider>().loadDebts();
             }

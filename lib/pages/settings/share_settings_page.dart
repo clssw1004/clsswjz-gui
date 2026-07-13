@@ -117,17 +117,17 @@ class _ShareSettingsPageState extends State<ShareSettingsPage> {
   }
 
   Future<void> _removeUser(String userId) async {
+    if (!mounted) return;
+    final provider = context.read<SharedModuleProvider>();
     final confirm = await CommonDialog.showWarning(
       context: context,
       message: L10nManager.l10n.confirmRemoveShare,
     );
-    if (confirm == true) {
-      final provider = context.read<SharedModuleProvider>();
-      for (final m in _modules) {
-        await provider.setShare(userId, m.businessType, enabled: false);
-      }
-      if (mounted) setState(() => _users.removeWhere((u) => u.userId == userId));
+    if (confirm != true) return;
+    for (final m in _modules) {
+      await provider.setShare(userId, m.businessType, enabled: false);
     }
+    if (mounted) setState(() => _users.removeWhere((u) => u.userId == userId));
   }
 
   @override

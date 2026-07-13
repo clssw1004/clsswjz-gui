@@ -118,6 +118,7 @@ class _RefundFormPageState extends State<RefundFormPage> {
         if (result.ok && mounted) {
           final item = await DaoManager.itemDao.findById(result.data!);
           EventBus.instance.emit(ItemChangedEvent(OperateType.create, item!));
+          if (!mounted) return;
           // 保存成功，返回
           Navigator.of(context).pop(true);
         } else {
@@ -216,7 +217,7 @@ class _RefundFormPageState extends State<RefundFormPage> {
                 AmountInput(
                   controller: _amountController,
                   focusNode: _amountFocusNode,
-                  color: ColorUtil.INCOME,
+                  color: ColorUtil.income,
                   onChanged: (value) {
                     // 不需要任何操作
                   },

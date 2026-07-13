@@ -82,7 +82,9 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
           final bookId = _currentBookId;
           if (bookId == null) return;
           if (await Navigator.pushNamed(context, AppRoutes.recurringConfigForm, arguments: {'bookId': bookId}) == true) {
-            context.read<RecurringConfigProvider>().loadConfigs(bookId);
+            if (context.mounted) {
+              context.read<RecurringConfigProvider>().loadConfigs(bookId);
+            }
           }
         },
         child: const Icon(Icons.add),
@@ -93,7 +95,7 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
   Widget _buildCard(RecurringConfigVO config, RecurringConfigProvider provider) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final amountColor = config.isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+    final amountColor = config.isIncome ? ColorUtil.income : ColorUtil.expense;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12),
@@ -270,12 +272,12 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
       if (context.mounted) ToastUtil.showWarning(L10nManager.l10n.recurringConfigCopySourceEmpty);
       return;
     }
+    if (!context.mounted) return;
     final sourceConfigs = result.data!;
     final selectedIds = <String>{};
     bool deactivateOrigin = false;
-    if (!context.mounted) return;
-
-    showModalBottomSheet(context: context, isScrollControlled: true, builder: (ctx) => StatefulBuilder(
+    final sheetContext = context;
+    showModalBottomSheet(context: sheetContext, isScrollControlled: true, builder: (ctx) => StatefulBuilder(
       builder: (ctx, setSheet) => CommonBottomSheet(
         title: L10nManager.l10n.recurringConfigCopySelect,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -285,7 +287,13 @@ class _RecurringConfigListPageState extends State<RecurringConfigListPage> {
               title: Text('${c.isIncome ? L10nManager.l10n.income : L10nManager.l10n.expense} ¥${c.amount.toStringAsFixed(2)}'),
               subtitle: Text('${c.categoryName ?? c.categoryCode} · ${c.frequencyDesc}'),
               value: selectedIds.contains(c.id),
-              onChanged: (v) => setSheet(() { if (v == true) selectedIds.add(c.id); else selectedIds.remove(c.id); }),
+              onChanged: (v) => setSheet(() {
+                if (v == true) {
+                  selectedIds.add(c.id);
+                } else {
+                  selectedIds.remove(c.id);
+                }
+              }),
             );
           })),
           CheckboxListTile(

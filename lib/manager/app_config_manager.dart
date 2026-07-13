@@ -389,7 +389,7 @@ class AppConfigManager {
     await DriverFactory.driver.register(
         userId: userId,
         username: username,
-        password: DEFAULT_PASSWORD,
+        password: defaultPassword,
         nickname: nickname,
         email: email,
         phone: phone);
