@@ -519,7 +519,20 @@ class _CommonSelectFormFieldWidgetState<T>
 
     List<T> displayItems = [];
     if (showMore) {
-      displayItems = List.from(widget.items.take(widget.expandCount));
+      if (widget.scores != null && widget.scores!.isNotEmpty) {
+        // 按智能评分倒序：分高者排前，取前 expandCount 个
+        final sorted = List<T>.from(widget.items)
+          ..sort((a, b) {
+            final keyA = widget.keyField(a).toString();
+            final keyB = widget.keyField(b).toString();
+            final scoreA = widget.scores![keyA] ?? 0;
+            final scoreB = widget.scores![keyB] ?? 0;
+            return scoreB.compareTo(scoreA);
+          });
+        displayItems = sorted.take(widget.expandCount).toList();
+      } else {
+        displayItems = List.from(widget.items.take(widget.expandCount));
+      }
     } else {
       displayItems = List.from(widget.items);
     }
