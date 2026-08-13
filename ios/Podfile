@@ -40,5 +40,26 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+
+    # Fix deployment target for pods targeting old iOS (< 12.0)
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+    end
   end
+
+  # Xcode 16+ incompatibility with DKPhotoGallery/DKImagePickerController old xcassets.
+  # Directly patch pbxproj to remove xcassets build file and file ref entries.
+  pbxproj_path = 'Pods/Pods.xcodeproj/project.pbxproj'
+  pbxproj = File.read(pbxproj_path)
+
+  # Find and remove Images.xcassets build file entries and their references
+  # Remove PBXBuildFile entries for Images.xcassets
+  pbxproj.gsub!(/^\s+[A-F0-9]{24} \/\* Images\.xcassets in Resources \*\/ = .*?\n/m, '')
+  # Remove PBXFileReference entries for Images.xcassets
+  pbxproj.gsub!(/^\s+[A-F0-9]{24} \/\* Images\.xcassets \*\/ = .*?\n/m, '')
+  # Remove Images.xcassets from PBXGroup file ref lists
+  pbxproj.gsub!(/\t\t\t\t[A-F0-9]{24} \/\* Images\.xcassets \*\/,\n/m, '')
+
+  File.write(pbxproj_path, pbxproj)
+  puts "Patched pbxproj: removed DK xcassets references"
 end
