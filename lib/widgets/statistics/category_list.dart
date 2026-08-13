@@ -39,7 +39,7 @@ class _CategoryListState extends State<CategoryList> {
     final sortedItems = statisticsProvider.sortedCategoryList;
     final total = statisticsProvider.totalAmount;
     final isIncome = statisticsProvider.selectedTab == AccountItemType.income.code;
-    final color = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+    final color = isIncome ? ColorUtil.income : ColorUtil.expense;
 
     final displayItems =
         _showAll ? sortedItems : sortedItems.take(widget.defaultDisplayCount).toList();

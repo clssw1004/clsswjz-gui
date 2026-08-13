@@ -98,7 +98,7 @@ class ItemFormProvider extends ChangeNotifier {
   List<BookkeepingRuleVO> _activeRules = [];
 
   /// 是否启用自动规则
-  bool _ruleEnabled = true;
+  final bool _ruleEnabled = true;
   bool get ruleEnabled => _ruleEnabled;
 
   ItemFormProvider(BookMetaVO bookMeta, UserItemVO? item)

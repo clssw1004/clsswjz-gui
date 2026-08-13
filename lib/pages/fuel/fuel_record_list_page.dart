@@ -721,7 +721,7 @@ class _FuelRecordListPageState extends State<FuelRecordListPage> {
         AppConfigManager.instance.userId,
         record.id,
       );
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (result.ok) {
         _recordProvider.loadItems(_vehicleId!);
       } else {

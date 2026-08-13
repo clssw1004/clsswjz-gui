@@ -296,6 +296,7 @@ class _ItemListPageState extends State<ItemListPage> {
             AppRoutes.itemAdd,
             arguments: [widget.accountBook],
           ).then((added) {
+            if (!context.mounted) return;
             if (added == true) {
               context.read<ItemListProvider>().loadItems();
             }

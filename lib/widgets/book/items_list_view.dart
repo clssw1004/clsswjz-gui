@@ -184,7 +184,7 @@ class _ItemsListViewState extends State<ItemsListView> {
                 Text(
                   '+${stats.income.toStringAsFixed(2)}',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.INCOME,
+                    color: ColorUtil.income,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -0.5,
                   ),
@@ -194,7 +194,7 @@ class _ItemsListViewState extends State<ItemsListView> {
                 Text(
                   stats.expense.toStringAsFixed(2),
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ColorUtil.EXPENSE,
+                    color: ColorUtil.expense,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -0.5,
                   ),

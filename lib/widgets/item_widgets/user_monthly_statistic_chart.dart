@@ -144,14 +144,14 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.INCOME, shape: BoxShape.circle)),
+                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.income, shape: BoxShape.circle)),
                               const SizedBox(width: 6),
                               RichText(
                                 text: TextSpan(
                                   style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
                                   children: [
                                     TextSpan(text: '${L10nManager.l10n.income}: '),
-                                    TextSpan(text: row.income.toStringAsFixed(0), style: TextStyle(color: ColorUtil.INCOME, fontWeight: FontWeight.w600)),
+                                    TextSpan(text: row.income.toStringAsFixed(0), style: TextStyle(color: ColorUtil.income, fontWeight: FontWeight.w600)),
                                   ],
                                 ),
                               ),
@@ -161,14 +161,14 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.EXPENSE, shape: BoxShape.circle)),
+                              Container(width: 8, height: 8, decoration: BoxDecoration(color: ColorUtil.expense, shape: BoxShape.circle)),
                               const SizedBox(width: 6),
                               RichText(
                                 text: TextSpan(
                                   style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
                                   children: [
                                     TextSpan(text: '${L10nManager.l10n.expense}: '),
-                                    TextSpan(text: row.expense.toStringAsFixed(0), style: TextStyle(color: ColorUtil.EXPENSE, fontWeight: FontWeight.w600)),
+                                    TextSpan(text: row.expense.toStringAsFixed(0), style: TextStyle(color: ColorUtil.expense, fontWeight: FontWeight.w600)),
                                   ],
                                 ),
                               ),
@@ -190,7 +190,7 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                       .toList(),
                   xValueMapper: (r, _) => r.user,
                   yValueMapper: (r, _) => r.income,
-                  color: ColorUtil.INCOME,
+                  color: ColorUtil.income,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   width: 0.4,
                   spacing: 0.2,
@@ -199,8 +199,8 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      ColorUtil.INCOME.withAlpha(180),
-                      ColorUtil.INCOME.withAlpha(220),
+                      ColorUtil.income.withAlpha(180),
+                      ColorUtil.income.withAlpha(220),
                     ],
                   ),
                 ),
@@ -212,7 +212,7 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                       .toList(),
                   xValueMapper: (r, _) => r.user,
                   yValueMapper: (r, _) => r.expense,
-                  color: ColorUtil.EXPENSE,
+                  color: ColorUtil.expense,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   width: 0.4,
                   spacing: 0.2,
@@ -221,8 +221,8 @@ class UserMonthlyStatisticChart extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      ColorUtil.EXPENSE.withAlpha(180),
-                      ColorUtil.EXPENSE.withAlpha(220),
+                      ColorUtil.expense.withAlpha(180),
+                      ColorUtil.expense.withAlpha(220),
                     ],
                   ),
                 ),

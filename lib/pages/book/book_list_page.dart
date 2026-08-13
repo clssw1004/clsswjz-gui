@@ -164,7 +164,8 @@ class _BookListPageState extends State<BookListPage> {
         builder: (context) => BookFormPage(book: book),
       ),
     );
-    if (result == true && mounted) {
+    if (!context.mounted) return;
+    if (result == true) {
       context.read<BooksProvider>().loadBooks(AppConfigManager.instance.userId);
     }
   }

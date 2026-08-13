@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import '../../enums/business_type.dart';
 import '../../models/dto/attachment_filter_dto.dart';
 import '../database.dart';
@@ -32,7 +33,7 @@ class AttachmentDao extends BaseDao<AttachmentTable, Attachment> {
             ));
       await query.go();
     } catch (e, stackTrace) {
-      print(stackTrace);
+      debugPrint(stackTrace.toString());
       rethrow;
     }
   }

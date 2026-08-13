@@ -174,7 +174,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: ColorUtil.INCOME,
+                        color: ColorUtil.income,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -184,7 +184,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: ColorUtil.EXPENSE,
+                        color: ColorUtil.expense,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -278,7 +278,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                 Text(
                   '+${income.toStringAsFixed(2)}',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: ColorUtil.INCOME,
+                    color: ColorUtil.income,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -287,7 +287,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
                 Text(
                   '-${expense.toStringAsFixed(2)}',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: ColorUtil.EXPENSE,
+                    color: ColorUtil.expense,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -309,7 +309,7 @@ class _ItemListCalendarState extends State<ItemListCalendar> {
           itemBuilder: (context, index) {
             final item = items[index];
             final isIncome = item.amount > 0;
-            final color = isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+            final color = isIncome ? ColorUtil.income : ColorUtil.expense;
 
             return InkWell(
               onTap: () => widget.onItemTap?.call(item),

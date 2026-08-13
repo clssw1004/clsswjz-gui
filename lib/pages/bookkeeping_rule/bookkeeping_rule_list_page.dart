@@ -75,7 +75,9 @@ class _BookkeepingRuleListPageState extends State<BookkeepingRuleListPage> {
           final bookId = _currentBookId;
           if (bookId == null) return;
           if (await Navigator.pushNamed(context, AppRoutes.bookkeepingRuleForm, arguments: {'bookId': bookId}) == true) {
-            context.read<BookkeepingRuleProvider>().loadRules(bookId);
+            if (context.mounted) {
+              context.read<BookkeepingRuleProvider>().loadRules(bookId);
+            }
           }
         },
         child: const Icon(Icons.add),

@@ -265,11 +265,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 if (states.contains(WidgetState.selected)) {
                   switch (currentType) {
                     case AccountItemType.expense:
-                      return ColorUtil.EXPENSE.withAlpha(64);
+                      return ColorUtil.expense.withAlpha(64);
                     case AccountItemType.income:
-                      return ColorUtil.INCOME.withAlpha(64);
+                      return ColorUtil.income.withAlpha(64);
                     case AccountItemType.transfer:
-                      return ColorUtil.TRANSFER.withAlpha(64);
+                      return ColorUtil.transfer.withAlpha(64);
                   }
                 }
                 return null;
@@ -278,11 +278,11 @@ class _AccountItemFormState extends State<_AccountItemForm> {
                 if (states.contains(WidgetState.selected)) {
                   switch (currentType) {
                     case AccountItemType.expense:
-                      return ColorUtil.EXPENSE;
+                      return ColorUtil.expense;
                     case AccountItemType.income:
-                      return ColorUtil.INCOME;
+                      return ColorUtil.income;
                     case AccountItemType.transfer:
-                      return ColorUtil.TRANSFER;
+                      return ColorUtil.transfer;
                   }
                 }
                 return null;

@@ -147,10 +147,10 @@ class TreeBuilder {
   ) {
     final effective = <TreeNode<T>, Comparable?>{};
 
-    Comparable? _compute(TreeNode<T> node) {
+    Comparable? compute(TreeNode<T> node) {
       Comparable? best = getTime(node.data);
       for (final child in node.children) {
-        final childBest = _compute(child);
+        final childBest = compute(child);
         if (childBest != null &&
             (best == null || childBest.compareTo(best) > 0)) {
           best = childBest;
@@ -160,7 +160,7 @@ class TreeBuilder {
       return best;
     }
 
-    void _sortLevel(TreeNode<T> node) {
+    void sortLevel(TreeNode<T> node) {
       node.children.sort((a, b) {
         final aT = effective[a];
         final bT = effective[b];
@@ -170,18 +170,18 @@ class TreeBuilder {
         return bT.compareTo(aT);
       });
       for (final child in node.children) {
-        _sortLevel(child);
+        sortLevel(child);
       }
     }
 
     // Pass 1: compute effective time bottom-up
     for (final node in nodes) {
-      _compute(node);
+      compute(node);
     }
 
     // Pass 2: sort children at each level
     for (final node in nodes) {
-      _sortLevel(node);
+      sortLevel(node);
     }
 
     // Sort roots

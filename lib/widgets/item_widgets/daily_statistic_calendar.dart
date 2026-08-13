@@ -146,7 +146,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _showExpense
-                            ? ColorUtil.EXPENSE
+                            ? ColorUtil.expense
                             : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
@@ -155,7 +155,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                       L10nManager.l10n.expense,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: _showExpense
-                            ? ColorUtil.EXPENSE
+                            ? ColorUtil.expense
                             : theme.colorScheme.onSurfaceVariant,
                         fontWeight:
                             _showExpense ? FontWeight.w600 : FontWeight.normal,
@@ -188,7 +188,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _showIncome
-                            ? ColorUtil.INCOME
+                            ? ColorUtil.income
                             : theme.colorScheme.outline.withAlpha(120),
                         width: 1,
                       ),
@@ -197,7 +197,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                       L10nManager.l10n.income,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: _showIncome
-                            ? ColorUtil.INCOME
+                            ? ColorUtil.income
                             : theme.colorScheme.onSurfaceVariant,
                         fontWeight:
                             _showIncome ? FontWeight.w600 : FontWeight.normal,
@@ -305,7 +305,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                         Text(
                           '-${expense.toStringAsFixed(0)}',
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: ColorUtil.EXPENSE,
+                            color: ColorUtil.expense,
                             fontWeight: FontWeight.w600,
                             fontSize: 10,
                           ),
@@ -315,7 +315,7 @@ class _DailyStatisticCalendarState extends State<DailyStatisticCalendar> {
                         Text(
                           '+${income.toStringAsFixed(0)}',
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: ColorUtil.INCOME,
+                            color: ColorUtil.income,
                             fontWeight: FontWeight.w600,
                             fontSize: 10,
                           ),

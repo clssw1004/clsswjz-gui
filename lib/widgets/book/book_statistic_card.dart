@@ -126,7 +126,7 @@ class BookStatisticCard extends StatelessWidget {
                       context,
                       l10n.expense,
                       info?.expense ?? 0,
-                      ColorUtil.EXPENSE,
+                      ColorUtil.expense,
                       icon: Icons.arrow_circle_down_outlined,
                     ),
                   ),
@@ -141,7 +141,7 @@ class BookStatisticCard extends StatelessWidget {
                       context,
                       l10n.income,
                       info?.income ?? 0,
-                      ColorUtil.INCOME,
+                      ColorUtil.income,
                       icon: Icons.arrow_circle_up_outlined,
                     ),
                   ),
@@ -175,13 +175,13 @@ class BookStatisticCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: showBalance
                         ? [
-                            ColorUtil.EXPENSE.withAlpha(80),
-                            ColorUtil.INCOME.withAlpha(80),
+                            ColorUtil.expense.withAlpha(80),
+                            ColorUtil.income.withAlpha(80),
                             colorScheme.tertiary.withAlpha(80),
                           ]
                         : [
-                            ColorUtil.EXPENSE.withAlpha(80),
-                            ColorUtil.INCOME.withAlpha(80),
+                            ColorUtil.expense.withAlpha(80),
+                            ColorUtil.income.withAlpha(80),
                           ],
                     stops:
                         showBalance ? const [0.0, 0.5, 1.0] : const [0.0, 1.0],

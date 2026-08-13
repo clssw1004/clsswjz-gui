@@ -50,11 +50,11 @@ class AnimatedTypeToggle extends StatelessWidget {
   static Color _colorForType(AccountItemType type) {
     switch (type) {
       case AccountItemType.expense:
-        return ColorUtil.EXPENSE;
+        return ColorUtil.expense;
       case AccountItemType.income:
-        return ColorUtil.INCOME;
+        return ColorUtil.income;
       case AccountItemType.transfer:
-        return ColorUtil.TRANSFER;
+        return ColorUtil.transfer;
     }
   }
 }

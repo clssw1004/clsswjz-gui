@@ -1,1 +1,1 @@
-const DEFAULT_PASSWORD = 'clsswjs';
+const String defaultPassword = 'clsswjs';

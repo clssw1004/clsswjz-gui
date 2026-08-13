@@ -101,7 +101,7 @@ class _UserInfoPageViewState extends State<_UserInfoPageView> {
     String oldPassword = '';
     String newPassword = '';
 
-    final result = await CommonDialog.show(
+    final result = await CommonDialog.show<bool>(
       context: context,
       title: L10nManager.l10n.changePassword,
       showCloseButton: false,
@@ -174,26 +174,26 @@ class _UserInfoPageViewState extends State<_UserInfoPageView> {
       ),
     );
 
-    if (result ?? false) {
-      final provider = context.read<UserProvider>();
-      try {
-        final result = await provider.changePassword(
-          oldPassword: oldPassword,
-          newPassword: newPassword,
-        );
-        if (context.mounted) {
-          if (result.ok) {
-            ToastUtil.showSuccess(L10nManager.l10n.passwordChanged);
-          } else {
-            ToastUtil.showError(
-                result.message ?? L10nManager.l10n.modifyFailed(
-                    L10nManager.l10n.password, ''));
-          }
+    if (result != true) return;
+    if (!context.mounted) return;
+    final provider = context.read<UserProvider>();
+    try {
+      final changeResult = await provider.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      if (context.mounted) {
+        if (changeResult.ok) {
+          ToastUtil.showSuccess(L10nManager.l10n.passwordChanged);
+        } else {
+          ToastUtil.showError(
+              changeResult.message ?? L10nManager.l10n.modifyFailed(
+                  L10nManager.l10n.password, ''));
         }
-      } catch (e) {
-        if (context.mounted) {
-          ToastUtil.showError(L10nManager.l10n.updateFailed);
-        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ToastUtil.showError(L10nManager.l10n.updateFailed);
       }
     }
   }

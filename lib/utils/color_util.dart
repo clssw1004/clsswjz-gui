@@ -6,13 +6,13 @@ import '../models/vo/user_item_vo.dart' show UserItemVO;
 /// 颜色工具类
 class ColorUtil {
   /// 支出 红色
-  static const Color EXPENSE = Color.fromARGB(255, 185, 91, 75);
+  static const Color expense = Color.fromARGB(255, 185, 91, 75);
 
   /// 收入 绿色
-  static const Color INCOME = Color(0xFF43A047);
+  static const Color income = Color(0xFF43A047);
 
   /// 转账 柔和的蓝色 - Material Design 3 Blue 70
-  static const Color TRANSFER = Color(0xFF1B72C1);
+  static const Color transfer = Color(0xFF1B72C1);
 
   /// 获取账目金额颜色
   static Color getAmountColor(String? type) {
@@ -20,11 +20,11 @@ class ColorUtil {
         AccountItemType.fromCode(type) ?? AccountItemType.expense;
     switch (currentType) {
       case AccountItemType.expense:
-        return EXPENSE;
+        return expense;
       case AccountItemType.income:
-        return INCOME;
+        return income;
       case AccountItemType.transfer:
-        return TRANSFER;
+        return transfer;
     }
   }
 
@@ -32,9 +32,9 @@ class ColorUtil {
   static Color getDebtAmountColor(DebtType type) {
     switch (type) {
       case DebtType.lend:
-        return EXPENSE;
+        return expense;
       case DebtType.borrow:
-        return INCOME;
+        return income;
     }
   }
 
@@ -42,9 +42,9 @@ class ColorUtil {
   static Color getDebtAmountReverseColor(DebtType type) {
     switch (type) {
       case DebtType.lend:
-        return INCOME;
+        return income;
       case DebtType.borrow:
-        return EXPENSE;
+        return expense;
     }
   }
 
@@ -53,12 +53,12 @@ class ColorUtil {
     final category = item.categoryCode;
     if (category == DebtType.borrow.code ||
         category == DebtType.lend.operationCategory) {
-      return INCOME;
+      return income;
     }
     if (category == DebtType.lend.code ||
         category == DebtType.borrow.operationCategory) {
-      return EXPENSE;
+      return expense;
     }
-    return TRANSFER;
+    return transfer;
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../database/database.dart';
 
 /// 数据库调试工具
@@ -6,8 +7,8 @@ class DatabaseDebug {
   /// 检查数据库文件是否存在
   static Future<bool> checkDatabaseExists({required File file}) async {
     final exists = await file.exists();
-    print('Database file exists: $exists');
-    print('Database file path: ${file.path}');
+    debugPrint('Database file exists: $exists');
+    debugPrint('Database file path: ${file.path}');
     return exists;
   }
 
@@ -16,9 +17,9 @@ class DatabaseDebug {
     try {
       final result = await db.customSelect('PRAGMA user_version').get();
       final version = result.first.data.values.first as int;
-      print('Current database schema version: $version');
+      debugPrint('Current database schema version: $version');
     } catch (e) {
-      print('Error checking database version: $e');
+      debugPrint('Error checking database version: $e');
     }
   }
 } 

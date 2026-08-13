@@ -76,7 +76,7 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
     final cs = theme.colorScheme;
     final spacing = theme.spacing;
     final c = widget.config;
-    final ac = c.isIncome ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+    final ac = c.isIncome ? ColorUtil.income : ColorUtil.expense;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -239,12 +239,12 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
                     Container(
                       width: 36, height: 36,
                       decoration: BoxDecoration(
-                        color: (item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE).withAlpha(20),
+                        color: (item.type == AccountItemType.income.code ? ColorUtil.income : ColorUtil.expense).withAlpha(20),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         item.type == AccountItemType.income.code ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE,
+                        color: item.type == AccountItemType.income.code ? ColorUtil.income : ColorUtil.expense,
                         size: 18,
                       ),
                     ),
@@ -256,11 +256,11 @@ class _RecurringConfigDetailPageState extends State<RecurringConfigDetailPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: (item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE).withAlpha(15),
+                        color: (item.type == AccountItemType.income.code ? ColorUtil.income : ColorUtil.expense).withAlpha(15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(item.type == AccountItemType.income.code ? '收入' : '支出', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
-                      color: item.type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE)),
+                      color: item.type == AccountItemType.income.code ? ColorUtil.income : ColorUtil.expense)),
                   ),
                 ]),
               ),

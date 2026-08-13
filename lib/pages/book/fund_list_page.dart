@@ -105,8 +105,8 @@ class FundListPage extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16,
                                 color: item.fundBalance >= 0
-                                    ? ColorUtil.INCOME
-                                    : ColorUtil.EXPENSE,
+                                    ? ColorUtil.income
+                                    : ColorUtil.expense,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -129,7 +129,9 @@ class FundListPage extends StatelessWidget {
                                 builder: (context) => FundFormPage(fund: item),
                               ),
                             );
-                            if (r == true) CommonDataListPage.refresh(context);
+                            if (r == true && context.mounted) {
+                              CommonDataListPage.refresh(context);
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4),
@@ -153,7 +155,7 @@ class FundListPage extends StatelessWidget {
               builder: (context) => const FundFormPage(),
             ),
           );
-          if (result == true) {
+          if (result == true && context.mounted) {
             CommonDataListPage.refresh(context);
           }
         },

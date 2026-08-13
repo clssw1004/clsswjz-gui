@@ -184,9 +184,10 @@ class _ResetAuthPageState extends State<ResetAuthPage> {
             clearData: false,
           );
           if (!mounted) return;
+          final syncProvider =
+              Provider.of<SyncProvider>(context, listen: false);
           final allLogs = await DaoManager.logSyncDao.listAllLogs();
           await ServiceManager.syncService.pushLogsToServer(allLogs);
-          final syncProvider = Provider.of<SyncProvider>(context, listen: false);
           await syncProvider.syncData();
         } else {
           // 重置模式：清理本地数据后从新服务器重新同步

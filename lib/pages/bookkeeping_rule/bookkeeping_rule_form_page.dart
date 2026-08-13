@@ -218,7 +218,9 @@ class _BookkeepingRuleFormPageState extends State<BookkeepingRuleFormPage> {
           String vals;
           if (c.value is List) {
             vals = (c.value as List).map((v) => _resolveName(c.field ?? '', v)).join('、');
-          } else vals = displayValue;
+          } else {
+            vals = displayValue;
+          }
           return '$fieldLabel${l10n.bookkeepingRuleNameFieldIn}$vals';
         }
         return '$fieldLabel${l10n.bookkeepingRuleNameFieldIs}$displayValue';

@@ -41,8 +41,8 @@ class ItemRelFieldDao extends BaseDao<ItemRelFieldTable, ItemRelField> {
   }
 
   @override
-  Future<void> insert(Insertable<ItemRelField> companion) async {
-    await db.into(table).insert(companion);
+  Future<void> insert(Insertable<ItemRelField> entity) async {
+    await db.into(table).insert(entity);
   }
 
   @override

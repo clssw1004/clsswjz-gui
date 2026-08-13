@@ -282,13 +282,13 @@ class _ItemListAdvanceState extends State<ItemListAdvance> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: ColorUtil.INCOME.withAlpha(15),
+                color: ColorUtil.income.withAlpha(15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '+${stats.income.toStringAsFixed(2)}',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: ColorUtil.INCOME,
+                  color: ColorUtil.income,
                   fontWeight: FontWeight.w600,
                   fontSize: 11,
                 ),
@@ -299,13 +299,13 @@ class _ItemListAdvanceState extends State<ItemListAdvance> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: ColorUtil.EXPENSE.withAlpha(15),
+                color: ColorUtil.expense.withAlpha(15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 stats.expense.toStringAsFixed(2),
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: ColorUtil.EXPENSE,
+                  color: ColorUtil.expense,
                   fontWeight: FontWeight.w600,
                   fontSize: 11,
                 ),

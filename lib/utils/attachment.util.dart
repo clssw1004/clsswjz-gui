@@ -9,16 +9,16 @@ import 'date_util.dart';
 import 'id_util.dart';
 
 class AttachmentUtil {
-  static const String ATTACHMENT_DIR = 'attachments';
+  static const String attachmentDirName = 'attachments';
 
   /// 获取附件存储目录
   static Future<Directory> getAttachmentDir() async {
     final appDir = await getApplicationDocumentsDirectory();
-    final attachmentDir = Directory(path.join(appDir.path, ATTACHMENT_DIR));
-    if (!await attachmentDir.exists()) {
-      await attachmentDir.create(recursive: true);
+    final dir = Directory(path.join(appDir.path, attachmentDirName));
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
     }
-    return attachmentDir;
+    return dir;
   }
 
   /// 根据附件ID获取文件路径

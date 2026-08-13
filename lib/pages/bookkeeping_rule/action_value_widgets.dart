@@ -15,6 +15,7 @@ class ActionValueSelector extends StatelessWidget {
   final List<AccountSymbol> projects;
 
   const ActionValueSelector({
+    super.key,
     required this.field,
     required this.value,
     required this.onChanged,
@@ -104,7 +105,7 @@ class ActionValueSelector extends StatelessWidget {
 class FieldLabelChip extends StatelessWidget {
   final String label;
   final Color color;
-  const FieldLabelChip({required this.label, required this.color});
+  const FieldLabelChip({super.key, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

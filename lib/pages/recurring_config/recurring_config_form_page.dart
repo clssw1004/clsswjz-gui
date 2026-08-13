@@ -143,7 +143,7 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
     super.dispose();
   }
 
-  Color _getAmountColor() => _type == AccountItemType.income.code ? ColorUtil.INCOME : ColorUtil.EXPENSE;
+  Color _getAmountColor() => _type == AccountItemType.income.code ? ColorUtil.income : ColorUtil.expense;
 
   Widget _animSection(int index, Widget child) {
     return AnimatedOpacity(
@@ -578,9 +578,7 @@ class _RecurringConfigFormPageState extends State<RecurringConfigFormPage>
       );
     }
 
-    if (context.mounted) {
-      ToastUtil.showSuccess(L10nManager.l10n.recurringConfigSaveSuccess);
-      Navigator.pop(context, true);
-    }
+    if (!mounted) return;
+    Navigator.of(context).pop(true);
   }
 }
