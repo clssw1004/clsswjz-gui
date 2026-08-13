@@ -6,6 +6,11 @@ import 'base_dao.dart';
 class BookDao extends BaseDao<AccountBookTable, AccountBook> {
   BookDao(super.db);
 
+  /// 标记账本本地隐藏（被移出后暂停同步，不删除本地数据）
+  Future<void> setRemoved(String bookId, {required bool removed}) async {
+    await update(bookId, AccountBookTableCompanion(isRemoved: Value(removed)));
+  }
+
   Future<List<AccountBook>> findPermissionedByUserId(String userId) {
     final query = db.select(db.accountBookTable).join([
       innerJoin(
@@ -15,13 +20,18 @@ class BookDao extends BaseDao<AccountBookTable, AccountBook> {
         ),
       ),
     ])
-      ..where(db.relAccountbookUserTable.userId.equals(userId) & db.relAccountbookUserTable.canViewBook.equals(true));
+      ..where(db.relAccountbookUserTable.userId.equals(userId) &
+          db.relAccountbookUserTable.canViewBook.equals(true) &
+          db.accountBookTable.isRemoved.equals(false));
 
     return query.map((row) => row.readTable(db.accountBookTable)).get();
   }
 
   Future<List<AccountBook>> findByCreatedBy(String userId) {
-    return (db.select(db.accountBookTable)..where((t) => t.createdBy.equals(userId))).get();
+    return (db.select(db.accountBookTable)
+          ..where(
+              (t) => t.createdBy.equals(userId) & t.isRemoved.equals(false)))
+        .get();
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import '../database/database.dart';
 import '../database/tables/log_sync_table.dart';
@@ -502,6 +503,48 @@ class SyncService extends BaseService {
           await _processOnProgress(onProgress, progress,
               getProgressDetail(end, total));
         }
+      }
+    }
+
+    // 处理"关于自己"的账本成员事件（加入/移除）
+    await _handleSelfBookMemberEvents(filtered);
+  }
+
+  /// 处理关于自己的 bookMember 事件：
+  /// - 加入（create，userId==自己）：本地无该账本（首次加入）→ 重置游标下次全量拉取历史；
+  ///   本地已有（曾被移除、数据保留）→ 取消隐藏，增量同步即可。
+  /// - 移除（delete，userId==自己）：标记账本隐藏 + 暂停同步，不删除本地数据
+  ///   （重新加入时本地数据复用，只增量同步）。
+  /// 依赖服务端把 bookMember 事件（operateData 携带 userId）投递给被移除者。
+  Future<void> _handleSelfBookMemberEvents(List<LogSync> applied) async {
+    final currentUserId = AppConfigManager.instance.userId;
+    for (final change in applied) {
+      if (change.businessType != BusinessType.bookMember.code) continue;
+
+      Map<String, dynamic>? data;
+      try {
+        data = jsonDecode(change.operateData) as Map<String, dynamic>;
+      } catch (_) {
+        continue;
+      }
+      if (data['userId'] != currentUserId) continue;
+
+      final bookId = (data['accountBookId'] as String?) ?? change.parentId;
+      if (bookId.isEmpty || bookId == 'NONE') continue;
+
+      final operate = OperateType.fromCode(change.operateType);
+      if (operate == OperateType.create) {
+        final book = await DaoManager.bookDao.findById(bookId);
+        if (book == null) {
+          // 首次加入：重置游标，下次同步全量拉取该账本历史
+          await AppConfigManager.instance.setLastSyncTime(null);
+        } else {
+          // 重新加入：取消隐藏，本地数据复用（增量同步补齐移除期间的新数据）
+          await DaoManager.bookDao.setRemoved(bookId, removed: false);
+        }
+      } else if (operate == OperateType.delete) {
+        // 被移除：标记隐藏 + 暂停同步（不删数据）
+        await DaoManager.bookDao.setRemoved(bookId, removed: true);
       }
     }
   }

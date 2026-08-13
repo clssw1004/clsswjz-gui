@@ -646,6 +646,16 @@ class $AccountBookTableTable extends AccountBookTable
   late final GeneratedColumn<String> icon = GeneratedColumn<String>(
       'icon', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isRemovedMeta =
+      const VerificationMeta('isRemoved');
+  @override
+  late final GeneratedColumn<bool> isRemoved = GeneratedColumn<bool>(
+      'is_removed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_removed" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         createdBy,
@@ -657,7 +667,8 @@ class $AccountBookTableTable extends AccountBookTable
         description,
         currencySymbol,
         defaultFundId,
-        icon
+        icon,
+        isRemoved
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -726,6 +737,10 @@ class $AccountBookTableTable extends AccountBookTable
       context.handle(
           _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     }
+    if (data.containsKey('is_removed')) {
+      context.handle(_isRemovedMeta,
+          isRemoved.isAcceptableOrUnknown(data['is_removed']!, _isRemovedMeta));
+    }
     return context;
   }
 
@@ -755,6 +770,8 @@ class $AccountBookTableTable extends AccountBookTable
           .read(DriftSqlType.string, data['${effectivePrefix}default_fund_id']),
       icon: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}icon']),
+      isRemoved: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_removed'])!,
     );
   }
 
@@ -777,6 +794,9 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
   /// 默认资金账户(无特殊作用，新增账目时默认选中的账户)
   final String? defaultFundId;
   final String? icon;
+
+  /// 本地私有标记：账本被移出后暂停同步+隐藏（不删除本地数据）。不同步。
+  final bool isRemoved;
   const AccountBook(
       {required this.createdBy,
       required this.updatedBy,
@@ -787,7 +807,8 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
       this.description,
       required this.currencySymbol,
       this.defaultFundId,
-      this.icon});
+      this.icon,
+      required this.isRemoved});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -807,6 +828,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
     if (!nullToAbsent || icon != null) {
       map['icon'] = Variable<String>(icon);
     }
+    map['is_removed'] = Variable<bool>(isRemoved);
     return map;
   }
 
@@ -826,6 +848,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
           ? const Value.absent()
           : Value(defaultFundId),
       icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      isRemoved: Value(isRemoved),
     );
   }
 
@@ -843,6 +866,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
       currencySymbol: serializer.fromJson<String>(json['currencySymbol']),
       defaultFundId: serializer.fromJson<String?>(json['defaultFundId']),
       icon: serializer.fromJson<String?>(json['icon']),
+      isRemoved: serializer.fromJson<bool>(json['isRemoved']),
     );
   }
   @override
@@ -859,6 +883,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
       'currencySymbol': serializer.toJson<String>(currencySymbol),
       'defaultFundId': serializer.toJson<String?>(defaultFundId),
       'icon': serializer.toJson<String?>(icon),
+      'isRemoved': serializer.toJson<bool>(isRemoved),
     };
   }
 
@@ -872,7 +897,8 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
           Value<String?> description = const Value.absent(),
           String? currencySymbol,
           Value<String?> defaultFundId = const Value.absent(),
-          Value<String?> icon = const Value.absent()}) =>
+          Value<String?> icon = const Value.absent(),
+          bool? isRemoved}) =>
       AccountBook(
         createdBy: createdBy ?? this.createdBy,
         updatedBy: updatedBy ?? this.updatedBy,
@@ -885,6 +911,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
         defaultFundId:
             defaultFundId.present ? defaultFundId.value : this.defaultFundId,
         icon: icon.present ? icon.value : this.icon,
+        isRemoved: isRemoved ?? this.isRemoved,
       );
   AccountBook copyWithCompanion(AccountBookTableCompanion data) {
     return AccountBook(
@@ -903,6 +930,7 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
           ? data.defaultFundId.value
           : this.defaultFundId,
       icon: data.icon.present ? data.icon.value : this.icon,
+      isRemoved: data.isRemoved.present ? data.isRemoved.value : this.isRemoved,
     );
   }
 
@@ -918,14 +946,15 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
           ..write('description: $description, ')
           ..write('currencySymbol: $currencySymbol, ')
           ..write('defaultFundId: $defaultFundId, ')
-          ..write('icon: $icon')
+          ..write('icon: $icon, ')
+          ..write('isRemoved: $isRemoved')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(createdBy, updatedBy, createdAt, updatedAt,
-      id, name, description, currencySymbol, defaultFundId, icon);
+      id, name, description, currencySymbol, defaultFundId, icon, isRemoved);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -939,7 +968,8 @@ class AccountBook extends DataClass implements Insertable<AccountBook> {
           other.description == this.description &&
           other.currencySymbol == this.currencySymbol &&
           other.defaultFundId == this.defaultFundId &&
-          other.icon == this.icon);
+          other.icon == this.icon &&
+          other.isRemoved == this.isRemoved);
 }
 
 class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
@@ -953,6 +983,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
   final Value<String> currencySymbol;
   final Value<String?> defaultFundId;
   final Value<String?> icon;
+  final Value<bool> isRemoved;
   final Value<int> rowid;
   const AccountBookTableCompanion({
     this.createdBy = const Value.absent(),
@@ -965,6 +996,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
     this.currencySymbol = const Value.absent(),
     this.defaultFundId = const Value.absent(),
     this.icon = const Value.absent(),
+    this.isRemoved = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AccountBookTableCompanion.insert({
@@ -978,6 +1010,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
     this.currencySymbol = const Value.absent(),
     this.defaultFundId = const Value.absent(),
     this.icon = const Value.absent(),
+    this.isRemoved = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : createdBy = Value(createdBy),
         updatedBy = Value(updatedBy),
@@ -996,6 +1029,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
     Expression<String>? currencySymbol,
     Expression<String>? defaultFundId,
     Expression<String>? icon,
+    Expression<bool>? isRemoved,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1009,6 +1043,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
       if (currencySymbol != null) 'currency_symbol': currencySymbol,
       if (defaultFundId != null) 'default_fund_id': defaultFundId,
       if (icon != null) 'icon': icon,
+      if (isRemoved != null) 'is_removed': isRemoved,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1024,6 +1059,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
       Value<String>? currencySymbol,
       Value<String?>? defaultFundId,
       Value<String?>? icon,
+      Value<bool>? isRemoved,
       Value<int>? rowid}) {
     return AccountBookTableCompanion(
       createdBy: createdBy ?? this.createdBy,
@@ -1036,6 +1072,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
       currencySymbol: currencySymbol ?? this.currencySymbol,
       defaultFundId: defaultFundId ?? this.defaultFundId,
       icon: icon ?? this.icon,
+      isRemoved: isRemoved ?? this.isRemoved,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1073,6 +1110,9 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
     if (icon.present) {
       map['icon'] = Variable<String>(icon.value);
     }
+    if (isRemoved.present) {
+      map['is_removed'] = Variable<bool>(isRemoved.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1092,6 +1132,7 @@ class AccountBookTableCompanion extends UpdateCompanion<AccountBook> {
           ..write('currencySymbol: $currencySymbol, ')
           ..write('defaultFundId: $defaultFundId, ')
           ..write('icon: $icon, ')
+          ..write('isRemoved: $isRemoved, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14100,6 +14141,7 @@ typedef $$AccountBookTableTableCreateCompanionBuilder
   Value<String> currencySymbol,
   Value<String?> defaultFundId,
   Value<String?> icon,
+  Value<bool> isRemoved,
   Value<int> rowid,
 });
 typedef $$AccountBookTableTableUpdateCompanionBuilder
@@ -14114,6 +14156,7 @@ typedef $$AccountBookTableTableUpdateCompanionBuilder
   Value<String> currencySymbol,
   Value<String?> defaultFundId,
   Value<String?> icon,
+  Value<bool> isRemoved,
   Value<int> rowid,
 });
 
@@ -14156,6 +14199,9 @@ class $$AccountBookTableTableFilterComposer
 
   ColumnFilters<String> get icon => $composableBuilder(
       column: $table.icon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isRemoved => $composableBuilder(
+      column: $table.isRemoved, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountBookTableTableOrderingComposer
@@ -14198,6 +14244,9 @@ class $$AccountBookTableTableOrderingComposer
 
   ColumnOrderings<String> get icon => $composableBuilder(
       column: $table.icon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isRemoved => $composableBuilder(
+      column: $table.isRemoved, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountBookTableTableAnnotationComposer
@@ -14238,6 +14287,9 @@ class $$AccountBookTableTableAnnotationComposer
 
   GeneratedColumn<String> get icon =>
       $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRemoved =>
+      $composableBuilder(column: $table.isRemoved, builder: (column) => column);
 }
 
 class $$AccountBookTableTableTableManager extends RootTableManager<
@@ -14277,6 +14329,7 @@ class $$AccountBookTableTableTableManager extends RootTableManager<
             Value<String> currencySymbol = const Value.absent(),
             Value<String?> defaultFundId = const Value.absent(),
             Value<String?> icon = const Value.absent(),
+            Value<bool> isRemoved = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountBookTableCompanion(
@@ -14290,6 +14343,7 @@ class $$AccountBookTableTableTableManager extends RootTableManager<
             currencySymbol: currencySymbol,
             defaultFundId: defaultFundId,
             icon: icon,
+            isRemoved: isRemoved,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -14303,6 +14357,7 @@ class $$AccountBookTableTableTableManager extends RootTableManager<
             Value<String> currencySymbol = const Value.absent(),
             Value<String?> defaultFundId = const Value.absent(),
             Value<String?> icon = const Value.absent(),
+            Value<bool> isRemoved = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AccountBookTableCompanion.insert(
@@ -14316,6 +14371,7 @@ class $$AccountBookTableTableTableManager extends RootTableManager<
             currencySymbol: currencySymbol,
             defaultFundId: defaultFundId,
             icon: icon,
+            isRemoved: isRemoved,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

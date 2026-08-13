@@ -121,12 +121,17 @@ class AccountBookService extends BaseService {
     // 2. 获取所有账本ID
     final bookIds = userBooks.map((e) => e.accountBookId).toList();
 
-    // 3. 查询账本详细信息
+    // 3. 查询账本详细信息，过滤被移出的账本（本地隐藏，保留数据）
     final books = await DaoManager.bookDao.findByIds(bookIds);
+    final visibleBooks = books.where((b) => !b.isRemoved).toList();
+    if (visibleBooks.isEmpty) {
+      return [];
+    }
 
-    // 4. 查询所有账本的成员关系
+    // 4. 查询所有账本的成员关系（基于可见账本）
     final allBookMembers = await (DatabaseManager.db.select(DatabaseManager.db.relAccountbookUserTable)
-          ..where((tbl) => tbl.accountBookId.isIn(bookIds)))
+          ..where((tbl) =>
+              tbl.accountBookId.isIn(visibleBooks.map((e) => e.id).toList())))
         .get();
 
     // 5. 获取所有用户ID（包括创建者、更新者和成员）
@@ -143,7 +148,7 @@ class AccountBookService extends BaseService {
     );
 
     // 7. 组装VO对象
-    final result = books.map((book) {
+    final result = visibleBooks.map((book) {
       // 找到对应的权限记录
       final userBook = userBooks.firstWhere(
         (ub) => ub.accountBookId == book.id,
