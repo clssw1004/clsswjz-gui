@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-08-16
+
+### Features
+
+- Admin data isolation: removed books are hidden locally with sync paused (isRemoved flag), local data kept; re-join restores the book and syncs incrementally
+- Handle self bookMember join/leave events: first join pulls full history, removal hides the book and pauses sync
+- bookMember delete log carries userId/accountBookId to notify removed members
+- Smart score-based sorting for dropdown select fields (category/shop/tag)
+
+### Improvements
+
+- iOS build compatibility: adapt to Xcode 26.3 with DKPhotoGallery xcassets, Podfile post_install resource cleanup
+
+### Fixes
+
+- Sync: account book not persisted when create log lacks isRemoved field
+
 ## [1.1.14] - 2026-07-12
 
 ### Features
