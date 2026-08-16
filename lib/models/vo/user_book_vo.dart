@@ -103,6 +103,7 @@ class UserBookVO {
       createdAt: createdAt,
       updatedAt: updatedAt,
       defaultFundId: defaultFundId,
+      isRemoved: false,
     );
   }
 }
