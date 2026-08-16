@@ -80,8 +80,13 @@ class BookCULog<T> extends LogBuilder<AccountBookTableCompanion, String> {
   }
 
   static BookCULog fromCreateLog(LogSync log) {
+    final Map<String, dynamic> data =
+        jsonDecode(log.operateData) as Map<String, dynamic>;
+    // isRemoved 是本地私有标记（不同步），日志数据不含该字段；
+    // 同步下来的账本从未被本地移出过，缺失时默认 false（可见）。
+    data['isRemoved'] ??= false;
     return BookCULog().who(log.operatorId).doCreate().withData(
-            AccountBook.fromJson(jsonDecode(log.operateData)).toCompanion(true))
+            AccountBook.fromJson(data).toCompanion(true))
         as BookCULog;
   }
 
