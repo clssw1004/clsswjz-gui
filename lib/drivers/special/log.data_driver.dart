@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:math';
@@ -232,7 +233,7 @@ class LogDataDriver implements BookDataDriver {
     }
     if (diff.removed != null && diff.removed!.isNotEmpty) {
       for (var member in diff.removed!) {
-        await deleteBookMember(who, bookId, member.id);
+        await deleteBookMember(who, bookId, member.id, userId: member.userId);
       }
     }
     return OperateResult.success(null);
@@ -920,9 +921,12 @@ class LogDataDriver implements BookDataDriver {
         .execute();
   }
 
-  Future<void> deleteBookMember(
-      String who, String bookId, String memberId) async {
+  /// 移除账本成员。delete 日志携带被移除成员的 userId/accountBookId，
+  /// 服务端据此把"被移除"事件投递给被移除者（pull 的 bookMember-about-me 规则）。
+  Future<void> deleteBookMember(String who, String bookId, String memberId,
+      {required String userId}) async {
     await DeleteLog.buildBookSub(who, bookId, BusinessType.bookMember, memberId)
+        .withData(jsonEncode({'userId': userId, 'accountBookId': bookId}))
         .execute();
   }
 

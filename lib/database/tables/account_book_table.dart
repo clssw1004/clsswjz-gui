@@ -16,6 +16,9 @@ class AccountBookTable extends BaseBusinessTable {
   /// 默认资金账户(无特殊作用，新增账目时默认选中的账户)
   TextColumn get defaultFundId => text().nullable().named('default_fund_id')();
   TextColumn get icon => text().nullable().named('icon')();
+  /// 本地私有标记：账本被移出后暂停同步+隐藏（不删除本地数据）。不同步。
+  BoolColumn get isRemoved =>
+      boolean().named('is_removed').withDefault(const Constant(false))();
 
   static AccountBookTableCompanion toUpdateCompanion(
     String who, {

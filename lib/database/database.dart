@@ -56,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -175,6 +175,14 @@ class AppDatabase extends _$AppDatabase {
                   updatedAt: Value(DateUtil.now()),
                 ));
               }
+            }
+          }
+          if (from < 19) {
+            // 版本18到版本19的迁移：account_book_table 新增 is_removed（本地隐藏标记）
+            try {
+              await m.addColumn(accountBookTable, accountBookTable.isRemoved);
+            } catch (_) {
+              // 列已存在时忽略
             }
           }
         },
