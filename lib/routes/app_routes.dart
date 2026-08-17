@@ -57,6 +57,7 @@ import '../pages/recurring_config/recurring_config_form_page.dart';
 import '../pages/recurring_config/recurring_config_detail_page.dart';
 import '../pages/bookkeeping_rule/bookkeeping_rule_list_page.dart';
 import '../pages/bookkeeping_rule/bookkeeping_rule_form_page.dart';
+import '../pages/period/period_calendar_page.dart';
 import '../models/vo/recurring_config_vo.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';
 
@@ -184,6 +185,9 @@ class AppRoutes {
 
   /// 活动打卡页面
   static const String activityCheckin = '/activity/checkin';
+
+  /// 经期记录日历页面
+  static const String periodCalendar = '/period/calendar';
 
   /// 报告详情页面
   static const String reportDetail = '/report/detail';
@@ -415,6 +419,8 @@ class AppRoutes {
         final note = args as UserNoteVO;
         return ReportDetailPage(note: note);
       }
+      case periodCalendar:
+        return const PeriodCalendarPage();
       default:
         return null;
     }

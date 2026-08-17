@@ -13,6 +13,8 @@ import '../enums/fund_type.dart';
 import '../enums/note_type.dart';
 import '../enums/symbol_type.dart';
 import '../models/common.dart';
+import '../models/vo/period_record_vo.dart';
+import '../models/vo/period_statistics_vo.dart';
 import '../models/dto/item_filter_dto.dart';
 import '../models/vo/attachment_show_vo.dart';
 import '../models/vo/user_book_vo.dart';
@@ -683,4 +685,30 @@ abstract class BookDataDriver {
   /// 获取单个记账规则
   Future<OperateResult<BookkeepingRuleVO>> getBookkeepingRule(
     String userId, String ruleId);
+
+  // ============ 经期记录相关 ============
+
+  /// 记录/更新某日经期状态（原子操作：不存在则创建，存在则更新）
+  Future<OperateResult<void>> updatePeriodDay(
+    String userId,
+    String recordDate, {
+    String? periodStatus,
+    String? flowLevel,
+    List<String>? symptoms,
+    String? mood,
+    String? remark,
+  });
+
+  /// 获取指定月份的经期记录
+  Future<OperateResult<List<PeriodRecordVO>>> listPeriodRecords(
+    String userId, {
+    required int year,
+    required int month,
+  });
+
+  /// 获取经期预测信息（周期统计+预测）
+  Future<OperateResult<PeriodStatisticsVO>> getPeriodStatistics(String userId);
+
+  /// 删除某日记录
+  Future<OperateResult<void>> deletePeriodDay(String userId, String recordDate);
 }

@@ -38,9 +38,13 @@ import '../../models/vo/user_share_vo.dart';
 import '../../models/dto/recurring_config_filter_dto.dart';
 import '../../models/vo/recurring_config_vo.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
+import '../../models/vo/period_record_vo.dart';
+import '../../models/vo/period_statistics_vo.dart';
+import '../../services/period_prediction_service.dart';
 import '../../models/vo/user_debt_vo.dart';
 import 'log/builder/recurring_config.builder.dart';
 import 'log/builder/bookkeeping_rule.builder.dart';
+import 'log/builder/period_record.builder.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
@@ -2201,6 +2205,98 @@ class LogDataDriver implements BookDataDriver {
         message: '获取记账规则详情失败：$e',
         exception: e as Exception,
       );
+    }
+  }
+
+  // ============ 经期记录相关 ============
+
+  @override
+  Future<OperateResult<void>> updatePeriodDay(
+    String userId,
+    String recordDate, {
+    String? periodStatus,
+    String? flowLevel,
+    List<String>? symptoms,
+    String? mood,
+    String? remark,
+  }) async {
+    try {
+      final existing = await DaoManager.periodRecordDao.findByDate(userId, recordDate);
+
+      if (existing != null) {
+        await PeriodRecordCULog.update(
+          who: userId,
+          id: existing.id,
+          periodStatus: periodStatus,
+          flowLevel: flowLevel,
+          symptoms: symptoms,
+          mood: mood,
+          remark: remark,
+        ).execute();
+      } else {
+        await PeriodRecordCULog.create(
+          who: userId,
+          recordDate: recordDate,
+          periodStatus: periodStatus,
+          flowLevel: flowLevel,
+          symptoms: symptoms,
+          mood: mood,
+          remark: remark,
+        ).execute();
+      }
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新经期记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<PeriodRecordVO>>> listPeriodRecords(
+    String userId, {
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final records = await DaoManager.periodRecordDao.findByMonth(userId, year, month);
+      return OperateResult.success(
+          records.map((r) => PeriodRecordVO.fromPeriodRecord(r)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询经期记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<PeriodStatisticsVO>> getPeriodStatistics(String userId) async {
+    try {
+      final allPeriodDays = await DaoManager.periodRecordDao.findAllPeriodDays(userId);
+      final vos = allPeriodDays
+          .map((r) => PeriodRecordVO.fromPeriodRecord(r))
+          .toList();
+      final statistics = PeriodPredictionService.calculate(vos);
+      return OperateResult.success(statistics);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '获取经期统计失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deletePeriodDay(String userId, String recordDate) async {
+    try {
+      final existing = await DaoManager.periodRecordDao.findByDate(userId, recordDate);
+      if (existing == null) {
+        return OperateResult.failWithMessage(message: '记录不存在');
+      }
+      await PeriodRecordCULog.delete(
+        who: userId,
+        id: existing.id,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除经期记录失败：$e', exception: e as Exception);
     }
   }
 }
