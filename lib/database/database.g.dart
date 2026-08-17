@@ -13532,6 +13532,553 @@ class $ItemRelFieldTableTable extends ItemRelFieldTable
   }
 }
 
+class $PeriodRecordTableTable extends PeriodRecordTable
+    with TableInfo<$PeriodRecordTableTable, PeriodRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PeriodRecordTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdByMeta =
+      const VerificationMeta('createdBy');
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+      'created_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedByMeta =
+      const VerificationMeta('updatedBy');
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+      'updated_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _recordDateMeta =
+      const VerificationMeta('recordDate');
+  @override
+  late final GeneratedColumn<String> recordDate = GeneratedColumn<String>(
+      'record_date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _periodStatusMeta =
+      const VerificationMeta('periodStatus');
+  @override
+  late final GeneratedColumn<String> periodStatus = GeneratedColumn<String>(
+      'period_status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('none'));
+  static const VerificationMeta _flowLevelMeta =
+      const VerificationMeta('flowLevel');
+  @override
+  late final GeneratedColumn<String> flowLevel = GeneratedColumn<String>(
+      'flow_level', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('none'));
+  static const VerificationMeta _symptomsMeta =
+      const VerificationMeta('symptoms');
+  @override
+  late final GeneratedColumn<String> symptoms = GeneratedColumn<String>(
+      'symptoms', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _moodMeta = const VerificationMeta('mood');
+  @override
+  late final GeneratedColumn<String> mood = GeneratedColumn<String>(
+      'mood', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('normal'));
+  static const VerificationMeta _remarkMeta = const VerificationMeta('remark');
+  @override
+  late final GeneratedColumn<String> remark = GeneratedColumn<String>(
+      'remark', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        id,
+        recordDate,
+        periodStatus,
+        flowLevel,
+        symptoms,
+        mood,
+        remark
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'period_record_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<PeriodRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_by')) {
+      context.handle(_createdByMeta,
+          createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta));
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(_updatedByMeta,
+          updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta));
+    } else if (isInserting) {
+      context.missing(_updatedByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('record_date')) {
+      context.handle(
+          _recordDateMeta,
+          recordDate.isAcceptableOrUnknown(
+              data['record_date']!, _recordDateMeta));
+    } else if (isInserting) {
+      context.missing(_recordDateMeta);
+    }
+    if (data.containsKey('period_status')) {
+      context.handle(
+          _periodStatusMeta,
+          periodStatus.isAcceptableOrUnknown(
+              data['period_status']!, _periodStatusMeta));
+    }
+    if (data.containsKey('flow_level')) {
+      context.handle(_flowLevelMeta,
+          flowLevel.isAcceptableOrUnknown(data['flow_level']!, _flowLevelMeta));
+    }
+    if (data.containsKey('symptoms')) {
+      context.handle(_symptomsMeta,
+          symptoms.isAcceptableOrUnknown(data['symptoms']!, _symptomsMeta));
+    }
+    if (data.containsKey('mood')) {
+      context.handle(_moodMeta, mood.isAcceptableOrUnknown(data['mood']!, _moodMeta));
+    }
+    if (data.containsKey('remark')) {
+      context.handle(_remarkMeta,
+          remark.isAcceptableOrUnknown(data['remark']!, _remarkMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PeriodRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PeriodRecord(
+      createdBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_by'])!,
+      updatedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_by'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      recordDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}record_date'])!,
+      periodStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}period_status'])!,
+      flowLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}flow_level'])!,
+      symptoms: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}symptoms'])!,
+      mood: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mood'])!,
+      remark: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remark']),
+    );
+  }
+
+  @override
+  $PeriodRecordTableTable createAlias(String alias) {
+    return $PeriodRecordTableTable(attachedDatabase, alias);
+  }
+}
+
+class PeriodRecord extends DataClass implements Insertable<PeriodRecord> {
+  final String createdBy;
+  final String updatedBy;
+  final int createdAt;
+  final int updatedAt;
+  final String id;
+  final String recordDate;
+  final String periodStatus;
+  final String flowLevel;
+  final String symptoms;
+  final String mood;
+  final String? remark;
+  const PeriodRecord(
+      {required this.createdBy,
+      required this.updatedBy,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.id,
+      required this.recordDate,
+      required this.periodStatus,
+      required this.flowLevel,
+      required this.symptoms,
+      required this.mood,
+      this.remark});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['id'] = Variable<String>(id);
+    map['record_date'] = Variable<String>(recordDate);
+    map['period_status'] = Variable<String>(periodStatus);
+    map['flow_level'] = Variable<String>(flowLevel);
+    map['symptoms'] = Variable<String>(symptoms);
+    map['mood'] = Variable<String>(mood);
+    if (!nullToAbsent || remark != null) {
+      map['remark'] = Variable<String>(remark);
+    }
+    return map;
+  }
+
+  PeriodRecordTableCompanion toCompanion(bool nullToAbsent) {
+    return PeriodRecordTableCompanion(
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      id: Value(id),
+      recordDate: Value(recordDate),
+      periodStatus: Value(periodStatus),
+      flowLevel: Value(flowLevel),
+      symptoms: Value(symptoms),
+      mood: Value(mood),
+      remark: remark == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remark),
+    );
+  }
+
+  factory PeriodRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PeriodRecord(
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      recordDate: serializer.fromJson<String>(json['recordDate']),
+      periodStatus: serializer.fromJson<String>(json['periodStatus']),
+      flowLevel: serializer.fromJson<String>(json['flowLevel']),
+      symptoms: serializer.fromJson<String>(json['symptoms']),
+      mood: serializer.fromJson<String>(json['mood']),
+      remark: serializer.fromJson<String?>(json['remark']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'id': serializer.toJson<String>(id),
+      'recordDate': serializer.toJson<String>(recordDate),
+      'periodStatus': serializer.toJson<String>(periodStatus),
+      'flowLevel': serializer.toJson<String>(flowLevel),
+      'symptoms': serializer.toJson<String>(symptoms),
+      'mood': serializer.toJson<String>(mood),
+      'remark': serializer.toJson<String?>(remark),
+    };
+  }
+
+  PeriodRecord copyWith(
+          {String? createdBy,
+          String? updatedBy,
+          int? createdAt,
+          int? updatedAt,
+          String? id,
+          String? recordDate,
+          String? periodStatus,
+          String? flowLevel,
+          String? symptoms,
+          String? mood,
+          Value<String?> remark = const Value.absent()}) =>
+      PeriodRecord(
+        createdBy: createdBy ?? this.createdBy,
+        updatedBy: updatedBy ?? this.updatedBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        id: id ?? this.id,
+        recordDate: recordDate ?? this.recordDate,
+        periodStatus: periodStatus ?? this.periodStatus,
+        flowLevel: flowLevel ?? this.flowLevel,
+        symptoms: symptoms ?? this.symptoms,
+        mood: mood ?? this.mood,
+        remark: remark.present ? remark.value : this.remark,
+      );
+  PeriodRecord copyWithCompanion(PeriodRecordTableCompanion data) {
+    return PeriodRecord(
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      createdAt:
+          data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt:
+          data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      id: data.id.present ? data.id.value : this.id,
+      recordDate:
+          data.recordDate.present ? data.recordDate.value : this.recordDate,
+      periodStatus: data.periodStatus.present
+          ? data.periodStatus.value
+          : this.periodStatus,
+      flowLevel:
+          data.flowLevel.present ? data.flowLevel.value : this.flowLevel,
+      symptoms: data.symptoms.present ? data.symptoms.value : this.symptoms,
+      mood: data.mood.present ? data.mood.value : this.mood,
+      remark: data.remark.present ? data.remark.value : this.remark,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PeriodRecord(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('recordDate: $recordDate, ')
+          ..write('periodStatus: $periodStatus, ')
+          ..write('flowLevel: $flowLevel, ')
+          ..write('symptoms: $symptoms, ')
+          ..write('mood: $mood, ')
+          ..write('remark: $remark')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(createdBy, updatedBy, createdAt, updatedAt, id,
+      recordDate, periodStatus, flowLevel, symptoms, mood, remark);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PeriodRecord &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.id == this.id &&
+          other.recordDate == this.recordDate &&
+          other.periodStatus == this.periodStatus &&
+          other.flowLevel == this.flowLevel &&
+          other.symptoms == this.symptoms &&
+          other.mood == this.mood &&
+          other.remark == this.remark);
+}
+
+class PeriodRecordTableCompanion extends UpdateCompanion<PeriodRecord> {
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<String> id;
+  final Value<String> recordDate;
+  final Value<String> periodStatus;
+  final Value<String> flowLevel;
+  final Value<String> symptoms;
+  final Value<String> mood;
+  final Value<String?> remark;
+  final Value<int> rowid;
+  const PeriodRecordTableCompanion({
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.recordDate = const Value.absent(),
+    this.periodStatus = const Value.absent(),
+    this.flowLevel = const Value.absent(),
+    this.symptoms = const Value.absent(),
+    this.mood = const Value.absent(),
+    this.remark = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PeriodRecordTableCompanion.insert({
+    required String createdBy,
+    required String updatedBy,
+    required int createdAt,
+    required int updatedAt,
+    required String id,
+    required String recordDate,
+    this.periodStatus = const Value.absent(),
+    this.flowLevel = const Value.absent(),
+    this.symptoms = const Value.absent(),
+    this.mood = const Value.absent(),
+    this.remark = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : createdBy = Value(createdBy),
+        updatedBy = Value(updatedBy),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt),
+        id = Value(id),
+        recordDate = Value(recordDate);
+  static Insertable<PeriodRecord> custom({
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<String>? id,
+    Expression<String>? recordDate,
+    Expression<String>? periodStatus,
+    Expression<String>? flowLevel,
+    Expression<String>? symptoms,
+    Expression<String>? mood,
+    Expression<String>? remark,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (id != null) 'id': id,
+      if (recordDate != null) 'record_date': recordDate,
+      if (periodStatus != null) 'period_status': periodStatus,
+      if (flowLevel != null) 'flow_level': flowLevel,
+      if (symptoms != null) 'symptoms': symptoms,
+      if (mood != null) 'mood': mood,
+      if (remark != null) 'remark': remark,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PeriodRecordTableCompanion copyWith(
+      {Value<String>? createdBy,
+      Value<String>? updatedBy,
+      Value<int>? createdAt,
+      Value<int>? updatedAt,
+      Value<String>? id,
+      Value<String>? recordDate,
+      Value<String>? periodStatus,
+      Value<String>? flowLevel,
+      Value<String>? symptoms,
+      Value<String>? mood,
+      Value<String?>? remark,
+      Value<int>? rowid}) {
+    return PeriodRecordTableCompanion(
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      id: id ?? this.id,
+      recordDate: recordDate ?? this.recordDate,
+      periodStatus: periodStatus ?? this.periodStatus,
+      flowLevel: flowLevel ?? this.flowLevel,
+      symptoms: symptoms ?? this.symptoms,
+      mood: mood ?? this.mood,
+      remark: remark ?? this.remark,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (recordDate.present) {
+      map['record_date'] = Variable<String>(recordDate.value);
+    }
+    if (periodStatus.present) {
+      map['period_status'] = Variable<String>(periodStatus.value);
+    }
+    if (flowLevel.present) {
+      map['flow_level'] = Variable<String>(flowLevel.value);
+    }
+    if (symptoms.present) {
+      map['symptoms'] = Variable<String>(symptoms.value);
+    }
+    if (mood.present) {
+      map['mood'] = Variable<String>(mood.value);
+    }
+    if (remark.present) {
+      map['remark'] = Variable<String>(remark.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PeriodRecordTableCompanion(')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('id: $id, ')
+          ..write('recordDate: $recordDate, ')
+          ..write('periodStatus: $periodStatus, ')
+          ..write('flowLevel: $flowLevel, ')
+          ..write('symptoms: $symptoms, ')
+          ..write('mood: $mood, ')
+          ..write('remark: $remark, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ItemRelField extends DataClass implements Insertable<ItemRelField> {
   final int createdAt;
   final int updatedAt;
@@ -13829,6 +14376,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $BookkeepingRuleTableTable(this);
   late final $ItemRelFieldTableTable itemRelFieldTable =
       $ItemRelFieldTableTable(this);
+  late final $PeriodRecordTableTable periodRecordTable =
+      $PeriodRecordTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13855,7 +14404,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         userShareTable,
         recurringConfigTable,
         bookkeepingRuleTable,
-        itemRelFieldTable
+        itemRelFieldTable,
+        periodRecordTable
       ];
 }
 
@@ -20156,6 +20706,273 @@ typedef $$ItemRelFieldTableTableProcessedTableManager = ProcessedTableManager<
     ItemRelField,
     PrefetchHooks Function()>;
 
+typedef $$PeriodRecordTableTableCreateCompanionBuilder
+    = PeriodRecordTableCompanion Function({
+  required String createdBy,
+  required String updatedBy,
+  required int createdAt,
+  required int updatedAt,
+  required String id,
+  required String recordDate,
+  Value<String> periodStatus,
+  Value<String> flowLevel,
+  Value<String> symptoms,
+  Value<String> mood,
+  Value<String?> remark,
+  Value<int> rowid,
+});
+typedef $$PeriodRecordTableTableUpdateCompanionBuilder
+    = PeriodRecordTableCompanion Function({
+  Value<String> createdBy,
+  Value<String> updatedBy,
+  Value<int> createdAt,
+  Value<int> updatedAt,
+  Value<String> id,
+  Value<String> recordDate,
+  Value<String> periodStatus,
+  Value<String> flowLevel,
+  Value<String> symptoms,
+  Value<String> mood,
+  Value<String?> remark,
+  Value<int> rowid,
+});
+
+class $$PeriodRecordTableTableFilterComposer
+    extends Composer<_$AppDatabase, $PeriodRecordTableTable> {
+  $$PeriodRecordTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get periodStatus => $composableBuilder(
+      column: $table.periodStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get flowLevel => $composableBuilder(
+      column: $table.flowLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get symptoms => $composableBuilder(
+      column: $table.symptoms, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mood => $composableBuilder(
+      column: $table.mood, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnFilters(column));
+}
+
+class $$PeriodRecordTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $PeriodRecordTableTable> {
+  $$PeriodRecordTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+      column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+      column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get periodStatus => $composableBuilder(
+      column: $table.periodStatus,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get flowLevel => $composableBuilder(
+      column: $table.flowLevel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get symptoms => $composableBuilder(
+      column: $table.symptoms, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mood => $composableBuilder(
+      column: $table.mood, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remark => $composableBuilder(
+      column: $table.remark, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PeriodRecordTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PeriodRecordTableTable> {
+  $$PeriodRecordTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get recordDate => $composableBuilder(
+      column: $table.recordDate, builder: (column) => column);
+
+  GeneratedColumn<String> get periodStatus => $composableBuilder(
+      column: $table.periodStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get flowLevel => $composableBuilder(
+      column: $table.flowLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get symptoms => $composableBuilder(
+      column: $table.symptoms, builder: (column) => column);
+
+  GeneratedColumn<String> get mood =>
+      $composableBuilder(column: $table.mood, builder: (column) => column);
+
+  GeneratedColumn<String> get remark =>
+      $composableBuilder(column: $table.remark, builder: (column) => column);
+}
+
+class $$PeriodRecordTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PeriodRecordTableTable,
+    PeriodRecord,
+    $$PeriodRecordTableTableFilterComposer,
+    $$PeriodRecordTableTableOrderingComposer,
+    $$PeriodRecordTableTableAnnotationComposer,
+    $$PeriodRecordTableTableCreateCompanionBuilder,
+    $$PeriodRecordTableTableUpdateCompanionBuilder,
+    (
+      PeriodRecord,
+      BaseReferences<_$AppDatabase, $PeriodRecordTableTable, PeriodRecord>
+    ),
+    PeriodRecord,
+    PrefetchHooks Function()> {
+  $$PeriodRecordTableTableTableManager(
+      _$AppDatabase db, $PeriodRecordTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PeriodRecordTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PeriodRecordTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PeriodRecordTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> createdBy = const Value.absent(),
+            Value<String> updatedBy = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<String> id = const Value.absent(),
+            Value<String> recordDate = const Value.absent(),
+            Value<String> periodStatus = const Value.absent(),
+            Value<String> flowLevel = const Value.absent(),
+            Value<String> symptoms = const Value.absent(),
+            Value<String> mood = const Value.absent(),
+            Value<String?> remark = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PeriodRecordTableCompanion(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            recordDate: recordDate,
+            periodStatus: periodStatus,
+            flowLevel: flowLevel,
+            symptoms: symptoms,
+            mood: mood,
+            remark: remark,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String createdBy,
+            required String updatedBy,
+            required int createdAt,
+            required int updatedAt,
+            required String id,
+            required String recordDate,
+            Value<String> periodStatus = const Value.absent(),
+            Value<String> flowLevel = const Value.absent(),
+            Value<String> symptoms = const Value.absent(),
+            Value<String> mood = const Value.absent(),
+            Value<String?> remark = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PeriodRecordTableCompanion.insert(
+            createdBy: createdBy,
+            updatedBy: updatedBy,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            id: id,
+            recordDate: recordDate,
+            periodStatus: periodStatus,
+            flowLevel: flowLevel,
+            symptoms: symptoms,
+            mood: mood,
+            remark: remark,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PeriodRecordTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PeriodRecordTableTable,
+    PeriodRecord,
+    $$PeriodRecordTableTableFilterComposer,
+    $$PeriodRecordTableTableOrderingComposer,
+    $$PeriodRecordTableTableAnnotationComposer,
+    $$PeriodRecordTableTableCreateCompanionBuilder,
+    $$PeriodRecordTableTableUpdateCompanionBuilder,
+    (
+      PeriodRecord,
+      BaseReferences<_$AppDatabase, $PeriodRecordTableTable, PeriodRecord>
+    ),
+    PeriodRecord,
+    PrefetchHooks Function()>;
+
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
@@ -20205,4 +21022,6 @@ class $AppDatabaseManager {
       $$BookkeepingRuleTableTableTableManager(_db, _db.bookkeepingRuleTable);
   $$ItemRelFieldTableTableTableManager get itemRelFieldTable =>
       $$ItemRelFieldTableTableTableManager(_db, _db.itemRelFieldTable);
+  $$PeriodRecordTableTableTableManager get periodRecordTable =>
+      $$PeriodRecordTableTableTableManager(_db, _db.periodRecordTable);
 }

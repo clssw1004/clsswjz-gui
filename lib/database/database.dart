@@ -20,6 +20,7 @@ import 'tables/item_relation_table.dart';
 import 'tables/user_share_table.dart';
 import 'tables/recurring_config_table.dart';
 import 'tables/bookkeeping_rule_table.dart';
+import 'tables/period_record_table.dart';
 import 'tables/item_rel_field_table.dart';
 import '../utils/id_util.dart';
 import '../utils/date_util.dart';
@@ -49,6 +50,7 @@ part 'database.g.dart';
     UserShareTable,
     RecurringConfigTable,
     BookkeepingRuleTable,
+    PeriodRecordTable,
     ItemRelFieldTable,
   ],
 )
@@ -56,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -184,6 +186,10 @@ class AppDatabase extends _$AppDatabase {
             } catch (_) {
               // 列已存在时忽略
             }
+          }
+          if (from < 20) {
+            // 版本19到版本20的迁移：新增经期记录表
+            await m.create(periodRecordTable);
           }
         },
       );
