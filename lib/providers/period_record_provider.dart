@@ -15,6 +15,8 @@ import '../utils/period_calc_util.dart';
 /// 经期记录数据提供者
 class PeriodRecordProvider extends ChangeNotifier {
   List<PeriodRecordVO> _records = [];
+  /// 近 60 天所有记录（含跨月），用于 isInPeriod / endPeriod / 计算天数
+  List<PeriodRecordVO> _recentRecords = [];
   PeriodStatisticsVO _statistics = PeriodStatisticsVO.empty;
   bool _loading = false;
   bool _operating = false;
@@ -37,7 +39,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   /// 当前是经期第几天（仅经期中有效）
   int? get currentPeriodDay => PeriodCalcUtil.calcCurrentPeriodDay(
         isInPeriod: isInPeriod,
-        records: _records,
+        records: _recentRecords,
       );
 
   /// 距下次经期天数
@@ -48,7 +50,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   /// 本次经期开始日期
   String? get periodStartDate => PeriodCalcUtil.calcPeriodStartDate(
         isInPeriod: isInPeriod,
-        records: _records,
+        records: _recentRecords,
       );
 
   /// 是否在排卵期（易孕窗口内）
@@ -62,7 +64,7 @@ class PeriodRecordProvider extends ChangeNotifier {
         statistics: _statistics,
       );
 
-  /// 加载指定月份的记录
+  /// 加载指定月份的记录 + 近 60 天记录
   Future<void> loadRecords({int? year, int? month}) async {
     _loading = true;
     notifyListeners();
@@ -71,20 +73,30 @@ class PeriodRecordProvider extends ChangeNotifier {
     if (month != null) _currentMonth = month;
 
     final userId = AppConfigManager.instance.userId;
-    final result = await DriverFactory.driver.listPeriodRecords(
-      userId,
-      year: _currentYear,
-      month: _currentMonth,
-    );
-    if (result.ok) {
-      _records = result.data ?? [];
-    }
 
-    // 加载统计数据
-    final statsResult = await DriverFactory.driver.getPeriodStatistics(userId);
+    // 并行加载当月记录 + 近 60 天记录
+    final results = await Future.wait([
+      DriverFactory.driver.listPeriodRecords(userId, year: _currentYear, month: _currentMonth),
+      DriverFactory.driver.listRecentPeriodRecords(userId, PeriodConstants.inPeriodLookbackDays * 2 + 30),
+      DriverFactory.driver.getPeriodStatistics(userId),
+    ]);
+
+    final monthResult = results[0] as dynamic;
+    final recentResult = results[1] as dynamic;
+    final statsResult = results[2] as dynamic;
+
+    if (monthResult.ok) {
+      _records = monthResult.data ?? [];
+    }
+    if (recentResult.ok) {
+      _recentRecords = recentResult.data ?? [];
+    }
     if (statsResult.ok) {
       _statistics = statsResult.data ?? PeriodStatisticsVO.empty;
     }
+
+    // 用最新数据刷新 isInPeriod 缓存
+    _refreshInPeriodCache();
 
     _loading = false;
     notifyListeners();
@@ -134,7 +146,7 @@ class PeriodRecordProvider extends ChangeNotifier {
     return result;
   }
 
-  /// 获取指定日期的记录
+  /// 获取指定日期的记录（从当月数据中查找）
   PeriodRecordVO? getRecordByDate(String recordDate) {
     try {
       return _records.firstWhere((r) => r.recordDate == recordDate);
@@ -143,43 +155,44 @@ class PeriodRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 是否正在经期中（今天或最近7天内有 period 记录）
+  /// 获取指定日期的记录（从近 60 天数据中查找，用于跨月场景）
+  PeriodRecordVO? getRecentRecordByDate(String recordDate) {
+    try {
+      return _recentRecords.firstWhere((r) => r.recordDate == recordDate);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── isInPeriod: 用 _recentRecords 做 7 天 lookback ──
+
+  /// 是否正在经期中（最近 7 天内有 period 记录）
   bool get isInPeriod {
     final now = DateTime.now();
-    // 先检查当前月数据
     for (var i = 0; i < PeriodConstants.inPeriodLookbackDays; i++) {
       final d = now.subtract(Duration(days: i));
-      final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      final r = getRecordByDate(ds);
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
       if (r != null && r.periodStatus == PeriodStatus.period) return true;
     }
-    // 当前月数据不包含今天时（比如在看上个月），直接查数据库
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    if (getRecordByDate(todayStr) == null) {
-      // 异步查询标记（下次 rebuild 时生效）
-      _checkInPeriodFromDb(now);
-    }
-    return _cachedIsInPeriod;
+    return false;
   }
 
-  bool _cachedIsInPeriod = false;
-
-  Future<void> _checkInPeriodFromDb(DateTime now) async {
-    final userId = AppConfigManager.instance.userId;
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final result = await DriverFactory.driver.listPeriodRecords(
-      userId, year: now.year, month: now.month,
-    );
-    if (result.ok) {
-      final todayRecord = (result.data ?? []).where((r) => r.recordDate == todayStr && r.periodStatus == PeriodStatus.period);
-      final wasInPeriod = _cachedIsInPeriod;
-      _cachedIsInPeriod = todayRecord.isNotEmpty;
-      if (wasInPeriod != _cachedIsInPeriod) notifyListeners();
-    }
+  String _dateStr(DateTime d) {
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
 
-  /// 标记经期开始：仅标记当天为 period，不自动填充后续
-  Future<void> startPeriod(String startDate) async {
+  /// 刷新 isInPeriod 缓存（loadRecords 后调用）
+  void _refreshInPeriodCache() {
+    // _recentRecords 已经更新，isInPeriod 直接从 _recentRecords 计算
+    // 不再需要 _cachedIsInPeriod
+  }
+
+  /// 标记经期开始：仅标记当天为 period
+  ///
+  /// 如果已在经期中，拒绝操作并返回 false。
+  Future<bool> startPeriod(String startDate) async {
+    if (isInPeriod) return false;
     _operating = true;
     notifyListeners();
     final userId = AppConfigManager.instance.userId;
@@ -192,9 +205,12 @@ class PeriodRecordProvider extends ChangeNotifier {
     _operating = false;
     notifyListeners();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.create));
+    return true;
   }
 
   /// 标记经期结束：从最近一次经期开始日到指定日期，全部填充为 period
+  ///
+  /// 从数据库查询最近记录以定位经期开始日（不依赖当月数据）。
   Future<void> endPeriod({String? endDate}) async {
     _operating = true;
     notifyListeners();
@@ -202,29 +218,41 @@ class PeriodRecordProvider extends ChangeNotifier {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // 确定结束日期：默认今天，但不早于经期开始日
+    // 确定结束日期：默认今天，不早于今天
     final endTarget = endDate != null ? DateTime.parse(endDate) : today;
     final actualEnd = endTarget.isAfter(today) ? today : endTarget;
 
-    // 往前找到最近一次经期开始日
+    // 从数据库查询最近 60 天记录，定位经期开始日
+    final recentResult = await DriverFactory.driver.listRecentPeriodRecords(userId, 60);
+    final recentRecords = recentResult.ok ? (recentResult.data ?? []) : [];
+
+    // 往前搜索连续 period 记录找到开始日
     String? startDate;
     for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
       final d = now.subtract(Duration(days: i));
-      final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      final r = getRecordByDate(ds);
-      if (r != null && r.periodStatus == PeriodStatus.period) {
+      final ds = _dateStr(d);
+      final r = recentRecords.where((r) => r.recordDate == ds && r.periodStatus == PeriodStatus.period);
+      if (r.isNotEmpty) {
         startDate = ds;
       } else if (startDate != null) {
-        // 找到了经期开始日的前一天，停止
         break;
       }
     }
 
     if (startDate != null) {
+      // 验证结束日期不早于开始日期
+      final start = DateTime.parse(startDate);
+      if (actualEnd.isBefore(start)) {
+        await loadRecords();
+        _operating = false;
+        notifyListeners();
+        return;
+      }
+
       // 从开始日到结束日期全部填充为 period
-      var current = DateTime.parse(startDate);
+      var current = start;
       while (!current.isAfter(actualEnd)) {
-        final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
+        final ds = _dateStr(current);
         await DriverFactory.driver.updatePeriodDay(
           userId, ds,
           periodStatus: PeriodStatus.period.code,

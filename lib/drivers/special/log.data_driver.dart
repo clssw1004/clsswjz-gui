@@ -2268,6 +2268,21 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<List<PeriodRecordVO>>> listRecentPeriodRecords(
+    String userId,
+    int days,
+  ) async {
+    try {
+      final records = await DaoManager.periodRecordDao.findRecentRecords(userId, days);
+      return OperateResult.success(
+          records.map((r) => PeriodRecordVO.fromPeriodRecord(r)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询近期经期记录失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
   Future<OperateResult<PeriodStatisticsVO>> getPeriodStatistics(String userId) async {
     try {
       final allPeriodDays = await DaoManager.periodRecordDao.findAllPeriodDays(userId);

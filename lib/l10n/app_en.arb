@@ -2891,5 +2891,13 @@
     "@periodStarted": {
         "description": "Period start date subtitle",
         "placeholders": { "date": { "type": "String" } }
-    }
+    },
+    "alreadyInPeriod": "Period is already in progress",
+    "periodOnboardingTitle": "Welcome to Period Tracker",
+    "periodOnboardingDesc": "Tell us about your last period to get personalized predictions. You can skip this and fill it in later.",
+    "periodOnboardingLastStart": "Last period start date",
+    "periodOnboardingLastEnd": "Last period end date",
+    "periodOnboardingKnowDuration": "I know how long it lasted",
+    "periodOnboardingSelectDate": "Tap to select date",
+    "skip": "Skip"
 }

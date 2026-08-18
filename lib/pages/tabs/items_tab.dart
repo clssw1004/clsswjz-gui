@@ -264,6 +264,7 @@ class _ItemsTabState extends State<ItemsTab>
   }
 
   void _pickHomeStartDate(BuildContext context, PeriodRecordProvider provider) async {
+    if (provider.operating || provider.isInPeriod) return;
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final selected = await PeriodDatePickerSheet.show(
@@ -278,6 +279,7 @@ class _ItemsTabState extends State<ItemsTab>
   }
 
   void _pickHomeEndDate(BuildContext context, PeriodRecordProvider provider) async {
+    if (provider.operating) return;
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final startDate = provider.periodStartDate;

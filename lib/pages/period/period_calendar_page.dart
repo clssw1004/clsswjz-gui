@@ -5,11 +5,13 @@ import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
+import 'package:clsswjz_gui/manager/app_config_manager.dart';
 import 'widgets/period_hero_card.dart';
 import 'widgets/period_calendar_widget.dart';
 import 'widgets/period_prediction_card.dart';
 import 'widgets/period_day_detail_card.dart';
 import 'widgets/period_date_picker_sheet.dart';
+import 'widgets/period_onboarding_sheet.dart';
 import 'period_day_form_page.dart';
 
 class PeriodCalendarPage extends StatefulWidget {
@@ -25,9 +27,52 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PeriodRecordProvider>().loadRecords();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<PeriodRecordProvider>().loadRecords();
+      _checkOnboarding();
     });
+  }
+
+  /// 检查是否需要显示初次引导
+  void _checkOnboarding() {
+    final provider = context.read<PeriodRecordProvider>();
+    if (provider.records.isEmpty &&
+        provider.statistics.totalRecords == 0 &&
+        !AppConfigManager.instance.periodOnboardingDone) {
+      _showOnboarding();
+    }
+  }
+
+  void _showOnboarding() async {
+    final result = await PeriodOnboardingSheet.show(context);
+    if (result == null || !mounted) return;
+
+    // 标记引导已完成
+    await AppConfigManager.instance.setPeriodOnboardingDone();
+
+    // 如果用户填写了数据，创建对应记录
+    if (result.lastPeriodStart != null && mounted) {
+      final provider = context.read<PeriodRecordProvider>();
+      final start = DateTime.parse(result.lastPeriodStart!);
+      final end = result.lastPeriodEnd != null
+          ? DateTime.parse(result.lastPeriodEnd!)
+          : start.add(const Duration(days: 4)); // 默认 5 天
+
+      // 创建每天的经期记录
+      var current = start;
+      while (!current.isAfter(end)) {
+        final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
+        await provider.updatePeriodDay(
+          ds,
+          periodStatus: 'period',
+          flowLevel: 'medium',
+        );
+        current = current.add(const Duration(days: 1));
+      }
+
+      // 切换到开始日期所在月份
+      await provider.changeMonth(start.year, start.month);
+    }
   }
 
   @override
@@ -50,7 +95,16 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                 child: Padding(
                   padding: spacing.contentPadding,
                   child: PeriodHeroCard(
-                    onStartPeriod: () => _pickStartDate(provider),
+                    onStartPeriod: () {
+                      // 无数据且未完成引导 → 打开引导页
+                      if (provider.records.isEmpty &&
+                          provider.statistics.totalRecords == 0 &&
+                          !AppConfigManager.instance.periodOnboardingDone) {
+                        _showOnboarding();
+                      } else {
+                        _pickStartDate(provider);
+                      }
+                    },
                     onEndPeriod: () => _pickEndDate(provider),
                   ),
                 ),
@@ -267,6 +321,14 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   }
 
   void _confirmStartPeriod(PeriodRecordProvider provider, String date) {
+    if (provider.operating || provider.isInPeriod) return;
+    // 无数据且未完成引导 → 打开引导页
+    if (provider.records.isEmpty &&
+        provider.statistics.totalRecords == 0 &&
+        !AppConfigManager.instance.periodOnboardingDone) {
+      _showOnboarding();
+      return;
+    }
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -275,10 +337,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              provider.startPeriod(date);
-              setState(() => _selectedDate = null);
+              final ok = await provider.startPeriod(date);
+              if (mounted) {
+                setState(() => _selectedDate = null);
+                if (!ok) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(L10nManager.l10n.alreadyInPeriod)),
+                  );
+                }
+              }
             },
             child: Text(L10nManager.l10n.confirm),
           ),
@@ -289,6 +358,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
   /// 选择经期开始日期（底部日期选择器）
   void _pickStartDate(PeriodRecordProvider provider) async {
+    if (provider.isInPeriod) return;
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final selected = await PeriodDatePickerSheet.show(
@@ -298,13 +368,19 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       maxDate: todayStr,
     );
     if (selected != null && mounted) {
-      await provider.startPeriod(selected);
+      final ok = await provider.startPeriod(selected);
       setState(() => _selectedDate = null);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(L10nManager.l10n.alreadyInPeriod)),
+        );
+      }
     }
   }
 
   /// 选择经期结束日期（底部日期选择器）
   void _pickEndDate(PeriodRecordProvider provider) async {
+    if (provider.operating) return;
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final startDate = provider.periodStartDate;

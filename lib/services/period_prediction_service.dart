@@ -113,27 +113,33 @@ class PeriodPredictionService {
       }
     }
 
-    // 标记预测日期
+    // 标记预测日期（仅标记未来日期，忽略已过期的预测）
     if (statistics != null && statistics.canPredict) {
-      // 预测经期
-      if (statistics.nextPeriodDate != null) {
+      final todayStr = _todayStr();
+
+      // 预测经期（仅未来）
+      if (statistics.nextPeriodDate != null &&
+          statistics.nextPeriodDate!.compareTo(todayStr) >= 0) {
         for (var i = 0; i < statistics.averagePeriodLength; i++) {
           final date = _addDays(statistics.nextPeriodDate!, i);
           result[date] ??= DateType.predictedPeriod;
         }
       }
 
-      // 排卵日
-      if (statistics.ovulationDate != null) {
+      // 排卵日（仅未来）
+      if (statistics.ovulationDate != null &&
+          statistics.ovulationDate!.compareTo(todayStr) >= 0) {
         result[statistics.ovulationDate!] = DateType.ovulation;
       }
 
-      // 危险期
+      // 危险期（仅未来）
       if (statistics.fertileWindowStart != null && statistics.fertileWindowEnd != null) {
         var date = statistics.fertileWindowStart!;
         while (date.compareTo(statistics.fertileWindowEnd!) <= 0) {
-          if (result[date] == null || result[date] == DateType.safe) {
-            result[date] = DateType.fertile;
+          if (date.compareTo(todayStr) >= 0) {
+            if (result[date] == null || result[date] == DateType.safe) {
+              result[date] = DateType.fertile;
+            }
           }
           date = _addDays(date, 1);
         }
@@ -152,5 +158,10 @@ class PeriodPredictionService {
   static String _addDays(String date, int days) {
     final d = DateTime.parse(date).add(Duration(days: days));
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  static String _todayStr() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 }

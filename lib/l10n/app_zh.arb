@@ -2969,5 +2969,13 @@
     "nextPeriodTile": "下次经期",
     "ovulationTile": "排卵日",
     "fertileTile": "易孕期",
-    "periodStarted": "{date} 开始经期"
+    "periodStarted": "{date} 开始经期",
+    "alreadyInPeriod": "当前已在经期中",
+    "periodOnboardingTitle": "欢迎使用经期记录",
+    "periodOnboardingDesc": "填写上次经期信息，帮助系统为你提供个性化预测。可以跳过，稍后填写。",
+    "periodOnboardingLastStart": "上次经期开始日期",
+    "periodOnboardingLastEnd": "上次经期结束日期",
+    "periodOnboardingKnowDuration": "我知道持续了几天",
+    "periodOnboardingSelectDate": "点击选择日期",
+    "skip": "跳过"
 }

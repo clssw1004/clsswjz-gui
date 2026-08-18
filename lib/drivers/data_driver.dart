@@ -706,6 +706,12 @@ abstract class BookDataDriver {
     required int month,
   });
 
+  /// 获取最近 N 天的经期记录（用于跨月 lookback）
+  Future<OperateResult<List<PeriodRecordVO>>> listRecentPeriodRecords(
+    String userId,
+    int days,
+  );
+
   /// 获取经期预测信息（周期统计+预测）
   Future<OperateResult<PeriodStatisticsVO>> getPeriodStatistics(String userId);
 

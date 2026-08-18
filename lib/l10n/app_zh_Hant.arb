@@ -2058,5 +2058,13 @@
     "nextPeriodTile": "下次經期",
     "ovulationTile": "排卵日",
     "fertileTile": "易孕期",
-    "periodStarted": "{date} 開始經期"
+    "periodStarted": "{date} 開始經期",
+    "alreadyInPeriod": "當前已在經期中",
+    "periodOnboardingTitle": "歡迎使用經期記錄",
+    "periodOnboardingDesc": "填寫上次經期資訊，幫助系統為你提供個性化預測。可以跳過，稍後填寫。",
+    "periodOnboardingLastStart": "上次經期開始日期",
+    "periodOnboardingLastEnd": "上次經期結束日期",
+    "periodOnboardingKnowDuration": "我知道持續了幾天",
+    "periodOnboardingSelectDate": "點擊選擇日期",
+    "skip": "跳過"
 }

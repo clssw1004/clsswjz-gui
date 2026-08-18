@@ -43,6 +43,20 @@ class PeriodRecordDao extends BaseDao<PeriodRecordTable, PeriodRecord> {
         .getSingleOrNull();
   }
 
+  /// 查询最近 N 天的所有记录（用于跨月 lookback）
+  Future<List<PeriodRecord>> findRecentRecords(String userId, int days) {
+    final since = DateTime.now().subtract(Duration(days: days));
+    final sinceStr =
+        '${since.year}-${since.month.toString().padLeft(2, '0')}-${since.day.toString().padLeft(2, '0')}';
+
+    return (db.select(table)
+          ..where((t) =>
+              t.createdBy.equals(userId) &
+              t.recordDate.isBiggerOrEqualValue(sinceStr))
+          ..orderBy([(t) => OrderingTerm.asc(t.recordDate)]))
+        .get();
+  }
+
   /// 按用户查询（用于共享查看）
   Future<List<PeriodRecord>> findByUser(String userId) {
     return (db.select(table)
