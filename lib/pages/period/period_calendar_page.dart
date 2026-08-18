@@ -128,8 +128,11 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => _confirmEndPeriod(provider),
-                icon: const Icon(Icons.stop_circle_outlined, size: 18),
-                label: const Text('经期结束'),
+                icon: Icon(Icons.stop_circle_outlined, size: 18, color: cs.error),
+                label: Text('经期结束', style: TextStyle(color: cs.error)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: cs.error.withAlpha(128)),
+                ),
               ),
             ),
           ] else if (isPast) ...[
@@ -265,7 +268,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               provider.endPeriod();
               setState(() => _selectedDate = null);
             },
-            child: const Text('确定'),
+            child: Text('确定', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
