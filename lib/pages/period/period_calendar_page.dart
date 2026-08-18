@@ -168,7 +168,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final spacing = theme.spacing;
-    final inPeriod = provider.isInPeriod || provider.isInActivePeriodRange(_selectedDate!);
+    final inPeriod = provider.isInPeriod;
     final operating = provider.operating;
     final today = DateTime.now();
     final selected = DateTime.parse(_selectedDate!);
@@ -211,23 +211,23 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               ),
             ),
           ] else if (isPast) ...[
-            Icon(Icons.add_circle_outline, color: cs.primary, size: 32),
+            Icon(Icons.date_range_outlined, color: cs.primary, size: 32),
             const SizedBox(height: 8),
             Text(L10nManager.l10n.periodBackfill, style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text(L10nManager.l10n.periodMarkFirstDay,
+            Text(L10nManager.l10n.periodSelectRange,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: operating ? null : () => _confirmStartPeriod(provider, _selectedDate!),
+                onPressed: operating ? null : () => _backfillPeriodRange(provider, _selectedDate!),
                 icon: operating
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.play_circle_outline, size: 18),
-                label: Text(L10nManager.l10n.periodMarkStart),
+                    : const Icon(Icons.date_range, size: 18),
+                label: Text(L10nManager.l10n.periodSelectRange),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -392,6 +392,37 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   }
 
   /// 选择经期开始日期（底部日期选择器）
+  /// 历史补记：选择日期范围，一次性填充
+  void _backfillPeriodRange(PeriodRecordProvider provider, String fromDate) async {
+    if (provider.operating) return;
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    final start = DateTime.parse(fromDate);
+
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: start,
+      lastDate: todayOnly,
+      initialDateRange: DateTimeRange(start: start, end: start),
+    );
+
+    if (range == null || !mounted) return;
+
+    // 从 range.start 到 range.end 全部填充为 period
+    var current = range.start;
+    while (!current.isAfter(range.end)) {
+      final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
+      await provider.updatePeriodDay(
+        ds,
+        periodStatus: 'period',
+        flowLevel: 'medium',
+      );
+      current = current.add(const Duration(days: 1));
+    }
+
+    setState(() => _selectedDate = null);
+  }
+
   void _pickStartDate(PeriodRecordProvider provider) async {
     if (provider.isInPeriod) return;
     final today = DateTime.now();
