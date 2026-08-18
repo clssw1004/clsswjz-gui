@@ -231,11 +231,14 @@ class PeriodRecordProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 是否有未结束的经期（最近的 period 记录后面没有非 period 记录）
+  /// 是否有未结束的经期
   ///
-  /// 用于补记历史经期时，判断是否需要显示"结束经期"按钮。
+  /// 条件：最近一条 period 记录在 30 天内，且其后 3 天内没有其他记录（说明经期未显式结束）。
   bool get hasActivePeriod {
     if (_recentRecords.isEmpty) return false;
+    final now = DateTime.now();
+    final cutoff = now.subtract(const Duration(days: 30));
+
     // 找最近一条 period 记录
     PeriodRecordVO? lastPeriod;
     for (var i = _recentRecords.length - 1; i >= 0; i--) {
@@ -245,12 +248,16 @@ class PeriodRecordProvider extends ChangeNotifier {
       }
     }
     if (lastPeriod == null) return false;
-    // 检查它之后是否还有同周期的记录（有则说明经期已结束）
+
     final lastDate = DateTime.parse(lastPeriod.recordDate);
+    // 超过 30 天不认为仍在经期
+    if (lastDate.isBefore(cutoff)) return false;
+
+    // 检查它之后 3 天内是否有记录（有则说明经期已结束）
     for (var i = 1; i <= 3; i++) {
       final nextDate = _dateStr(lastDate.add(Duration(days: i)));
       final r = getRecentRecordByDate(nextDate);
-      if (r != null) return false; // 后面有记录，说明经期已结束
+      if (r != null) return false;
     }
     return true;
   }

@@ -419,13 +419,15 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final startDate = provider.periodStartDate;
+    // 默认选中用户点击的日期（支持历史补记）
+    final initialDate = _selectedDate ?? todayStr;
     final selected = await PeriodDatePickerSheet.show(
       context: context,
       title: L10nManager.l10n.selectEndDate,
       confirmText: L10nManager.l10n.confirmEndDate,
       minDate: startDate,
       maxDate: todayStr,
-      initialDate: todayStr,
+      initialDate: initialDate,
     );
     if (selected != null && mounted) {
       await provider.endPeriod(endDate: selected);

@@ -2838,7 +2838,7 @@
     "@cyclePrediction": {
         "description": "周期预测卡片标题"
     },
-    "needMoreCycles": "至少需要2个完整周期才能预测",
+    "needMoreCycles": "至少需要2次经期记录才能预测",
     "@needMoreCycles": {
         "description": "数据不足提示"
     },

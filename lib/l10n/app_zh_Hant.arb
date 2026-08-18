@@ -2008,7 +2008,7 @@
     "confirmMarkFirstDay": "將 {date} 標記為經期第一天，確定嗎？",
     "confirmPeriodEnd": "從經期開始日到今天將全部標記為經期，確定嗎？",
     "cyclePrediction": "週期預測",
-    "needMoreCycles": "至少需要2個完整週期才能預測",
+    "needMoreCycles": "至少需要2次經期記錄才能預測",
     "avgCycle": "平均週期",
     "avgPeriod": "平均經期",
     "nextPeriod": "下次經期",

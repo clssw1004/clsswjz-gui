@@ -21,7 +21,7 @@ class PeriodStatisticsVO {
     this.fertileWindowEnd,
   });
 
-  bool get canPredict => recentCycleLengths.length >= 2;
+  bool get canPredict => recentCycleLengths.isNotEmpty;
 
   static const empty = PeriodStatisticsVO(
     averageCycleLength: 0,

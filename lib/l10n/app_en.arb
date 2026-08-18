@@ -2681,7 +2681,7 @@
     "@cyclePrediction": {
         "description": "Cycle prediction card title"
     },
-    "needMoreCycles": "At least 2 complete cycles needed for prediction",
+    "needMoreCycles": "At least 2 period records needed for prediction",
     "@needMoreCycles": {
         "description": "Insufficient data hint"
     },

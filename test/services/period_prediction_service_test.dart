@@ -44,7 +44,7 @@ void main() {
       expect(result.lastPeriodStart, '2026-08-01');
     });
 
-    test('two cycles - one gap, cannot predict', () {
+    test('two cycles - one gap, can predict', () {
       final records = [
         _makeRecord('2026-08-01'),
         _makeRecord('2026-08-02'),
@@ -54,8 +54,9 @@ void main() {
         _makeRecord('2026-08-31'),
       ];
       final result = PeriodPredictionService.calculate(records);
-      expect(result.canPredict, isFalse);
+      expect(result.canPredict, isTrue);
       expect(result.recentCycleLengths, [28]);
+      expect(result.averageCycleLength, 28);
     });
 
     test('three cycles - predicts correctly', () {
