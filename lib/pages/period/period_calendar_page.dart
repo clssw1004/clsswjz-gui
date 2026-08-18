@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clsswjz_gui/providers/period_record_provider.dart';
+import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'widgets/period_calendar_widget.dart';
@@ -86,7 +87,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   Widget _buildSelectedDateDetail(PeriodRecordProvider provider) {
     final record = provider.getRecordByDate(_selectedDate!);
     if (record == null) {
-      return _buildEmptyDateCard();
+      return _buildEmptyDateCard(provider);
     }
     return PeriodDayDetailCard(
       record: record,
@@ -95,25 +96,79 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     );
   }
 
-  Widget _buildEmptyDateCard() {
+  Widget _buildEmptyDateCard(PeriodRecordProvider provider) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: () => _navigateToForm(null),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withAlpha(80),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withAlpha(60), width: 0.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_circle_outline, color: cs.primary, size: 20),
-            const SizedBox(width: 8),
-            Text('点击记录经期', style: TextStyle(color: cs.primary)),
+    final theme = Theme.of(context);
+    final inPeriod = provider.isInPeriod;
+    final today = DateTime.now();
+    final selected = DateTime.parse(_selectedDate!);
+    final isPast = selected.isBefore(DateTime(today.year, today.month, today.day));
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withAlpha(80),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.outlineVariant.withAlpha(60), width: 0.5),
+      ),
+      child: Column(
+        children: [
+          if (inPeriod) ...[
+            Icon(Icons.check_circle_outline, color: cs.primary, size: 32),
+            const SizedBox(height: 8),
+            Text('经期进行中', style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.primary, fontWeight: FontWeight.w500,
+            )),
+            const SizedBox(height: 4),
+            Text('下次经期开始时会自动记录',
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmEndPeriod(provider),
+                icon: const Icon(Icons.stop_circle_outlined, size: 18),
+                label: const Text('经期结束'),
+              ),
+            ),
+          ] else if (isPast) ...[
+            Icon(Icons.add_circle_outline, color: cs.primary, size: 32),
+            const SizedBox(height: 8),
+            Text('补记经期', style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.primary, fontWeight: FontWeight.w500,
+            )),
+            const SizedBox(height: 4),
+            Text('将从该日到今天自动标记为经期',
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _confirmStartPeriod(provider, _selectedDate!),
+                icon: const Icon(Icons.play_circle_outline, size: 18),
+                label: const Text('标记经期开始'),
+              ),
+            ),
+          ] else ...[
+            Icon(Icons.add_circle_outline, color: cs.primary, size: 32),
+            const SizedBox(height: 8),
+            Text('记录经期', style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.primary, fontWeight: FontWeight.w500,
+            )),
+            const SizedBox(height: 4),
+            Text('将从今天开始自动记录经期',
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _confirmStartPeriod(provider, _selectedDate!),
+                icon: const Icon(Icons.play_circle_outline, size: 18),
+                label: const Text('标记经期开始'),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -140,12 +195,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     setState(() => _selectedDate = null);
   }
 
-  void _navigateToForm(dynamic record) async {
+  void _navigateToForm(PeriodRecordVO record) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PeriodDayFormPage(
-          recordDate: _selectedDate!,
+          recordDate: record.recordDate,
           record: record,
         ),
       ),
@@ -168,6 +223,52 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               setState(() => _selectedDate = null);
             },
             child: Text('删除', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmStartPeriod(PeriodRecordProvider provider, String date) {
+    final selected = DateTime.parse(date);
+    final today = DateTime.now();
+    final days = today.difference(selected).inDays + 1;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('标记经期开始'),
+        content: Text('将从 $date 到今天（共$days天）自动标记为经期，确定吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.startPeriod(date);
+              setState(() => _selectedDate = null);
+            },
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmEndPeriod(PeriodRecordProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('经期结束'),
+        content: const Text('今天将被标记为经期最后一天，之后不再自动记录。确定吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.endPeriod();
+              setState(() => _selectedDate = null);
+            },
+            child: const Text('确定'),
           ),
         ],
       ),

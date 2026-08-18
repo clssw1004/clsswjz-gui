@@ -6,6 +6,8 @@ import 'package:clsswjz_gui/events/special/event_period.dart';
 import 'package:clsswjz_gui/manager/app_config_manager.dart';
 import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/models/vo/period_statistics_vo.dart';
+import '../enums/period_status.dart';
+import '../enums/flow_level.dart';
 import '../models/common.dart';
 
 /// 经期记录数据提供者
@@ -101,5 +103,46 @@ class PeriodRecordProvider extends ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  /// 是否正在经期中（最近的 period 记录在7天内）
+  bool get isInPeriod {
+    if (_records.isEmpty) return false;
+    final now = DateTime.now();
+    // 往前找7天，看是否有 period 记录
+    for (var i = 0; i < 7; i++) {
+      final d = now.subtract(Duration(days: i));
+      final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final r = getRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) return true;
+    }
+    return false;
+  }
+
+  /// 标记经期开始：从指定日期到今天全部标记为 period
+  Future<void> startPeriod(String startDate) async {
+    final userId = AppConfigManager.instance.userId;
+    final now = DateTime.now();
+    final start = DateTime.parse(startDate);
+    final today = DateTime(now.year, now.month, now.day);
+
+    var current = start;
+    while (!current.isAfter(today)) {
+      final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
+      await DriverFactory.driver.updatePeriodDay(
+        userId, ds,
+        periodStatus: PeriodStatus.period.code,
+        flowLevel: FlowLevel.medium.code,
+      );
+      current = current.add(const Duration(days: 1));
+    }
+    await loadRecords();
+    EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.create));
+  }
+
+  /// 标记经期结束
+  Future<void> endPeriod() async {
+    await loadRecords();
+    EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.update));
   }
 }
