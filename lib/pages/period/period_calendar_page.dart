@@ -139,7 +139,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text('将从该日到今天自动标记为经期',
+            Text('将从该日起标记约${provider.statistics.averagePeriodLength > 0 ? provider.statistics.averagePeriodLength : 5}天为经期',
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
@@ -231,15 +231,22 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   }
 
   void _confirmStartPeriod(PeriodRecordProvider provider, String date) {
+    final fillDays = provider.statistics.averagePeriodLength > 0
+        ? provider.statistics.averagePeriodLength
+        : 5;
     final selected = DateTime.parse(date);
+    final end = selected.add(Duration(days: fillDays - 1));
     final today = DateTime.now();
-    final days = today.difference(selected).inDays + 1;
+    final actualEnd = end.isAfter(DateTime(today.year, today.month, today.day))
+        ? DateTime(today.year, today.month, today.day)
+        : end;
+    final days = actualEnd.difference(selected).inDays + 1;
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('标记经期开始'),
-        content: Text('将从 $date 到今天（共$days天）自动标记为经期，确定吗？'),
+        content: Text('将从 $date 起标记 $days 天为经期，确定吗？'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
           TextButton(

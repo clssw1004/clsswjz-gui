@@ -119,15 +119,26 @@ class PeriodRecordProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 标记经期开始：从指定日期到今天全部标记为 period
+  /// 标记经期开始：从指定日期起填充经期天数
+  /// 如果是今天：填到今天
+  /// 如果是过去补记：填 averagePeriodLength 天（默认5天），不超过今天
   Future<void> startPeriod(String startDate) async {
     final userId = AppConfigManager.instance.userId;
-    final now = DateTime.now();
     final start = DateTime.parse(startDate);
+    final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
+    // 计算填充天数：用历史平均经期天数，没有数据则默认5天
+    final fillDays = _statistics.averagePeriodLength > 0
+        ? _statistics.averagePeriodLength
+        : 5;
+
+    // 不超过今天
+    final end = start.add(Duration(days: fillDays - 1));
+    final actualEnd = end.isAfter(today) ? today : end;
+
     var current = start;
-    while (!current.isAfter(today)) {
+    while (!current.isAfter(actualEnd)) {
       final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
       await DriverFactory.driver.updatePeriodDay(
         userId, ds,
