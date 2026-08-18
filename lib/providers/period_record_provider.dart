@@ -231,6 +231,30 @@ class PeriodRecordProvider extends ChangeNotifier {
     return false;
   }
 
+  /// 是否有未结束的经期（最近的 period 记录后面没有非 period 记录）
+  ///
+  /// 用于补记历史经期时，判断是否需要显示"结束经期"按钮。
+  bool get hasActivePeriod {
+    if (_recentRecords.isEmpty) return false;
+    // 找最近一条 period 记录
+    PeriodRecordVO? lastPeriod;
+    for (var i = _recentRecords.length - 1; i >= 0; i--) {
+      if (_recentRecords[i].periodStatus == PeriodStatus.period) {
+        lastPeriod = _recentRecords[i];
+        break;
+      }
+    }
+    if (lastPeriod == null) return false;
+    // 检查它之后是否还有同周期的记录（有则说明经期已结束）
+    final lastDate = DateTime.parse(lastPeriod.recordDate);
+    for (var i = 1; i <= 3; i++) {
+      final nextDate = _dateStr(lastDate.add(Duration(days: i)));
+      final r = getRecentRecordByDate(nextDate);
+      if (r != null) return false; // 后面有记录，说明经期已结束
+    }
+    return true;
+  }
+
   String _dateStr(DateTime d) {
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
@@ -261,9 +285,9 @@ class PeriodRecordProvider extends ChangeNotifier {
     return true;
   }
 
-  /// 标记经期结束：从最近一次经期开始日到指定日期，全部填充为 period
+  /// 标记经期结束：从经期开始日到指定日期，全部填充为 period
   ///
-  /// 从数据库查询最近记录以定位经期开始日（不依赖当月数据）。
+  /// 搜索起点从 [endDate] 往前，支持历史补记场景。
   Future<void> endPeriod({String? endDate}) async {
     _operating = true;
     notifyListeners();
@@ -275,14 +299,14 @@ class PeriodRecordProvider extends ChangeNotifier {
     final endTarget = endDate != null ? DateTime.parse(endDate) : today;
     final actualEnd = endTarget.isAfter(today) ? today : endTarget;
 
-    // 从数据库查询最近 60 天记录，定位经期开始日
-    final recentResult = await DriverFactory.driver.listRecentPeriodRecords(userId, 60);
+    // 从数据库查询最近 90 天记录（补记可能涉及较远的历史）
+    final recentResult = await DriverFactory.driver.listRecentPeriodRecords(userId, 90);
     final recentRecords = recentResult.ok ? (recentResult.data ?? []) : [];
 
-    // 往前搜索连续 period 记录找到开始日
+    // 从结束日期往前搜索连续 period 记录找到开始日
     String? startDate;
     for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
-      final d = now.subtract(Duration(days: i));
+      final d = actualEnd.subtract(Duration(days: i));
       final ds = _dateStr(d);
       final r = recentRecords.where((r) => r.recordDate == ds && r.periodStatus == PeriodStatus.period);
       if (r.isNotEmpty) {

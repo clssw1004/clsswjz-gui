@@ -39,8 +39,9 @@ class PeriodHeroCard extends StatelessWidget {
             context, provider, cs, spacing, l10n),
         PeriodPhase.safe => _buildSafePhase(
             context, provider, cs, spacing, l10n),
-        PeriodPhase.noData => _buildNoDataPhase(
-            context, cs, spacing, l10n),
+        PeriodPhase.noData => provider.statistics.totalRecords > 0
+            ? _buildNeedMoreDataPhase(context, provider, cs, spacing, l10n)
+            : _buildNoDataPhase(context, cs, spacing, l10n),
       },
     );
   }
@@ -396,6 +397,63 @@ class PeriodHeroCard extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 有记录但数据不足 ──
+  Widget _buildNeedMoreDataPhase(
+    BuildContext context,
+    PeriodRecordProvider provider,
+    ColorScheme cs,
+    ThemeSpacing spacing,
+    dynamic l10n,
+  ) {
+    final totalRecords = provider.statistics.totalRecords;
+    final cycleCount = provider.statistics.recentCycleLengths.length + 1;
+
+    return Container(
+      key: const ValueKey('needMoreData'),
+      width: double.infinity,
+      padding: spacing.contentPadding.copyWith(top: 20, bottom: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primary.withAlpha(15),
+            cs.primary.withAlpha(5),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.primary.withAlpha(30),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.insights_outlined,
+            size: 32,
+            color: cs.primary.withAlpha(150),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.needMoreCycles,
+            style: TextStyle(
+              fontSize: 14,
+              color: cs.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$totalRecords ${l10n.days} · $cycleCount ${l10n.periodStatusNone}期',
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
           ),
         ],
       ),

@@ -19,6 +19,10 @@ class PeriodCalcUtil {
     String? today,
   }) {
     if (isInPeriod) return PeriodPhase.period;
+    // 有记录但不足以预测
+    if (statistics.totalRecords > 0 && !statistics.canPredict) {
+      return PeriodPhase.noData; // 复用 noData 但 UI 层会区分
+    }
     if (!statistics.canPredict) return PeriodPhase.noData;
 
     final date = today ?? _todayStr();
