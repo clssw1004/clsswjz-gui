@@ -96,17 +96,11 @@ class UiConfigDTO {
           [],
       mineTabShowActivityCheckin: json['mineTabShowActivityCheckin'] ?? true,
       useNewItemForm: json['useNewItemForm'] ?? false,
-      itemTabComponentOrder: (json['itemTabComponentOrder'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [
-            'daily_bar',
-            'period_status',
-            'daily_calendar',
-            'user_monthly',
-            'activity_recent',
-            'debt',
-          ],
+      itemTabComponentOrder: _migrateComponentOrder(
+        (json['itemTabComponentOrder'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList(),
+      ),
     );
   }
 
@@ -139,5 +133,24 @@ class UiConfigDTO {
 
   static String toJsonString(UiConfigDTO uiConfig) {
     return jsonEncode(_toJson(uiConfig));
+  }
+
+  /// 迁移组件顺序：确保 period_status 存在
+  static List<String> _migrateComponentOrder(List<String>? saved) {
+    const defaultOrder = [
+      'daily_bar',
+      'period_status',
+      'daily_calendar',
+      'user_monthly',
+      'activity_recent',
+      'debt',
+    ];
+    if (saved == null) return defaultOrder;
+    if (saved.contains('period_status')) return saved;
+    // 插入到 daily_bar 之后
+    final result = List<String>.from(saved);
+    final idx = result.indexOf('daily_bar');
+    result.insert(idx >= 0 ? idx + 1 : 0, 'period_status');
+    return result;
   }
 }
