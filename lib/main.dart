@@ -38,7 +38,7 @@ class ClsswjzApp extends StatelessWidget {
   const ClsswjzApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     final localeProvider = context.watch<LocaleProvider>();
     final themeProvider = context.watch<ThemeProvider>();
 

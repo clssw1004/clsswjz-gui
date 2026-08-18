@@ -8,6 +8,7 @@ class PeriodCalendarWidget extends StatelessWidget {
   final int month;
   final List<PeriodRecordVO> records;
   final PeriodStatisticsVO? statistics;
+  final String? selectedDate;
   final ValueChanged<String> onDateTap;
   final VoidCallback? onPreviousMonth;
   final VoidCallback? onNextMonth;
@@ -18,6 +19,7 @@ class PeriodCalendarWidget extends StatelessWidget {
     required this.month,
     required this.records,
     this.statistics,
+    this.selectedDate,
     required this.onDateTap,
     this.onPreviousMonth,
     this.onNextMonth,
@@ -77,6 +79,7 @@ class PeriodCalendarWidget extends StatelessWidget {
               final dateStr = '$year-${month.toString().padLeft(2, '0')}-${dayNum.toString().padLeft(2, '0')}';
               final dateType = dateTypes[dateStr];
               final isToday = dateStr == todayStr;
+              final isSelected = dateStr == selectedDate;
 
               return Expanded(
                 child: GestureDetector(
@@ -85,21 +88,25 @@ class PeriodCalendarWidget extends StatelessWidget {
                     height: 40,
                     margin: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
-                      color: _getBackgroundColor(cs, dateType),
+                      color: isSelected
+                          ? cs.primary.withAlpha(40)
+                          : _getBackgroundColor(cs, dateType),
                       shape: BoxShape.circle,
-                      border: isToday
+                      border: isSelected
                           ? Border.all(color: cs.primary, width: 2)
-                          : dateType == DateType.predictedPeriod
-                              ? Border.all(color: cs.error.withAlpha(128), width: 1)
-                              : null,
+                          : isToday
+                              ? Border.all(color: cs.primary, width: 2)
+                              : dateType == DateType.predictedPeriod
+                                  ? Border.all(color: cs.error.withAlpha(128), width: 1)
+                                  : null,
                     ),
                     child: Center(
                       child: Text(
                         '$dayNum',
                         style: TextStyle(
                           fontSize: 13,
-                          color: _getTextColor(cs, dateType),
-                          fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? cs.primary : _getTextColor(cs, dateType),
+                          fontWeight: (isToday || isSelected) ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),

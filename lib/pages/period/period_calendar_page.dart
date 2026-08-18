@@ -51,6 +51,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     month: provider.currentMonth,
                     records: provider.records,
                     statistics: provider.statistics,
+                    selectedDate: _selectedDate,
                     onDateTap: _onDateTap,
                     onPreviousMonth: _previousMonth,
                     onNextMonth: _nextMonth,
