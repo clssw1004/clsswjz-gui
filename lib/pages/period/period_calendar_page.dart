@@ -5,10 +5,11 @@ import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
+import 'widgets/period_hero_card.dart';
 import 'widgets/period_calendar_widget.dart';
 import 'widgets/period_prediction_card.dart';
 import 'widgets/period_day_detail_card.dart';
-import 'widgets/period_legend.dart';
+import 'widgets/period_date_picker_sheet.dart';
 import 'period_day_form_page.dart';
 
 class PeriodCalendarPage extends StatefulWidget {
@@ -44,9 +45,20 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
           return CustomScrollView(
             slivers: [
+              // Hero 状态卡片
               SliverToBoxAdapter(
                 child: Padding(
                   padding: spacing.contentPadding,
+                  child: PeriodHeroCard(
+                    onStartPeriod: () => _pickStartDate(provider),
+                    onEndPeriod: () => _pickEndDate(provider),
+                  ),
+                ),
+              ),
+              // 日历网格（含图例）
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
                   child: PeriodCalendarWidget(
                     year: provider.currentYear,
                     month: provider.currentMonth,
@@ -59,18 +71,14 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                   ),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
-                  child: const PeriodLegend(),
-                ),
-              ),
+              // 预测统计 Tile
               SliverToBoxAdapter(
                 child: Padding(
                   padding: spacing.contentPadding.copyWith(top: spacing.formItemSpacing),
                   child: PeriodPredictionCard(statistics: provider.statistics),
                 ),
               ),
+              // 选中日期详情
               if (_selectedDate != null)
                 SliverToBoxAdapter(
                   child: Padding(
@@ -112,7 +120,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       padding: spacing.formItemPadding,
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: cs.outlineVariant.withAlpha(60), width: 0.5),
       ),
       child: Column(
@@ -130,13 +138,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: operating ? null : () => _confirmEndPeriod(provider),
+                onPressed: operating ? null : () => _pickEndDate(provider),
                 icon: operating
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                     : Icon(Icons.stop_circle_outlined, size: 18, color: cs.error),
                 label: Text(L10nManager.l10n.periodEnd, style: TextStyle(color: cs.error)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: cs.error.withAlpha(128)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -158,6 +170,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.play_circle_outline, size: 18),
                 label: Text(L10nManager.l10n.periodMarkStart),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ] else ...[
@@ -178,6 +196,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.play_circle_outline, size: 18),
                 label: Text(L10nManager.l10n.periodMarkStart),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],
@@ -263,24 +287,38 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     );
   }
 
-  void _confirmEndPeriod(PeriodRecordProvider provider) {
-    showDialog(
+  /// 选择经期开始日期（底部日期选择器）
+  void _pickStartDate(PeriodRecordProvider provider) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final selected = await PeriodDatePickerSheet.show(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(L10nManager.l10n.periodEnd),
-        content: Text(L10nManager.l10n.confirmPeriodEnd),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              provider.endPeriod();
-              setState(() => _selectedDate = null);
-            },
-            child: Text(L10nManager.l10n.confirm, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-          ),
-        ],
-      ),
+      title: L10nManager.l10n.selectStartDate,
+      confirmText: L10nManager.l10n.confirmStartDate,
+      maxDate: todayStr,
     );
+    if (selected != null && mounted) {
+      await provider.startPeriod(selected);
+      setState(() => _selectedDate = null);
+    }
+  }
+
+  /// 选择经期结束日期（底部日期选择器）
+  void _pickEndDate(PeriodRecordProvider provider) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final startDate = provider.periodStartDate;
+    final selected = await PeriodDatePickerSheet.show(
+      context: context,
+      title: L10nManager.l10n.selectEndDate,
+      confirmText: L10nManager.l10n.confirmEndDate,
+      minDate: startDate,
+      maxDate: todayStr,
+      initialDate: todayStr,
+    );
+    if (selected != null && mounted) {
+      await provider.endPeriod(endDate: selected);
+      setState(() => _selectedDate = null);
+    }
   }
 }

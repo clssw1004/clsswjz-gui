@@ -21,6 +21,7 @@ class UiConfigDTO {
     this.useNewItemForm = true,
     this.itemTabComponentOrder = const [
       'daily_bar',
+      'period_status',
       'daily_calendar',
       'user_monthly',
       'activity_recent',
@@ -100,6 +101,7 @@ class UiConfigDTO {
               .toList() ??
           const [
             'daily_bar',
+            'period_status',
             'daily_calendar',
             'user_monthly',
             'activity_recent',

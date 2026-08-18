@@ -21,6 +21,9 @@ import '../../providers/activity_checkin_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
 import '../../widgets/activity/activity_recent_records.dart';
+import '../../pages/period/widgets/period_status_card.dart';
+import '../../pages/period/widgets/period_date_picker_sheet.dart';
+import '../../providers/period_record_provider.dart';
 
 /// 账目列表标签页
 class ItemsTab extends StatefulWidget {
@@ -43,6 +46,7 @@ class _ItemsTabState extends State<ItemsTab>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<BooksProvider>().loadBooks(AppConfigManager.instance.userId);
+      context.read<PeriodRecordProvider>().loadRecords();
     });
   }
 
@@ -236,9 +240,57 @@ class _ItemsTabState extends State<ItemsTab>
             ));
           }
           break;
+        case 'period_status':
+          widgets.add(
+            Consumer<PeriodRecordProvider>(
+              builder: (context, provider, _) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+                  child: PeriodStatusCard(
+                    onViewAll: () => Navigator.pushNamed(
+                        context, AppRoutes.periodCalendar),
+                    onStartPeriod: () => _pickHomeStartDate(context, provider),
+                    onEndPeriod: () => _pickHomeEndDate(context, provider),
+                  ),
+                );
+              },
+            ),
+          );
+          break;
       }
     }
 
     return widgets;
+  }
+
+  void _pickHomeStartDate(BuildContext context, PeriodRecordProvider provider) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final selected = await PeriodDatePickerSheet.show(
+      context: context,
+      title: L10nManager.l10n.selectStartDate,
+      confirmText: L10nManager.l10n.confirmStartDate,
+      maxDate: todayStr,
+    );
+    if (selected != null && context.mounted) {
+      await provider.startPeriod(selected);
+    }
+  }
+
+  void _pickHomeEndDate(BuildContext context, PeriodRecordProvider provider) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final startDate = provider.periodStartDate;
+    final selected = await PeriodDatePickerSheet.show(
+      context: context,
+      title: L10nManager.l10n.selectEndDate,
+      confirmText: L10nManager.l10n.confirmEndDate,
+      minDate: startDate,
+      maxDate: todayStr,
+      initialDate: todayStr,
+    );
+    if (selected != null && context.mounted) {
+      await provider.endPeriod(endDate: selected);
+    }
   }
 }

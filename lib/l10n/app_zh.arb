@@ -2945,5 +2945,29 @@
     "sunday": "周日",
     "@sunday": {
         "description": "星期日"
-    }
+    },
+    "periodOngoingTag": "经期中",
+    "periodUpcomingTag": "即将到来",
+    "periodDayCount": "经期第 {count} 天",
+    "periodDayCountOf": "第 {current} / {total} 天",
+    "daysUntilPeriod": "距下次经期 {count} 天",
+    "expectedDate": "预计 {date}",
+    "ovulationDayLabel": "排卵日: {date}",
+    "fertileWindowLabel": "易孕期: {start} ~ {end}",
+    "highFertility": "受孕概率较高",
+    "lowFertility": "受孕概率较低",
+    "selectStartDate": "选择经期开始日期",
+    "selectEndDate": "选择经期结束日期",
+    "noPeriodData": "暂无经期数据",
+    "recordFirstPeriod": "记录你的第一次经期",
+    "confirmEndDate": "确认结束日期",
+    "confirmStartDate": "确认开始日期",
+    "periodStatusNone": "正常",
+    "periodStatusPredicted": "预测",
+    "avgCycleTile": "平均周期",
+    "avgPeriodTile": "平均经期",
+    "nextPeriodTile": "下次经期",
+    "ovulationTile": "排卵日",
+    "fertileTile": "易孕期",
+    "periodStarted": "{date} 开始经期"
 }

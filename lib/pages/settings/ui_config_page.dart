@@ -828,6 +828,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
         return (label: '最近打卡活动', description: '显示最近打卡活动记录');
       case 'debt':
         return (label: L10nManager.l10n.showDebt, description: L10nManager.l10n.showDebtDescription);
+      case 'period_status':
+        return (label: L10nManager.l10n.periodRecord, description: '显示当前经期状态和快捷操作');
       default:
         return (label: key, description: '');
     }

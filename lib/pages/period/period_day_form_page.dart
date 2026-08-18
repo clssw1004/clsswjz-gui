@@ -10,6 +10,9 @@ import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
 
+/// 分组卡片式经期日记录表单
+///
+/// 每个字段组包裹在卡片容器中，视觉层次更清晰
 class PeriodDayFormPage extends StatefulWidget {
   final String recordDate;
   final PeriodRecordVO? record;
@@ -30,6 +33,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
   late List<String> _symptoms;
   late PeriodMood _mood;
   late TextEditingController _remarkController;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -59,91 +63,110 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
         title: Text(widget.recordDate),
         actions: [
           TextButton(
-            onPressed: _save,
-            child: Text(l10n.save, style: TextStyle(color: cs.primary)),
+            onPressed: _saving ? null : _save,
+            child: _saving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.save, style: TextStyle(color: cs.primary)),
           ),
         ],
       ),
       body: SingleChildScrollView(
         padding: spacing.formPadding,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.periodStatus, style: theme.textTheme.titleSmall),
-            SizedBox(height: spacing.formItemSpacing),
-            _buildSegmentedChoice<PeriodStatus>(
-              values: PeriodStatus.values,
-              selected: _periodStatus,
-              labelBuilder: (s) => s.text,
-              onChanged: (v) => setState(() => _periodStatus = v),
+            // ── 状态 ──
+            _buildCard(
+              cs,
+              spacing,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCardTitle(theme, l10n.periodStatus, Icons.circle, cs.primary),
+                  SizedBox(height: spacing.formItemSpacing),
+                  _buildStatusRow(cs, l10n),
+                ],
+              ),
             ),
 
-            if (_periodStatus == PeriodStatus.period) ...[
-              SizedBox(height: spacing.formGroupSpacing),
-              Text(l10n.flowLevel, style: theme.textTheme.titleSmall),
-              SizedBox(height: spacing.formItemSpacing),
-              _buildSegmentedChoice<FlowLevel>(
-                values: FlowLevel.values.where((f) => f != FlowLevel.none).toList(),
-                selected: _flowLevel,
-                labelBuilder: (f) => f.text,
-                onChanged: (v) => setState(() => _flowLevel = v),
-              ),
-            ],
-
             SizedBox(height: spacing.formGroupSpacing),
-            Text(l10n.symptomsMultiSelect, style: theme.textTheme.titleSmall),
-            SizedBox(height: spacing.formItemSpacing),
-            Wrap(
-              spacing: spacing.formItemSpacing,
-              runSpacing: spacing.formItemSpacing,
-              children: PeriodSymptoms.all.map((s) {
-                final selected = _symptoms.contains(s.code);
-                return FilterChip(
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
+
+            // ── 流量（仅经期时显示）──
+            if (_periodStatus == PeriodStatus.period) ...[
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                child: _buildCard(
+                  cs,
+                  spacing,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(s.icon, size: 16),
-                      const SizedBox(width: 4),
-                      Text(s.label),
+                      _buildCardTitle(theme, l10n.flowLevel, Icons.water_drop_outlined, cs.error),
+                      SizedBox(height: spacing.formItemSpacing),
+                      _buildFlowRow(cs, l10n),
                     ],
                   ),
-                  selected: selected,
-                  onSelected: (sel) {
-                    setState(() {
-                      if (sel) {
-                        _symptoms.add(s.code);
-                      } else {
-                        _symptoms.remove(s.code);
-                      }
-                    });
-                  },
-                  selectedColor: cs.primaryContainer,
-                  checkmarkColor: cs.primary,
-                );
-              }).toList(),
-            ),
-
-            SizedBox(height: spacing.formGroupSpacing),
-            Text(l10n.mood, style: theme.textTheme.titleSmall),
-            SizedBox(height: spacing.formItemSpacing),
-            _buildSegmentedChoice<PeriodMood>(
-              values: PeriodMood.values,
-              selected: _mood,
-              labelBuilder: (m) => m.text,
-              onChanged: (v) => setState(() => _mood = v),
-            ),
-
-            SizedBox(height: spacing.formGroupSpacing),
-            Text(l10n.remark, style: theme.textTheme.titleSmall),
-            SizedBox(height: spacing.formItemSpacing),
-            TextField(
-              controller: _remarkController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: l10n.remarkHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
                 ),
+              ),
+              SizedBox(height: spacing.formGroupSpacing),
+            ],
+
+            // ── 症状 ──
+            _buildCard(
+              cs,
+              spacing,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCardTitle(theme, l10n.symptomsMultiSelect, Icons.healing_outlined, Colors.teal),
+                  SizedBox(height: spacing.formItemSpacing),
+                  _buildSymptomGrid(cs),
+                ],
+              ),
+            ),
+
+            SizedBox(height: spacing.formGroupSpacing),
+
+            // ── 心情 ──
+            _buildCard(
+              cs,
+              spacing,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCardTitle(theme, l10n.mood, Icons.emoji_emotions_outlined, Colors.amber),
+                  SizedBox(height: spacing.formItemSpacing),
+                  _buildMoodRow(cs, l10n),
+                ],
+              ),
+            ),
+
+            SizedBox(height: spacing.formGroupSpacing),
+
+            // ── 备注 ──
+            _buildCard(
+              cs,
+              spacing,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCardTitle(theme, l10n.remark, Icons.notes_outlined, cs.onSurfaceVariant),
+                  SizedBox(height: spacing.formItemSpacing),
+                  TextField(
+                    controller: _remarkController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: l10n.remarkHint,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -152,24 +175,246 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
     );
   }
 
-  Widget _buildSegmentedChoice<T>({
-    required List<T> values,
-    required T selected,
-    required String Function(T) labelBuilder,
-    required ValueChanged<T> onChanged,
-  }) {
-    final cs = Theme.of(context).colorScheme;
+  Widget _buildCard(ColorScheme cs, ThemeSpacing spacing, {required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: spacing.contentPadding,
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.outlineVariant.withAlpha(60),
+          width: 0.5,
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildCardTitle(ThemeData theme, String label, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusRow(ColorScheme cs, dynamic l10n) {
+    final items = [
+      (PeriodStatus.none, l10n.periodStatusNone, cs.primary),
+      (PeriodStatus.period, l10n.periodRecord, cs.error),
+    ];
+
+    return Row(
+      children: items.map((item) {
+        final (status, label, color) = item;
+        final isSelected = _periodStatus == status;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
+              onTap: () => setState(() => _periodStatus = status),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? color.withAlpha(20) : cs.surfaceContainerHighest.withAlpha(40),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? color : cs.outlineVariant.withAlpha(60),
+                    width: isSelected ? 1.5 : 0.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      status == PeriodStatus.period
+                          ? Icons.water_drop
+                          : Icons.circle_outlined,
+                      size: 16,
+                      color: isSelected ? color : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isSelected ? color : cs.onSurface,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildFlowRow(ColorScheme cs, dynamic l10n) {
+    final items = [
+      (FlowLevel.light, FlowLevel.light.text, cs.tertiary),
+      (FlowLevel.medium, FlowLevel.medium.text, cs.error.withAlpha(180)),
+      (FlowLevel.heavy, FlowLevel.heavy.text, cs.error),
+    ];
+
+    return Row(
+      children: items.map((item) {
+        final (level, label, color) = item;
+        final isSelected = _flowLevel == level;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
+              onTap: () => setState(() => _flowLevel = level),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? color.withAlpha(20) : cs.surfaceContainerHighest.withAlpha(40),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? color : cs.outlineVariant.withAlpha(60),
+                    width: isSelected ? 1.5 : 0.5,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.water_drop,
+                      size: 20,
+                      color: isSelected ? color : cs.onSurfaceVariant.withAlpha(120),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSelected ? color : cs.onSurface,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildSymptomGrid(ColorScheme cs) {
     return Wrap(
       spacing: 8,
-      children: values.map((v) {
-        final isSelected = v == selected;
-        return ChoiceChip(
-          label: Text(labelBuilder(v)),
-          selected: isSelected,
-          onSelected: (_) => onChanged(v),
-          selectedColor: cs.primaryContainer,
-          labelStyle: TextStyle(
-            color: isSelected ? cs.onPrimaryContainer : cs.onSurface,
+      runSpacing: 8,
+      children: PeriodSymptoms.all.map((s) {
+        final selected = _symptoms.contains(s.code);
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              if (selected) {
+                _symptoms.remove(s.code);
+              } else {
+                _symptoms.add(s.code);
+              }
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: selected
+                  ? cs.primaryContainer
+                  : cs.surfaceContainerHighest.withAlpha(40),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: selected ? cs.primary.withAlpha(80) : cs.outlineVariant.withAlpha(40),
+                width: 0.5,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  s.icon,
+                  size: 16,
+                  color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  s.label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: selected ? cs.onPrimaryContainer : cs.onSurface,
+                    fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMoodRow(ColorScheme cs, dynamic l10n) {
+    final items = [
+      (PeriodMood.good, '😊', PeriodMood.good.text),
+      (PeriodMood.normal, '😐', PeriodMood.normal.text),
+      (PeriodMood.bad, '😢', PeriodMood.bad.text),
+      (PeriodMood.terrible, '😤', PeriodMood.terrible.text),
+    ];
+
+    return Row(
+      children: items.map((item) {
+        final (mood, emoji, label) = item;
+        final isSelected = _mood == mood;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: GestureDetector(
+              onTap: () => setState(() => _mood = mood),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? cs.primaryContainer
+                      : cs.surfaceContainerHighest.withAlpha(40),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? cs.primary.withAlpha(80) : cs.outlineVariant.withAlpha(40),
+                    width: 0.5,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(emoji, style: const TextStyle(fontSize: 22)),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isSelected ? cs.onPrimaryContainer : cs.onSurface,
+                        fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -177,6 +422,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
   }
 
   Future<void> _save() async {
+    setState(() => _saving = true);
     final provider = context.read<PeriodRecordProvider>();
     final result = await provider.updatePeriodDay(
       widget.recordDate,
@@ -188,6 +434,8 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
     );
     if (mounted && result.ok) {
       Navigator.pop(context);
+    } else {
+      setState(() => _saving = false);
     }
   }
 }

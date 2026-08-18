@@ -2788,5 +2788,108 @@
     "sunday": "Sun",
     "@sunday": {
         "description": "Sunday"
+    },
+    "periodOngoingTag": "In Progress",
+    "@periodOngoingTag": {
+        "description": "Period phase tag - ongoing"
+    },
+    "periodUpcomingTag": "Coming Soon",
+    "@periodUpcomingTag": {
+        "description": "Period phase tag - upcoming"
+    },
+    "periodDayCount": "Period Day {count}",
+    "@periodDayCount": {
+        "description": "Period day count display",
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "periodDayCountOf": "Day {current} / {total}",
+    "@periodDayCountOf": {
+        "description": "Period day progress display",
+        "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    },
+    "daysUntilPeriod": "{count} days until next period",
+    "@daysUntilPeriod": {
+        "description": "Days until next period",
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "expectedDate": "Expected {date}",
+    "@expectedDate": {
+        "description": "Expected period date",
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "ovulationDayLabel": "Ovulation: {date}",
+    "@ovulationDayLabel": {
+        "description": "Ovulation date label",
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "fertileWindowLabel": "Fertile: {start} ~ {end}",
+    "@fertileWindowLabel": {
+        "description": "Fertile window label",
+        "placeholders": { "start": { "type": "String" }, "end": { "type": "String" } }
+    },
+    "highFertility": "Higher chance of conception",
+    "@highFertility": {
+        "description": "Fertility info during ovulation"
+    },
+    "lowFertility": "Lower chance of conception",
+    "@lowFertility": {
+        "description": "Fertility info during safe period"
+    },
+    "selectStartDate": "Select period start date",
+    "@selectStartDate": {
+        "description": "Date picker title for start date"
+    },
+    "selectEndDate": "Select period end date",
+    "@selectEndDate": {
+        "description": "Date picker title for end date"
+    },
+    "noPeriodData": "No period data yet",
+    "@noPeriodData": {
+        "description": "No period data empty state"
+    },
+    "recordFirstPeriod": "Record your first period",
+    "@recordFirstPeriod": {
+        "description": "Empty state subtitle"
+    },
+    "confirmEndDate": "Confirm End Date",
+    "@confirmEndDate": {
+        "description": "Confirm button for end date"
+    },
+    "confirmStartDate": "Confirm Start Date",
+    "@confirmStartDate": {
+        "description": "Confirm button for start date"
+    },
+    "periodStatusNone": "Normal",
+    "@periodStatusNone": {
+        "description": "Period status - normal"
+    },
+    "periodStatusPredicted": "Predicted",
+    "@periodStatusPredicted": {
+        "description": "Period status - predicted"
+    },
+    "avgCycleTile": "Avg Cycle",
+    "@avgCycleTile": {
+        "description": "Stats tile - average cycle"
+    },
+    "avgPeriodTile": "Avg Period",
+    "@avgPeriodTile": {
+        "description": "Stats tile - average period"
+    },
+    "nextPeriodTile": "Next Period",
+    "@nextPeriodTile": {
+        "description": "Stats tile - next period"
+    },
+    "ovulationTile": "Ovulation",
+    "@ovulationTile": {
+        "description": "Stats tile - ovulation"
+    },
+    "fertileTile": "Fertile Window",
+    "@fertileTile": {
+        "description": "Stats tile - fertile window"
+    },
+    "periodStarted": "Period started on {date}",
+    "@periodStarted": {
+        "description": "Period start date subtitle",
+        "placeholders": { "date": { "type": "String" } }
     }
 }

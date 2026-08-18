@@ -10,6 +10,7 @@ import '../enums/period_status.dart';
 import '../enums/flow_level.dart';
 import '../constants/period_constants.dart';
 import '../models/common.dart';
+import '../utils/period_calc_util.dart';
 
 /// 经期记录数据提供者
 class PeriodRecordProvider extends ChangeNotifier {
@@ -26,6 +27,40 @@ class PeriodRecordProvider extends ChangeNotifier {
   bool get operating => _operating;
   int get currentYear => _currentYear;
   int get currentMonth => _currentMonth;
+
+  /// 当前所处周期阶段
+  PeriodPhase get currentPhase => PeriodCalcUtil.determinePhase(
+        isInPeriod: isInPeriod,
+        statistics: _statistics,
+      );
+
+  /// 当前是经期第几天（仅经期中有效）
+  int? get currentPeriodDay => PeriodCalcUtil.calcCurrentPeriodDay(
+        isInPeriod: isInPeriod,
+        records: _records,
+      );
+
+  /// 距下次经期天数
+  int? get daysUntilNextPeriod => PeriodCalcUtil.calcDaysUntilNextPeriod(
+        statistics: _statistics,
+      );
+
+  /// 本次经期开始日期
+  String? get periodStartDate => PeriodCalcUtil.calcPeriodStartDate(
+        isInPeriod: isInPeriod,
+        records: _records,
+      );
+
+  /// 是否在排卵期（易孕窗口内）
+  bool get isInFertileWindow => PeriodCalcUtil.isInFertileWindow(
+        statistics: _statistics,
+      );
+
+  /// 是否在安全期
+  bool get isInSafePeriod => PeriodCalcUtil.isInSafePeriod(
+        isInPeriod: isInPeriod,
+        statistics: _statistics,
+      );
 
   /// 加载指定月份的记录
   Future<void> loadRecords({int? year, int? month}) async {
@@ -159,13 +194,17 @@ class PeriodRecordProvider extends ChangeNotifier {
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.create));
   }
 
-  /// 标记经期结束：从最近一次经期开始日到今天，全部填充为 period
-  Future<void> endPeriod() async {
+  /// 标记经期结束：从最近一次经期开始日到指定日期，全部填充为 period
+  Future<void> endPeriod({String? endDate}) async {
     _operating = true;
     notifyListeners();
     final userId = AppConfigManager.instance.userId;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+
+    // 确定结束日期：默认今天，但不早于经期开始日
+    final endTarget = endDate != null ? DateTime.parse(endDate) : today;
+    final actualEnd = endTarget.isAfter(today) ? today : endTarget;
 
     // 往前找到最近一次经期开始日
     String? startDate;
@@ -182,9 +221,9 @@ class PeriodRecordProvider extends ChangeNotifier {
     }
 
     if (startDate != null) {
-      // 从开始日到今天全部填充为 period
+      // 从开始日到结束日期全部填充为 period
       var current = DateTime.parse(startDate);
-      while (!current.isAfter(today)) {
+      while (!current.isAfter(actualEnd)) {
         final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
         await DriverFactory.driver.updatePeriodDay(
           userId, ds,
