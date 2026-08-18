@@ -2900,6 +2900,8 @@
     "periodOnboardingKnowDuration": "I know how long it lasted",
     "periodOnboardingSelectDate": "Tap to select date",
     "periodSelectRange": "Select period date range",
+    "periodBackfillDesc": "Select the start and end dates of your period",
+    "periodOngoingBackfillHint": "Period hasn't ended yet, will fill up to today",
     "skip": "Skip",
     "deleteCycle": "Delete Cycle",
     "deleteCycleConfirm": "Delete all {count} days of this period cycle? This cannot be undone.",

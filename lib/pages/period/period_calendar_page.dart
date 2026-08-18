@@ -13,6 +13,7 @@ import 'widgets/period_prediction_card.dart';
 import 'widgets/period_day_detail_card.dart';
 import 'widgets/period_date_picker_sheet.dart';
 import 'widgets/period_onboarding_sheet.dart';
+import 'widgets/period_backfill_sheet.dart';
 import 'period_day_form_page.dart';
 
 class PeriodCalendarPage extends StatefulWidget {
@@ -217,17 +218,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text(L10nManager.l10n.periodSelectRange,
+            Text(L10nManager.l10n.periodBackfillDesc,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: operating ? null : () => _backfillPeriodRange(provider, _selectedDate!),
+                onPressed: operating ? null : () => _openBackfillSheet(provider, _selectedDate!),
                 icon: operating
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.date_range, size: 18),
-                label: Text(L10nManager.l10n.periodSelectRange),
+                    : const Icon(Icons.edit_calendar, size: 18),
+                label: Text(L10nManager.l10n.periodBackfill),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -392,23 +393,13 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   }
 
   /// 选择经期开始日期（底部日期选择器）
-  /// 历史补记：选择日期范围，一次性填充
-  void _backfillPeriodRange(PeriodRecordProvider provider, String fromDate) async {
+  /// 打开历史补记抽屉（开始+结束日期选择）
+  void _openBackfillSheet(PeriodRecordProvider provider, String fromDate) async {
     if (provider.operating) return;
-    final today = DateTime.now();
-    final todayOnly = DateTime(today.year, today.month, today.day);
-    final start = DateTime.parse(fromDate);
-
-    final range = await showDateRangePicker(
-      context: context,
-      firstDate: start,
-      lastDate: todayOnly,
-      initialDateRange: DateTimeRange(start: start, end: start),
-    );
-
+    final range = await PeriodBackfillSheet.show(context, fromDate);
     if (range == null || !mounted) return;
 
-    // 从 range.start 到 range.end 全部填充为 period
+    // 填充 range 内所有日期
     var current = range.start;
     while (!current.isAfter(range.end)) {
       final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
@@ -419,7 +410,6 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       );
       current = current.add(const Duration(days: 1));
     }
-
     setState(() => _selectedDate = null);
   }
 

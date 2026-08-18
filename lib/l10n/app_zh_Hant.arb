@@ -2067,6 +2067,8 @@
     "periodOnboardingKnowDuration": "我知道持續了幾天",
     "periodOnboardingSelectDate": "點擊選擇日期",
     "periodSelectRange": "選擇經期日期範圍",
+    "periodBackfillDesc": "選擇經期的開始和結束日期",
+    "periodOngoingBackfillHint": "經期尚未結束，將填充至今天",
     "skip": "跳過",
     "deleteCycle": "刪除整個經期",
     "deleteCycleConfirm": "確定刪除這次經期的全部 {count} 天記錄？此操作不可撤銷。",

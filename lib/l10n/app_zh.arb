@@ -2978,6 +2978,8 @@
     "periodOnboardingKnowDuration": "我知道持续了几天",
     "periodOnboardingSelectDate": "点击选择日期",
     "periodSelectRange": "选择经期日期范围",
+    "periodBackfillDesc": "选择经期的开始和结束日期",
+    "periodOngoingBackfillHint": "经期尚未结束，将填充至今天",
     "skip": "跳过",
     "deleteCycle": "删除整个经期",
     "deleteCycleConfirm": "确定删除这次经期的全部 {count} 天记录？此操作不可撤销。",
