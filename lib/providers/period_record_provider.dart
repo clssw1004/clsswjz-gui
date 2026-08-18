@@ -264,8 +264,9 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   /// 指定日期是否处于未结束的经期范围内
   ///
-  /// 逻辑：找到该日期之前（含当天）最近的 period 记录，然后从该记录
-  /// 向后扫描，判断 [date] 是否在连续 period 日范围内，且该周期未结束。
+  /// 逻辑：找到 [date] 之前最近的 period 记录作为经期开始日，
+  /// 然后检查该经期是否未结束（开始日后 3 天内没有其他记录说明未结束）。
+  /// 只要 date 在开始日之后且经期未结束，就返回 true。
   bool isInActivePeriodRange(String date) {
     final target = DateTime.parse(date);
 
@@ -288,19 +289,37 @@ class PeriodRecordProvider extends ChangeNotifier {
     // start 在 target 之后，说明 target 不在经期内
     if (start.isAfter(target)) return false;
 
-    // 2. 从 start 向后扫描，判断周期是否已结束
-    for (var i = 0; i <= target.difference(start).inDays; i++) {
-      final d = start.add(Duration(days: i));
-      final ds = _dateStr(d);
-      final r = getRecentRecordByDate(ds);
-      // 中间有空缺（非 period），周期已结束
-      if (r == null || r.periodStatus != PeriodStatus.period) return false;
+    // 2. 检查经期是否已结束：从 start 向后找，如果 3 天内出现非 period 记录则已结束
+    final lastPeriodDate = _findLastConsecutivePeriodDate(start);
+    final endDate = DateTime.parse(lastPeriodDate);
+
+    // 如果 target 在连续 period 范围之后，检查是否已结束
+    if (target.isAfter(endDate)) {
+      // 最后一个 period 日之后 3 天内有记录 → 经期已结束
+      for (var i = 1; i <= 3; i++) {
+        final d = endDate.add(Duration(days: i));
+        final r = getRecentRecordByDate(_dateStr(d));
+        if (r != null) return false;
+      }
     }
 
-    // 3. 检查 target 之后是否还有连续 period（判断周期是否还在延续）
-    //    如果 target 后面 1 天没有记录，说明经期可能在 target 或之前已结束
-    //    但只要 target 本身是 period 记录或在连续 period 范围内，就视为活跃
     return true;
+  }
+
+  /// 从指定日期向后找连续 period 记录的最后一天
+  String _findLastConsecutivePeriodDate(DateTime from) {
+    var lastDate = _dateStr(from);
+    for (var i = 1; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
+      final d = from.add(Duration(days: i));
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) {
+        lastDate = ds;
+      } else {
+        break;
+      }
+    }
+    return lastDate;
   }
 
   String _dateStr(DateTime d) {
