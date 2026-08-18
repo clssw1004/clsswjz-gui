@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/vo/period_record_vo.dart';
 import '../../../models/vo/period_statistics_vo.dart';
 import '../../../services/period_prediction_service.dart';
+import '../../../manager/l10n_manager.dart';
 
 class PeriodCalendarWidget extends StatelessWidget {
   final int year;
@@ -29,6 +30,7 @@ class PeriodCalendarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l10n = L10nManager.l10n;
     final dateTypes = PeriodPredictionService.getMonthDateTypes(records, statistics);
     final today = DateTime.now();
     final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
@@ -57,7 +59,7 @@ class PeriodCalendarWidget extends StatelessWidget {
           ],
         ),
         Row(
-          children: ['日', '一', '二', '三', '四', '五', '六'].map((d) {
+          children: [l10n.sunday, l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday, l10n.friday, l10n.saturday].map((d) {
             return Expanded(
               child: Center(
                 child: Text(d, style: theme.textTheme.bodySmall?.copyWith(

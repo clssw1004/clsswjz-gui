@@ -4,6 +4,7 @@ import 'package:clsswjz_gui/providers/period_record_provider.dart';
 import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
+import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'widgets/period_calendar_widget.dart';
 import 'widgets/period_prediction_card.dart';
 import 'widgets/period_day_detail_card.dart';
@@ -34,7 +35,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final spacing = theme.spacing;
 
     return Scaffold(
-      appBar: const CommonAppBar(title: Text('经期记录')),
+      appBar: CommonAppBar(title: Text(L10nManager.l10n.periodRecord)),
       body: Consumer<PeriodRecordProvider>(
         builder: (context, provider, _) {
           if (provider.loading && provider.records.isEmpty) {
@@ -77,7 +78,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     child: _buildSelectedDateDetail(provider),
                   ),
                 ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              SliverToBoxAdapter(child: SizedBox(height: spacing.formGroupSpacing)),
             ],
           );
         },
@@ -100,13 +101,15 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   Widget _buildEmptyDateCard(PeriodRecordProvider provider) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final spacing = theme.spacing;
     final inPeriod = provider.isInPeriod;
+    final operating = provider.operating;
     final today = DateTime.now();
     final selected = DateTime.parse(_selectedDate!);
     final isPast = selected.isBefore(DateTime(today.year, today.month, today.day));
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: spacing.formItemPadding,
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withAlpha(80),
         borderRadius: BorderRadius.circular(12),
@@ -117,19 +120,21 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           if (inPeriod) ...[
             Icon(Icons.check_circle_outline, color: cs.primary, size: 32),
             const SizedBox(height: 8),
-            Text('经期进行中', style: theme.textTheme.bodyMedium?.copyWith(
+            Text(L10nManager.l10n.periodOngoing, style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text('下次经期开始时会自动记录',
+            Text(L10nManager.l10n.periodAutoRecord,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _confirmEndPeriod(provider),
-                icon: Icon(Icons.stop_circle_outlined, size: 18, color: cs.error),
-                label: Text('经期结束', style: TextStyle(color: cs.error)),
+                onPressed: operating ? null : () => _confirmEndPeriod(provider),
+                icon: operating
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Icon(Icons.stop_circle_outlined, size: 18, color: cs.error),
+                label: Text(L10nManager.l10n.periodEnd, style: TextStyle(color: cs.error)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: cs.error.withAlpha(128)),
                 ),
@@ -138,37 +143,41 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           ] else if (isPast) ...[
             Icon(Icons.add_circle_outline, color: cs.primary, size: 32),
             const SizedBox(height: 8),
-            Text('补记经期', style: theme.textTheme.bodyMedium?.copyWith(
+            Text(L10nManager.l10n.periodBackfill, style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text('标记该天为经期第一天',
+            Text(L10nManager.l10n.periodMarkFirstDay,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => _confirmStartPeriod(provider, _selectedDate!),
-                icon: const Icon(Icons.play_circle_outline, size: 18),
-                label: const Text('标记经期开始'),
+                onPressed: operating ? null : () => _confirmStartPeriod(provider, _selectedDate!),
+                icon: operating
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.play_circle_outline, size: 18),
+                label: Text(L10nManager.l10n.periodMarkStart),
               ),
             ),
           ] else ...[
             Icon(Icons.add_circle_outline, color: cs.primary, size: 32),
             const SizedBox(height: 8),
-            Text('记录经期', style: theme.textTheme.bodyMedium?.copyWith(
+            Text(L10nManager.l10n.periodRecordStart, style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.primary, fontWeight: FontWeight.w500,
             )),
             const SizedBox(height: 4),
-            Text('标记今天为经期第一天',
+            Text(L10nManager.l10n.periodMarkTodayFirst,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => _confirmStartPeriod(provider, _selectedDate!),
-                icon: const Icon(Icons.play_circle_outline, size: 18),
-                label: const Text('标记经期开始'),
+                onPressed: operating ? null : () => _confirmStartPeriod(provider, _selectedDate!),
+                icon: operating
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.play_circle_outline, size: 18),
+                label: Text(L10nManager.l10n.periodMarkStart),
               ),
             ),
           ],
@@ -216,17 +225,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('删除记录'),
-        content: const Text('确定删除该日的经期记录吗？'),
+        title: Text(L10nManager.l10n.deleteRecord),
+        content: Text(L10nManager.l10n.confirmDeleteDayRecord),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               provider.deletePeriodDay(date);
               setState(() => _selectedDate = null);
             },
-            child: Text('删除', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            child: Text(L10nManager.l10n.deleteBtn, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -237,17 +246,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('标记经期开始'),
-        content: Text('将 $date 标记为经期第一天，确定吗？'),
+        title: Text(L10nManager.l10n.markPeriodStart),
+        content: Text(L10nManager.l10n.confirmMarkFirstDay(date)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               provider.startPeriod(date);
               setState(() => _selectedDate = null);
             },
-            child: const Text('确定'),
+            child: Text(L10nManager.l10n.confirm),
           ),
         ],
       ),
@@ -258,17 +267,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('经期结束'),
-        content: const Text('从经期开始日到今天将全部标记为经期，确定吗？'),
+        title: Text(L10nManager.l10n.periodEnd),
+        content: Text(L10nManager.l10n.confirmPeriodEnd),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               provider.endPeriod();
               setState(() => _selectedDate = null);
             },
-            child: Text('确定', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            child: Text(L10nManager.l10n.confirm, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),

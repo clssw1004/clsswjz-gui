@@ -2762,5 +2762,188 @@
     "smartSort": "智能推荐",
     "@smartSort": {
         "description": "智能推荐视图切换文本"
+    },
+    "periodRecord": "经期记录",
+    "@periodRecord": {
+        "description": "经期记录模块名称"
+    },
+    "periodOngoing": "经期进行中",
+    "@periodOngoing": {
+        "description": "经期进行中状态提示"
+    },
+    "periodAutoRecord": "下次经期开始时会自动记录",
+    "@periodAutoRecord": {
+        "description": "经期进行中副标题"
+    },
+    "periodEnd": "经期结束",
+    "@periodEnd": {
+        "description": "经期结束按钮"
+    },
+    "periodBackfill": "补记经期",
+    "@periodBackfill": {
+        "description": "补记经期标题"
+    },
+    "periodMarkFirstDay": "标记该天为经期第一天",
+    "@periodMarkFirstDay": {
+        "description": "补记经期副标题"
+    },
+    "periodRecordStart": "记录经期",
+    "@periodRecordStart": {
+        "description": "记录经期标题"
+    },
+    "periodMarkTodayFirst": "标记今天为经期第一天",
+    "@periodMarkTodayFirst": {
+        "description": "记录经期副标题"
+    },
+    "periodMarkStart": "标记经期开始",
+    "@periodMarkStart": {
+        "description": "标记经期开始按钮"
+    },
+    "deleteRecord": "删除记录",
+    "@deleteRecord": {
+        "description": "删除记录弹窗标题"
+    },
+    "confirmDeleteDayRecord": "确定删除该日的经期记录吗？",
+    "@confirmDeleteDayRecord": {
+        "description": "删除记录弹窗内容"
+    },
+    "cancel": "取消",
+    "@cancel": {
+        "description": "取消按钮"
+    },
+    "deleteBtn": "删除",
+    "@deleteBtn": {
+        "description": "删除按钮（经期模块）"
+    },
+    "confirm": "确定",
+    "@confirm": {
+        "description": "确定按钮"
+    },
+    "markPeriodStart": "标记经期开始",
+    "@markPeriodStart": {
+        "description": "标记经期开始弹窗标题"
+    },
+    "confirmMarkFirstDay": "将 {date} 标记为经期第一天，确定吗？",
+    "@confirmMarkFirstDay": {
+        "description": "标记经期开始弹窗内容",
+        "placeholders": {
+            "date": {"type": "String", "example": "2026-08-17"}
+        }
+    },
+    "confirmPeriodEnd": "从经期开始日到今天将全部标记为经期，确定吗？",
+    "@confirmPeriodEnd": {
+        "description": "经期结束弹窗内容"
+    },
+    "cyclePrediction": "周期预测",
+    "@cyclePrediction": {
+        "description": "周期预测卡片标题"
+    },
+    "needMoreCycles": "至少需要2个完整周期才能预测",
+    "@needMoreCycles": {
+        "description": "数据不足提示"
+    },
+    "avgCycle": "平均周期",
+    "@avgCycle": {
+        "description": "平均周期天数"
+    },
+    "avgPeriod": "平均经期",
+    "@avgPeriod": {
+        "description": "平均经期天数"
+    },
+    "nextPeriod": "下次经期",
+    "@nextPeriod": {
+        "description": "下次经期预测"
+    },
+    "ovulationDay": "排卵日",
+    "@ovulationDay": {
+        "description": "排卵日预测"
+    },
+    "fertileWindow": "危险期",
+    "@fertileWindow": {
+        "description": "危险期范围"
+    },
+    "predicted": "（预计）",
+    "@predicted": {
+        "description": "预测标记"
+    },
+    "days": "天",
+    "@days": {
+        "description": "天数单位"
+    },
+    "periodStatus": "经期状态",
+    "@periodStatus": {
+        "description": "经期状态字段"
+    },
+    "flowLevel": "流量",
+    "@flowLevel": {
+        "description": "流量字段"
+    },
+    "symptomsMultiSelect": "症状（可多选）",
+    "@symptomsMultiSelect": {
+        "description": "症状多选字段"
+    },
+    "mood": "情绪",
+    "@mood": {
+        "description": "情绪字段"
+    },
+    "remark": "备注",
+    "@remark": {
+        "description": "备注字段"
+    },
+    "remarkHint": "可选备注...",
+    "@remarkHint": {
+        "description": "备注输入框提示"
+    },
+    "save": "保存",
+    "@save": {
+        "description": "保存按钮"
+    },
+    "legendPeriod": "经期",
+    "@legendPeriod": {
+        "description": "日历图例-经期"
+    },
+    "legendOvulation": "排卵期",
+    "@legendOvulation": {
+        "description": "日历图例-排卵期"
+    },
+    "legendSafe": "安全区",
+    "@legendSafe": {
+        "description": "日历图例-安全区"
+    },
+    "status": "状态",
+    "@status": {
+        "description": "详情卡片-状态"
+    },
+    "symptoms": "症状",
+    "@symptoms": {
+        "description": "详情卡片-症状"
+    },
+    "monday": "周一",
+    "@monday": {
+        "description": "星期一"
+    },
+    "tuesday": "周二",
+    "@tuesday": {
+        "description": "星期二"
+    },
+    "wednesday": "周三",
+    "@wednesday": {
+        "description": "星期三"
+    },
+    "thursday": "周四",
+    "@thursday": {
+        "description": "星期四"
+    },
+    "friday": "周五",
+    "@friday": {
+        "description": "星期五"
+    },
+    "saturday": "周六",
+    "@saturday": {
+        "description": "星期六"
+    },
+    "sunday": "周日",
+    "@sunday": {
+        "description": "星期日"
     }
 }

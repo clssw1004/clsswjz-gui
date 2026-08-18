@@ -3,6 +3,7 @@ import '../../../constants/period_symptoms.dart';
 import '../../../enums/period_status.dart';
 import '../../../models/vo/period_record_vo.dart';
 import '../../../theme/theme_spacing.dart';
+import '../../../manager/l10n_manager.dart';
 
 class PeriodDayDetailCard extends StatelessWidget {
   final PeriodRecordVO record;
@@ -21,6 +22,7 @@ class PeriodDayDetailCard extends StatelessWidget {
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final cs = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Container(
       padding: spacing.contentPadding,
@@ -35,7 +37,7 @@ class PeriodDayDetailCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${record.recordDate} ${_weekDay(record.recordDate)}',
+                '${record.recordDate} ${_weekDay(record.recordDate, l10n)}',
                 style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               const Spacer(),
@@ -54,15 +56,15 @@ class PeriodDayDetailCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: spacing.formItemSpacing),
-          _buildInfoRow(theme, '状态', record.periodStatus.text),
+          _buildInfoRow(theme, l10n.status, record.periodStatus.text),
           if (record.periodStatus == PeriodStatus.period)
-            _buildInfoRow(theme, '流量', record.flowLevel.text),
+            _buildInfoRow(theme, l10n.flowLevel, record.flowLevel.text),
           if (record.symptoms.isNotEmpty)
-            _buildInfoRow(theme, '症状',
+            _buildInfoRow(theme, l10n.symptoms,
                 record.symptoms.map((s) => PeriodSymptoms.labelOf(s)).join('、')),
-          _buildInfoRow(theme, '情绪', record.mood.text),
+          _buildInfoRow(theme, l10n.mood, record.mood.text),
           if (record.remark != null && record.remark!.isNotEmpty)
-            _buildInfoRow(theme, '备注', record.remark!),
+            _buildInfoRow(theme, l10n.remark, record.remark!),
         ],
       ),
     );
@@ -86,8 +88,8 @@ class PeriodDayDetailCard extends StatelessWidget {
     );
   }
 
-  String _weekDay(String date) {
-    const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  String _weekDay(String date, dynamic l10n) {
+    final days = [l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday, l10n.friday, l10n.saturday, l10n.sunday];
     return days[DateTime.parse(date).weekday - 1];
   }
 }

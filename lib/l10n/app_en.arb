@@ -2605,5 +2605,188 @@
     "smartSort": "Smart",
     "@smartSort": {
         "description": "Smart sort view toggle label"
+    },
+    "periodRecord": "Period Record",
+    "@periodRecord": {
+        "description": "Period record module name"
+    },
+    "periodOngoing": "Period in progress",
+    "@periodOngoing": {
+        "description": "Period ongoing status"
+    },
+    "periodAutoRecord": "Next period will be recorded automatically",
+    "@periodAutoRecord": {
+        "description": "Period ongoing subtitle"
+    },
+    "periodEnd": "End Period",
+    "@periodEnd": {
+        "description": "End period button"
+    },
+    "periodBackfill": "Backfill Period",
+    "@periodBackfill": {
+        "description": "Backfill period title"
+    },
+    "periodMarkFirstDay": "Mark this day as the first day of period",
+    "@periodMarkFirstDay": {
+        "description": "Backfill period subtitle"
+    },
+    "periodRecordStart": "Record Period",
+    "@periodRecordStart": {
+        "description": "Record period title"
+    },
+    "periodMarkTodayFirst": "Mark today as the first day of period",
+    "@periodMarkTodayFirst": {
+        "description": "Record period subtitle"
+    },
+    "periodMarkStart": "Mark Period Start",
+    "@periodMarkStart": {
+        "description": "Mark period start button"
+    },
+    "deleteRecord": "Delete Record",
+    "@deleteRecord": {
+        "description": "Delete record dialog title"
+    },
+    "confirmDeleteDayRecord": "Are you sure to delete this day's period record?",
+    "@confirmDeleteDayRecord": {
+        "description": "Delete record dialog content"
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description": "Cancel button"
+    },
+    "deleteBtn": "Delete",
+    "@deleteBtn": {
+        "description": "Delete button (period module)"
+    },
+    "confirm": "Confirm",
+    "@confirm": {
+        "description": "Confirm button"
+    },
+    "markPeriodStart": "Mark Period Start",
+    "@markPeriodStart": {
+        "description": "Mark period start dialog title"
+    },
+    "confirmMarkFirstDay": "Mark {date} as the first day of period?",
+    "@confirmMarkFirstDay": {
+        "description": "Mark period start dialog content",
+        "placeholders": {
+            "date": {"type": "String", "example": "2026-08-17"}
+        }
+    },
+    "confirmPeriodEnd": "Mark all days from period start to today as period?",
+    "@confirmPeriodEnd": {
+        "description": "End period dialog content"
+    },
+    "cyclePrediction": "Cycle Prediction",
+    "@cyclePrediction": {
+        "description": "Cycle prediction card title"
+    },
+    "needMoreCycles": "At least 2 complete cycles needed for prediction",
+    "@needMoreCycles": {
+        "description": "Insufficient data hint"
+    },
+    "avgCycle": "Avg Cycle",
+    "@avgCycle": {
+        "description": "Average cycle length"
+    },
+    "avgPeriod": "Avg Period",
+    "@avgPeriod": {
+        "description": "Average period length"
+    },
+    "nextPeriod": "Next Period",
+    "@nextPeriod": {
+        "description": "Next period prediction"
+    },
+    "ovulationDay": "Ovulation Day",
+    "@ovulationDay": {
+        "description": "Ovulation day prediction"
+    },
+    "fertileWindow": "Fertile Window",
+    "@fertileWindow": {
+        "description": "Fertile window range"
+    },
+    "predicted": "(estimated)",
+    "@predicted": {
+        "description": "Prediction marker"
+    },
+    "days": "days",
+    "@days": {
+        "description": "Days unit"
+    },
+    "periodStatus": "Period Status",
+    "@periodStatus": {
+        "description": "Period status field"
+    },
+    "flowLevel": "Flow Level",
+    "@flowLevel": {
+        "description": "Flow level field"
+    },
+    "symptomsMultiSelect": "Symptoms (multi-select)",
+    "@symptomsMultiSelect": {
+        "description": "Symptoms multi-select field"
+    },
+    "mood": "Mood",
+    "@mood": {
+        "description": "Mood field"
+    },
+    "remark": "Remark",
+    "@remark": {
+        "description": "Remark field"
+    },
+    "remarkHint": "Optional remark...",
+    "@remarkHint": {
+        "description": "Remark input hint"
+    },
+    "save": "Save",
+    "@save": {
+        "description": "Save button"
+    },
+    "legendPeriod": "Period",
+    "@legendPeriod": {
+        "description": "Calendar legend - period"
+    },
+    "legendOvulation": "Ovulation",
+    "@legendOvulation": {
+        "description": "Calendar legend - ovulation"
+    },
+    "legendSafe": "Safe",
+    "@legendSafe": {
+        "description": "Calendar legend - safe"
+    },
+    "status": "Status",
+    "@status": {
+        "description": "Detail card - status"
+    },
+    "symptoms": "Symptoms",
+    "@symptoms": {
+        "description": "Detail card - symptoms"
+    },
+    "monday": "Mon",
+    "@monday": {
+        "description": "Monday"
+    },
+    "tuesday": "Tue",
+    "@tuesday": {
+        "description": "Tuesday"
+    },
+    "wednesday": "Wed",
+    "@wednesday": {
+        "description": "Wednesday"
+    },
+    "thursday": "Thu",
+    "@thursday": {
+        "description": "Thursday"
+    },
+    "friday": "Fri",
+    "@friday": {
+        "description": "Friday"
+    },
+    "saturday": "Sat",
+    "@saturday": {
+        "description": "Saturday"
+    },
+    "sunday": "Sun",
+    "@sunday": {
+        "description": "Sunday"
     }
 }

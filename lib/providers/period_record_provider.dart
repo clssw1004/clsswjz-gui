@@ -8,6 +8,7 @@ import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/models/vo/period_statistics_vo.dart';
 import '../enums/period_status.dart';
 import '../enums/flow_level.dart';
+import '../constants/period_constants.dart';
 import '../models/common.dart';
 
 /// 经期记录数据提供者
@@ -15,12 +16,14 @@ class PeriodRecordProvider extends ChangeNotifier {
   List<PeriodRecordVO> _records = [];
   PeriodStatisticsVO _statistics = PeriodStatisticsVO.empty;
   bool _loading = false;
+  bool _operating = false;
   int _currentYear = DateTime.now().year;
   int _currentMonth = DateTime.now().month;
 
   List<PeriodRecordVO> get records => _records;
   PeriodStatisticsVO get statistics => _statistics;
   bool get loading => _loading;
+  bool get operating => _operating;
   int get currentYear => _currentYear;
   int get currentMonth => _currentMonth;
 
@@ -109,7 +112,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   bool get isInPeriod {
     final now = DateTime.now();
     // 先检查当前月数据
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < PeriodConstants.inPeriodLookbackDays; i++) {
       final d = now.subtract(Duration(days: i));
       final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
       final r = getRecordByDate(ds);
@@ -142,6 +145,8 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   /// 标记经期开始：仅标记当天为 period，不自动填充后续
   Future<void> startPeriod(String startDate) async {
+    _operating = true;
+    notifyListeners();
     final userId = AppConfigManager.instance.userId;
     await DriverFactory.driver.updatePeriodDay(
       userId, startDate,
@@ -149,18 +154,22 @@ class PeriodRecordProvider extends ChangeNotifier {
       flowLevel: FlowLevel.medium.code,
     );
     await loadRecords();
+    _operating = false;
+    notifyListeners();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.create));
   }
 
   /// 标记经期结束：从最近一次经期开始日到今天，全部填充为 period
   Future<void> endPeriod() async {
+    _operating = true;
+    notifyListeners();
     final userId = AppConfigManager.instance.userId;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
     // 往前找到最近一次经期开始日
     String? startDate;
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
       final d = now.subtract(Duration(days: i));
       final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
       final r = getRecordByDate(ds);
@@ -187,6 +196,8 @@ class PeriodRecordProvider extends ChangeNotifier {
     }
 
     await loadRecords();
+    _operating = false;
+    notifyListeners();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.update));
   }
 }

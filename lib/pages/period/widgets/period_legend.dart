@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../manager/l10n_manager.dart';
 
 class PeriodLegend extends StatelessWidget {
   const PeriodLegend({super.key});
@@ -7,14 +8,15 @@ class PeriodLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l10n = L10nManager.l10n;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildItem(cs, theme, cs.error, '经期'),
+        _buildItem(cs, theme, cs.error, l10n.legendPeriod),
         const SizedBox(width: 12),
-        _buildItem(cs, theme, cs.tertiary, '排卵期'),
+        _buildItem(cs, theme, cs.tertiary, l10n.legendOvulation),
         const SizedBox(width: 12),
-        _buildItem(cs, theme, cs.tertiaryContainer, '安全区'),
+        _buildItem(cs, theme, cs.tertiaryContainer, l10n.legendSafe),
       ],
     );
   }

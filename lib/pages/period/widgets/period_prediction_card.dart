@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/vo/period_statistics_vo.dart';
 import '../../../widgets/common/common_card_container.dart';
 import '../../../theme/theme_spacing.dart';
+import '../../../manager/l10n_manager.dart';
 
 class PeriodPredictionCard extends StatelessWidget {
   final PeriodStatisticsVO statistics;
@@ -12,6 +13,7 @@ class PeriodPredictionCard extends StatelessWidget {
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final cs = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     if (!statistics.canPredict) {
       return CommonCardContainer(
@@ -22,7 +24,7 @@ class PeriodPredictionCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '至少需要2个完整周期才能预测',
+                l10n.needMoreCycles,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -42,20 +44,20 @@ class PeriodPredictionCard extends StatelessWidget {
             children: [
               Icon(Icons.analytics_outlined, color: cs.primary, size: 20),
               const SizedBox(width: 8),
-              Text('周期预测', style: theme.textTheme.titleSmall?.copyWith(
+              Text(l10n.cyclePrediction, style: theme.textTheme.titleSmall?.copyWith(
                 color: cs.primary, fontWeight: FontWeight.w600,
               )),
             ],
           ),
           SizedBox(height: spacing.formItemSpacing),
-          _buildRow(theme, '平均周期', '${statistics.averageCycleLength}天'),
-          _buildRow(theme, '平均经期', '${statistics.averagePeriodLength}天'),
+          _buildRow(theme, l10n.avgCycle, '${statistics.averageCycleLength}${l10n.days}'),
+          _buildRow(theme, l10n.avgPeriod, '${statistics.averagePeriodLength}${l10n.days}'),
           if (statistics.nextPeriodDate != null)
-            _buildRow(theme, '下次经期', '${statistics.nextPeriodDate}（预计）'),
+            _buildRow(theme, l10n.nextPeriod, '${statistics.nextPeriodDate}${l10n.predicted}'),
           if (statistics.ovulationDate != null)
-            _buildRow(theme, '排卵日', '${statistics.ovulationDate}（预计）'),
+            _buildRow(theme, l10n.ovulationDay, '${statistics.ovulationDate}${l10n.predicted}'),
           if (statistics.fertileWindowStart != null && statistics.fertileWindowEnd != null)
-            _buildRow(theme, '危险期', '${statistics.fertileWindowStart} ~ ${statistics.fertileWindowEnd}'),
+            _buildRow(theme, l10n.fertileWindow, '${statistics.fertileWindowStart} ~ ${statistics.fertileWindowEnd}'),
         ],
       ),
     );

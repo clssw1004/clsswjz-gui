@@ -7,6 +7,7 @@ import 'package:clsswjz_gui/providers/period_record_provider.dart';
 import 'package:clsswjz_gui/constants/period_symptoms.dart';
 import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
+import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import '../../theme/theme_spacing.dart';
 
 class PeriodDayFormPage extends StatefulWidget {
@@ -51,6 +52,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
     final theme = Theme.of(context);
     final spacing = theme.spacing;
     final cs = theme.colorScheme;
+    final l10n = L10nManager.l10n;
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -58,7 +60,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: Text('保存', style: TextStyle(color: cs.primary)),
+            child: Text(l10n.save, style: TextStyle(color: cs.primary)),
           ),
         ],
       ),
@@ -67,7 +69,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('经期状态', style: theme.textTheme.titleSmall),
+            Text(l10n.periodStatus, style: theme.textTheme.titleSmall),
             SizedBox(height: spacing.formItemSpacing),
             _buildSegmentedChoice<PeriodStatus>(
               values: PeriodStatus.values,
@@ -78,7 +80,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
 
             if (_periodStatus == PeriodStatus.period) ...[
               SizedBox(height: spacing.formGroupSpacing),
-              Text('流量', style: theme.textTheme.titleSmall),
+              Text(l10n.flowLevel, style: theme.textTheme.titleSmall),
               SizedBox(height: spacing.formItemSpacing),
               _buildSegmentedChoice<FlowLevel>(
                 values: FlowLevel.values.where((f) => f != FlowLevel.none).toList(),
@@ -89,7 +91,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
             ],
 
             SizedBox(height: spacing.formGroupSpacing),
-            Text('症状（可多选）', style: theme.textTheme.titleSmall),
+            Text(l10n.symptomsMultiSelect, style: theme.textTheme.titleSmall),
             SizedBox(height: spacing.formItemSpacing),
             Wrap(
               spacing: spacing.formItemSpacing,
@@ -122,7 +124,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
             ),
 
             SizedBox(height: spacing.formGroupSpacing),
-            Text('情绪', style: theme.textTheme.titleSmall),
+            Text(l10n.mood, style: theme.textTheme.titleSmall),
             SizedBox(height: spacing.formItemSpacing),
             _buildSegmentedChoice<PeriodMood>(
               values: PeriodMood.values,
@@ -132,13 +134,13 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
             ),
 
             SizedBox(height: spacing.formGroupSpacing),
-            Text('备注', style: theme.textTheme.titleSmall),
+            Text(l10n.remark, style: theme.textTheme.titleSmall),
             SizedBox(height: spacing.formItemSpacing),
             TextField(
               controller: _remarkController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: '可选备注...',
+                hintText: l10n.remarkHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

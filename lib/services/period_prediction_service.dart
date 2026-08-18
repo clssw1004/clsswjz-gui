@@ -1,3 +1,4 @@
+import '../constants/period_constants.dart';
 import '../enums/period_status.dart';
 import '../models/vo/period_record_vo.dart';
 import '../models/vo/period_statistics_vo.dart';
@@ -34,7 +35,7 @@ class PeriodPredictionService {
     final cycleLengths = <int>[];
     for (var i = 1; i < cycles.length; i++) {
       final diff = _daysBetween(cycles[i - 1].first.recordDate, cycles[i].first.recordDate);
-      if (diff > 15 && diff < 60) {
+      if (diff > PeriodConstants.minCycleLength && diff < PeriodConstants.maxCycleLength) {
         cycleLengths.add(diff);
       }
     }
@@ -60,9 +61,9 @@ class PeriodPredictionService {
 
     if (cycleLengths.length >= 2) {
       nextPeriodDate = _addDays(lastStart, avgCycle);
-      ovulationDate = _addDays(nextPeriodDate, -14);
-      fertileStart = _addDays(ovulationDate, -5);
-      fertileEnd = _addDays(ovulationDate, 1);
+      ovulationDate = _addDays(nextPeriodDate, -PeriodConstants.lutealPhaseDays);
+      fertileStart = _addDays(ovulationDate, -PeriodConstants.fertileWindowBeforeOvulation);
+      fertileEnd = _addDays(ovulationDate, PeriodConstants.fertileWindowAfterOvulation);
     }
 
     return PeriodStatisticsVO(
