@@ -119,40 +119,52 @@ class PeriodRecordProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 标记经期开始：从指定日期起填充经期天数
-  /// 如果是今天：填到今天
-  /// 如果是过去补记：填 averagePeriodLength 天（默认5天），不超过今天
+  /// 标记经期开始：仅标记当天为 period，不自动填充后续
   Future<void> startPeriod(String startDate) async {
     final userId = AppConfigManager.instance.userId;
-    final start = DateTime.parse(startDate);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    // 计算填充天数：用历史平均经期天数，没有数据则默认5天
-    final fillDays = _statistics.averagePeriodLength > 0
-        ? _statistics.averagePeriodLength
-        : 5;
-
-    // 不超过今天
-    final end = start.add(Duration(days: fillDays - 1));
-    final actualEnd = end.isAfter(today) ? today : end;
-
-    var current = start;
-    while (!current.isAfter(actualEnd)) {
-      final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
-      await DriverFactory.driver.updatePeriodDay(
-        userId, ds,
-        periodStatus: PeriodStatus.period.code,
-        flowLevel: FlowLevel.medium.code,
-      );
-      current = current.add(const Duration(days: 1));
-    }
+    await DriverFactory.driver.updatePeriodDay(
+      userId, startDate,
+      periodStatus: PeriodStatus.period.code,
+      flowLevel: FlowLevel.medium.code,
+    );
     await loadRecords();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.create));
   }
 
-  /// 标记经期结束
+  /// 标记经期结束：从最近一次经期开始日到今天，全部填充为 period
   Future<void> endPeriod() async {
+    final userId = AppConfigManager.instance.userId;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // 往前找到最近一次经期开始日
+    String? startDate;
+    for (var i = 0; i < 30; i++) {
+      final d = now.subtract(Duration(days: i));
+      final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final r = getRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) {
+        startDate = ds;
+      } else if (startDate != null) {
+        // 找到了经期开始日的前一天，停止
+        break;
+      }
+    }
+
+    if (startDate != null) {
+      // 从开始日到今天全部填充为 period
+      var current = DateTime.parse(startDate);
+      while (!current.isAfter(today)) {
+        final ds = '${current.year}-${current.month.toString().padLeft(2, '0')}-${current.day.toString().padLeft(2, '0')}';
+        await DriverFactory.driver.updatePeriodDay(
+          userId, ds,
+          periodStatus: PeriodStatus.period.code,
+          flowLevel: FlowLevel.medium.code,
+        );
+        current = current.add(const Duration(days: 1));
+      }
+    }
+
     await loadRecords();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.update));
   }
