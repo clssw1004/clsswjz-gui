@@ -14,12 +14,14 @@ class PeriodDayDetailCard extends StatelessWidget {
   final PeriodRecordVO record;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onDeleteCycle;
 
   const PeriodDayDetailCard({
     super.key,
     required this.record,
     this.onEdit,
     this.onDelete,
+    this.onDeleteCycle,
   });
 
   @override
@@ -105,6 +107,11 @@ class PeriodDayDetailCard extends StatelessWidget {
                     SizedBox(height: spacing.formItemSpacing),
                     // 状态标签
                     _buildStatusChip(cs, theme),
+                    // 删除整个经期按钮
+                    if (onDeleteCycle != null) ...[
+                      const SizedBox(height: 8),
+                      _buildDeleteCycleButton(cs, theme, l10n),
+                    ],
                     // 信息行
                     _buildInfoSection(theme, cs, l10n, spacing),
                   ],
@@ -155,6 +162,27 @@ class PeriodDayDetailCard extends StatelessWidget {
           fontSize: 12,
           color: color,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteCycleButton(ColorScheme cs, ThemeData theme, dynamic l10n) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onDeleteCycle,
+        icon: Icon(Icons.delete_sweep_outlined, size: 16, color: cs.error),
+        label: Text(
+          l10n.deleteCycle,
+          style: TextStyle(color: cs.error, fontSize: 13),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: cs.error.withAlpha(80)),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );

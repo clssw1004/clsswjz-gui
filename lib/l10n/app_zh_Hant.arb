@@ -2066,5 +2066,8 @@
     "periodOnboardingLastEnd": "上次經期結束日期",
     "periodOnboardingKnowDuration": "我知道持續了幾天",
     "periodOnboardingSelectDate": "點擊選擇日期",
-    "skip": "跳過"
+    "skip": "跳過",
+    "deleteCycle": "刪除整個經期",
+    "deleteCycleConfirm": "確定刪除這次經期的全部 {count} 天記錄？此操作不可撤銷。",
+    "deleteDayOnly": "僅刪除當天"
 }

@@ -146,6 +146,59 @@ class PeriodRecordProvider extends ChangeNotifier {
     return result;
   }
 
+  /// 查找某日期所属经期周期的所有日期
+  ///
+  /// 从 [date] 向前向后搜索连续的 period 记录，返回该周期全部日期列表。
+  List<String> findCycleDates(String date) {
+    final result = <String>[];
+    final target = DateTime.parse(date);
+
+    // 向前搜索（含当天）
+    for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
+      final d = target.subtract(Duration(days: i));
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) {
+        result.insert(0, ds);
+      } else {
+        break;
+      }
+    }
+
+    // 向后搜索（从第二天开始）
+    for (var i = 1; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
+      final d = target.add(Duration(days: i));
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) {
+        result.add(ds);
+      } else {
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  /// 批量删除经期周期
+  ///
+  /// 删除 [date] 所属周期的所有 period 记录。
+  Future<void> deleteCycle(String date) async {
+    _operating = true;
+    notifyListeners();
+    final userId = AppConfigManager.instance.userId;
+    final dates = findCycleDates(date);
+
+    for (final ds in dates) {
+      await DriverFactory.driver.deletePeriodDay(userId, ds);
+    }
+
+    await loadRecords();
+    _operating = false;
+    notifyListeners();
+    EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.delete));
+  }
+
   /// 获取指定日期的记录（从当月数据中查找）
   PeriodRecordVO? getRecordByDate(String recordDate) {
     try {

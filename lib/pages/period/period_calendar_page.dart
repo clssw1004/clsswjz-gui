@@ -6,6 +6,7 @@ import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'package:clsswjz_gui/manager/app_config_manager.dart';
+import 'package:clsswjz_gui/enums/period_status.dart';
 import 'widgets/period_hero_card.dart';
 import 'widgets/period_calendar_widget.dart';
 import 'widgets/period_prediction_card.dart';
@@ -157,6 +158,9 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       record: record,
       onEdit: () => _navigateToForm(record),
       onDelete: () => _confirmDelete(provider, record.recordDate),
+      onDeleteCycle: record.periodStatus == PeriodStatus.period
+          ? () => _confirmDeleteCycle(provider, record.recordDate)
+          : null,
     );
   }
 
@@ -314,6 +318,37 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               setState(() => _selectedDate = null);
             },
             child: Text(L10nManager.l10n.deleteBtn, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteCycle(PeriodRecordProvider provider, String date) {
+    final dates = provider.findCycleDates(date);
+    final count = dates.length;
+    if (count == 0) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(L10nManager.l10n.deleteCycle),
+        content: Text(L10nManager.l10n.deleteCycleConfirm(count)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(L10nManager.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.deleteCycle(date);
+              setState(() => _selectedDate = null);
+            },
+            child: Text(
+              L10nManager.l10n.deleteBtn,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ),
         ],
       ),

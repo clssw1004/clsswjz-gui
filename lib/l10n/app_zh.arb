@@ -2977,5 +2977,8 @@
     "periodOnboardingLastEnd": "上次经期结束日期",
     "periodOnboardingKnowDuration": "我知道持续了几天",
     "periodOnboardingSelectDate": "点击选择日期",
-    "skip": "跳过"
+    "skip": "跳过",
+    "deleteCycle": "删除整个经期",
+    "deleteCycleConfirm": "确定删除这次经期的全部 {count} 天记录？此操作不可撤销。",
+    "deleteDayOnly": "仅删除当天"
 }

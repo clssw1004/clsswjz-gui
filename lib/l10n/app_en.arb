@@ -2899,5 +2899,8 @@
     "periodOnboardingLastEnd": "Last period end date",
     "periodOnboardingKnowDuration": "I know how long it lasted",
     "periodOnboardingSelectDate": "Tap to select date",
-    "skip": "Skip"
+    "skip": "Skip",
+    "deleteCycle": "Delete Cycle",
+    "deleteCycleConfirm": "Delete all {count} days of this period cycle? This cannot be undone.",
+    "deleteDayOnly": "Delete Day Only"
 }
