@@ -262,6 +262,47 @@ class PeriodRecordProvider extends ChangeNotifier {
     return true;
   }
 
+  /// 指定日期是否处于未结束的经期范围内
+  ///
+  /// 逻辑：找到该日期之前（含当天）最近的 period 记录，然后从该记录
+  /// 向后扫描，判断 [date] 是否在连续 period 日范围内，且该周期未结束。
+  bool isInActivePeriodRange(String date) {
+    final target = DateTime.parse(date);
+
+    // 1. 找到 target 当天或之前最近一条 period 记录
+    PeriodRecordVO? startRecord;
+    for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
+      final d = target.subtract(Duration(days: i));
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
+      if (r != null && r.periodStatus == PeriodStatus.period) {
+        startRecord = r;
+        break;
+      }
+      // 遇到非空记录（非 period），说明前面的 period 周期已结束
+      if (r != null) break;
+    }
+    if (startRecord == null) return false;
+
+    final start = DateTime.parse(startRecord.recordDate);
+    // start 在 target 之后，说明 target 不在经期内
+    if (start.isAfter(target)) return false;
+
+    // 2. 从 start 向后扫描，判断周期是否已结束
+    for (var i = 0; i <= target.difference(start).inDays; i++) {
+      final d = start.add(Duration(days: i));
+      final ds = _dateStr(d);
+      final r = getRecentRecordByDate(ds);
+      // 中间有空缺（非 period），周期已结束
+      if (r == null || r.periodStatus != PeriodStatus.period) return false;
+    }
+
+    // 3. 检查 target 之后是否还有连续 period（判断周期是否还在延续）
+    //    如果 target 后面 1 天没有记录，说明经期可能在 target 或之前已结束
+    //    但只要 target 本身是 period 记录或在连续 period 范围内，就视为活跃
+    return true;
+  }
+
   String _dateStr(DateTime d) {
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }

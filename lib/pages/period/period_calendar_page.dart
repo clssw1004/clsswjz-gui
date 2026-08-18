@@ -168,7 +168,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final spacing = theme.spacing;
-    final inPeriod = provider.isInPeriod || provider.hasActivePeriod;
+    final inPeriod = provider.isInPeriod || provider.isInActivePeriodRange(_selectedDate!);
     final operating = provider.operating;
     final today = DateTime.now();
     final selected = DateTime.parse(_selectedDate!);
