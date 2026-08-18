@@ -241,21 +241,23 @@ class _ItemsTabState extends State<ItemsTab>
           }
           break;
         case 'period_status':
-          widgets.add(
-            Consumer<PeriodRecordProvider>(
-              builder: (context, provider, _) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
-                  child: PeriodStatusCard(
-                    onViewAll: () => Navigator.pushNamed(
-                        context, AppRoutes.periodCalendar),
-                    onStartPeriod: () => _pickHomeStartDate(context, provider),
-                    onEndPeriod: () => _pickHomeEndDate(context, provider),
-                  ),
-                );
-              },
-            ),
-          );
+          if (AppConfigManager.instance.uiConfig.itemTabShowPeriodStatus) {
+            widgets.add(
+              Consumer<PeriodRecordProvider>(
+                builder: (context, provider, _) {
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: spacing.formItemSpacing),
+                    child: PeriodStatusCard(
+                      onViewAll: () => Navigator.pushNamed(
+                          context, AppRoutes.periodCalendar),
+                      onStartPeriod: () => _pickHomeStartDate(context, provider),
+                      onEndPeriod: () => _pickHomeEndDate(context, provider),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
           break;
       }
     }

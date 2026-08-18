@@ -5,6 +5,7 @@ class UiConfigDTO {
     this.itemTabShowDebt = true,
     this.itemTabShowDailyBar = true,
     this.itemTabShowDailyCalendar = true,
+    this.itemTabShowPeriodStatus = true,
     this.calendarShowIncome = true,
     this.calendarShowExpense = true,
     this.itemTabShowUserMonthly = true,
@@ -32,6 +33,7 @@ class UiConfigDTO {
   final bool itemTabShowDebt;
   final bool itemTabShowDailyBar;
   final bool itemTabShowDailyCalendar;
+  final bool itemTabShowPeriodStatus;
   final bool calendarShowIncome;
   final bool calendarShowExpense;
 
@@ -79,6 +81,7 @@ class UiConfigDTO {
       itemTabShowDebt: json['itemTabShowDebt'] ?? true,
       itemTabShowDailyBar: json['itemTabShowDailyBar'] ?? true,
       itemTabShowDailyCalendar: json['itemTabShowDailyCalendar'] ?? true,
+      itemTabShowPeriodStatus: json['itemTabShowPeriodStatus'] ?? true,
       calendarShowIncome: json['calendarShowIncome'] ?? true,
       calendarShowExpense: json['calendarShowExpense'] ?? true,
       itemTabShowUserMonthly: json['itemTabShowUserMonthly'] ?? true,
@@ -113,6 +116,7 @@ class UiConfigDTO {
       'itemTabShowDebt': uiConfig.itemTabShowDebt,
       'itemTabShowDailyBar': uiConfig.itemTabShowDailyBar,
       'itemTabShowDailyCalendar': uiConfig.itemTabShowDailyCalendar,
+      'itemTabShowPeriodStatus': uiConfig.itemTabShowPeriodStatus,
       'calendarShowIncome': uiConfig.calendarShowIncome,
       'calendarShowExpense': uiConfig.calendarShowExpense,
       'itemTabShowUserMonthly': uiConfig.itemTabShowUserMonthly,

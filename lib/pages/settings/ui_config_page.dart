@@ -21,6 +21,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
   late bool _showDebt;
   late bool _showDailyStats;
   late bool _showDailyCalendar;
+  late bool _showPeriodStatus;
   late bool _showUserMonthly;
   late bool _showProjectMonthly;
   late bool _showStatisticsBookStatistic;
@@ -42,6 +43,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
     _showDailyStats = AppConfigManager.instance.uiConfig.itemTabShowDailyBar;
     _showDailyCalendar =
         AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar;
+    _showPeriodStatus =
+        AppConfigManager.instance.uiConfig.itemTabShowPeriodStatus;
     _showUserMonthly =
         AppConfigManager.instance.uiConfig.itemTabShowUserMonthly;
     _showProjectMonthly =
@@ -260,6 +263,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
                             itemTabShowDebt: AppConfigManager.instance.uiConfig.itemTabShowDebt,
                             itemTabShowDailyBar: AppConfigManager.instance.uiConfig.itemTabShowDailyBar,
                             itemTabShowDailyCalendar: AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar,
+                            itemTabShowPeriodStatus: AppConfigManager.instance.uiConfig.itemTabShowPeriodStatus,
                             calendarShowIncome: AppConfigManager.instance.uiConfig.calendarShowIncome,
                             calendarShowExpense: AppConfigManager.instance.uiConfig.calendarShowExpense,
                             itemTabShowUserMonthly: AppConfigManager.instance.uiConfig.itemTabShowUserMonthly,
@@ -672,6 +676,7 @@ class _UiConfigPageState extends State<UiConfigPage> {
       itemTabShowDebt: _showDebt,
       itemTabShowDailyBar: _showDailyStats,
       itemTabShowDailyCalendar: _showDailyCalendar,
+      itemTabShowPeriodStatus: _showPeriodStatus,
       itemTabShowUserMonthly: _showUserMonthly,
       itemTabShowProjectMonthly: _showProjectMonthly,
       statisticsShowBookStatistic: _showStatisticsBookStatistic,
@@ -750,6 +755,13 @@ class _UiConfigPageState extends State<UiConfigPage> {
         toggleValue = _showDailyCalendar;
         onChanged = (v) {
           setState(() => _showDailyCalendar = v);
+          _updateUiConfig();
+        };
+        break;
+      case 'period_status':
+        toggleValue = _showPeriodStatus;
+        onChanged = (v) {
+          setState(() => _showPeriodStatus = v);
           _updateUiConfig();
         };
         break;
