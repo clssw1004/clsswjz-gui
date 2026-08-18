@@ -92,10 +92,17 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
           return CustomScrollView(
             slivers: [
+              // 预测统计 Tile（最上方）
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: spacing.contentPadding.copyWith(bottom: spacing.formItemSpacing),
+                  child: PeriodPredictionCard(statistics: provider.statistics),
+                ),
+              ),
               // Hero 状态卡片
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: spacing.contentPadding,
+                  padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
                   child: PeriodHeroCard(
                     onStartPeriod: () {
                       // 无数据且未完成引导 → 打开引导页
@@ -111,6 +118,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                   ),
                 ),
               ),
+              SliverToBoxAdapter(child: SizedBox(height: spacing.formItemSpacing)),
               // 日历网格（含图例）
               SliverToBoxAdapter(
                 child: Padding(
@@ -119,19 +127,13 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     year: provider.currentYear,
                     month: provider.currentMonth,
                     records: provider.records,
+                    recentRecords: provider.recentRecords,
                     statistics: provider.statistics,
                     selectedDate: _selectedDate,
                     onDateTap: _onDateTap,
                     onPreviousMonth: _previousMonth,
                     onNextMonth: _nextMonth,
                   ),
-                ),
-              ),
-              // 预测统计 Tile
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: spacing.contentPadding.copyWith(top: spacing.formItemSpacing),
-                  child: PeriodPredictionCard(statistics: provider.statistics),
                 ),
               ),
               // 选中日期详情

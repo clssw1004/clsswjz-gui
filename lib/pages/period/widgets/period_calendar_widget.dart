@@ -15,6 +15,7 @@ class PeriodCalendarWidget extends StatelessWidget {
   final int year;
   final int month;
   final List<PeriodRecordVO> records;
+  final List<PeriodRecordVO> recentRecords;
   final PeriodStatisticsVO? statistics;
   final String? selectedDate;
   final ValueChanged<String> onDateTap;
@@ -26,6 +27,7 @@ class PeriodCalendarWidget extends StatelessWidget {
     required this.year,
     required this.month,
     required this.records,
+    this.recentRecords = const [],
     this.statistics,
     this.selectedDate,
     required this.onDateTap,
@@ -38,8 +40,11 @@ class PeriodCalendarWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l10n = L10nManager.l10n;
+    // 用 recentRecords 计算日期类型（支持跨月预测）
+    final allRecords = [...records, ...recentRecords.where((r) =>
+        !records.any((m) => m.recordDate == r.recordDate))];
     final dateTypes =
-        PeriodPredictionService.getMonthDateTypes(records, statistics);
+        PeriodPredictionService.getMonthDateTypes(allRecords, statistics);
     final today = DateTime.now();
     final todayStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';

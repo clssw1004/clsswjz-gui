@@ -24,6 +24,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   int _currentMonth = DateTime.now().month;
 
   List<PeriodRecordVO> get records => _records;
+  List<PeriodRecordVO> get recentRecords => _recentRecords;
   PeriodStatisticsVO get statistics => _statistics;
   bool get loading => _loading;
   bool get operating => _operating;

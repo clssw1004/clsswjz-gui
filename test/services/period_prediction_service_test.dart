@@ -144,7 +144,7 @@ void main() {
   });
 
   group('PeriodPredictionService.getMonthDateTypes', () {
-    test('marks period days', () {
+    test('marks period days and predicted continuation', () {
       final records = [
         _makeRecord('2026-08-10'),
         _makeRecord('2026-08-11'),
@@ -152,7 +152,11 @@ void main() {
       final types = PeriodPredictionService.getMonthDateTypes(records, null);
       expect(types['2026-08-10'], DateType.period);
       expect(types['2026-08-11'], DateType.period);
-      expect(types['2026-08-12'], isNull);
+      // 2 days recorded, default 5 → 3 predicted days
+      expect(types['2026-08-12'], DateType.predictedPeriod);
+      expect(types['2026-08-13'], DateType.predictedPeriod);
+      expect(types['2026-08-14'], DateType.predictedPeriod);
+      expect(types['2026-08-15'], isNull);
     });
 
     test('marks actual period days with stats', () {
