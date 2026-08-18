@@ -113,11 +113,15 @@ class PeriodPredictionService {
       }
     }
 
-    // 标记预测日期（仅标记未来日期，忽略已过期的预测）
+    // ── 标记当前进行中经期的后续预测天 ──
+    // 如果最后一条 period 记录之后没有更多记录，根据平均经期天数填充预测
+    _markCurrentPeriodPredictions(monthRecords, result);
+
+    // ── 标记基于历史的预测日期（仅未来）──
     if (statistics != null && statistics.canPredict) {
       final todayStr = _todayStr();
 
-      // 预测经期（仅未来）
+      // 预测经期（仅未来，且不与已标记的 period / predictedPeriod 重叠）
       if (statistics.nextPeriodDate != null &&
           statistics.nextPeriodDate!.compareTo(todayStr) >= 0) {
         for (var i = 0; i < statistics.averagePeriodLength; i++) {
@@ -147,6 +151,42 @@ class PeriodPredictionService {
     }
 
     return result;
+  }
+
+  /// 标记当前进行中经期的后续预测天
+  ///
+  /// 找到当月最后一条连续 period 记录，从其后一天开始
+  /// 按平均经期天数填充 predictedPeriod 标记。
+  static void _markCurrentPeriodPredictions(
+    List<PeriodRecordVO> monthRecords,
+    Map<String, DateType> result,
+  ) {
+    // 找当月所有 period 记录，按日期排序
+    final periodDays = monthRecords
+        .where((r) => r.periodStatus == PeriodStatus.period)
+        .toList()
+      ..sort((a, b) => a.recordDate.compareTo(b.recordDate));
+    if (periodDays.isEmpty) return;
+
+    // 最后一条 period 记录的日期
+    final lastPeriodDate = periodDays.last.recordDate;
+    final todayStr = _todayStr();
+
+    // 从最后 period 日的后一天开始，填充预测天数
+    // 使用 defaultPeriodDays（5天），因为当月数据可能不完整
+    final avgPeriod = PeriodConstants.defaultPeriodDays;
+    final daysRecorded = periodDays.length;
+    final remaining = avgPeriod - daysRecorded;
+
+    if (remaining > 0) {
+      for (var i = 1; i <= remaining; i++) {
+        final date = _addDays(lastPeriodDate, i);
+        // 不覆盖已有的 period 标记，不标记过去日期
+        if (result[date] == null && date.compareTo(todayStr) >= 0) {
+          result[date] = DateType.predictedPeriod;
+        }
+      }
+    }
   }
 
   static int _daysBetween(String date1, String date2) {
