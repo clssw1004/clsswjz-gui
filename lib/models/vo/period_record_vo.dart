@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../database/database.dart';
 import '../../enums/flow_level.dart';
+import '../../enums/period_mood.dart';
 import '../../enums/period_status.dart';
 
 class PeriodRecordVO {
@@ -9,7 +10,7 @@ class PeriodRecordVO {
   final PeriodStatus periodStatus;
   final FlowLevel flowLevel;
   final List<String> symptoms;
-  final String? mood;
+  final PeriodMood mood;
   final String? remark;
   final int createdAt;
   final int updatedAt;
@@ -20,7 +21,7 @@ class PeriodRecordVO {
     required this.periodStatus,
     required this.flowLevel,
     required this.symptoms,
-    this.mood,
+    this.mood = PeriodMood.normal,
     this.remark,
     required this.createdAt,
     required this.updatedAt,
@@ -33,7 +34,7 @@ class PeriodRecordVO {
       periodStatus: PeriodStatus.fromCode(record.periodStatus),
       flowLevel: FlowLevel.fromCode(record.flowLevel),
       symptoms: List<String>.from(jsonDecode(record.symptoms)),
-      mood: record.mood,
+      mood: PeriodMood.fromCode(record.mood),
       remark: record.remark,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

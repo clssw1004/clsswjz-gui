@@ -72,7 +72,7 @@ class PeriodRecordTable extends BaseBusinessTable {
       flowLevel: Value.absentIfNull(flowLevel),
       symptoms: symptoms != null ? Value(jsonEncode(symptoms)) : const Value.absent(),
       mood: Value.absentIfNull(mood),
-      remark: const Value.absent(),
+      remark: Value.absentIfNull(remark),
       createdBy: const Value.absent(),
       createdAt: const Value.absent(),
       id: const Value.absent(),

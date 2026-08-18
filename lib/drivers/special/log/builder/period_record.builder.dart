@@ -66,7 +66,7 @@ class PeriodRecordCULog extends LogBuilder<PeriodRecordTableCompanion, String> {
     return switch (OperateType.fromCode(log.operateType)) {
       OperateType.create => PeriodRecordCULog.fromCreateLog(log),
       OperateType.update => PeriodRecordCULog.fromUpdateLog(log),
-      _ => PeriodRecordCULog.fromUpdateLog(log),
+      _ => throw ArgumentError('PeriodRecordCULog does not support ${log.operateType}'),
     };
   }
 

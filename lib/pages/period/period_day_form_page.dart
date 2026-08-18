@@ -27,7 +27,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
   late PeriodStatus _periodStatus;
   late FlowLevel _flowLevel;
   late List<String> _symptoms;
-  late String _mood;
+  late PeriodMood _mood;
   late TextEditingController _remarkController;
 
   @override
@@ -36,7 +36,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
     _periodStatus = widget.record?.periodStatus ?? PeriodStatus.none;
     _flowLevel = widget.record?.flowLevel ?? FlowLevel.none;
     _symptoms = List.from(widget.record?.symptoms ?? []);
-    _mood = widget.record?.mood ?? PeriodMood.normal.code;
+    _mood = widget.record?.mood ?? PeriodMood.normal;
     _remarkController = TextEditingController(text: widget.record?.remark ?? '');
   }
 
@@ -126,9 +126,9 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
             SizedBox(height: spacing.formItemSpacing),
             _buildSegmentedChoice<PeriodMood>(
               values: PeriodMood.values,
-              selected: PeriodMood.fromCode(_mood),
+              selected: _mood,
               labelBuilder: (m) => m.text,
-              onChanged: (v) => setState(() => _mood = v.code),
+              onChanged: (v) => setState(() => _mood = v),
             ),
 
             SizedBox(height: spacing.formGroupSpacing),
@@ -181,7 +181,7 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
       periodStatus: _periodStatus.code,
       flowLevel: _periodStatus == PeriodStatus.period ? _flowLevel.code : FlowLevel.none.code,
       symptoms: _symptoms,
-      mood: _mood,
+      mood: _mood.code,
       remark: _remarkController.text.isEmpty ? null : _remarkController.text,
     );
     if (mounted && result.ok) {

@@ -125,7 +125,7 @@ class PeriodCalendarWidget extends StatelessWidget {
       DateType.period => cs.error.withAlpha(46),
       DateType.ovulation => cs.tertiary.withAlpha(60),
       DateType.fertile => cs.tertiary.withAlpha(30),
-      DateType.safe => Colors.green.withAlpha(20),
+      DateType.safe => cs.tertiaryContainer.withAlpha(60),
       DateType.predictedPeriod => cs.error.withAlpha(15),
       null => null,
     };

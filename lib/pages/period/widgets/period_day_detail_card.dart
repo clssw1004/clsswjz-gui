@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../constants/period_symptoms.dart';
-import '../../../enums/period_mood.dart';
 import '../../../enums/period_status.dart';
 import '../../../models/vo/period_record_vo.dart';
 import '../../../theme/theme_spacing.dart';
@@ -61,8 +60,7 @@ class PeriodDayDetailCard extends StatelessWidget {
           if (record.symptoms.isNotEmpty)
             _buildInfoRow(theme, '症状',
                 record.symptoms.map((s) => PeriodSymptoms.labelOf(s)).join('、')),
-          if (record.mood != null)
-            _buildInfoRow(theme, '情绪', PeriodMood.fromCode(record.mood!).text),
+          _buildInfoRow(theme, '情绪', record.mood.text),
           if (record.remark != null && record.remark!.isNotEmpty)
             _buildInfoRow(theme, '备注', record.remark!),
         ],

@@ -105,18 +105,39 @@ class PeriodRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 是否正在经期中（最近的 period 记录在7天内）
+  /// 是否正在经期中（今天或最近7天内有 period 记录）
   bool get isInPeriod {
-    if (_records.isEmpty) return false;
     final now = DateTime.now();
-    // 往前找7天，看是否有 period 记录
+    // 先检查当前月数据
     for (var i = 0; i < 7; i++) {
       final d = now.subtract(Duration(days: i));
       final ds = '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
       final r = getRecordByDate(ds);
       if (r != null && r.periodStatus == PeriodStatus.period) return true;
     }
-    return false;
+    // 当前月数据不包含今天时（比如在看上个月），直接查数据库
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    if (getRecordByDate(todayStr) == null) {
+      // 异步查询标记（下次 rebuild 时生效）
+      _checkInPeriodFromDb(now);
+    }
+    return _cachedIsInPeriod;
+  }
+
+  bool _cachedIsInPeriod = false;
+
+  Future<void> _checkInPeriodFromDb(DateTime now) async {
+    final userId = AppConfigManager.instance.userId;
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final result = await DriverFactory.driver.listPeriodRecords(
+      userId, year: now.year, month: now.month,
+    );
+    if (result.ok) {
+      final todayRecord = (result.data ?? []).where((r) => r.recordDate == todayStr && r.periodStatus == PeriodStatus.period);
+      final wasInPeriod = _cachedIsInPeriod;
+      _cachedIsInPeriod = todayRecord.isNotEmpty;
+      if (wasInPeriod != _cachedIsInPeriod) notifyListeners();
+    }
   }
 
   /// 标记经期开始：仅标记当天为 period，不自动填充后续

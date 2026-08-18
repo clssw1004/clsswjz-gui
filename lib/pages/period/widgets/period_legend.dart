@@ -14,7 +14,7 @@ class PeriodLegend extends StatelessWidget {
         const SizedBox(width: 12),
         _buildItem(cs, theme, cs.tertiary, '排卵期'),
         const SizedBox(width: 12),
-        _buildItem(cs, theme, Colors.green, '安全区'),
+        _buildItem(cs, theme, cs.tertiaryContainer, '安全区'),
       ],
     );
   }
