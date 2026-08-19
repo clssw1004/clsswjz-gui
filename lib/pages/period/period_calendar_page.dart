@@ -141,19 +141,30 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
     // 根据状态决定底部弹窗内容
     final activeCycle = provider.activeCycle;
+    final cycleInDate = provider.findCycleForDate(date);
 
     if (activeCycle == null) {
       // 无未结束周期
-      if (date.compareTo(todayStr) < 0) {
+      if (cycleInDate != null && date.compareTo(cycleInDate.startDate) >= 0) {
+        // 该日期属于某个已结束的周期 → 弹操作菜单（含删除）
+        _showDayAction(date, provider);
+      } else if (date.compareTo(todayStr) < 0) {
+        // 不属于任何周期 → 补记历史
         _showBackfillAction(date, provider);
       } else {
+        // 今天 → 标记开始
         _showStartAction(date, provider);
       }
     } else {
       // 有未结束周期
-      if (date.compareTo(activeCycle.startDate) < 0) {
+      if (cycleInDate != null && date.compareTo(cycleInDate.startDate) < 0) {
+        // 日期属于更早的历史周期 → 弹操作菜单（删除旧周期）
+        _showDayAction(date, provider);
+      } else if (date.compareTo(activeCycle.startDate) < 0) {
+        // 周期开始日之前但无归属周期 → 补记历史
         _showBackfillAction(date, provider);
       } else if (date.compareTo(todayStr) <= 0) {
+        // 当前周期内 → 弹操作菜单
         _showDayAction(date, provider);
       }
     }
@@ -297,6 +308,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final l10n = L10nManager.l10n;
     final dailyRecord = provider.getDailyRecordByDate(date);
     final cycle = provider.findCycleForDate(date);
+    // 当前未结束周期
+    final activeCycle = provider.activeCycle;
+    // 点击的日期是否在当前周期内（可结束经期）
+    final isInActiveCycle = activeCycle != null &&
+        date.compareTo(activeCycle.startDate) >= 0 &&
+        (activeCycle.endDate == null || date.compareTo(activeCycle.endDate!) <= 0);
 
     showModalBottomSheet(
       context: context,
@@ -332,54 +349,57 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               ],
               const SizedBox(height: 16),
 
-              // 补充明细按钮
-              ListTile(
-                leading: Icon(Icons.edit_note, color: cs.primary),
-                title: Text(dailyRecord != null
-                    ? l10n.periodEditDailyRecord
-                    : l10n.periodAddDailyRecord),
-                subtitle: Text(l10n.periodDailyRecord,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: cs.outlineVariant.withAlpha(80)),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _openDailyDetailSheet(provider, date);
-                },
-              ),
-              const SizedBox(height: 8),
-
-              // 结束经期按钮（红色醒目 + 确认）
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton.icon(
-                  onPressed: provider.operating ? null : () {
-                    Navigator.pop(ctx);
-                    _confirmEndPeriod(provider, date);
-                  },
-                  icon: provider.operating
-                      ? const SizedBox(width: 18, height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.stop_circle_outlined, size: 20),
-                  label: Text(
-                    l10n.periodEnd,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              // 补充明细 + 结束经期（仅当前进行中的周期内显示）
+              if (isInActiveCycle) ...[
+                // 补充明细按钮
+                ListTile(
+                  leading: Icon(Icons.edit_note, color: cs.primary),
+                  title: Text(dailyRecord != null
+                      ? l10n.periodEditDailyRecord
+                      : l10n.periodAddDailyRecord),
+                  subtitle: Text(l10n.periodDailyRecord,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: cs.outlineVariant.withAlpha(80)),
                   ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: cs.error,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: cs.error.withAlpha(100),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _openDailyDetailSheet(provider, date);
+                  },
+                ),
+                const SizedBox(height: 8),
+
+                // 结束经期按钮（红色醒目 + 确认）
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.icon(
+                    onPressed: provider.operating ? null : () {
+                      Navigator.pop(ctx);
+                      _confirmEndPeriod(provider, date);
+                    },
+                    icon: provider.operating
+                        ? const SizedBox(width: 18, height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.stop_circle_outlined, size: 20),
+                    label: Text(
+                      l10n.periodEnd,
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: cs.error,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: cs.error.withAlpha(100),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
+              ],
 
               // 删除操作（分隔线 + 危险操作区）
               const Divider(height: 20),
