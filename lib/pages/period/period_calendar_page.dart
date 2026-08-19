@@ -78,14 +78,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
           return CustomScrollView(
             slivers: [
-              // 统计 Tile
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: spacing.contentPadding.copyWith(bottom: spacing.formItemSpacing),
-                  child: PeriodPredictionCard(statistics: provider.statistics),
-                ),
-              ),
-              // Hero 状态卡片
+              // Hero 状态卡片（顶部，紧凑）
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
@@ -111,6 +104,13 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                     onPreviousMonth: _previousMonth,
                     onNextMonth: _nextMonth,
                   ),
+                ),
+              ),
+              // 统计 Tile（位于日历下方）
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: spacing.contentPadding.copyWith(top: spacing.formItemSpacing),
+                  child: PeriodPredictionCard(statistics: provider.statistics),
                 ),
               ),
               SliverToBoxAdapter(child: SizedBox(height: spacing.formGroupSpacing)),

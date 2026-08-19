@@ -46,7 +46,7 @@ class PeriodHeroCard extends StatelessWidget {
     );
   }
 
-  // ── 经期中 ──
+  // ── 经期中（紧凑版）──
   Widget _buildPeriodPhase(
     BuildContext context,
     PeriodRecordProvider provider,
@@ -64,7 +64,7 @@ class PeriodHeroCard extends StatelessWidget {
     return Container(
       key: const ValueKey('period'),
       width: double.infinity,
-      padding: spacing.contentPadding.copyWith(top: 20, bottom: 20),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -78,100 +78,104 @@ class PeriodHeroCard extends StatelessWidget {
         border: Border.all(color: cs.error.withAlpha(40), width: 1),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标签
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: cs.error.withAlpha(20),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              l10n.periodOngoingTag,
-              style: TextStyle(
-                fontSize: 12,
-                color: cs.error,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // 大数字 + 文字
+          // 顶部行：标签 + 结束按钮
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              // 标签
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: cs.error.withAlpha(20),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  l10n.periodOngoingTag,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              // 大数字（第几天）
               Text(
                 '$day',
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: cs.error,
                   height: 1,
                 ),
               ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  l10n.periodDayCount(day),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: cs.onErrorContainer,
-                    fontWeight: FontWeight.w500,
-                  ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.periodDayCount(day),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: cs.onErrorContainer,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          if (startDate.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              l10n.periodStarted(startDate),
-              style: TextStyle(
-                fontSize: 12,
-                color: cs.onSurfaceVariant,
+          const SizedBox(height: 6),
+          // 开始日期
+          if (startDate.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                l10n.periodStarted(startDate),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
             ),
-          ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           // 进度条
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 6,
+              minHeight: 4,
               backgroundColor: cs.error.withAlpha(20),
               valueColor: AlwaysStoppedAnimation<Color>(cs.error),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.periodDayCountOf(day, avgPeriod),
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                l10n.periodDayCountOf(day, avgPeriod),
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
           // 结束按钮
           SizedBox(
-            width: double.infinity,
+            height: 40,
             child: OutlinedButton.icon(
               onPressed: provider.operating ? null : onEndPeriod,
               icon: provider.operating
                   ? const SizedBox(
-                      width: 18,
-                      height: 18,
+                      width: 16,
+                      height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Icon(Icons.stop_circle_outlined, size: 18, color: cs.error),
+                  : Icon(Icons.stop_circle_outlined, size: 16, color: cs.error),
               label: Text(
                 l10n.periodEnd,
-                style: TextStyle(color: cs.error),
+                style: TextStyle(color: cs.error, fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: cs.error.withAlpha(128)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
