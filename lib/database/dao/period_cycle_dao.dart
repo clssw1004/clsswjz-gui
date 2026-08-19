@@ -18,19 +18,23 @@ class PeriodCycleDao extends BaseDao<PeriodCycleTable, PeriodCycle> {
         .getSingleOrNull();
   }
 
-  /// 查询指定月份的周期（与月份有交集即可）
+  /// 查询与指定月份有交集的周期
+  ///
+  /// 周期与月份重叠的条件：开始日 <= 月末 AND (结束日为空 或 结束日 >= 月初)
   Future<List<PeriodCycle>> findByMonth(String userId, int year, int month) {
     final startDate = '$year-${month.toString().padLeft(2, '0')}-01';
-    final nextMonth = month == 12 ? 1 : month + 1;
-    final nextYear = month == 12 ? year + 1 : year;
-    final endDate = '$nextYear-${nextMonth.toString().padLeft(2, '0')}-01';
+    // 月末 = 下月初 - 1 天
+    final lastDay = DateTime(year, month + 1, 0);
+    final lastDayStr =
+        '${lastDay.year}-${lastDay.month.toString().padLeft(2, '0')}-${lastDay.day.toString().padLeft(2, '0')}';
 
     return (db.select(table)
           ..where((t) =>
               t.createdBy.equals(userId) &
-              // 周期开始日在当月范围内，或周期跨越当月
-              (t.startDate.isBiggerOrEqualValue(startDate) |
-                  t.startDate.isSmallerThanValue(endDate)))
+              // 开始日不晚于月末
+              t.startDate.isSmallerOrEqualValue(lastDayStr) &
+              // 结束日不早于月初（未结束周期视为覆盖未来）
+              (t.endDate.isNull() | t.endDate.isBiggerOrEqualValue(startDate)))
           ..orderBy([(t) => OrderingTerm.asc(t.startDate)]))
         .get();
   }

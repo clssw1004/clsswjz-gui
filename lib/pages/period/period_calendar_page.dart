@@ -103,7 +103,8 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                   child: PeriodCalendarWidget(
                     year: provider.currentYear,
                     month: provider.currentMonth,
-                    cycles: provider.recentCycles,
+                    cycles: provider.cycles,
+                    recentCycles: provider.recentCycles,
                     statistics: provider.statistics,
                     selectedDate: _selectedDate,
                     onDateTap: _onDateTap,
@@ -472,7 +473,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       _dateStr(range.start),
       _dateStr(range.end),
     );
-    setState(() => _selectedDate = null);
+
+    if (mounted) {
+      setState(() => _selectedDate = null);
+      // 切换到补记开始月份，立即看到结果
+      await provider.changeMonth(range.start.year, range.start.month);
+    }
   }
 
   void _openDailyDetailSheet(PeriodRecordProvider provider, String date) async {

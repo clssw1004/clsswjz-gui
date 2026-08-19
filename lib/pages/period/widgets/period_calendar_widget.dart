@@ -11,6 +11,7 @@ class PeriodCalendarWidget extends StatelessWidget {
   final int year;
   final int month;
   final List<PeriodCycleVO> cycles;
+  final List<PeriodCycleVO> recentCycles;
   final PeriodStatisticsVO? statistics;
   final String? selectedDate;
   final ValueChanged<String> onDateTap;
@@ -22,6 +23,7 @@ class PeriodCalendarWidget extends StatelessWidget {
     required this.year,
     required this.month,
     required this.cycles,
+    this.recentCycles = const [],
     this.statistics,
     this.selectedDate,
     required this.onDateTap,
@@ -34,8 +36,15 @@ class PeriodCalendarWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l10n = L10nManager.l10n;
+    // 合并当月周期 + 近期周期（去重），确保跨月/历史周期都能渲染
+    final allCycles = [
+      ...cycles,
+      ...recentCycles.where(
+        (c) => !cycles.any((m) => m.id == c.id),
+      ),
+    ];
     // 从 cycles 计算日期类型
-    final dateTypes = PeriodPredictionService.getMonthDateTypes(cycles, statistics);
+    final dateTypes = PeriodPredictionService.getMonthDateTypes(allCycles, statistics);
     final today = DateTime.now();
     final todayStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';

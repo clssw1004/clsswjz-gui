@@ -170,3 +170,5 @@ skills-lock.json
 lib/generated/l10n/
 
 .codegraph/
+
+.codebuddy/
