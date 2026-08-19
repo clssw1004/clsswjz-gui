@@ -2605,5 +2605,367 @@
     "smartSort": "Smart",
     "@smartSort": {
         "description": "Smart sort view toggle label"
-    }
+    },
+    "periodRecord": "Period Record",
+    "@periodRecord": {
+        "description": "Period record module name"
+    },
+    "periodOngoing": "Period in progress",
+    "@periodOngoing": {
+        "description": "Period ongoing status"
+    },
+    "periodAutoRecord": "Next period will be recorded automatically",
+    "@periodAutoRecord": {
+        "description": "Period ongoing subtitle"
+    },
+    "periodEnd": "End Period",
+    "@periodEnd": {
+        "description": "End period button"
+    },
+    "periodBackfill": "Backfill Period",
+    "@periodBackfill": {
+        "description": "Backfill period title"
+    },
+    "periodMarkFirstDay": "Mark this day as the first day of period",
+    "@periodMarkFirstDay": {
+        "description": "Backfill period subtitle"
+    },
+    "periodRecordStart": "Record Period",
+    "@periodRecordStart": {
+        "description": "Record period title"
+    },
+    "periodMarkTodayFirst": "Mark today as the first day of period",
+    "@periodMarkTodayFirst": {
+        "description": "Record period subtitle"
+    },
+    "periodMarkStart": "Mark Period Start",
+    "@periodMarkStart": {
+        "description": "Mark period start button"
+    },
+    "deleteRecord": "Delete Record",
+    "@deleteRecord": {
+        "description": "Delete record dialog title"
+    },
+    "confirmDeleteDayRecord": "Are you sure to delete this day's period record?",
+    "@confirmDeleteDayRecord": {
+        "description": "Delete record dialog content"
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description": "Cancel button"
+    },
+    "deleteBtn": "Delete",
+    "@deleteBtn": {
+        "description": "Delete button (period module)"
+    },
+    "confirm": "Confirm",
+    "@confirm": {
+        "description": "Confirm button"
+    },
+    "markPeriodStart": "Mark Period Start",
+    "@markPeriodStart": {
+        "description": "Mark period start dialog title"
+    },
+    "confirmMarkFirstDay": "Mark {date} as the first day of period?",
+    "@confirmMarkFirstDay": {
+        "description": "Mark period start dialog content",
+        "placeholders": {
+            "date": {"type": "String", "example": "2026-08-17"}
+        }
+    },
+    "confirmPeriodEnd": "Mark all days from period start to selected date as period?",
+    "@confirmPeriodEnd": {
+        "description": "End period dialog content"
+    },
+    "periodEndConfirmContent": "Prediction data will be recalculated after ending the period. Confirm to proceed?",
+    "@periodEndConfirmContent": {
+        "description": "End period confirmation content"
+    },
+    "cyclePrediction": "Cycle Prediction",
+    "@cyclePrediction": {
+        "description": "Cycle prediction card title"
+    },
+    "needMoreCycles": "At least 2 period records needed for prediction",
+    "@needMoreCycles": {
+        "description": "Insufficient data hint"
+    },
+    "avgCycle": "Avg Cycle",
+    "@avgCycle": {
+        "description": "Average cycle length"
+    },
+    "avgPeriod": "Avg Period",
+    "@avgPeriod": {
+        "description": "Average period length"
+    },
+    "nextPeriod": "Next Period",
+    "@nextPeriod": {
+        "description": "Next period prediction"
+    },
+    "ovulationDay": "Ovulation Day",
+    "@ovulationDay": {
+        "description": "Ovulation day prediction"
+    },
+    "fertileWindow": "Fertile Window",
+    "@fertileWindow": {
+        "description": "Fertile window range"
+    },
+    "predicted": "(estimated)",
+    "@predicted": {
+        "description": "Prediction marker"
+    },
+    "days": "days",
+    "@days": {
+        "description": "Days unit"
+    },
+    "periodStatus": "Period Status",
+    "@periodStatus": {
+        "description": "Period status field"
+    },
+    "flowLevel": "Flow Level",
+    "@flowLevel": {
+        "description": "Flow level field"
+    },
+    "symptomsMultiSelect": "Symptoms (multi-select)",
+    "@symptomsMultiSelect": {
+        "description": "Symptoms multi-select field"
+    },
+    "mood": "Mood",
+    "@mood": {
+        "description": "Mood field"
+    },
+    "remark": "Remark",
+    "@remark": {
+        "description": "Remark field"
+    },
+    "remarkHint": "Optional remark...",
+    "@remarkHint": {
+        "description": "Remark input hint"
+    },
+    "save": "Save",
+    "@save": {
+        "description": "Save button"
+    },
+    "legendPeriod": "Period",
+    "@legendPeriod": {
+        "description": "Calendar legend - period"
+    },
+    "legendOvulation": "Ovulation",
+    "@legendOvulation": {
+        "description": "Calendar legend - ovulation"
+    },
+    "legendSafe": "Safe",
+    "@legendSafe": {
+        "description": "Calendar legend - safe"
+    },
+    "status": "Status",
+    "@status": {
+        "description": "Detail card - status"
+    },
+    "symptoms": "Symptoms",
+    "@symptoms": {
+        "description": "Detail card - symptoms"
+    },
+    "monday": "Mon",
+    "@monday": {
+        "description": "Monday"
+    },
+    "tuesday": "Tue",
+    "@tuesday": {
+        "description": "Tuesday"
+    },
+    "wednesday": "Wed",
+    "@wednesday": {
+        "description": "Wednesday"
+    },
+    "thursday": "Thu",
+    "@thursday": {
+        "description": "Thursday"
+    },
+    "friday": "Fri",
+    "@friday": {
+        "description": "Friday"
+    },
+    "saturday": "Sat",
+    "@saturday": {
+        "description": "Saturday"
+    },
+    "sunday": "Sun",
+    "@sunday": {
+        "description": "Sunday"
+    },
+    "periodOngoingTag": "In Progress",
+    "@periodOngoingTag": {
+        "description": "Period phase tag - ongoing"
+    },
+    "periodUpcomingTag": "Coming Soon",
+    "@periodUpcomingTag": {
+        "description": "Period phase tag - upcoming"
+    },
+    "periodDayCount": "Period Day {count}",
+    "@periodDayCount": {
+        "description": "Period day count display",
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "periodDayCountOf": "Day {current} / {total}",
+    "@periodDayCountOf": {
+        "description": "Period day progress display",
+        "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    },
+    "daysUntilPeriod": "{count} days until next period",
+    "@daysUntilPeriod": {
+        "description": "Days until next period",
+        "placeholders": { "count": { "type": "int" } }
+    },
+    "expectedDate": "Expected {date}",
+    "@expectedDate": {
+        "description": "Expected period date",
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "periodOverdueHint": "Expected on {date}, {count} days overdue. If it has started, please record it.",
+    "@periodOverdueHint": {
+        "description": "Hint when predicted period date has passed without recording",
+        "placeholders": {
+            "date": { "type": "String" },
+            "count": { "type": "int" }
+        }
+    },
+    "periodPredictedHint": "Your period is expected soon. Record it once it starts.",
+    "@periodPredictedHint": {
+        "description": "Hint shown in predicted period phase"
+    },
+    "periodLongerThanAverage": "Period has lasted {current} days (average {avg}). If it has ended, please record it.",
+    "@periodLongerThanAverage": {
+        "description": "Hint when ongoing period is longer than average",
+        "placeholders": {
+            "current": { "type": "int" },
+            "avg": { "type": "int" }
+        }
+    },
+    "ovulationDayLabel": "Ovulation: {date}",
+    "@ovulationDayLabel": {
+        "description": "Ovulation date label",
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "fertileWindowLabel": "Fertile: {start} ~ {end}",
+    "@fertileWindowLabel": {
+        "description": "Fertile window label",
+        "placeholders": { "start": { "type": "String" }, "end": { "type": "String" } }
+    },
+    "highFertility": "Higher chance of conception",
+    "@highFertility": {
+        "description": "Fertility info during ovulation"
+    },
+    "lowFertility": "Lower chance of conception",
+    "@lowFertility": {
+        "description": "Fertility info during safe period"
+    },
+    "selectStartDate": "Select period start date",
+    "@selectStartDate": {
+        "description": "Date picker title for start date"
+    },
+    "selectEndDate": "Select period end date",
+    "@selectEndDate": {
+        "description": "Date picker title for end date"
+    },
+    "noPeriodData": "No period data yet",
+    "@noPeriodData": {
+        "description": "No period data empty state"
+    },
+    "recordFirstPeriod": "Record your first period",
+    "@recordFirstPeriod": {
+        "description": "Empty state subtitle"
+    },
+    "confirmEndDate": "Confirm End Date",
+    "@confirmEndDate": {
+        "description": "Confirm button for end date"
+    },
+    "confirmStartDate": "Confirm Start Date",
+    "@confirmStartDate": {
+        "description": "Confirm button for start date"
+    },
+    "periodStatusNone": "Normal",
+    "@periodStatusNone": {
+        "description": "Period status - normal"
+    },
+    "periodStatusPredicted": "Predicted",
+    "@periodStatusPredicted": {
+        "description": "Period status - predicted"
+    },
+    "avgCycleTile": "Avg Cycle",
+    "@avgCycleTile": {
+        "description": "Stats tile - average cycle"
+    },
+    "avgPeriodTile": "Avg Period",
+    "@avgPeriodTile": {
+        "description": "Stats tile - average period"
+    },
+    "nextPeriodTile": "Next Period",
+    "@nextPeriodTile": {
+        "description": "Stats tile - next period"
+    },
+    "ovulationTile": "Ovulation",
+    "@ovulationTile": {
+        "description": "Stats tile - ovulation"
+    },
+    "fertileTile": "Fertile Window",
+    "@fertileTile": {
+        "description": "Stats tile - fertile window"
+    },
+    "periodStarted": "Period started on {date}",
+    "@periodStarted": {
+        "description": "Period start date subtitle",
+        "placeholders": { "date": { "type": "String" } }
+    },
+    "alreadyInPeriod": "Period is already in progress",
+    "periodOnboardingTitle": "Welcome to Period Tracker",
+    "periodOnboardingDesc": "Tell us about your last period to get personalized predictions. You can skip this and fill it in later.",
+    "periodOnboardingLastStart": "Last period start date",
+    "periodOnboardingLastEnd": "Last period end date",
+    "periodOnboardingKnowDuration": "I know how long it lasted",
+    "periodOnboardingSelectDate": "Tap to select date",
+    "periodOnboardingConfigureTypical": "Configure typical cycle parameters",
+    "periodOnboardingTypicalPeriodDays": "Typical period length",
+    "periodOnboardingTypicalCycleDays": "Typical cycle interval",
+    "periodSelectRange": "Select period date range",
+    "periodBackfillDesc": "Select the start and end dates of your period",
+    "periodOngoingBackfillHint": "Period hasn't ended yet, will fill up to today",
+    "skip": "Skip",
+    "deleteCycle": "Delete Cycle",
+    "deleteCycleConfirm": "Delete all {count} days of this period cycle? This cannot be undone.",
+    "deleteDayOnly": "Delete Day Only",
+    "periodFutureDate": "Future dates cannot be operated",
+    "periodDailyRecordExists": "Daily details recorded",
+    "periodEditDailyRecord": "Edit daily details",
+    "periodAddDailyRecord": "Record daily details",
+    "periodAutoEndConfirmTitle": "Auto-end previous period",
+    "periodAutoEndConfirmContent": "There is an ongoing period. Starting a new one will auto-end the previous. Continue?",
+    "periodEndDateBeforeLastRecord": "End date cannot be earlier than the last recorded date",
+    "periodEndFailed": "Failed to end period",
+    "periodDailyRecord": "Daily Details",
+    "periodFlowLevel": "Flow Level",
+    "periodSymptoms": "Symptoms",
+    "periodMood": "Mood",
+    "periodRemark": "Remark",
+    "periodRemarkHint": "Add a remark...",
+    "periodFlowNone": "None",
+    "periodFlowLight": "Light",
+    "periodFlowMedium": "Medium",
+    "periodFlowHeavy": "Heavy",
+    "symptomHeadache": "Headache",
+    "symptomCramps": "Cramps",
+    "symptomBloating": "Bloating",
+    "symptomBackPain": "Back Pain",
+    "symptomFatigue": "Fatigue",
+    "symptomMoodSwing": "Mood Swings",
+    "symptomBreast": "Breast Tenderness",
+    "symptomNausea": "Nausea",
+    "moodGood": "Good",
+    "moodNormal": "Normal",
+    "moodBad": "Bad",
+    "moodTerrible": "Terrible",
+    "periodBackfillSheetTitle": "Backfill Period",
+    "periodBackfillOngoing": "Period ongoing",
+    "periodBackfillConfirm": "Confirm backfill",
+    "periodSelectDuration": "Select duration",
+    "periodDurationDays": "{days} days"
 }

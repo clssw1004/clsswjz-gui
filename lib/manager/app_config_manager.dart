@@ -35,6 +35,7 @@ class AppConfigManager {
   static const String _selectedVehicleIdKey = 'selected_vehicle_id';
   static const String _selectedVehiclePlateKey = 'selected_vehicle_plate';
   static const String _bookSectionExpandedKey = 'book_section_expanded';
+  static const String _periodOnboardingDoneKey = 'period_onboarding_done';
 
   static bool _isInit = false;
 
@@ -115,6 +116,10 @@ class AppConfigManager {
   /// 账本功能区块是否展开
   late bool _bookSectionExpanded;
   bool get bookSectionExpanded => _bookSectionExpanded;
+
+  /// 经期引导是否已完成
+  late bool _periodOnboardingDone;
+  bool get periodOnboardingDone => _periodOnboardingDone;
 
   AppConfigManager._() {
     _isStorageInit = CacheManager.instance.getBool(_isStorageInitKey) ?? false;
@@ -197,6 +202,9 @@ class AppConfigManager {
 
     // 账本功能区块默认展开
     _bookSectionExpanded = CacheManager.instance.getBool(_bookSectionExpandedKey) ?? true;
+
+    // 经期引导默认未完成
+    _periodOnboardingDone = CacheManager.instance.getBool(_periodOnboardingDoneKey) ?? false;
   }
 
   /// 初始化
@@ -364,6 +372,12 @@ class AppConfigManager {
   Future<void> setBookSectionExpanded(bool expanded) async {
     _bookSectionExpanded = expanded;
     await CacheManager.instance.setBool(_bookSectionExpandedKey, expanded);
+  }
+
+  /// 标记经期引导已完成
+  Future<void> setPeriodOnboardingDone() async {
+    _periodOnboardingDone = true;
+    await CacheManager.instance.setBool(_periodOnboardingDoneKey, true);
   }
 
   /// 是否已经配置过后台服务

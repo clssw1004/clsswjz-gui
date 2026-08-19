@@ -29,8 +29,8 @@ void main() {
     );
   }
 
-  test('schemaVersion is 19 with isRemoved local column', () {
-    expect(db.schemaVersion, 19);
+  test('schemaVersion is 21 with new period cycle tables', () {
+    expect(db.schemaVersion, 21);
     // isRemoved 是本地列，能写入并读取
     final companion = makeBook('book-0', 'u1')
         .copyWith(isRemoved: const Value(true));

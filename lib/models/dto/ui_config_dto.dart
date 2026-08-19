@@ -5,6 +5,7 @@ class UiConfigDTO {
     this.itemTabShowDebt = true,
     this.itemTabShowDailyBar = true,
     this.itemTabShowDailyCalendar = true,
+    this.itemTabShowPeriodStatus = true,
     this.calendarShowIncome = true,
     this.calendarShowExpense = true,
     this.itemTabShowUserMonthly = true,
@@ -21,6 +22,7 @@ class UiConfigDTO {
     this.useNewItemForm = true,
     this.itemTabComponentOrder = const [
       'daily_bar',
+      'period_status',
       'daily_calendar',
       'user_monthly',
       'activity_recent',
@@ -31,6 +33,7 @@ class UiConfigDTO {
   final bool itemTabShowDebt;
   final bool itemTabShowDailyBar;
   final bool itemTabShowDailyCalendar;
+  final bool itemTabShowPeriodStatus;
   final bool calendarShowIncome;
   final bool calendarShowExpense;
 
@@ -78,6 +81,7 @@ class UiConfigDTO {
       itemTabShowDebt: json['itemTabShowDebt'] ?? true,
       itemTabShowDailyBar: json['itemTabShowDailyBar'] ?? true,
       itemTabShowDailyCalendar: json['itemTabShowDailyCalendar'] ?? true,
+      itemTabShowPeriodStatus: json['itemTabShowPeriodStatus'] ?? true,
       calendarShowIncome: json['calendarShowIncome'] ?? true,
       calendarShowExpense: json['calendarShowExpense'] ?? true,
       itemTabShowUserMonthly: json['itemTabShowUserMonthly'] ?? true,
@@ -95,16 +99,11 @@ class UiConfigDTO {
           [],
       mineTabShowActivityCheckin: json['mineTabShowActivityCheckin'] ?? true,
       useNewItemForm: json['useNewItemForm'] ?? false,
-      itemTabComponentOrder: (json['itemTabComponentOrder'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [
-            'daily_bar',
-            'daily_calendar',
-            'user_monthly',
-            'activity_recent',
-            'debt',
-          ],
+      itemTabComponentOrder: _migrateComponentOrder(
+        (json['itemTabComponentOrder'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList(),
+      ),
     );
   }
 
@@ -117,6 +116,7 @@ class UiConfigDTO {
       'itemTabShowDebt': uiConfig.itemTabShowDebt,
       'itemTabShowDailyBar': uiConfig.itemTabShowDailyBar,
       'itemTabShowDailyCalendar': uiConfig.itemTabShowDailyCalendar,
+      'itemTabShowPeriodStatus': uiConfig.itemTabShowPeriodStatus,
       'calendarShowIncome': uiConfig.calendarShowIncome,
       'calendarShowExpense': uiConfig.calendarShowExpense,
       'itemTabShowUserMonthly': uiConfig.itemTabShowUserMonthly,
@@ -137,5 +137,24 @@ class UiConfigDTO {
 
   static String toJsonString(UiConfigDTO uiConfig) {
     return jsonEncode(_toJson(uiConfig));
+  }
+
+  /// 迁移组件顺序：确保 period_status 存在
+  static List<String> _migrateComponentOrder(List<String>? saved) {
+    const defaultOrder = [
+      'daily_bar',
+      'period_status',
+      'daily_calendar',
+      'user_monthly',
+      'activity_recent',
+      'debt',
+    ];
+    if (saved == null) return defaultOrder;
+    if (saved.contains('period_status')) return saved;
+    // 插入到 daily_bar 之后
+    final result = List<String>.from(saved);
+    final idx = result.indexOf('daily_bar');
+    result.insert(idx >= 0 ? idx + 1 : 0, 'period_status');
+    return result;
   }
 }

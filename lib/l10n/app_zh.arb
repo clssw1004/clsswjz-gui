@@ -2762,5 +2762,271 @@
     "smartSort": "智能推荐",
     "@smartSort": {
         "description": "智能推荐视图切换文本"
-    }
+    },
+    "periodRecord": "经期记录",
+    "@periodRecord": {
+        "description": "经期记录模块名称"
+    },
+    "periodOngoing": "经期进行中",
+    "@periodOngoing": {
+        "description": "经期进行中状态提示"
+    },
+    "periodAutoRecord": "下次经期开始时会自动记录",
+    "@periodAutoRecord": {
+        "description": "经期进行中副标题"
+    },
+    "periodEnd": "经期结束",
+    "@periodEnd": {
+        "description": "经期结束按钮"
+    },
+    "periodBackfill": "补记经期",
+    "@periodBackfill": {
+        "description": "补记经期标题"
+    },
+    "periodMarkFirstDay": "标记该天为经期第一天",
+    "@periodMarkFirstDay": {
+        "description": "补记经期副标题"
+    },
+    "periodRecordStart": "记录经期",
+    "@periodRecordStart": {
+        "description": "记录经期标题"
+    },
+    "periodMarkTodayFirst": "标记今天为经期第一天",
+    "@periodMarkTodayFirst": {
+        "description": "记录经期副标题"
+    },
+    "periodMarkStart": "标记经期开始",
+    "@periodMarkStart": {
+        "description": "标记经期开始按钮"
+    },
+    "deleteRecord": "删除记录",
+    "@deleteRecord": {
+        "description": "删除记录弹窗标题"
+    },
+    "confirmDeleteDayRecord": "确定删除该日的经期记录吗？",
+    "@confirmDeleteDayRecord": {
+        "description": "删除记录弹窗内容"
+    },
+    "cancel": "取消",
+    "@cancel": {
+        "description": "取消按钮"
+    },
+    "deleteBtn": "删除",
+    "@deleteBtn": {
+        "description": "删除按钮（经期模块）"
+    },
+    "confirm": "确定",
+    "@confirm": {
+        "description": "确定按钮"
+    },
+    "markPeriodStart": "标记经期开始",
+    "@markPeriodStart": {
+        "description": "标记经期开始弹窗标题"
+    },
+    "confirmMarkFirstDay": "将 {date} 标记为经期第一天，确定吗？",
+    "@confirmMarkFirstDay": {
+        "description": "标记经期开始弹窗内容",
+        "placeholders": {
+            "date": {"type": "String", "example": "2026-08-17"}
+        }
+    },
+    "confirmPeriodEnd": "从经期开始日到所选日期将全部标记为经期，确定吗？",
+    "@confirmPeriodEnd": {
+        "description": "经期结束弹窗内容"
+    },
+    "periodEndConfirmContent": "结束经期后将计算预测数据，确认无误后点击确认。",
+    "@periodEndConfirmContent": {
+        "description": "经期结束确认内容"
+    },
+    "cyclePrediction": "周期预测",
+    "@cyclePrediction": {
+        "description": "周期预测卡片标题"
+    },
+    "needMoreCycles": "至少需要2次经期记录才能预测",
+    "@needMoreCycles": {
+        "description": "数据不足提示"
+    },
+    "avgCycle": "平均周期",
+    "@avgCycle": {
+        "description": "平均周期天数"
+    },
+    "avgPeriod": "平均经期",
+    "@avgPeriod": {
+        "description": "平均经期天数"
+    },
+    "nextPeriod": "下次经期",
+    "@nextPeriod": {
+        "description": "下次经期预测"
+    },
+    "ovulationDay": "排卵日",
+    "@ovulationDay": {
+        "description": "排卵日预测"
+    },
+    "fertileWindow": "危险期",
+    "@fertileWindow": {
+        "description": "危险期范围"
+    },
+    "predicted": "（预计）",
+    "@predicted": {
+        "description": "预测标记"
+    },
+    "days": "天",
+    "@days": {
+        "description": "天数单位"
+    },
+    "periodStatus": "经期状态",
+    "@periodStatus": {
+        "description": "经期状态字段"
+    },
+    "flowLevel": "流量",
+    "@flowLevel": {
+        "description": "流量字段"
+    },
+    "symptomsMultiSelect": "症状（可多选）",
+    "@symptomsMultiSelect": {
+        "description": "症状多选字段"
+    },
+    "mood": "情绪",
+    "@mood": {
+        "description": "情绪字段"
+    },
+    "remark": "备注",
+    "@remark": {
+        "description": "备注字段"
+    },
+    "remarkHint": "可选备注...",
+    "@remarkHint": {
+        "description": "备注输入框提示"
+    },
+    "save": "保存",
+    "@save": {
+        "description": "保存按钮"
+    },
+    "legendPeriod": "经期",
+    "@legendPeriod": {
+        "description": "日历图例-经期"
+    },
+    "legendOvulation": "排卵期",
+    "@legendOvulation": {
+        "description": "日历图例-排卵期"
+    },
+    "legendSafe": "安全区",
+    "@legendSafe": {
+        "description": "日历图例-安全区"
+    },
+    "status": "状态",
+    "@status": {
+        "description": "详情卡片-状态"
+    },
+    "symptoms": "症状",
+    "@symptoms": {
+        "description": "详情卡片-症状"
+    },
+    "monday": "周一",
+    "@monday": {
+        "description": "星期一"
+    },
+    "tuesday": "周二",
+    "@tuesday": {
+        "description": "星期二"
+    },
+    "wednesday": "周三",
+    "@wednesday": {
+        "description": "星期三"
+    },
+    "thursday": "周四",
+    "@thursday": {
+        "description": "星期四"
+    },
+    "friday": "周五",
+    "@friday": {
+        "description": "星期五"
+    },
+    "saturday": "周六",
+    "@saturday": {
+        "description": "星期六"
+    },
+    "sunday": "周日",
+    "@sunday": {
+        "description": "星期日"
+    },
+    "periodOngoingTag": "经期中",
+    "periodUpcomingTag": "即将到来",
+    "periodDayCount": "经期第 {count} 天",
+    "periodDayCountOf": "第 {current} / {total} 天",
+    "daysUntilPeriod": "距下次经期 {count} 天",
+    "expectedDate": "预计 {date}",
+    "periodOverdueHint": "预计 {date} 开始，已推迟 {count} 天，若已开始请记录",
+    "periodPredictedHint": "预计经期将至，开始后请及时记录",
+    "periodLongerThanAverage": "经期已持续 {current} 天（平均 {avg} 天），若已结束请及时记录",
+    "ovulationDayLabel": "排卵日: {date}",
+    "fertileWindowLabel": "易孕期: {start} ~ {end}",
+    "highFertility": "受孕概率较高",
+    "lowFertility": "受孕概率较低",
+    "selectStartDate": "选择经期开始日期",
+    "selectEndDate": "选择经期结束日期",
+    "noPeriodData": "暂无经期数据",
+    "recordFirstPeriod": "记录你的第一次经期",
+    "confirmEndDate": "确认结束日期",
+    "confirmStartDate": "确认开始日期",
+    "periodStatusNone": "正常",
+    "periodStatusPredicted": "预测",
+    "avgCycleTile": "平均周期",
+    "avgPeriodTile": "平均经期",
+    "nextPeriodTile": "下次经期",
+    "ovulationTile": "排卵日",
+    "fertileTile": "易孕期",
+    "periodStarted": "{date} 开始经期",
+    "alreadyInPeriod": "当前已在经期中",
+    "periodOnboardingTitle": "欢迎使用经期记录",
+    "periodOnboardingDesc": "填写上次经期信息，帮助系统为你提供个性化预测。可以跳过，稍后填写。",
+    "periodOnboardingLastStart": "上次经期开始日期",
+    "periodOnboardingLastEnd": "上次经期结束日期",
+    "periodOnboardingKnowDuration": "我知道持续了几天",
+    "periodOnboardingSelectDate": "点击选择日期",
+    "periodOnboardingConfigureTypical": "配置典型周期参数",
+    "periodOnboardingTypicalPeriodDays": "典型经期天数",
+    "periodOnboardingTypicalCycleDays": "典型周期间隔",
+    "periodSelectRange": "选择经期日期范围",
+    "periodBackfillDesc": "选择经期的开始和结束日期",
+    "periodOngoingBackfillHint": "经期尚未结束，将填充至今天",
+    "skip": "跳过",
+    "deleteCycle": "删除整个经期",
+    "deleteCycleConfirm": "确定删除这次经期的全部 {count} 天记录？此操作不可撤销。",
+    "deleteDayOnly": "仅删除当天",
+    "periodFutureDate": "未来日期不可操作",
+    "periodDailyRecordExists": "已记录当天详情",
+    "periodEditDailyRecord": "编辑每日详情",
+    "periodAddDailyRecord": "记录每日详情",
+    "periodAutoEndConfirmTitle": "自动结束上一次经期",
+    "periodAutoEndConfirmContent": "当前有未结束的经期，开始新经期将自动结束上一次。确定继续？",
+    "periodEndDateBeforeLastRecord": "结束日期不能早于最后记录的日期",
+    "periodEndFailed": "结束经期失败",
+    "periodDailyRecord": "每日详情",
+    "periodFlowLevel": "流量",
+    "periodSymptoms": "症状",
+    "periodMood": "情绪",
+    "periodRemark": "备注",
+    "periodRemarkHint": "添加备注...",
+    "periodFlowNone": "无",
+    "periodFlowLight": "少量",
+    "periodFlowMedium": "中等",
+    "periodFlowHeavy": "大量",
+    "symptomHeadache": "头痛",
+    "symptomCramps": "痛经",
+    "symptomBloating": "腹胀",
+    "symptomBackPain": "腰痛",
+    "symptomFatigue": "疲劳",
+    "symptomMoodSwing": "情绪波动",
+    "symptomBreast": "乳房胀痛",
+    "symptomNausea": "恶心",
+    "moodGood": "好",
+    "moodNormal": "一般",
+    "moodBad": "差",
+    "moodTerrible": "很差",
+    "periodBackfillSheetTitle": "补记经期",
+    "periodBackfillOngoing": "经期进行中",
+    "periodBackfillConfirm": "确认补记",
+    "periodSelectDuration": "选择持续天数",
+    "periodDurationDays": "{days} 天"
 }

@@ -209,6 +209,11 @@ class _MineTabView extends StatelessWidget {
         label: L10nManager.l10n.tabActivity,
         onTap: () => Navigator.pushNamed(context, AppRoutes.activityCheckin),
       ),
+      _GridFeatureItemData(
+        icon: Icons.calendar_month,
+        label: '经期记录',
+        onTap: () => Navigator.pushNamed(context, AppRoutes.periodCalendar),
+      ),
     ];
 
     return Scaffold(

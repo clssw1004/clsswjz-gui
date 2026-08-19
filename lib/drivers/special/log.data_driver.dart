@@ -38,9 +38,13 @@ import '../../models/vo/user_share_vo.dart';
 import '../../models/dto/recurring_config_filter_dto.dart';
 import '../../models/vo/recurring_config_vo.dart';
 import '../../models/vo/bookkeeping_rule_vo.dart';
+import '../../models/vo/period_cycle_vo.dart';
+import '../../models/vo/period_daily_record_vo.dart';
 import '../../models/vo/user_debt_vo.dart';
 import 'log/builder/recurring_config.builder.dart';
 import 'log/builder/bookkeeping_rule.builder.dart';
+import 'log/builder/period_cycle.builder.dart';
+import 'log/builder/period_daily_record.builder.dart';
 import '../../models/vo/user_fund_vo.dart';
 import '../../models/vo/user_item_vo.dart';
 import '../../models/vo/attachment_vo.dart';
@@ -2201,6 +2205,229 @@ class LogDataDriver implements BookDataDriver {
         message: '获取记账规则详情失败：$e',
         exception: e as Exception,
       );
+    }
+  }
+
+  // ============ 经期周期相关 ============
+
+  @override
+  Future<OperateResult<List<PeriodCycleVO>>> listPeriodCycles(
+    String userId, {
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final cycles = await DaoManager.periodCycleDao.findByMonth(userId, year, month);
+      return OperateResult.success(
+          cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<PeriodCycleVO>>> listRecentPeriodCycles(
+    String userId,
+    int days,
+  ) async {
+    try {
+      final cycles = await DaoManager.periodCycleDao.findRecentCycles(userId, days);
+      return OperateResult.success(
+          cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询近期经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<PeriodCycleVO?>> getActivePeriodCycle(String userId) async {
+    try {
+      final cycle = await DaoManager.periodCycleDao.findActiveCycle(userId);
+      return OperateResult.success(
+          cycle != null ? PeriodCycleVO.fromPeriodCycle(cycle) : null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询当前经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<PeriodCycleVO>> createPeriodCycle(
+    String userId,
+    String startDate, {
+    String? endDate,
+    int? typicalPeriodDays,
+    int? typicalCycleDays,
+  }) async {
+    try {
+      final log = PeriodCycleCULog.create(
+        who: userId,
+        startDate: startDate,
+        endDate: endDate,
+        typicalPeriodDays: typicalPeriodDays,
+        typicalCycleDays: typicalCycleDays,
+      );
+      final id = await log.execute();
+      final cycle = await DaoManager.periodCycleDao.findById(id);
+      return OperateResult.success(PeriodCycleVO.fromPeriodCycle(cycle!));
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '创建经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> updatePeriodCycleEndDate(
+    String userId,
+    String cycleId,
+    String endDate,
+  ) async {
+    try {
+      await PeriodCycleCULog.update(
+        who: userId,
+        id: cycleId,
+        endDate: endDate,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deletePeriodCycle(String userId, String cycleId) async {
+    try {
+      // 先删除关联的每日明细
+      final records = await DaoManager.periodDailyRecordDao.findByCycleId(cycleId);
+      for (final record in records) {
+        await PeriodDailyRecordCULog.delete(
+          who: userId,
+          id: record.id,
+        ).execute();
+      }
+      // 再删除周期
+      await PeriodCycleCULog.delete(
+        who: userId,
+        id: cycleId,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除经期周期失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<PeriodDailyRecordVO>>> listPeriodDailyRecords(
+    String userId,
+    String cycleId,
+  ) async {
+    try {
+      final records = await DaoManager.periodDailyRecordDao.findByCycleId(cycleId);
+      return OperateResult.success(
+          records.map((r) => PeriodDailyRecordVO.fromPeriodDailyRecord(r)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询每日明细失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> upsertPeriodDailyRecord(
+    String userId,
+    String cycleId,
+    String recordDate, {
+    String? flowLevel,
+    List<String>? symptoms,
+    String? mood,
+    String? remark,
+  }) async {
+    try {
+      // 按表唯一键 (cycleId, recordDate) 定位，避免与历史周期同日期的明细混淆
+      final existing =
+          await DaoManager.periodDailyRecordDao.findByCycleAndDate(cycleId, recordDate);
+      if (existing != null) {
+        await PeriodDailyRecordCULog.update(
+          who: userId,
+          id: existing.id,
+          flowLevel: flowLevel,
+          symptoms: symptoms,
+          mood: mood,
+          remark: remark,
+        ).execute();
+      } else {
+        await PeriodDailyRecordCULog.create(
+          who: userId,
+          cycleId: cycleId,
+          recordDate: recordDate,
+          flowLevel: flowLevel,
+          symptoms: symptoms,
+          mood: mood,
+          remark: remark,
+        ).execute();
+      }
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '更新每日明细失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deletePeriodDailyRecords(
+    String userId,
+    String cycleId,
+  ) async {
+    try {
+      final records = await DaoManager.periodDailyRecordDao.findByCycleId(cycleId);
+      for (final record in records) {
+        await PeriodDailyRecordCULog.delete(
+          who: userId,
+          id: record.id,
+        ).execute();
+      }
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除每日明细失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<void>> deletePeriodDailyRecord(
+    String userId,
+    String cycleId,
+    String recordDate,
+  ) async {
+    try {
+      final existing =
+          await DaoManager.periodDailyRecordDao.findByCycleAndDate(cycleId, recordDate);
+      if (existing == null) {
+        return OperateResult.failWithMessage(message: '记录不存在');
+      }
+      await PeriodDailyRecordCULog.delete(
+        who: userId,
+        id: existing.id,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除每日明细失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
+  Future<OperateResult<List<PeriodCycleVO>>> listAllPeriodCycles(String userId) async {
+    try {
+      final cycles = await DaoManager.periodCycleDao.findAllCycles(userId);
+      return OperateResult.success(
+          cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '查询所有经期周期失败：$e', exception: e as Exception);
     }
   }
 }

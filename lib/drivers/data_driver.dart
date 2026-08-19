@@ -13,6 +13,8 @@ import '../enums/fund_type.dart';
 import '../enums/note_type.dart';
 import '../enums/symbol_type.dart';
 import '../models/common.dart';
+import '../models/vo/period_cycle_vo.dart';
+import '../models/vo/period_daily_record_vo.dart';
 import '../models/dto/item_filter_dto.dart';
 import '../models/vo/attachment_show_vo.dart';
 import '../models/vo/user_book_vo.dart';
@@ -683,4 +685,76 @@ abstract class BookDataDriver {
   /// 获取单个记账规则
   Future<OperateResult<BookkeepingRuleVO>> getBookkeepingRule(
     String userId, String ruleId);
+
+  // ============ 经期记录相关 ============
+
+  // ============ 经期周期相关 ============
+
+  /// 获取指定月份的经期周期
+  Future<OperateResult<List<PeriodCycleVO>>> listPeriodCycles(
+    String userId, {
+    required int year,
+    required int month,
+  });
+
+  /// 获取最近 N 天内有交集的周期
+  Future<OperateResult<List<PeriodCycleVO>>> listRecentPeriodCycles(
+    String userId,
+    int days,
+  );
+
+  /// 获取当前未结束的周期
+  Future<OperateResult<PeriodCycleVO?>> getActivePeriodCycle(String userId);
+
+  /// 创建经期周期
+  Future<OperateResult<PeriodCycleVO>> createPeriodCycle(
+    String userId,
+    String startDate, {
+    String? endDate,
+    int? typicalPeriodDays,
+    int? typicalCycleDays,
+  });
+
+  /// 更新周期结束日期
+  Future<OperateResult<void>> updatePeriodCycleEndDate(
+    String userId,
+    String cycleId,
+    String endDate,
+  );
+
+  /// 删除周期及关联的每日明细
+  Future<OperateResult<void>> deletePeriodCycle(String userId, String cycleId);
+
+  /// 获取周期内所有每日明细
+  Future<OperateResult<List<PeriodDailyRecordVO>>> listPeriodDailyRecords(
+    String userId,
+    String cycleId,
+  );
+
+  /// 创建或更新每日明细
+  Future<OperateResult<void>> upsertPeriodDailyRecord(
+    String userId,
+    String cycleId,
+    String recordDate, {
+    String? flowLevel,
+    List<String>? symptoms,
+    String? mood,
+    String? remark,
+  });
+
+  /// 删除周期内所有每日明细
+  Future<OperateResult<void>> deletePeriodDailyRecords(
+    String userId,
+    String cycleId,
+  );
+
+  /// 删除指定周期内指定日期的单条每日明细
+  Future<OperateResult<void>> deletePeriodDailyRecord(
+    String userId,
+    String cycleId,
+    String recordDate,
+  );
+
+  /// 获取所有周期（用于统计计算）
+  Future<OperateResult<List<PeriodCycleVO>>> listAllPeriodCycles(String userId);
 }

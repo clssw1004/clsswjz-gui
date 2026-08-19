@@ -9,6 +9,7 @@ import '../events/special/event_book.dart';
 import '../events/special/event_activity_checkin.dart';
 import '../events/special/event_recurring_config.dart';
 import '../events/special/event_bookkeeping_rule.dart';
+import '../events/special/event_period.dart';
 import '../enums/operate_type.dart';
 
 class SyncProvider extends ChangeNotifier {
@@ -29,6 +30,7 @@ class SyncProvider extends ChangeNotifier {
       EventBus.instance.on<UserShareChangedEvent>(_handleUserShareChanged),
       EventBus.instance.on<RecurringConfigChangedEvent>(_handleRecurringConfigChanged),
       EventBus.instance.on<BookkeepingRuleChangedEvent>(_handleBookkeepingRuleChanged),
+      EventBus.instance.on<PeriodRecordChangedEvent>(_handlePeriodRecordChanged),
       EventBus.instance.on<SyncCompletedEvent>(_handleSyncCompleted),
     ]);
   }
@@ -75,6 +77,10 @@ class SyncProvider extends ChangeNotifier {
   }
 
   void _handleBookkeepingRuleChanged(BookkeepingRuleChangedEvent event) {
+    syncData();
+  }
+
+  void _handlePeriodRecordChanged(PeriodRecordChangedEvent event) {
     syncData();
   }
 
