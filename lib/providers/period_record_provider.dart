@@ -263,6 +263,24 @@ class PeriodRecordProvider extends ChangeNotifier {
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.delete));
   }
 
+  /// 删除指定日期的每日明细（保留日期作为周期内空白日）
+  Future<void> deleteDailyRecord(String recordDate) async {
+    final userId = AppConfigManager.instance.userId;
+    await DriverFactory.driver.deletePeriodDailyRecord(userId, recordDate);
+
+    // 重新加载明细
+    if (_activeCycle != null) {
+      final dailyResult = await DriverFactory.driver.listPeriodDailyRecords(
+        userId, _activeCycle!.id,
+      );
+      if (dailyResult.ok) {
+        _dailyRecords = dailyResult.data ?? [];
+      }
+    }
+    notifyListeners();
+    EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.delete));
+  }
+
   // ── 每日明细操作 ──
 
   /// 添加或更新每日明细

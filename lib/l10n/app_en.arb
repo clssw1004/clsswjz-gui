@@ -2673,9 +2673,13 @@
             "date": {"type": "String", "example": "2026-08-17"}
         }
     },
-    "confirmPeriodEnd": "Mark all days from period start to today as period?",
+    "confirmPeriodEnd": "Mark all days from period start to selected date as period?",
     "@confirmPeriodEnd": {
         "description": "End period dialog content"
+    },
+    "periodEndConfirmContent": "Prediction data will be recalculated after ending the period. Confirm to proceed?",
+    "@periodEndConfirmContent": {
+        "description": "End period confirmation content"
     },
     "cyclePrediction": "Cycle Prediction",
     "@cyclePrediction": {

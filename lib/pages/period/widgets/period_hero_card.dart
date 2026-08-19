@@ -155,24 +155,26 @@ class PeriodHeroCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          // 结束按钮
+          // 结束按钮（醒目的红色填充）
           SizedBox(
             height: 40,
-            child: OutlinedButton.icon(
+            child: FilledButton.icon(
               onPressed: provider.operating ? null : onEndPeriod,
               icon: provider.operating
                   ? const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : Icon(Icons.stop_circle_outlined, size: 16, color: cs.error),
+                  : const Icon(Icons.stop_circle_outlined, size: 16, color: Colors.white),
               label: Text(
                 l10n.periodEnd,
-                style: TextStyle(color: cs.error, fontSize: 13),
+                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
               ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: cs.error.withAlpha(128)),
+              style: FilledButton.styleFrom(
+                backgroundColor: cs.error.withAlpha(200),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: cs.error.withAlpha(100),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

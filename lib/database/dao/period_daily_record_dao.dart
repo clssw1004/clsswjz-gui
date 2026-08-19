@@ -33,4 +33,12 @@ class PeriodDailyRecordDao extends BaseDao<PeriodDailyRecordTable, PeriodDailyRe
           ..limit(1))
         .getSingleOrNull();
   }
+
+  /// 按日期删除某条明细
+  Future<int> deleteByDate(String userId, String recordDate) {
+    final query = db.delete(table)
+      ..where((t) =>
+          t.createdBy.equals(userId) & t.recordDate.equals(recordDate));
+    return query.go();
+  }
 }

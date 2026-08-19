@@ -2830,9 +2830,13 @@
             "date": {"type": "String", "example": "2026-08-17"}
         }
     },
-    "confirmPeriodEnd": "从经期开始日到今天将全部标记为经期，确定吗？",
+    "confirmPeriodEnd": "从经期开始日到所选日期将全部标记为经期，确定吗？",
     "@confirmPeriodEnd": {
         "description": "经期结束弹窗内容"
+    },
+    "periodEndConfirmContent": "结束经期后将计算预测数据，确认无误后点击确认。",
+    "@periodEndConfirmContent": {
+        "description": "经期结束确认内容"
     },
     "cyclePrediction": "周期预测",
     "@cyclePrediction": {

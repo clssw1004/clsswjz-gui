@@ -291,11 +291,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     );
   }
 
-  /// 日期操作（补充明细 / 结束经期）
+  /// 日期操作（补充明细 / 结束经期 / 删除）
   void _showDayAction(String date, PeriodRecordProvider provider) {
     final cs = Theme.of(context).colorScheme;
     final l10n = L10nManager.l10n;
     final dailyRecord = provider.getDailyRecordByDate(date);
+    final cycle = provider.findCycleForDate(date);
 
     showModalBottomSheet(
       context: context,
@@ -351,26 +352,123 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
               ),
               const SizedBox(height: 8),
 
-              // 结束经期按钮
-              ListTile(
-                leading: Icon(Icons.stop_circle_outlined, color: cs.error),
-                title: Text(l10n.periodEnd, style: TextStyle(color: cs.error)),
-                subtitle: Text(date,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: cs.error.withAlpha(80)),
+              // 结束经期按钮（红色醒目 + 确认）
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: provider.operating ? null : () {
+                    Navigator.pop(ctx);
+                    _confirmEndPeriod(provider, date);
+                  },
+                  icon: provider.operating
+                      ? const SizedBox(width: 18, height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.stop_circle_outlined, size: 20),
+                  label: Text(
+                    l10n.periodEnd,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: cs.error,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: cs.error.withAlpha(100),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                onTap: provider.operating ? null : () {
-                  Navigator.pop(ctx);
-                  _confirmEndPeriod(provider, date);
-                },
               ),
+              const SizedBox(height: 8),
+
+              // 删除操作（分隔线 + 危险操作区）
+              const Divider(height: 20),
+              if (dailyRecord != null)
+                ListTile(
+                  leading: Icon(Icons.delete_outline, color: cs.error),
+                  title: Text(l10n.deleteDayOnly,
+                    style: TextStyle(color: cs.error, fontWeight: FontWeight.w500)),
+                  subtitle: Text(l10n.periodDailyRecord,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: cs.error.withAlpha(50)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _confirmDeleteDailyRecord(provider, date);
+                  },
+                ),
+              if (cycle != null) ...[
+                if (dailyRecord != null) const SizedBox(height: 8),
+                ListTile(
+                  leading: Icon(Icons.delete_forever_outlined, color: cs.error),
+                  title: Text(l10n.deleteCycle,
+                    style: TextStyle(color: cs.error, fontWeight: FontWeight.w500)),
+                  subtitle: Text('${cycle.startDate} ~ ${cycle.endDate ?? l10n.periodOngoing}',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: cs.error.withAlpha(50)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _confirmDeleteCycle(provider, cycle.id);
+                  },
+                ),
+              ],
               const SizedBox(height: 8),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// 确认删除单日明细
+  void _confirmDeleteDailyRecord(PeriodRecordProvider provider, String date) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(L10nManager.l10n.deleteRecord),
+        content: Text(L10nManager.l10n.confirmDeleteDayRecord),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await provider.deleteDailyRecord(date);
+              if (context.mounted) setState(() => _selectedDate = null);
+            },
+            child: Text(L10nManager.l10n.deleteBtn,
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 确认删除整个周期
+  void _confirmDeleteCycle(PeriodRecordProvider provider, String cycleId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(L10nManager.l10n.deleteCycle),
+        content: Text(L10nManager.l10n.deleteCycleConfirm(0)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L10nManager.l10n.cancel)),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await provider.deleteCycle(cycleId);
+              if (context.mounted) setState(() => _selectedDate = null);
+            },
+            child: Text(L10nManager.l10n.deleteBtn,
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
       ),
     );
   }
@@ -443,6 +541,28 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
         return;
       }
     }
+
+    // 二次确认，防止误点
+    final startDate = provider.activeCycle!.startDate;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(L10nManager.l10n.confirmPeriodEnd),
+        content: Text('$startDate → $date\n\n${L10nManager.l10n.periodEndConfirmContent}'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(L10nManager.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(L10nManager.l10n.confirm,
+              style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
 
     final ok = await provider.endPeriod(date);
     if (mounted) {

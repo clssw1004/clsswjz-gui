@@ -780,6 +780,12 @@ abstract class BookDataDriver {
     String cycleId,
   );
 
+  /// 删除指定日期的单条每日明细
+  Future<OperateResult<void>> deletePeriodDailyRecord(
+    String userId,
+    String recordDate,
+  );
+
   /// 获取所有周期（用于统计计算）
   Future<OperateResult<List<PeriodCycleVO>>> listAllPeriodCycles(String userId);
 }

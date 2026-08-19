@@ -2506,6 +2506,27 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
+  Future<OperateResult<void>> deletePeriodDailyRecord(
+    String userId,
+    String recordDate,
+  ) async {
+    try {
+      final existing = await DaoManager.periodDailyRecordDao.findByDate(userId, recordDate);
+      if (existing == null) {
+        return OperateResult.failWithMessage(message: '记录不存在');
+      }
+      await PeriodDailyRecordCULog.delete(
+        who: userId,
+        id: existing.id,
+      ).execute();
+      return OperateResult.success(null);
+    } catch (e) {
+      return OperateResult.failWithMessage(
+          message: '删除每日明细失败：$e', exception: e as Exception);
+    }
+  }
+
+  @override
   Future<OperateResult<List<PeriodCycleVO>>> listAllPeriodCycles(String userId) async {
     try {
       final cycles = await DaoManager.periodCycleDao.findAllCycles(userId);
