@@ -70,7 +70,13 @@ enum BusinessType {
   bookkeepingRule('bookkeepingRule'),
 
   /// 经期记录
-  periodRecord('periodRecord');
+  periodRecord('periodRecord'),
+
+  /// 经期周期
+  periodCycle('periodCycle'),
+
+  /// 经期每日明细
+  periodDailyRecord('periodDailyRecord');
 
   final String code;
   const BusinessType(this.code);
@@ -166,6 +172,8 @@ extension BusinessTypeSyncPriority on BusinessType {
       case BusinessType.attachment:
       case BusinessType.userShare:
       case BusinessType.periodRecord:
+      case BusinessType.periodCycle:
+      case BusinessType.periodDailyRecord:
         return SyncPriority.low;
     }
   }

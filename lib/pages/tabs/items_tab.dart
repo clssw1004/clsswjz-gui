@@ -294,7 +294,7 @@ class _ItemsTabState extends State<ItemsTab>
       initialDate: todayStr,
     );
     if (selected != null && context.mounted) {
-      await provider.endPeriod(endDate: selected);
+      await provider.endPeriod(selected);
     }
   }
 }

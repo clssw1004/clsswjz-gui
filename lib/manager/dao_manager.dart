@@ -21,6 +21,8 @@ import '../database/dao/recurring_config_dao.dart';
 import '../database/dao/bookkeeping_rule_dao.dart';
 import '../database/dao/item_rel_field_dao.dart';
 import '../database/dao/period_record_dao.dart';
+import '../database/dao/period_cycle_dao.dart';
+import '../database/dao/period_daily_record_dao.dart';
 import 'database_manager.dart';
 
 class DaoManager {
@@ -47,6 +49,8 @@ class DaoManager {
   static late BookkeepingRuleDao bookkeepingRuleDao;
   static late ItemRelFieldDao itemRelFieldDao;
   static late PeriodRecordDao periodRecordDao;
+  static late PeriodCycleDao periodCycleDao;
+  static late PeriodDailyRecordDao periodDailyRecordDao;
 
   static void refreshDaos() {
     bookDao = BookDao(DatabaseManager.db);
@@ -72,5 +76,7 @@ class DaoManager {
     bookkeepingRuleDao = BookkeepingRuleDao(DatabaseManager.db);
     itemRelFieldDao = ItemRelFieldDao(DatabaseManager.db);
     periodRecordDao = PeriodRecordDao(DatabaseManager.db);
+    periodCycleDao = PeriodCycleDao(DatabaseManager.db);
+    periodDailyRecordDao = PeriodDailyRecordDao(DatabaseManager.db);
   }
 }

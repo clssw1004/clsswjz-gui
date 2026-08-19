@@ -424,15 +424,16 @@ class _PeriodDayFormPageState extends State<PeriodDayFormPage> {
   Future<void> _save() async {
     setState(() => _saving = true);
     final provider = context.read<PeriodRecordProvider>();
-    final result = await provider.updatePeriodDay(
-      widget.recordDate,
-      periodStatus: _periodStatus.code,
-      flowLevel: _periodStatus == PeriodStatus.period ? _flowLevel.code : FlowLevel.none.code,
-      symptoms: _symptoms,
-      mood: _mood.code,
-      remark: _remarkController.text.isEmpty ? null : _remarkController.text,
-    );
-    if (mounted && result.ok) {
+    if (provider.isInPeriod) {
+      await provider.upsertDailyRecord(
+        widget.recordDate,
+        flowLevel: _flowLevel.code,
+        symptoms: _symptoms,
+        mood: _mood.code,
+        remark: _remarkController.text.isEmpty ? null : _remarkController.text,
+      );
+    }
+    if (mounted) {
       Navigator.pop(context);
     } else {
       setState(() => _saving = false);

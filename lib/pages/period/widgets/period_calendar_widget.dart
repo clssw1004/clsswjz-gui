@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import '../../../models/vo/period_record_vo.dart';
+import '../../../models/vo/period_cycle_vo.dart';
 import '../../../models/vo/period_statistics_vo.dart';
 import '../../../services/period_prediction_service.dart';
 import '../../../manager/l10n_manager.dart';
 
-/// 升级版日历网格组件
+/// 经期日历网格组件
 ///
-/// - 包裹在圆角卡片中
-/// - 日期格子 42px 圆形，选中态 scale 动画
-/// - 今日双圈标记
-/// - 预测期日期虚线边框
-/// - 底部集成图例行
+/// 基于 cycles 渲染经期、预测期、排卵日、易孕期等状态。
 class PeriodCalendarWidget extends StatelessWidget {
   final int year;
   final int month;
-  final List<PeriodRecordVO> records;
-  final List<PeriodRecordVO> recentRecords;
+  final List<PeriodCycleVO> cycles;
   final PeriodStatisticsVO? statistics;
   final String? selectedDate;
   final ValueChanged<String> onDateTap;
@@ -26,8 +21,7 @@ class PeriodCalendarWidget extends StatelessWidget {
     super.key,
     required this.year,
     required this.month,
-    required this.records,
-    this.recentRecords = const [],
+    required this.cycles,
     this.statistics,
     this.selectedDate,
     required this.onDateTap,
@@ -40,11 +34,8 @@ class PeriodCalendarWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l10n = L10nManager.l10n;
-    // 用 recentRecords 计算日期类型（支持跨月预测）
-    final allRecords = [...records, ...recentRecords.where((r) =>
-        !records.any((m) => m.recordDate == r.recordDate))];
-    final dateTypes =
-        PeriodPredictionService.getMonthDateTypes(allRecords, statistics);
+    // 从 cycles 计算日期类型
+    final dateTypes = PeriodPredictionService.getMonthDateTypes(cycles, statistics);
     final today = DateTime.now();
     final todayStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
@@ -136,12 +127,13 @@ class PeriodCalendarWidget extends StatelessWidget {
                     final dateType = dateTypes[dateStr];
                     final isToday = dateStr == todayStr;
                     final isSelected = dateStr == selectedDate;
+                    final isFuture = dateStr.compareTo(todayStr) > 0;
                     final isWeekend =
                         (cellIndex % 7 == 0) || (cellIndex % 7 == 6);
 
                     return Expanded(
                       child: GestureDetector(
-                        onTap: () => onDateTap(dateStr),
+                        onTap: isFuture ? null : () => onDateTap(dateStr),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           height: 42,
@@ -159,9 +151,11 @@ class PeriodCalendarWidget extends StatelessWidget {
                               '$dayNum',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isSelected
-                                    ? cs.onPrimary
-                                    : _getTextColor(cs, dateType, isWeekend),
+                                color: isFuture
+                                    ? cs.onSurfaceVariant.withAlpha(100)
+                                    : isSelected
+                                        ? cs.onPrimary
+                                        : _getTextColor(cs, dateType, isWeekend),
                                 fontWeight: (isToday || isSelected)
                                     ? FontWeight.bold
                                     : FontWeight.normal,
@@ -177,7 +171,7 @@ class PeriodCalendarWidget extends StatelessWidget {
             },
           ),
           const SizedBox(height: 8),
-          // 集成图例
+          // 图例
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _buildLegend(cs, theme, l10n),
@@ -219,13 +213,15 @@ class PeriodCalendarWidget extends StatelessWidget {
     return switch (type) {
       DateType.period => cs.error,
       DateType.ovulation => cs.tertiary,
+      DateType.fertile => cs.tertiary,
+      DateType.predictedPeriod => cs.error.withAlpha(180),
       _ => isWeekend ? cs.error.withAlpha(180) : cs.onSurface,
     };
   }
 
   BoxBorder? _getBorder(
     ColorScheme cs, DateType? type, bool isToday, bool isSelected) {
-    if (isSelected) return null; // 选中时不需要 border
+    if (isSelected) return null;
     if (isToday) {
       return Border.all(color: cs.primary, width: 1.5);
     }
@@ -233,7 +229,6 @@ class PeriodCalendarWidget extends StatelessWidget {
       return Border.all(
         color: cs.error.withAlpha(100),
         width: 1,
-        // Note: Flutter 不支持 dashed border，用低 alpha 模拟预测感
       );
     }
     return null;

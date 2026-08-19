@@ -8,17 +8,33 @@ import '../../../manager/l10n_manager.dart';
 /// - 不勾选 → 必须选择结束日期，填充指定范围
 class PeriodBackfillSheet extends StatefulWidget {
   final String fromDate;
+  final String? minDate;
+  final String? maxDate;
 
-  const PeriodBackfillSheet({super.key, required this.fromDate});
+  const PeriodBackfillSheet({
+    super.key,
+    required this.fromDate,
+    this.minDate,
+    this.maxDate,
+  });
 
-  static Future<DateTimeRange?> show(BuildContext context, String fromDate) {
+  static Future<DateTimeRange?> show(
+    BuildContext context,
+    String fromDate, {
+    String? minDate,
+    String? maxDate,
+  }) {
     return showModalBottomSheet<DateTimeRange>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => PeriodBackfillSheet(fromDate: fromDate),
+      builder: (_) => PeriodBackfillSheet(
+        fromDate: fromDate,
+        minDate: minDate,
+        maxDate: maxDate,
+      ),
     );
   }
 
