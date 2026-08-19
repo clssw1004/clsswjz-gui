@@ -171,4 +171,5 @@ lib/generated/l10n/
 
 .codegraph/
 
-.codebuddy/
+.codebuddy/generated-images/
+untranslated_messages.txt
