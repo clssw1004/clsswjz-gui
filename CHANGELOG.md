@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-08-19
+
+### Features
+
+- Add period record module with a cycle + daily-detail two-layer model: one-tap start/end replaces manual daily logging, historical backfill, and cycle batch delete
+- Period prediction: calendar rendering, prediction statistics, and cross-month prediction display
+- Onboarding guide to configure the typical period length
+- Add period status toggle in app settings
+
+### Improvements
+
+- Optimized period pages: compact hero card, 2x2 statistics tiles, bottom-sheet day interactions
+- Simplified historical backfill with date pickers instead of a two-step flow
+- Month switching reuses cached statistics to avoid full-table queries
+
+### Fixes
+
+- Historical backfill cycles in earlier months not being found
+- Delete button not responding after the period has ended
+- End-period now requires confirmation
+
 ## [1.2.0] - 2026-08-16
 
 ### Features
