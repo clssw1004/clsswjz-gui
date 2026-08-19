@@ -276,7 +276,12 @@ class _ItemsTabState extends State<ItemsTab>
       maxDate: todayStr,
     );
     if (selected != null && context.mounted) {
-      await provider.startPeriod(selected);
+      final ok = await provider.startPeriod(selected);
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(L10nManager.l10n.alreadyInPeriod)),
+        );
+      }
     }
   }
 
@@ -294,7 +299,12 @@ class _ItemsTabState extends State<ItemsTab>
       initialDate: todayStr,
     );
     if (selected != null && context.mounted) {
-      await provider.endPeriod(selected);
+      final ok = await provider.endPeriod(selected);
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(L10nManager.l10n.periodEndFailed)),
+        );
+      }
     }
   }
 }

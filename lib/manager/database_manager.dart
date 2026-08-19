@@ -57,6 +57,17 @@ class DatabaseManager {
 
   static AppDatabase get db => _db;
 
+  /// 测试专用：注入内存数据库替换默认文件数据库
+  ///
+  /// 仅测试环境使用，避免真实数据库文件被污染。
+  @visibleForTesting
+  static void setDbForTest(AppDatabase db) {
+    _db = db;
+    DaoManager.refreshDaos();
+    _isInit = true;
+    _instance ??= DatabaseManager._();
+  }
+
   Future<void> closeDatabase() async {
     await _db.close();
   }

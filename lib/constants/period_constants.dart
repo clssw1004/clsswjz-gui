@@ -25,4 +25,15 @@ class PeriodConstants {
 
   /// 默认经期天数（无历史数据时）
   static const int defaultPeriodDays = 5;
+
+  /// 预测迭代次数（每次覆盖一个周期，用于未来多个月的日历标记）
+  static const int predictIterations = 6;
+
+  /// 典型周期天数合法范围（用于校验用户配置）
+  static const int typicalCycleMin = 15;
+  static const int typicalCycleMax = 60;
+
+  /// 典型经期天数合法范围
+  static const int typicalPeriodMin = 2;
+  static const int typicalPeriodMax = 14;
 }

@@ -59,6 +59,35 @@ void main() {
     expect(active.endDate, isNull);
   });
 
+  test('findAllActiveCycles returns all open cycles sorted desc', () async {
+    await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+      'user-1',
+      startDate: '2026-07-01', // 未结束
+    ));
+    await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+      'user-1',
+      startDate: '2026-08-01', // 未结束
+    ));
+    // 已结束的周期不应出现在活跃列表中
+    await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+      'user-1',
+      startDate: '2026-06-01',
+      endDate: '2026-06-05',
+    ));
+    // 其他用户的数据不应干扰
+    await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+      'user-2',
+      startDate: '2026-08-10', // 未结束
+    ));
+
+    final actives = await cycleDao.findAllActiveCycles('user-1');
+    expect(actives.length, 2);
+    // 按开始日期降序：最新的在前
+    expect(actives.first.startDate, '2026-08-01');
+    expect(actives.last.startDate, '2026-07-01');
+    expect(actives.every((c) => c.endDate == null), isTrue);
+  });
+
   test('findByMonth returns cycles overlapping the month', () async {
     await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
       'user-1',

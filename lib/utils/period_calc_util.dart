@@ -1,6 +1,4 @@
-import '../constants/period_constants.dart';
 import '../enums/period_status.dart';
-import '../models/vo/period_record_vo.dart';
 import '../models/vo/period_statistics_vo.dart';
 
 /// 经期计算工具类
@@ -13,6 +11,9 @@ class PeriodCalcUtil {
   // ── 周期阶段判定 ──
 
   /// 判断当前所处周期阶段
+  ///
+  /// 顺序：经期中 → 预测经期窗口内（今天处于 [nextPeriodDate, nextPeriodDate+avgPeriod)）
+  /// → 易孕窗口内 → 安全期 → 无数据。
   static PeriodPhase determinePhase({
     required bool isInPeriod,
     required PeriodStatisticsVO statistics,
@@ -26,6 +27,16 @@ class PeriodCalcUtil {
     if (!statistics.canPredict) return PeriodPhase.noData;
 
     final date = today ?? _todayStr();
+
+    // 预测经期窗口内
+    final next = statistics.nextPeriodDate;
+    if (next != null) {
+      final windowEnd = _addDays(next, statistics.averagePeriodLength - 1);
+      if (date.compareTo(next) >= 0 && date.compareTo(windowEnd) <= 0) {
+        return PeriodPhase.predicted;
+      }
+    }
+
     final fertileStart = statistics.fertileWindowStart;
     final fertileEnd = statistics.fertileWindowEnd;
 
@@ -40,39 +51,6 @@ class PeriodCalcUtil {
   }
 
   // ── 经期天数计算 ──
-
-  /// 计算当前是经期第几天
-  ///
-  /// 从 [today] 往前搜索连续的 period 记录，返回天数（1-indexed）。
-  /// 非经期返回 null。
-  static int? calcCurrentPeriodDay({
-    required bool isInPeriod,
-    required List<PeriodRecordVO> records,
-    String? today,
-  }) {
-    if (!isInPeriod) return null;
-
-    final now = today != null ? DateTime.parse(today) : DateTime.now();
-
-    // 先从 records 中查找今天的记录
-    PeriodRecordVO? getRecord(String date) {
-      try {
-        return records.firstWhere((r) => r.recordDate == date);
-      } catch (_) {
-        return null;
-      }
-    }
-
-    for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
-      final d = now.subtract(Duration(days: i));
-      final ds = _dateStr(d);
-      final r = getRecord(ds);
-      if (r == null || r.periodStatus != PeriodStatus.period) {
-        return i > 0 ? i : 1;
-      }
-    }
-    return 1;
-  }
 
   // ── 距下次经期天数 ──
 
@@ -93,39 +71,6 @@ class PeriodCalcUtil {
     final todayOnly = DateTime(todayDate.year, todayDate.month, todayDate.day);
     final diff = next.difference(todayOnly).inDays;
     return diff >= 0 ? diff : null;
-  }
-
-  // ── 本次经期开始日期 ──
-
-  /// 查找本次经期的开始日期
-  ///
-  /// 从 [today] 往前搜索，找到第一个非 period 记录的下一天。
-  static String? calcPeriodStartDate({
-    required bool isInPeriod,
-    required List<PeriodRecordVO> records,
-    String? today,
-  }) {
-    if (!isInPeriod) return null;
-
-    final now = today != null ? DateTime.parse(today) : DateTime.now();
-
-    PeriodRecordVO? getRecord(String date) {
-      try {
-        return records.firstWhere((r) => r.recordDate == date);
-      } catch (_) {
-        return null;
-      }
-    }
-
-    for (var i = 0; i < PeriodConstants.endPeriodSearchMaxDays; i++) {
-      final d = now.subtract(Duration(days: i));
-      final ds = _dateStr(d);
-      final r = getRecord(ds);
-      if (r == null || r.periodStatus != PeriodStatus.period) {
-        return _dateStr(now.subtract(Duration(days: i > 0 ? i - 1 : 0)));
-      }
-    }
-    return null;
   }
 
   // ── 易孕期 / 安全期判定 ──
@@ -160,6 +105,11 @@ class PeriodCalcUtil {
   // ── 工具方法 ──
 
   static String _todayStr() => _dateStr(DateTime.now());
+
+  static String _addDays(String date, int days) {
+    final d = DateTime.parse(date).add(Duration(days: days));
+    return _dateStr(d);
+  }
 
   static String _dateStr(DateTime d) {
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

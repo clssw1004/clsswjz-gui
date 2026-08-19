@@ -3,9 +3,8 @@ import '../../../manager/l10n_manager.dart';
 
 /// 历史补记底部抽屉
 ///
-/// 两个日期选择器：开始日期 + 结束日期（可选）。
-/// - 勾选"经期进行中"→ 结束日期禁用，填充到今天
-/// - 不勾选 → 必须选择结束日期，填充指定范围
+/// 两个日期选择器：开始日期 + 结束日期（**必填**，补记历史不允许"进行中"）。
+/// 选择结束日期时，日历定位到开始日期所在月份。
 class PeriodBackfillSheet extends StatefulWidget {
   final String fromDate;
   final String? minDate;
@@ -45,7 +44,6 @@ class PeriodBackfillSheet extends StatefulWidget {
 class _PeriodBackfillSheetState extends State<PeriodBackfillSheet> {
   late DateTime _startDate;
   DateTime? _endDate;
-  bool _isOngoing = false;
 
   @override
   void initState() {
@@ -107,56 +105,35 @@ class _PeriodBackfillSheetState extends State<PeriodBackfillSheet> {
             date: _startDate,
             firstDate: DateTime(2020),
             lastDate: todayOnly,
-            onSelect: (d) => setState(() => _startDate = d),
+            onSelect: (d) {
+              setState(() {
+                _startDate = d;
+                // 结束日期早于新开始日期时重置
+                if (_endDate != null && _endDate!.isBefore(d)) {
+                  _endDate = null;
+                }
+              });
+            },
             cs: cs,
             theme: theme,
           ),
           const SizedBox(height: 16),
 
-          // 经期进行中开关
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.periodOngoing,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      l10n.periodOngoingBackfillHint,
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: _isOngoing,
-                onChanged: (v) => setState(() {
-                  _isOngoing = v;
-                  if (v) _endDate = null;
-                }),
-              ),
-            ],
+          // 结束日期（必填，不允许"进行中"）
+          _buildLabel(theme, l10n.periodOnboardingLastEnd),
+          const SizedBox(height: 8),
+          _buildDatePicker(
+            context,
+            date: _endDate,
+            firstDate: _startDate,
+            lastDate: todayOnly,
+            // 未选结束日期时，日历定位到开始日期所在月份
+            initialDate: _endDate ?? _startDate,
+            onSelect: (d) => setState(() => _endDate = d),
+            cs: cs,
+            theme: theme,
+            hint: l10n.periodOnboardingSelectDate,
           ),
-
-          // 结束日期（非进行中时显示）
-          if (!_isOngoing) ...[
-            const SizedBox(height: 12),
-            _buildLabel(theme, l10n.periodOnboardingLastEnd),
-            const SizedBox(height: 8),
-            _buildDatePicker(
-              context,
-              date: _endDate,
-              firstDate: _startDate,
-              lastDate: todayOnly,
-              onSelect: (d) => setState(() => _endDate = d),
-              cs: cs,
-              theme: theme,
-              hint: l10n.periodOnboardingSelectDate,
-            ),
-          ],
           const SizedBox(height: 24),
 
           // 按钮
@@ -191,15 +168,11 @@ class _PeriodBackfillSheetState extends State<PeriodBackfillSheet> {
     );
   }
 
-  bool _canConfirm() {
-    if (_isOngoing) return true;
-    return _endDate != null;
-  }
+  bool _canConfirm() => _endDate != null;
 
   void _onConfirm() {
-    final end = _isOngoing ? DateTime.now() : _endDate!;
     final startOnly = DateTime(_startDate.year, _startDate.month, _startDate.day);
-    final endOnly = DateTime(end.year, end.month, end.day);
+    final endOnly = DateTime(_endDate!.year, _endDate!.month, _endDate!.day);
     Navigator.pop(context, DateTimeRange(start: startOnly, end: endOnly));
   }
 
@@ -219,12 +192,13 @@ class _PeriodBackfillSheetState extends State<PeriodBackfillSheet> {
     required ColorScheme cs,
     required ThemeData theme,
     String? hint,
+    DateTime? initialDate,
   }) {
     return GestureDetector(
       onTap: () async {
         final picked = await showDatePicker(
           context: context,
-          initialDate: date ?? DateTime.now(),
+          initialDate: initialDate ?? date ?? DateTime.now(),
           firstDate: firstDate,
           lastDate: lastDate,
         );

@@ -13,8 +13,6 @@ import '../enums/fund_type.dart';
 import '../enums/note_type.dart';
 import '../enums/symbol_type.dart';
 import '../models/common.dart';
-import '../models/vo/period_record_vo.dart';
-import '../models/vo/period_statistics_vo.dart';
 import '../models/vo/period_cycle_vo.dart';
 import '../models/vo/period_daily_record_vo.dart';
 import '../models/dto/item_filter_dto.dart';
@@ -690,37 +688,7 @@ abstract class BookDataDriver {
 
   // ============ 经期记录相关 ============
 
-  /// 记录/更新某日经期状态（原子操作：不存在则创建，存在则更新）
-  Future<OperateResult<void>> updatePeriodDay(
-    String userId,
-    String recordDate, {
-    String? periodStatus,
-    String? flowLevel,
-    List<String>? symptoms,
-    String? mood,
-    String? remark,
-  });
-
-  /// 获取指定月份的经期记录
-  Future<OperateResult<List<PeriodRecordVO>>> listPeriodRecords(
-    String userId, {
-    required int year,
-    required int month,
-  });
-
-  /// 获取最近 N 天的经期记录（用于跨月 lookback）
-  Future<OperateResult<List<PeriodRecordVO>>> listRecentPeriodRecords(
-    String userId,
-    int days,
-  );
-
-  /// 获取经期预测信息（周期统计+预测）
-  Future<OperateResult<PeriodStatisticsVO>> getPeriodStatistics(String userId);
-
-  /// 删除某日记录
-  Future<OperateResult<void>> deletePeriodDay(String userId, String recordDate);
-
-  // ============ 经期周期相关（新） ============
+  // ============ 经期周期相关 ============
 
   /// 获取指定月份的经期周期
   Future<OperateResult<List<PeriodCycleVO>>> listPeriodCycles(
@@ -780,9 +748,10 @@ abstract class BookDataDriver {
     String cycleId,
   );
 
-  /// 删除指定日期的单条每日明细
+  /// 删除指定周期内指定日期的单条每日明细
   Future<OperateResult<void>> deletePeriodDailyRecord(
     String userId,
+    String cycleId,
     String recordDate,
   );
 

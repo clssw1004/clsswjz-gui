@@ -20,6 +20,9 @@ class PeriodRecordProvider extends ChangeNotifier {
   /// 近 60 天 cycles（用于跨月渲染）
   List<PeriodCycleVO> _recentCycles = [];
 
+  /// 全量 cycles（用于统计与相邻周期查找）
+  List<PeriodCycleVO> _allCycles = [];
+
   /// 当前未结束的 cycle
   PeriodCycleVO? _activeCycle;
 
@@ -38,6 +41,7 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   List<PeriodCycleVO> get cycles => _cycles;
   List<PeriodCycleVO> get recentCycles => _recentCycles;
+  List<PeriodCycleVO> get allCycles => _allCycles;
   PeriodCycleVO? get activeCycle => _activeCycle;
   List<PeriodDailyRecordVO> get dailyRecords => _dailyRecords;
   PeriodStatisticsVO get statistics => _statistics;
@@ -68,6 +72,33 @@ class PeriodRecordProvider extends ChangeNotifier {
         statistics: _statistics,
       );
 
+  /// 预测经期是否已开始但未记录（今天处于预测经期窗口内）
+  bool get isPredictedPeriodDue {
+    if (!_statistics.canPredict || _statistics.nextPeriodDate == null) {
+      return false;
+    }
+    final today = _todayStr();
+    final next = _statistics.nextPeriodDate!;
+    final windowEnd = _addDays(next, _statistics.averagePeriodLength - 1);
+    return today.compareTo(next) >= 0 && today.compareTo(windowEnd) <= 0;
+  }
+
+  /// 预测经期窗口已完全过去但未记录（疑似延迟），返回推迟天数；未过期返回 null
+  int? get periodOverdueDays {
+    if (!_statistics.canPredict || _statistics.nextPeriodDate == null) {
+      return null;
+    }
+    final now = DateTime.now();
+    final todayOnly = DateTime(now.year, now.month, now.day);
+    final windowEnd = DateTime.parse(
+      _addDays(_statistics.nextPeriodDate!, _statistics.averagePeriodLength - 1),
+    );
+    if (todayOnly.isAfter(windowEnd)) {
+      return todayOnly.difference(windowEnd).inDays;
+    }
+    return null;
+  }
+
   /// 本次经期开始日期
   String? get periodStartDate => _activeCycle?.startDate;
 
@@ -92,7 +123,14 @@ class PeriodRecordProvider extends ChangeNotifier {
   // ── 数据加载 ──
 
   /// 加载指定月份的数据
-  Future<void> loadRecords({int? year, int? month}) async {
+  ///
+  /// [refreshStatistics] 为 false 时跳过全量周期与统计的刷新（仅切月时使用，
+  /// 避免每次翻月都全表查询）。
+  Future<void> loadRecords({
+    int? year,
+    int? month,
+    bool refreshStatistics = true,
+  }) async {
     _loading = true;
     notifyListeners();
 
@@ -101,18 +139,18 @@ class PeriodRecordProvider extends ChangeNotifier {
 
     final userId = AppConfigManager.instance.userId;
 
-    // 并行加载：当月 cycles + 近 60 天 cycles + 当前活跃周期 + 所有 cycles（用于统计）
-    final results = await Future.wait([
+    // 并行加载：当月 cycles + 近 60 天 cycles + 当前活跃周期 (+ 全量 cycles 用于统计)
+    final futures = <Future<dynamic>>[
       DriverFactory.driver.listPeriodCycles(userId, year: _currentYear, month: _currentMonth),
       DriverFactory.driver.listRecentPeriodCycles(userId, PeriodConstants.inPeriodLookbackDays * 2 + 30),
       DriverFactory.driver.getActivePeriodCycle(userId),
-      DriverFactory.driver.listAllPeriodCycles(userId),
-    ]);
+      if (refreshStatistics) DriverFactory.driver.listAllPeriodCycles(userId),
+    ];
+    final results = await Future.wait(futures);
 
     final monthResult = results[0] as dynamic;
     final recentResult = results[1] as dynamic;
     final activeResult = results[2] as dynamic;
-    final allResult = results[3] as dynamic;
 
     if (monthResult.ok) {
       _cycles = monthResult.data ?? [];
@@ -123,9 +161,13 @@ class PeriodRecordProvider extends ChangeNotifier {
     if (activeResult.ok) {
       _activeCycle = activeResult.data;
     }
-    if (allResult.ok) {
-      final allCycles = (allResult.data as List<PeriodCycleVO>);
-      _statistics = PeriodPredictionService.calculateFromCycles(allCycles);
+    if (refreshStatistics && results.length > 3) {
+      final allResult = results[3] as dynamic;
+      if (allResult.ok) {
+        final allCycles = (allResult.data as List<PeriodCycleVO>);
+        _allCycles = allCycles;
+        _statistics = PeriodPredictionService.calculateFromCycles(allCycles);
+      }
     }
 
     // 加载当前活跃周期的每日明细
@@ -144,23 +186,40 @@ class PeriodRecordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 切换月份
+  /// 切换月份（仅刷新当月数据，统计与全量周期保持不变）
   Future<void> changeMonth(int year, int month) async {
-    await loadRecords(year: year, month: month);
+    await loadRecords(year: year, month: month, refreshStatistics: false);
   }
 
   // ── 周期操作 ──
 
   /// 标记经期开始
   ///
-  /// 如果有未结束周期，自动结束旧周期（endDate = 新开始日前一天）。
-  /// 如果已在经期中且新日期 == startDate，拒绝操作。
+  /// 校验：不能为未来日期、不能与已有周期重叠、不能与活跃周期开始日相同。
+  /// 如果有未结束周期，自动结束所有旧周期（endDate = 新开始日前一天）。
   Future<bool> startPeriod(String startDate) async {
     if (operating) return false;
 
-    // 如果已有相同开始日期的活跃周期，拒绝
+    final start = DateTime.parse(startDate);
+    final now = DateTime.now();
+    final todayOnly = DateTime(now.year, now.month, now.day);
+
+    // 校验：不能是未来日期
+    if (start.isAfter(todayOnly)) return false;
+
+    // 校验：与活跃周期开始日相同
     if (_activeCycle != null && _activeCycle!.startDate == startDate) {
       return false;
+    }
+
+    // 校验：开始日不能落在任一已结束周期的 [startDate, endDate] 区间内
+    for (final cycle in _allCycles) {
+      final end = cycle.endDate;
+      if (end == null) continue; // 活跃周期统一自动结束
+      if (startDate.compareTo(cycle.startDate) >= 0 &&
+          startDate.compareTo(end) <= 0) {
+        return false;
+      }
     }
 
     _operating = true;
@@ -168,14 +227,14 @@ class PeriodRecordProvider extends ChangeNotifier {
 
     final userId = AppConfigManager.instance.userId;
 
-    // 如果有未结束周期，自动结束旧周期
-    if (_activeCycle != null) {
-      final newStart = DateTime.parse(startDate);
-      final autoEndDate = newStart.subtract(const Duration(days: 1));
-      final autoEndStr = _dateStr(autoEndDate);
-      await DriverFactory.driver.updatePeriodCycleEndDate(
-        userId, _activeCycle!.id, autoEndStr,
-      );
+    // 结束所有未结束周期（覆盖多活跃周期异常场景），endDate = 新开始日前一天
+    final autoEndStr = _dateStr(start.subtract(const Duration(days: 1)));
+    for (final cycle in _allCycles) {
+      if (cycle.endDate == null) {
+        await DriverFactory.driver.updatePeriodCycleEndDate(
+          userId, cycle.id, autoEndStr,
+        );
+      }
     }
 
     // 创建新周期
@@ -190,7 +249,7 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   /// 结束经期（直接用点击日期作为 endDate）
   ///
-  /// 校验：endDate ≥ 最后一条明细记录日期，endDate ≤ 今天
+  /// 校验：endDate ≥ 周期开始日，endDate ≥ 最后一条明细记录日期，endDate ≤ 今天
   Future<bool> endPeriod(String endDate) async {
     if (operating || _activeCycle == null) return false;
 
@@ -200,6 +259,10 @@ class PeriodRecordProvider extends ChangeNotifier {
 
     // 校验：不能超过今天
     if (end.isAfter(todayOnly)) return false;
+
+    // 校验：不能早于周期开始日
+    final startOnly = DateTime.parse(_activeCycle!.startDate);
+    if (end.isBefore(startOnly)) return false;
 
     // 校验：不能早于最后一条明细记录日期
     if (lastDailyRecordDate != null) {
@@ -222,16 +285,46 @@ class PeriodRecordProvider extends ChangeNotifier {
     return true;
   }
 
-  /// 补记历史周期（开始 + 结束日期都必填）
+  /// 补记历史周期
   ///
-  /// 日期范围约束由调用方（UI）负责校验。
+  /// [startDate] 必填，[endDate] 可为空（表示经期尚未结束/未知）。
+  /// 校验：endDate ≥ startDate，endDate ≤ 今天，不与已有周期重叠。
   Future<void> backfillPeriod(
     String startDate,
-    String endDate, {
+    String? endDate, {
     int? typicalPeriodDays,
     int? typicalCycleDays,
   }) async {
     if (operating) return;
+
+    final now = DateTime.now();
+    final todayOnly = DateTime(now.year, now.month, now.day);
+    final start = DateTime.parse(startDate);
+
+    // 校验：开始日不能是未来日期
+    if (start.isAfter(todayOnly)) return;
+
+    // 校验：结束日不能早于开始日、不能是未来日期
+    if (endDate != null) {
+      final end = DateTime.parse(endDate);
+      if (end.isBefore(start)) return;
+      if (end.isAfter(todayOnly)) return;
+    }
+
+    // 校验：补记区间不能与已有周期重叠（[start, end] 或 [start, ∞) 与任一周期相交）
+    for (final cycle in _allCycles) {
+      final cStart = cycle.startDate;
+      final cEnd = cycle.endDate;
+      // 新补记区间 [start, end或today] 与已有周期 [cStart, cEnd或∞] 是否有交集
+      final newEnd = endDate ?? _todayStr();
+      final isNewCoveringStart = startDate.compareTo(cStart) >= 0 &&
+          startDate.compareTo(cEnd ?? newEnd) <= 0;
+      final isNewCoveredByExisting = cStart.compareTo(startDate) >= 0 &&
+          cStart.compareTo(newEnd) <= 0;
+      if (isNewCoveringStart || isNewCoveredByExisting) {
+        return;
+      }
+    }
 
     _operating = true;
     notifyListeners();
@@ -263,19 +356,17 @@ class PeriodRecordProvider extends ChangeNotifier {
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.delete));
   }
 
-  /// 删除指定日期的每日明细（保留日期作为周期内空白日）
-  Future<void> deleteDailyRecord(String recordDate) async {
+  /// 删除指定周期内指定日期的每日明细
+  Future<void> deleteDailyRecord(String cycleId, String recordDate) async {
     final userId = AppConfigManager.instance.userId;
-    await DriverFactory.driver.deletePeriodDailyRecord(userId, recordDate);
+    await DriverFactory.driver.deletePeriodDailyRecord(userId, cycleId, recordDate);
 
-    // 重新加载明细
-    if (_activeCycle != null) {
-      final dailyResult = await DriverFactory.driver.listPeriodDailyRecords(
-        userId, _activeCycle!.id,
-      );
-      if (dailyResult.ok) {
-        _dailyRecords = dailyResult.data ?? [];
-      }
+    // 重新加载该周期明细
+    final dailyResult = await DriverFactory.driver.listPeriodDailyRecords(
+      userId, cycleId,
+    );
+    if (dailyResult.ok) {
+      _dailyRecords = dailyResult.data ?? [];
     }
     notifyListeners();
     EventBus.instance.emit(const PeriodRecordChangedEvent(OperateType.delete));
@@ -283,20 +374,57 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   // ── 每日明细操作 ──
 
+  /// 加载指定周期的每日明细（用于查看/编辑历史周期明细）
+  ///
+  /// 加载后 [_dailyRecords] 即为该周期的明细，[getDailyRecordByDate] 生效。
+  Future<void> loadDailyRecordsForCycle(String cycleId) async {
+    final userId = AppConfigManager.instance.userId;
+    final dailyResult = await DriverFactory.driver.listPeriodDailyRecords(
+      userId, cycleId,
+    );
+    if (dailyResult.ok) {
+      _dailyRecords = dailyResult.data ?? [];
+      notifyListeners();
+    }
+  }
+
   /// 添加或更新每日明细
+  ///
+  /// [cycleId] 缺省时使用当前活跃周期；传入时用于编辑历史周期明细。
+  /// 校验：记录日期必须在周期 [startDate, endDate] 范围内。
   Future<void> upsertDailyRecord(
     String recordDate, {
     String? flowLevel,
     List<String>? symptoms,
     String? mood,
     String? remark,
+    String? cycleId,
   }) async {
-    if (_activeCycle == null) return;
+    PeriodCycleVO? targetCycle;
+    if (cycleId != null) {
+      for (final c in _allCycles) {
+        if (c.id == cycleId) {
+          targetCycle = c;
+          break;
+        }
+      }
+    } else {
+      targetCycle = _activeCycle;
+    }
+    if (targetCycle == null) return;
+
+    // 校验记录日期在周期范围内
+    final start = DateTime.parse(targetCycle.startDate);
+    final end = targetCycle.endDate != null
+        ? DateTime.parse(targetCycle.endDate!)
+        : DateTime.now();
+    final d = DateTime.parse(recordDate);
+    if (d.isBefore(start) || d.isAfter(end)) return;
 
     final userId = AppConfigManager.instance.userId;
     await DriverFactory.driver.upsertPeriodDailyRecord(
       userId,
-      _activeCycle!.id,
+      targetCycle.id,
       recordDate,
       flowLevel: flowLevel,
       symptoms: symptoms,
@@ -304,9 +432,9 @@ class PeriodRecordProvider extends ChangeNotifier {
       remark: remark,
     );
 
-    // 重新加载明细
+    // 重新加载该周期明细
     final dailyResult = await DriverFactory.driver.listPeriodDailyRecords(
-      userId, _activeCycle!.id,
+      userId, targetCycle.id,
     );
     if (dailyResult.ok) {
       _dailyRecords = dailyResult.data ?? [];
@@ -325,9 +453,9 @@ class PeriodRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 查找指定日期所属的周期
+  /// 查找指定日期所属的周期（基于全量周期，覆盖补记的历史周期）
   PeriodCycleVO? findCycleForDate(String date) {
-    for (final cycle in _recentCycles) {
+    for (final cycle in _allCycles) {
       final start = cycle.startDate;
       final end = cycle.endDate;
       if (end != null) {
@@ -345,10 +473,10 @@ class PeriodRecordProvider extends ChangeNotifier {
     return null;
   }
 
-  /// 查找指定日期的前一个周期（用于补记范围约束）
+  /// 查找指定日期的前一个周期（用于补记范围约束，基于全量周期）
   PeriodCycleVO? findPreviousCycle(String date) {
     PeriodCycleVO? prev;
-    for (final cycle in _recentCycles) {
+    for (final cycle in _allCycles) {
       if (cycle.startDate.compareTo(date) < 0) {
         prev = cycle;
       } else {
@@ -358,9 +486,9 @@ class PeriodRecordProvider extends ChangeNotifier {
     return prev;
   }
 
-  /// 查找指定日期的后一个周期（用于补记范围约束）
+  /// 查找指定日期的后一个周期（用于补记范围约束，基于全量周期）
   PeriodCycleVO? findNextCycle(String date) {
-    for (final cycle in _recentCycles) {
+    for (final cycle in _allCycles) {
       if (cycle.startDate.compareTo(date) > 0) {
         return cycle;
       }
@@ -369,6 +497,16 @@ class PeriodRecordProvider extends ChangeNotifier {
   }
 
   String _dateStr(DateTime d) {
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  String _todayStr() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  String _addDays(String date, int days) {
+    final d = DateTime.parse(date).add(Duration(days: days));
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
 }

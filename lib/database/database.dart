@@ -20,7 +20,6 @@ import 'tables/item_relation_table.dart';
 import 'tables/user_share_table.dart';
 import 'tables/recurring_config_table.dart';
 import 'tables/bookkeeping_rule_table.dart';
-import 'tables/period_record_table.dart';
 import 'tables/period_cycle_table.dart';
 import 'tables/period_daily_record_table.dart';
 import 'tables/item_rel_field_table.dart';
@@ -52,7 +51,6 @@ part 'database.g.dart';
     UserShareTable,
     RecurringConfigTable,
     BookkeepingRuleTable,
-    PeriodRecordTable,
     PeriodCycleTable,
     PeriodDailyRecordTable,
     ItemRelFieldTable,
@@ -191,12 +189,9 @@ class AppDatabase extends _$AppDatabase {
               // 列已存在时忽略
             }
           }
-          if (from < 20) {
-            // 版本19到版本20的迁移：新增经期记录表
-            await m.create(periodRecordTable);
-          }
           if (from < 21) {
             // 版本20到版本21的迁移：新增经期周期表和每日明细表
+            // （period_record_table 已废弃移除，不再创建）
             await m.create(periodCycleTable);
             await m.create(periodDailyRecordTable);
           }

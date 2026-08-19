@@ -26,16 +26,20 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<PeriodRecordProvider>().loadRecords();
-      _checkOnboarding();
+      try {
+        await context.read<PeriodRecordProvider>().loadRecords();
+      } catch (_) {
+        // 数据加载失败不影响引导判断
+      }
+      if (mounted) _checkOnboarding();
     });
   }
 
   void _checkOnboarding() {
     final provider = context.read<PeriodRecordProvider>();
-    if (provider.cycles.isEmpty &&
-        provider.statistics.totalRecords == 0 &&
-        !AppConfigManager.instance.periodOnboardingDone) {
+    // 只要用户从未录入过任何经期数据就引导（不依赖持久化标志，
+    // 避免用户曾点过"跳过"后引导被永久关闭）
+    if (provider.cycles.isEmpty && provider.statistics.totalRecords == 0) {
       _showOnboarding();
     }
   }
@@ -49,13 +53,16 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     if (result.lastPeriodStart != null && mounted) {
       final provider = context.read<PeriodRecordProvider>();
       final start = DateTime.parse(result.lastPeriodStart!);
+
+      // 结束日未知时不伪造 endDate（创建为进行中周期，由用户后续手动结束），
+      // 避免虚假的经期长度数据进入统计
       final end = result.lastPeriodEnd != null
           ? DateTime.parse(result.lastPeriodEnd!)
-          : start.add(const Duration(days: 4));
+          : null;
 
       await provider.backfillPeriod(
         _dateStr(start),
-        _dateStr(end),
+        end != null ? _dateStr(end) : null,
         typicalPeriodDays: result.typicalPeriodDays,
         typicalCycleDays: result.typicalCycleDays,
       );
@@ -76,44 +83,52 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return CustomScrollView(
-            slivers: [
-              // Hero 状态卡片（顶部，紧凑）
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
-                  child: PeriodHeroCard(
-                    onStartPeriod: () => _handleStartPeriod(provider),
-                    onEndPeriod: () => _handleEndPeriod(provider),
-                  ),
+          return Column(
+            children: [
+              // 滚动内容区
+              Expanded(
+                child: CustomScrollView(
+                  slivers: [
+                    // Hero 状态卡片（顶部，紧凑）
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
+                        child: PeriodHeroCard(
+                          onStartPeriod: () => _handleStartPeriod(provider),
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(child: SizedBox(height: spacing.formItemSpacing)),
+                    // 日历网格
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
+                        child: PeriodCalendarWidget(
+                          year: provider.currentYear,
+                          month: provider.currentMonth,
+                          cycles: provider.cycles,
+                          recentCycles: provider.recentCycles,
+                          statistics: provider.statistics,
+                          selectedDate: _selectedDate,
+                          onDateTap: _onDateTap,
+                          onPreviousMonth: _previousMonth,
+                          onNextMonth: _nextMonth,
+                        ),
+                      ),
+                    ),
+                    // 统计 Tile（位于日历下方）
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: spacing.contentPadding.copyWith(top: spacing.formItemSpacing),
+                        child: PeriodPredictionCard(statistics: provider.statistics),
+                      ),
+                    ),
+                    SliverToBoxAdapter(child: SizedBox(height: spacing.formGroupSpacing)),
+                  ],
                 ),
               ),
-              SliverToBoxAdapter(child: SizedBox(height: spacing.formItemSpacing)),
-              // 日历网格
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: spacing.contentPadding.left),
-                  child: PeriodCalendarWidget(
-                    year: provider.currentYear,
-                    month: provider.currentMonth,
-                    cycles: provider.cycles,
-                    recentCycles: provider.recentCycles,
-                    statistics: provider.statistics,
-                    selectedDate: _selectedDate,
-                    onDateTap: _onDateTap,
-                    onPreviousMonth: _previousMonth,
-                    onNextMonth: _nextMonth,
-                  ),
-                ),
-              ),
-              // 统计 Tile（位于日历下方）
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: spacing.contentPadding.copyWith(top: spacing.formItemSpacing),
-                  child: PeriodPredictionCard(statistics: provider.statistics),
-                ),
-              ),
-              SliverToBoxAdapter(child: SizedBox(height: spacing.formGroupSpacing)),
+              // 底部操作面板（点击日期后出现，替代底部抽屉）
+              _buildBottomActionPanel(provider),
             ],
           );
         },
@@ -123,7 +138,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
   // ── 交互方法 ──
 
-  void _onDateTap(String date) {
+  void _onDateTap(String date) async {
     final provider = context.read<PeriodRecordProvider>();
     final today = DateTime.now();
     final todayStr = _dateStr(DateTime(today.year, today.month, today.day));
@@ -139,35 +154,16 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
       return;
     }
 
-    // 根据状态决定底部弹窗内容
-    final activeCycle = provider.activeCycle;
+    // 日期属于某个周期（活跃或已结束）时，先加载该周期的每日明细，
+    // 保证底部面板能展示该日期的明细（已记录的日期只显示明细操作，不再出现补记）
     final cycleInDate = provider.findCycleForDate(date);
-
-    if (activeCycle == null) {
-      // 无未结束周期
-      if (cycleInDate != null && date.compareTo(cycleInDate.startDate) >= 0) {
-        // 该日期属于某个已结束的周期 → 弹操作菜单（含删除）
-        _showDayAction(date, provider);
-      } else if (date.compareTo(todayStr) < 0) {
-        // 不属于任何周期 → 补记历史
-        _showBackfillAction(date, provider);
-      } else {
-        // 今天 → 标记开始
-        _showStartAction(date, provider);
-      }
-    } else {
-      // 有未结束周期
-      if (cycleInDate != null && date.compareTo(cycleInDate.startDate) < 0) {
-        // 日期属于更早的历史周期 → 弹操作菜单（删除旧周期）
-        _showDayAction(date, provider);
-      } else if (date.compareTo(activeCycle.startDate) < 0) {
-        // 周期开始日之前但无归属周期 → 补记历史
-        _showBackfillAction(date, provider);
-      } else if (date.compareTo(todayStr) <= 0) {
-        // 当前周期内 → 弹操作菜单
-        _showDayAction(date, provider);
-      }
+    if (cycleInDate != null) {
+      await provider.loadDailyRecordsForCycle(cycleInDate.id);
+      if (!mounted) return;
     }
+
+    // 选中日期 → 底部操作面板出现
+    setState(() => _selectedDate = date);
   }
 
   void _previousMonth() {
@@ -188,267 +184,231 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     setState(() => _selectedDate = null);
   }
 
-  // ── 底部弹窗操作 ──
+  // ── 底部操作面板 ──
 
-  /// 标记经期开始（底部弹窗）
-  void _showStartAction(String date, PeriodRecordProvider provider) {
+  /// 页面底部操作面板（点击日期后内嵌显示，替代原底部抽屉）
+  ///
+  /// 根据日期状态渲染不同操作：
+  /// - 属于某周期（活跃或已结束）：查看/编辑每日详情；活跃周期内可结束经期；
+  ///   已记录明细可删除单日；任何周期可删除整个周期
+  /// - 不属于任何周期：今天 → 标记开始；历史日期 → 补记
+  Widget _buildBottomActionPanel(PeriodRecordProvider provider) {
+    final date = _selectedDate;
+    if (date == null) return const SizedBox.shrink();
+
     final cs = Theme.of(context).colorScheme;
     final l10n = L10nManager.l10n;
+    final today = DateTime.now();
+    final todayStr = _dateStr(DateTime(today.year, today.month, today.day));
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                )),
-              const SizedBox(height: 16),
-              Icon(Icons.play_circle_outline, color: cs.primary, size: 40),
-              const SizedBox(height: 12),
-              Text(l10n.periodRecordStart,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: cs.onSurface)),
-              const SizedBox(height: 4),
-              Text('$date  ${l10n.periodMarkTodayFirst}',
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: provider.operating ? null : () async {
-                    Navigator.pop(ctx);
-                    _confirmStartPeriod(provider, date);
-                  },
-                  icon: provider.operating
-                      ? const SizedBox(width: 18, height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.play_circle_outline, size: 18),
-                  label: Text(l10n.periodMarkStart),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 补记历史经期（底部弹窗）
-  void _showBackfillAction(String date, PeriodRecordProvider provider) {
-    final cs = Theme.of(context).colorScheme;
-    final l10n = L10nManager.l10n;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                )),
-              const SizedBox(height: 16),
-              Icon(Icons.date_range_outlined, color: cs.primary, size: 40),
-              const SizedBox(height: 12),
-              Text(l10n.periodBackfill,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: cs.onSurface)),
-              const SizedBox(height: 4),
-              Text(l10n.periodBackfillDesc,
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: provider.operating ? null : () async {
-                    Navigator.pop(ctx);
-                    _openBackfillSheet(provider, date);
-                  },
-                  icon: provider.operating
-                      ? const SizedBox(width: 18, height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.edit_calendar, size: 18),
-                  label: Text(l10n.periodBackfill),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 日期操作（补充明细 / 结束经期 / 删除）
-  void _showDayAction(String date, PeriodRecordProvider provider) {
-    final cs = Theme.of(context).colorScheme;
-    final l10n = L10nManager.l10n;
-    final dailyRecord = provider.getDailyRecordByDate(date);
     final cycle = provider.findCycleForDate(date);
-    // 当前未结束周期
+    final dailyRecord = provider.getDailyRecordByDate(date);
     final activeCycle = provider.activeCycle;
-    // 点击的日期是否在当前周期内（可结束经期）
     final isInActiveCycle = activeCycle != null &&
         date.compareTo(activeCycle.startDate) >= 0 &&
         (activeCycle.endDate == null || date.compareTo(activeCycle.endDate!) <= 0);
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+    return Material(
+      color: cs.surface,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            border: Border(
+              top: BorderSide(color: cs.outlineVariant.withAlpha(100)),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(16),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                )),
-              const SizedBox(height: 16),
-              // 日期标题
+              // 头部：日期 + 已记录标记 + 关闭
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.calendar_today, size: 16, color: cs.primary),
                   const SizedBox(width: 6),
-                  Text(date, style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600, color: cs.onSurface)),
+                  Text(date,
+                    style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600, color: cs.onSurface)),
+                  if (dailyRecord != null) ...[
+                    const SizedBox(width: 8),
+                    Text(l10n.periodDailyRecordExists,
+                      style: TextStyle(fontSize: 12, color: cs.primary)),
+                  ],
+                  const Spacer(),
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(Icons.close, size: 18, color: cs.onSurfaceVariant),
+                    onPressed: () => setState(() => _selectedDate = null),
+                  ),
                 ],
               ),
-              if (dailyRecord != null) ...[
-                const SizedBox(height: 6),
-                Text(l10n.periodDailyRecordExists,
-                  style: TextStyle(fontSize: 12, color: cs.primary)),
-              ],
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
-              // 补充明细 + 结束经期（仅当前进行中的周期内显示）
-              if (isInActiveCycle) ...[
-                // 补充明细按钮
-                ListTile(
-                  leading: Icon(Icons.edit_note, color: cs.primary),
-                  title: Text(dailyRecord != null
-                      ? l10n.periodEditDailyRecord
-                      : l10n.periodAddDailyRecord),
-                  subtitle: Text(l10n.periodDailyRecord,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: cs.outlineVariant.withAlpha(80)),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _openDailyDetailSheet(provider, date);
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // 结束经期按钮（红色醒目 + 确认）
+              if (cycle != null) ...[
+                // 查看/编辑每日详情
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
-                  child: FilledButton.icon(
-                    onPressed: provider.operating ? null : () {
-                      Navigator.pop(ctx);
-                      _confirmEndPeriod(provider, date);
-                    },
-                    icon: provider.operating
-                        ? const SizedBox(width: 18, height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.stop_circle_outlined, size: 20),
-                    label: Text(
-                      l10n.periodEnd,
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
+                  child: FilledButton.tonalIcon(
+                    onPressed: provider.operating
+                        ? null
+                        : () => _openDailyDetailSheet(provider, date, cycle.id),
+                    icon: const Icon(Icons.edit_note, size: 18),
+                    label: Text(dailyRecord != null
+                        ? l10n.periodEditDailyRecord
+                        : l10n.periodAddDailyRecord),
                     style: FilledButton.styleFrom(
-                      backgroundColor: cs.error,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: cs.error.withAlpha(100),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                // 结束经期（仅当前进行中的周期内显示）
+                if (isInActiveCycle) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: provider.operating
+                          ? null
+                          : () => _confirmEndPeriod(provider, date),
+                      icon: provider.operating
+                          ? const SizedBox(width: 18, height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.stop_circle_outlined, size: 18),
+                      label: Text(l10n.periodEnd,
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: cs.error,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: cs.error.withAlpha(100),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 8),
-              ],
-
-              // 删除操作（分隔线 + 危险操作区）
-              const Divider(height: 20),
-              if (dailyRecord != null)
-                ListTile(
-                  leading: Icon(Icons.delete_outline, color: cs.error),
-                  title: Text(l10n.deleteDayOnly,
-                    style: TextStyle(color: cs.error, fontWeight: FontWeight.w500)),
-                  subtitle: Text(l10n.periodDailyRecord,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: cs.error.withAlpha(50)),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _confirmDeleteDailyRecord(provider, date);
-                  },
+                // 删除操作（单日明细 + 整个周期）
+                Row(
+                  children: [
+                    if (dailyRecord != null) ...[
+                      Expanded(
+                        child: _buildDeleteButton(
+                          icon: Icons.delete_outline,
+                          label: l10n.deleteDayOnly,
+                          onTap: () => _confirmDeleteDailyRecord(provider, cycle.id, date),
+                          cs: cs,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: _buildDeleteButton(
+                        icon: Icons.delete_forever_outlined,
+                        label: l10n.deleteCycle,
+                        subtitle:
+                            '${cycle.startDate} ~ ${cycle.endDate ?? l10n.periodOngoing}',
+                        onTap: () => _confirmDeleteCycle(provider, cycle.id),
+                        cs: cs,
+                      ),
+                    ),
+                  ],
                 ),
-              if (cycle != null) ...[
-                if (dailyRecord != null) const SizedBox(height: 8),
-                ListTile(
-                  leading: Icon(Icons.delete_forever_outlined, color: cs.error),
-                  title: Text(l10n.deleteCycle,
-                    style: TextStyle(color: cs.error, fontWeight: FontWeight.w500)),
-                  subtitle: Text('${cycle.startDate} ~ ${cycle.endDate ?? l10n.periodOngoing}',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: cs.error.withAlpha(50)),
+              ] else if (date == todayStr) ...[
+                // 今天且不在任何周期内 → 标记经期开始
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: provider.operating
+                        ? null
+                        : () => _confirmStartPeriod(provider, date),
+                    icon: provider.operating
+                        ? const SizedBox(width: 18, height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.play_circle_outline, size: 18),
+                    label: Text(l10n.periodMarkStart,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _confirmDeleteCycle(provider, cycle.id);
-                  },
+                ),
+              ] else ...[
+                // 历史空白日 → 补记
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: provider.operating
+                        ? null
+                        : () => _openBackfillSheet(provider, date),
+                    icon: const Icon(Icons.edit_calendar, size: 18),
+                    label: Text(l10n.periodBackfill),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                 ),
               ],
-              const SizedBox(height: 8),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton({
+    required IconData icon,
+    required String label,
+    String? subtitle,
+    required VoidCallback onTap,
+    required ColorScheme cs,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 18, color: cs.error),
+      label: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+            style: TextStyle(color: cs.error, fontSize: 13, fontWeight: FontWeight.w500)),
+          if (subtitle != null)
+            Text(subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10)),
+        ],
+      ),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        side: BorderSide(color: cs.error.withAlpha(80)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
   /// 确认删除单日明细
-  void _confirmDeleteDailyRecord(PeriodRecordProvider provider, String date) {
+  void _confirmDeleteDailyRecord(
+      PeriodRecordProvider provider, String cycleId, String date) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -459,7 +419,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              await provider.deleteDailyRecord(date);
+              await provider.deleteDailyRecord(cycleId, date);
               if (context.mounted) setState(() => _selectedDate = null);
             },
             child: Text(L10nManager.l10n.deleteBtn,
@@ -496,22 +456,13 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   // ── 操作方法 ──
 
   void _handleStartPeriod(PeriodRecordProvider provider) {
-    if (provider.cycles.isEmpty &&
-        provider.statistics.totalRecords == 0 &&
-        !AppConfigManager.instance.periodOnboardingDone) {
+    if (provider.cycles.isEmpty && provider.statistics.totalRecords == 0) {
       _showOnboarding();
     } else {
       final today = DateTime.now();
       final todayStr = _dateStr(today);
       _confirmStartPeriod(provider, todayStr);
     }
-  }
-
-  void _handleEndPeriod(PeriodRecordProvider provider) {
-    if (!provider.isInPeriod) return;
-    final today = DateTime.now();
-    final todayStr = _dateStr(today);
-    _confirmEndPeriod(provider, todayStr);
   }
 
   void _confirmStartPeriod(PeriodRecordProvider provider, String date) async {
@@ -621,7 +572,8 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     }
   }
 
-  void _openDailyDetailSheet(PeriodRecordProvider provider, String date) async {
+  void _openDailyDetailSheet(
+      PeriodRecordProvider provider, String date, String cycleId) async {
     final existing = provider.getDailyRecordByDate(date);
     await PeriodDailyDetailSheet.show(
       context,
@@ -634,6 +586,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           symptoms: data.symptoms,
           mood: data.mood,
           remark: data.remark,
+          cycleId: cycleId,
         );
       },
     );

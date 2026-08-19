@@ -176,23 +176,23 @@ class _PeriodOnboardingSheetState extends State<PeriodOnboardingSheet> {
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ),
                   SizedBox(
-                    width: 120,
+                    width: 128,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, size: 20),
-                          onPressed: _typicalPeriodDays > 2
-                              ? () => setState(() => _typicalPeriodDays--)
-                              : null,
+                        _buildStepperButton(
+                          icon: Icons.remove_circle_outline,
+                          enabled: _typicalPeriodDays > 2,
+                          onTap: () => setState(() => _typicalPeriodDays--),
+                          cs: cs,
                         ),
                         Text('$_typicalPeriodDays ${l10n.days}',
                           style: TextStyle(fontWeight: FontWeight.w600, color: cs.primary)),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 20),
-                          onPressed: _typicalPeriodDays < 10
-                              ? () => setState(() => _typicalPeriodDays++)
-                              : null,
+                        _buildStepperButton(
+                          icon: Icons.add_circle_outline,
+                          enabled: _typicalPeriodDays < 10,
+                          onTap: () => setState(() => _typicalPeriodDays++),
+                          cs: cs,
                         ),
                       ],
                     ),
@@ -208,23 +208,23 @@ class _PeriodOnboardingSheetState extends State<PeriodOnboardingSheet> {
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ),
                   SizedBox(
-                    width: 120,
+                    width: 128,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, size: 20),
-                          onPressed: _typicalCycleDays > 15
-                              ? () => setState(() => _typicalCycleDays--)
-                              : null,
+                        _buildStepperButton(
+                          icon: Icons.remove_circle_outline,
+                          enabled: _typicalCycleDays > 15,
+                          onTap: () => setState(() => _typicalCycleDays--),
+                          cs: cs,
                         ),
                         Text('$_typicalCycleDays ${l10n.days}',
                           style: TextStyle(fontWeight: FontWeight.w600, color: cs.primary)),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 20),
-                          onPressed: _typicalCycleDays < 45
-                              ? () => setState(() => _typicalCycleDays++)
-                              : null,
+                        _buildStepperButton(
+                          icon: Icons.add_circle_outline,
+                          enabled: _typicalCycleDays < 45,
+                          onTap: () => setState(() => _typicalCycleDays++),
+                          cs: cs,
                         ),
                       ],
                     ),
@@ -311,6 +311,23 @@ class _PeriodOnboardingSheetState extends State<PeriodOnboardingSheet> {
           ],
         ),
       ),
+    );
+  }
+
+  /// 紧凑步进按钮（默认 48px 的 IconButton 会撑爆固定宽度容器，导致溢出）
+  Widget _buildStepperButton({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+    required ColorScheme cs,
+  }) {
+    return IconButton(
+      icon: Icon(icon, size: 20),
+      onPressed: enabled ? onTap : null,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      color: enabled ? cs.primary : cs.onSurfaceVariant.withAlpha(120),
     );
   }
 

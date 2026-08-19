@@ -27,7 +27,6 @@ import 'item_relation.builder.dart';
 import 'user_share.builder.dart';
 import 'recurring_config.builder.dart';
 import 'bookkeeping_rule.builder.dart';
-import 'period_record.builder.dart';
 import 'period_cycle.builder.dart';
 import 'period_daily_record.builder.dart';
 
@@ -259,8 +258,6 @@ abstract class LogBuilder<T, RunResult> {
         return RecurringConfigCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.bookkeepingRule:
         return BookkeepingRuleCULog.fromLog(log) as LogBuilder<T, RunResult>;
-      case BusinessType.periodRecord:
-        return PeriodRecordCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.periodCycle:
         return PeriodCycleCULog.fromLog(log) as LogBuilder<T, RunResult>;
       case BusinessType.periodDailyRecord:
@@ -351,8 +348,6 @@ class DeleteLog extends LogBuilder<String, void> {
         return DaoManager.recurringConfigDao.delete(businessId!);
       case BusinessType.bookkeepingRule:
         return DaoManager.bookkeepingRuleDao.delete(businessId!);
-      case BusinessType.periodRecord:
-        return DaoManager.periodRecordDao.delete(businessId!);
       case BusinessType.periodCycle:
         return DaoManager.periodCycleDao.delete(businessId!);
       case BusinessType.periodDailyRecord:

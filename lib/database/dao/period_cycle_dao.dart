@@ -18,6 +18,17 @@ class PeriodCycleDao extends BaseDao<PeriodCycleTable, PeriodCycle> {
         .getSingleOrNull();
   }
 
+  /// 查找用户所有未结束的周期（endDate IS NULL），按开始日期降序
+  ///
+  /// 用于处理日志同步/异常场景下可能存在的多个活跃周期。
+  Future<List<PeriodCycle>> findAllActiveCycles(String userId) {
+    return (db.select(table)
+          ..where((t) =>
+              t.createdBy.equals(userId) & t.endDate.isNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.startDate)]))
+        .get();
+  }
+
   /// 查询与指定月份有交集的周期
   ///
   /// 周期与月份重叠的条件：开始日 <= 月末 AND (结束日为空 或 结束日 >= 月初)

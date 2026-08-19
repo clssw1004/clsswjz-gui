@@ -1,23 +1,33 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:clsswjz_gui/enums/period_status.dart';
-import 'package:clsswjz_gui/enums/flow_level.dart';
-import 'package:clsswjz_gui/models/vo/period_record_vo.dart';
 import 'package:clsswjz_gui/models/vo/period_statistics_vo.dart';
 import 'package:clsswjz_gui/utils/period_calc_util.dart';
 
-PeriodRecordVO _makeRecord(String date, {PeriodStatus status = PeriodStatus.period}) {
-  return PeriodRecordVO(
-    id: 'id-$date',
-    recordDate: date,
-    periodStatus: status,
-    flowLevel: FlowLevel.medium,
-    symptoms: [],
-    createdAt: 0,
-    updatedAt: 0,
-  );
-}
-
 void main() {
+  PeriodStatisticsVO makeStats({
+    List<int> cycleLengths = const [28, 28],
+    String? nextPeriodDate,
+    String? ovulationDate,
+    String? fertileWindowStart,
+    String? fertileWindowEnd,
+    int averagePeriodLength = 5,
+    int? typicalCycleDays,
+  }) {
+    return PeriodStatisticsVO(
+      averageCycleLength: cycleLengths.isNotEmpty
+          ? (cycleLengths.reduce((a, b) => a + b) ~/ cycleLengths.length)
+          : (typicalCycleDays ?? 28),
+      averagePeriodLength: averagePeriodLength,
+      totalRecords: 30,
+      recentCycleLengths: cycleLengths,
+      nextPeriodDate: nextPeriodDate,
+      ovulationDate: ovulationDate,
+      fertileWindowStart: fertileWindowStart,
+      fertileWindowEnd: fertileWindowEnd,
+      typicalCycleDays: typicalCycleDays,
+    );
+  }
+
   group('PeriodCalcUtil.determinePhase', () {
     test('returns period when isInPeriod is true', () {
       final result = PeriodCalcUtil.determinePhase(
@@ -35,12 +45,19 @@ void main() {
       expect(result, PeriodPhase.noData);
     });
 
+    test('returns predicted when today is in predicted period window', () {
+      final stats = makeStats(nextPeriodDate: '2026-08-25');
+      // window: 08-25 ~ 08-29
+      final result = PeriodCalcUtil.determinePhase(
+        isInPeriod: false,
+        statistics: stats,
+        today: '2026-08-27',
+      );
+      expect(result, PeriodPhase.predicted);
+    });
+
     test('returns ovulation when today is in fertile window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         nextPeriodDate: '2026-09-26',
         ovulationDate: '2026-09-12',
         fertileWindowStart: '2026-09-07',
@@ -55,11 +72,7 @@ void main() {
     });
 
     test('returns safe when today is outside fertile window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         nextPeriodDate: '2026-09-26',
         ovulationDate: '2026-09-12',
         fertileWindowStart: '2026-09-07',
@@ -74,40 +87,6 @@ void main() {
     });
   });
 
-  group('PeriodCalcUtil.calcCurrentPeriodDay', () {
-    test('returns null when not in period', () {
-      final result = PeriodCalcUtil.calcCurrentPeriodDay(
-        isInPeriod: false,
-        records: [],
-      );
-      expect(result, isNull);
-    });
-
-    test('returns 1 for first day', () {
-      final records = [_makeRecord('2026-08-18')];
-      final result = PeriodCalcUtil.calcCurrentPeriodDay(
-        isInPeriod: true,
-        records: records,
-        today: '2026-08-18',
-      );
-      expect(result, 1);
-    });
-
-    test('returns 3 for third consecutive day', () {
-      final records = [
-        _makeRecord('2026-08-16'),
-        _makeRecord('2026-08-17'),
-        _makeRecord('2026-08-18'),
-      ];
-      final result = PeriodCalcUtil.calcCurrentPeriodDay(
-        isInPeriod: true,
-        records: records,
-        today: '2026-08-18',
-      );
-      expect(result, 3);
-    });
-  });
-
   group('PeriodCalcUtil.calcDaysUntilNextPeriod', () {
     test('returns null when cannot predict', () {
       final result = PeriodCalcUtil.calcDaysUntilNextPeriod(
@@ -117,13 +96,7 @@ void main() {
     });
 
     test('returns correct days', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
-        nextPeriodDate: '2026-08-25',
-      );
+      final stats = makeStats(nextPeriodDate: '2026-08-25');
       final result = PeriodCalcUtil.calcDaysUntilNextPeriod(
         statistics: stats,
         today: '2026-08-18',
@@ -132,42 +105,12 @@ void main() {
     });
 
     test('returns null when past date', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
-        nextPeriodDate: '2026-08-10',
-      );
+      final stats = makeStats(nextPeriodDate: '2026-08-10');
       final result = PeriodCalcUtil.calcDaysUntilNextPeriod(
         statistics: stats,
         today: '2026-08-18',
       );
       expect(result, isNull);
-    });
-  });
-
-  group('PeriodCalcUtil.calcPeriodStartDate', () {
-    test('returns null when not in period', () {
-      final result = PeriodCalcUtil.calcPeriodStartDate(
-        isInPeriod: false,
-        records: [],
-      );
-      expect(result, isNull);
-    });
-
-    test('returns correct start date', () {
-      final records = [
-        _makeRecord('2026-08-16'),
-        _makeRecord('2026-08-17'),
-        _makeRecord('2026-08-18'),
-      ];
-      final result = PeriodCalcUtil.calcPeriodStartDate(
-        isInPeriod: true,
-        records: records,
-        today: '2026-08-18',
-      );
-      expect(result, '2026-08-16');
     });
   });
 
@@ -180,11 +123,7 @@ void main() {
     });
 
     test('returns true when in window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         fertileWindowStart: '2026-09-07',
         fertileWindowEnd: '2026-09-13',
       );
@@ -196,11 +135,7 @@ void main() {
     });
 
     test('returns false when outside window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         fertileWindowStart: '2026-09-07',
         fertileWindowEnd: '2026-09-13',
       );
@@ -214,11 +149,7 @@ void main() {
 
   group('PeriodCalcUtil.isInSafePeriod', () {
     test('returns true when not in period and not in fertile window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         fertileWindowStart: '2026-09-07',
         fertileWindowEnd: '2026-09-13',
       );
@@ -239,11 +170,7 @@ void main() {
     });
 
     test('returns false when in fertile window', () {
-      final stats = PeriodStatisticsVO(
-        averageCycleLength: 28,
-        averagePeriodLength: 5,
-        totalRecords: 30,
-        recentCycleLengths: [28, 28],
+      final stats = makeStats(
         fertileWindowStart: '2026-09-07',
         fertileWindowEnd: '2026-09-13',
       );

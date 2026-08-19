@@ -8,18 +8,16 @@ import '../../../manager/l10n_manager.dart';
 /// 日历页顶部的 Hero 状态卡片
 ///
 /// 根据当前周期阶段显示不同视觉：
-/// - 经期中：粉色渐变 + 进度条 + 结束按钮
+/// - 经期中：粉色渐变 + 进度条
 /// - 排卵期：暖色渐变 + 信息
 /// - 安全期：绿色渐变 + 倒计时
 /// - 无数据：引导卡片
 class PeriodHeroCard extends StatelessWidget {
   final VoidCallback? onStartPeriod;
-  final VoidCallback? onEndPeriod;
 
   const PeriodHeroCard({
     super.key,
     this.onStartPeriod,
-    this.onEndPeriod,
   });
 
   @override
@@ -35,6 +33,8 @@ class PeriodHeroCard extends StatelessWidget {
       child: switch (phase) {
         PeriodPhase.period => _buildPeriodPhase(
             context, provider, cs, spacing, l10n),
+        PeriodPhase.predicted => _buildPredictedPhase(
+            context, provider, cs, spacing, l10n),
         PeriodPhase.ovulation => _buildOvulationPhase(
             context, provider, cs, spacing, l10n),
         PeriodPhase.safe => _buildSafePhase(
@@ -43,6 +43,93 @@ class PeriodHeroCard extends StatelessWidget {
             ? _buildNeedMoreDataPhase(context, provider, cs, spacing, l10n)
             : _buildNoDataPhase(context, cs, spacing, l10n),
       },
+    );
+  }
+
+  // ── 预测经期窗口内（预计经期将至/已至但未记录）──
+  Widget _buildPredictedPhase(
+    BuildContext context,
+    PeriodRecordProvider provider,
+    ColorScheme cs,
+    ThemeSpacing spacing,
+    dynamic l10n,
+  ) {
+    final nextDate = provider.statistics.nextPeriodDate;
+    final overdueDays = provider.periodOverdueDays;
+    final showOverdue = overdueDays != null && nextDate != null;
+
+    return Container(
+      key: const ValueKey('predicted'),
+      width: double.infinity,
+      padding: spacing.contentPadding.copyWith(top: 20, bottom: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primary.withAlpha(18),
+            cs.primary.withAlpha(6),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.primary.withAlpha(30), width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: cs.primary.withAlpha(20),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              l10n.periodUpcomingTag,
+              style: TextStyle(
+                fontSize: 12,
+                color: cs.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            showOverdue
+                ? l10n.periodOverdueHint(nextDate, overdueDays)
+                : (nextDate != null
+                    ? l10n.expectedDate(nextDate)
+                    : l10n.needMoreCycles),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: cs.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.periodPredictedHint,
+            style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: provider.operating ? null : onStartPeriod,
+              icon: provider.operating
+                  ? const SizedBox(width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.play_circle_outline, size: 18),
+              label: Text(l10n.periodMarkStart),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -154,34 +241,22 @@ class PeriodHeroCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          // 结束按钮（醒目的红色填充）
-          SizedBox(
-            height: 40,
-            child: FilledButton.icon(
-              onPressed: provider.operating ? null : onEndPeriod,
-              icon: provider.operating
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.stop_circle_outlined, size: 16, color: Colors.white),
-              label: Text(
-                l10n.periodEnd,
-                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: cs.error.withAlpha(200),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: cs.error.withAlpha(100),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+          // 经期超过平均天数：提醒及时结束记录
+          if (day > avgPeriod) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, size: 14, color: cs.error),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n.periodLongerThanAverage(day, avgPeriod),
+                    style: TextStyle(fontSize: 12, color: cs.error),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -342,6 +417,27 @@ class PeriodHeroCard extends StatelessWidget {
               Icons.circle,
               l10n.expectedDate(provider.statistics.nextPeriodDate!),
               cs,
+            ),
+          ],
+          // 预测经期已过未记录：显示延迟提示
+          if (provider.periodOverdueDays != null &&
+              provider.statistics.nextPeriodDate != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.warning_amber_rounded,
+                    size: 14, color: cs.error),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n.periodOverdueHint(
+                      provider.statistics.nextPeriodDate!,
+                      provider.periodOverdueDays!,
+                    ),
+                    style: TextStyle(fontSize: 12, color: cs.error),
+                  ),
+                ),
+              ],
             ),
           ],
         ],

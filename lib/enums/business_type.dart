@@ -69,9 +69,6 @@ enum BusinessType {
   /// 记账规则
   bookkeepingRule('bookkeepingRule'),
 
-  /// 经期记录
-  periodRecord('periodRecord'),
-
   /// 经期周期
   periodCycle('periodCycle'),
 
@@ -171,7 +168,6 @@ extension BusinessTypeSyncPriority on BusinessType {
       case BusinessType.fuelRecord:
       case BusinessType.attachment:
       case BusinessType.userShare:
-      case BusinessType.periodRecord:
       case BusinessType.periodCycle:
       case BusinessType.periodDailyRecord:
         return SyncPriority.low;

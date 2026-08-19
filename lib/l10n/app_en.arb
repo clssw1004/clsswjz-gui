@@ -2821,6 +2821,26 @@
         "description": "Expected period date",
         "placeholders": { "date": { "type": "String" } }
     },
+    "periodOverdueHint": "Expected on {date}, {count} days overdue. If it has started, please record it.",
+    "@periodOverdueHint": {
+        "description": "Hint when predicted period date has passed without recording",
+        "placeholders": {
+            "date": { "type": "String" },
+            "count": { "type": "int" }
+        }
+    },
+    "periodPredictedHint": "Your period is expected soon. Record it once it starts.",
+    "@periodPredictedHint": {
+        "description": "Hint shown in predicted period phase"
+    },
+    "periodLongerThanAverage": "Period has lasted {current} days (average {avg}). If it has ended, please record it.",
+    "@periodLongerThanAverage": {
+        "description": "Hint when ongoing period is longer than average",
+        "placeholders": {
+            "current": { "type": "int" },
+            "avg": { "type": "int" }
+        }
+    },
     "ovulationDayLabel": "Ovulation: {date}",
     "@ovulationDayLabel": {
         "description": "Ovulation date label",
