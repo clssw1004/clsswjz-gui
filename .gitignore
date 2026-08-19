@@ -173,3 +173,4 @@ lib/generated/l10n/
 
 .codebuddy/generated-images/
 untranslated_messages.txt
+.workbuddy/
