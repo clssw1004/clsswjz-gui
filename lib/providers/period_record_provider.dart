@@ -225,7 +225,12 @@ class PeriodRecordProvider extends ChangeNotifier {
   /// 补记历史周期（开始 + 结束日期都必填）
   ///
   /// 日期范围约束由调用方（UI）负责校验。
-  Future<void> backfillPeriod(String startDate, String endDate) async {
+  Future<void> backfillPeriod(
+    String startDate,
+    String endDate, {
+    int? typicalPeriodDays,
+    int? typicalCycleDays,
+  }) async {
     if (operating) return;
 
     _operating = true;
@@ -234,6 +239,8 @@ class PeriodRecordProvider extends ChangeNotifier {
     final userId = AppConfigManager.instance.userId;
     await DriverFactory.driver.createPeriodCycle(
       userId, startDate, endDate: endDate,
+      typicalPeriodDays: typicalPeriodDays,
+      typicalCycleDays: typicalCycleDays,
     );
 
     await loadRecords();

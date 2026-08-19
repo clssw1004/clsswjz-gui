@@ -54,10 +54,12 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           ? DateTime.parse(result.lastPeriodEnd!)
           : start.add(const Duration(days: 4));
 
-      // 创建周期
+      // 创建周期（含典型天数配置）
       await provider.backfillPeriod(
         _dateStr(start),
         _dateStr(end),
+        typicalPeriodDays: result.typicalPeriodDays,
+        typicalCycleDays: result.typicalCycleDays,
       );
 
       // 切换到开始日期所在月份

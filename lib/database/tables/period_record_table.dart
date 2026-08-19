@@ -8,6 +8,9 @@ import '../database.dart';
 import 'base_table.dart';
 
 /// 经期日记录表
+///
+/// ⚠️ 已废弃，请使用 PeriodCycleTable + PeriodDailyRecordTable 替代。
+@Deprecated('使用 PeriodCycleTable + PeriodDailyRecordTable 替代')
 @DataClassName('PeriodRecord')
 class PeriodRecordTable extends BaseBusinessTable {
   /// 记录日期 (yyyy-MM-dd，同一用户唯一)

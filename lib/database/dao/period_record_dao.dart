@@ -3,6 +3,8 @@ import '../database.dart';
 import '../tables/period_record_table.dart';
 import 'base_dao.dart';
 
+/// ⚠️ 已废弃，请使用 PeriodCycleDao + PeriodDailyRecordDao 替代。
+@Deprecated('使用 PeriodCycleDao + PeriodDailyRecordDao 替代')
 class PeriodRecordDao extends BaseDao<PeriodRecordTable, PeriodRecord> {
   PeriodRecordDao(super.db);
 
