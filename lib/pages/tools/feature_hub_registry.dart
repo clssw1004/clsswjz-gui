@@ -6,7 +6,7 @@ import '../../models/vo/book_meta.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/toast_util.dart';
 
-/// 「全部功能」Hub 的功能条目模型。
+/// 「工具」工作台的功能条目模型。
 ///
 /// 每一条代表一个可点按的功能入口，图标 + 标签 + 跳转动作。
 class HubFeatureItem {
@@ -30,7 +30,7 @@ class HubFeatureItem {
   });
 }
 
-/// 「全部功能」Hub 的一个分组（如：记账财务 / 生活扩展 / 数据工具）。
+/// 「工具」工作台的一个分组（如：记账财务 / 生活扩展 / 数据工具）。
 class HubFeatureGroup {
   /// 分组标题前的图标
   final IconData groupIcon;
@@ -58,10 +58,24 @@ void _pushBookRoute(
     ToastUtil.showInfo(L10nManager.l10n.noBookSelected);
     return;
   }
+  // 除账目（需要 List 参数）外的书依赖路由均以单个 BookMetaVO 为参数
   Navigator.pushNamed(context, routeName, arguments: book);
 }
 
-/// 构建「全部功能」Hub 的全部分组。
+/// 跳转账目列表（该路由需要 List 参数：[book, filter?, title?]）。
+void _pushItemsRoute(BuildContext context, BookMetaVO? book) {
+  if (book == null) {
+    ToastUtil.showInfo(L10nManager.l10n.noBookSelected);
+    return;
+  }
+  Navigator.pushNamed(
+    context,
+    AppRoutes.items,
+    arguments: <dynamic>[book],
+  );
+}
+
+/// 构建「工具」工作台的全部分组。
 ///
 /// 必须在 build() 内实时调用：`L10nManager.l10n` 单例会随语言切换被替换，
 /// 若在文件级缓存"标签字符串列表"会导致切换语言后词条陈旧。
@@ -70,18 +84,12 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
   final showActivityCheckin =
       AppConfigManager.instance.uiConfig.mineTabShowActivityCheckin;
 
-  // 记账财务
-  final financeItems = <HubFeatureItem>[
+  // 账本数据（依赖当前选中账本，切换账本后数据不同）
+  final bookDataItems = <HubFeatureItem>[
     HubFeatureItem(
       icon: Icons.receipt_long_outlined,
       label: l10n.accountItem,
-      onTap: () => _pushBookRoute(context, book, AppRoutes.items),
-      isHighlighted: true,
-    ),
-    HubFeatureItem(
-      icon: Icons.book_outlined,
-      label: l10n.accountBook,
-      onTap: () => Navigator.pushNamed(context, AppRoutes.accountBooks),
+      onTap: () => _pushItemsRoute(context, book),
       isHighlighted: true,
     ),
     HubFeatureItem(
@@ -114,6 +122,12 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
       onTap: () => _pushBookRoute(context, book, AppRoutes.projects),
     ),
     HubFeatureItem(
+      icon: Icons.money_outlined,
+      label: l10n.debt,
+      onTap: () => _pushBookRoute(context, book, AppRoutes.debtList),
+      isHighlighted: true,
+    ),
+    HubFeatureItem(
       icon: Icons.repeat,
       label: l10n.recurringConfig,
       onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList),
@@ -123,12 +137,6 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
       icon: Icons.auto_fix_high,
       label: l10n.bookkeepingRule,
       onTap: () => Navigator.pushNamed(context, AppRoutes.bookkeepingRuleList),
-      isHighlighted: true,
-    ),
-    HubFeatureItem(
-      icon: Icons.money_outlined,
-      label: l10n.debt,
-      onTap: () => _pushBookRoute(context, book, AppRoutes.debtList),
       isHighlighted: true,
     ),
   ];
@@ -171,6 +179,11 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
   // 数据工具
   final dataToolItems = <HubFeatureItem>[
     HubFeatureItem(
+      icon: Icons.book_outlined,
+      label: l10n.accountBook,
+      onTap: () => Navigator.pushNamed(context, AppRoutes.accountBooks),
+    ),
+    HubFeatureItem(
       icon: Icons.file_upload_outlined,
       label: l10n.import,
       onTap: () => Navigator.pushNamed(context, AppRoutes.import),
@@ -195,8 +208,8 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
   return [
     HubFeatureGroup(
       groupIcon: Icons.account_balance_wallet_outlined,
-      title: l10n.hubGroupFinance,
-      items: financeItems,
+      title: l10n.hubGroupBookData,
+      items: bookDataItems,
     ),
     HubFeatureGroup(
       groupIcon: Icons.favorite_outline,

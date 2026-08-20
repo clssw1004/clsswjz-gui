@@ -2,7 +2,6 @@
     "@@locale": "zh",
     "tabAccountItems": "记账",
     "tabMine": "我的",
-    "tabNotes": "记事",
     "tabStatistics": "统计",
     "settings": "设置",
     "notLoggedIn": "未登录",
@@ -3029,17 +3028,17 @@
     "periodBackfillConfirm": "确认补记",
     "periodSelectDuration": "选择持续天数",
     "periodDurationDays": "{days} 天",
-    "hubGroupFinance": "记账财务",
-    "@hubGroupFinance": {
-        "description": "全部功能页-记账财务分组标题"
+    "hubGroupBookData": "账本数据",
+    "@hubGroupBookData": {
+        "description": "工具页-账本数据分组标题（随当前账本变化的功能）"
     },
     "hubGroupLife": "生活扩展",
     "@hubGroupLife": {
-        "description": "全部功能页-生活扩展分组标题"
+        "description": "工具页-生活扩展分组标题"
     },
     "hubGroupDataTools": "数据工具",
     "@hubGroupDataTools": {
-        "description": "全部功能页-数据工具分组标题"
+        "description": "工具页-数据工具分组标题"
     },
     "backgroundSyncing": "后台同步中 {progress}%",
     "@backgroundSyncing": {

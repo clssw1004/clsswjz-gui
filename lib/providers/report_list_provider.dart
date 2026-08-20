@@ -11,6 +11,7 @@ import '../manager/dao_manager.dart';
 import '../models/common.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/dto/note_filter_dto.dart';
+import '../services/monthly_report_service.dart';
 
 /// 缺失月份占位数据（报表模块）
 class MissingMonthItem {
@@ -180,7 +181,7 @@ class ReportListProvider extends ChangeNotifier {
         .toSet();
     // 今年1月至上月
     for (int m = 1; m < now.month; m++) {
-      final title = '月度收支报告 —— ${now.year}年$m月';
+      final title = MonthlyReportService.reportTitle(now.year, m);
       if (!generatedTitles.contains(title)) {
         _missingMonths.add(MissingMonthItem(year: now.year, month: m));
       }

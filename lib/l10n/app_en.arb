@@ -3,7 +3,6 @@
     "appName": "Clsswjz",
     "tabAccountItems": "Records",
     "tabMine": "Mine",
-    "tabNotes": "Notes",
     "tabStatistics": "Statistics",
     "settings": "Settings",
     "notLoggedIn": "Not Logged In",
@@ -2968,17 +2967,17 @@
     "periodBackfillConfirm": "Confirm backfill",
     "periodSelectDuration": "Select duration",
     "periodDurationDays": "{days} days",
-    "hubGroupFinance": "Bookkeeping & Finance",
-    "@hubGroupFinance": {
-        "description": "All Features page - bookkeeping & finance group title"
+    "hubGroupBookData": "Book Data",
+    "@hubGroupBookData": {
+        "description": "Tools page - book data group title (features tied to the current book)"
     },
     "hubGroupLife": "Life & Lifestyle",
     "@hubGroupLife": {
-        "description": "All Features page - life & lifestyle group title"
+        "description": "Tools page - life & lifestyle group title"
     },
     "hubGroupDataTools": "Data Tools",
     "@hubGroupDataTools": {
-        "description": "All Features page - data tools group title"
+        "description": "Tools page - data tools group title"
     },
     "backgroundSyncing": "Background syncing {progress}%",
     "@backgroundSyncing": {

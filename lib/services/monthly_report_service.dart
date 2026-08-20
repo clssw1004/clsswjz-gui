@@ -15,6 +15,13 @@ import '../models/vo/user_note_vo.dart';
 class MonthlyReportService {
   final AppDatabase _db = DatabaseManager.db;
 
+  /// 生成月度收支报告的标准标题（生成、补检索、缺失月份检测共用同一来源）
+  static String reportTitle(int year, int month) =>
+      '月度收支报告 —— $year年$month月';
+
+  /// 报告模板编码
+  static const String reportTemplate = 'report_v1';
+
   /// 为指定账本生成指定月份的收支报告
   /// [bookId] 账本ID
   /// [year] 年份
@@ -31,7 +38,7 @@ class MonthlyReportService {
 
     // 通过 Driver 创建笔记
     final userId = AppConfigManager.instance.userId;
-    final title = '月度收支报告 —— $year年$month月';
+    final title = MonthlyReportService.reportTitle(year, month);
     // 创建时间固定为下月1日00:00:00（月度报表特点）
     final createdAt = DateTime(year, month + 1, 1).millisecondsSinceEpoch;
     final result = await DriverFactory.driver.createNote(
@@ -65,7 +72,7 @@ class MonthlyReportService {
         userId,
         bookId,
         existing.id,
-        title: '月度收支报告 —— $year年$month月',
+        title: MonthlyReportService.reportTitle(year, month),
         content: report.toJsonString(),
         plainContent: report.toPlainText(),
         template: 'report_v1',
@@ -78,7 +85,7 @@ class MonthlyReportService {
       final result = await DriverFactory.driver.createNote(
         userId,
         bookId,
-        title: '月度收支报告 —— $year年$month月',
+        title: MonthlyReportService.reportTitle(year, month),
         noteType: NoteType.report,
         content: report.toJsonString(),
         plainContent: report.toPlainText(),
@@ -361,7 +368,7 @@ class MonthlyReportService {
   /// 检查指定月份是否已有报告
   Future<UserNoteVO?> _findExistingReport(
       String bookId, int year, int month) async {
-    final title = '月度收支报告 —— $year年$month月';
+    final title = MonthlyReportService.reportTitle(year, month);
     final notes = await DaoManager.noteDao.listByBook(bookId, limit: 100);
 
     for (final note in notes) {

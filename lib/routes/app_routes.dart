@@ -60,7 +60,6 @@ import '../pages/bookkeeping_rule/bookkeeping_rule_form_page.dart';
 import '../pages/period/period_calendar_page.dart';
 import '../pages/note/note_list_page.dart';
 import '../pages/report/report_list_page.dart';
-import '../pages/tabs/statistics_tab.dart';
 import '../models/vo/recurring_config_vo.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';
 
@@ -200,9 +199,6 @@ class AppRoutes {
 
   /// 普通记事列表页面
   static const String noteList = '/note/list';
-
-  /// 统计页面（独立可返回的报表入口）
-  static const String statistics = '/statistics';
 
   /// 统一页面过渡动画构建
   static Route<dynamic> _buildPageRoute(Widget page) {
@@ -437,8 +433,6 @@ class AppRoutes {
         return const NoteListPage();
       case periodCalendar:
         return const PeriodCalendarPage();
-      case statistics:
-        return const StatisticsTab(showBackButton: true);
       default:
         return null;
     }

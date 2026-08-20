@@ -3,7 +3,6 @@
     "appName": "Clsswjz",
     "tabAccountItems": "記賬",
     "tabMine": "我的",
-    "tabNotes": "記事",
     "tabStatistics": "統計",
     "settings": "設置",
     "notLoggedIn": "未登錄",
@@ -2115,17 +2114,17 @@
     "periodBackfillConfirm": "確認補記",
     "periodSelectDuration": "選擇持續天數",
     "periodDurationDays": "{days} 天",
-    "hubGroupFinance": "記帳財務",
-    "@hubGroupFinance": {
-        "description": "全部功能頁-記帳財務分組標題"
+    "hubGroupBookData": "賬本數據",
+    "@hubGroupBookData": {
+        "description": "工具頁-賬本數據分組標題（隨當前賬本變化的功能）"
     },
     "hubGroupLife": "生活擴展",
     "@hubGroupLife": {
-        "description": "全部功能頁-生活擴展分組標題"
+        "description": "工具頁-生活擴展分組標題"
     },
     "hubGroupDataTools": "數據工具",
     "@hubGroupDataTools": {
-        "description": "全部功能頁-數據工具分組標題"
+        "description": "工具頁-數據工具分組標題"
     },
     "backgroundSyncing": "背景同步中 {progress}%",
     "@backgroundSyncing": {
