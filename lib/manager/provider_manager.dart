@@ -6,6 +6,7 @@ import '../providers/books_provider.dart';
 import '../providers/item_list_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/note_list_provider.dart';
+import '../providers/report_list_provider.dart';
 import '../providers/statistics_provider.dart';
 import '../providers/sync_provider.dart';
 import '../providers/theme_provider.dart';
@@ -67,6 +68,9 @@ class ProviderManager {
           ),
           ChangeNotifierProvider<NoteListProvider>(
             create: (_) => NoteListProvider(),
+          ),
+          ChangeNotifierProvider<ReportListProvider>(
+            create: (_) => ReportListProvider(),
           ),
           ChangeNotifierProvider(create: (_) => DebtListProvider()),
           ChangeNotifierProvider(create: (_) => StatisticsProvider()),

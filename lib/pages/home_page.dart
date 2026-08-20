@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../manager/l10n_manager.dart';
 import 'tabs/items_tab.dart';
-import 'tabs/notes_tab.dart';
+import 'tabs/tools_tab.dart';
 import 'tabs/mine_tab.dart';
 import 'tabs/statistics_tab.dart';
 import '../utils/navigation_util.dart';
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage>
     super.initState();
     _pages = [
       const ItemsTab(),
-      const NotesTab(),
+      const ToolsTab(),
       const StatisticsTab(),
       const MineTab(),
     ];
@@ -146,12 +146,11 @@ class _HomePageState extends State<HomePage>
     }
     switch (_currentIndex) {
       case 0:
+        // 记账 Tab：快捷记一笔
         await NavigationUtil.toItemAdd(context);
         break;
-      case 1:
-        await NavigationUtil.toNoteAdd(context);
-        break;
       default:
+        // 其余 Tab（工具/统计/我的）：展开中央动作菜单
         _toggleMenu();
         break;
     }
@@ -242,11 +241,11 @@ class _HomePageState extends State<HomePage>
             label: L10nManager.l10n.tabAccountItems,
           ),
           NavigationDestination(
-            icon: Icon(Icons.note_alt_outlined,
+            icon: Icon(Icons.grid_view_outlined,
                 color: colorScheme.onSurfaceVariant),
-            selectedIcon: Icon(Icons.note_alt,
+            selectedIcon: Icon(Icons.grid_view_rounded,
                 color: colorScheme.onSecondaryContainer),
-            label: L10nManager.l10n.tabNotes,
+            label: L10nManager.l10n.tabTools,
           ),
           NavigationDestination(
             icon: GestureDetector(

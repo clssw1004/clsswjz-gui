@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/theme_spacing.dart';
 
 /// 功能网格项组件
 ///
@@ -18,34 +17,41 @@ class CommonGridFeatureItem extends StatelessWidget {
   /// 是否高亮模式（更强的透明度层级）
   final bool isHighlighted;
 
+  /// 语义色：图标本体与渐变背景使用该颜色；为 null 时回退主题主色。
+  final Color? color;
+
   const CommonGridFeatureItem({
     super.key,
     required this.icon,
     required this.label,
     required this.onTap,
     this.isHighlighted = false,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final spacing = Theme.of(context).spacing;
+    final iconColor = color ?? colorScheme.primary;
+    // 深色模式下提高渐变底色透明度，让彩色光晕更饱满、图标更突出
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glowBoost = isDark ? 12 : 0;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: spacing.listItemPadding,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           decoration: BoxDecoration(
             color: isHighlighted
-                ? colorScheme.surfaceContainerHighest.withAlpha(80)
-                : colorScheme.surfaceContainerHighest.withAlpha(40),
-            borderRadius: BorderRadius.circular(8),
+                ? colorScheme.surfaceContainerHighest.withAlpha(90)
+                : colorScheme.surfaceContainerHighest.withAlpha(45),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isHighlighted
-                  ? colorScheme.outlineVariant.withAlpha(40)
+                  ? colorScheme.outlineVariant.withAlpha(50)
                   : colorScheme.outlineVariant.withAlpha(20),
               width: 0.5,
             ),
@@ -57,27 +63,39 @@ class CommonGridFeatureItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: isHighlighted
-                      ? colorScheme.primary.withAlpha(15)
-                      : colorScheme.primary.withAlpha(10),
-                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      iconColor.withAlpha((isHighlighted ? 50 : 36) + glowBoost),
+                      iconColor.withAlpha((isHighlighted ? 16 : 10) + glowBoost),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: isHighlighted
+                      ? Border.all(
+                          color: iconColor.withAlpha(55),
+                          width: 1,
+                        )
+                      : null,
                 ),
                 child: Icon(
                   icon,
-                  size: 22,
-                  color: colorScheme.primary,
+                  size: 20,
+                  color: iconColor,
                 ),
               ),
-              SizedBox(height: spacing.listItemSpacing),
+              SizedBox(height: 8),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colorScheme.onSurface,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ],

@@ -128,8 +128,8 @@ class _NoteTileState extends State<NoteTile> {
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: Text(l10n.delete(l10n.tabNotes)),
-          content: Text('${l10n.delete(l10n.tabNotes)}？'),
+          title: Text(l10n.delete(l10n.noteListTitle)),
+          content: Text('${l10n.delete(l10n.noteListTitle)}？'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

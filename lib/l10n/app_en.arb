@@ -3,7 +3,6 @@
     "appName": "Clsswjz",
     "tabAccountItems": "Records",
     "tabMine": "Mine",
-    "tabNotes": "Notes",
     "tabStatistics": "Statistics",
     "settings": "Settings",
     "notLoggedIn": "Not Logged In",
@@ -1409,7 +1408,7 @@
     "@activityCheckinEntry": {
         "description": "Activity check-in entry toggle label"
     },
-    "activityCheckinEntryDescription": "Show activity check-in entry button on Mine tab",
+    "activityCheckinEntryDescription": "Show activity check-in entry button on Tools tab",
     "@activityCheckinEntryDescription": {
         "description": "Activity check-in entry toggle description"
     },
@@ -2967,5 +2966,37 @@
     "periodBackfillOngoing": "Period ongoing",
     "periodBackfillConfirm": "Confirm backfill",
     "periodSelectDuration": "Select duration",
-    "periodDurationDays": "{days} days"
+    "periodDurationDays": "{days} days",
+    "hubGroupBookData": "Book Data",
+    "@hubGroupBookData": {
+        "description": "Tools page - book data group title (features tied to the current book)"
+    },
+    "hubGroupLife": "Life & Lifestyle",
+    "@hubGroupLife": {
+        "description": "Tools page - life & lifestyle group title"
+    },
+    "hubGroupDataTools": "Data Tools",
+    "@hubGroupDataTools": {
+        "description": "Tools page - data tools group title"
+    },
+    "backgroundSyncing": "Background syncing {progress}%",
+    "@backgroundSyncing": {
+        "description": "Background sync in progress with progress"
+    },
+    "noBookSelected": "No book selected",
+    "@noBookSelected": {
+        "description": "No book selected toast"
+    },
+    "tabTools": "Tools",
+    "@tabTools": {
+        "description": "Bottom tools tab label"
+    },
+    "noteListTitle": "Notes",
+    "@noteListTitle": {
+        "description": "Note list page title"
+    },
+    "reportListTitle": "Reports",
+    "@reportListTitle": {
+        "description": "Report list page title"
+    }
 }

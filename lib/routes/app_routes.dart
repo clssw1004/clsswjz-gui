@@ -58,6 +58,8 @@ import '../pages/recurring_config/recurring_config_detail_page.dart';
 import '../pages/bookkeeping_rule/bookkeeping_rule_list_page.dart';
 import '../pages/bookkeeping_rule/bookkeeping_rule_form_page.dart';
 import '../pages/period/period_calendar_page.dart';
+import '../pages/note/note_list_page.dart';
+import '../pages/report/report_list_page.dart';
 import '../models/vo/recurring_config_vo.dart';
 import '../models/vo/bookkeeping_rule_vo.dart';
 
@@ -191,6 +193,12 @@ class AppRoutes {
 
   /// 报告详情页面
   static const String reportDetail = '/report/detail';
+
+  /// 报表列表页面
+  static const String reportList = '/report/list';
+
+  /// 普通记事列表页面
+  static const String noteList = '/note/list';
 
   /// 统一页面过渡动画构建
   static Route<dynamic> _buildPageRoute(Widget page) {
@@ -419,6 +427,10 @@ class AppRoutes {
         final note = args as UserNoteVO;
         return ReportDetailPage(note: note);
       }
+      case reportList:
+        return const ReportListPage();
+      case noteList:
+        return const NoteListPage();
       case periodCalendar:
         return const PeriodCalendarPage();
       default:

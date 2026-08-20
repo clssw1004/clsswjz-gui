@@ -2,7 +2,6 @@
     "@@locale": "zh",
     "tabAccountItems": "记账",
     "tabMine": "我的",
-    "tabNotes": "记事",
     "tabStatistics": "统计",
     "settings": "设置",
     "notLoggedIn": "未登录",
@@ -1415,7 +1414,7 @@
     "@activityCheckinEntry": {
         "description": "活动打卡入口开关标签"
     },
-    "activityCheckinEntryDescription": "在「我的」页面显示活动打卡入口按钮",
+    "activityCheckinEntryDescription": "在「工具」页面显示活动打卡入口按钮",
     "@activityCheckinEntryDescription": {
         "description": "活动打卡入口开关描述"
     },
@@ -3028,5 +3027,37 @@
     "periodBackfillOngoing": "经期进行中",
     "periodBackfillConfirm": "确认补记",
     "periodSelectDuration": "选择持续天数",
-    "periodDurationDays": "{days} 天"
+    "periodDurationDays": "{days} 天",
+    "hubGroupBookData": "账本数据",
+    "@hubGroupBookData": {
+        "description": "工具页-账本数据分组标题（随当前账本变化的功能）"
+    },
+    "hubGroupLife": "生活扩展",
+    "@hubGroupLife": {
+        "description": "工具页-生活扩展分组标题"
+    },
+    "hubGroupDataTools": "数据工具",
+    "@hubGroupDataTools": {
+        "description": "工具页-数据工具分组标题"
+    },
+    "backgroundSyncing": "后台同步中 {progress}%",
+    "@backgroundSyncing": {
+        "description": "后台同步进行中提示（带进度）"
+    },
+    "noBookSelected": "未选择账本",
+    "@noBookSelected": {
+        "description": "未选择账本提示"
+    },
+    "tabTools": "工具",
+    "@tabTools": {
+        "description": "底部-工具标签页名"
+    },
+    "noteListTitle": "记事",
+    "@noteListTitle": {
+        "description": "普通记事列表页标题"
+    },
+    "reportListTitle": "报表",
+    "@reportListTitle": {
+        "description": "报表列表页标题"
+    }
 }
