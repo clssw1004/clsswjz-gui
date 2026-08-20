@@ -1409,7 +1409,7 @@
     "@activityCheckinEntry": {
         "description": "Activity check-in entry toggle label"
     },
-    "activityCheckinEntryDescription": "Show activity check-in entry button on Mine tab",
+    "activityCheckinEntryDescription": "Show activity check-in entry button on Tools tab",
     "@activityCheckinEntryDescription": {
         "description": "Activity check-in entry toggle description"
     },
@@ -2967,5 +2967,37 @@
     "periodBackfillOngoing": "Period ongoing",
     "periodBackfillConfirm": "Confirm backfill",
     "periodSelectDuration": "Select duration",
-    "periodDurationDays": "{days} days"
+    "periodDurationDays": "{days} days",
+    "hubGroupFinance": "Bookkeeping & Finance",
+    "@hubGroupFinance": {
+        "description": "All Features page - bookkeeping & finance group title"
+    },
+    "hubGroupLife": "Life & Lifestyle",
+    "@hubGroupLife": {
+        "description": "All Features page - life & lifestyle group title"
+    },
+    "hubGroupDataTools": "Data Tools",
+    "@hubGroupDataTools": {
+        "description": "All Features page - data tools group title"
+    },
+    "backgroundSyncing": "Background syncing {progress}%",
+    "@backgroundSyncing": {
+        "description": "Background sync in progress with progress"
+    },
+    "noBookSelected": "No book selected",
+    "@noBookSelected": {
+        "description": "No book selected toast"
+    },
+    "tabTools": "Tools",
+    "@tabTools": {
+        "description": "Bottom tools tab label"
+    },
+    "noteListTitle": "Notes",
+    "@noteListTitle": {
+        "description": "Note list page title"
+    },
+    "reportListTitle": "Reports",
+    "@reportListTitle": {
+        "description": "Report list page title"
+    }
 }

@@ -12,21 +12,28 @@ import '../models/common.dart';
 import '../models/vo/user_note_vo.dart';
 import '../models/dto/note_filter_dto.dart';
 
-/// 普通记事列表 Provider（仅展示 NOTE 类型的笔记，排除报表与待办）。
+/// 缺失月份占位数据（报表模块）
+class MissingMonthItem {
+  final int year;
+  final int month;
+  MissingMonthItem({required this.year, required this.month});
+}
+
+/// 报表列表 Provider（仅展示 noteType='REPORT' 的月度收支报告）。
 ///
-/// 报表列表由独立的 [ReportListProvider]（report_list_provider.dart）承载，
-/// 两者通过 NoteChangedEvent 的 noteType 分流，互不串台。
-class NoteListProvider extends ChangeNotifier {
+/// 与普通记事 [NoteListProvider] 相互独立，通过 NoteChangedEvent 的
+/// noteType 分流，互不串台。
+class ReportListProvider extends ChangeNotifier {
   late final StreamSubscription _bookSubscription;
   late final StreamSubscription _syncSubscription;
   late final StreamSubscription _noteChangedSubscription;
 
-  /// 普通记事固定查询的类型
-  final String _noteType = NoteType.note.code;
+  /// 报表固定查询的类型
+  final String _noteType = NoteType.report.code;
 
-  /// 笔记列表
-  final List<UserNoteVO> _notes = [];
-  List<UserNoteVO> get notes => _notes;
+  /// 报表列表
+  final List<UserNoteVO> _reports = [];
+  List<UserNoteVO> get reports => _reports;
 
   /// 是否加载中
   bool _loading = false;
@@ -48,11 +55,11 @@ class NoteListProvider extends ChangeNotifier {
   String? _keyword;
   String? get keyword => _keyword;
 
-  /// 分组筛选代码列表
-  List<String>? _groupCodes;
-  List<String>? get groupCodes => _groupCodes;
+  /// 当前年未生成报表的月份列表
+  final List<MissingMonthItem> _missingMonths = [];
+  List<MissingMonthItem> get missingMonths => _missingMonths;
 
-  NoteListProvider() {
+  ReportListProvider() {
     _currentBookId = AppConfigManager.instance.defaultBookId;
     _bookSubscription = EventBus.instance.on<BookChangedEvent>((event) {
       _currentBookId = event.book.id;
@@ -64,7 +71,7 @@ class NoteListProvider extends ChangeNotifier {
     });
 
     _noteChangedSubscription = EventBus.instance.on<NoteChangedEvent>((event) {
-      // 仅普通记事变化时刷新本列表，报表变化由 ReportListProvider 处理
+      // 仅报表变化时刷新本列表，普通记事变化由 NoteListProvider 处理
       if (event.note.noteType != _noteType) return;
       loadNotes(true);
     });
@@ -83,13 +90,7 @@ class NoteListProvider extends ChangeNotifier {
     loadNotes(true);
   }
 
-  /// 设置分组筛选
-  Future<void> setGroupCodes(List<String>? groupCodes) async {
-    _groupCodes = groupCodes;
-    loadNotes(true);
-  }
-
-  /// 加载笔记列表
+  /// 加载报表列表
   /// [refresh] 是否刷新列表，如果为 true 则清空现有数据并重置页码
   Future<void> loadNotes([bool refresh = true]) async {
     if (_loading || _currentBookId == null) return;
@@ -101,14 +102,12 @@ class NoteListProvider extends ChangeNotifier {
       _hasMore = true;
     }
     try {
-      // 普通记事列表仅展示 NOTE 类型，真正排除报表与待办
       final filter = NoteFilterDTO(
         keyword: _keyword,
-        groupCodes: _groupCodes,
         noteType: _noteType,
       );
 
-      // 并行查询：账本笔记 + 全局笔记
+      // 并行查询：账本报表 + 全局报表
       final results = await Future.wait([
         DriverFactory.driver.listNotesByBook(
           AppConfigManager.instance.userId,
@@ -127,45 +126,66 @@ class NoteListProvider extends ChangeNotifier {
       final globalNotes = results[1] as List<AccountNote>;
 
       if (refresh) {
-        _notes.clear();
+        _reports.clear();
       }
 
       if (bookResult.ok) {
-        _notes.addAll(bookResult.data ?? []);
+        _reports.addAll(bookResult.data ?? []);
         _hasMore = (bookResult.data?.length ?? 0) >= _pageSize;
       }
 
-      // 合并全局笔记，按更新时间排序
+      // 合并全局报表，按更新时间排序
       for (final gn in globalNotes) {
         final vo = UserNoteVO.fromAccountNote(gn, null);
-        // 去重：全局笔记在 listNotesByBook 中可能已存在（根据 noteType 区分）
-        if (!_notes.any((n) => n.id == vo.id)) {
-          _notes.add(vo);
+        if (!_reports.any((n) => n.id == vo.id)) {
+          _reports.add(vo);
         }
       }
-      _notes.sort((a, b) =>
+      _reports.sort((a, b) =>
           (b.updatedAt ?? b.createdAt ?? 0)
               .compareTo((a.updatedAt ?? a.createdAt ?? 0)));
+
+      _computeMissingMonths();
     } finally {
       _loading = false;
       notifyListeners();
     }
   }
 
-  /// 加载更多笔记
+  /// 加载更多报表
   Future<void> loadMore() async {
     _page++;
     await loadNotes(false);
   }
 
-  /// 删除笔记
-  Future<bool> deleteNote(UserNoteVO note) async {
+  /// 删除报表
+  Future<bool> deleteReport(UserNoteVO note) async {
     final result = await DriverFactory.driver
         .deleteNote(AppConfigManager.instance.userId, _currentBookId!, note.id);
     if (result.ok) {
-      _notes.remove(note);
+      _reports.remove(note);
       notifyListeners();
     }
     return result.ok;
+  }
+
+  /// 计算今年已过去月份中未生成报表的月份
+  void _computeMissingMonths() {
+    _missingMonths.clear();
+    final now = DateTime.now();
+    // 已生成的月份标题
+    final generatedTitles = _reports
+        .where((n) => n.noteType == NoteType.report.code)
+        .map((n) => n.title ?? '')
+        .toSet();
+    // 今年1月至上月
+    for (int m = 1; m < now.month; m++) {
+      final title = '月度收支报告 —— ${now.year}年$m月';
+      if (!generatedTitles.contains(title)) {
+        _missingMonths.add(MissingMonthItem(year: now.year, month: m));
+      }
+    }
+    // 倒序
+    _missingMonths.sort((a, b) => b.month.compareTo(a.month));
   }
 }

@@ -2114,5 +2114,45 @@
     "periodBackfillOngoing": "經期進行中",
     "periodBackfillConfirm": "確認補記",
     "periodSelectDuration": "選擇持續天數",
-    "periodDurationDays": "{days} 天"
+    "periodDurationDays": "{days} 天",
+    "hubGroupFinance": "記帳財務",
+    "@hubGroupFinance": {
+        "description": "全部功能頁-記帳財務分組標題"
+    },
+    "hubGroupLife": "生活擴展",
+    "@hubGroupLife": {
+        "description": "全部功能頁-生活擴展分組標題"
+    },
+    "hubGroupDataTools": "數據工具",
+    "@hubGroupDataTools": {
+        "description": "全部功能頁-數據工具分組標題"
+    },
+    "backgroundSyncing": "背景同步中 {progress}%",
+    "@backgroundSyncing": {
+        "description": "背景同步進行中提示（帶進度）"
+    },
+    "noBookSelected": "未選擇賬本",
+    "@noBookSelected": {
+        "description": "未選擇賬本提示"
+    },
+    "tabTools": "工具",
+    "@tabTools": {
+        "description": "底部-工具標籤頁名"
+    },
+    "noteListTitle": "記事",
+    "@noteListTitle": {
+        "description": "普通記事列表頁標題"
+    },
+    "reportListTitle": "報表",
+    "@reportListTitle": {
+        "description": "報表列表頁標題"
+    },
+    "activityCheckinEntry": "活動打卡入口",
+    "@activityCheckinEntry": {
+        "description": "活動打卡入口開關標籤"
+    },
+    "activityCheckinEntryDescription": "在「工具」頁面顯示活動打卡入口按鈕",
+    "@activityCheckinEntryDescription": {
+        "description": "活動打卡入口開關描述"
+    }
 }

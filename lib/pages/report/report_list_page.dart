@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+
 import '../../manager/l10n_manager.dart';
-import '../../services/monthly_report_service.dart';
-import '../../utils/toast_util.dart';
-import '../../widgets/note_renderer.dart';
 import '../../providers/books_provider.dart';
-import '../../theme/theme_spacing.dart';
-import '../../providers/note_list_provider.dart';
+import '../../providers/report_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
+import '../../services/monthly_report_service.dart';
+import '../../theme/theme_spacing.dart';
+import '../../utils/toast_util.dart';
 import '../../widgets/book/note_list.dart';
-import '../../widgets/book/note_group_filter.dart';
 import '../../widgets/common/common_app_bar.dart';
-import '../../widgets/common/progress_indicator_bar.dart';
 import '../../widgets/common/common_search_field.dart';
+import '../../widgets/common/progress_indicator_bar.dart';
 
-class NotesTab extends StatefulWidget {
-  const NotesTab({super.key});
+/// 报表列表页（从「工具」Tab 宫格进入）。
+///
+/// 展示所有月度收支报告（noteType='REPORT'），点击进入报表详情，
+/// 底部附带缺失月份补生成入口。
+class ReportListPage extends StatefulWidget {
+  const ReportListPage({super.key});
 
   @override
-  State<NotesTab> createState() => _NotesTabState();
+  State<ReportListPage> createState() => _ReportListPageState();
 }
 
-class _NotesTabState extends State<NotesTab> {
+class _ReportListPageState extends State<ReportListPage> {
   bool _isRefreshing = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -31,7 +34,7 @@ class _NotesTabState extends State<NotesTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NoteListProvider>().loadNotes();
+      context.read<ReportListProvider>().loadNotes();
     });
   }
 
@@ -52,32 +55,36 @@ class _NotesTabState extends State<NotesTab> {
   }
 
   void _handleSearch() {
-    context.read<NoteListProvider>().setKeyword(_searchController.text);
+    context.read<ReportListProvider>().setKeyword(_searchController.text);
   }
 
-  void _handleGroupChanged(List<String>? codes) {
-    if (codes != null && codes.contains(kReportFilterCode)) {
-      context.read<NoteListProvider>().setFilterType(NoteFilterType.report);
-    } else {
-      context.read<NoteListProvider>().setGroupCodes(codes);
+  Future<void> _generateReport(ReportListProvider provider, int year, int month) async {
+    final bookId = context.read<BooksProvider>().selectedBook?.id;
+    if (bookId == null) return;
+    final service = MonthlyReportService();
+    final noteId = await service.regenerateReport(bookId, year, month);
+    if (mounted) {
+      if (noteId != null) {
+        ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
+        provider.loadNotes(true);
+      } else {
+        ToastUtil.showError(L10nManager.l10n.reportNoData);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final booksProvider = Provider.of<BooksProvider>(context);
-    final spacing = theme.spacing;
+    final spacing = Theme.of(context).spacing;
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: Text(L10nManager.l10n.tabNotes),
-        showBackButton: false,
+        title: Text(L10nManager.l10n.reportListTitle),
         centerTitle: false,
       ),
-      body: Consumer2<NoteListProvider, SyncProvider>(
-        builder: (context, noteListProvider, syncProvider, child) {
-          final isReport = noteListProvider.filterType == NoteFilterType.report;
+      body: Consumer2<ReportListProvider, SyncProvider>(
+        builder: (context, reportListProvider, syncProvider, child) {
           return Column(
             children: [
               // 搜索栏
@@ -96,22 +103,7 @@ class _NotesTabState extends State<NotesTab> {
                   onClear: _handleSearch,
                 ),
               ),
-              // 分组筛选
-              if (booksProvider.selectedBook != null)
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: spacing.contentPadding.left,
-                    right: spacing.contentPadding.right,
-                    bottom: spacing.formItemSpacing,
-                  ),
-                  child: NoteGroupFilter(
-                    bookId: booksProvider.selectedBook!.id,
-                    selectedGroupCodes: isReport ? [kReportFilterCode] : noteListProvider.groupCodes,
-                    onGroupCodesChanged: _handleGroupChanged,
-                    isReportActive: isReport,
-                  ),
-                ),
-              // 笔记列表
+              // 报表列表
               Expanded(
                 child: Stack(
                   children: [
@@ -120,31 +112,26 @@ class _NotesTabState extends State<NotesTab> {
                       builder: (context, child, controller) => child,
                       child: NoteList(
                         accountBook: booksProvider.selectedBook,
-                        initialNotes: noteListProvider.notes,
-                        loading: noteListProvider.loading,
-                        hasMore: noteListProvider.hasMore,
-                        onLoadMore: () => noteListProvider.loadMore(),
-                        onDelete: noteListProvider.deleteNote,
+                        initialNotes: reportListProvider.reports,
+                        loading: reportListProvider.loading,
+                        hasMore: reportListProvider.hasMore,
+                        onLoadMore: () => reportListProvider.loadMore(),
+                        onDelete: reportListProvider.deleteReport,
                         onNoteTap: (note) {
-                          final renderer = NoteRendererRegistry.resolve(
-                              note.noteType, note.template);
-                          if (renderer != null && !renderer.isEditable) {
-                            Navigator.pushNamed(
-                              context, AppRoutes.reportDetail,
-                              arguments: note,
-                            ).then((_) => noteListProvider.loadNotes(true));
-                          } else {
-                            Navigator.pushNamed(
-                              context, AppRoutes.noteEdit,
-                              arguments: [note, booksProvider.selectedBook],
-                            ).then((updated) {
-                              if (updated == true) noteListProvider.loadNotes(true);
-                            });
-                          }
+                          Navigator.pushNamed(
+                            context, AppRoutes.reportDetail,
+                            arguments: note,
+                          ).then((_) => reportListProvider.loadNotes(true));
                         },
-                        footerItems: isReport
-                            ? _buildMissingMonthWidgets(noteListProvider)
-                            : null,
+                        footerItems: reportListProvider.missingMonths
+                            .map((m) => _MissingMonthCard(
+                              year: m.year,
+                              month: m.month,
+                              cs: Theme.of(context).colorScheme,
+                              onGenerate: () =>
+                                  _generateReport(reportListProvider, m.year, m.month),
+                            ))
+                            .toList(),
                       ),
                     ),
                     if (syncProvider.syncing && syncProvider.currentStep != null)
@@ -164,31 +151,6 @@ class _NotesTabState extends State<NotesTab> {
         },
       ),
     );
-  }
-
-  List<Widget> _buildMissingMonthWidgets(NoteListProvider provider) {
-    final cs = Theme.of(context).colorScheme;
-    return provider.missingMonths.map((m) => _MissingMonthCard(
-      year: m.year,
-      month: m.month,
-      cs: cs,
-      onGenerate: () => _generateReport(provider, m.year, m.month),
-    )).toList();
-  }
-
-  Future<void> _generateReport(NoteListProvider provider, int year, int month) async {
-    final bookId = context.read<BooksProvider>().selectedBook?.id;
-    if (bookId == null) return;
-    final service = MonthlyReportService();
-    final noteId = await service.regenerateReport(bookId, year, month);
-    if (mounted) {
-      if (noteId != null) {
-        ToastUtil.showSuccess(L10nManager.l10n.reportRegenerated);
-        provider.loadNotes(true);
-      } else {
-        ToastUtil.showError(L10nManager.l10n.reportNoData);
-      }
-    }
   }
 }
 

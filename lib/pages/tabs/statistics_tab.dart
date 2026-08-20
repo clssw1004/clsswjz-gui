@@ -26,7 +26,10 @@ import '../../widgets/statistics/time_range_selector.dart';
 
 /// 统计标签页
 class StatisticsTab extends StatefulWidget {
-  const StatisticsTab({super.key});
+  /// 是否显示返回按钮（默认 Tab 内为 false，作为独立页面进入时传 true）
+  final bool showBackButton;
+
+  const StatisticsTab({super.key, this.showBackButton = false});
 
   @override
   State<StatisticsTab> createState() => _StatisticsTabState();
@@ -63,7 +66,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
     return Scaffold(
       appBar: CommonAppBar(
         title: Text(l10n.tabStatistics),
-        showBackButton: false,
+        showBackButton: widget.showBackButton,
         centerTitle: false,
       ),
       body: Consumer2<BooksProvider, StatisticsProvider>(
