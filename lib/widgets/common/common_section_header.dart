@@ -27,11 +27,15 @@ class CommonSectionHeader extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: colorScheme.primary),
         const SizedBox(width: 8),
-        Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

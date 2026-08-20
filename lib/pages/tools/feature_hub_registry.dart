@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
@@ -10,7 +11,7 @@ import '../../utils/toast_util.dart';
 ///
 /// 每一条代表一个可点按的功能入口，图标 + 标签 + 跳转动作。
 class HubFeatureItem {
-  /// 图标
+  /// 图标（FontAwesome solid 风格）
   final IconData icon;
 
   /// 标签文案（在 build 内通过 L10nManager.l10n 读取，保持语言新鲜）
@@ -22,11 +23,15 @@ class HubFeatureItem {
   /// 是否高亮（更强的前景层级，配合 [CommonGridFeatureItem]）
   final bool isHighlighted;
 
+  /// 语义色：图标本体与渐变背景使用该颜色；为 null 时回退主题主色。
+  final Color? color;
+
   const HubFeatureItem({
     required this.icon,
     required this.label,
     required this.onTap,
     this.isHighlighted = false,
+    this.color,
   });
 }
 
@@ -87,137 +92,160 @@ List<HubFeatureGroup> buildHubGroups(BuildContext context, BookMetaVO? book) {
   // 账本数据（依赖当前选中账本，切换账本后数据不同）
   final bookDataItems = <HubFeatureItem>[
     HubFeatureItem(
-      icon: Icons.receipt_long_outlined,
+      icon: FontAwesomeIcons.receipt.data,
       label: l10n.accountItem,
       onTap: () => _pushItemsRoute(context, book),
       isHighlighted: true,
+      color: const Color(0xFF3D6BF5),
     ),
     HubFeatureItem(
-      icon: Icons.category_outlined,
+      icon: FontAwesomeIcons.shapes.data,
       label: l10n.category,
       onTap: () => _pushBookRoute(context, book, AppRoutes.categories),
       isHighlighted: true,
+      color: const Color(0xFF00A878),
     ),
     HubFeatureItem(
-      icon: Icons.store_outlined,
+      icon: FontAwesomeIcons.store.data,
       label: l10n.merchant,
       onTap: () => _pushBookRoute(context, book, AppRoutes.merchants),
       isHighlighted: true,
+      color: const Color(0xFFF97316),
     ),
     HubFeatureItem(
-      icon: Icons.account_balance_wallet_outlined,
+      icon: FontAwesomeIcons.wallet.data,
       label: l10n.account,
       onTap: () => _pushBookRoute(context, book, AppRoutes.funds),
       isHighlighted: true,
+      color: const Color(0xFF22A06B),
     ),
     HubFeatureItem(
-      icon: Icons.local_offer_outlined,
+      icon: FontAwesomeIcons.tag.data,
       label: l10n.tag,
       onTap: () => _pushBookRoute(context, book, AppRoutes.tags),
       isHighlighted: true,
+      color: const Color(0xFFE8528C),
     ),
     HubFeatureItem(
-      icon: Icons.folder_outlined,
+      icon: FontAwesomeIcons.folder.data,
       label: l10n.project,
       onTap: () => _pushBookRoute(context, book, AppRoutes.projects),
+      color: const Color(0xFF7C5CFC),
     ),
     HubFeatureItem(
-      icon: Icons.money_outlined,
+      icon: FontAwesomeIcons.handHoldingDollar.data,
       label: l10n.debt,
       onTap: () => _pushBookRoute(context, book, AppRoutes.debtList),
       isHighlighted: true,
+      color: const Color(0xFFE0A11A),
     ),
     HubFeatureItem(
-      icon: Icons.repeat,
+      icon: FontAwesomeIcons.rotate.data,
       label: l10n.recurringConfig,
       onTap: () => Navigator.pushNamed(context, AppRoutes.recurringConfigList),
       isHighlighted: true,
+      color: const Color(0xFF2E86DE),
     ),
     HubFeatureItem(
-      icon: Icons.auto_fix_high,
+      icon: FontAwesomeIcons.wandMagicSparkles.data,
       label: l10n.bookkeepingRule,
       onTap: () => Navigator.pushNamed(context, AppRoutes.bookkeepingRuleList),
       isHighlighted: true,
+      color: const Color(0xFF9D5BE0),
     ),
   ];
 
   // 生活扩展
   final lifeItems = <HubFeatureItem>[
     HubFeatureItem(
-      icon: Icons.note_alt_outlined,
+      icon: FontAwesomeIcons.noteSticky.data,
       label: l10n.noteListTitle,
       onTap: () => Navigator.pushNamed(context, AppRoutes.noteList),
       isHighlighted: true,
+      color: const Color(0xFF00A9C9),
     ),
     HubFeatureItem(
-      icon: Icons.calendar_month_outlined,
+      icon: FontAwesomeIcons.calendarDays.data,
       label: l10n.periodRecord,
       onTap: () => Navigator.pushNamed(context, AppRoutes.periodCalendar),
       isHighlighted: true,
+      color: const Color(0xFFE0559A),
     ),
     if (showActivityCheckin)
       HubFeatureItem(
-        icon: Icons.emoji_events_outlined,
+        icon: FontAwesomeIcons.trophy.data,
         label: l10n.tabActivity,
         onTap: () => Navigator.pushNamed(context, AppRoutes.activityCheckin),
         isHighlighted: true,
+        color: const Color(0xFFF0A92E),
       ),
     HubFeatureItem(
-      icon: Icons.card_giftcard,
+      icon: FontAwesomeIcons.gift.data,
       label: l10n.giftCard,
       onTap: () => Navigator.pushNamed(context, AppRoutes.giftCardList),
       isHighlighted: true,
+      color: const Color(0xFFE35D3D),
     ),
     HubFeatureItem(
-      icon: Icons.local_gas_station_outlined,
+      icon: FontAwesomeIcons.gasPump.data,
       label: l10n.fuelRecord,
       onTap: () => Navigator.pushNamed(context, AppRoutes.fuelRecords),
       isHighlighted: true,
+      color: const Color(0xFF3D7FEA),
     ),
   ];
 
   // 数据工具
   final dataToolItems = <HubFeatureItem>[
     HubFeatureItem(
-      icon: Icons.book_outlined,
+      icon: FontAwesomeIcons.book.data,
       label: l10n.accountBook,
       onTap: () => Navigator.pushNamed(context, AppRoutes.accountBooks),
+      color: const Color(0xFF5C6BC0),
     ),
     HubFeatureItem(
-      icon: Icons.file_upload_outlined,
+      icon: FontAwesomeIcons.fileImport.data,
       label: l10n.import,
       onTap: () => Navigator.pushNamed(context, AppRoutes.import),
+      color: const Color(0xFF3BA55D),
     ),
     HubFeatureItem(
-      icon: Icons.attachment_outlined,
+      icon: FontAwesomeIcons.paperclip.data,
       label: l10n.attachment,
       onTap: () => Navigator.pushNamed(context, AppRoutes.attachments),
+      color: const Color(0xFF8A90A6),
     ),
     HubFeatureItem(
-      icon: Icons.assessment_outlined,
+      icon: FontAwesomeIcons.chartColumn.data,
       label: l10n.reportListTitle,
       onTap: () => Navigator.pushNamed(context, AppRoutes.reportList),
+      color: const Color(0xFF2F80ED),
     ),
     HubFeatureItem(
-      icon: Icons.cloud_sync_outlined,
+      icon: FontAwesomeIcons.cloudArrowUp.data,
       label: l10n.syncSettings,
       onTap: () => Navigator.pushNamed(context, AppRoutes.syncSettings),
+      color: const Color(0xFF00A8D6),
     ),
   ];
 
+  // 账本数据分组标题：随默认账本切换，显示当前账本名称
+  final bookDataTitle =
+      (book != null && book.name.isNotEmpty) ? book.name : l10n.hubGroupBookData;
+
   return [
     HubFeatureGroup(
-      groupIcon: Icons.account_balance_wallet_outlined,
-      title: l10n.hubGroupBookData,
+      groupIcon: FontAwesomeIcons.bookOpen.data,
+      title: bookDataTitle,
       items: bookDataItems,
     ),
     HubFeatureGroup(
-      groupIcon: Icons.favorite_outline,
+      groupIcon: FontAwesomeIcons.heart.data,
       title: l10n.hubGroupLife,
       items: lifeItems,
     ),
     HubFeatureGroup(
-      groupIcon: Icons.build_outlined,
+      groupIcon: FontAwesomeIcons.screwdriverWrench.data,
       title: l10n.hubGroupDataTools,
       items: dataToolItems,
     ),

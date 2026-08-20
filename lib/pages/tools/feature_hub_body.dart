@@ -58,8 +58,8 @@ class _GroupCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withAlpha(80),
-        borderRadius: BorderRadius.circular(16),
+        color: colorScheme.surfaceContainerHighest.withAlpha(60),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: colorScheme.outlineVariant.withAlpha(60),
           width: 0.5,
@@ -69,10 +69,10 @@ class _GroupCard extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 4,
-        childAspectRatio: 0.88,
-        padding: const EdgeInsets.all(12),
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        childAspectRatio: 0.78,
+        padding: const EdgeInsets.all(10),
+        mainAxisSpacing: 6,
+        crossAxisSpacing: 6,
         children: [
           for (final item in items)
             CommonGridFeatureItem(
@@ -80,6 +80,7 @@ class _GroupCard extends StatelessWidget {
               label: item.label,
               onTap: item.onTap,
               isHighlighted: item.isHighlighted,
+              color: item.color,
             ),
         ],
       ),
