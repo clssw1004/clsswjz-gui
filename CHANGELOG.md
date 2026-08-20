@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-08-20
+
+### Features
+
+- Add new "Tools" bottom tab with a feature hub: book data (accounts, categories, merchants, accounts, tags, projects, debts, fixed income/expense, bookkeeping rules), lifestyle extensions, and data tools (books, import, attachments, reports, sync)
+- Split notes and reports into standalone feature pages with their own list providers
+- Slimmed-down Mine tab for a minimal personal center
+- Add Font Awesome icon support
+
+### Improvements
+
+- Unified feature hub layout: grouped sections, consistent card styling, lighter visuals
+
 ## [1.2.1] - 2026-08-19
 
 ### Features
