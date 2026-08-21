@@ -98,7 +98,7 @@ class UiConfigDTO {
               .toList() ??
           [],
       mineTabShowActivityCheckin: json['mineTabShowActivityCheckin'] ?? true,
-      useNewItemForm: json['useNewItemForm'] ?? false,
+      useNewItemForm: json['useNewItemForm'] ?? true,
       itemTabComponentOrder: _migrateComponentOrder(
         (json['itemTabComponentOrder'] as List<dynamic>?)
                 ?.map((e) => e.toString())
@@ -137,6 +137,67 @@ class UiConfigDTO {
 
   static String toJsonString(UiConfigDTO uiConfig) {
     return jsonEncode(_toJson(uiConfig));
+  }
+
+  /// 基于当前配置生成仅修改指定字段的新副本（其余字段原样保留）。
+  ///
+  /// 用于各设置页在保存时避免手写全量字段而【静默重置】未提及字段的 bug。
+  UiConfigDTO copyWith({
+    bool? itemTabShowDebt,
+    bool? itemTabShowDailyBar,
+    bool? itemTabShowDailyCalendar,
+    bool? itemTabShowPeriodStatus,
+    bool? calendarShowIncome,
+    bool? calendarShowExpense,
+    bool? itemTabShowUserMonthly,
+    bool? itemTabShowProjectMonthly,
+    bool? statisticsShowBookStatistic,
+    bool? statisticsShowProjectStatistic,
+    bool? statisticsShowCategoryStatistic,
+    bool? statisticsShowActivityStatistic,
+    List<String>? statisticsSelectedProjects,
+    String? statisticsSelectedRange,
+    int? statisticsCustomRangeStart,
+    int? statisticsCustomRangeEnd,
+    bool? mineTabShowActivityCheckin,
+    bool? useNewItemForm,
+    List<String>? itemTabComponentOrder,
+  }) {
+    return UiConfigDTO(
+      itemTabShowDebt: itemTabShowDebt ?? this.itemTabShowDebt,
+      itemTabShowDailyBar: itemTabShowDailyBar ?? this.itemTabShowDailyBar,
+      itemTabShowDailyCalendar:
+          itemTabShowDailyCalendar ?? this.itemTabShowDailyCalendar,
+      itemTabShowPeriodStatus:
+          itemTabShowPeriodStatus ?? this.itemTabShowPeriodStatus,
+      calendarShowIncome: calendarShowIncome ?? this.calendarShowIncome,
+      calendarShowExpense: calendarShowExpense ?? this.calendarShowExpense,
+      itemTabShowUserMonthly:
+          itemTabShowUserMonthly ?? this.itemTabShowUserMonthly,
+      itemTabShowProjectMonthly:
+          itemTabShowProjectMonthly ?? this.itemTabShowProjectMonthly,
+      statisticsShowBookStatistic:
+          statisticsShowBookStatistic ?? this.statisticsShowBookStatistic,
+      statisticsShowProjectStatistic:
+          statisticsShowProjectStatistic ?? this.statisticsShowProjectStatistic,
+      statisticsShowCategoryStatistic:
+          statisticsShowCategoryStatistic ?? this.statisticsShowCategoryStatistic,
+      statisticsShowActivityStatistic:
+          statisticsShowActivityStatistic ?? this.statisticsShowActivityStatistic,
+      statisticsSelectedProjects:
+          statisticsSelectedProjects ?? this.statisticsSelectedProjects,
+      statisticsSelectedRange:
+          statisticsSelectedRange ?? this.statisticsSelectedRange,
+      statisticsCustomRangeStart:
+          statisticsCustomRangeStart ?? this.statisticsCustomRangeStart,
+      statisticsCustomRangeEnd:
+          statisticsCustomRangeEnd ?? this.statisticsCustomRangeEnd,
+      mineTabShowActivityCheckin:
+          mineTabShowActivityCheckin ?? this.mineTabShowActivityCheckin,
+      useNewItemForm: useNewItemForm ?? this.useNewItemForm,
+      itemTabComponentOrder:
+          itemTabComponentOrder ?? this.itemTabComponentOrder,
+    );
   }
 
   /// 迁移组件顺序：确保 period_status 存在

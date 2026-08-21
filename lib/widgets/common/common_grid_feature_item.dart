@@ -33,9 +33,8 @@ class CommonGridFeatureItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final iconColor = color ?? colorScheme.primary;
-    // 深色模式下提高渐变底色透明度，让彩色光晕更饱满、图标更突出
+    // 深色模式下图标容器不画背景/边框，只保留彩色图标本体，避免色块突兀
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final glowBoost = isDark ? 12 : 0;
 
     return Material(
       color: Colors.transparent,
@@ -62,23 +61,25 @@ class CommonGridFeatureItem extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      iconColor.withAlpha((isHighlighted ? 50 : 36) + glowBoost),
-                      iconColor.withAlpha((isHighlighted ? 16 : 10) + glowBoost),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  border: isHighlighted
-                      ? Border.all(
-                          color: iconColor.withAlpha(55),
-                          width: 1,
-                        )
-                      : null,
-                ),
+                decoration: isDark
+                    ? null
+                    : BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            iconColor.withAlpha(isHighlighted ? 50 : 36),
+                            iconColor.withAlpha(isHighlighted ? 16 : 10),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: isHighlighted
+                            ? Border.all(
+                                color: iconColor.withAlpha(55),
+                                width: 1,
+                              )
+                            : null,
+                      ),
                 child: Icon(
                   icon,
                   size: 20,

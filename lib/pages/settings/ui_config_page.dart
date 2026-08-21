@@ -4,7 +4,6 @@ import 'package:clsswjz_gui/drivers/driver_factory.dart';
 import 'package:clsswjz_gui/enums/symbol_type.dart';
 import 'package:clsswjz_gui/manager/app_config_manager.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
-import 'package:clsswjz_gui/models/dto/ui_config_dto.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
 import 'package:clsswjz_gui/widgets/common/common_card_container.dart';
@@ -259,27 +258,10 @@ class _UiConfigPageState extends State<UiConfigPage> {
                       Switch(
                         value: AppConfigManager.instance.uiConfig.useNewItemForm,
                         onChanged: (value) {
-                          final newConfig = UiConfigDTO(
-                            itemTabShowDebt: AppConfigManager.instance.uiConfig.itemTabShowDebt,
-                            itemTabShowDailyBar: AppConfigManager.instance.uiConfig.itemTabShowDailyBar,
-                            itemTabShowDailyCalendar: AppConfigManager.instance.uiConfig.itemTabShowDailyCalendar,
-                            itemTabShowPeriodStatus: AppConfigManager.instance.uiConfig.itemTabShowPeriodStatus,
-                            calendarShowIncome: AppConfigManager.instance.uiConfig.calendarShowIncome,
-                            calendarShowExpense: AppConfigManager.instance.uiConfig.calendarShowExpense,
-                            itemTabShowUserMonthly: AppConfigManager.instance.uiConfig.itemTabShowUserMonthly,
-                            itemTabShowProjectMonthly: AppConfigManager.instance.uiConfig.itemTabShowProjectMonthly,
-                            statisticsShowBookStatistic: AppConfigManager.instance.uiConfig.statisticsShowBookStatistic,
-                            statisticsShowProjectStatistic: AppConfigManager.instance.uiConfig.statisticsShowProjectStatistic,
-                            statisticsShowCategoryStatistic: AppConfigManager.instance.uiConfig.statisticsShowCategoryStatistic,
-                            statisticsShowActivityStatistic: AppConfigManager.instance.uiConfig.statisticsShowActivityStatistic,
-                            statisticsSelectedRange: AppConfigManager.instance.uiConfig.statisticsSelectedRange,
-                            statisticsCustomRangeStart: AppConfigManager.instance.uiConfig.statisticsCustomRangeStart,
-                            statisticsCustomRangeEnd: AppConfigManager.instance.uiConfig.statisticsCustomRangeEnd,
-                            statisticsSelectedProjects: AppConfigManager.instance.uiConfig.statisticsSelectedProjects,
-                            itemTabComponentOrder: _itemTabOrder,
-                            useNewItemForm: value,
+                          AppConfigManager.instance.setUiConfig(
+                            AppConfigManager.instance.uiConfig
+                                .copyWith(useNewItemForm: value),
                           );
-                          AppConfigManager.instance.setUiConfig(newConfig);
                           setState(() {});
                         },
                         activeThumbColor: colorScheme.primary,
@@ -671,8 +653,11 @@ class _UiConfigPageState extends State<UiConfigPage> {
   }
 
   /// 更新UI配置
+  ///
+  /// 基于当前配置用 copyWith 做单字段更新，避免手写全量字段遗漏
+  /// （如 calendarShowIncome/Expense、useNewItemForm 等）而被重置为默认值。
   Future<void> _updateUiConfig() async {
-    final newConfig = UiConfigDTO(
+    final newConfig = AppConfigManager.instance.uiConfig.copyWith(
       itemTabShowDebt: _showDebt,
       itemTabShowDailyBar: _showDailyStats,
       itemTabShowDailyCalendar: _showDailyCalendar,
@@ -685,7 +670,8 @@ class _UiConfigPageState extends State<UiConfigPage> {
       statisticsShowActivityStatistic: _showStatisticsActivityStatistic,
       mineTabShowActivityCheckin: _showActivityCheckin,
       statisticsSelectedRange: _statisticsSelectedRange,
-      statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
+      statisticsCustomRangeStart:
+          _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
       statisticsSelectedProjects: _selectedProjects,
       itemTabComponentOrder: _itemTabOrder,

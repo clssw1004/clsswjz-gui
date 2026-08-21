@@ -337,24 +337,9 @@ class AppConfigManager {
     bool? showIncome,
     bool? showExpense,
   }) async {
-    _uiConfig = UiConfigDTO(
-      itemTabShowDebt: _uiConfig.itemTabShowDebt,
-      itemTabShowDailyBar: _uiConfig.itemTabShowDailyBar,
-      itemTabShowDailyCalendar: _uiConfig.itemTabShowDailyCalendar,
+    _uiConfig = _uiConfig.copyWith(
       calendarShowIncome: showIncome ?? _uiConfig.calendarShowIncome,
       calendarShowExpense: showExpense ?? _uiConfig.calendarShowExpense,
-      itemTabShowUserMonthly: _uiConfig.itemTabShowUserMonthly,
-      itemTabShowProjectMonthly: _uiConfig.itemTabShowProjectMonthly,
-      statisticsShowBookStatistic: _uiConfig.statisticsShowBookStatistic,
-      statisticsShowProjectStatistic: _uiConfig.statisticsShowProjectStatistic,
-      statisticsShowCategoryStatistic: _uiConfig.statisticsShowCategoryStatistic,
-      statisticsShowActivityStatistic: _uiConfig.statisticsShowActivityStatistic,
-      statisticsSelectedRange: _uiConfig.statisticsSelectedRange,
-      statisticsCustomRangeStart: _uiConfig.statisticsCustomRangeStart,
-      statisticsCustomRangeEnd: _uiConfig.statisticsCustomRangeEnd,
-      statisticsSelectedProjects: _uiConfig.statisticsSelectedProjects,
-      useNewItemForm: _uiConfig.useNewItemForm,
-      itemTabComponentOrder: _uiConfig.itemTabComponentOrder,
     );
     await CacheManager.instance
         .setString(_uiConfigKey, UiConfigDTO.toJsonString(_uiConfig));
