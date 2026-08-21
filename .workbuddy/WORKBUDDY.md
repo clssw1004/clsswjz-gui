@@ -81,7 +81,7 @@ lib/
 ### 注意事项
 
 1. **分支策略**：所有功能开发在 `feat/` 分支进行，bug 修复在 `fix/` 分支进行。main 分支**不得**直接开发新功能或修复 bug
-2. **发版流程**：`git checkout main && git pull origin main` 确保最新，然后修改文件、提交
+2. **发版流程**：`git checkout main && git rebase origin/main` 确保最新，然后修改文件、提交
 3. **变更日志**：只写功能变动，不写实现细节；中英文版本内容对应
 4. **版本号格式**：正式版用 `x.y.z`，预览版用 `x.y.z-alpha.n`
 5. **提交**：发版变更直接提交到 main 分支（仅版本号/CHANGELOG，不含新功能代码）
