@@ -72,8 +72,12 @@ class RecurringConfigService {
 
       // 4. 生成账目
       final userId = AppConfigManager.instance.userId;
-      final amount = config.amount;
       final type = AccountItemType.fromCode(config.type) ?? AccountItemType.expense;
+      // 金额符号与手动记账保持一致：支出为负、收入为正
+      // （配置里的 amount 恒为正，生成时必须按类型规范化，否则支出会被记成正数）
+      final amount = type == AccountItemType.expense
+          ? -config.amount.abs()
+          : config.amount.abs();
 
       await ItemCULog.create(
         userId,
