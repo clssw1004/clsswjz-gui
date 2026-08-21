@@ -6,7 +6,6 @@ import '../../manager/app_config_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../services/monthly_report_service.dart';
 import '../../utils/toast_util.dart';
-import '../../models/dto/ui_config_dto.dart';
 import '../../models/vo/activity_statistic_vo.dart';
 import '../../models/vo/activity_definition_vo.dart';
 import '../../models/vo/activity_record_vo.dart';
@@ -225,29 +224,15 @@ class _StatisticsTabState extends State<StatisticsTab> {
   /// 保存选择的时间范围
   Future<void> _saveSelectedRange() async {
     final config = AppConfigManager.instance.uiConfig;
-    final newConfig = _createNewConfig(config);
-    await AppConfigManager.instance.setUiConfig(newConfig);
-  }
-
-  /// 创建新的配置对象
-  UiConfigDTO _createNewConfig(UiConfigDTO config) {
-    return UiConfigDTO(
-      itemTabShowDebt: config.itemTabShowDebt,
-      itemTabShowDailyBar: config.itemTabShowDailyBar,
-      itemTabShowDailyCalendar: config.itemTabShowDailyCalendar,
-      calendarShowIncome: config.calendarShowIncome,
-      calendarShowExpense: config.calendarShowExpense,
-      itemTabShowUserMonthly: config.itemTabShowUserMonthly,
-      itemTabShowProjectMonthly: config.itemTabShowProjectMonthly,
-      statisticsShowBookStatistic: config.statisticsShowBookStatistic,
-      statisticsShowProjectStatistic: config.statisticsShowProjectStatistic,
-      statisticsShowCategoryStatistic: config.statisticsShowCategoryStatistic,
-      statisticsShowActivityStatistic: config.statisticsShowActivityStatistic,
+    // 仅更新时间范围相关字段，其余字段（含 itemTabShowPeriodStatus 等）原样保留，
+    // 避免覆盖用户已保存的设置。
+    final newConfig = config.copyWith(
       statisticsSelectedRange: _selectedRange,
-      statisticsCustomRangeStart: _customRange?.start.millisecondsSinceEpoch,
+      statisticsCustomRangeStart:
+          _customRange?.start.millisecondsSinceEpoch,
       statisticsCustomRangeEnd: _customRange?.end.millisecondsSinceEpoch,
-      statisticsSelectedProjects: config.statisticsSelectedProjects,
     );
+    await AppConfigManager.instance.setUiConfig(newConfig);
   }
 
   /// 构建内容区域
