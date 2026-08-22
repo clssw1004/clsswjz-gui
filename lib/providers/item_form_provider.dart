@@ -436,6 +436,9 @@ class ItemFormProvider extends ChangeNotifier {
     List<AttachmentVO>? attachments,
   }) async {
     if (_saving) return true;
+    // 新建模式（尚未落库，businessId 为空）：部分更新无意义，
+    // 且会生成 businessId='' 的 item UPDATE 脏日志（无匹配记录、静默成功、同步污染服务端）
+    if (_item.id.isEmpty) return true;
 
     _saving = true;
     notifyListeners();

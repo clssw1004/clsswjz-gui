@@ -274,7 +274,9 @@ class _AccountItemFormState extends State<_AccountItemForm> {
           SizedBox(height: spacing.formItemSpacing),
           Focus(
             onFocusChange: (hasFocus) {
-              if (!hasFocus) provider.partUpdate();
+              // 仅编辑模式（已有 id）失焦时落库；新建模式 id 为空，
+              // 部分更新会生成 businessId='' 的 item UPDATE 脏日志
+              if (!hasFocus && !provider.isNew) provider.partUpdate();
             },
             child: AmountInput(
               controller: _amountController,
