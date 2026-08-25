@@ -184,15 +184,15 @@ class VOTransfer {
     }
     final businessTypeMap = CollectionUtil.groupByWith(
         attachments, (s) => s.businessCode, (s) => s.businessId);
-    final items = (businessTypeMap.containsKey(BusinessType.item.code)
+    final items = businessTypeMap.containsKey(BusinessType.item.code)
         ? await transferItems(await DaoManager.itemDao
             .findByIds(businessTypeMap[BusinessType.item.code]!))
-        : []) as List<UserItemVO>;
+        : <UserItemVO>[];
 
-    final notes = (businessTypeMap.containsKey(BusinessType.note.code)
+    final notes = businessTypeMap.containsKey(BusinessType.note.code)
         ? await transferNote(await DaoManager.noteDao
             .findByIds(businessTypeMap[BusinessType.note.code]!))
-        : []) as List<UserNoteVO>;
+        : <UserNoteVO>[];
 
     final Map<String, String> businessNameMap = {};
     for (var item in items) {
