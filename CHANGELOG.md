@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-08-25
+
+### Features
+
+- Period module now supports data sharing: share period data with other users for read-only viewing
+- Added period module toggle in share settings page
+- Period calendar page AppBar now has a user selector dropdown to switch between own and shared period data
+- Shared data displays SharedBadge with source indicator and automatically enters read-only mode
+- Sync pull supports backfill: automatically fetches sharer's historical data when a share relationship is established
+
+### Improvements
+
+- Fixed sync pull data isolation: added missing visibility rules for userShare-based shared data
+- Materialized userShare logs into rel_user_share table on the backend for efficient querying
+
 ## [1.2.2] - 2026-08-20
 
 ### Features
