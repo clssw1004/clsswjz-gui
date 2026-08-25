@@ -366,6 +366,7 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
         });
       } else {
         // 处理错误
+        debugPrint('Attachment list load failed: ok=${result.ok}, message=${result.message}');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -374,7 +375,9 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
           );
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Attachment list load error: $e');
+      debugPrint('Stack trace: $stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
