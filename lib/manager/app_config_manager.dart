@@ -34,6 +34,8 @@ class AppConfigManager {
   static const String _uiConfigKey = 'ui_config';
   static const String _selectedVehicleIdKey = 'selected_vehicle_id';
   static const String _selectedVehiclePlateKey = 'selected_vehicle_plate';
+  static const String _selectedPeriodUserIdKey = 'selected_period_user_id';
+  static const String _selectedPeriodUserNameKey = 'selected_period_user_name';
   static const String _bookSectionExpandedKey = 'book_section_expanded';
   static const String _periodOnboardingDoneKey = 'period_onboarding_done';
 
@@ -112,6 +114,14 @@ class AppConfigManager {
   /// 上次选中车辆车牌
   String? _selectedVehiclePlate;
   String? get selectedVehiclePlate => _selectedVehiclePlate;
+
+  /// 上次选中经期查看用户ID（null = 查看自己）
+  String? _selectedPeriodUserId;
+  String? get selectedPeriodUserId => _selectedPeriodUserId;
+
+  /// 上次选中经期查看用户昵称
+  String? _selectedPeriodUserName;
+  String? get selectedPeriodUserName => _selectedPeriodUserName;
 
   /// 账本功能区块是否展开
   late bool _bookSectionExpanded;
@@ -199,6 +209,11 @@ class AppConfigManager {
     // 初始化上次选中的车辆
     _selectedVehicleId = CacheManager.instance.getString(_selectedVehicleIdKey);
     _selectedVehiclePlate = CacheManager.instance.getString(_selectedVehiclePlateKey);
+
+    // 初始化上次选中的经期查看用户
+    final savedPeriodUserId = CacheManager.instance.getString(_selectedPeriodUserIdKey);
+    _selectedPeriodUserId = savedPeriodUserId?.isNotEmpty == true ? savedPeriodUserId : null;
+    _selectedPeriodUserName = CacheManager.instance.getString(_selectedPeriodUserNameKey);
 
     // 账本功能区块默认展开
     _bookSectionExpanded = CacheManager.instance.getBool(_bookSectionExpandedKey) ?? true;
@@ -351,6 +366,16 @@ class AppConfigManager {
     _selectedVehiclePlate = plateNumber;
     await CacheManager.instance.setString(_selectedVehicleIdKey, vehicleId);
     await CacheManager.instance.setString(_selectedVehiclePlateKey, plateNumber);
+  }
+
+  /// 设置经期查看用户（null = 查看自己）
+  Future<void> setSelectedPeriodUser(String? userId, String? userName) async {
+    _selectedPeriodUserId = userId;
+    _selectedPeriodUserName = userName;
+    await CacheManager.instance.setString(
+        _selectedPeriodUserIdKey, userId ?? '');
+    await CacheManager.instance.setString(
+        _selectedPeriodUserNameKey, userName ?? '');
   }
 
   /// 设置账本功能区块展开状态

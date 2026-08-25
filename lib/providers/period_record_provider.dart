@@ -37,7 +37,22 @@ class PeriodRecordProvider extends ChangeNotifier {
   int _currentYear = DateTime.now().year;
   int _currentMonth = DateTime.now().month;
 
+  /// 当前查看的用户 ID（null = 查看自己）
+  String? _viewUserId;
+
+  /// 当前查看的用户昵称
+  String? _viewUserName;
+
   // ── Getters ──
+
+  /// 是否在查看他人数据（只读模式）
+  bool get isViewingShared => _viewUserId != null;
+
+  /// 当前查看的用户 ID（null = 自己）
+  String? get viewUserId => _viewUserId;
+
+  /// 当前查看的用户昵称
+  String? get viewUserName => _viewUserName;
 
   List<PeriodCycleVO> get cycles => _cycles;
   List<PeriodCycleVO> get recentCycles => _recentCycles;
@@ -137,7 +152,7 @@ class PeriodRecordProvider extends ChangeNotifier {
     if (year != null) _currentYear = year;
     if (month != null) _currentMonth = month;
 
-    final userId = AppConfigManager.instance.userId;
+    final userId = _viewUserId ?? AppConfigManager.instance.userId;
 
     // 并行加载：当月 cycles + 近 60 天 cycles + 当前活跃周期 (+ 全量 cycles 用于统计)
     final futures = <Future<dynamic>>[
@@ -198,6 +213,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   /// 校验：不能为未来日期、不能与已有周期重叠、不能与活跃周期开始日相同。
   /// 如果有未结束周期，自动结束所有旧周期（endDate = 新开始日前一天）。
   Future<bool> startPeriod(String startDate) async {
+    if (isViewingShared) return false;
     if (operating) return false;
 
     final start = DateTime.parse(startDate);
@@ -251,6 +267,7 @@ class PeriodRecordProvider extends ChangeNotifier {
   ///
   /// 校验：endDate ≥ 周期开始日，endDate ≥ 最后一条明细记录日期，endDate ≤ 今天
   Future<bool> endPeriod(String endDate) async {
+    if (isViewingShared) return false;
     if (operating || _activeCycle == null) return false;
 
     final end = DateTime.parse(endDate);
@@ -295,6 +312,7 @@ class PeriodRecordProvider extends ChangeNotifier {
     int? typicalPeriodDays,
     int? typicalCycleDays,
   }) async {
+    if (isViewingShared) return;
     if (operating) return;
 
     final now = DateTime.now();
@@ -344,6 +362,7 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   /// 删除周期及关联的每日明细
   Future<void> deleteCycle(String cycleId) async {
+    if (isViewingShared) return;
     _operating = true;
     notifyListeners();
 
@@ -358,6 +377,7 @@ class PeriodRecordProvider extends ChangeNotifier {
 
   /// 删除指定周期内指定日期的每日明细
   Future<void> deleteDailyRecord(String cycleId, String recordDate) async {
+    if (isViewingShared) return;
     final userId = AppConfigManager.instance.userId;
     await DriverFactory.driver.deletePeriodDailyRecord(userId, cycleId, recordDate);
 
@@ -400,6 +420,7 @@ class PeriodRecordProvider extends ChangeNotifier {
     String? remark,
     String? cycleId,
   }) async {
+    if (isViewingShared) return;
     PeriodCycleVO? targetCycle;
     if (cycleId != null) {
       for (final c in _allCycles) {
@@ -503,6 +524,13 @@ class PeriodRecordProvider extends ChangeNotifier {
   String _todayStr() {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  /// 切换查看目标（null = 查看自己）
+  Future<void> switchViewUser(String? userId, String? userName) async {
+    _viewUserId = userId;
+    _viewUserName = userName;
+    await loadRecords();
   }
 
   String _addDays(String date, int days) {

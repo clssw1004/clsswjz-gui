@@ -22,6 +22,8 @@ List<_ShareModule> get _modules => [
           L10nManager.l10n.moduleDebt),
       _ShareModule('activity', Icons.emoji_events_outlined,
           L10nManager.l10n.tabActivity),
+      _ShareModule('periodCycle', Icons.calendar_month_outlined,
+          L10nManager.l10n.periodRecord),
     ];
 
 class _ShareModule {
@@ -127,6 +129,8 @@ class _ShareSettingsPageState extends State<ShareSettingsPage> {
     for (final m in _modules) {
       await provider.setShare(userId, m.businessType, enabled: false);
     }
+    // 同时移除 periodDailyRecord 的共享
+    await provider.setShare(userId, 'periodDailyRecord', enabled: false);
     if (mounted) setState(() => _users.removeWhere((u) => u.userId == userId));
   }
 
@@ -222,9 +226,18 @@ class _ShareSettingsPageState extends State<ShareSettingsPage> {
                         final isShared =
                             provider.isSharedTo(user.userId, m.businessType);
                         return InkWell(
-                          onTap: () => provider.setShare(
-                              user.userId, m.businessType,
-                              enabled: !isShared),
+                          onTap: () {
+                            final newEnabled = !isShared;
+                            provider.setShare(
+                                user.userId, m.businessType,
+                                enabled: newEnabled);
+                            // 经期模块需要同时写入 periodCycle 和 periodDailyRecord
+                            if (m.businessType == 'periodCycle') {
+                              provider.setShare(
+                                  user.userId, 'periodDailyRecord',
+                                  enabled: newEnabled);
+                            }
+                          },
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(
                                 spacing.formPadding.left,
@@ -274,9 +287,17 @@ class _ShareSettingsPageState extends State<ShareSettingsPage> {
                                     child: Switch(
                                       value: isShared,
                                       activeThumbColor: colorScheme.primary,
-                                      onChanged: (on) => provider.setShare(
-                                          user.userId, m.businessType,
-                                          enabled: on),
+                                      onChanged: (on) {
+                                        provider.setShare(
+                                            user.userId, m.businessType,
+                                            enabled: on);
+                                        // 经期模块需要同时写入 periodCycle 和 periodDailyRecord
+                                        if (m.businessType == 'periodCycle') {
+                                          provider.setShare(
+                                              user.userId, 'periodDailyRecord',
+                                              enabled: on);
+                                        }
+                                      },
                                     ),
                                   ),
                                 ),

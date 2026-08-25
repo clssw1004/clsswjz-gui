@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clsswjz_gui/providers/period_record_provider.dart';
+import 'package:clsswjz_gui/providers/shared_module_provider.dart';
 import 'package:clsswjz_gui/widgets/common/common_app_bar.dart';
+import 'package:clsswjz_gui/widgets/common/shared_badge.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'package:clsswjz_gui/manager/app_config_manager.dart';
+import 'package:clsswjz_gui/manager/dao_manager.dart';
 import 'widgets/period_hero_card.dart';
 import 'widgets/period_calendar_widget.dart';
 import 'widgets/period_prediction_card.dart';
@@ -21,18 +24,48 @@ class PeriodCalendarPage extends StatefulWidget {
 
 class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   String? _selectedDate;
+  List<_ShareUser> _sharedUsers = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 恢复上次查看的共享用户
+      final savedUserId = AppConfigManager.instance.selectedPeriodUserId;
+      final savedUserName = AppConfigManager.instance.selectedPeriodUserName;
+      if (savedUserId != null && savedUserId.isNotEmpty) {
+        context.read<PeriodRecordProvider>().switchViewUser(savedUserId, savedUserName);
+      }
       try {
         await context.read<PeriodRecordProvider>().loadRecords();
       } catch (_) {
         // 数据加载失败不影响引导判断
       }
+      await _loadSharedUsers();
       if (mounted) _checkOnboarding();
     });
+  }
+
+  Future<void> _loadSharedUsers() async {
+    if (!mounted) return;
+    final provider = context.read<SharedModuleProvider>();
+    await provider.loadAll();
+    final ownerIds = provider.getSharedBy('periodCycle');
+    if (ownerIds.isEmpty) {
+      if (mounted) setState(() => _sharedUsers = []);
+      return;
+    }
+    final users = await DaoManager.userDao.findByIds(ownerIds);
+    if (mounted) {
+      setState(() {
+        _sharedUsers = users
+            .map((u) => _ShareUser(
+                  userId: u.id,
+                  nickname: u.nickname.isNotEmpty ? u.nickname : u.username,
+                ))
+            .toList();
+      });
+    }
   }
 
   void _checkOnboarding() {
@@ -76,7 +109,34 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
     final spacing = theme.spacing;
 
     return Scaffold(
-      appBar: CommonAppBar(title: Text(L10nManager.l10n.periodRecord)),
+      appBar: CommonAppBar(
+        title: GestureDetector(
+          onTap: _sharedUsers.isNotEmpty ? _showUserSelector : null,
+          child: Consumer<PeriodRecordProvider>(
+            builder: (context, provider, _) {
+              final isViewing = provider.isViewingShared;
+              final hasUsers = _sharedUsers.isNotEmpty;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_month, size: 18,
+                      color: Theme.of(context).colorScheme.onSurface),
+                  const SizedBox(width: 6),
+                  Text(
+                    isViewing
+                        ? (provider.viewUserName ?? L10nManager.l10n.periodRecord)
+                        : L10nManager.l10n.periodRecord,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (hasUsers)
+                    Icon(Icons.arrow_drop_down,
+                        color: Theme.of(context).colorScheme.onSurface),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
       body: Consumer<PeriodRecordProvider>(
         builder: (context, provider, _) {
           if (provider.loading && provider.cycles.isEmpty) {
@@ -85,6 +145,9 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
 
           return Column(
             children: [
+              // 共享来源标记
+              if (provider.isViewingShared)
+                SharedBadge(name: '${provider.viewUserName}的经期'),
               // 滚动内容区
               Expanded(
                 child: CustomScrollView(
@@ -195,6 +258,11 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   Widget _buildBottomActionPanel(PeriodRecordProvider provider) {
     final date = _selectedDate;
     if (date == null) return const SizedBox.shrink();
+
+    // 只读模式：仅展示日期信息，不显示操作按钮
+    if (provider.isViewingShared) {
+      return _buildReadonlyBottomPanel(provider, date);
+    }
 
     final cs = Theme.of(context).colorScheme;
     final l10n = L10nManager.l10n;
@@ -368,6 +436,60 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
                   ),
                 ),
               ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 只读模式的底部面板（查看他人数据时）
+  Widget _buildReadonlyBottomPanel(PeriodRecordProvider provider, String date) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = L10nManager.l10n;
+    final cycle = provider.findCycleForDate(date);
+    final dailyRecord = provider.getDailyRecordByDate(date);
+
+    String statusText;
+    if (cycle != null) {
+      statusText = dailyRecord != null
+          ? '${l10n.periodRecord} · ${dailyRecord.flowLevel}'
+          : l10n.periodRecord;
+    } else {
+      statusText = l10n.periodSafe;
+    }
+
+    return Material(
+      color: cs.surface,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            border: Border(
+              top: BorderSide(color: cs.outlineVariant.withAlpha(100)),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, size: 16, color: cs.primary),
+              const SizedBox(width: 6),
+              Text(date,
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface)),
+              const SizedBox(width: 8),
+              Text(statusText,
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+              const Spacer(),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.close, size: 18, color: cs.onSurfaceVariant),
+                onPressed: () => setState(() => _selectedDate = null),
+              ),
             ],
           ),
         ),
@@ -595,4 +717,66 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
   String _dateStr(DateTime d) {
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
+
+  void _showUserSelector() {
+    final theme = Theme.of(context);
+    final provider = context.read<PeriodRecordProvider>();
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('切换查看', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const Text('自己'),
+                    selected: !provider.isViewingShared,
+                    selectedTileColor: theme.colorScheme.primaryContainer.withAlpha(60),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onTap: () {
+                      _switchUser(null, null);
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                  ..._sharedUsers.map((u) => ListTile(
+                        leading: const Icon(Icons.person_outline),
+                        title: Text(u.nickname),
+                        selected: provider.viewUserId == u.userId,
+                        selectedTileColor:
+                            theme.colorScheme.primaryContainer.withAlpha(60),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        onTap: () {
+                          _switchUser(u.userId, u.nickname);
+                          Navigator.pop(ctx);
+                        },
+                      )),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _switchUser(String? userId, String? userName) {
+    final provider = context.read<PeriodRecordProvider>();
+    provider.switchViewUser(userId, userName);
+    AppConfigManager.instance.setSelectedPeriodUser(userId, userName);
+    setState(() => _selectedDate = null);
+  }
+}
+
+class _ShareUser {
+  final String userId;
+  final String nickname;
+  const _ShareUser({required this.userId, required this.nickname});
 }
