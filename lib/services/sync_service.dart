@@ -19,6 +19,7 @@ import '../utils/date_util.dart';
 import '../utils/http_client.dart';
 import 'base_service.dart';
 import 'package:flutter/foundation.dart';
+import '../manager/cache_manager.dart';
 
 /// 数据同步服务
 class SyncService extends BaseService {
@@ -91,6 +92,7 @@ class SyncService extends BaseService {
       );
 
       // 阶段 2：Pull - 分页拉取服务端变更
+      final newShares = <_NewShare>[];
       if (priorityOnly) {
         // 首次启动：只拉 P0+P1，不更新 lastSyncTime
         await _pullServerChanges(
@@ -101,6 +103,7 @@ class SyncService extends BaseService {
           progressStart: progressSyncServerChanges,
           progressEnd: progressDownloadAttachments,
           downloadAttachments: false,
+          newShares: newShares,
         );
         // 后台启动剩余数据同步
         _startBackgroundSync(lastSyncTime ?? 0, pushResult.commitId);
@@ -115,9 +118,15 @@ class SyncService extends BaseService {
             progressStart: progressSyncServerChanges,
             progressEnd: progressDownloadAttachments,
             downloadAttachments: true,
+            newShares: newShares,
           );
         }
         AppConfigManager.instance.setLastSyncTime(finalSyncTimeStamp);
+      }
+
+      // 阶段 3：回溯拉取新共享者的历史数据
+      if (newShares.isNotEmpty) {
+        await _handleBackfill(newShares, onProgress);
       }
 
       await _processOnProgress(onProgress, progressComplete, l10n.syncComplete);
@@ -268,6 +277,7 @@ class SyncService extends BaseService {
     required double progressStart,
     required double progressEnd,
     bool downloadAttachments = false,
+    List<_NewShare>? newShares,
   }) async {
     const pageSize = 1000;
     int finalSyncTimeStamp = 0;
@@ -344,6 +354,24 @@ class SyncService extends BaseService {
           batchTransaction: false,
         );
         cumulativeProcessed += pullResult.changes.length;
+        // 检测新的 userShare 日志（我作为 target 的 create 操作）
+        if (newShares != null) {
+          for (final change in pullResult.changes) {
+            if (change.businessType == BusinessType.userShare.code &&
+                OperateType.fromCode(change.operateType) == OperateType.create) {
+              final data = jsonDecode(change.operateData);
+              final targetId = data['targetUserId'] as String?;
+              final ownerId = data['ownerUserId'] as String?;
+              final bt = data['businessType'] as String?;
+              if (targetId != null &&
+                  ownerId != null &&
+                  bt != null &&
+                  targetId == AppConfigManager.instance.userId) {
+                newShares.add(_NewShare(ownerId: ownerId, businessType: bt));
+              }
+            }
+          }
+        }
         if (downloadAttachments) {
           for (final change in pullResult.changes) {
             if (BusinessType.fromCode(change.businessType) ==
@@ -574,6 +602,7 @@ class SyncService extends BaseService {
         return;
       }
       try {
+        final newShares = <_NewShare>[];
         // 用 try-catch 包装回调，防止 SyncProvider 被 dispose 后调用 notifyListeners 崩溃
         final safeCallback = _backgroundProgressCallback;
         final finalSyncTimeStamp = await _pullServerChanges(
@@ -591,7 +620,12 @@ class SyncService extends BaseService {
               : (_, __) {},
           progressStart: 0.0,
           progressEnd: 1.0,
+          newShares: newShares,
         );
+        // 回溯拉取新共享者的历史数据
+        if (newShares.isNotEmpty) {
+          await _handleBackfill(newShares, safeCallback);
+        }
         // 无论有无数据，都更新 lastSyncTime 并通知完成
         AppConfigManager.instance.setLastSyncTime(finalSyncTimeStamp);
         EventBus.instance.emit(const SyncCompletedEvent());
@@ -607,6 +641,79 @@ class SyncService extends BaseService {
     });
   }
 
+  /// 回溯拉取新共享者的历史数据
+  ///
+  /// 检测到新的 userShare 关系后，对该共享者的指定业务类型执行回溯拉取，
+  /// 无时间过滤，获取全部历史日志。
+  Future<void> _handleBackfill(
+    List<_NewShare> newShares,
+    Function(double percent, String message)? onProgress,
+  ) async {
+    // 按 ownerId 去重合并 businessTypes
+    final ownerTypes = <String, Set<String>>{};
+    for (final share in newShares) {
+      ownerTypes.putIfAbsent(share.ownerId, () => {}).add(share.businessType);
+    }
+
+    for (final entry in ownerTypes.entries) {
+      final ownerId = entry.key;
+      final businessTypes = entry.value.toList();
+
+      // 检查是否已回溯过该用户
+      final backfillKey = 'backfill_done_$ownerId';
+      final alreadyDone =
+          CacheManager.instance.getBool(backfillKey) ?? false;
+      if (alreadyDone) continue;
+
+      await _processOnProgress(
+        onProgress,
+        progressSyncServerChanges,
+        '回溯拉取 $ownerId 的历史数据...',
+      );
+
+      try {
+        int page = 1;
+        const pageSize = 1000;
+        bool hasMore = true;
+
+        while (hasMore) {
+          final resp = await HttpClient.instance.post<SyncPullResponse>(
+            path: '/api/sync/pull',
+            data: {
+              'syncTimeStamp': 0,
+              'page': page,
+              'pageSize': pageSize,
+              'backfillOwnerId': ownerId,
+              'backfillBusinessTypes': businessTypes,
+            },
+            transform: (data) => SyncPullResponse.fromJson(data['data']),
+          );
+          if (!resp.ok) break;
+          final result = resp.data!;
+          if (result.changes.isNotEmpty) {
+            await _applyChanges(
+              changes: result.changes,
+              onProgress: onProgress,
+              getProgressDetail: (processed, _) =>
+                  '回溯 $ownerId: $processed/${result.total}',
+              progressStart: progressSyncServerChanges,
+              progressEnd: progressDownloadAttachments,
+              batchTransaction: false,
+            );
+          }
+          hasMore = page * pageSize < result.total;
+          page++;
+        }
+
+        // 标记回溯完成
+        await CacheManager.instance.setBool(backfillKey, true);
+      } catch (e) {
+        debugPrint('Backfill pull failed for $ownerId: $e');
+        // 回溯失败不阻塞同步流程，下次同步会重试
+      }
+    }
+  }
+
   /// 处理进度
   Future<void> _processOnProgress(
       Function(double percent, String message)? onProgress,
@@ -620,4 +727,11 @@ class SyncService extends BaseService {
       await Future.delayed(const Duration(milliseconds: 1000));
     }
   }
+}
+
+/// 新检测到的共享关系
+class _NewShare {
+  final String ownerId;
+  final String businessType;
+  const _NewShare({required this.ownerId, required this.businessType});
 }

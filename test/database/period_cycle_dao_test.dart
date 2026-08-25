@@ -121,4 +121,137 @@ void main() {
     expect(records.length, 1);
     expect(records.first.flowLevel, 'medium');
   });
+
+  // ── findByCreatorOrShared 系列测试 ──
+
+  group('findByCreatorOrShared', () {
+    test('返回自己的周期 + 共享用户的周期', () async {
+      // user-1 的周期
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2026-08-01',
+        endDate: '2026-08-05',
+      ));
+      // user-2（共享者）的周期
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-2',
+        startDate: '2026-08-03',
+        endDate: '2026-08-07',
+      ));
+      // user-3（未共享）的周期 — 不应出现
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-3',
+        startDate: '2026-08-10',
+        endDate: '2026-08-12',
+      ));
+
+      final cycles = await cycleDao.findByCreatorOrShared(
+          'user-1', ['user-2'], 2026, 8);
+      expect(cycles.length, 2);
+      expect(cycles.every((c) => c.createdBy == 'user-1' || c.createdBy == 'user-2'),
+          isTrue);
+    });
+
+    test('sharedByUserIds 为空时只返回自己的数据', () async {
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2026-08-01',
+        endDate: '2026-08-05',
+      ));
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-2',
+        startDate: '2026-08-03',
+        endDate: '2026-08-07',
+      ));
+
+      final cycles =
+          await cycleDao.findByCreatorOrShared('user-1', [], 2026, 8);
+      expect(cycles.length, 1);
+      expect(cycles.first.createdBy, 'user-1');
+    });
+  });
+
+  group('findRecentCyclesByCreatorOrShared', () {
+    test('返回自己 + 共享用户近期有交集的周期', () async {
+      final now = DateTime.now();
+      final recent =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: recent,
+      ));
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-2',
+        startDate: recent,
+      ));
+      // 很久以前的周期不应出现
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2020-01-01',
+        endDate: '2020-01-05',
+      ));
+
+      final cycles = await cycleDao.findRecentCyclesByCreatorOrShared(
+          'user-1', ['user-2'], 30);
+      expect(cycles.length, 2);
+    });
+  });
+
+  group('findAllCyclesByCreatorOrShared', () {
+    test('返回自己 + 共享用户的所有周期', () async {
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2026-05-01',
+        endDate: '2026-05-05',
+      ));
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-2',
+        startDate: '2026-06-01',
+        endDate: '2026-06-05',
+      ));
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-3',
+        startDate: '2026-07-01',
+        endDate: '2026-07-05',
+      ));
+
+      final cycles = await cycleDao.findAllCyclesByCreatorOrShared(
+          'user-1', ['user-2']);
+      expect(cycles.length, 2);
+    });
+  });
+
+  group('findActiveCycleByCreatorOrShared', () {
+    test('返回自己或共享用户的活跃周期', () async {
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2026-08-10',
+        // 未结束
+      ));
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-2',
+        startDate: '2026-08-12',
+        // 未结束
+      ));
+
+      final active = await cycleDao.findActiveCycleByCreatorOrShared(
+          'user-1', ['user-2']);
+      expect(active, isNotNull);
+      // 应返回其中一个活跃周期
+      expect(
+          active!.createdBy == 'user-1' || active.createdBy == 'user-2', isTrue);
+    });
+
+    test('无活跃周期时返回 null', () async {
+      await cycleDao.insert(PeriodCycleTable.toCreateCompanion(
+        'user-1',
+        startDate: '2026-08-01',
+        endDate: '2026-08-05',
+      ));
+      final active = await cycleDao.findActiveCycleByCreatorOrShared(
+          'user-1', ['user-2']);
+      expect(active, isNull);
+    });
+  });
 }

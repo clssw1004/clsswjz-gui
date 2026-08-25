@@ -2210,6 +2210,19 @@ class LogDataDriver implements BookDataDriver {
 
   // ============ 经期周期相关 ============
 
+  /// 获取经期模块的共享者 ID 列表
+  Future<List<String>> _getPeriodSharedBy(String userId) async {
+    try {
+      final cycleOwners = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.periodCycle.code);
+      final recordOwners = await DaoManager.userShareDao
+          .findOwnersByTarget(userId, BusinessType.periodDailyRecord.code);
+      return {...cycleOwners, ...recordOwners}.toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   @override
   Future<OperateResult<List<PeriodCycleVO>>> listPeriodCycles(
     String userId, {
@@ -2217,7 +2230,9 @@ class LogDataDriver implements BookDataDriver {
     required int month,
   }) async {
     try {
-      final cycles = await DaoManager.periodCycleDao.findByMonth(userId, year, month);
+      final sharedBy = await _getPeriodSharedBy(userId);
+      final cycles = await DaoManager.periodCycleDao
+          .findByCreatorOrShared(userId, sharedBy, year, month);
       return OperateResult.success(
           cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
     } catch (e) {
@@ -2232,7 +2247,9 @@ class LogDataDriver implements BookDataDriver {
     int days,
   ) async {
     try {
-      final cycles = await DaoManager.periodCycleDao.findRecentCycles(userId, days);
+      final sharedBy = await _getPeriodSharedBy(userId);
+      final cycles = await DaoManager.periodCycleDao
+          .findRecentCyclesByCreatorOrShared(userId, sharedBy, days);
       return OperateResult.success(
           cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
     } catch (e) {
@@ -2244,7 +2261,9 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<PeriodCycleVO?>> getActivePeriodCycle(String userId) async {
     try {
-      final cycle = await DaoManager.periodCycleDao.findActiveCycle(userId);
+      final sharedBy = await _getPeriodSharedBy(userId);
+      final cycle = await DaoManager.periodCycleDao
+          .findActiveCycleByCreatorOrShared(userId, sharedBy);
       return OperateResult.success(
           cycle != null ? PeriodCycleVO.fromPeriodCycle(cycle) : null);
     } catch (e) {
@@ -2422,7 +2441,9 @@ class LogDataDriver implements BookDataDriver {
   @override
   Future<OperateResult<List<PeriodCycleVO>>> listAllPeriodCycles(String userId) async {
     try {
-      final cycles = await DaoManager.periodCycleDao.findAllCycles(userId);
+      final sharedBy = await _getPeriodSharedBy(userId);
+      final cycles = await DaoManager.periodCycleDao
+          .findAllCyclesByCreatorOrShared(userId, sharedBy);
       return OperateResult.success(
           cycles.map((c) => PeriodCycleVO.fromPeriodCycle(c)).toList());
     } catch (e) {

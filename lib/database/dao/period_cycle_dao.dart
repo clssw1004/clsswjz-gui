@@ -82,6 +82,81 @@ class PeriodCycleDao extends BaseDao<PeriodCycleTable, PeriodCycle> {
         .get();
   }
 
+  /// 查询指定月份的周期（包含自己 + 共享用户）
+  Future<List<PeriodCycle>> findByCreatorOrShared(
+      String userId, List<String> sharedByUserIds, int year, int month) {
+    final startDate = '$year-${month.toString().padLeft(2, '0')}-01';
+    final lastDay = DateTime(year, month + 1, 0);
+    final lastDayStr =
+        '${lastDay.year}-${lastDay.month.toString().padLeft(2, '0')}-${lastDay.day.toString().padLeft(2, '0')}';
+
+    return (db.select(table)
+          ..where((t) {
+            var predicate = t.createdBy.equals(userId);
+            if (sharedByUserIds.isNotEmpty) {
+              predicate = predicate | t.createdBy.isIn(sharedByUserIds);
+            }
+            return predicate &
+                t.startDate.isSmallerOrEqualValue(lastDayStr) &
+                (t.endDate.isNull() |
+                    t.endDate.isBiggerOrEqualValue(startDate));
+          })
+          ..orderBy([(t) => OrderingTerm.asc(t.startDate)]))
+        .get();
+  }
+
+  /// 查询最近 N 天内有交集的周期（包含自己 + 共享用户）
+  Future<List<PeriodCycle>> findRecentCyclesByCreatorOrShared(
+      String userId, List<String> sharedByUserIds, int days) {
+    final since = DateTime.now().subtract(Duration(days: days));
+    final sinceStr =
+        '${since.year}-${since.month.toString().padLeft(2, '0')}-${since.day.toString().padLeft(2, '0')}';
+
+    return (db.select(table)
+          ..where((t) {
+            var predicate = t.createdBy.equals(userId);
+            if (sharedByUserIds.isNotEmpty) {
+              predicate = predicate | t.createdBy.isIn(sharedByUserIds);
+            }
+            return predicate &
+                (t.startDate.isBiggerOrEqualValue(sinceStr) |
+                    t.endDate.isBiggerOrEqualValue(sinceStr) |
+                    t.endDate.isNull());
+          })
+          ..orderBy([(t) => OrderingTerm.asc(t.startDate)]))
+        .get();
+  }
+
+  /// 查询所有周期（包含自己 + 共享用户），用于统计
+  Future<List<PeriodCycle>> findAllCyclesByCreatorOrShared(
+      String userId, List<String> sharedByUserIds) {
+    return (db.select(table)
+          ..where((t) {
+            var predicate = t.createdBy.equals(userId);
+            if (sharedByUserIds.isNotEmpty) {
+              predicate = predicate | t.createdBy.isIn(sharedByUserIds);
+            }
+            return predicate;
+          })
+          ..orderBy([(t) => OrderingTerm.asc(t.startDate)]))
+        .get();
+  }
+
+  /// 查询活跃周期（包含自己 + 共享用户）
+  Future<PeriodCycle?> findActiveCycleByCreatorOrShared(
+      String userId, List<String> sharedByUserIds) {
+    return (db.select(table)
+          ..where((t) {
+            var predicate = t.createdBy.equals(userId);
+            if (sharedByUserIds.isNotEmpty) {
+              predicate = predicate | t.createdBy.isIn(sharedByUserIds);
+            }
+            return predicate & t.endDate.isNull();
+          })
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
   /// 更新周期结束日期
   Future<bool> updateEndDate(String cycleId, String endDate, String userId) {
     final query = db.update(table)..where((t) => t.id.equals(cycleId));
