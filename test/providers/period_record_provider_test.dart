@@ -235,4 +235,67 @@ void main() {
       expect(day!, greaterThanOrEqualTo(1));
     });
   });
+
+  group('PeriodRecordProvider 查看模式', () {
+    test('初始状态非查看模式', () {
+      expect(provider.isViewingShared, isFalse);
+      expect(provider.viewUserId, isNull);
+      expect(provider.viewUserName, isNull);
+    });
+
+    test('switchViewUser 设置查看目标', () async {
+      await provider.switchViewUser('user-2', '张三');
+      expect(provider.isViewingShared, isTrue);
+      expect(provider.viewUserId, 'user-2');
+      expect(provider.viewUserName, '张三');
+    });
+
+    test('switchViewUser(null) 恢复查看自己', () async {
+      await provider.switchViewUser('user-2', '张三');
+      expect(provider.isViewingShared, isTrue);
+      await provider.switchViewUser(null, null);
+      expect(provider.isViewingShared, isFalse);
+      expect(provider.viewUserId, isNull);
+    });
+
+    test('查看模式下 startPeriod 被拒绝', () async {
+      await provider.switchViewUser('user-2', '张三');
+      final ok = await provider.startPeriod('2026-08-10');
+      expect(ok, isFalse);
+    });
+
+    test('查看模式下 endPeriod 被拒绝', () async {
+      // 先插入一个活跃周期（以当前用户身份）
+      await insertCycle('2026-08-01');
+      expect(provider.activeCycle, isNotNull);
+      await provider.switchViewUser('user-2', '张三');
+      final ok = await provider.endPeriod('2026-08-05');
+      expect(ok, isFalse);
+    });
+
+    test('查看模式下 backfillPeriod 被拒绝', () async {
+      await provider.switchViewUser('user-2', '张三');
+      await provider.backfillPeriod('2026-06-01', '2026-06-05');
+      // 不应创建任何周期
+      expect(provider.allCycles, isEmpty);
+    });
+
+    test('查看模式下 deleteCycle 被拒绝', () async {
+      final cycle = await insertCycle('2026-08-01', end: '2026-08-05');
+      final beforeCount = provider.allCycles.length;
+      await provider.switchViewUser('user-2', '张三');
+      await provider.deleteCycle(cycle.id);
+      // 切回自己查看，周期应仍然存在
+      await provider.switchViewUser(null, null);
+      expect(provider.allCycles.length, beforeCount);
+    });
+
+    test('查看模式下 upsertDailyRecord 被拒绝', () async {
+      final cycle = await insertCycle('2026-08-01', end: '2026-08-05');
+      await provider.switchViewUser('user-2', '张三');
+      await provider.upsertDailyRecord('2026-08-03',
+          flowLevel: 'light', cycleId: cycle.id);
+      expect(provider.dailyRecords, isEmpty);
+    });
+  });
 }
