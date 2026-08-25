@@ -67,8 +67,14 @@ class SyncPullResponse {
   factory SyncPullResponse.fromJson(Map<String, dynamic> json) {
     return SyncPullResponse(
       changes: (json['changes'] as List<dynamic>?)
-              ?.map((e) => LogSync.fromJson(e))
-              .toList() ??
+              ?.map((e) {
+            // 服务端 delete 操作的 operateData 可能为 null，修正为空字符串
+            // 以适配非 nullable 的 LogSync.operateData
+            if (e is Map<String, dynamic> && e['operateData'] == null) {
+              e['operateData'] = '';
+            }
+            return LogSync.fromJson(e);
+          }).toList() ??
           [],
       total: json['total'] ?? 0,
       page: json['page'] ?? 0,
