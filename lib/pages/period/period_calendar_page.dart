@@ -456,7 +456,7 @@ class _PeriodCalendarPageState extends State<PeriodCalendarPage> {
           ? '${l10n.periodRecord} · ${dailyRecord.flowLevel}'
           : l10n.periodRecord;
     } else {
-      statusText = l10n.periodSafe;
+      statusText = l10n.periodStatusNone;
     }
 
     return Material(
