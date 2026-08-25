@@ -78,7 +78,7 @@ class AttachmentVO {
       updatedBy: attachment.updatedBy,
       createdAt: attachment.createdAt,
       updatedAt: attachment.updatedAt,
-      isRemote: exists,
+      isRemote: !exists,
       file: exists ? file : null,
     );
   }

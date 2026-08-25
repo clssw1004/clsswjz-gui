@@ -6,6 +6,7 @@ import '../../drivers/driver_factory.dart';
 import '../../models/dto/attachment_filter_dto.dart';
 import '../../models/vo/attachment_show_vo.dart';
 import '../../providers/books_provider.dart';
+import '../../services/attachment_service.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../widgets/common/common_empty_view.dart';
 import '../../widgets/common/common_loading_view.dart';
@@ -22,6 +23,7 @@ class AttachmentListPage extends StatefulWidget {
 
 class _AttachmentListPageState extends State<AttachmentListPage> {
   final List<AttachmentShowVO> _attachments = [];
+  final Set<String> _downloadingIds = {};
   bool _isLoading = false;
   bool _hasMore = true;
   int _offset = 0;
@@ -83,6 +85,8 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
   Widget _buildAttachmentItem(AttachmentShowVO attachment) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDownloading = _downloadingIds.contains(attachment.id);
+    final isRemote = attachment.isRemote;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -95,7 +99,9 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => FileUtil.openFile(attachment),
+        onTap: isRemote
+            ? () => _downloadAndOpen(attachment)
+            : () => FileUtil.openFile(attachment),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -151,16 +157,53 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.chevron_right,
-                color: colorScheme.onSurfaceVariant,
-                size: 20,
-              ),
+              if (isDownloading)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else if (isRemote)
+                Icon(
+                  Icons.cloud_download_outlined,
+                  color: colorScheme.primary,
+                  size: 22,
+                )
+              else
+                Icon(
+                  Icons.chevron_right,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// 下载远程附件并打开
+  Future<void> _downloadAndOpen(AttachmentShowVO attachment) async {
+    if (_downloadingIds.contains(attachment.id)) return;
+    setState(() => _downloadingIds.add(attachment.id));
+    try {
+      final file = await AttachmentService().downloadAttachment(attachment.id);
+      if (file != null && mounted) {
+        // 刷新列表项状态
+        final idx = _attachments.indexWhere((e) => e.id == attachment.id);
+        if (idx >= 0) {
+          setState(() {
+            _attachments[idx] = _attachments[idx].copyWith(
+              file: file,
+              isRemote: false,
+            );
+          });
+        }
+        await FileUtil.openFile(attachment.copyWith(file: file, isRemote: false));
+      }
+    } finally {
+      if (mounted) setState(() => _downloadingIds.remove(attachment.id));
+    }
   }
 
   /// 构建文件类型图标
