@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../models/vo/attachment_vo.dart';
 import '../models/common.dart';
+import '../services/attachment_service.dart';
 
 class FileUtil {
   /// 支持的图片文件扩展名
@@ -38,7 +39,7 @@ class FileUtil {
       if (File(newPath).existsSync()) {
         return File(newPath);
       }
-      return attachment.file!.copy(newPath);
+      return await attachment.file!.copy(newPath);
     } catch (e) {
       throw Exception('复制文件到缓存目录失败：$e');
     }
@@ -60,12 +61,17 @@ class FileUtil {
   /// 使用系统默认应用打开文件
   static Future<OperateResult<void>> openFile(AttachmentVO attachment) async {
     try {
-      if (attachment.file == null) {
-        return OperateResult.failWithMessage(message: '文件不存在');
+      // 远程文件先按需下载
+      File? file = attachment.file;
+      if (file == null || !await file.exists()) {
+        file = await AttachmentService().downloadAttachment(attachment.id);
+      }
+      if (file == null) {
+        return OperateResult.failWithMessage(message: '文件下载失败');
       }
 
-      File file = await toCacheFile(attachment);
-      final result = await OpenFilex.open(file.path);
+      File cacheFile = await toCacheFile(attachment.copyWith(file: file));
+      final result = await OpenFilex.open(cacheFile.path);
 
       if (result.type == ResultType.error) {
         return OperateResult.failWithMessage(

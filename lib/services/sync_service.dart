@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import '../database/database.dart';
 import '../database/tables/log_sync_table.dart';
 import '../drivers/special/log/builder/builder.dart';
@@ -14,7 +13,6 @@ import '../manager/database_manager.dart';
 import '../manager/l10n_manager.dart';
 import '../manager/service_manager.dart';
 import '../models/sync.dart';
-import '../utils/attachment.util.dart';
 import '../utils/date_util.dart';
 import '../utils/http_client.dart';
 import 'base_service.dart';
@@ -101,8 +99,7 @@ class SyncService extends BaseService {
           commitId: pushResult.commitId,
           onProgress: onProgress,
           progressStart: progressSyncServerChanges,
-          progressEnd: progressDownloadAttachments,
-          downloadAttachments: false,
+          progressEnd: progressServerSyncComplete,
           newShares: newShares,
         );
         // 后台启动剩余数据同步
@@ -116,8 +113,7 @@ class SyncService extends BaseService {
             commitId: pushResult.commitId,
             onProgress: onProgress,
             progressStart: progressSyncServerChanges,
-            progressEnd: progressDownloadAttachments,
-            downloadAttachments: true,
+            progressEnd: progressServerSyncComplete,
             newShares: newShares,
           );
         }
@@ -267,7 +263,6 @@ class SyncService extends BaseService {
   }
 
   /// 分页拉取服务端变更
-  /// [downloadAttachments] 为 true 时同步完成后下载附件文件
   /// 返回最后页的 syncTimeStamp
   Future<int> _pullServerChanges({
     required int syncTimeStamp,
@@ -276,13 +271,10 @@ class SyncService extends BaseService {
     Function(double percent, String message)? onProgress,
     required double progressStart,
     required double progressEnd,
-    bool downloadAttachments = false,
     List<_NewShare>? newShares,
   }) async {
     const pageSize = 1000;
     int finalSyncTimeStamp = 0;
-    // 收集所有附件 ID（仅 downloadAttachments=true 时）
-    final List<String> allAttachmentIds = [];
 
     // 1. 先拉第一页获取总条数
     final firstData = <String, dynamic>{
@@ -372,39 +364,7 @@ class SyncService extends BaseService {
             }
           }
         }
-        if (downloadAttachments) {
-          for (final change in pullResult.changes) {
-            if (BusinessType.fromCode(change.businessType) ==
-                    BusinessType.attachment &&
-                OperateType.fromCode(change.operateType) ==
-                    OperateType.create) {
-              allAttachmentIds.add(change.businessId);
-            }
-          }
-        }
       }
-    }
-
-    // 3. 下载附件文件
-    if (downloadAttachments && allAttachmentIds.isNotEmpty) {
-      final l10n = L10nManager.l10n;
-      await _processOnProgress(onProgress, progressDownloadAttachments,
-          l10n.downloadingAttachments(allAttachmentIds.length));
-      for (var i = 0; i < allAttachmentIds.length; i++) {
-        final filePath =
-            await AttachmentUtil.getAttachmentPath(allAttachmentIds[i]);
-        final exists = await File(filePath).exists();
-        if (!exists) {
-          await HttpClient.instance.downloadFile(
-            fileId: allAttachmentIds[i],
-            savePath: filePath,
-          );
-        }
-        await _processOnProgress(onProgress, progressDownloadAttachments,
-            l10n.downloadingAttachmentsProgress(i + 1, allAttachmentIds.length));
-      }
-      await _processOnProgress(
-          onProgress, progressDownloadComplete, l10n.attachmentDownloadComplete);
     }
 
     return finalSyncTimeStamp;
@@ -697,7 +657,7 @@ class SyncService extends BaseService {
               getProgressDetail: (processed, _) =>
                   '回溯 $ownerId: $processed/${result.total}',
               progressStart: progressSyncServerChanges,
-              progressEnd: progressDownloadAttachments,
+              progressEnd: progressServerSyncComplete,
               batchTransaction: false,
             );
           }
