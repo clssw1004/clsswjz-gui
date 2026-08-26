@@ -38,14 +38,26 @@ class AttachmentDao extends BaseDao<AttachmentTable, Attachment> {
     }
   }
 
-  /// 分页查询附件
+  /// 分页查询账本附件（通过宿主业务的 accountBookId 关联，
+  /// 覆盖账本内所有成员创建的附件；user 头像类附件不属于账本，天然被排除）
   Future<List<Attachment>> listByBook(
-    String userId, {
+    String accountBookId, {
     int? limit,
     int? offset,
     AttachmentFilterDTO? filter,
   }) async {
-    var query = db.select(table)..where((t) => t.createdBy.equals(userId));
+    var query = db.select(table)..where((t) {
+      final itemIds = db.selectOnly(db.accountItemTable)
+        ..addColumns([db.accountItemTable.id])
+        ..where(db.accountItemTable.accountBookId.equals(accountBookId));
+      final noteIds = db.selectOnly(db.accountNoteTable)
+        ..addColumns([db.accountNoteTable.id])
+        ..where(db.accountNoteTable.accountBookId.equals(accountBookId));
+      return (t.businessCode.equals(BusinessType.item.code) &
+              t.businessId.isInQuery(itemIds)) |
+          (t.businessCode.equals(BusinessType.note.code) &
+              t.businessId.isInQuery(noteIds));
+    });
 
     // 应用筛选条件
     if (filter != null) {
