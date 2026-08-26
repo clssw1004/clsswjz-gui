@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-08-26
+
+### Features
+
+- Attachment lazy loading: first sync no longer downloads all attachments, only metadata; files are downloaded on demand from the server
+- Undownloaded attachments in the attachment list show a cloud icon; tap to download locally and open
+
+### Bug Fixes
+
+- Fixed sync not triggering historical backfill after receiving a new data share (re-sync once to apply)
+- Fixed attachment list only showing own attachments while other book members' attachments were missing
+- Fixed sync deserialization crash caused by server delete logs
+
 ## [1.5.0] - 2026-08-25
 
 ### Features
