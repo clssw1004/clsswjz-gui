@@ -6,6 +6,7 @@ import 'package:clsswjz_gui/manager/database_manager.dart';
 import 'package:clsswjz_gui/manager/l10n_manager.dart';
 import 'package:clsswjz_gui/pages/period/period_calendar_page.dart';
 import 'package:clsswjz_gui/providers/period_record_provider.dart';
+import 'package:clsswjz_gui/providers/shared_module_provider.dart';
 import 'package:clsswjz_gui/theme/theme_radius.dart';
 import 'package:clsswjz_gui/theme/theme_spacing.dart';
 import 'package:drift/native.dart';
@@ -37,8 +38,12 @@ void main() {
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => PeriodRecordProvider()..loadRecords(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => PeriodRecordProvider()..loadRecords()),
+          // 页面 _loadSharedUsers 需要（v1.5.0 共享功能引入）
+          ChangeNotifierProvider(create: (_) => SharedModuleProvider()),
+        ],
         child: MaterialApp(
           theme: ThemeData.light().copyWith(
             extensions: const [
