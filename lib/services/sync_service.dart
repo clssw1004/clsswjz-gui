@@ -105,18 +105,16 @@ class SyncService extends BaseService {
         // 后台启动剩余数据同步
         _startBackgroundSync(lastSyncTime ?? 0, pushResult.commitId);
       } else {
-        // 完整/日常同步
-        int finalSyncTimeStamp = pushResult.syncTimeStamp;
-        if (pushResult.totalChanges > 0) {
-          finalSyncTimeStamp = await _pullServerChanges(
-            syncTimeStamp: lastSyncTime ?? 0,
-            commitId: pushResult.commitId,
-            onProgress: onProgress,
-            progressStart: progressSyncServerChanges,
-            progressEnd: progressServerSyncComplete,
-            newShares: newShares,
-          );
-        }
+        // 完整/日常同步：始终执行 pull（totalChanges 不含数据隔离规则，
+        // 可能漏算 userShare 等新增可见日志，必须由 pull 自身的 WHERE 条件判断）
+        final finalSyncTimeStamp = await _pullServerChanges(
+          syncTimeStamp: lastSyncTime ?? 0,
+          commitId: pushResult.commitId,
+          onProgress: onProgress,
+          progressStart: progressSyncServerChanges,
+          progressEnd: progressServerSyncComplete,
+          newShares: newShares,
+        );
         AppConfigManager.instance.setLastSyncTime(finalSyncTimeStamp);
       }
 
