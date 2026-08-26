@@ -968,10 +968,10 @@ class LogDataDriver implements BookDataDriver {
   }
 
   @override
-  Future<OperateResult<List<AttachmentShowVO>>> listAttachments(String userId,
+  Future<OperateResult<List<AttachmentShowVO>>> listAttachments(String bookId,
       {int limit = 200, int offset = 0, AttachmentFilterDTO? filter}) async {
     final attachments = await DaoManager.attachmentDao
-        .listByBook(userId, limit: limit, offset: offset, filter: filter);
+        .listByBook(bookId, limit: limit, offset: offset, filter: filter);
     return OperateResult.success(
         await VOTransfer.transferAttachments(attachments));
   }

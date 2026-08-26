@@ -337,7 +337,7 @@ abstract class BookDataDriver {
 
   /// 获取账本附件列表
   Future<OperateResult<List<AttachmentShowVO>>> listAttachments(
-      String userId,
+      String bookId,
       {int limit = 200,
       int offset = 0,
       AttachmentFilterDTO? filter});

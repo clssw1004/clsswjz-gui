@@ -347,7 +347,7 @@ class _AttachmentListPageState extends State<AttachmentListPage> {
       }
 
       final result = await dataDriver.listAttachments(
-        booksProvider.selectedBook!.createdBy,
+        bookId,
         limit: _pageSize,
         offset: _offset,
         filter: const AttachmentFilterDTO(
