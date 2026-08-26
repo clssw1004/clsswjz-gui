@@ -64,6 +64,10 @@ lib/
 
 礼物卡功能有独立的设计文档：`docs/design/gift_card_design.md`，包含状态流转图和业务流程。
 
+## Gitea API 协作（PR / Release）
+
+PR 创建/合并、Release 发布均可通过 Gitea API 自动完成（凭据从 `git credential fill` 读取，禁止硬编码）。操作步骤与 API 速查见 `docs/gitea_api_workflow.md`。分支 push 后可直接用 API 创建 PR 并合并。
+
 ## 发版流程
 
 发版时自动切换到最新的 main 分支，更新版本号即可：
