@@ -8,6 +8,7 @@ import '../../providers/note_list_provider.dart';
 import '../../providers/sync_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/theme_spacing.dart';
+import '../../utils/navigation_util.dart';
 import '../../widgets/book/note_group_filter.dart';
 import '../../widgets/book/note_list.dart';
 import '../../widgets/common/common_app_bar.dart';
@@ -66,6 +67,13 @@ class _NoteListPageState extends State<NoteListPage> {
       appBar: CommonAppBar(
         title: Text(L10nManager.l10n.noteListTitle),
         centerTitle: false,
+        actions: [
+          IconButton(
+            tooltip: L10nManager.l10n.addNew(L10nManager.l10n.note),
+            icon: const Icon(Icons.add_rounded),
+            onPressed: () => NavigationUtil.toNoteAdd(context),
+          ),
+        ],
       ),
       body: Consumer2<NoteListProvider, SyncProvider>(
         builder: (context, noteListProvider, syncProvider, child) {
