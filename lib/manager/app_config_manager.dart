@@ -335,7 +335,21 @@ class AppConfigManager {
     if (filter == null) {
       _itemFilter = const ItemFilterDTO();
     } else {
-      _itemFilter = filter.copyWith(keyword: null);
+      // copyWith(keyword: null) 无法清空 keyword（?? 回退旧值），需直接构造
+      _itemFilter = ItemFilterDTO(
+        types: filter.types,
+        categoryCodes: filter.categoryCodes,
+        shopCodes: filter.shopCodes,
+        fundIds: filter.fundIds,
+        tagCodes: filter.tagCodes,
+        projectCodes: filter.projectCodes,
+        minAmount: filter.minAmount,
+        maxAmount: filter.maxAmount,
+        startDate: filter.startDate,
+        endDate: filter.endDate,
+        source: filter.source,
+        sourceIds: filter.sourceIds,
+      );
     }
     await CacheManager.instance
         .setString(_itemFilterKey, ItemFilterDTO.toJsonString(_itemFilter));

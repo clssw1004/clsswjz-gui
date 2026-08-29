@@ -140,8 +140,8 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
           projectCodes: type == _FilterFieldType.project ? null : _filter.projectCodes,
           minAmount: type == _FilterFieldType.amount ? null : _filter.minAmount,
           maxAmount: type == _FilterFieldType.amount ? null : _filter.maxAmount,
-          startDate: _filter.startDate,
-          endDate: _filter.endDate,
+          startDate: type == _FilterFieldType.date ? null : _filter.startDate,
+          endDate: type == _FilterFieldType.date ? null : _filter.endDate,
           source: _filter.source,
           sourceIds: _filter.sourceIds,
           keyword: _filter.keyword,
@@ -302,8 +302,11 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
         setState(() {
           final list = List<String>.from(types);
           v ? list.add(code) : list.remove(code);
-          _filter = _filter.copyWith(types: list.isEmpty ? null : list);
-          if (list.isEmpty) _activeFields.remove(_FilterFieldType.type);
+          if (list.isEmpty) {
+            _removeCondition(_FilterFieldType.type);
+          } else {
+            _filter = _filter.copyWith(types: list);
+          }
         });
       },
       selectedColor: cs.primaryContainer,
@@ -715,17 +718,16 @@ class _ItemFilterSheetState extends State<ItemFilterSheet> {
     final l10n = L10nManager.l10n;
 
     void handleConfirm() {
-      final f = _filter.copyWith(startDate: _start?.toIso8601String(), endDate: _end?.toIso8601String());
       final cleaned = ItemFilterDTO(
-        types: f.types?.isEmpty == true ? null : f.types,
-        categoryCodes: f.categoryCodes?.isEmpty == true ? null : f.categoryCodes,
-        shopCodes: f.shopCodes?.isEmpty == true ? null : f.shopCodes,
-        fundIds: f.fundIds?.isEmpty == true ? null : f.fundIds,
-        tagCodes: f.tagCodes?.isEmpty == true ? null : f.tagCodes,
-        projectCodes: f.projectCodes?.isEmpty == true ? null : f.projectCodes,
-        minAmount: f.minAmount, maxAmount: f.maxAmount,
-        startDate: f.startDate, endDate: f.endDate,
-        source: f.source, sourceIds: f.sourceIds, keyword: f.keyword,
+        types: _filter.types?.isEmpty == true ? null : _filter.types,
+        categoryCodes: _filter.categoryCodes?.isEmpty == true ? null : _filter.categoryCodes,
+        shopCodes: _filter.shopCodes?.isEmpty == true ? null : _filter.shopCodes,
+        fundIds: _filter.fundIds?.isEmpty == true ? null : _filter.fundIds,
+        tagCodes: _filter.tagCodes?.isEmpty == true ? null : _filter.tagCodes,
+        projectCodes: _filter.projectCodes?.isEmpty == true ? null : _filter.projectCodes,
+        minAmount: _filter.minAmount, maxAmount: _filter.maxAmount,
+        startDate: _start?.toIso8601String(), endDate: _end?.toIso8601String(),
+        source: _filter.source, sourceIds: _filter.sourceIds, keyword: _filter.keyword,
       );
       if (mounted && context.mounted) {
         widget.onConfirm?.call(cleaned);
