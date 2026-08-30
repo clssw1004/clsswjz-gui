@@ -152,7 +152,9 @@ class _DebtTile extends StatelessWidget {
     final debtType = DebtType.fromCode(debt.debtType);
     final amountColor = ColorUtil.getDebtAmountColor(debtType);
     final isLending = debtType == DebtType.lend;
-    final isSettled = debt.remainAmount <= 0;
+    // 已结清：手动标记结清，或还款/收款记满
+    final isSettled =
+        debt.clearState == DebtClearState.cleared || debt.remainAmount <= 0;
 
     return Padding(
       padding: EdgeInsets.symmetric(

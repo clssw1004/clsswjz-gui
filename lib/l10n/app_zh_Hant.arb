@@ -621,6 +621,7 @@
     "expectedClearDate": "預計結清日期",
     "actualClearDate": "實際結清日期",
     "clearDebt": "結清",
+    "confirmClearDebt": "確認將該債務標記為已結清？未記錄的差額將被忽略。",
     "voidDebt": "作廢",
     "debtDate": "債務日期",
     "@debtDate": {

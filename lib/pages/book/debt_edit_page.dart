@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../drivers/driver_factory.dart';
 import '../../drivers/vo_transfer.dart';
 import '../../enums/business_type.dart';
 import '../../enums/debt_type.dart';
 import '../../enums/debt_clear_state.dart';
+import '../../manager/app_config_manager.dart';
 import '../../manager/dao_manager.dart';
 import '../../manager/l10n_manager.dart';
 import '../../models/vo/book_meta.dart';
 import '../../models/vo/user_debt_vo.dart';
 import '../../models/vo/user_item_vo.dart';
+import '../../utils/date_util.dart';
 import '../../utils/navigation_util.dart';
 import '../../widgets/common/common_app_bar.dart';
 import '../../theme/theme_spacing.dart';
@@ -60,6 +63,10 @@ class _DebtEditPageState extends State<DebtEditPage> {
     final operation = _operationAmount.abs();
     return (debt - operation).clamp(0, double.infinity);
   }
+
+  /// 是否已结清（手动结清状态，或还款/收款记满）
+  bool get _isCleared =>
+      _clearState == DebtClearState.cleared || _remainingAmount <= 0;
 
   @override
   void initState() {
@@ -119,6 +126,7 @@ class _DebtEditPageState extends State<DebtEditPage> {
               debtType: _debtType,
               clearState: _clearState,
               remainingAmount: _remainingAmount,
+              onClearDebt: _clearDebt,
             ),
             SizedBox(height: spacing.formItemSpacing),
             _DebtRecordCard(
@@ -171,6 +179,42 @@ class _DebtEditPageState extends State<DebtEditPage> {
       _loadItems();
     }
   }
+
+  /// 手动结清债务（未记录足额还款/收款也能标记为已结清）
+  Future<void> _clearDebt() async {
+    if (_isCleared || widget.debt.clearState == DebtClearState.cancelled) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(L10nManager.l10n.clearDebt),
+        content: Text(L10nManager.l10n.confirmClearDebt),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(L10nManager.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(L10nManager.l10n.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    await DriverFactory.driver.updateDebt(
+      AppConfigManager.instance.userId,
+      widget.debt.accountBookId,
+      widget.debt.id,
+      clearState: DebtClearState.cleared,
+      clearDate: DateUtil.nowDate(),
+    );
+
+    if (mounted) {
+      setState(() => _clearState = DebtClearState.cleared);
+    }
+  }
 }
 
 class _DebtInfoCard extends StatelessWidget {
@@ -179,6 +223,7 @@ class _DebtInfoCard extends StatelessWidget {
   final DebtType debtType;
   final DebtClearState clearState;
   final double remainingAmount;
+  final VoidCallback onClearDebt;
 
   const _DebtInfoCard({
     required this.debt,
@@ -186,6 +231,7 @@ class _DebtInfoCard extends StatelessWidget {
     required this.debtType,
     required this.clearState,
     required this.remainingAmount,
+    required this.onClearDebt,
   });
 
   @override
@@ -195,7 +241,9 @@ class _DebtInfoCard extends StatelessWidget {
     final spacing = theme.spacing;
     final isLending = debtType == DebtType.lend;
     final amountColor = ColorUtil.getDebtAmountColor(debtType);
-    final isSettled = remainingAmount <= 0;
+    // 已结清：手动标记结清，或还款/收款记满
+    final isSettled = clearState == DebtClearState.cleared || remainingAmount <= 0;
+    final isCancelled = clearState == DebtClearState.cancelled;
 
     return Card(
       elevation: 0,
@@ -364,6 +412,33 @@ class _DebtInfoCard extends StatelessWidget {
             ),
             SizedBox(height: spacing.formItemSpacing),
 
+            // 结清按钮：未结清且未作废时显示，未记足还款也能手动标记结清
+            if (!isSettled && !isCancelled) ...[
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onClearDebt,
+                  icon: const Icon(Icons.task_alt, size: 18),
+                  label: Text(
+                    L10nManager.l10n.clearDebt,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    foregroundColor: DebtClearState.cleared.color,
+                    backgroundColor: DebtClearState.cleared.color.withAlpha(10),
+                    side: BorderSide(
+                      color: DebtClearState.cleared.color.withAlpha(80),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: spacing.formItemSpacing),
+            ],
+
             // 信息标签
             Wrap(
               spacing: spacing.listItemSpacing,
@@ -381,6 +456,13 @@ class _DebtInfoCard extends StatelessWidget {
                   debt.fundName,
                   colorScheme,
                 ),
+                if (debt.clearDate != null)
+                  _infoTag(
+                    context,
+                    Icons.check_circle_outline,
+                    debt.clearDate!,
+                    colorScheme,
+                  ),
               ],
             ),
           ],
