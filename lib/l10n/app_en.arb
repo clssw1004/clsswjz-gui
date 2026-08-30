@@ -718,6 +718,7 @@
     "expectedClearDate": "Expected Clear Date",
     "actualClearDate": "Actual Clear Date",
     "clearDebt": "Clear Debt",
+    "confirmClearDebt": "Mark this debt as cleared? The unrecorded difference will be ignored.",
     "voidDebt": "Void Debt",
     "debtDate": "Debt Date",
     "@debtDate": {

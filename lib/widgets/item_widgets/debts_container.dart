@@ -154,7 +154,9 @@ class _DebtItem extends StatelessWidget {
     final debtType = DebtType.fromCode(debt.debtType);
     final amountColor = ColorUtil.getDebtAmountColor(debtType);
     final isLending = debtType == DebtType.lend;
-    final isSettled = debt.remainAmount <= 0;
+    // 已结清：手动标记结清，或还款/收款记满
+    final isSettled =
+        debt.clearState == DebtClearState.cleared || debt.remainAmount <= 0;
     final formatter = NumberFormat('#,##0.00');
 
     return InkWell(
